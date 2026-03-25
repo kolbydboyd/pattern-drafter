@@ -22,7 +22,8 @@ const PAPER_SIZES = {
 };
 
 const DPI = 96; // CSS px per inch
-const px = in_ => in_ * DPI;
+const px  = in_ => in_ * DPI;
+const SM  = 0.4; // safe (unprintable) margin in inches — keep all content inside this boundary
 
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
@@ -306,8 +307,9 @@ function crosshair(x, y, size = 14) {
 // ── Tile page builder ──────────────────────────────────────────────────────
 
 function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
-  const TX = PW - OV;
-  const TY = PH - OV;
+  // Usable advance per tile: full page minus two safe margins minus overlap zone
+  const TX = PW - 2 * SM - OV;
+  const TY = PH - 2 * SM - OV;
 
   let rendered;
   if      (piece.type === 'panel')                              rendered = renderPanelSVG(piece);
@@ -330,30 +332,31 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
 
       let overlapHtml = '';
       if (col > 0) {
-        overlapHtml += `<div style="position:absolute;top:0;left:0;
-            width:${OV}in;height:${PH}in;pointer-events:none;z-index:5;
+        overlapHtml += `<div style="position:absolute;top:${SM}in;left:${SM}in;
+            width:${OV}in;height:${PH - 2 * SM}in;pointer-events:none;z-index:5;
             background:repeating-linear-gradient(45deg,
               transparent,transparent 4px,
               rgba(160,160,160,0.2) 4px,rgba(160,160,160,0.2) 8px);
             border-right:0.75px dashed #aaa;"></div>`;
       }
       if (row > 0) {
-        overlapHtml += `<div style="position:absolute;top:0;left:0;
-            width:${PW}in;height:${OV}in;pointer-events:none;z-index:5;
+        overlapHtml += `<div style="position:absolute;top:${SM}in;left:${SM}in;
+            width:${PW - 2 * SM}in;height:${OV}in;pointer-events:none;z-index:5;
             background:repeating-linear-gradient(45deg,
               transparent,transparent 4px,
               rgba(160,160,160,0.2) 4px,rgba(160,160,160,0.2) 8px);
             border-bottom:0.75px dashed #aaa;"></div>`;
       }
 
+      // Crosshairs placed SM inches inward from each corner (within safe margin)
       const chSVG = `<svg xmlns="http://www.w3.org/2000/svg"
           style="position:absolute;top:0;left:0;
                  width:${PW}in;height:${PH}in;
                  pointer-events:none;z-index:10;overflow:visible">
-        ${crosshair(0,       0)}
-        ${crosshair(px(PW),  0)}
-        ${crosshair(0,       px(PH))}
-        ${crosshair(px(PW),  px(PH))}
+        ${crosshair(px(SM),       px(SM))}
+        ${crosshair(px(PW - SM),  px(SM))}
+        ${crosshair(px(SM),       px(PH - SM))}
+        ${crosshair(px(PW - SM),  px(PH - SM))}
       </svg>`;
 
       const tileId    = `${row + 1}-${col + 1}`;
@@ -383,8 +386,8 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
 // ── Tile map (page 2 overview) ─────────────────────────────────────────────
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
-  const TX = PW - OV;
-  const TY = PH - OV;
+  const TX = PW - 2 * SM - OV;
+  const TY = PH - 2 * SM - OV;
   const CELL_W = 44, CELL_H = 18, GAP = 5, PAD = 10;
 
   let items = '';
@@ -519,6 +522,7 @@ function buildScalePage(pieces, PW, PH, OV) {
 
   return `<div class="page scale-page">
     <h2 class="page-head">Scale Verification &amp; Tile Map</h2>
+    <p class="print-note">Print at 100% scale. Do not select fit-to-page or shrink-to-fit. If your printer has a borderless printing option, you may enable it but it is not required.</p>
     <div class="scale-sect">
       <h3 class="sect-head">Print Accuracy \u2014 Measure before cutting any fabric</h3>
       <p class="note">If either square is wrong, check that your printer scale is set to 100%.</p>
@@ -649,8 +653,13 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 
 /* ── Scale page ── */
 .scale-page { padding:0.5in; }
+.print-note {
+  font-size:8.5pt; color:#444; background:#f5f3ef;
+  border:0.5px solid #d0ccc4; border-radius:3px;
+  padding:0.1in 0.15in; margin-bottom:0.18in; line-height:1.5;
+}
 .scale-sect { margin-bottom:0.25in; }
-.sq-row { display:flex; gap:0.6in; align-items:flex-start; margin:0.12in 0 0; }
+.sq-row { display:flex; gap:0.6in; align-items:flex-start; justify-content:center; margin:0.12in 0 0; }
 .sq-item { text-align:center; }
 .sq-label { font-size:8.5pt; color:#555; margin-top:0.1in; }
 
@@ -675,12 +684,12 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 /* ── Tiles ── */
 .tile-page { background:#fff; }
 .tile-clip {
-  position:absolute; top:0; left:0;
-  width:${PW}in; height:${PH}in;
+  position:absolute; top:${SM}in; left:${SM}in;
+  width:${PW - 2 * SM}in; height:${PH - 2 * SM}in;
   overflow:hidden;
 }
 .tile-footer {
-  position:absolute; bottom:0.1in; left:0.18in; right:0.18in;
+  position:absolute; bottom:${SM}in; left:${SM}in; right:${SM}in;
   display:flex; justify-content:space-between; align-items:baseline;
   background:rgba(255,255,255,0.93);
   padding:1px 4px;
