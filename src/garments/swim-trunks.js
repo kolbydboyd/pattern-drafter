@@ -1,0 +1,253 @@
+/**
+ * Swim Trunks — nylon taslan outer with mesh liner panels.
+ * Side-seam pockets with mesh drainage bags. Drawstring + grommets only (no elastic).
+ * 5 inch default inseam.
+ */
+
+import {
+  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
+  fmtInches, easeDistribution
+} from '../engine/geometry.js';
+import { buildMaterialsSpec } from '../engine/materials.js';
+
+export default {
+  id: 'swim-trunks',
+  name: 'Swim Trunks',
+  category: 'lower',
+  measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+
+  options: {
+    ease: {
+      type: 'select', label: 'Fit',
+      values: [
+        { value: 'slim',    label: 'Slim (+1.5″)'    },
+        { value: 'regular', label: 'Regular (+2.5″)' },
+        { value: 'relaxed', label: 'Relaxed (+4″)'   },
+      ],
+      default: 'regular',
+    },
+    pocket: {
+      type: 'select', label: 'Side pockets',
+      values: [
+        { value: 'none',      label: 'None'                        },
+        { value: 'side-seam', label: 'Side-seam mesh bag ×2'       },
+      ],
+      default: 'side-seam',
+    },
+    liner: {
+      type: 'select', label: 'Mesh liner',
+      values: [
+        { value: 'yes', label: 'Yes — front & back mesh panels' },
+        { value: 'no',  label: 'No liner'                       },
+      ],
+      default: 'yes',
+    },
+    frontExt: { type: 'number', label: 'Front crotch ext', default: 1.25, step: 0.25, min: 0.5, max: 2.5 },
+    backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.0,  step: 0.25, min: 1,   max: 3.5 },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 0.5,  step: 0.25, min: 0,   max: 1.5 },
+    sa: {
+      type: 'select', label: 'Seam allowance',
+      values: [
+        { value: 0.375, label: '⅜″' },
+        { value: 0.5,   label: '½″' },
+      ],
+      default: 0.5,
+    },
+    hem: {
+      type: 'select', label: 'Hem finish',
+      values: [
+        { value: 0.5,  label: '½″ turned & stitched' },
+        { value: 0.75, label: '¾″ with binding tape'  },
+      ],
+      default: 0.5,
+    },
+  },
+
+  pieces(m, opts) {
+    const ease     = easeDistribution(opts.ease);
+    const sa       = parseFloat(opts.sa);
+    const hem      = parseFloat(opts.hem);
+    const frontExt = parseFloat(opts.frontExt);
+    const backExt  = parseFloat(opts.backExt);
+    const cbRaise  = parseFloat(opts.cbRaise);
+    const inseam   = m.inseam || 5;
+
+    const frontW = m.hip / 4 + ease.front;
+    const backW  = m.hip / 4 + ease.back;
+    const H      = m.rise + inseam;
+
+    const pieces = [];
+
+    // ── OUTER PANELS ──
+    pieces.push(buildPanel({
+      type: 'front', name: 'Front Panel',
+      instruction: 'Cut 2 (mirror L & R) · Nylon taslan outer',
+      width: frontW, height: H, rise: m.rise, inseam,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
+    }));
+    pieces.push(buildPanel({
+      type: 'back', name: 'Back Panel',
+      instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
+      width: backW, height: H, rise: m.rise, inseam,
+      ext: backExt, cbRaise, sa, hem, isBack: true, opts,
+    }));
+
+    // ── MESH LINER PANELS (1″ shorter than outer) ──
+    if (opts.liner === 'yes') {
+      const linerInseam = Math.max(inseam - 1, 1);
+      const linerH = m.rise + linerInseam;
+      pieces.push(buildPanel({
+        type: 'front-liner', name: 'Front Liner Panel',
+        instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer front',
+        width: frontW, height: linerH, rise: m.rise, inseam: linerInseam,
+        ext: frontExt, cbRaise: 0, sa: 0.375, hem: 0.375, isBack: false, opts,
+      }));
+      pieces.push(buildPanel({
+        type: 'back-liner', name: 'Back Liner Panel',
+        instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer back',
+        width: backW, height: linerH, rise: m.rise, inseam: linerInseam,
+        ext: backExt, cbRaise, sa: 0.375, hem: 0.375, isBack: true, opts,
+      }));
+    }
+
+    // ── WAISTBAND (drawstring only — no elastic) ──
+    const wbLen   = m.hip + ease.total + sa * 2;
+    const wbWidth = 3;   // 1.5″ finished
+    pieces.push({
+      id: 'waistband',
+      name: 'Waistband',
+      instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+      dimensions: { length: wbLen, width: wbWidth },
+      type: 'rectangle', sa,
+    });
+
+    // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
+    if (opts.pocket === 'side-seam') {
+      pieces.push({
+        id: 'pocket-bag',
+        name: 'Side-Seam Pocket Bag',
+        instruction: 'Cut 4 (2 per side) · Athletic mesh — allows water drainage · Serge all edges',
+        dimensions: { width: 6.5, height: 7 },
+        type: 'pocket',
+      });
+    }
+
+    return pieces;
+  },
+
+  materials(m, opts) {
+    const notions = [
+      { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ — flat nylon or polyester cord` },
+      { ref: 'grommets',   quantity: '2 — CF drawstring exits, ½″ inner dia, rust-proof' },
+    ];
+    if (opts.liner === 'yes') {
+      notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
+    }
+
+    return buildMaterialsSpec({
+      fabrics: ['nylon-taslan', 'supplex'],
+      notions,
+      thread: 'poly-all',
+      needle: 'ballpoint-80',
+      stitches: ['stretch', 'zigzag-small', 'straight-3'],
+      notes: [
+        'Use polyester thread ONLY — cotton thread rots with repeated chlorine and salt water exposure',
+        'Rinse trunks in fresh cold water after every wear (pool or ocean) to extend fabric life',
+        'Color guidance — hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
+        'Use rust-proof grommets (brass or stainless) — standard steel grommets will stain the fabric',
+        'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
+        'Serge or zigzag all seams — do not leave raw edges on mesh; they will fray in water',
+        'Do not press nylon with high heat — use a damp pressing cloth on low if needed',
+      ],
+    });
+  },
+
+  instructions(m, opts) {
+    const steps = [];
+    let n = 1;
+
+    if (opts.liner === 'yes') {
+      steps.push({
+        step: n++, title: 'Assemble liner',
+        detail: 'Serge all liner panel edges. Join liner fronts at CF crotch seam. Join liner backs at CB. Join liner at side seams. Join inseam. Baste liner WS to WS of outer at waist edge (¼″). Treat as one unit going forward.',
+      });
+    }
+
+    if (opts.pocket === 'side-seam') {
+      steps.push({
+        step: n++, title: 'Prepare pocket bags',
+        detail: 'Serge all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. Press away from opening.',
+      });
+    }
+
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch (RST). Stretch stitch. Clip curve every ½″. Press.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB (RST). Stretch stitch. Clip. Press.' });
+    steps.push({
+      step: n++, title: 'Sew side seams',
+      detail: opts.pocket === 'side-seam'
+        ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. Press open.'
+        : 'Join front to back at side seams (RST). Stretch stitch. Press open.',
+    });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. Clip curve. Press toward back.' });
+
+    steps.push({
+      step: n++, title: 'Install grommets in waistband',
+      detail: 'Mark grommet positions ¾″ from each CF short end of waistband. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions. Check they are flush and secure.',
+    });
+    steps.push({
+      step: n++, title: 'Attach waistband',
+      detail: 'Fold waistband in half lengthwise (WST), press. Pin to trunks waist (RST), matching side seams. Sew. Fold over to inside, pin covering seam. Topstitch close to inner fold with stretch stitch.',
+    });
+    steps.push({
+      step: n++, title: 'Thread drawstring',
+      detail: 'Attach safety pin to cord end. Thread through waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
+    });
+    steps.push({
+      step: n++, title: 'Hem',
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. Topstitch with zigzag (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
+    });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should zigzag slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+
+    return steps;
+  },
+};
+
+
+// ── Panel builder (shared geometry) ──────────────────────────────────────
+
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
+  const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
+
+  const poly = [];
+  poly.push({ x: 0,     y: cbRaise });
+  if (isBack) poly.push({ x: width * 0.5, y: cbRaise * 0.15 });
+  poly.push({ x: width, y: 0 });
+  poly.push({ x: width, y: height });
+  poly.push({ x: -ext,  y: height });
+  poly.push({ x: -ext,  y: rise   });
+  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+
+  const saPoly = offsetPolygon(poly, pt => (pt.y > height - 0.5 ? hem : sa));
+
+  const dims = [
+    { label: fmtInches(width),              x1: 0,          y1: -0.5,       x2: width,  y2: -0.5,       type: 'h' },
+    { label: fmtInches(rise)   + ' rise',   x: width + 1.2, y1: 0,          y2: rise,                   type: 'v' },
+    { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise,       y2: height,                 type: 'v' },
+    { label: fmtInches(height) + ' total',  x: width + 2.3, y1: 0,          y2: height,                 type: 'v' },
+    { label: fmtInches(ext)    + ' ext',    x1: -ext,       y1: rise + 0.4, x2: 0, y2: rise + 0.4,     type: 'h', color: '#c44' },
+  ];
+
+  return {
+    id: type, name, instruction,
+    polygon: poly, saPolygon: saPoly,
+    path: polyToPath(poly), saPath: polyToPath(saPoly),
+    dimensions: dims,
+    width, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
+    labels: [
+      { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
+      { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
+    ],
+    type: 'panel', opts,
+  };
+}
