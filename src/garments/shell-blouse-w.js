@@ -1,0 +1,248 @@
+/**
+ * Shell Blouse (Womenswear) — sleeveless or short-sleeved top, no placket.
+ * Finished with shaped neckline facing and armhole facings (sleeveless).
+ * Optional invisible zip at center back for pullover clearance.
+ */
+
+import {
+  shoulderSlope, necklineCurve, armholeCurve,
+  armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+} from '../engine/upper-body.js';
+import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { buildMaterialsSpec } from '../engine/materials.js';
+
+const NECK_STYLES = {
+  boat:  { front: 1.0,  back: 0.75, key: 'boat'  },
+  round: { front: 2.5,  back: 0.75, key: 'crew'  },
+  vneck: { front: 7.0,  back: 0.75, key: 'v-neck' },
+  square:{ front: 2.0,  back: 0.75, key: 'crew'  },
+};
+
+export default {
+  id: 'shell-blouse-w',
+  name: 'Shell Blouse (W)',
+  category: 'tops',
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
+
+  options: {
+    neckline: {
+      type: 'select', label: 'Neckline',
+      values: [
+        { value: 'boat',   label: 'Boat / bateau' },
+        { value: 'round',  label: 'Round / crew'  },
+        { value: 'vneck',  label: 'V-neck'        },
+        { value: 'square', label: 'Square neck'   },
+      ],
+      default: 'boat',
+    },
+    closure: {
+      type: 'select', label: 'Back closure',
+      values: [
+        { value: 'pullover', label: 'Pullover — no zip'            },
+        { value: 'zip',      label: 'Invisible zip at center back' },
+      ],
+      default: 'pullover',
+    },
+    sleeves: {
+      type: 'select', label: 'Sleeves',
+      values: [
+        { value: 'sleeveless', label: 'Sleeveless'                  },
+        { value: 'cap',        label: 'Cap sleeve (3–4″)'           },
+        { value: 'flutter',    label: 'Flutter sleeve (curved drape)'},
+        { value: 'short',      label: 'Short sleeve (9″)'           },
+      ],
+      default: 'sleeveless',
+    },
+    fit: {
+      type: 'select', label: 'Fit',
+      values: [
+        { value: 'fitted',     label: 'Fitted (+2″ with darts)' },
+        { value: 'semifitted', label: 'Semi-fitted (+3″)'       },
+        { value: 'relaxed',    label: 'Relaxed (+5″)'           },
+      ],
+      default: 'semifitted',
+    },
+    bustDart: {
+      type: 'select', label: 'Bust dart',
+      values: [
+        { value: 'yes', label: 'Yes (side seam dart)' },
+        { value: 'no',  label: 'No'                   },
+      ],
+      default: 'no',
+    },
+    length: {
+      type: 'select', label: 'Length',
+      values: [
+        { value: 'hip',     label: 'Hip (+4″)'          },
+        { value: 'cropped', label: 'Cropped (at torso)'  },
+        { value: 'tunic',   label: 'Tunic (+8″)'        },
+      ],
+      default: 'hip',
+    },
+    hemStyle: {
+      type: 'select', label: 'Hem',
+      values: [
+        { value: 'straight',   label: 'Straight'          },
+        { value: 'shirttail',  label: 'Shirttail curve'   },
+      ],
+      default: 'straight',
+    },
+    sa: {
+      type: 'select', label: 'Seam allowance',
+      values: [
+        { value: 0.5,   label: '½″' },
+        { value: 0.625, label: '⅝″' },
+      ],
+      default: 0.625,
+    },
+  },
+
+  pieces(m, opts) {
+    const sa  = parseFloat(opts.sa);
+    const hem = 0.5;
+
+    const easeVal  = opts.fit === 'fitted' ? 2 : opts.fit === 'relaxed' ? 5 : 3;
+    const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
+    const frontW = m.chest / 4 + frontEase / 2;
+    const backW  = m.chest / 4 + backEase  / 2;
+
+    const neckW        = neckWidthFromCircumference(m.neck);
+    const shoulderW    = m.shoulder / 2 - neckW;
+    const slopeDrop    = 1.5;
+    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const chestDepth   = frontW * 0.35;
+    const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
+    const torsoLen     = m.torsoLength + lengthExtra;
+    const neckStyle    = NECK_STYLES[opts.neckline] ?? NECK_STYLES.boat;
+    const shoulderPtX  = neckW + shoulderW;
+    const shoulderPtY  = slopeDrop;
+
+    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
+    function pp(poly) { let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`; for (let i=1;i<poly.length;i++) d+=` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`; return d+' Z'; }
+    function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return {maxX:Math.max(...xs),maxY:Math.max(...ys)}; }
+
+    const frontNeckPts = sc(necklineCurve(neckW, neckStyle.front, neckStyle.key));
+    const backNeckPts  = sc(necklineCurve(neckW, neckStyle.back, 'crew'));
+    const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
+    const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+
+    function buildBody(isBack, neckPts, armPts, neckDepth, W, sideX) {
+      const poly = [];
+      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: neckDepth - p.y }));
+      for (let i=1;i<shoulderPts.length;i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      for (let i=1;i<armPts.length;i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
+      if (opts.hemStyle === 'shirttail' && !isBack) {
+        poly.push({ x: sideX, y: torsoLen });
+        poly.push({ x: neckW * 0.5, y: torsoLen + 1.5 });
+      } else {
+        poly.push({ x: sideX, y: torsoLen });
+      }
+      poly.push({ x: 0, y: torsoLen });
+      poly.push({ x: 0, y: neckDepth });
+      return poly;
+    }
+
+    const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckStyle.front, frontW, shoulderPtX + chestDepth);
+    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckStyle.back,  backW,  shoulderPtX + chestDepth * 0.95);
+
+    const frontBB = bb(frontPoly), backBB = bb(backPoly);
+
+    const pieces = [
+      {
+        id: 'bodice-front', name: 'Front Body',
+        instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
+        type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
+        width: frontBB.maxX, height: frontBB.maxY, isBack: false, sa, hem,
+        dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
+      },
+      {
+        id: 'bodice-back', name: 'Back Body',
+        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB' : ''}`,
+        type: 'bodice', polygon: backPoly, path: pp(backPoly),
+        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
+      },
+      { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket' },
+    ];
+
+    if (opts.sleeves === 'sleeveless') {
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · Follows armhole curve, 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+    } else if (opts.sleeves === 'cap' || opts.sleeves === 'short') {
+      const slvLen = opts.sleeves === 'cap' ? 3.5 : 9;
+      const slvW   = (m.bicep || 13) / 2 + easeVal * 0.15;
+      const slvPoly = [
+        { x: 0,           y: 0      },
+        { x: slvW * 2,    y: 0      },
+        { x: slvW * 2,    y: slvLen },
+        { x: 0,           y: slvLen },
+      ];
+      const slvBB = bb(slvPoly);
+      pieces.push({
+        id: 'sleeve', name: `${opts.sleeves === 'cap' ? 'Cap' : 'Short'} Sleeve`,
+        instruction: 'Cut 2 (mirror L & R)',
+        type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
+        width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
+      });
+    } else if (opts.sleeves === 'flutter') {
+      // Flutter: curved rectangle that drapes — wider at hem than at armhole
+      const flutterW = armholeDepth * 1.5;
+      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket' });
+    }
+
+    if (opts.closure === 'zip') {
+      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ — install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket' });
+    }
+
+    return pieces;
+  },
+
+  materials(m, opts) {
+    const notions = [
+      { ref: 'interfacing-light', quantity: '0.5 yard (neckline + armhole facings)' },
+    ];
+    if (opts.closure === 'zip') {
+      notions.push({ name: 'Invisible zipper', quantity: `${Math.ceil(m.torsoLength * 0.6)}″`, notes: 'Center back' });
+    }
+    return buildMaterialsSpec({
+      fabrics: ['crepe', 'cotton-lawn', 'cotton-voile', 'linen-light'],
+      notions,
+      thread: 'poly-all',
+      needle: 'universal-75',
+      stitches: ['straight-2.5', 'straight-2', 'zigzag-small'],
+      notes: [
+        'Use universal 75/11 or 80/12 needle for lightweight wovens',
+        'Lining suggestion: cut front body from cotton batiste or silk habotai for opacity with lightweight fabrics',
+        'Understitch all facings to the SA before pressing to the inside — prevents facing from rolling to the RS',
+        opts.bustDart === 'yes' ? 'Bust dart: fold RS together, sew from side seam to apex tapering to nothing, press down' : '',
+        'French seams work well for the side seams on lightweight fabrics',
+      ].filter(Boolean),
+    });
+  },
+
+  instructions(m, opts) {
+    const steps = [];
+    let n = 1;
+    if (opts.bustDart === 'yes') {
+      steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold front RS together along dart legs. Sew from side to apex tapering to nothing. Press downward.' });
+    }
+    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders (RST). Serge or zigzag. Press toward back.' });
+    if (opts.closure === 'zip') {
+      steps.push({ step: n++, title: 'Install center back zipper', detail: 'Sew CB seam below zipper stop only. Install invisible zipper from neckline down. Close remaining seam. Press.' });
+    }
+    steps.push({ step: n++, title: 'Attach neckline facing', detail: 'Sew front and back neckline facing pieces at shoulders. Interface. Sew facing to neckline (RST). Clip curve every ½″. Understitch. Press to inside. Slipstitch to shoulder seams.' });
+    if (opts.sleeves === 'sleeveless') {
+      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join front and back armhole facing pieces at shoulder and underarm. Sew to armhole (RST). Clip curves. Understitch. Press to inside.' });
+    } else if (opts.sleeves !== 'flutter') {
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew (RST). Serge SA together. Press toward sleeve.' });
+    } else {
+      steps.push({ step: n++, title: 'Attach flutter sleeves', detail: 'Match bias flutter sleeve to armhole, RST. Ease or gather slightly to fit. Sew. Press SA toward bodice.' });
+    }
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Sew front to back at side seams (RST). Serge or French seam. Press toward back.' });
+    steps.push({ step: n++, title: 'Hem', detail: `Fold up ½″ twice, press. Topstitch close to fold. For curved hem: clip SA first.` });
+    steps.push({ step: n++, title: 'Finish', detail: 'Press entire blouse. Check facings are fully turned to the inside.' });
+
+    return steps;
+  },
+};

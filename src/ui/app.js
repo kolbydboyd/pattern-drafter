@@ -18,25 +18,45 @@ import campShirt        from '../garments/camp-shirt.js';
 import crewneck         from '../garments/crewneck.js';
 import hoodie           from '../garments/hoodie.js';
 import cropJacket       from '../garments/crop-jacket.js';
+import wideLegTrouserW  from '../garments/wide-leg-trouser-w.js';
+import straightTrouserW from '../garments/straight-trouser-w.js';
+import easyPantW        from '../garments/easy-pant-w.js';
+import buttonUpW        from '../garments/button-up-w.js';
+import shellBlouseW     from '../garments/shell-blouse-w.js';
+import fittedTeeW       from '../garments/fitted-tee-w.js';
+import slipSkirtW       from '../garments/slip-skirt-w.js';
+import aLineSkirtW      from '../garments/a-line-skirt-w.js';
+import shirtDressW      from '../garments/shirt-dress-w.js';
+import wrapDressW       from '../garments/wrap-dress-w.js';
 import { renderPanelSVG, renderGenericPieceSVG } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 
 // ═══ GARMENT REGISTRY ═══
 const GARMENTS = {
-  'cargo-shorts':     cargoShorts,
-  'gym-shorts':       gymShorts,
-  'swim-trunks':      swimTrunks,
-  'pleated-shorts':   pleatedShorts,
-  'straight-jeans':   straightJeans,
-  'chinos':           chinos,
-  'pleated-trousers': pleatedTrousers,
-  'sweatpants':       sweatpants,
-  'tee':              tee,
-  'camp-shirt':       campShirt,
-  'crewneck':         crewneck,
-  'hoodie':           hoodie,
-  'crop-jacket':      cropJacket,
+  'cargo-shorts':       cargoShorts,
+  'gym-shorts':         gymShorts,
+  'swim-trunks':        swimTrunks,
+  'pleated-shorts':     pleatedShorts,
+  'straight-jeans':     straightJeans,
+  'chinos':             chinos,
+  'pleated-trousers':   pleatedTrousers,
+  'sweatpants':         sweatpants,
+  'tee':                tee,
+  'camp-shirt':         campShirt,
+  'crewneck':           crewneck,
+  'hoodie':             hoodie,
+  'crop-jacket':        cropJacket,
+  'wide-leg-trouser-w': wideLegTrouserW,
+  'straight-trouser-w': straightTrouserW,
+  'easy-pant-w':        easyPantW,
+  'button-up-w':        buttonUpW,
+  'shell-blouse-w':     shellBlouseW,
+  'fitted-tee-w':       fittedTeeW,
+  'slip-skirt-w':       slipSkirtW,
+  'a-line-skirt-w':     aLineSkirtW,
+  'shirt-dress-w':      shirtDressW,
+  'wrap-dress-w':       wrapDressW,
 };
 
 let currentGarment = 'cargo-shorts';

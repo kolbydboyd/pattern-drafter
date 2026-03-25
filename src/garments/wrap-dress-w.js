@@ -1,0 +1,301 @@
+/**
+ * Wrap Dress (Womenswear) — overlapping front panels with self-fabric ties.
+ * V-neckline angled from shoulder. Left and right fronts each extend 4–5″ past CF.
+ * Hood facing along V-neckline edge. Knit or woven fabric option.
+ */
+
+import {
+  shoulderSlope, necklineCurve, armholeCurve,
+  armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+} from '../engine/upper-body.js';
+import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { buildMaterialsSpec } from '../engine/materials.js';
+
+export default {
+  id: 'wrap-dress-w',
+  name: 'Wrap Dress (W)',
+  category: 'dresses',
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
+  measurementDefaults: { torsoLength: 16, skirtLength: 28 },
+
+  options: {
+    fabric: {
+      type: 'select', label: 'Fabric type',
+      values: [
+        { value: 'woven', label: 'Woven (structured drape)' },
+        { value: 'knit',  label: 'Knit / jersey (stretchy)' },
+      ],
+      default: 'woven',
+    },
+    skirtShape: {
+      type: 'select', label: 'Skirt shape',
+      values: [
+        { value: 'aline',    label: 'A-line (classic wrap)'           },
+        { value: 'flowy',    label: 'Flowy / semi-circle (lots of drape)' },
+        { value: 'straight', label: 'Straight (minimal flare)'        },
+      ],
+      default: 'aline',
+    },
+    sleeve: {
+      type: 'select', label: 'Sleeve',
+      values: [
+        { value: 'short',      label: 'Short (9″)'   },
+        { value: 'three_qtr',  label: '¾ length (17″)' },
+        { value: 'long',       label: 'Long (25″)'   },
+        { value: 'sleeveless', label: 'Sleeveless'   },
+      ],
+      default: 'short',
+    },
+    fit: {
+      type: 'select', label: 'Fit',
+      values: [
+        { value: 'standard', label: 'Standard (+3″ ease)' },
+        { value: 'relaxed',  label: 'Relaxed (+5″ ease)'  },
+      ],
+      default: 'standard',
+    },
+    wrapDepth: {
+      type: 'select', label: 'Wrap overlap',
+      values: [
+        { value: '4', label: 'Moderate (4″ overlap)' },
+        { value: '5', label: 'Deep (5″ overlap)'     },
+      ],
+      default: '4',
+    },
+    length: {
+      type: 'select', label: 'Skirt length',
+      values: [
+        { value: 'midi',  label: 'Midi'  },
+        { value: 'knee',  label: 'Knee'  },
+        { value: 'maxi',  label: 'Maxi'  },
+        { value: 'mini',  label: 'Mini'  },
+      ],
+      default: 'midi',
+    },
+    sa: {
+      type: 'select', label: 'Seam allowance',
+      values: [
+        { value: 0.5,   label: '½″' },
+        { value: 0.625, label: '⅝″' },
+      ],
+      default: 0.625,
+    },
+  },
+
+  pieces(m, opts) {
+    const sa      = parseFloat(opts.sa);
+    const hem     = opts.fabric === 'knit' ? 0.5 : 0.75;
+    const easeVal = opts.fit === 'relaxed' ? 5 : 3;
+    const wrapExt = parseFloat(opts.wrapDepth) || 4;
+
+    const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
+    const frontW = m.chest / 4 + frontEase / 2;
+    const backW  = m.chest / 4 + backEase  / 2;
+
+    const neckW        = neckWidthFromCircumference(m.neck);
+    const shoulderW    = m.shoulder / 2 - neckW;
+    const slopeDrop    = 1.5;
+    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const chestDepth   = frontW * 0.35;
+    const shoulderPtX  = neckW + shoulderW;
+    const shoulderPtY  = slopeDrop;
+    const torsoLen     = m.torsoLength || 16;
+
+    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
+    function pp(poly) {
+      let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
+      for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`;
+      return d + ' Z';
+    }
+    function bb(poly) {
+      const xs = poly.map(p => p.x), ys = poly.map(p => p.y);
+      return { maxX: Math.max(...xs), maxY: Math.max(...ys) };
+    }
+
+    // V-neck depth for wrap — deeper than typical
+    const vNeckDepth = torsoLen * 0.5; // V descends to mid-bodice
+
+    const frontNeckPts = sc(necklineCurve(neckW, vNeckDepth, 'v-neck'));
+    const backNeckPts  = sc(necklineCurve(neckW, 0.75, 'crew'));
+    const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
+    const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+
+    // Front panel — extends wrapExt past CF
+    function buildFrontBodice() {
+      const poly = [];
+      [...frontNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x + wrapExt, y: vNeckDepth - p.y }));
+      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x + wrapExt, y: shoulderPts[i].y });
+      for (let i = 1; i < frontArmPts.length; i++) poly.push({ x: shoulderPtX + frontArmPts[i].x + wrapExt, y: shoulderPtY + frontArmPts[i].y });
+      poly.push({ x: frontW + wrapExt, y: torsoLen });
+      poly.push({ x: 0, y: torsoLen });   // inner CF edge at hem
+      poly.push({ x: 0, y: vNeckDepth }); // inner CF at V point
+      return poly;
+    }
+
+    function buildBackBodice() {
+      const poly = [];
+      [...backNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: 0.75 - p.y }));
+      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      for (let i = 1; i < backArmPts.length; i++) poly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      poly.push({ x: backW, y: torsoLen });
+      poly.push({ x: 0, y: torsoLen });
+      poly.push({ x: 0, y: 0.75 });
+      return poly;
+    }
+
+    const frontBodicePoly = buildFrontBodice();
+    const backBodicePoly  = buildBackBodice();
+    const frontBB = bb(frontBodicePoly), backBB = bb(backBodicePoly);
+
+    // Skirt
+    const skirtL     = m.skirtLength || 28;
+    const lengthMod  = opts.length === 'mini' ? -10 : opts.length === 'knee' ? -5 : opts.length === 'maxi' ? 8 : 0;
+    const adjSkirtL  = skirtL + lengthMod;
+    const hipHalf    = m.hip / 2 + easeVal * 0.5;
+
+    function buildSkirtPanel(id, name, isBack) {
+      const panelW = hipHalf / 2 + (isBack ? 0 : wrapExt);
+      let poly;
+      if (opts.skirtShape === 'aline') {
+        const flare = 5.0;
+        const fh = flare / 2;
+        poly = [
+          { x: fh,              y: 0          },
+          { x: fh + panelW,     y: 0          },
+          { x: panelW + flare,  y: adjSkirtL  },
+          { x: 0,               y: adjSkirtL  },
+        ];
+      } else if (opts.skirtShape === 'flowy') {
+        const flowW = panelW * 2.2;
+        poly = [
+          { x: (flowW - panelW) / 2,          y: 0          },
+          { x: (flowW - panelW) / 2 + panelW, y: 0          },
+          { x: flowW,                          y: adjSkirtL  },
+          { x: 0,                              y: adjSkirtL  },
+        ];
+      } else {
+        poly = [
+          { x: 0,       y: 0          },
+          { x: panelW,  y: 0          },
+          { x: panelW,  y: adjSkirtL  },
+          { x: 0,       y: adjSkirtL  },
+        ];
+      }
+      const gatherNote = opts.skirtShape === 'flowy' ? ' · Gather waist to match bodice waist width' : '';
+      return {
+        id, name,
+        instruction: `Cut 1${isBack ? ' on fold (CB)' : ' — left and right fronts are mirror images'}${gatherNote}`,
+        type: 'bodice', polygon: poly, path: pp(poly),
+        width: bb(poly).maxX, height: adjSkirtL, isBack, sa, hem,
+        dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
+      };
+    }
+
+    const pieces = [
+      {
+        id: 'bodice-front', name: 'Front Bodice (cut 2 — mirror)',
+        instruction: `Cut 2 (mirror L & R) · ${fmtInches(wrapExt)} wrap extension past CF · V-neck descends to bust level · Facing sewn along V-neckline edge`,
+        type: 'bodice', polygon: frontBodicePoly, path: pp(frontBodicePoly),
+        width: frontBB.maxX, height: frontBB.maxY, isBack: false, sa, hem,
+        dims: [{ label: fmtInches(frontW + wrapExt) + ' width + wrap', x1: 0, y1: -0.5, x2: frontW + wrapExt, y2: -0.5, type: 'h' }],
+      },
+      {
+        id: 'bodice-back', name: 'Back Bodice',
+        instruction: 'Cut 1 on fold (CB)',
+        type: 'bodice', polygon: backBodicePoly, path: pp(backBodicePoly),
+        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
+      },
+      buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2 — mirror)', false),
+      buildSkirtPanel('skirt-back',  'Skirt Back Panel', true),
+    ];
+
+    // V-neckline facing
+    const vFacingLen = Math.sqrt(vNeckDepth ** 2 + neckW ** 2) + m.neck / 2;
+    pieces.push({
+      id: 'v-neck-facing', name: 'V-Neckline Facing',
+      instruction: `Cut 4 (2 per side, self + interfacing) · 2.5″ wide · Follows V from shoulder to apex · Understitch and press to WS · Tack at shoulder seam`,
+      dimensions: { length: vFacingLen, width: 2.5 }, type: 'pocket',
+    });
+
+    // Self-fabric ties
+    const tieLen = 30;
+    pieces.push({
+      id: 'tie', name: 'Self-Fabric Tie',
+      instruction: `Cut 4 (2 per side) · Each ${fmtInches(tieLen)} long × 2.5″ cut (1.25″ finished) · Fold in half lengthwise, sew, turn, press · Attach 2 at inner side seam (hidden tie) and 2 at outer side seam (visible bow)`,
+      dimensions: { length: tieLen, width: 2.5 }, type: 'pocket',
+    });
+
+    // Sleeve
+    if (opts.sleeve !== 'sleeveless') {
+      const SLEEVE_LENGTHS = { short: 9, three_qtr: 17, long: 25 };
+      const slvLen    = SLEEVE_LENGTHS[opts.sleeve] || 9;
+      const slvW      = (m.bicep || 13) / 2 + easeVal * 0.15;
+      const slvPoly   = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
+      const slvBB     = bb(slvPoly);
+      pieces.push({
+        id: 'sleeve', name: 'Sleeve',
+        instruction: 'Cut 2 (mirror L & R)',
+        type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
+        width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
+      });
+    } else {
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+    }
+
+    return pieces;
+  },
+
+  materials(m, opts) {
+    const isKnit = opts.fabric === 'knit';
+    const notions = [
+      { ref: 'interfacing-light', quantity: '0.5 yard (neckline facings)' },
+    ];
+
+    return buildMaterialsSpec({
+      fabrics: isKnit
+        ? ['jersey-cotton', 'jersey-modal', 'jersey-bamboo', 'ponte']
+        : ['rayon-challis', 'crepe', 'viscose', 'cotton-lawn', 'silk-charmeuse'],
+      notions,
+      thread: 'poly-all',
+      needle: isKnit ? 'ballpoint-75' : 'universal-75',
+      stitches: isKnit
+        ? ['stretch', 'overlock', 'zigzag-med']
+        : ['straight-2.5', 'zigzag-small'],
+      notes: [
+        'Cut front panels as mirror images — lay fabric doubled for one cut',
+        'Stay-stitch V-neckline curves and waist seam immediately after cutting to prevent bias stretch',
+        opts.skirtShape === 'flowy' ? 'Gather skirt waist: two rows of basting at ⅜″ and ¼″, draw up to match bodice width, distribute fullness evenly' : 'A-line skirt: press side seams open for a clean silhouette',
+        'Ties: attach inner tie to bodice facing, outer tie to side seam — the inner tie passes through a small opening at the side seam to tie at the back',
+        isKnit ? 'Use a stretch stitch or serger for all seams — straight stitch will pop when fabric stretches' : 'French seams at side seams are worth the effort on fine drapey fabrics',
+        'Hang dress 24 hours before hemming — drapey wovens and bias cuts will drop',
+      ].filter(Boolean),
+    });
+  },
+
+  instructions(m, opts) {
+    const steps = [];
+    let n = 1;
+
+    steps.push({ step: n++, title: 'Stay-stitch and prepare', detail: 'Stay-stitch V-neckline at ½″ on both front panels. Stay-stitch waist edges. For wovens: press-mark CF fold line on front panels.' });
+    steps.push({ step: n++, title: 'Sew bodice shoulder seams', detail: 'Join front to back at shoulders (RST). Press toward back.' });
+    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V (RST), matching shoulder seams. Clip at V point — nearly to stitching. Understitch. Press facing to WS. Tack at shoulder seams.' });
+
+    if (opts.sleeve !== 'sleeveless') {
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew (RST). Press SA toward sleeve. Serge or zigzag.' });
+      steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Sew front to back continuously from bodice hem through underarm to sleeve hem. Leave a small opening at inner side seam for hidden tie to pass through. Press open.' });
+    } else {
+      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join facing pieces, interface. Sew to armhole (RST). Clip, understitch, press to WS.' });
+      steps.push({ step: n++, title: 'Sew bodice side seams', detail: 'Sew front to back at both side seams. Leave opening at inner side for hidden tie.' });
+    }
+
+    steps.push({ step: n++, title: 'Attach skirt to bodice', detail: `Join skirt panels at side seams. ${opts.skirtShape === 'flowy' ? 'Gather skirt waist to match bodice width. ' : ''}Sew skirt to bodice at waist (RST). Press SA upward.` });
+    steps.push({ step: n++, title: 'Make and attach ties', detail: 'Fold tie strips in half lengthwise (RST), sew long edge and one short end. Trim corners, turn with a tube turner, press. Attach inner ties at inner side seam (pass through opening to tie at back) and outer ties at outer side seam (tie at front or back).' });
+    steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang dress 24 hours. Mark hem level from floor. Fold up twice, press, topstitch or slipstitch. For drapey fabrics: hand hem with slipstitch.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Press entire dress with a pressing cloth. Check neckline facing lies flat. Try on and adjust tie length if needed.' });
+
+    return steps;
+  },
+};
