@@ -13,8 +13,10 @@ import straightJeans    from '../garments/straight-jeans.js';
 import chinos           from '../garments/chinos.js';
 import pleatedTrousers  from '../garments/pleated-trousers.js';
 import sweatpants       from '../garments/sweatpants.js';
-import { renderPanelSVG } from './pattern-view.js';
+import tee              from '../garments/tee.js';
+import { renderPanelSVG, renderGenericPieceSVG } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
+import { renderMeasurementTeacher } from './measurement-teacher.js';
 
 // ═══ GARMENT REGISTRY ═══
 const GARMENTS = {
@@ -26,6 +28,7 @@ const GARMENTS = {
   'chinos':           chinos,
   'pleated-trousers': pleatedTrousers,
   'sweatpants':       sweatpants,
+  'tee':              tee,
 };
 
 let currentGarment = 'cargo-shorts';
@@ -86,6 +89,10 @@ function buildInputs() {
       ).join('')}
     </select></div>`;
 
+  // "How to measure" toggle
+  html += `<button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">How to measure ▾</button>
+    <div id="mt-guide-container" style="display:none"></div>`;
+
   // Body measurements + profile selector
   const profiles = loadProfiles();
   const profileOptions = profiles.map(p =>
@@ -103,9 +110,10 @@ function buildInputs() {
   for (const mId of g.measurements) {
     const mDef = MEASUREMENTS[mId];
     if (!mDef) continue;
+    const mDefault = g.measurementDefaults?.[mId] ?? mDef.default;
     html += `<div class="f"><label>${mDef.label}</label>
       <div class="hint">${mDef.instruction}</div>
-      <input type="number" id="m-${mId}" value="${mDef.default}" step="${mDef.step}"></div>`;
+      <input type="number" id="m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
   }
 
   // Options
@@ -143,6 +151,20 @@ function buildInputs() {
     currentGarment = e.target.value;
     buildInputs();
     generate();
+  });
+  document.getElementById('how-to-measure-btn').addEventListener('click', () => {
+    const container = document.getElementById('mt-guide-container');
+    const btn = document.getElementById('how-to-measure-btn');
+    const isHidden = container.style.display === 'none';
+    if (isHidden) {
+      const g = GARMENTS[currentGarment];
+      container.innerHTML = renderMeasurementTeacher(g.measurements);
+      container.style.display = '';
+      btn.textContent = 'How to measure ▴';
+    } else {
+      container.style.display = 'none';
+      btn.textContent = 'How to measure ▾';
+    }
   });
 }
 
@@ -282,7 +304,11 @@ function generate() {
   const materials = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
 
-  let html = `<div class="oh">${g.name} · ${opts.ease} · ${fmtInches(m.waist)} W · ${fmtInches(m.hip)} H · ${fmtInches(m.rise)} rise · ${fmtInches(m.inseam)} inseam</div>`;
+  const isUpper = g.category === 'upper';
+  const overviewParts = isUpper
+    ? [g.name, opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
+    : [g.name, opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', fmtInches(m.rise) + ' rise', fmtInches(m.inseam) + ' inseam'];
+  let html = `<div class="oh">${overviewParts.join(' · ')}</div>`;
   html += `<div class="po">`;
 
   // Pattern pieces
@@ -295,6 +321,14 @@ function generate() {
           <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
           <tr><td>Crotch ext</td><td>${fmtInches(piece.ext)}</td></tr>
           <tr><td>Cut size (w/ SA)</td><td>${fmtInches(piece.width + piece.ext + piece.sa * 2)} × ${fmtInches(piece.height + piece.sa + piece.hem)}</td></tr>
+        </table></div>`;
+    } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
+      const svg = renderGenericPieceSVG(piece);
+      html += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
+        <table class="dt">
+          <tr><td>Width</td><td>${fmtInches(piece.width)}</td></tr>
+          <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
+          ${piece.type === 'sleeve' ? `<tr><td>Cap height</td><td>${fmtInches(piece.capHeight)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'rectangle') {
       html += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
@@ -312,14 +346,25 @@ function generate() {
   }
 
   // Fit check
-  const fW = pieces.find(p => p.id === 'front')?.width || 0;
-  const bW = pieces.find(p => p.id === 'back')?.width || 0;
-  html += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>
-    <table class="dt" style="max-width:480px">
+  let fitCheckHtml = '';
+  if (isUpper) {
+    const frontP = pieces.find(p => p.id === 'bodice-front');
+    const chestCirc = frontP ? frontP.width * 4 : 0;
+    fitCheckHtml = `<table class="dt" style="max-width:480px">
+      <tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
+      <tr><td>Chest (pattern circ)</td><td>${fmtInches(chestCirc)}</td></tr>
+      <tr><td>Chest ease</td><td>${fmtInches(chestCirc - m.chest)}</td></tr>
+    </table>`;
+  } else {
+    const fW = pieces.find(p => p.id === 'front')?.width || 0;
+    const bW = pieces.find(p => p.id === 'back')?.width || 0;
+    fitCheckHtml = `<table class="dt" style="max-width:480px">
       <tr><td>Thigh (yours)</td><td>${fmtInches(m.thigh)}</td></tr>
       <tr><td>Thigh (pattern circ)</td><td>${fmtInches((fW + bW) * 2)}</td></tr>
       <tr><td>Thigh ease</td><td>${fmtInches((fW + bW) * 2 - m.thigh)}</td></tr>
-    </table></div>`;
+    </table>`;
+  }
+  html += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;
 
   // Materials
   const y45 = calculateYardage(pieces, 45);

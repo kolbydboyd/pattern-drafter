@@ -94,3 +94,85 @@ export function renderPanelSVG(piece) {
     <text x="${ox+sc(width/2)}" y="${svgH}" font-family="IBM Plex Mono" font-size="6" fill="#c44" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
   </svg>`;
 }
+
+/**
+ * Render a bodice or sleeve piece as an SVG string.
+ * Piece must have: polygon (array of {x,y} in inches), dims (optional), type, name, sa, hem
+ */
+export function renderGenericPieceSVG(piece) {
+  const { polygon, dims = [], type, sa = 0.5, hem = 0.75 } = piece;
+
+  // Compute bounding box
+  const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const pW = maxX - minX, pH = maxY - minY;
+
+  const mL = 2.5, mT = 1.5, mR = 3, mB = 1.5;
+  const svgW = sc(mL + pW + mR);
+  const svgH = sc(mT + pH + mB);
+  const ox = sc(mL - minX);
+  const oy = sc(mT - minY);
+
+  function toSVG(pt) { return { x: ox + sc(pt.x), y: oy + sc(pt.y) }; }
+
+  function polyPath(pts) {
+    const mapped = pts.map(toSVG);
+    let d = `M ${mapped[0].x.toFixed(1)} ${mapped[0].y.toFixed(1)}`;
+    for (let i = 1; i < mapped.length; i++) d += ` L ${mapped[i].x.toFixed(1)} ${mapped[i].y.toFixed(1)}`;
+    return d + ' Z';
+  }
+
+  // Simple SA offset — shrink polygon by sa amount (approximate inset)
+  function insetPoly(pts, offset) {
+    // Naïve: scale polygon about centroid
+    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    return pts.map(p => ({
+      x: cx + (p.x - cx) * (1 - offset / (pW / 2)),
+      y: cy + (p.y - cy) * (1 - offset / (pH / 2)),
+    }));
+  }
+
+  const saPoly = insetPoly(polygon, -(sa));  // outset by sa
+
+  // Grain line: vertical through horizontal center of bounding box
+  const gx = ox + sc((minX + maxX) / 2);
+  const gy1 = oy + sc(minY + pH * 0.2);
+  const gy2 = oy + sc(minY + pH * 0.8);
+
+  // Dimension annotations
+  let dimsSVG = '';
+  for (const d of dims) {
+    if (d.type === 'h') {
+      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1);
+      const col = d.color || '#bbb';
+      dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
+        <text x="${(x1+x2)/2}" y="${y-4}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="middle" font-weight="500">${d.label}</text>`;
+    } else if (d.type === 'v') {
+      const x = ox + sc(d.x), y1 = oy + sc(d.y1), y2 = oy + sc(d.y2), my = (y1+y2)/2;
+      dimsSVG += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#bbb" stroke-width=".4"/>
+        <line x1="${x-3}" y1="${y1}" x2="${x+3}" y2="${y1}" stroke="#bbb" stroke-width=".4"/>
+        <line x1="${x-3}" y1="${y2}" x2="${x+3}" y2="${y2}" stroke="#bbb" stroke-width=".4"/>
+        <text x="${x+10}" y="${my}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="start" font-weight="500" transform="rotate(90,${x+10},${my})">${d.label}</text>`;
+    }
+  }
+
+  const pieceLabel = type === 'sleeve' ? 'SLEEVE × 2 (mirror)' : piece.name?.toUpperCase() + ' (cut on fold)';
+  const foldNote   = type === 'sleeve' ? '' : '← FOLD EDGE';
+
+  return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
+    <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
+    <rect width="${svgW}" height="${svgH}" fill="url(#gp${piece.id})"/>
+    <path d="${polyPath(saPoly)}" stroke="#4a8a5a" stroke-width=".5" stroke-dasharray="3,3" fill="rgba(74,138,90,.02)"/>
+    <path d="${polyPath(polygon)}" stroke="#2c2a26" stroke-width="1.2" fill="none"/>
+    <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
+    <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
+    ${dimsSVG}
+    <text x="${sc(mL)}" y="${svgH - sc(0.5)}" font-family="IBM Plex Mono" font-size="6.5" fill="#4a8a5a">${fmtInches(sa)} SA · ${fmtInches(hem)} hem</text>
+    <text x="${svgW/2}" y="${svgH - sc(0.1)}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
+    ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
+  </svg>`;
+}

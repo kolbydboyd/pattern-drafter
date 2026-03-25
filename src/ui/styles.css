@@ -74,3 +74,14 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospac
 .mat-yardage{border-top:1px solid var(--bdr);margin-top:5px;padding-top:5px}
 .yard-row{margin-bottom:1px}
 .yard-val{font-weight:600;color:var(--text)}
+
+.mt-guide{margin-bottom:10px}
+.mt-header{font-size:.52rem;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.mt-list{display:flex;flex-direction:column;gap:8px}
+.mt-item{display:flex;gap:8px;align-items:flex-start}
+.mt-diagram{flex-shrink:0}
+.mt-diagram svg{display:block}
+.mt-no-diagram{width:0}
+.mt-text{flex:1}
+.mt-label{font-size:.58rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.mt-inst{font-size:.5rem;color:var(--mid);line-height:1.4}

@@ -10,6 +10,7 @@ import straightJeans from './straight-jeans.js';
 import chinos        from './chinos.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
+import tee           from './tee.js';
 
 const GARMENTS = {
   'cargo-shorts':     cargoShorts,
@@ -20,6 +21,7 @@ const GARMENTS = {
   'chinos':           chinos,
   'pleated-trousers': pleatedTrousers,
   'sweatpants':       sweatpants,
+  'tee':              tee,
 };
 
 export default GARMENTS;

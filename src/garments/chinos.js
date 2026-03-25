@@ -16,6 +16,7 @@ export default {
   name: 'Chinos',
   category: 'lower',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+  measurementDefaults: { inseam: 31 },
 
   options: {
     ease: {

@@ -101,15 +101,15 @@ Adding a new garment = adding one file to `src/garments/`. The engine and UI han
 - [x] Cargo shorts
 - [x] Basic pants (straight, slim, bootcut, wide)
 - [x] Pleated trousers (high waist, wide leg)
-- [ ] Gym shorts (no cargo, drawstring)
-- [ ] Swim trunks (mesh liner, shorter inseam)
-- [ ] Pleated shorts
-- [ ] Straight jeans (5-pocket, zip fly)
-- [ ] Chinos (slash pocket, welt back)
-- [ ] Sweatpants (ribbed cuff, drawstring)
+- [x] Gym shorts (no cargo, drawstring)
+- [x] Swim trunks (mesh liner, shorter inseam)
+- [x] Pleated shorts
+- [x] Straight jeans (5-pocket, zip fly)
+- [x] Chinos (slash pocket, welt back)
+- [x] Sweatpants (ribbed cuff, drawstring)
 
 ### Upper Body Block
-- [ ] Tee (crew neck, set-in sleeve)
+- [x] Tee (crew neck, set-in sleeve)
 - [ ] Camp/bowling shirt (open collar, short sleeve, button front)
 - [ ] Crewneck sweatshirt (raglan or set-in, ribbed cuffs/hem)
 - [ ] Hoodie (kangaroo pocket, drawstring hood)
@@ -131,7 +131,11 @@ Adding a new garment = adding one file to `src/garments/`. The engine and UI han
 - [x] Tiled PDF output for home printing
 - [ ] Large format single-sheet PDF
 - [x] Materials/notions/stitch info on pattern
-- [ ] Construction instructions on pattern
+- [x] Construction instructions on pattern
+- [x] Dark mode toggle (CSS variables, localStorage persist)
+- [x] Measurement profiles (save/load named profiles in localStorage)
+- [x] Fabric yardage calculator (greedy row-packing, 45″ and 60″ widths)
+- [x] Visual measurement guide (inline SVG diagrams, per-garment)
 - [ ] Grading (scale pattern across sizes for production)
 
 ## Materials System
