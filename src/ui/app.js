@@ -529,18 +529,54 @@ function printPattern() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
 
-  const pieces      = g.pieces(m, opts);
-  const materials   = g.materials(m, opts);
-  const instructions = g.instructions(m, opts);
+  // Paper size picker modal
+  const SIZES = [
+    { id: 'letter',  label: 'US Letter  8.5 × 11 in   (tiled)' },
+    { id: 'a4',      label: 'A4         210 × 297 mm  (tiled)' },
+    { id: 'tabloid', label: 'Tabloid    11 × 17 in    (tiled)' },
+    { id: 'a0',      label: 'A0/Plotter 33.1 × 46.8 in (single sheet)' },
+  ];
 
-  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts);
+  // Build a tiny inline <dialog> for paper size selection
+  let dlg = document.getElementById('print-size-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'print-size-dlg';
+    dlg.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:13px;padding:1.2em 1.5em;border:1px solid #ccc;border-radius:6px;min-width:320px;box-shadow:0 4px 24px rgba(0,0,0,.18)';
+    dlg.innerHTML = `<form method="dialog">
+      <p style="font-weight:700;margin-bottom:.8em">Select paper size</p>
+      ${SIZES.map(s => `<label style="display:block;margin:.35em 0;cursor:pointer">
+        <input type="radio" name="ps" value="${s.id}" style="margin-right:.5em">${s.label}
+      </label>`).join('')}
+      <div style="margin-top:1em;display:flex;gap:.6em;justify-content:flex-end">
+        <button value="cancel" style="padding:.3em .9em">Cancel</button>
+        <button value="ok" style="padding:.3em .9em;font-weight:700">Print</button>
+      </div>
+    </form>`;
+    document.body.appendChild(dlg);
+    // Default selection
+    dlg.querySelector('input[value="letter"]').checked = true;
+  }
 
-  const win = window.open('', '_blank');
-  if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  win.addEventListener('load', () => win.print());
+  dlg.returnValue = '';
+  dlg.showModal();
+  dlg.onclose = () => {
+    if (dlg.returnValue !== 'ok') return;
+    const paperSize = dlg.querySelector('input[name="ps"]:checked')?.value || 'letter';
+
+    const pieces       = g.pieces(m, opts);
+    const materials    = g.materials(m, opts);
+    const instructions = g.instructions(m, opts);
+
+    const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, paperSize);
+
+    const win = window.open('', '_blank');
+    if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.addEventListener('load', () => win.print());
+  };
 }
 
 // ═══ DARK MODE ═══
