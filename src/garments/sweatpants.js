@@ -270,19 +270,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? hem : sa;
+    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
   });
-  // Fix waist SA corners: explicit 90° corners at center-seam×waist and side-seam×waist
-  for (let i = 0; i < poly.length; i++) {
-    if (poly[i].y > cbRaise + 0.01) break;
-    if (Math.abs(poly[i].x) < 0.01) {
-      saPoly[i] = { x: poly[i].x - sa, y: poly[i].y - sa };   // top-left: push left + up
-    } else if (Math.abs(poly[i].x - width) < 0.01) {
-      saPoly[i] = { x: poly[i].x + sa, y: poly[i].y - sa };   // top-right: push right + up
-    } else {
-      saPoly[i] = { x: poly[i].x, y: poly[i].y - sa };         // mid-waist: push up only
-    }
-  }
 
   const dims = [
     { label: fmtInches(width),              x1: 0,           y1: -0.5,        x2: width,      y2: -0.5,        type: 'h' },

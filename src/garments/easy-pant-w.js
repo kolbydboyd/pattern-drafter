@@ -140,19 +140,8 @@ export default {
 
       const saPoly = offsetPolygon(poly, i => {
         const a = poly[i], b = poly[(i + 1) % poly.length];
-        return (a.y > H - 0.5 && b.y > H - 0.5) ? hem : sa;
+        return (a.y > H - 0.5 && b.y > H - 0.5) ? -hem : -sa;
       });
-      // Fix waist SA corners: explicit 90° corners at center-seam×waist and side-seam×waist
-      for (let i = 0; i < poly.length; i++) {
-        if (poly[i].y > cbRaise + 0.01) break;
-        if (Math.abs(poly[i].x) < 0.01) {
-          saPoly[i] = { x: poly[i].x - sa, y: poly[i].y - sa };   // top-left: push left + up
-        } else if (Math.abs(poly[i].x - width) < 0.01) {
-          saPoly[i] = { x: poly[i].x + sa, y: poly[i].y - sa };   // top-right: push right + up
-        } else {
-          saPoly[i] = { x: poly[i].x, y: poly[i].y - sa };         // mid-waist: push up only
-        }
-      }
 
       return {
         id: type, name: type === 'front' ? 'Front Panel' : 'Back Panel',
