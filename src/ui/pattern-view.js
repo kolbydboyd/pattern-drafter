@@ -15,7 +15,7 @@ export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, opts } = piece;
 
-  const mL = 3, mT = 3, mR = 5, mB = 3.5;
+  const mL = 3, mT = 3, mR = 5, mB = 4.5;
   const svgW = sc(mL + width + mR);
   const svgH = sc(mT + height + mB);
   const ox = sc(mL + ext);
@@ -99,6 +99,17 @@ export function renderPanelSVG(piece) {
   const cLineY = oy + sc(rise);
   const gx = ox + sc(width * .42), gy1 = oy + sc(1.8), gy2 = oy + sc(height - 1.8);
 
+  const legY = svgH - 24;
+  const legendSVG = `
+    <line x1="10" y1="${legY-3}" x2="26" y2="${legY-3}" stroke="#000" stroke-width="1.5"/>
+    <text x="30" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">cut here</text>
+    <line x1="72" y1="${legY-3}" x2="88" y2="${legY-3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="92" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">stitch line</text>
+    <line x1="148" y1="${legY-3}" x2="164" y2="${legY-3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">fold line</text>
+    <line x1="218" y1="${legY-3}" x2="234" y2="${legY-3}" stroke="#c44" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <text x="238" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">pocket placement</text>`;
+
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
@@ -108,9 +119,10 @@ export function renderPanelSVG(piece) {
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}${labelsSVG}${pocketSVG}
-    <text x="${ox+sc(width/2)}" y="${svgH - 36}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
-    <text x="${ox+sc(width/2)}" y="${svgH - 24}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
-    <text x="${sc(mL)}" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA incl. · ${fmtInches(hem)} hem  |  solid line = cut here  |  dashed line = stitch line  |  SA is included in cut line</text>
+    <text x="${ox+sc(width/2)}" y="${svgH - 50}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
+    <text x="${ox+sc(width/2)}" y="${svgH - 38}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
+    ${legendSVG}
+    <text x="10" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
   </svg>`;
 }
 
@@ -127,7 +139,7 @@ export function renderGenericPieceSVG(piece) {
   const minY = Math.min(...ys), maxY = Math.max(...ys);
   const pW = maxX - minX, pH = maxY - minY;
 
-  const mL = 2.5, mT = 1.5, mR = 3, mB = 1.5;
+  const mL = 2.5, mT = 1.5, mR = 3, mB = 3;
   const svgW = sc(mL + pW + mR);
   const svgH = sc(mT + pH + mB);
   const ox = sc(mL - minX);
@@ -181,6 +193,17 @@ export function renderGenericPieceSVG(piece) {
       : piece.name?.toUpperCase() + ' × 2 (mirror)';
   const foldNote   = cutOnFold ? '← FOLD EDGE' : '';
 
+  const legY2 = svgH - 24;
+  const legendSVG2 = `
+    <line x1="10" y1="${legY2-3}" x2="26" y2="${legY2-3}" stroke="#000" stroke-width="1.5"/>
+    <text x="30" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">cut here</text>
+    <line x1="72" y1="${legY2-3}" x2="88" y2="${legY2-3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="92" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">stitch line</text>
+    <line x1="148" y1="${legY2-3}" x2="164" y2="${legY2-3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="168" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">fold line</text>
+    <line x1="218" y1="${legY2-3}" x2="234" y2="${legY2-3}" stroke="#c44" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <text x="238" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">pocket placement</text>`;
+
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect width="${svgW}" height="${svgH}" fill="url(#gp${piece.id})"/>
@@ -189,8 +212,9 @@ export function renderGenericPieceSVG(piece) {
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}
-    <text x="${svgW/2}" y="${svgH - sc(0.1)}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
-    <text x="${sc(mL)}" y="${svgH - sc(0.5)}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA incl. · ${fmtInches(hem)} hem  |  solid line = cut here  |  dashed line = stitch line  |  SA is included in cut line</text>
+    <text x="${svgW/2}" y="${svgH - 38}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
+    ${legendSVG2}
+    <text x="10" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
     ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
   </svg>`;
 }
