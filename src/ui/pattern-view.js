@@ -26,13 +26,16 @@ export function renderPanelSVG(piece) {
   const svgPoly = polygon.map(toSVG);
 
   // Force the top edge of the SA outline to be perfectly horizontal.
-  // Find the two SA points with the smallest y values (waist corners) and
-  // snap them both to the same y: lowest polygon y minus SA distance.
+  // Polygon waist points are at the start (indices 0..N, y ≤ cbRaise).
+  // Use polygon indices to locate the matching SA points and snap their y to
+  // min(polygon.y) − sa. saPoly indices match polygon indices for the waist
+  // region because step-corners only appear at the hem (later in the array).
   const waistTopY = Math.min(...polygon.map(p => p.y)) - sa;
   const saCopy = saPolygon.map(p => ({ ...p }));
-  const sorted = [...saCopy].sort((a, b) => a.y - b.y);
-  sorted[0].y = waistTopY;
-  sorted[1].y = waistTopY;
+  for (let i = 0; i < polygon.length; i++) {
+    if (polygon[i].y > cbRaise + 0.01) break;
+    saCopy[i].y = waistTopY;
+  }
 
   const svgSA = saCopy.map(toSVG);
 
