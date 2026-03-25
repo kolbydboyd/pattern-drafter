@@ -11,6 +11,10 @@ import chinos        from './chinos.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
 import tee           from './tee.js';
+import campShirt     from './camp-shirt.js';
+import crewneck      from './crewneck.js';
+import hoodie        from './hoodie.js';
+import cropJacket    from './crop-jacket.js';
 
 const GARMENTS = {
   'cargo-shorts':     cargoShorts,
@@ -22,6 +26,10 @@ const GARMENTS = {
   'pleated-trousers': pleatedTrousers,
   'sweatpants':       sweatpants,
   'tee':              tee,
+  'camp-shirt':       campShirt,
+  'crewneck':         crewneck,
+  'hoodie':           hoodie,
+  'crop-jacket':      cropJacket,
 };
 
 export default GARMENTS;

@@ -14,6 +14,10 @@ import chinos           from '../garments/chinos.js';
 import pleatedTrousers  from '../garments/pleated-trousers.js';
 import sweatpants       from '../garments/sweatpants.js';
 import tee              from '../garments/tee.js';
+import campShirt        from '../garments/camp-shirt.js';
+import crewneck         from '../garments/crewneck.js';
+import hoodie           from '../garments/hoodie.js';
+import cropJacket       from '../garments/crop-jacket.js';
 import { renderPanelSVG, renderGenericPieceSVG } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
@@ -29,6 +33,10 @@ const GARMENTS = {
   'pleated-trousers': pleatedTrousers,
   'sweatpants':       sweatpants,
   'tee':              tee,
+  'camp-shirt':       campShirt,
+  'crewneck':         crewneck,
+  'hoodie':           hoodie,
+  'crop-jacket':      cropJacket,
 };
 
 let currentGarment = 'cargo-shorts';

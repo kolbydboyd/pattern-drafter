@@ -110,10 +110,10 @@ Adding a new garment = adding one file to `src/garments/`. The engine and UI han
 
 ### Upper Body Block
 - [x] Tee (crew neck, set-in sleeve)
-- [ ] Camp/bowling shirt (open collar, short sleeve, button front)
-- [ ] Crewneck sweatshirt (raglan or set-in, ribbed cuffs/hem)
-- [ ] Hoodie (kangaroo pocket, drawstring hood)
-- [ ] Crop Carhartt-style jacket (chore coat, patch pockets)
+- [x] Camp/bowling shirt (open collar, short sleeve, button front)
+- [x] Crewneck sweatshirt (raglan or set-in, ribbed cuffs/hem)
+- [x] Hoodie (kangaroo pocket, drawstring hood)
+- [x] Crop jacket / chore coat (patch pockets, flat-fell seams)
 
 ### Skirts & Dresses
 - [ ] A-line skirt
