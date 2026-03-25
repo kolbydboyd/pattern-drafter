@@ -1,0 +1,113 @@
+app layout
+Refactor the app layout from a two-column single-page design into a multi-step wizard flow. Create src/ui/wizard.js that manages four steps: 1) CHOOSE — full-screen grid of garment categories (Pants, Shorts, Tops, Skirts, Dresses, Outerwear), clicking a category reveals garments within it, clicking a garment advances to step 2. 2) MEASURE — full-screen measurement form showing only the fields this garment needs, with saved profile dropdown at top, large clear inputs, measurement hints visible, a Next button at the bottom. 3) CUSTOMIZE — full-screen options panel for this garment (fit, pockets, fly, waistband, etc) grouped logically, with a Generate button. 4) PATTERN — full-screen output with a horizontal tab bar at the top: Pieces (SVG renders), Materials (fabric/notions/stitch guide), Instructions (construction steps), Print (paper size selector + print button). Add a stepper/breadcrumb bar fixed at the top showing all 4 steps with the current step highlighted, clickable to navigate back. Each step takes the full viewport width and height. Transition between steps with a simple slide or fade. Move all the current input-building and output-rendering logic from app.js into this wizard flow. Update styles.css — remove the two-column layout, make each step a full-screen view. Keep dark mode toggle in the top-right corner. Make it work well on both desktop and mobile — on mobile the steps stack naturally since each is already full-width.
+
+
+
+launch checklist:
+domain
+ig handle
+2-3 weeks of good quality content posted
+tiktok handle
+2-3 weeks content
+build app process
+behind the scenes sewing my patterns
+tiny tutorials
+youtube handle
+post launch one video per garment
+measuring, generating and printing pattern, cutting, sewing, finished product
+react + tailwind wizard flow UI migration
+6 perfect patterns
+cargo shorts
+straight leg pants/jeans
+tee
+button up/camp shirt
+skirt
+post on reddit
+r/sewing
+r/sewhelp
+r/learnmachinesewing
+share in facebook sewing groups
+“free custom fit patterns, just enter your measurements”
+muslin for each 6 patterns
+print ready pdf is perfect - tiled and full size with scale verification and print instructions
+stripe checkout & cart for per pattern checkout
+$9-15/m membership for unlimited or throttled pattern downloads and saved profiles, edits redownload, fit history, pattern library access, discounts (!)
+email capture for free tier & feedback
+landing page 10 sec explanation
+how to measure yourself video
+sew along video for best pattern 
+
+affiliates with fabric companies, amazon for tools
+$25-35 beginner sewing tool kit upsell at first pattern buy - branded
+
+measure yourself correctly videos & sewing tape
+users can tweak pleats, pockets, rise, silhouette, cuff, waistband, leg width, etc. in a way that feels intuitive
+audience:
+home sewists
+indie fashion designers
+made-to-order microbrands
+cosplay / costume
+menswear nerds
+women sick of standard sizing
+fashion students / schools
+
+Not just PDF.
+Also:
+layered PDFs
+A4 / Letter / A0 / plotter
+seam allowance toggles
+cut plans
+fabric estimates
+instruction generation
+saved measurement profiles
+let paying customers re-download with different measurements (they should be able to name and save a separate measured pattern like for a friend
+pattern version history
+Reasonable protection
+require account + login to generate/download
+watermark previews
+low-res preview until purchase
+only unlock full print-ready file after payment
+stamp downloaded patterns with:
+customer name
+order number
+email
+date
+keep patterns in account history, not public links
+rate-limit downloads
+commercial-use terms for businesses
+Referral program. “Give a friend a free pattern, get a free pattern.” Sewing is social — people sew with friends, teach their kids, share in groups. A referral system turns every customer into marketing.
+Gift cards. Someone’s mom sews, they don’t know what pattern to get her. A $25 Pattern Drafter gift card is a perfect gift. Easy to implement with Stripe.
+Seasonal collections. Every quarter, release a themed batch of patterns — “Summer Linen Collection” with easy pants, camp shirt, A-line skirt. Gives you content to post, email to send, reason for people to come back.
+Fit feedback loop. After someone sews a pattern, prompt them: “How did it fit?” with simple options — too tight at chest, too long in torso, crotch too low, etc. Use that data to refine the math over time. This is your unfair advantage — Simplicity can’t do this because they sell fixed sizes. You can literally improve every pattern based on real user feedback because every pattern is generated from math you control.
+
+from /btw:
+Natural
+    next areas based on the work done so far:
+
+    Accuracy / Drafting
+    - Dart rotation and manipulation (bust, shoulder, waist)
+    - Grading between sizes
+    - Ease value fine-tuning per body section (hip vs. waist vs. chest)
+    - Curved waistbands (contoured, not just rectangular)
+
+    Garments
+    - Skirts (A-line, circle, bias cut)
+    - Blazer / structured jacket
+    - Trousers with proper fly-front geometry
+    - Knit dress
+
+    UX
+    - Side-by-side "before/after" overlay when measurements change
+    - Piece nesting / layout optimizer (minimize fabric waste)
+    - Seam notch marks and drill holes on exported pieces
+    - Mobile-friendly measurement input
+
+    Print / Export
+    - PDF export (not just print-to-PDF via browser)
+    - DXF export for plotters
+    - Seam allowance toggle (cut line vs. sew line view)
+
+    Data
+    - Saved garment drafts (beyond just measurement profiles)
+    - Size chart import (industry sizing, custom)
+
