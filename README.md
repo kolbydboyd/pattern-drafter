@@ -165,3 +165,4 @@ Claude Code can read the full project, understand the module architecture, and a
 ## License
 
 MIT
+"# pattern-drafter" 
