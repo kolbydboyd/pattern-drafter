@@ -15,7 +15,7 @@ export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, pleats = [], opts } = piece;
 
-  const mL = 3, mT = 3, mR = 5, mB = 4.5;
+  const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
   const svgH = sc(mT + height + mB);
   const ox = sc(mL + ext);
@@ -50,27 +50,31 @@ export function renderPanelSVG(piece) {
   for (const d of dimensions) {
     if (d.type === 'h') {
       const col = d.color || '#bbb';
-      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1);
+      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2);
+      // Hem-area dims (within 1″ of panel bottom): push below SA cut line + 0.5″ clearance
+      const isHemDim = d.y1 > height - 1;
+      const lineY = isHemDim ? oy + sc(height + hem + 0.5) : oy + sc(d.y1);
+      const textY = isHemDim ? lineY + 14 : lineY - 4;
       if (d.color === '#c44') {
-        // Crotch-ext dimension: place label in the left margin, outside the pattern,
-        // right-aligned toward the pattern so it never overlaps the inseam/crotch lines.
-        const labelX = x1 - sc(0.5); // 0.5″ to the left of the crotch extension point
-        dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
-        <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
-        <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${labelX}" y="${y+3}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+        // Crotch-ext: label in left margin, right-aligned toward pattern
+        const labelX = x1 - sc(0.5);
+        dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <text x="${labelX}" y="${lineY+3}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
       } else {
-        dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
-        <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
-        <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${(x1+x2)/2}" y="${y-4}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="middle" font-weight="500">${d.label}</text>`;
+        dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <text x="${(x1+x2)/2}" y="${textY}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="middle" font-weight="500">${d.label}</text>`;
       }
     } else if (d.type === 'v') {
+      const col = d.color || '#bbb';
       const x = ox + sc(d.x), y1 = oy + sc(d.y1), y2 = oy + sc(d.y2), my = (y1+y2)/2;
-      dimsSVG += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#bbb" stroke-width=".4"/>
-        <line x1="${x-3}" y1="${y1}" x2="${x+3}" y2="${y1}" stroke="#bbb" stroke-width=".4"/>
-        <line x1="${x-3}" y1="${y2}" x2="${x+3}" y2="${y2}" stroke="#bbb" stroke-width=".4"/>
-        <text x="${x+10}" y="${my}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="start" font-weight="500" transform="rotate(90,${x+10},${my})">${d.label}</text>`;
+      dimsSVG += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x-3}" y1="${y1}" x2="${x+3}" y2="${y1}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x-3}" y1="${y2}" x2="${x+3}" y2="${y2}" stroke="${col}" stroke-width=".4"/>
+        <text x="${x+14}" y="${my}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="start" font-weight="500" transform="rotate(90,${x+14},${my})">${d.label}</text>`;
     }
   }
 
@@ -95,17 +99,17 @@ export function renderPanelSVG(piece) {
     // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
     pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
-      <text x="${bagL + 2}" y="${bagB + 9}" font-family="IBM Plex Mono" font-size="6" fill="#8a4a4a">slant pocket</text>`;
+      <text x="${bagL + 2}" y="${bagB + 9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
   }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${cpX-sc(3.5)+3}" y="${cpY+sc(4)+9}" font-family="IBM Plex Mono" font-size="6" fill="#8a4a4a">cargo</text>`;
+      <text x="${cpX-sc(3.5)+3}" y="${cpY+sc(4)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">cargo</text>`;
   }
   if (isBack && opts?.backPocket && opts.backPocket !== 'none') {
     const bpX = ox + sc(width * .35), bpY = oy + sc(1.8);
     pocketSVG += `<rect x="${bpX}" y="${bpY}" width="${sc(3)}" height="${sc(3.5)}" rx="2" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${bpX+2}" y="${bpY+sc(3.5)+9}" font-family="IBM Plex Mono" font-size="6" fill="#8a4a4a">patch pocket</text>`;
+      <text x="${bpX+2}" y="${bpY+sc(3.5)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">patch pocket</text>`;
   }
 
   // Pleat fold lines
@@ -119,23 +123,23 @@ export function renderPanelSVG(piece) {
     pleatSVG += `
     <line x1="${px1.toFixed(1)}" y1="${py1.toFixed(1)}" x2="${px1.toFixed(1)}" y2="${py2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
     <line x1="${px2.toFixed(1)}" y1="${py1.toFixed(1)}" x2="${px2.toFixed(1)}" y2="${py2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="${midX.toFixed(1)}" y="${(py2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="6" fill="#b8963e" text-anchor="middle">pleat</text>`;
+    <text x="${midX.toFixed(1)}" y="${(py2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">pleat</text>`;
   }
 
   // Reference lines
   const cLineY = oy + sc(rise);
   const gx = ox + sc(width * .42), gy1 = oy + sc(1.8), gy2 = oy + sc(height - 1.8);
 
-  const legY = svgH - 24;
+  const legY = svgH - 28;
   const legendSVG = `
     <line x1="10" y1="${legY-3}" x2="26" y2="${legY-3}" stroke="#000" stroke-width="1.5"/>
-    <text x="30" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">cut here</text>
+    <text x="30" y="${legY}" font-family="IBM Plex Mono" font-size="8" fill="#888">cut here</text>
     <line x1="72" y1="${legY-3}" x2="88" y2="${legY-3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="92" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">stitch line</text>
+    <text x="92" y="${legY}" font-family="IBM Plex Mono" font-size="8" fill="#888">stitch line</text>
     <line x1="148" y1="${legY-3}" x2="164" y2="${legY-3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">fold line</text>
+    <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="8" fill="#888">fold line</text>
     <line x1="218" y1="${legY-3}" x2="234" y2="${legY-3}" stroke="#c44" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <text x="238" y="${legY}" font-family="IBM Plex Mono" font-size="7" fill="#888">pocket placement</text>`;
+    <text x="238" y="${legY}" font-family="IBM Plex Mono" font-size="8" fill="#888">pocket placement</text>`;
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
@@ -146,10 +150,10 @@ export function renderPanelSVG(piece) {
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}
-    <text x="${ox+sc(width/2)}" y="${svgH - 50}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
-    <text x="${ox+sc(width/2)}" y="${svgH - 38}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
+    <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="7" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
+    <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     ${legendSVG}
-    <text x="10" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
+    <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="7" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
   </svg>`;
 }
 
@@ -166,7 +170,7 @@ export function renderGenericPieceSVG(piece) {
   const minY = Math.min(...ys), maxY = Math.max(...ys);
   const pW = maxX - minX, pH = maxY - minY;
 
-  const mL = 2.5, mT = 1.5, mR = 3, mB = 3;
+  const mL = 2.5, mT = 1.5, mR = 3, mB = 4.5;
   const svgW = sc(mL + pW + mR);
   const svgH = sc(mT + pH + mB);
   const ox = sc(mL - minX);
@@ -220,16 +224,16 @@ export function renderGenericPieceSVG(piece) {
       : piece.name?.toUpperCase() + ' × 2 (mirror)';
   const foldNote   = cutOnFold ? '← FOLD EDGE' : '';
 
-  const legY2 = svgH - 24;
+  const legY2 = svgH - 28;
   const legendSVG2 = `
     <line x1="10" y1="${legY2-3}" x2="26" y2="${legY2-3}" stroke="#000" stroke-width="1.5"/>
-    <text x="30" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">cut here</text>
+    <text x="30" y="${legY2}" font-family="IBM Plex Mono" font-size="8" fill="#888">cut here</text>
     <line x1="72" y1="${legY2-3}" x2="88" y2="${legY2-3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="92" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">stitch line</text>
+    <text x="92" y="${legY2}" font-family="IBM Plex Mono" font-size="8" fill="#888">stitch line</text>
     <line x1="148" y1="${legY2-3}" x2="164" y2="${legY2-3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="168" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">fold line</text>
+    <text x="168" y="${legY2}" font-family="IBM Plex Mono" font-size="8" fill="#888">fold line</text>
     <line x1="218" y1="${legY2-3}" x2="234" y2="${legY2-3}" stroke="#c44" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <text x="238" y="${legY2}" font-family="IBM Plex Mono" font-size="7" fill="#888">pocket placement</text>`;
+    <text x="238" y="${legY2}" font-family="IBM Plex Mono" font-size="8" fill="#888">pocket placement</text>`;
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
@@ -239,9 +243,9 @@ export function renderGenericPieceSVG(piece) {
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}
-    <text x="${svgW/2}" y="${svgH - 38}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
+    <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
-    <text x="10" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
+    <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="7" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
     ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
   </svg>`;
 }
