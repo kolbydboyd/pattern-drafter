@@ -270,23 +270,26 @@ function renderMaterials(mat, yardage45, yardage60) {
 
   html += `<div class="mat-section"><h5>Fabric Options</h5>`;
   for (const f of mat.fabrics) {
+    if (!f?.name) continue;
     html += `<div class="mat-row">${f.name} <span class="note">(${f.weight})</span>${f.notes ? ` — <span class="note">${f.notes}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
   html += `<div class="mat-section"><h5>Notions</h5>`;
   for (const n of mat.notions) {
+    if (!n?.name) continue;
     html += `<div class="mat-row">${n.name}${n.quantity ? ` — <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
   html += `<div class="mat-section"><h5>Thread & Needle</h5>
-    <div class="mat-row">Thread: ${mat.thread.name} (${mat.thread.weight}) — <span class="note">${mat.thread.notes}</span></div>
-    <div class="mat-row">Needle: ${mat.needle.name} — <span class="note">${mat.needle.use}</span></div>
+    <div class="mat-row">Thread: ${mat.thread?.name ?? 'Polyester all-purpose'} (${mat.thread?.weight ?? '40wt'}) — <span class="note">${mat.thread?.notes ?? ''}</span></div>
+    <div class="mat-row">Needle: ${mat.needle?.name ?? String(mat.needle ?? 'Universal')} — <span class="note">${mat.needle?.use ?? ''}</span></div>
   </div>`;
 
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
+    if (!s?.name) continue;
     html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} — ${s.use}</span>`;
   }
   html += `</div>`;
@@ -332,10 +335,11 @@ function generate() {
   const materials = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
 
-  const isUpper = g.category === 'upper';
+  const isLower = g.category === 'lower';
+  const isUpper = !isLower;
   const overviewParts = isUpper
-    ? [g.name, opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
-    : [g.name, opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', fmtInches(m.rise) + ' rise', fmtInches(m.inseam) + ' inseam'];
+    ? [g.name, opts.fit ?? opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.waist ? fmtInches(m.waist) + ' waist' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
+    : [g.name, opts.fit ?? opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
   let html = `<div class="oh">${overviewParts.join(' · ')}</div>`;
   html += `<div class="po">`;
 
@@ -376,20 +380,24 @@ function generate() {
   // Fit check
   let fitCheckHtml = '';
   if (isUpper) {
-    const frontP = pieces.find(p => p.id === 'bodice-front');
+    const frontP = pieces.find(p => p.id === 'bodice-front' || p.id === 'bodice-front-right');
     const chestCirc = frontP ? frontP.width * 4 : 0;
     fitCheckHtml = `<table class="dt" style="max-width:480px">
-      <tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
+      ${m.chest ? `<tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
       <tr><td>Chest (pattern circ)</td><td>${fmtInches(chestCirc)}</td></tr>
-      <tr><td>Chest ease</td><td>${fmtInches(chestCirc - m.chest)}</td></tr>
+      <tr><td>Chest ease</td><td>${fmtInches(chestCirc - m.chest)}</td></tr>` : ''}
+      ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
+      ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
     </table>`;
   } else {
     const fW = pieces.find(p => p.id === 'front')?.width || 0;
     const bW = pieces.find(p => p.id === 'back')?.width || 0;
     fitCheckHtml = `<table class="dt" style="max-width:480px">
-      <tr><td>Thigh (yours)</td><td>${fmtInches(m.thigh)}</td></tr>
+      ${m.thigh ? `<tr><td>Thigh (yours)</td><td>${fmtInches(m.thigh)}</td></tr>
       <tr><td>Thigh (pattern circ)</td><td>${fmtInches((fW + bW) * 2)}</td></tr>
-      <tr><td>Thigh ease</td><td>${fmtInches((fW + bW) * 2 - m.thigh)}</td></tr>
+      <tr><td>Thigh ease</td><td>${fmtInches((fW + bW) * 2 - m.thigh)}</td></tr>` : ''}
+      ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
+      ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
     </table>`;
   }
   html += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;

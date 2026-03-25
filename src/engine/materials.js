@@ -5,27 +5,57 @@
  */
 
 export const FABRIC_TYPES = {
-  // Woven
+  // ── Heavy wovens ──────────────────────────────────────────────────────────
   'cotton-twill':     { name: 'Cotton twill', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
   'gabardine':        { name: 'Gabardine', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
   'cotton-canvas':    { name: 'Cotton canvas', weight: '10–12 oz/yd²', stretch: false, category: 'woven' },
-  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot — shrinks 3–5%' },
-  'chambray':         { name: 'Chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
+  'bull-denim':       { name: 'Bull denim', weight: '11–14 oz/yd²', stretch: false, category: 'woven', notes: 'Very sturdy; best washed before cutting' },
+  'waxed-cotton':     { name: 'Waxed cotton', weight: '8–10 oz/yd²', stretch: false, category: 'woven', notes: 'Repels water; sew with a Teflon foot' },
   'denim':            { name: 'Denim', weight: '10–14 oz/yd²', stretch: false, category: 'woven' },
   'stretch-denim':    { name: 'Stretch denim (2% spandex)', weight: '10–12 oz/yd²', stretch: true, category: 'woven' },
-  'rayon-twill':      { name: 'Rayon or tencel twill', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Drapey, good for wide leg' },
+  'denim-light':      { name: 'Lightweight denim', weight: '6–8 oz/yd²', stretch: false, category: 'woven', notes: 'Softer drape than standard denim' },
+
+  // ── Mid-weight wovens ─────────────────────────────────────────────────────
+  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot — shrinks 3–5%' },
+  'linen-light':      { name: 'Lightweight linen', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Breathable; press flat for crisp seams' },
+  'chambray':         { name: 'Chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
+  'cotton-chambray':  { name: 'Cotton chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
+  'cotton-poplin':    { name: 'Cotton poplin', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Crisp, smooth hand; irons beautifully' },
+  'cotton-lawn':      { name: 'Cotton lawn', weight: '2–3 oz/yd²', stretch: false, category: 'woven', notes: 'Very fine; use sharp 70/10 needle' },
+  'cotton-voile':     { name: 'Cotton voile', weight: '2–3 oz/yd²', stretch: false, category: 'woven', notes: 'Sheer; line or underline for opacity' },
   'wool-suiting':     { name: 'Wool or poly suiting', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
+  'wool-blend':       { name: 'Wool blend (suiting or crepe)', weight: '6–9 oz/yd²', stretch: false, category: 'woven', notes: 'Press with damp cloth and wool setting' },
+
+  // ── Drapey wovens ─────────────────────────────────────────────────────────
+  'rayon-twill':      { name: 'Rayon or tencel twill', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Drapey; stay-stitch bias areas immediately' },
+  'rayon-challis':    { name: 'Rayon challis', weight: '3–4 oz/yd²', stretch: false, category: 'woven', notes: 'Very drapey; pre-wash, stay-stitch bias areas' },
+  'crepe':            { name: 'Crepe (woven)', weight: '4–6 oz/yd²', stretch: false, category: 'woven', notes: 'Excellent drape; doesn\'t fray badly' },
+  'wool-crepe':       { name: 'Wool crepe', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Elegant drape; press with damp cloth' },
+  'silk-charmeuse':   { name: 'Silk charmeuse', weight: '2–3 oz/yd²', stretch: false, category: 'woven', notes: 'Very slippery; use tissue paper when cutting' },
+  'satin':            { name: 'Satin (poly or silk)', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Slippery; clip with weights, not pins' },
+  'tencel':           { name: 'Tencel / lyocell', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Silky drape; minimal pre-shrink needed' },
+  'tencel-twill':     { name: 'Tencel twill', weight: '4–6 oz/yd²', stretch: false, category: 'woven', notes: 'Soft hand with structure; pre-wash gently' },
+  'viscose':          { name: 'Viscose / rayon', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Drapey; pre-wash; stay-stitch all curves' },
   'nylon-taslan':     { name: 'Nylon taslan', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Water resistant, for swim/gym' },
 
-  // Knit
+  // ── Knit ──────────────────────────────────────────────────────────────────
   'jersey':           { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit' },
+  'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — cotton knits shrink 3–5%' },
+  'rayon-jersey':     { name: 'Rayon jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Drapey, fluid; pre-wash gently' },
+  'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
+  'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
+  'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
+  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — knits shrink 3–5%' },
+  'jersey-modal':     { name: 'Modal jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft with excellent drape' },
+  'jersey-bamboo':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Soft and eco-friendly; wash cold' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
   'fleece':           { name: 'Cotton or poly fleece', weight: '10–14 oz/yd²', stretch: true, category: 'knit' },
   'sweatshirt-fleece':{ name: 'Sweatshirt fleece', weight: '10–12 oz/yd²', stretch: true, category: 'knit' },
   'rib-knit':         { name: 'Rib knit (for cuffs/collar)', weight: '6–8 oz/yd²', stretch: true, category: 'knit' },
+  'ponte':            { name: 'Ponte (double knit)', weight: '8–10 oz/yd²', stretch: true, category: 'knit', notes: 'Stable stretch; holds shape well; good for structured pieces' },
   'supplex':          { name: 'Supplex nylon or poly-spandex', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: '4-way stretch, moisture-wicking' },
 
-  // Other
+  // ── Other ─────────────────────────────────────────────────────────────────
   'mesh':             { name: 'Athletic mesh', weight: '2–3 oz/yd²', stretch: true, category: 'knit', notes: 'For pocket linings, liner' },
 };
 
@@ -37,16 +67,21 @@ export const THREAD_TYPES = {
 };
 
 export const NEEDLE_TYPES = {
-  'universal-80':   { name: 'Universal 80/12', use: 'Light-medium wovens' },
-  'universal-90':   { name: 'Universal 90/14', use: 'Medium wovens (twill, gabardine)' },
-  'universal-100':  { name: 'Universal 100/16', use: 'Heavy wovens (denim, canvas)' },
-  'ballpoint-80':   { name: 'Ballpoint/Jersey 80/12', use: 'Knits (jersey, french terry)' },
-  'ballpoint-90':   { name: 'Ballpoint/Jersey 90/14', use: 'Medium knits (fleece, sweatshirt)' },
+  'universal-70':   { name: 'Universal 70/10', use: 'Very fine wovens (lawn, voile, charmeuse, chiffon)' },
+  'universal-75':   { name: 'Universal 75/11', use: 'Fine-light wovens (poplin, chambray, lawn)' },
+  'universal-80':   { name: 'Universal 80/12', use: 'Light-medium wovens (cotton, linen, crepe)' },
+  'universal-90':   { name: 'Universal 90/14', use: 'Medium wovens (twill, gabardine, wool suiting)' },
+  'universal-100':  { name: 'Universal 100/16', use: 'Heavy wovens (canvas, heavy denim)' },
+  'ballpoint-75':   { name: 'Ballpoint/Jersey 75/11', use: 'Fine knits (jersey, modal, bamboo)' },
+  'ballpoint-80':   { name: 'Ballpoint/Jersey 80/12', use: 'Knits (jersey, french terry, ponte)' },
+  'ballpoint-90':   { name: 'Ballpoint/Jersey 90/14', use: 'Medium-heavy knits (fleece, sweatshirt)' },
   'stretch-75':     { name: 'Stretch 75/11', use: 'Lycra, spandex blends' },
   'denim-100':      { name: 'Denim/Jeans 100/16', use: 'Denim, heavy twill, multiple layers' },
 };
 
 export const STITCH_TYPES = {
+  'straight-1.8':  { name: 'Straight stitch', length: '1.8mm', width: '0', use: 'Fine fabrics, detail stitching, understitching' },
+  'straight-2':    { name: 'Straight stitch', length: '2.0mm', width: '0', use: 'Fine wovens, French seams, understitching' },
   'straight-2.5':  { name: 'Straight stitch', length: '2.5mm', width: '0', use: 'Standard seams on wovens' },
   'straight-3':    { name: 'Straight stitch', length: '3.0mm', width: '0', use: 'Topstitching, visible seams' },
   'straight-3.5':  { name: 'Straight stitch', length: '3.5mm', width: '0', use: 'Basting, heavy fabric topstitch' },
@@ -56,6 +91,7 @@ export const STITCH_TYPES = {
   'overlock':      { name: 'Serger/overlock', length: '2.5–3mm', width: '5mm', use: 'Seam + finish in one pass' },
   'coverstitch':   { name: 'Coverstitch', length: '3.0mm', width: 'twin needle', use: 'Knit hems (or use twin needle)' },
   'bartack':       { name: 'Bar tack', length: '0.5mm', width: '3mm', use: 'Stress points: pocket corners, fly' },
+  'blindhem':      { name: 'Blind hem stitch', length: '2.5mm', width: '4mm', use: 'Invisible hems on trousers and skirts' },
 };
 
 /**
