@@ -243,6 +243,11 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     const a = poly[i], b = poly[(i + 1) % poly.length];
     return (a.y > height - 0.5 && b.y > height - 0.5) ? hem : sa;
   });
+  // Fix waist SA: replace diagonal miter with perpendicular vertical offset at waist corners
+  for (let i = 0; i < poly.length; i++) {
+    if (poly[i].y > cbRaise + 0.01) break;
+    saPoly[i] = { x: poly[i].x, y: poly[i].y - sa };
+  }
 
   const effSeatDepth = seatDepth || 7;
   const dims = [

@@ -142,6 +142,11 @@ export default {
         const a = poly[i], b = poly[(i + 1) % poly.length];
         return (a.y > H - 0.5 && b.y > H - 0.5) ? hem : sa;
       });
+      // Fix waist SA: replace diagonal miter with perpendicular vertical offset at waist corners
+      for (let i = 0; i < poly.length; i++) {
+        if (poly[i].y > cbRaise + 0.01) break;
+        saPoly[i] = { x: poly[i].x, y: poly[i].y - sa };
+      }
 
       return {
         id: type, name: type === 'front' ? 'Front Panel' : 'Back Panel',

@@ -15,7 +15,7 @@ export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, opts } = piece;
 
-  const mL = 3, mT = 2, mR = 4.5, mB = 3.5;
+  const mL = 3, mT = 3, mR = 5, mB = 3.5;
   const svgW = sc(mL + width + mR);
   const svgH = sc(mT + height + mB);
   const ox = sc(mL + ext);
@@ -102,15 +102,15 @@ export function renderPanelSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
-    <path d="${polyPath(svgSA)}" stroke="#4a8a5a" stroke-width=".5" stroke-dasharray="3,3" fill="rgba(74,138,90,.02)"/>
-    <path d="${polyPath(svgPoly)}" stroke="#2c2a26" stroke-width="1.2" fill="none"/>
+    <path d="${polyPath(svgSA)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <path d="${polyPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}${labelsSVG}${pocketSVG}
-    <text x="${sc(mL)}" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--sa,#4a8a5a)">${fmtInches(sa)} SA all seams incl. waist · ${fmtInches(hem)} hem</text>
-    <text x="${ox+sc(width/2)}" y="${svgH - 24}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 36}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
+    <text x="${ox+sc(width/2)}" y="${svgH - 24}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
+    <text x="${sc(mL)}" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA incl. · ${fmtInches(hem)} hem  |  solid line = cut here  |  dashed line = stitch line  |  SA is included in cut line</text>
   </svg>`;
 }
 
@@ -184,13 +184,13 @@ export function renderGenericPieceSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect width="${svgW}" height="${svgH}" fill="url(#gp${piece.id})"/>
-    <path d="${polyPath(saPoly)}" stroke="#4a8a5a" stroke-width=".5" stroke-dasharray="3,3" fill="rgba(74,138,90,.02)"/>
-    <path d="${polyPath(polygon)}" stroke="#2c2a26" stroke-width="1.2" fill="none"/>
+    <path d="${polyPath(saPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <path d="${polyPath(polygon)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}
-    <text x="${sc(mL)}" y="${svgH - sc(0.5)}" font-family="IBM Plex Mono" font-size="6.5" fill="#4a8a5a">${fmtInches(sa)} SA · ${fmtInches(hem)} hem</text>
     <text x="${svgW/2}" y="${svgH - sc(0.1)}" font-family="IBM Plex Mono" font-size="8" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
+    <text x="${sc(mL)}" y="${svgH - sc(0.5)}" font-family="IBM Plex Mono" font-size="6.5" fill="#555">${fmtInches(sa)} SA incl. · ${fmtInches(hem)} hem  |  solid line = cut here  |  dashed line = stitch line  |  SA is included in cut line</text>
     ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
   </svg>`;
 }
