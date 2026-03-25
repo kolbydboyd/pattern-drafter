@@ -158,7 +158,7 @@ export default {
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop — inseam reduced 2″' : ''}`,
       width: frontW, height: H, rise, inseam, kneeY, kneeFactor,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
       calf: m.calf, seatDepth: m.seatDepth,
     }));
 
@@ -269,7 +269,7 @@ export default {
 };
 
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, kneeY, kneeFactor, ext, cbRaise, sa, hem, isBack, opts, calf, seatDepth }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, kneeY, kneeFactor, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, calf, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
@@ -310,6 +310,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, knee
     { label: fmtInches(seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: seatDepth || 7,                    type: 'v', color: '#b8963e' },
   ];
 
+  const pleats = [];
+  if (!isBack && numPleats >= 1) pleats.push({ x: width * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 2) pleats.push({ x: width * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
@@ -319,6 +323,6 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, knee
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
     ],
-    type: 'panel', opts,
+    pleats, type: 'panel', opts,
   };
 }

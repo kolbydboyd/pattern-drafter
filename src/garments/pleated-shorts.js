@@ -119,7 +119,7 @@ export default {
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat folded toward side seam, ${fmtInches(PLEAT_DEPTH)} each` : ''}`,
       width: frontW, height: H, rise, inseam,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
     }));
 
     pieces.push(buildPanel({
@@ -236,7 +236,7 @@ export default {
 
 // ── Panel builder ─────────────────────────────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
@@ -267,6 +267,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(ext)    + ' ext',    x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,       type: 'h', color: '#c44' },
   ];
 
+  const pleats = [];
+  if (!isBack && numPleats >= 1) pleats.push({ x: width * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 2) pleats.push({ x: width * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
@@ -276,6 +280,6 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
     ],
-    type: 'panel', opts,
+    pleats, type: 'panel', opts,
   };
 }
