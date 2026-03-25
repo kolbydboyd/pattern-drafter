@@ -53,7 +53,7 @@ export function chestEaseDistribution(ease) {
  */
 export function armholeDepthFromChest(chest, style = 'standard') {
   const offsets = { fitted: 0.5, standard: 1.0, oversized: 2.0 };
-  return chest / 8 + (offsets[style] ?? 1.0);
+  return chest / 4 + (offsets[style] ?? 1.0);
 }
 
 // ── Core curve functions ───────────────────────────────────────────────────

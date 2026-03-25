@@ -235,7 +235,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: -ext,       y: rise    }); // crotch extension point
   for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
 
-  const saPoly = offsetPolygon(poly, pt => (pt.y > height - 0.5 ? hem : sa));
+  const saPoly = offsetPolygon(poly, i => {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    return (a.y > height - 0.5 && b.y > height - 0.5) ? hem : sa;
+  });
 
   const dims = [
     { label: fmtInches(width),              x1: 0,          y1: -0.5,   x2: width,      y2: -0.5,   type: 'h' },

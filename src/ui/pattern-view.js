@@ -63,11 +63,18 @@ export function renderPanelSVG(piece) {
   // Pocket indicators
   let pocketSVG = '';
   if (!isBack && opts?.frontPocket === 'slant') {
-    // Starts at top-right (waist × side seam) and slashes down-left at 45°, ~6″ long
-    const slashLen = 6 / Math.SQRT2;
-    const sx = ox + sc(width), sy = oy;
-    pocketSVG += `<line x1="${sx}" y1="${sy}" x2="${sx-sc(slashLen)}" y2="${sy+sc(slashLen)}" stroke="#8a4a4a" stroke-width=".8" stroke-dasharray="3,3"/>
-      <text x="${sx-sc(slashLen)-2}" y="${sy+sc(slashLen)+10}" font-family="IBM Plex Mono" font-size="6.5" fill="#8a4a4a" text-anchor="end">slant pocket</text>`;
+    // Slash opening: from waist 3.5″ inward from side seam → side seam 6″ below waist
+    const slashX1 = ox + sc(width - 3.5);  // waist entry point
+    const slashY1 = oy;
+    const slashX2 = ox + sc(width);         // side seam exit point
+    const slashY2 = oy + sc(6);
+    // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
+    const bagL = ox + sc(width - 7);        // left edge of bag
+    const bagB = oy + sc(7);               // bottom of bag
+    // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
+    pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
+      <text x="${bagL + 2}" y="${bagB + 9}" font-family="IBM Plex Mono" font-size="6" fill="#8a4a4a">slant pocket</text>`;
   }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));

@@ -94,15 +94,18 @@ export default {
 
     const totalEase  = UPPER_EASE[opts.fit] ?? 4;
     const { front: frontEase, back: backEase } = chestEaseDistribution(totalEase);
-    const frontW = m.chest / 4 + frontEase / 2;  // half-front panel (before placket)
-    const backW  = m.chest / 4 + backEase  / 2;
+    // Both front and back half-panels are equal so side seams align when sewn
+    const panelW = (m.chest + totalEase) / 4;
+    const frontW = panelW;
+    const backW  = panelW;
 
     const halfShoulder  = m.shoulder / 2;
     const neckW         = neckWidthFromCircumference(m.neck);
     const shoulderW     = halfShoulder - neckW;
-    const slopeDrop     = 1.5;
+    const slopeDrop     = 1.75;
+    const shoulderPtX   = neckW + shoulderW;
     const armholeDepth  = armholeDepthFromChest(m.chest, 'standard');
-    const chestDepth    = frontW * 0.35;
+    const chestDepth    = panelW - shoulderPtX;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
 
@@ -128,7 +131,6 @@ export default {
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
     const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
 
-    const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
 
     // ── FRONT PANEL (LEFT — RIGHT panel is a mirror, same piece) ─────────────

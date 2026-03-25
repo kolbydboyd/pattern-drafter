@@ -53,13 +53,19 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
 }
 
 /**
- * Compute perpendicular offset for a polygon (for seam allowance)
- * Each vertex gets a different offset based on edge type (hem, seam, waist)
- * @param {Array} poly - array of {x, y} points (clockwise winding)
- * @param {Function} offsetFn - (point, index) => offset distance
- * @returns {Array} offset polygon
+ * Compute perpendicular offset for a polygon (for seam allowance).
+ * Each EDGE gets a uniform offset so seam lines run perfectly parallel to
+ * their corresponding cut lines. At corners where adjacent edges have
+ * different offsets (e.g. the hem corner where SA meets hem allowance),
+ * two points are emitted to create a clean step instead of an interpolated
+ * blend.
+ *
+ * @param {Array}    poly          - array of {x, y} points (clockwise winding)
+ * @param {Function} edgeOffsetFn  - (edgeIndex) => offset distance
+ *                                   Edge i goes from poly[i] to poly[(i+1)%n]
+ * @returns {Array} offset polygon (may have more points than input at step corners)
  */
-export function offsetPolygon(poly, offsetFn) {
+export function offsetPolygon(poly, edgeOffsetFn) {
   const n = poly.length;
   const result = [];
 
@@ -68,27 +74,33 @@ export function offsetPolygon(poly, offsetFn) {
     const curr = poly[i];
     const next = poly[(i + 1) % n];
 
-    // Outward normals (for CW winding, outward is left of travel)
-    const e1 = norm({ x: -(curr.y - prev.y), y: curr.x - prev.x });
-    const e2 = norm({ x: -(next.y - curr.y), y: next.x - curr.x });
+    const eInIdx  = (i - 1 + n) % n; // incoming edge: prev → curr
+    const eOutIdx = i;                // outgoing edge: curr → next
+    const oIn  = edgeOffsetFn(eInIdx);
+    const oOut = edgeOffsetFn(eOutIdx);
 
-    const avg = norm({ x: e1.x + e2.x, y: e1.y + e2.y });
-    // dot = cosine of half-angle between the two edge normals.
-    // Clamp to ≥0.35 (max miter ~2.9×) so near-straight segments stay
-    // parallel and sharp spikes are capped. When avg is degenerate (0-length,
-    // e.g. a cusp), fall back to pure perpendicular offset.
-    const rawDot = e1.x * avg.x + e1.y * avg.y;
-    const dot    = rawDot !== 0 ? Math.max(Math.abs(rawDot), 0.35) * Math.sign(rawDot) : 0;
+    // Outward normals (for CW winding, outward is left of travel direction)
+    const nIn  = norm({ x: -(curr.y - prev.y), y: curr.x - prev.x });
+    const nOut = norm({ x: -(next.y - curr.y), y: next.x - curr.x });
 
-    const offset = offsetFn(curr, i);
-    const miter = dot !== 0
-      ? Math.min(Math.abs(offset / dot), offset * 2.5) * Math.sign(offset / dot)
-      : offset;
-
-    result.push({
-      x: curr.x + avg.x * miter,
-      y: curr.y + avg.y * miter,
-    });
+    if (Math.abs(oIn - oOut) < 1e-9) {
+      // Same offset on both adjacent edges — compute miter.
+      // Clamp dot to ≥0.35 to cap spike on sharp corners; fall back on
+      // perpendicular when avg is degenerate (e.g. a cusp).
+      const avg    = norm({ x: nIn.x + nOut.x, y: nIn.y + nOut.y });
+      const rawDot = nIn.x * avg.x + nIn.y * avg.y;
+      const dot    = rawDot !== 0 ? Math.max(Math.abs(rawDot), 0.35) * Math.sign(rawDot) : 0;
+      const miter  = dot !== 0
+        ? Math.min(Math.abs(oIn / dot), oIn * 2.5) * Math.sign(oIn / dot)
+        : oIn;
+      result.push({ x: curr.x + avg.x * miter, y: curr.y + avg.y * miter });
+    } else {
+      // Different offsets on adjacent edges — step corner.
+      // Emit two offset points (one per edge normal) so each edge remains
+      // a perfect parallel copy at its own distance.
+      result.push({ x: curr.x + nIn.x  * oIn,  y: curr.y + nIn.y  * oIn  });
+      result.push({ x: curr.x + nOut.x * oOut,  y: curr.y + nOut.y * oOut });
+    }
   }
 
   return result;

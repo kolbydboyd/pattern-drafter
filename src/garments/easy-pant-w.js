@@ -137,7 +137,10 @@ export default {
       poly.push({ x: -ext,  y: rise  });
       for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
 
-      const saPoly = offsetPolygon(poly, pt => (pt.y > H - 0.5 ? hem : sa));
+      const saPoly = offsetPolygon(poly, i => {
+        const a = poly[i], b = poly[(i + 1) % poly.length];
+        return (a.y > H - 0.5 && b.y > H - 0.5) ? hem : sa;
+      });
 
       return {
         id: type, name: type === 'front' ? 'Front Panel' : 'Back Panel',

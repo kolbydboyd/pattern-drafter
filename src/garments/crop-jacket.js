@@ -81,15 +81,18 @@ export default {
     // Outerwear ease: 6″ over chest for layering
     const totalEase = 6;
     const { front: frontEase, back: backEase } = chestEaseDistribution(totalEase);
-    const frontW = m.chest / 4 + frontEase / 2;
-    const backW  = m.chest / 4 + backEase  / 2;
+    // Both front and back half-panels are equal so side seams align when sewn
+    const panelW = (m.chest + totalEase) / 4;
+    const frontW = panelW;
+    const backW  = panelW;
 
     const halfShoulder  = m.shoulder / 2;
     const neckW         = neckWidthFromCircumference(m.neck);
     const shoulderW     = halfShoulder - neckW;
-    const slopeDrop     = 1.5;
+    const slopeDrop     = 1.75;
+    const shoulderPtX   = neckW + shoulderW;
     const armholeDepth  = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
-    const chestDepth    = frontW * 0.35;
+    const chestDepth    = panelW - shoulderPtX;
     const torsoLen      = m.torsoLength + (opts.length === 'hip' ? 4 : 0);
     const slvLength     = m.sleeveLength ?? 26;
     const btnCount      = 5;
@@ -107,7 +110,6 @@ export default {
       return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
     }
 
-    const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
     const NECK_DEPTH_FRONT = 3.0;
     const NECK_DEPTH_BACK  = 1.0;

@@ -106,19 +106,21 @@ export default {
 
     const easeVal = opts.fit === 'relaxed' ? 4 : 2;
     const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
-    const frontW = m.chest / 4 + frontEase / 2;
-    const backW  = m.chest / 4 + backEase  / 2;
+    // Both front and back half-panels are equal so side seams align when sewn
+    const panelW = (m.chest + easeVal) / 4;
+    const frontW = panelW;
+    const backW  = panelW;
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.5;
+    const slopeDrop    = 1.75;
+    const shoulderPtX  = neckW + shoulderW;
     const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
-    const chestDepth   = frontW * 0.35;
+    const chestDepth   = panelW - shoulderPtX;
     const neckDepths   = NECK_DEPTHS[opts.neckline] ?? NECK_DEPTHS.scoop;
     const lengthAdj    = opts.length === 'cropped' ? -2 : opts.length === 'tunic' ? 5 : 1;
     const torsoLen     = m.torsoLength + lengthAdj;
     const slvLen       = SLEEVE_LENGTHS[opts.sleeve] ?? 7;
-    const shoulderPtX  = neckW + shoulderW;
     const shoulderPtY  = slopeDrop;
 
     function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }

@@ -315,9 +315,9 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   }
 
   // SA offset
-  const saPoly = offsetPolygon(poly, (pt, idx) => {
-    if (pt.y > height - 0.5) return hem; // hem edge
-    return sa;
+  const saPoly = offsetPolygon(poly, i => {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    return (a.y > height - 0.5 && b.y > height - 0.5) ? hem : sa;
   });
 
   // Build dimension annotations

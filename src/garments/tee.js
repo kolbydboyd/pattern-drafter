@@ -16,8 +16,9 @@ import { buildMaterialsSpec } from '../engine/materials.js';
 const SLEEVE_LENGTHS = { short: 8, three_quarter: 18, long: 25 };
 
 // ── Neckline depth by style (front / back in inches) ────────────────────────
+// Crew front depth is computed dynamically from neck measurement: neck/6 + 0.5
 const NECK_DEPTHS = {
-  crew:   { front: 2.5,  back: 0.75 },
+  crew:   { front: null, back: 0.75 },
   vneck:  { front: 9.0,  back: 0.75 },
   scoop:  { front: 6.5,  back: 0.75 },
 };
@@ -98,23 +99,31 @@ export default {
 
     // ── Ease + panel widths ──────────────────────────────────────────────────
     const totalEase = UPPER_EASE[opts.ease] ?? 4;
-    const { front: frontEase, back: backEase } = chestEaseDistribution(totalEase);
-    const frontW = m.chest / 4 + frontEase / 2;  // half-front panel width
-    const backW  = m.chest / 4 + backEase  / 2;  // half-back panel width
+    // Both front and back half-panels are equal so side seams align when sewn
+    const panelW = (m.chest + totalEase) / 4;
+    const frontW = panelW;
+    const backW  = panelW;
 
     // ── Shoulder geometry ────────────────────────────────────────────────────
     const halfShoulder = m.shoulder / 2;          // shoulder point from CF/CB
-    const slopeDrop    = 1.5;                      // standard shoulder drop (in)
-    const shoulderW    = halfShoulder - neckWidthFromCircumference(m.neck);
+    const slopeDrop    = 1.75;                     // standard shoulder drop (in)
+    const neckW        = neckWidthFromCircumference(m.neck);
+    const shoulderW    = halfShoulder - neckW;
 
     // ── Armhole depth ────────────────────────────────────────────────────────
     const armholeDepth = armholeDepthFromChest(m.chest, opts.ease === 'oversized' ? 'oversized' : 'standard');
-    const chestDepth   = frontW * 0.35;           // armhole horizontal extent at underarm
+    // chestDepth = how far the underarm sits from the shoulder point horizontally
+    // = panelW minus the shoulder point position so the side seam aligns at panelW
+    const shoulderPtX  = neckW + shoulderW;       // = halfShoulder
+    const chestDepth   = panelW - shoulderPtX;    // armhole horizontal extent at underarm
 
     // ── Neckline ─────────────────────────────────────────────────────────────
     const neckKey  = opts.neckline;
-    const neckW    = neckWidthFromCircumference(m.neck);
-    const neckDepthFront = NECK_DEPTHS[neckKey]?.front ?? 2.5;
+    // Crew front depth derived from neck circumference per standard block drafting
+    const crewFrontDepth = m.neck / 6 + 0.5;
+    const neckDepthFront = neckKey === 'crew'
+      ? crewFrontDepth
+      : (NECK_DEPTHS[neckKey]?.front ?? crewFrontDepth);
     const neckDepthBack  = NECK_DEPTHS[neckKey]?.back  ?? 0.75;
     const neckStyleFront = neckKey === 'vneck' ? 'v-neck' : neckKey === 'scoop' ? 'scoop' : 'crew';
     const neckStyleBack  = 'crew';
@@ -173,7 +182,6 @@ export default {
     }
 
     // Shoulder point → underarm notch (armhole curve)
-    const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
     for (let i = 1; i < frontArmholePts.length; i++) {
       frontPoly.push({
