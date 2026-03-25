@@ -77,9 +77,8 @@ function renderPanelSVG(piece) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
-      <path d="${cutPath}" stroke="#4a8a5a" stroke-width="1.2"
-        stroke-dasharray="8,5" fill="rgba(74,138,90,0.04)"/>
-      <path d="${sewPath}" stroke="#2c2a26" stroke-width="2" fill="none"/>
+      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
+      <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cX1}" y1="${cY}" x2="${cX2}" y2="${cY}"
         stroke="#d0ccc4" stroke-width="0.8" stroke-dasharray="12,7"/>
       <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}"
@@ -197,9 +196,8 @@ function renderBodiceOrSleeveSVG(piece) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
-      <path d="${cutPath}" stroke="#4a8a5a" stroke-width="1.2"
-        stroke-dasharray="8,5" fill="rgba(74,138,90,0.04)"/>
-      <path d="${sewPath}" stroke="#2c2a26" stroke-width="2" fill="none"/>
+      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
+      <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}"
         stroke="#2c2a26" stroke-width="1.2" stroke-dasharray="18,9"/>
       <polygon points="${gx},${gy1 - 7} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
@@ -241,10 +239,9 @@ function renderRectSVG(piece) {
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       <rect x="${rx - saOff}" y="${ry - saOff}"
         width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-        stroke="#4a8a5a" stroke-width="1.2" stroke-dasharray="8,5"
-        fill="rgba(74,138,90,0.04)"/>
+        stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
-        stroke="#2c2a26" stroke-width="2" fill="none"/>
+        stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cx}" y1="${ry}" x2="${cx}" y2="${ry + rH}"
         stroke="#d0ccc4" stroke-width="0.6" stroke-dasharray="8,6"/>
       <line x1="${rx}" y1="${cy}" x2="${rx + rW}" y2="${cy}"
