@@ -109,6 +109,58 @@ export const MEASUREMENTS = {
     min: 14, max: 26, step: 0.25, default: 18,
   },
 
+  // ── Optional — Lower Body ──
+  outseam: {
+    id: 'outseam',
+    label: 'Outseam',
+    instruction: 'Outer leg from natural waist to ankle bone, standing straight.',
+    category: 'lower',
+    optional: true,
+    min: 18, max: 48, step: 0.25, default: 40,
+  },
+  calf: {
+    id: 'calf',
+    label: 'Calf circumference',
+    instruction: 'Around the widest part of your calf, standing relaxed.',
+    category: 'lower',
+    optional: true,
+    min: 10, max: 24, step: 0.25, default: 14,
+  },
+  ankle: {
+    id: 'ankle',
+    label: 'Ankle circumference',
+    instruction: 'Around the ankle bone (the bony knob on the side).',
+    category: 'lower',
+    optional: true,
+    min: 7, max: 16, step: 0.25, default: 10,
+  },
+  seatDepth: {
+    id: 'seatDepth',
+    label: 'Seat depth',
+    instruction: 'From natural waist straight down to the fullest part of your hips/seat.',
+    category: 'lower',
+    optional: true,
+    min: 4, max: 14, step: 0.25, default: 7,
+  },
+
+  // ── Optional — Upper Body ──
+  crossBack: {
+    id: 'crossBack',
+    label: 'Cross-back width',
+    instruction: 'Across back between the two armhole creases, arms relaxed at sides.',
+    category: 'upper',
+    optional: true,
+    min: 12, max: 22, step: 0.25, default: 16,
+  },
+  armToElbow: {
+    id: 'armToElbow',
+    label: 'Arm to elbow',
+    instruction: 'From shoulder point (where sleeve joins body) to elbow point, arm slightly bent.',
+    category: 'upper',
+    optional: true,
+    min: 10, max: 18, step: 0.25, default: 14,
+  },
+
   // ── Full Body (dresses) ──
   fullLength: {
     id: 'fullLength',
@@ -125,6 +177,17 @@ export const MEASUREMENTS = {
     min: 12, max: 45, step: 0.5, default: 22,
   },
 };
+
+/**
+ * Optional measurements keyed by id.
+ * These never appear in a garment's required `measurements` array.
+ * Garment modules check for their presence and fall back to derived values.
+ *
+ * @type {Object.<string, { id: string, label: string, category: string, optional: true }>}
+ */
+export const OPTIONAL_MEASUREMENTS = Object.fromEntries(
+  Object.entries(MEASUREMENTS).filter(([, v]) => v.optional)
+);
 
 /**
  * Canonical measurement lists by garment category.

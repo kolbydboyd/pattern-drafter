@@ -14,7 +14,9 @@ export default {
   id: 'gym-shorts',
   name: 'Gym Shorts',
   category: 'lower',
+  difficulty: 'beginner',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+  measurementDefaults: { inseam: 7 },
 
   options: {
     ease: {
@@ -94,12 +96,11 @@ export default {
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
 
-    // Default inseam 5 inches if user hasn't overridden
-    const inseam = m.inseam || 5;
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 7);
 
     const frontW = m.hip / 4 + ease.front;
     const backW  = m.hip / 4 + ease.back;

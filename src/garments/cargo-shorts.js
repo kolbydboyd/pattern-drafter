@@ -14,7 +14,9 @@ export default {
   id: 'cargo-shorts',
   name: 'Cargo Shorts',
   category: 'lower',
+  difficulty: 'intermediate',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+  measurementDefaults: { inseam: 10 },
 
   options: {
     ease: {
@@ -115,7 +117,8 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const H = rise + m.inseam;
+    const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 10);
+    const H = rise + inseam;
 
     const pieces = [];
 
@@ -127,12 +130,12 @@ export default {
       width: frontW,
       height: H,
       rise: rise,
-      inseam: m.inseam,
+      inseam,
       ext: frontExt,
       cbRaise: 0,
       sa, hem,
       isBack: false,
-      opts,
+      opts, seatDepth: m.seatDepth,
     }));
 
     // ── BACK PANEL ──
@@ -143,12 +146,12 @@ export default {
       width: backW,
       height: H,
       rise: rise,
-      inseam: m.inseam,
+      inseam,
       ext: backExt,
       cbRaise,
       sa, hem,
       isBack: true,
-      opts,
+      opts, seatDepth: m.seatDepth,
     }));
 
     // ── WAISTBAND ──
@@ -283,7 +286,7 @@ export default {
 // PANEL BUILDER (shared geometry for front/back)
 // ══════════════════════════════════════════════
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts, seatDepth }) {
   // Build polygon points (all in inches, CW winding)
   // LEFT = center seam (crotch curve), RIGHT = side seam (straight)
   const kneeY = rise + inseam * 0.55;
@@ -327,6 +330,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise, y2: height, type: 'v' },
     { label: fmtInches(height) + ' total', x: width + 2.3, y1: 0, y2: height, type: 'v' },
     { label: fmtInches(ext) + ' ext', x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4, type: 'h', color: '#c44' },
+    { label: fmtInches(seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: seatDepth || 7, type: 'v', color: '#b8963e' },
   ];
 
   return {

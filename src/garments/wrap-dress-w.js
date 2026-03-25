@@ -15,6 +15,7 @@ export default {
   id: 'wrap-dress-w',
   name: 'Wrap Dress (W)',
   category: 'dresses',
+  difficulty: 'intermediate',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
   measurementDefaults: { torsoLength: 16, skirtLength: 28 },
 
@@ -101,6 +102,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
 
@@ -123,7 +126,7 @@ export default {
     const backNeckPts  = sc(necklineCurve(neckW, 0.75, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     // Front panel — shoulder/armhole at standard panelW; wrap extension on inner edge only
     function buildFrontBodice() {
@@ -208,6 +211,7 @@ export default {
         id: 'bodice-front', name: 'Front Bodice (cut 2 — mirror)',
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(wrapExt)} wrap extension past CF · V-neck descends to bust level · Facing sewn along V-neckline edge`,
         type: 'bodice', polygon: frontBodicePoly, path: pp(frontBodicePoly),
+        isCutOnFold: false,
         width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + wrapExt) + ' width + wrap', x1: -wrapExt, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
@@ -242,6 +246,7 @@ export default {
     if (opts.sleeve !== 'sleeveless') {
       const SLEEVE_LENGTHS = { short: 9, three_qtr: 17, long: 25 };
       const slvLen    = SLEEVE_LENGTHS[opts.sleeve] || 9;
+      const effArmToElbow = m.armToElbow || (slvLen * 0.45);
       const slvW      = (m.bicep || 13) / 2 + easeVal * 0.15;
       const slvPoly   = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
       const slvBB     = bb(slvPoly);
@@ -250,7 +255,7 @@ export default {
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
         width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
+        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       });
     } else {
       pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });

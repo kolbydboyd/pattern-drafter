@@ -18,6 +18,7 @@ export default {
   id: 'crewneck',
   name: 'Crewneck Sweatshirt',
   category: 'upper',
+  difficulty: 'intermediate',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 25 },
 
@@ -83,6 +84,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
     const isRaglan     = opts.sleeveType === 'raglan';
@@ -130,7 +133,6 @@ export default {
 
     // ── BACK BODICE ──────────────────────────────────────────────────────────
     const backNeckPts = sampleCurve(necklineCurve(neckW, 0.75, 'crew'));
-    const backChestDepth = chestDepth;
 
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
@@ -154,6 +156,7 @@ export default {
     backPoly.push({ x: 0, y: 0.75 });
 
     // ── SLEEVE ───────────────────────────────────────────────────────────────
+    const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.25;
     const slvWidth   = m.bicep / 2 + sleeveEase;
     const capHeight  = isRaglan ? 0 : 5.5;
@@ -240,6 +243,7 @@ export default {
         dims: [
           { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: (isRaglan ? 0 : capHeight) + 0.4, x2: slvWidth * 2, y2: (isRaglan ? 0 : capHeight) + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: isRaglan ? 0 : capHeight, y2: (isRaglan ? 0 : capHeight) + slvLength, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
       {

@@ -15,6 +15,7 @@ export default {
   id: 'chinos',
   name: 'Chinos',
   category: 'lower',
+  difficulty: 'advanced',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 31 },
 
@@ -93,7 +94,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.inseam || 31;
+    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
     const frontW = m.hip / 4 + ease.front;
@@ -107,6 +108,7 @@ export default {
       instruction: 'Cut 2 (mirror L & R) · Serge all raw edges after each seam',
       width: frontW, height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, opts,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
     pieces.push(buildPanel({
@@ -114,6 +116,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
       width: backW, height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem, isBack: true, shape, opts,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
     // ── WAISTBAND ──
@@ -221,13 +224,13 @@ export default {
 
 // ── Panel builder with knee-point leg shaping ─────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   const kneeY       = rise + inseam * 0.55;
-  const kneeW       = width * shape.knee;
-  const hemW        = width * shape.hem;
+  const kneeW       = calf  ? calf  / 4 : width * shape.knee;
+  const hemW        = ankle ? ankle / 4 : width * shape.hem;
   const kneeInward  = (width - kneeW) * 0.5;
   const hemInward   = (width - hemW)  * 0.5;
   const sideKneeX   =  width - kneeInward;
@@ -251,6 +254,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     return (a.y > height - 0.5 && b.y > height - 0.5) ? hem : sa;
   });
 
+  const effSeatDepth = seatDepth || 7;
   const dims = [
     { label: fmtInches(width),              x1: 0,           y1: -0.5,        x2: width,      y2: -0.5,        type: 'h' },
     { label: fmtInches(kneeW) + ' knee',    x1: inseamKneeX, y1: kneeY + 0.4, x2: sideKneeX,  y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
@@ -258,6 +262,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(rise)   + ' rise',   x: width + 1.2,  y1: 0,           y2: rise,                         type: 'v' },
     { label: fmtInches(inseam) + ' inseam', x: width + 1.2,  y1: rise,        y2: height,                       type: 'v' },
     { label: fmtInches(ext)    + ' ext',    x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,                   type: 'h', color: '#c44' },
+    { label: fmtInches(effSeatDepth) + ' seat', x: -ext - 1.2, y1: 0, y2: effSeatDepth,                        type: 'v', color: '#b8963e' },
   ];
 
   return {

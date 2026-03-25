@@ -19,6 +19,7 @@ export default {
   id: 'shirt-dress-w',
   name: 'Shirt Dress (W)',
   category: 'dresses',
+  difficulty: 'advanced',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
   measurementDefaults: { torsoLength: 16, skirtLength: 26 },
 
@@ -124,6 +125,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
 
@@ -142,7 +145,7 @@ export default {
     const backNeckPts  = sc(necklineCurve(neckW, 0.75, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     function buildBodice(isBack, neckPts, armPts, neckDepth, sideX) {
       const poly = [];
@@ -259,6 +262,7 @@ export default {
     if (opts.sleeve !== 'sleeveless') {
       const SLEEVE_LENGTHS = { short: 9, roll: 17, long: 26 };
       const slvLen  = SLEEVE_LENGTHS[opts.sleeve] || 9;
+      const effArmToElbow = m.armToElbow || (slvLen * 0.45);
       const slvW    = (m.bicep || 13) / 2 + easeVal * 0.15 + 0.5;
       const slvPoly = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
       const slvBB   = bb(slvPoly);
@@ -267,7 +271,7 @@ export default {
         instruction: `Cut 2 (mirror L & R)${opts.sleeve === 'roll' ? ' · Tab and button to hold roll-up position' : ''}`,
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
         width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
+        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       });
     } else {
       pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });

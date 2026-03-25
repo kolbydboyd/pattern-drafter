@@ -15,6 +15,7 @@ export default {
   id: 'easy-pant-w',
   name: 'Easy Pant (W)',
   category: 'lower',
+  difficulty: 'beginner',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 29, rise: 10 },
 
@@ -100,7 +101,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.inseam || 29;
+    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 29);
 
     const frontW = m.hip / 4 + easeFront;
     const backW  = m.hip / 4 + easeBack;
@@ -119,8 +120,8 @@ export default {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
       const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
-      const kneeW   = width * shape.knee;
-      const hemW    = width * shape.hem;
+      const kneeW   = m.calf  ? m.calf  / 4 : width * shape.knee;
+      const hemW    = m.ankle ? m.ankle / 4 : width * shape.hem;
       const kIn     = (width - kneeW) * 0.5;
       const hIn     = (width - hemW)  * 0.5;
       const skX     = width - kIn,  shkX = width - hIn;
@@ -151,6 +152,7 @@ export default {
           { label: fmtInches(width),            x1: 0, y1: -0.5, x2: width, y2: -0.5, type: 'h' },
           { label: fmtInches(rise) + ' rise',   x: width + 1.2, y1: 0, y2: rise,      type: 'v' },
           { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise, y2: H,   type: 'v' },
+          { label: fmtInches(m.seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: m.seatDepth || 7, type: 'v', color: '#b8963e' },
         ],
         width, height: H, rise, inseam, ext, cbRaise, sa, hem, isBack,
         labels: [

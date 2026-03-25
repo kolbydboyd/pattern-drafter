@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/black/OneDrive/Desktop/pattern-drafter/src/garments/**)",
+      "Bash(done)",
+      "Bash(node --check src/garments/tee.js)",
+      "Bash(node --check src/engine/upper-body.js)",
+      "Bash(do node:*)",
+      "Bash(echo \"$f ok\")",
+      "Bash(grep -n \"opts.backPocket === ''patch2''\" src/garments/*.js)",
+      "Bash(grep -B 5 -A 5 \"patch2\" src/garments/*.js)",
+      "Bash(grep -rn \"return.*pieces\\\\|return.*materials\\\\|return.*instructions\" src/garments/*.js)",
+      "Bash(git push:*)"
+    ]
+  }
+}

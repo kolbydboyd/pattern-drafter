@@ -22,7 +22,9 @@ export default {
   id: 'shell-blouse-w',
   name: 'Shell Blouse (W)',
   category: 'tops',
+  difficulty: 'intermediate',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
+  measurementDefaults: {},
 
   options: {
     neckline: {
@@ -115,6 +117,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
     const torsoLen     = m.torsoLength + lengthExtra;
     const neckStyle    = NECK_STYLES[opts.neckline] ?? NECK_STYLES.boat;
@@ -128,7 +132,7 @@ export default {
     const backNeckPts  = sc(necklineCurve(neckW, neckStyle.back, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     function buildBody(isBack, neckPts, armPts, neckDepth, W, sideX) {
       const poly = [];

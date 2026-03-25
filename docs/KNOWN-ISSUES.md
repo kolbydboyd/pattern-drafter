@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-03-25 (v0.5.0)
+Last updated: 2026-03-25 (v0.5.1)
 
 Rendering bugs, geometry inaccuracies, and UX gaps found during the full project audit. Each entry includes the affected file(s), reproduction steps, and suggested fix.
 
@@ -11,17 +11,12 @@ Rendering bugs, geometry inaccuracies, and UX gaps found during the full project
 ### KI-001 · SA outline uses naive centroid scaling instead of edge offsetting
 
 **Severity**: medium — visually inaccurate on all bodice/sleeve pieces
+**Status**: ✅ Fixed in 2026-03-25 audit (v0.5.1)
 **Affects**: all `bodice` and `sleeve` type pieces
-**File**: `src/ui/pattern-view.js` → `renderGenericPieceSVG()` → `insetPoly()`
+**File**: `src/ui/pattern-view.js` → `renderGenericPieceSVG()`
 
-**Description**
-The seam-allowance outline for bodice and sleeve pieces is computed by scaling the polygon about its centroid (`insetPoly`), not by offsetting each edge perpendicularly. This produces a shape that is proportionally smaller/larger but not at a uniform distance from the cut line. The error is most visible on tall narrow pieces (sleeve cap) where the centroid-scale in X and Y diverge significantly.
-
-**Example**
-A sleeve piece ~6″ wide × 24″ tall: the centroid Y-scale is `1 + sa / (pH/2) = 1 + 0.5/12 = 1.042`, but the centroid X-scale is `1 + sa / (pW/2) = 1 + 0.5/3 = 1.167`. The SA is shown as ~0.5″ on long edges but ~1″ on short edges.
-
-**Fix**
-Replace `insetPoly` with `offsetPolygon` from `src/engine/geometry.js`, using a uniform `edgeOffsetFn` returning `sa` for all edges (or `hem` for the hem edge). `offsetPolygon` is already used and proven correct for the lower-body panel renderer.
+**Fix applied**
+Removed `insetPoly` (centroid-scale approximation). Now calls `offsetPolygon(polygon, () => -sa)` — the same perpendicular-edge-offset function used by the lower-body panel renderer — producing a uniform SA distance on all edges.
 
 ---
 
@@ -71,16 +66,12 @@ Add a minimum label x of `sc(0.3)` (absolute left margin), or hide the ext label
 ### KI-005 · Wrap dress front bodice "fold edge" annotation is wrong
 
 **Severity**: medium — misleading cut instruction
+**Status**: ✅ Fixed in 2026-03-25 audit (v0.5.1)
 **Affects**: `wrap-dress-w` front bodice piece
 **Files**: `src/garments/wrap-dress-w.js`, `src/ui/pattern-view.js` → `renderGenericPieceSVG()`
 
-**Description**
-The wrap dress front bodice polygon extends into negative x (the wrap extension `−wrapExt` to the left of the CF fold line at x=0). `renderGenericPieceSVG` computes the bounding box and places a `← FOLD EDGE` annotation at the leftmost point of the bounding box (`x = mL`). But the leftmost point is the wrap extension edge, NOT the CF fold. The actual CF fold line is at x=0 inside the polygon; there is no fold — the front is cut as two separate pieces.
-
-The annotation text `(cut on fold)` in `pieceLabel` is also wrong for the wrap front: it should be `cut × 2 (mirror)`.
-
-**Fix**
-`renderGenericPieceSVG` needs to accept a `foldEdge` prop (or read `piece.isCutOnFold`). Garments that are NOT cut on fold should pass `isCutOnFold: false`. `wrap-dress-w` should set this on its front bodice pieces, and the renderer should suppress both the fold annotation and `(cut on fold)` label text when this flag is false.
+**Fix applied**
+`renderGenericPieceSVG` now reads `piece.isCutOnFold` (defaults to `true` for all existing pieces). When `false`, the `← FOLD EDGE` annotation and `(cut on fold)` label are suppressed; the piece label becomes `NAME × 2 (mirror)` instead. `wrap-dress-w` front bodice now sets `isCutOnFold: false`.
 
 ---
 
@@ -100,19 +91,17 @@ The annotation text `(cut on fold)` in `pieceLabel` is also wrong for the wrap f
 ### KI-007 · Five garments missing `measurementDefaults`
 
 **Severity**: low — UX annoyance, not a crash
+**Status**: ✅ Fixed in 2026-03-25 audit (v0.5.1)
 **Affects**: `cargo-shorts`, `gym-shorts`, `swim-trunks`, `pleated-shorts`, `shell-blouse-w`
 **File**: each affected garment module
 
-**Description**
-These modules do not declare `measurementDefaults`, so `app.js` falls through to the global `MEASUREMENTS` default values. The global inseam default is `7″`, which is the correct starting value for swim trunks but too short for cargo shorts (better default: 9–10″) and clearly wrong for pleated shorts (better: 10–11″).
-
-**Fix**
-Add `measurementDefaults` to each module:
+**Fix applied**
+Added `measurementDefaults` to each module:
 - `cargo-shorts`: `{ inseam: 10 }`
 - `gym-shorts`: `{ inseam: 7 }`
 - `swim-trunks`: `{ inseam: 5 }`
 - `pleated-shorts`: `{ inseam: 11 }`
-- `shell-blouse-w`: `{}` (sleeveless; global defaults are fine — just add for consistency)
+- `shell-blouse-w`: `{}` (sleeveless; global defaults are fine — added for consistency)
 
 ---
 
@@ -159,13 +148,13 @@ Debug log that printed slant pocket SVG coordinates on every generate call for g
 
 | ID | Description | Severity | Status |
 |---|---|---|---|
-| KI-001 | SA outline uses centroid scaling — inaccurate on bodice/sleeve | medium | open |
+| KI-001 | SA outline uses centroid scaling — inaccurate on bodice/sleeve | medium | ✅ fixed |
 | KI-002 | SA corner spikes at acute angles | low | open |
 | KI-003 | Slant pocket indicator doesn't annotate mirror direction | low | open |
 | KI-004 | Ext label clips at small crotch extension values | low | open |
-| KI-005 | Wrap dress front fold annotation incorrect | medium | open |
+| KI-005 | Wrap dress front fold annotation incorrect | medium | ✅ fixed |
 | KI-006 | Wrap dress skirt panels use bodice SA scaling | low | open |
-| KI-007 | Five garments missing measurementDefaults | low | open |
+| KI-007 | Five garments missing measurementDefaults | low | ✅ fixed |
 | KI-008 | tee.js used `ease` option key instead of `fit` | low | ✅ fixed |
 | KI-009 | Category `'tops'` vs `'upper'` inconsistency | low | open |
 | — | console.log left in slant pocket renderer | — | ✅ removed |

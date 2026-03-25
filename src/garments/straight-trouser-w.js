@@ -17,6 +17,7 @@ export default {
   id: 'straight-trouser-w',
   name: 'Straight Trouser (W)',
   category: 'lower',
+  difficulty: 'advanced',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30, rise: 10 },
 
@@ -137,7 +138,8 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam = (m.inseam || 30) - (opts.hemStyle === 'crop' ? 2 : 0);
+    const baseInseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const inseam = baseInseam - (opts.hemStyle === 'crop' ? 2 : 0);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
@@ -157,6 +159,7 @@ export default {
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop — inseam reduced 2″' : ''}`,
       width: frontW, height: H, rise, inseam, kneeY, kneeFactor,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
+      calf: m.calf, seatDepth: m.seatDepth,
     }));
 
     pieces.push(buildPanel({
@@ -164,6 +167,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
       width: backW, height: H, rise, inseam, kneeY, kneeFactor,
       ext: backExt, cbRaise, sa, hem, isBack: true, opts,
+      calf: m.calf, seatDepth: m.seatDepth,
     }));
 
     const wbCirc = m.hip + easeVal + pleatExtra * 2 + sa * 2;
@@ -265,12 +269,13 @@ export default {
 };
 
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, kneeY, kneeFactor, ext, cbRaise, sa, hem, isBack, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, kneeY, kneeFactor, ext, cbRaise, sa, hem, isBack, opts, calf, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
-  // Knee taper: inward on both sides from hip to knee, straight from knee to hem
-  const kneeInward  = (width - width * kneeFactor) * 0.5;
+  // Knee taper: if calf provided use body measurement, else use kneeFactor ratio
+  const kneeW       = calf ? calf / 4 : width * kneeFactor;
+  const kneeInward  = (width - kneeW) * 0.5;
   const sideKneeX   = width - kneeInward;
   const inseamKneeX = -ext + kneeInward;
 
@@ -292,11 +297,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, knee
 
   const dims = [
     { label: fmtInches(width),              x1: 0,           y1: -0.5,       x2: width,        y2: -0.5,       type: 'h' },
-    { label: fmtInches(width * kneeFactor) + ' knee', x1: inseamKneeX, y1: kneeY + 0.4, x2: sideKneeX, y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
+    { label: fmtInches(kneeW) + ' knee',    x1: inseamKneeX, y1: kneeY + 0.4, x2: sideKneeX, y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
     { label: fmtInches(rise)   + ' rise',   x: width + 1.2, y1: 0,           y2: rise,                          type: 'v' },
     { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise,        y2: height,                        type: 'v' },
     { label: fmtInches(height) + ' total',  x: width + 2.3, y1: 0,           y2: height,                        type: 'v' },
     { label: fmtInches(ext)    + ' ext',    x1: -ext,       y1: rise + 0.4,  x2: 0,            y2: rise + 0.4,  type: 'h', color: '#c44' },
+    { label: fmtInches(seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: seatDepth || 7,                    type: 'v', color: '#b8963e' },
   ];
 
   return {

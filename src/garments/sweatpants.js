@@ -15,6 +15,7 @@ export default {
   id: 'sweatpants',
   name: 'Sweatpants',
   category: 'lower',
+  difficulty: 'intermediate',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30 },
 
@@ -92,7 +93,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.inseam || 30;
+    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
     const isJogger = opts.legStyle === 'jogger';
 
     // For jogger: taper to ~55% of panel width at hem (similar to slim shape)
@@ -109,6 +110,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · Stretch stitch all seams${isJogger ? ' · Tapers to rib cuff at hem' : ''}`,
       width: frontW, height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, opts,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
     pieces.push(buildPanel({
@@ -116,6 +118,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
       width: backW, height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem, isBack: true, shape, opts,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
     // ── WAISTBAND (elastic + drawstring) ──
@@ -240,13 +243,13 @@ export default {
 
 // ── Panel builder with optional knee taper ────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   const kneeY       = rise + inseam * 0.55;
-  const kneeW       = width * shape.knee;
-  const hemW        = width * shape.hem;
+  const kneeW       = calf  ? calf  / 4 : width * shape.knee;
+  const hemW        = ankle ? ankle / 4 : width * shape.hem;
   const kneeInward  = (width - kneeW) * 0.5;
   const hemInward   = (width - hemW)  * 0.5;
   const sideKneeX   =  width - kneeInward;
@@ -277,6 +280,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(rise)   + ' rise',   x: width + 1.2,  y1: 0,           y2: rise,                         type: 'v' },
     { label: fmtInches(inseam) + ' inseam', x: width + 1.2,  y1: rise,        y2: height,                       type: 'v' },
     { label: fmtInches(ext)    + ' ext',    x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,                   type: 'h', color: '#c44' },
+    { label: fmtInches(seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: seatDepth || 7,                    type: 'v', color: '#b8963e' },
   ];
 
   return {

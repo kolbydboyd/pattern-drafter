@@ -27,6 +27,7 @@ export default {
   id: 'tee',
   name: 'T-Shirt',
   category: 'upper',
+  difficulty: 'beginner',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 25 },
 
@@ -122,6 +123,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
 
     // ── Neckline ─────────────────────────────────────────────────────────────
     // Back neckline depth (A→G): neckW / 3 ≈ neck/18 — very shallow, < 1"
@@ -196,7 +199,7 @@ export default {
     // Identical layout; back neckline depth is very shallow (neckW/3 ≈ neck/18 < 1")
     //
     const backNeckPts  = curveToPoints(necklineCurve(neckW, neckDepthBack, neckStyleBack));
-    const backArmholePts = curveToPoints(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmholePts = curveToPoints(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     const backPoly = [];
 
@@ -217,6 +220,7 @@ export default {
     backPoly.push({ x: 0, y: neckDepthBack });
 
     // ── SLEEVE POLYGON ───────────────────────────────────────────────────────
+    const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     // Full flat width at underarm = bicep + 2" ease (standard block rule)
     // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
     const slvFullWidth = m.bicep + 2;
@@ -313,6 +317,7 @@ export default {
           { label: fmtInches(slvFullWidth) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvFullWidth, y2: capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvFullWidth + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
           { label: fmtInches(capHeight) + ' cap', x: -1.2, y1: 0, y2: capHeight, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
       {

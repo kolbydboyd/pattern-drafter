@@ -21,6 +21,7 @@ export default {
   id: 'button-up-w',
   name: 'Button-Up Shirt (W)',
   category: 'tops',
+  difficulty: 'advanced',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
 
@@ -133,6 +134,8 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
     const torsoLen     = m.torsoLength + lengthExtra;
     const slvLen       = SLEEVE_LENGTHS[opts.sleeve] ?? m.sleeveLength ?? 9;
@@ -146,7 +149,7 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmPts     = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     // Front panel polygon
     const frontPoly = [];
@@ -172,6 +175,7 @@ export default {
     backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
     // Sleeve polygon (tapered)
+    const effArmToElbow = m.armToElbow || (slvLen * 0.45);
     const slvTopW = m.bicep / 2 + easeVal * 0.15;
     const slvBotW = (m.wrist || m.bicep * 0.75) / 2 + 0.25;
     const sleevePoly = [
@@ -208,7 +212,7 @@ export default {
         type: 'sleeve', polygon: sleevePoly, path: polyPath(sleevePoly),
         width: slvBB.maxX - slvBB.minX, height: slvBB.maxY - slvBB.minY,
         capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' }],
+        dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       },
       { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × 3″ cut`, dimensions: { length: collarLen, width: 3 }, type: 'rectangle', sa },
       { id: 'collar-stand', name: 'Collar Stand', instruction: 'Cut 2 · Interface one · 1.5″ wide × neckline length', dimensions: { length: m.neck + 0.5, width: 1.5 }, type: 'pocket' },

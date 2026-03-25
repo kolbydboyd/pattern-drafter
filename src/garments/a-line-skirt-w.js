@@ -11,6 +11,7 @@ export default {
   id: 'a-line-skirt-w',
   name: 'A-Line Skirt (W)',
   category: 'lower',
+  difficulty: 'beginner',
   measurements: ['waist', 'hip', 'skirtLength'],
   measurementDefaults: { skirtLength: 26 },
 

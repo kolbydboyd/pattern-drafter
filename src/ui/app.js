@@ -3,7 +3,7 @@
  * All imports are static/top-level. No dynamic imports needed.
  */
 
-import { MEASUREMENTS } from '../engine/measurements.js';
+import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, easeDistribution } from '../engine/geometry.js';
 import cargoShorts      from '../garments/cargo-shorts.js';
 import gymShorts        from '../garments/gym-shorts.js';
@@ -61,6 +61,18 @@ const GARMENTS = {
 
 let currentGarment = 'cargo-shorts';
 
+// ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
+function relevantOptionalIds(garment) {
+  const has = id => garment.measurements.includes(id);
+  const ids = [];
+  if (has('thigh'))                      { ids.push('calf', 'ankle'); }
+  if (has('inseam') || has('hip'))       { ids.push('outseam'); }
+  if (has('hip'))                        { ids.push('seatDepth'); }
+  if (has('shoulder'))                   { ids.push('crossBack'); }
+  if (has('sleeveLength') || has('bicep')) { ids.push('armToElbow'); }
+  return [...new Set(ids)];
+}
+
 // ═══ MEASUREMENT PROFILES ═══
 const PROFILES_KEY = 'pd-profiles';
 
@@ -76,6 +88,12 @@ function saveCurrentProfile() {
   const m = {};
   for (const mId of g.measurements) {
     m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+  }
+  for (const mId of relevantOptionalIds(g)) {
+    const el = document.getElementById(`m-${mId}`);
+    if (!el) continue;
+    const raw = el.value.trim();
+    if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
   const profiles = loadProfiles().filter(p => p.name !== name);
   profiles.push({ name, ...m });
@@ -113,7 +131,7 @@ function buildInputs() {
   html += `<h2>Garment</h2>
     <div class="f"><select id="garment-select">
       ${Object.values(GARMENTS).map(gr =>
-        `<option value="${gr.id}" ${gr.id === currentGarment ? 'selected' : ''}>${gr.name}</option>`
+        `<option value="${gr.id}" ${gr.id === currentGarment ? 'selected' : ''}>${gr.name}${gr.difficulty ? ' · ' + gr.difficulty : ''}</option>`
       ).join('')}
     </select></div>`;
 
@@ -142,6 +160,21 @@ function buildInputs() {
     html += `<div class="f"><label>${mDef.label}</label>
       <div class="hint">${mDef.instruction}</div>
       <input type="number" id="m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
+  }
+
+  // Advanced (optional) measurements
+  const optIds = relevantOptionalIds(g);
+  if (optIds.length) {
+    html += `<details class="adv-meas"><summary>Advanced Measurements</summary>
+      <p class="adv-hint">Leave blank to use calculated defaults. Fill in for more accurate shaping.</p>`;
+    for (const mId of optIds) {
+      const mDef = OPTIONAL_MEASUREMENTS[mId];
+      if (!mDef) continue;
+      html += `<div class="f"><label>${mDef.label}</label>
+        <div class="hint">${mDef.instruction}</div>
+        <input type="number" id="m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
+    }
+    html += `</details>`;
   }
 
   // Options
@@ -217,6 +250,16 @@ function readInputs() {
   const m = {};
   for (const mId of g.measurements) {
     m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+  }
+  // Optional measurements — only include when the user actually entered a value
+  for (const mId of relevantOptionalIds(g)) {
+    const el = document.getElementById(`m-${mId}`);
+    if (!el) continue;
+    const raw = el.value.trim();
+    if (raw !== '') {
+      const v = parseFloat(raw);
+      if (!isNaN(v) && v > 0) m[mId] = v;
+    }
   }
   const opts = {};
   for (const [key, opt] of Object.entries(g.options)) {
@@ -337,6 +380,36 @@ function renderMaterials(mat, yardage45, yardage60) {
   return html;
 }
 
+// ═══ JARGON EXPANSION ═══
+function expandJargon(steps) {
+  const seen = new Set();
+  const JARGON = [
+    { key: 'rst',         rx: /\bRST\b/,                           fn: () => 'right sides together (RST — good sides of fabric facing each other)' },
+    { key: 'press',       rx: /\b([Pp]ress(?:ed|ing)?)\b(?!\s+cloth)/,  fn: (_, c) => `${c} with iron (don't slide; press straight down and lift)` },
+    { key: 'baste',       rx: /\b([Bb]aste[ds]?|[Bb]asting)\b/,    fn: (_, c) => `${c} (temporary long stitch to hold in place)` },
+    { key: 'understitch', rx: /\b([Uu]nderstitch(?:ed|ing)?)\b/,    fn: (_, c) => `${c} (sew the seam allowance to the facing close to the seam so it rolls inward)` },
+    { key: 'topstitch',   rx: /\b([Tt]opstitch(?:ed|ing)?)\b/,      fn: (_, c) => `${c} (visible stitch on the outside of the garment)` },
+    { key: 'sa',          rx: /\bSA\b/,                             fn: () => 'seam allowance (SA)' },
+    { key: 'bodkin',      rx: /\b([Bb]odkin)\b/,                    fn: (_, c) => `${c} (or large safety pin)` },
+    { key: 'clipcurve',   rx: /[Cc]lip (?:the )?curve/,             fn: () => 'clip the curve (cut small snips into the seam allowance so it lies flat around curves — don\'t cut through the stitching)' },
+    { key: 'bartack',     rx: /[Bb]ar[ -]?tack/,                    fn: () => 'bar tack (tight zigzag reinforcement stitch at stress points)' },
+    { key: 'fellseam',    rx: /flat-?fell(?:ed)? seam|fell(?:ed)? seam/i, fn: () => 'flat-felled seam (seam enclosed on itself for durability, like on jeans)' },
+    { key: 'serger',      rx: /\b([Ss]erger)\b/,                    fn: (_, c) => `${c}/overlocker (or use zigzag stitch if you don't have one)` },
+    { key: 'serge',       rx: /\b([Ss]erged?)\b/,                   fn: (_, c) => `${c} (or zigzag stitch)` },
+  ];
+
+  return steps.map(s => {
+    let detail = s.detail;
+    for (const { key, rx, fn } of JARGON) {
+      if (!seen.has(key)) {
+        const next = detail.replace(rx, (...args) => { seen.add(key); return fn(...args); });
+        detail = next;
+      }
+    }
+    return { ...s, detail };
+  });
+}
+
 // ═══ RENDER INSTRUCTIONS ═══
 function renderInstructions(steps) {
   let html = '';
@@ -353,14 +426,15 @@ function generate() {
 
   const pieces = g.pieces(m, opts);
   const materials = g.materials(m, opts);
-  const instructions = g.instructions(m, opts);
+  const instructions = expandJargon(g.instructions(m, opts));
 
   const isLower = g.category === 'lower';
   const isUpper = !isLower;
   const overviewParts = isUpper
     ? [g.name, opts.fit ?? opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.waist ? fmtInches(m.waist) + ' waist' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
     : [g.name, opts.fit ?? opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
-  let html = `<div class="oh">${overviewParts.join(' · ')}</div>`;
+  const diffBadge = g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : '';
+  let html = `<div class="oh">${diffBadge}${overviewParts.join(' · ')}</div>`;
   html += `<div class="po">`;
 
   // Pattern pieces

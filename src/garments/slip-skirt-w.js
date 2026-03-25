@@ -11,6 +11,7 @@ export default {
   id: 'slip-skirt-w',
   name: 'Slip Skirt (W)',
   category: 'lower',
+  difficulty: 'intermediate',
   measurements: ['waist', 'hip', 'skirtLength'],
   measurementDefaults: { skirtLength: 28 },
 

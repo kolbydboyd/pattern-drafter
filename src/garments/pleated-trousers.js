@@ -20,6 +20,7 @@ export default {
   id: 'pleated-trousers',
   name: 'Pleated Trousers',
   category: 'lower',
+  difficulty: 'advanced',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 31 },
 
@@ -95,7 +96,7 @@ export default {
     const baseRise  = m.rise || 12;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam = m.inseam || 31;
+    const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
 
     const frontW = m.hip / 4 + easeFront + pleatExtra;
     const backW  = m.hip / 4 + easeBack;

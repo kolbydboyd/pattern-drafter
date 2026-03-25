@@ -3,7 +3,7 @@
  * Takes piece objects from garment modules, returns SVG strings.
  */
 
-import { fmtInches } from '../engine/geometry.js';
+import { fmtInches, offsetPolygon } from '../engine/geometry.js';
 
 const SC = 20; // 1 inch = 20 SVG units
 const sc = i => i * SC;
@@ -142,18 +142,7 @@ export function renderGenericPieceSVG(piece) {
     return d + ' Z';
   }
 
-  // Simple SA offset — shrink polygon by sa amount (approximate inset)
-  function insetPoly(pts, offset) {
-    // Naïve: scale polygon about centroid
-    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-    return pts.map(p => ({
-      x: cx + (p.x - cx) * (1 - offset / (pW / 2)),
-      y: cy + (p.y - cy) * (1 - offset / (pH / 2)),
-    }));
-  }
-
-  const saPoly = insetPoly(polygon, -(sa));  // outset by sa
+  const saPoly = offsetPolygon(polygon, () => -sa);  // outset by sa (negative = outward for CW winding)
 
   // Grain line: vertical through horizontal center of bounding box
   const gx = ox + sc((minX + maxX) / 2);
@@ -179,8 +168,13 @@ export function renderGenericPieceSVG(piece) {
     }
   }
 
-  const pieceLabel = type === 'sleeve' ? 'SLEEVE × 2 (mirror)' : piece.name?.toUpperCase() + ' (cut on fold)';
-  const foldNote   = type === 'sleeve' ? '' : '← FOLD EDGE';
+  const cutOnFold  = type !== 'sleeve' && piece.isCutOnFold !== false;
+  const pieceLabel = type === 'sleeve'
+    ? 'SLEEVE × 2 (mirror)'
+    : cutOnFold
+      ? piece.name?.toUpperCase() + ' (cut on fold)'
+      : piece.name?.toUpperCase() + ' × 2 (mirror)';
+  const foldNote   = cutOnFold ? '← FOLD EDGE' : '';
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>

@@ -26,6 +26,7 @@ export default {
   id: 'camp-shirt',
   name: 'Camp Shirt',
   category: 'upper',
+  difficulty: 'advanced',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
 
@@ -107,6 +108,8 @@ export default {
     const armholeY      = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
+    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
+    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
 
@@ -130,7 +133,7 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
+    const backArmPts     = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     const shoulderPtY = slopeDrop;
 
@@ -163,7 +166,6 @@ export default {
     frontPoly.push({ x: 0, y: NECK_DEPTH_FRONT });
 
     // ── BACK PANEL ───────────────────────────────────────────────────────────
-    const backChestDepth = chestDepth;
     const backPoly = [];
 
     const neckBackRev = [...backNeckPts].reverse();
@@ -182,6 +184,7 @@ export default {
     backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
     // ── SLEEVE (straight rectangle with 10% taper toward hem) ────────────────
+    const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.2;
     const slvTopW    = m.bicep / 2 + sleeveEase;     // half-sleeve at cap
     const slvBotW    = (m.wrist || m.bicep * 0.7) / 2 + (opts.sleeveStyle === 'long' ? 0.5 : 0);
@@ -261,6 +264,7 @@ export default {
         dims: [
           { label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: slvLength, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
       {
