@@ -73,11 +73,16 @@ export function offsetPolygon(poly, offsetFn) {
     const e2 = norm({ x: -(next.y - curr.y), y: next.x - curr.x });
 
     const avg = norm({ x: e1.x + e2.x, y: e1.y + e2.y });
-    const dot = e1.x * avg.x + e1.y * avg.y;
+    // dot = cosine of half-angle between the two edge normals.
+    // Clamp to ≥0.35 (max miter ~2.9×) so near-straight segments stay
+    // parallel and sharp spikes are capped. When avg is degenerate (0-length,
+    // e.g. a cusp), fall back to pure perpendicular offset.
+    const rawDot = e1.x * avg.x + e1.y * avg.y;
+    const dot    = rawDot !== 0 ? Math.max(Math.abs(rawDot), 0.35) * Math.sign(rawDot) : 0;
 
     const offset = offsetFn(curr, i);
     const miter = dot !== 0
-      ? Math.min(Math.abs(offset / dot), offset * 3) * Math.sign(offset / dot)
+      ? Math.min(Math.abs(offset / dot), offset * 2.5) * Math.sign(offset / dot)
       : offset;
 
     result.push({

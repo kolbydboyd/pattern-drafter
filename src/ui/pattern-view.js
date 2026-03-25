@@ -15,7 +15,7 @@ export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, opts } = piece;
 
-  const mL = 3, mT = 2, mR = 3.5, mB = 3.5;
+  const mL = 3, mT = 2, mR = 4.5, mB = 3.5;
   const svgW = sc(mL + width + mR);
   const svgH = sc(mT + height + mB);
   const ox = sc(mL + ext);
@@ -36,8 +36,10 @@ export function renderPanelSVG(piece) {
   let dimsSVG = '';
   for (const d of dimensions) {
     if (d.type === 'h') {
-      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1);
       const col = d.color || '#bbb';
+      // Crotch-ext labels (red) get 0.8″ extra clearance below the crotch line
+      const extraY = d.color === '#c44' ? sc(0.8) : 0;
+      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1) + extraY;
       dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
@@ -61,9 +63,11 @@ export function renderPanelSVG(piece) {
   // Pocket indicators
   let pocketSVG = '';
   if (!isBack && opts?.frontPocket === 'slant') {
+    // Starts at top-right (waist × side seam) and slashes down-left at 45°, ~6″ long
+    const slashLen = 6 / Math.SQRT2;
     const sx = ox + sc(width), sy = oy;
-    pocketSVG += `<line x1="${sx}" y1="${sy}" x2="${sx-sc(3)}" y2="${sy+sc(3.5)}" stroke="#8a4a4a" stroke-width=".8" stroke-dasharray="3,3"/>
-      <text x="${sx-sc(3.2)}" y="${sy+sc(3.5)+10}" font-family="IBM Plex Mono" font-size="6.5" fill="#8a4a4a">slant pocket</text>`;
+    pocketSVG += `<line x1="${sx}" y1="${sy}" x2="${sx-sc(slashLen)}" y2="${sy+sc(slashLen)}" stroke="#8a4a4a" stroke-width=".8" stroke-dasharray="3,3"/>
+      <text x="${sx-sc(slashLen)-2}" y="${sy+sc(slashLen)+10}" font-family="IBM Plex Mono" font-size="6.5" fill="#8a4a4a" text-anchor="end">slant pocket</text>`;
   }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
