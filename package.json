@@ -1,0 +1,14 @@
+{
+  "name": "pattern-drafter",
+  "version": "0.5.0",
+  "description": "Generate custom sewing patterns from body measurements",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}
