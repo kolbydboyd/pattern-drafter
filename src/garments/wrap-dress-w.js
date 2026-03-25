@@ -98,7 +98,8 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
@@ -111,33 +112,41 @@ export default {
     }
     function bb(poly) {
       const xs = poly.map(p => p.x), ys = poly.map(p => p.y);
-      return { maxX: Math.max(...xs), maxY: Math.max(...ys) };
+      return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys),
+               width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
     }
 
-    // V-neck depth for wrap — deeper than typical
-    const vNeckDepth = torsoLen * 0.5; // V descends to mid-bodice
+    // V-neck depth for wrap — deep but capped so it doesn't reach the navel
+    const vNeckDepth = Math.min(torsoLen * 0.45, 9);
 
     const frontNeckPts = sc(necklineCurve(neckW, vNeckDepth, 'v-neck'));
     const backNeckPts  = sc(necklineCurve(neckW, 0.75, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
-    // Front panel — extends wrapExt past CF
+    // Front panel — shoulder/armhole at standard panelW; wrap extension on inner edge only
     function buildFrontBodice() {
       const poly = [];
-      [...frontNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x + wrapExt, y: vNeckDepth - p.y }));
-      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x + wrapExt, y: shoulderPts[i].y });
-      for (let i = 1; i < frontArmPts.length; i++) poly.push({ x: shoulderPtX + frontArmPts[i].x + wrapExt, y: shoulderPtY + frontArmPts[i].y });
-      poly.push({ x: frontW + wrapExt, y: torsoLen });
-      poly.push({ x: 0, y: torsoLen });   // inner CF edge at hem
-      poly.push({ x: 0, y: vNeckDepth }); // inner CF at V point
+      // Neckline: CF V-point → shoulder-neck junction (y: p.y — NOT vNeckDepth - p.y)
+      [...frontNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
+      // Shoulder slope (shoulder stays at normal width, not shifted by wrapExt)
+      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      // Armhole
+      for (let i = 1; i < frontArmPts.length; i++) poly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      // Side seam to hem at standard panel width
+      poly.push({ x: frontW, y: torsoLen });
+      // Hem extends wrapExt past CF — this is the overlap extension
+      poly.push({ x: -wrapExt, y: torsoLen });
+      // Inner edge up to V-neck apex at CF
+      poly.push({ x: -wrapExt, y: vNeckDepth });
+      // Close: line from (-wrapExt, vNeckDepth) back to start (0, vNeckDepth) = CF V point
       return poly;
     }
 
     function buildBackBodice() {
       const poly = [];
-      [...backNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: 0.75 - p.y }));
+      [...backNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
       for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
       for (let i = 1; i < backArmPts.length; i++) poly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
       poly.push({ x: backW, y: torsoLen });
@@ -189,7 +198,7 @@ export default {
         id, name,
         instruction: `Cut 1${isBack ? ' on fold (CB)' : ' — left and right fronts are mirror images'}${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: bb(poly).maxX, height: adjSkirtL, isBack, sa, hem,
+        width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
       };
     }
@@ -199,14 +208,14 @@ export default {
         id: 'bodice-front', name: 'Front Bodice (cut 2 — mirror)',
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(wrapExt)} wrap extension past CF · V-neck descends to bust level · Facing sewn along V-neckline edge`,
         type: 'bodice', polygon: frontBodicePoly, path: pp(frontBodicePoly),
-        width: frontBB.maxX, height: frontBB.maxY, isBack: false, sa, hem,
-        dims: [{ label: fmtInches(frontW + wrapExt) + ' width + wrap', x1: 0, y1: -0.5, x2: frontW + wrapExt, y2: -0.5, type: 'h' }],
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
+        dims: [{ label: fmtInches(frontW + wrapExt) + ' width + wrap', x1: -wrapExt, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Bodice',
         instruction: 'Cut 1 on fold (CB)',
         type: 'bodice', polygon: backBodicePoly, path: pp(backBodicePoly),
-        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2 — mirror)', false),

@@ -91,7 +91,8 @@ export default {
     const shoulderW     = halfShoulder - neckW;
     const slopeDrop     = 1.75;
     const shoulderPtX   = neckW + shoulderW;
-    const armholeDepth  = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
+    const armholeY      = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
+    const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
     const torsoLen      = m.torsoLength + (opts.length === 'hip' ? 4 : 0);
     const slvLength     = m.sleeveLength ?? 26;
@@ -118,13 +119,13 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backChestDepth = chestDepth * 0.95;
+    const backChestDepth = chestDepth;
     const backArmPts     = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     // ── FRONT PANEL (left — right is mirror) ─────────────────────────────────
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: NECK_DEPTH_FRONT - p.y });
+    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
     for (let i = 1; i < shoulderPts.length; i++) {
       frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
     }
@@ -140,7 +141,7 @@ export default {
     // ── BACK PANEL ───────────────────────────────────────────────────────────
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: NECK_DEPTH_BACK - p.y });
+    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
     for (let i = 1; i < shoulderPts.length; i++) {
       backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
     }

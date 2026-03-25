@@ -71,9 +71,9 @@ export default {
     const sa  = parseFloat(opts.sa);
     const hem = opts.hem === 'handrolled' ? 0.25 : 0.75;
 
-    // Ease: 1″ total (0.5 per side seam for movement)
+    // Ease: 1″ per panel (2″ total around the body — standard woven skirt ease)
     const ease    = 1.0;
-    const hipW    = m.hip / 2 + ease / 2;   // per panel (front or back)
+    const hipW    = m.hip / 2 + ease;       // per panel (front or back)
     const waistW  = m.waist / 2;             // per panel
 
     // Dart intake: how much extra hip vs waist to take in per panel
@@ -148,11 +148,9 @@ export default {
     if (opts.waistband === 'structured') {
       notions.push({ ref: 'interfacing-medium', quantity: `${fmtInches((m.hip + 1) / 12 + 0.25)} yard` });
     }
-    if (opts.waistband !== 'pullover') {
-      if (opts.waistband === 'petersham') {
-        notions.push({ name: 'Petersham ribbon 1.5″', quantity: `${Math.ceil(m.hip + 2)}″` });
-        notions.push({ name: 'Hook and bar', quantity: '1 set' });
-      }
+    if (opts.waistband === 'petersham') {
+      notions.push({ name: 'Petersham ribbon 1.5″', quantity: `${Math.ceil(m.hip + 2)}″` });
+      notions.push({ name: 'Hook and bar', quantity: '1 set' });
     }
     if (opts.closure === 'zip') {
       notions.push({ name: 'Invisible zipper', quantity: `${Math.ceil((m.skirtLength || 28) * 0.45)}″`, notes: 'CB closure' });

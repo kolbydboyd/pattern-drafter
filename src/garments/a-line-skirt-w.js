@@ -149,8 +149,8 @@ export default {
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · Match front panel shape · Shorten ¾″ from hem · Float free at hem', dimensions: { length: hemW, width: L - 0.75 }, type: 'pocket' });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · Match back panel shape · Shorten ¾″ from hem', dimensions: { length: hemW, width: L - 0.75 }, type: 'pocket' });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · Match front panel shape · Shorten ¾″ from hem · Float free at hem', dimensions: { length: hipW, width: L - 0.75 }, type: 'pocket' });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · Match back panel shape · Shorten ¾″ from hem', dimensions: { length: hipW, width: L - 0.75 }, type: 'pocket' });
     }
 
     return pieces;

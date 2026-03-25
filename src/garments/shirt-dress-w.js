@@ -121,7 +121,8 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
@@ -141,11 +142,11 @@ export default {
     const backNeckPts  = sc(necklineCurve(neckW, 0.75, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     function buildBodice(isBack, neckPts, armPts, neckDepth, sideX) {
       const poly = [];
-      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: neckDepth - p.y }));
+      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
       for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
       for (let i = 1; i < armPts.length; i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
       poly.push({ x: sideX, y: torsoLen });
@@ -155,11 +156,13 @@ export default {
     }
 
     const frontBodice = buildBodice(false, frontNeckPts, frontArmPts, 2.5, shoulderPtX + chestDepth);
-    const backBodice  = buildBodice(true,  backNeckPts,  backArmPts,  0.75, shoulderPtX + chestDepth * 0.95);
+    const backBodice  = buildBodice(true,  backNeckPts,  backArmPts,  0.75, shoulderPtX + chestDepth);
 
     // Front panels split at CF + placket extension
     const frontRightPoly = frontBodice.map(p => ({ x: p.x + PLACKET_W, y: p.y }));
+    const frontLeftPoly  = frontRightPoly.map(p => ({ x: -p.x, y: p.y }));
     const frontRightBB   = bb(frontRightPoly);
+    const frontLeftBB    = bb(frontLeftPoly);
     const backBB         = bb(backBodice);
 
     // Skirt geometry
@@ -212,17 +215,17 @@ export default {
 
     const pieces = [
       {
-        id: 'bodice-front-right', name: 'Front Bodice (Right / button side)',
-        instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttons evenly spaced on LEFT front${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
+        id: 'bodice-front-right', name: 'Front Bodice (Right / buttonhole side)',
+        instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttonholes on RIGHT front (womenswear convention)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
         type: 'bodice', polygon: frontRightPoly, path: pp(frontRightPoly),
         width: frontRightBB.maxX, height: frontRightBB.maxY, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
       {
-        id: 'bodice-front-left', name: 'Front Bodice (Left / buttonhole side)',
-        instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · Buttonholes on RIGHT front (womenswear: buttons on left, buttonholes on right)`,
-        type: 'bodice', polygon: frontRightPoly, path: pp(frontRightPoly),
-        width: frontRightBB.maxX, height: frontRightBB.maxY, isBack: false, sa, hem,
+        id: 'bodice-front-left', name: 'Front Bodice (Left / button side)',
+        instruction: `Cut 1 (mirror of right front) · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttons on LEFT front (womenswear convention)`,
+        type: 'bodice', polygon: frontLeftPoly, path: pp(frontLeftPoly),
+        width: frontLeftBB.maxX, height: frontLeftBB.maxY, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
       {

@@ -130,7 +130,8 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
     const torsoLen     = m.torsoLength + lengthExtra;
@@ -145,11 +146,11 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     // Front panel polygon
     const frontPoly = [];
-    [...frontNeckPts].reverse().forEach(p => frontPoly.push({ x: neckW - p.x, y: NECK_DEPTH_FRONT - p.y }));
+    [...frontNeckPts].reverse().forEach(p => frontPoly.push({ x: neckW - p.x, y: p.y }));
     for (let i=1;i<shoulderPts.length;i++) frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
     for (let i=1;i<frontArmPts.length;i++) frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     frontPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
@@ -163,10 +164,10 @@ export default {
     // Back panel polygon
     const yokeH = opts.backDetail === 'yoke' ? 3.5 : 0;
     const backPoly = [];
-    [...backNeckPts].reverse().forEach(p => backPoly.push({ x: neckW - p.x, y: NECK_DEPTH_BACK - p.y }));
+    [...backNeckPts].reverse().forEach(p => backPoly.push({ x: neckW - p.x, y: p.y }));
     for (let i=1;i<shoulderPts.length;i++) backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
     for (let i=1;i<backArmPts.length;i++) backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
-    backPoly.push({ x: shoulderPtX + chestDepth * 0.95, y: torsoLen });
+    backPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
     backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 

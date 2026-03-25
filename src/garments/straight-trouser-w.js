@@ -193,7 +193,7 @@ export default {
   },
 
   materials(m, opts) {
-    const rise = parseFloat(opts.rise) || m.rise || 10;
+    const rise = m.rise || 10;
     const notions = [
       { ref: 'interfacing-light', quantity: '0.5 yard (waistband + pocket facings)' },
     ];

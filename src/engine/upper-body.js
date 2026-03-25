@@ -42,18 +42,27 @@ export function chestEaseDistribution(ease) {
 }
 
 /**
- * Standard armhole depth derived from chest measurement.
- * Acts as a starting reference; athletic and oversized fits adjust upward.
+ * Armhole level derived from chest measurement.
  *
- * Formula: chest / 8 + style offset  (classic block drafting rule)
+ * Returns the Y-coordinate of the underarm notch measured from the pattern
+ * top (point A — the fold/shoulder baseline intersection). Callers that pass
+ * the result to armholeCurve() must subtract slopeDrop (typically 1.75 in)
+ * to obtain the depth from the shoulder point:
+ *
+ *   const armholeY     = armholeDepthFromChest(chest, style);
+ *   const armholeDepth = armholeY - slopeDrop;   // → armholeCurve 4th arg
+ *
+ * Classic block drafting rule: scye depth = chest / 4.
+ * A small tolerance is added per style so that fitted garments sit slightly
+ * higher and oversized ones slightly lower.
  *
  * @param {number} chest - Chest circumference in inches
  * @param {string} [style='standard'] - 'fitted' | 'standard' | 'oversized'
- * @returns {number} Armhole depth in inches
+ * @returns {number} Y position of underarm from pattern top (in)
  */
 export function armholeDepthFromChest(chest, style = 'standard') {
-  const offsets = { fitted: 0.5, standard: 1.0, oversized: 2.0 };
-  return chest / 4 + (offsets[style] ?? 1.0);
+  const tolerance = { fitted: 0, standard: 0.5, oversized: 1.5 };
+  return chest / 4 + (tolerance[style] ?? 0.5);
 }
 
 // ── Core curve functions ───────────────────────────────────────────────────
@@ -312,12 +321,16 @@ export function sleeveCapEase(bicep, capHeight, sleeveWidth, armholeCircumferenc
 }
 
 /**
- * Neck width (shoulder to CF/CB) derived from neck circumference.
- * Half the neck measurement, minus the standard CB standing ease (0.25 in).
+ * Half back-neck width from neck circumference — shoulder-neck junction to CB/CF.
+ *
+ * Standard block drafting rule: back neck width = neck / 6.
+ * This is the distance from the fold (CB or CF) to point B on the shoulder
+ * baseline. The front neckline uses the same width; its extra depth comes
+ * from the neckline curve, not a wider opening.
  *
  * @param {number} neckCircumference - Neck circumference (in)
- * @returns {number} neckWidth to pass to necklineCurve()
+ * @returns {number} neckWidth to pass to necklineCurve() and shoulderSlope()
  */
 export function neckWidthFromCircumference(neckCircumference) {
-  return neckCircumference / 4 - 0.25;
+  return neckCircumference / 6;
 }

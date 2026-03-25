@@ -37,13 +37,21 @@ export function renderPanelSVG(piece) {
   for (const d of dimensions) {
     if (d.type === 'h') {
       const col = d.color || '#bbb';
-      // Crotch-ext labels (red) get 0.8″ extra clearance below the crotch line
-      const extraY = d.color === '#c44' ? sc(0.8) : 0;
-      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1) + extraY;
-      dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
+      const x1 = ox + sc(d.x1), x2 = ox + sc(d.x2), y = oy + sc(d.y1);
+      if (d.color === '#c44') {
+        // Crotch-ext dimension: place label in the left margin, outside the pattern,
+        // right-aligned toward the pattern so it never overlaps the inseam/crotch lines.
+        const labelX = x1 - sc(0.5); // 0.5″ to the left of the crotch extension point
+        dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
+        <text x="${labelX}" y="${y+3}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+      } else {
+        dimsSVG += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${y-3}" x2="${x1}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${y-3}" x2="${x2}" y2="${y+3}" stroke="${col}" stroke-width=".4"/>
         <text x="${(x1+x2)/2}" y="${y-4}" font-family="IBM Plex Mono" font-size="9" fill="#555" text-anchor="middle" font-weight="500">${d.label}</text>`;
+      }
     } else if (d.type === 'v') {
       const x = ox + sc(d.x), y1 = oy + sc(d.y1), y2 = oy + sc(d.y2), my = (y1+y2)/2;
       dimsSVG += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#bbb" stroke-width=".4"/>
@@ -68,6 +76,7 @@ export function renderPanelSVG(piece) {
     const slashY1 = oy;
     const slashX2 = ox + sc(width);         // side seam exit point
     const slashY2 = oy + sc(6);
+    console.log(`[slant pocket] panel width=${width.toFixed(2)}" | slash: (${(width-3.5).toFixed(2)}", 0") → (${width.toFixed(2)}", 6") | SVG: (${slashX1.toFixed(1)},${slashY1.toFixed(1)}) → (${slashX2.toFixed(1)},${slashY2.toFixed(1)})`)
     // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
     const bagL = ox + sc(width - 7);        // left edge of bag
     const bagB = oy + sc(7);               // bottom of bag

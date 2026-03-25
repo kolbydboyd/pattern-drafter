@@ -79,27 +79,44 @@ export function offsetPolygon(poly, edgeOffsetFn) {
     const oIn  = edgeOffsetFn(eInIdx);
     const oOut = edgeOffsetFn(eOutIdx);
 
-    // Outward normals (for CW winding, outward is left of travel direction)
+    // Perpendicular normals (for CW winding, inward is left of travel direction)
     const nIn  = norm({ x: -(curr.y - prev.y), y: curr.x - prev.x });
     const nOut = norm({ x: -(next.y - curr.y), y: next.x - curr.x });
 
-    if (Math.abs(oIn - oOut) < 1e-9) {
-      // Same offset on both adjacent edges — compute miter.
-      // Clamp dot to ≥0.35 to cap spike on sharp corners; fall back on
-      // perpendicular when avg is degenerate (e.g. a cusp).
-      const avg    = norm({ x: nIn.x + nOut.x, y: nIn.y + nOut.y });
-      const rawDot = nIn.x * avg.x + nIn.y * avg.y;
-      const dot    = rawDot !== 0 ? Math.max(Math.abs(rawDot), 0.35) * Math.sign(rawDot) : 0;
-      const miter  = dot !== 0
-        ? Math.min(Math.abs(oIn / dot), oIn * 2.5) * Math.sign(oIn / dot)
-        : oIn;
-      result.push({ x: curr.x + avg.x * miter, y: curr.y + avg.y * miter });
+    // Anchor points on each inset edge (one per adjacent edge)
+    const p1 = { x: curr.x + nIn.x  * oIn,  y: curr.y + nIn.y  * oIn  };
+    const p2 = { x: curr.x + nOut.x * oOut,  y: curr.y + nOut.y * oOut };
+
+    // Direction vectors of the two edges (unnormalised — only sign/ratio matters)
+    const d1 = { x: curr.x - prev.x, y: curr.y - prev.y };
+    const d2 = { x: next.x - curr.x, y: next.y - curr.y };
+
+    // Find the intersection of the two inset lines via 2-D cross product.
+    // This gives a clean miter for equal offsets AND a clean right-angle step
+    // for different offsets (e.g. SA vs hem allowance at the bottom corners).
+    const denom = d1.x * d2.y - d1.y * d2.x;
+
+    if (Math.abs(denom) < 1e-9) {
+      // Parallel / anti-parallel edges — perpendicular offset only, no miter
+      result.push(p1);
+      if (Math.abs(oIn - oOut) >= 1e-9) result.push(p2);
     } else {
-      // Different offsets on adjacent edges — step corner.
-      // Emit two offset points (one per edge normal) so each edge remains
-      // a perfect parallel copy at its own distance.
-      result.push({ x: curr.x + nIn.x  * oIn,  y: curr.y + nIn.y  * oIn  });
-      result.push({ x: curr.x + nOut.x * oOut,  y: curr.y + nOut.y * oOut });
+      const dp = { x: p2.x - p1.x, y: p2.y - p1.y };
+      const t  = (dp.x * d2.y - dp.y * d2.x) / denom;
+      const ix = p1.x + t * d1.x;
+      const iy = p1.y + t * d1.y;
+
+      // Cap miter distance: at most 2.5× the larger offset, to prevent spikes
+      const maxDist = Math.max(Math.abs(oIn), Math.abs(oOut)) * 2.5;
+      const distSq  = (ix - curr.x) ** 2 + (iy - curr.y) ** 2;
+
+      if (distSq <= maxDist * maxDist) {
+        result.push({ x: ix, y: iy });
+      } else {
+        // Too far from corner — fall back to two-point step
+        result.push(p1);
+        result.push(p2);
+      }
     }
   }
 

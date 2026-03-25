@@ -6,7 +6,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES, EASE_VALUES
+  fmtInches, easeDistribution, LEG_SHAPES
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -126,7 +126,7 @@ export default {
       instruction: 'Cut 2 (mirror L & R) · Curve on CENTER seam',
       width: frontW,
       height: H,
-      rise: m.rise,
+      rise: rise,
       inseam: m.inseam,
       ext: frontExt,
       cbRaise: 0,
@@ -142,7 +142,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
       width: backW,
       height: H,
-      rise: m.rise,
+      rise: rise,
       inseam: m.inseam,
       ext: backExt,
       cbRaise,

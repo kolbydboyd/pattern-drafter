@@ -111,7 +111,7 @@ export default {
     // ── MESH LINER PANELS (1″ shorter than outer) ──
     if (opts.liner === 'yes') {
       const linerInseam = Math.max(inseam - 1, 1);
-      const linerH = m.rise + linerInseam;
+      const linerH = rise + linerInseam;
       pieces.push(buildPanel({
         type: 'front-liner', name: 'Front Liner Panel',
         instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer front',

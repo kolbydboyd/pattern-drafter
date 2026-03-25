@@ -115,7 +115,8 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const neckDepths   = NECK_DEPTHS[opts.neckline] ?? NECK_DEPTHS.scoop;
     const lengthAdj    = opts.length === 'cropped' ? -2 : opts.length === 'tunic' ? 5 : 1;
@@ -125,18 +126,18 @@ export default {
 
     function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
     function pp(poly) { let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`; for (let i=1;i<poly.length;i++) d+=` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`; return d+' Z'; }
-    function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return {maxX:Math.max(...xs),maxY:Math.max(...ys)}; }
+    function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return { width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) }; }
 
     const neckStyleKey = opts.neckline === 'vneck' ? 'v-neck' : opts.neckline === 'scoop' ? 'scoop' : opts.neckline === 'boat' ? 'boat' : 'crew';
     const frontNeckPts = sc(necklineCurve(neckW, neckDepths.front, neckStyleKey));
     const backNeckPts  = sc(necklineCurve(neckW, neckDepths.back, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     function buildBody(isBack, neckPts, armPts, neckDepth, sideX) {
       const poly = [];
-      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: neckDepth - p.y }));
+      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
       for (let i=1;i<shoulderPts.length;i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
       for (let i=1;i<armPts.length;i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
       if (opts.hemStyle === 'shirttail' && !isBack) {
@@ -151,7 +152,7 @@ export default {
     }
 
     const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckDepths.front, shoulderPtX + chestDepth);
-    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckDepths.back,  shoulderPtX + chestDepth * 0.95);
+    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckDepths.back,  shoulderPtX + chestDepth);
 
     // Sleeve
     const sleeveEase = easeVal * 0.2;
@@ -176,21 +177,21 @@ export default {
         id: 'bodice-front', name: 'Front Body',
         instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Horizontal bust dart at side seam' : ''}`,
         type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
-        width: frontBB.maxX, height: frontBB.maxY, isBack: false, sa, hem,
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Body',
         instruction: 'Cut 1 on fold (CB)',
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
-        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'sleeve', name: 'Sleeve',
         instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} sleeve`,
         type: 'sleeve', polygon: sleevePoly, path: pp(sleevePoly),
-        width: slvBB.maxX, height: slvBB.maxY, capHeight, sleeveLength: slvLen, sleeveWidth: slvWidth * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight, sleeveLength: slvLen, sleeveWidth: slvWidth * 2, sa, hem,
         dims: [{ label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, x2: slvWidth * 2, y2: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, type: 'h' }],
       },
       { id: 'neckband', name: 'Neckband (rib)', instruction: `Cut 1 from rib knit on fold · ${fmtInches(nbLen)} long × 2.5″ cut (1.25″ finished) · 80% of neck opening`, dimensions: { length: nbLen, width: 2.5 }, type: 'rectangle', sa },

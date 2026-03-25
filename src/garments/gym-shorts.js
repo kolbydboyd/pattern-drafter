@@ -6,7 +6,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, EASE_VALUES
+  fmtInches, easeDistribution
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 

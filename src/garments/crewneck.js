@@ -80,7 +80,8 @@ export default {
     const shoulderW    = halfShoulder - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
@@ -107,7 +108,7 @@ export default {
 
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: 2.5 - p.y });
+    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
 
     if (isRaglan) {
       // Raglan: diagonal line from shoulder-neck junction to underarm instead of shoulder + armhole
@@ -129,11 +130,11 @@ export default {
 
     // ── BACK BODICE ──────────────────────────────────────────────────────────
     const backNeckPts = sampleCurve(necklineCurve(neckW, 0.75, 'crew'));
-    const backChestDepth = chestDepth * 0.95;
+    const backChestDepth = chestDepth;
 
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: 0.75 - p.y });
+    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
 
     if (isRaglan) {
       backPoly.push({ x: shoulderPtX + backChestDepth, y: shoulderPtY + armholeDepth });

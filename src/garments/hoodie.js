@@ -79,7 +79,8 @@ export default {
     const shoulderW    = halfShoulder - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
@@ -112,7 +113,7 @@ export default {
 
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: neckDepthFront - p.y });
+    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
     for (let i = 1; i < frontShoulderPts.length; i++) {
       frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
     }
@@ -128,12 +129,12 @@ export default {
     // ── BACK BODICE ──────────────────────────────────────────────────────────
     const neckDepthBack  = 0.75;
     const backNeckPts    = sampleCurve(necklineCurve(neckW, neckDepthBack, 'crew'));
-    const backChestDepth = chestDepth * 0.95;
+    const backChestDepth = chestDepth;
     const backArmPts     = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: neckDepthBack - p.y });
+    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
     for (let i = 1; i < frontShoulderPts.length; i++) {
       backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
     }
@@ -158,9 +159,9 @@ export default {
 
     // ── HOOD PANELS ──────────────────────────────────────────────────────────
     // Each panel is roughly a rectangle with a curved back seam.
-    // Width = head circumference / 3 + 1″ ease (estimated from neck × 1.25 / 3)
-    // Height = head circumference / 2 + 2″ ease (estimated from neck × 1.25 / 2)
-    const headCircEst  = m.neck * 1.25; // rough estimate: head circ ≈ neck × 1.25
+    // Width = head circumference / 3 + 1″ ease (estimated from neck × 1.45, min 22″)
+    // Height = head circumference / 2 + 2″ ease (estimated from neck × 1.45, min 22″)
+    const headCircEst  = Math.max(m.neck * 1.45, 22); // anatomical head circ — neck × 1.45, floor at 22″
     const hoodH        = headCircEst / 2 + 2;
     const hoodW        = headCircEst / 3 + 1;
     // Curved back seam: back of hood curves up ~1.5″ at top
@@ -293,7 +294,7 @@ export default {
   materials(m, opts) {
     const isFullZip   = opts.frontStyle === 'fullzip';
     const isLined     = opts.hoodLining === 'lined';
-    const headCircEst = m.neck * 1.25;
+    const headCircEst = Math.max(m.neck * 1.45, 22);
     const hoodH       = headCircEst / 2 + 2;
 
     const notions = [

@@ -8,7 +8,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution,
+  fmtInches,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -215,7 +215,7 @@ export default {
 
   materials(m, opts) {
     const easeVal   = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
-    const rise      = parseFloat(opts.rise) || m.rise || 11;
+    const rise      = m.rise || 11;
     const notions   = [
       { ref: 'interfacing-light', quantity: '0.5 yard (waistband + pocket facings)' },
     ];
@@ -259,7 +259,7 @@ export default {
     let n = 1;
     const numPleats = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const hasFly    = opts.fly === 'zip';
-    const rise      = parseFloat(opts.rise) || m.rise || 11;
+    const rise      = m.rise || 11;
 
     // Back pockets first
     if (opts.backPockets === 'welt2') {

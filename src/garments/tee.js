@@ -15,12 +15,12 @@ import { buildMaterialsSpec } from '../engine/materials.js';
 // ── Sleeve length presets ────────────────────────────────────────────────────
 const SLEEVE_LENGTHS = { short: 8, three_quarter: 18, long: 25 };
 
-// ── Neckline depth by style (front / back in inches) ────────────────────────
-// Crew front depth is computed dynamically from neck measurement: neck/6 + 0.5
-const NECK_DEPTHS = {
-  crew:   { front: null, back: 0.75 },
-  vneck:  { front: 9.0,  back: 0.75 },
-  scoop:  { front: 6.5,  back: 0.75 },
+// ── Neckline depth by style (front inches; back is computed from neckW/3) ────
+// Crew front depth is computed dynamically: neck/6 + 0.5 (per standard block rule)
+const NECK_DEPTH_FRONT = {
+  crew:  null, // computed: neckW + 0.5 (where neckW = neck/6)
+  vneck: 9.0,
+  scoop: 6.5,
 };
 
 export default {
@@ -99,32 +99,38 @@ export default {
 
     // ── Ease + panel widths ──────────────────────────────────────────────────
     const totalEase = UPPER_EASE[opts.ease] ?? 4;
-    // Both front and back half-panels are equal so side seams align when sewn
+    // Each half-panel = (chest + ease) / 4 so front and back side seams align
     const panelW = (m.chest + totalEase) / 4;
     const frontW = panelW;
     const backW  = panelW;
 
-    // ── Shoulder geometry ────────────────────────────────────────────────────
-    const halfShoulder = m.shoulder / 2;          // shoulder point from CF/CB
-    const slopeDrop    = 1.75;                     // standard shoulder drop (in)
-    const neckW        = neckWidthFromCircumference(m.neck);
-    const shoulderW    = halfShoulder - neckW;
+    // ── Shoulder geometry (standard block rules) ─────────────────────────────
+    // A = (0, 0): top-left, fold / shoulder baseline
+    // B = (neckW, 0): shoulder-neck junction on baseline  — neckW = neck/6
+    // Shoulder point = (halfShoulder, slopeDrop): drops 1.75" over shoulder width
+    const halfShoulder = m.shoulder / 2;
+    const slopeDrop    = 1.75;
+    const neckW        = neckWidthFromCircumference(m.neck);   // neck / 6
+    const shoulderW    = halfShoulder - neckW;                 // seam length B → shoulder pt
+    const shoulderPtX  = halfShoulder;                         // = neckW + shoulderW
 
-    // ── Armhole depth ────────────────────────────────────────────────────────
-    const armholeDepth = armholeDepthFromChest(m.chest, opts.ease === 'oversized' ? 'oversized' : 'standard');
-    // chestDepth = how far the underarm sits from the shoulder point horizontally
-    // = panelW minus the shoulder point position so the side seam aligns at panelW
-    const shoulderPtX  = neckW + shoulderW;       // = halfShoulder
-    const chestDepth   = panelW - shoulderPtX;    // armhole horizontal extent at underarm
+    // ── Armhole geometry ─────────────────────────────────────────────────────
+    // armholeY: y-coordinate of underarm from pattern top (A) = chest/4 + tolerance
+    // armholeDepth: depth from shoulder point → passed to armholeCurve
+    // chestDepth: horizontal extent shoulder pt → side seam at underarm level
+    const armholeStyle = opts.ease === 'oversized' ? 'oversized' : 'standard';
+    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
+    const armholeDepth = armholeY - slopeDrop;
+    const chestDepth   = panelW - shoulderPtX;
 
     // ── Neckline ─────────────────────────────────────────────────────────────
-    const neckKey  = opts.neckline;
-    // Crew front depth derived from neck circumference per standard block drafting
-    const crewFrontDepth = m.neck / 6 + 0.5;
+    // Back neckline depth (A→G): neckW / 3 ≈ neck/18 — very shallow, < 1"
+    // Front neckline depth: neck/6 + 0.5 (crew), or fixed depth for other styles
+    const neckKey       = opts.neckline;
+    const neckDepthBack = neckW / 3;
     const neckDepthFront = neckKey === 'crew'
-      ? crewFrontDepth
-      : (NECK_DEPTHS[neckKey]?.front ?? crewFrontDepth);
-    const neckDepthBack  = NECK_DEPTHS[neckKey]?.back  ?? 0.75;
+      ? neckW + 0.5
+      : (NECK_DEPTH_FRONT[neckKey] ?? neckW + 0.5);
     const neckStyleFront = neckKey === 'vneck' ? 'v-neck' : neckKey === 'scoop' ? 'scoop' : 'crew';
     const neckStyleBack  = 'crew';
 
@@ -148,90 +154,62 @@ export default {
     }
 
     // ── FRONT BODICE POLYGON ─────────────────────────────────────────────────
-    // Origin: CF neckline point (top-center of piece)
-    // x+ rightward toward side seam; y+ downward
+    // Layout (x+ right toward side seam, y+ down):
+    //   LEFT  = CF fold (x = 0), straight vertical
+    //   RIGHT = side seam (x = panelW), straight vertical
+    //   Neckline: G=(0, frontNeckDepth) curve up-right to B=(neckW, 0)
+    //   Shoulder: B → shoulder point (neckW+shoulderW, slopeDrop) = (halfShoulder, 1.75)
+    //   Armhole:  shoulder point down-right to underarm (panelW, armholeY)
     //
-    //   CF fold        shoulder        armhole        side
-    //   (0,neckDepth) → (neckW,0) → (halfShoulder, slopeDrop) → armhole → (frontW, armholeDepth) → (frontW, torsoLen) → (0, torsoLen)
-    //
-    const frontNeckPts = curveToPoints(
-      necklineCurve(neckW, neckDepthFront, neckStyleFront)
-    ); // p0=(0,0) = shoulder-neck junction → p3=(neckW,neckDepthFront) = CF low point
+    const frontNeckPts   = curveToPoints(necklineCurve(neckW, neckDepthFront, neckStyleFront));
+    const frontShoulderPts = curveToPoints(shoulderSlope(shoulderW, slopeDrop));
+    const frontArmholePts  = curveToPoints(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
 
-    const frontShoulderPts = curveToPoints(
-      shoulderSlope(shoulderW, slopeDrop)
-    ); // p0=(0,0) neck pt → p3=(shoulderW, slopeDrop) shoulder point
+    const shoulderPtY = slopeDrop;
+    const frontPoly   = [];
 
-    const frontArmholeCp = armholeCurve(shoulderW, chestDepth, armholeDepth, false);
-    const frontArmholePts = curveToPoints(frontArmholeCp);
-    // p0=(0,0) shoulder point → p3=(chestDepth, armholeDepth) underarm
-
-    // Compose front polygon (CW winding, origin at top-left = CF top edge at neckline level)
-    // Shift so shoulder-neck junction is at x=neckW, y=0
-    const frontPoly = [];
-
-    // CF neckline low point → shoulder-neck junction (reverse of neckline curve)
-    const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) {
-      frontPoly.push({ x: neckW - p.x, y: neckDepthFront - p.y });
+    // G (CF neckline low point) → B (shoulder-neck junction)
+    // necklineCurve local: p0=(0,0)=shoulder-neck, p3=(neckW,depth)=CF low.
+    // Reverse and transform: x_global = neckW - x_local, y_global = y_local
+    for (const p of [...frontNeckPts].reverse()) {
+      frontPoly.push({ x: neckW - p.x, y: p.y });
     }
-
-    // Shoulder-neck junction → shoulder point
+    // B → shoulder point
     for (let i = 1; i < frontShoulderPts.length; i++) {
       frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
     }
-
-    // Shoulder point → underarm notch (armhole curve)
-    const shoulderPtY = slopeDrop;
+    // Shoulder point → underarm notch (armhole C-curve down the right side)
     for (let i = 1; i < frontArmholePts.length; i++) {
-      frontPoly.push({
-        x: shoulderPtX + frontArmholePts[i].x,
-        y: shoulderPtY + frontArmholePts[i].y,
-      });
+      frontPoly.push({ x: shoulderPtX + frontArmholePts[i].x, y: shoulderPtY + frontArmholePts[i].y });
     }
-
-    // Underarm → hem (side seam)
-    const sideX = shoulderPtX + chestDepth;
-    frontPoly.push({ x: sideX, y: torsoLen });
-
+    // Underarm notch → hem (side seam, straight down)
+    frontPoly.push({ x: panelW, y: torsoLen });
     // Hem across to CF fold
     if (opts.hemStyle === 'shirttail') {
-      // Simple curve: side hem drops ~1.5" lower than CF hem
       frontPoly.push({ x: neckW * 0.5, y: torsoLen + 0.5 });
     }
     frontPoly.push({ x: 0, y: torsoLen });
-
-    // CF fold back up to neckline low point
+    // CF fold up to G (neckline low point)
     frontPoly.push({ x: 0, y: neckDepthFront });
 
     // ── BACK BODICE POLYGON ──────────────────────────────────────────────────
-    const backNeckPts = curveToPoints(
-      necklineCurve(neckW, neckDepthBack, neckStyleBack)
-    );
-    const backArmholeCp = armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true);
-    const backArmholePts = curveToPoints(backArmholeCp);
+    // Identical layout; back neckline depth is very shallow (neckW/3 ≈ neck/18 < 1")
+    //
+    const backNeckPts  = curveToPoints(necklineCurve(neckW, neckDepthBack, neckStyleBack));
+    const backArmholePts = curveToPoints(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     const backPoly = [];
 
-    const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) {
-      backPoly.push({ x: neckW - p.x, y: neckDepthBack - p.y });
+    for (const p of [...backNeckPts].reverse()) {
+      backPoly.push({ x: neckW - p.x, y: p.y });
     }
-
     for (let i = 1; i < frontShoulderPts.length; i++) {
       backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
     }
-
-    const backChestDepth = chestDepth * 0.95;
     for (let i = 1; i < backArmholePts.length; i++) {
-      backPoly.push({
-        x: shoulderPtX + backArmholePts[i].x,
-        y: shoulderPtY + backArmholePts[i].y,
-      });
+      backPoly.push({ x: shoulderPtX + backArmholePts[i].x, y: shoulderPtY + backArmholePts[i].y });
     }
-
-    const backSideX = shoulderPtX + backChestDepth;
-    backPoly.push({ x: backSideX, y: torsoLen });
+    backPoly.push({ x: panelW, y: torsoLen });
     if (opts.hemStyle === 'shirttail') {
       backPoly.push({ x: neckW * 0.5, y: torsoLen + 1 });
     }
@@ -239,23 +217,20 @@ export default {
     backPoly.push({ x: 0, y: neckDepthBack });
 
     // ── SLEEVE POLYGON ───────────────────────────────────────────────────────
-    // Width at underarm: bicep/2 + ease
-    const sleeveEase = totalEase * 0.25;
-    const slvWidth   = m.bicep / 2 + sleeveEase;
-    const capHeight  = opts.ease === 'fitted' ? 5.5 : opts.ease === 'oversized' ? 5.0 : 5.5;
-    const capCp      = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-    const capPts     = curveToPoints(capCp, 16);
-    // capPts go from (0,0) back underarm → (slvWidth*2, 0) front underarm
-    // y is negative at crown — shift all y by +capHeight so origin is at crown level
+    // Full flat width at underarm = bicep + 2" ease (standard block rule)
+    // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
+    const slvFullWidth = m.bicep + 2;
+    const capHeight    = opts.ease === 'fitted' ? 5.5 : opts.ease === 'oversized' ? 5.0 : 5.5;
+    const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
+    const capPts       = curveToPoints(capCp, 16);
+    // capPts: (0,0) = back underarm → (slvFullWidth, 0) = front underarm
+    // Crown is at y < 0; shift all y by +capHeight so crown sits at y=0
 
     const sleevePoly = [];
-    // Cap — from back underarm across crown to front underarm
     for (const p of capPts) {
       sleevePoly.push({ x: p.x, y: p.y + capHeight });
     }
-    // Front underarm down to hem
-    sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvLength });
-    // Hem across
+    sleevePoly.push({ x: slvFullWidth, y: capHeight + slvLength });
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
     // Back underarm up (already first point via close)
 
@@ -332,11 +307,11 @@ export default {
         height: slvBB.maxY - slvBB.minY,
         capHeight,
         sleeveLength: slvLength,
-        sleeveWidth: slvWidth * 2,
+        sleeveWidth: slvFullWidth,
         sa, hem,
         dims: [
-          { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvWidth * 2, y2: capHeight + 0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
+          { label: fmtInches(slvFullWidth) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvFullWidth, y2: capHeight + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: slvFullWidth + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
           { label: fmtInches(capHeight) + ' cap', x: -1.2, y1: 0, y2: capHeight, type: 'v' },
         ],
       },

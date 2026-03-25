@@ -112,7 +112,8 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = 1.75;
     const shoulderPtX  = neckW + shoulderW;
-    const armholeDepth = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
     const torsoLen     = m.torsoLength + lengthExtra;
@@ -121,17 +122,17 @@ export default {
 
     function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
     function pp(poly) { let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`; for (let i=1;i<poly.length;i++) d+=` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`; return d+' Z'; }
-    function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return {maxX:Math.max(...xs),maxY:Math.max(...ys)}; }
+    function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return { width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) }; }
 
     const frontNeckPts = sc(necklineCurve(neckW, neckStyle.front, neckStyle.key));
     const backNeckPts  = sc(necklineCurve(neckW, neckStyle.back, 'crew'));
     const shoulderPts  = sc(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts  = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts   = sc(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     function buildBody(isBack, neckPts, armPts, neckDepth, W, sideX) {
       const poly = [];
-      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: neckDepth - p.y }));
+      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
       for (let i=1;i<shoulderPts.length;i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
       for (let i=1;i<armPts.length;i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
       if (opts.hemStyle === 'shirttail' && !isBack) {
@@ -146,7 +147,7 @@ export default {
     }
 
     const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckStyle.front, frontW, shoulderPtX + chestDepth);
-    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckStyle.back,  backW,  shoulderPtX + chestDepth * 0.95);
+    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckStyle.back,  backW,  shoulderPtX + chestDepth);
 
     const frontBB = bb(frontPoly), backBB = bb(backPoly);
 
@@ -155,14 +156,14 @@ export default {
         id: 'bodice-front', name: 'Front Body',
         instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
         type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
-        width: frontBB.maxX, height: frontBB.maxY, isBack: false, sa, hem,
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Body',
         instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB' : ''}`,
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
-        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket' },
@@ -184,7 +185,7 @@ export default {
         id: 'sleeve', name: `${opts.sleeves === 'cap' ? 'Cap' : 'Short'} Sleeve`,
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
       });
     } else if (opts.sleeves === 'flutter') {

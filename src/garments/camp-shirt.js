@@ -104,7 +104,8 @@ export default {
     const shoulderW     = halfShoulder - neckW;
     const slopeDrop     = 1.75;
     const shoulderPtX   = neckW + shoulderW;
-    const armholeDepth  = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY      = armholeDepthFromChest(m.chest, 'standard');
+    const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
@@ -129,7 +130,7 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth * 0.95, armholeDepth, true));
+    const backArmPts     = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, true));
 
     const shoulderPtY = slopeDrop;
 
@@ -141,7 +142,7 @@ export default {
     // CF low point → shoulder-neck junction (reverse neck curve, shifted to x-axis)
     const neckFrontRev = [...frontNeckPts].reverse();
     for (const p of neckFrontRev) {
-      frontPoly.push({ x: neckW - p.x, y: NECK_DEPTH_FRONT - p.y });
+      frontPoly.push({ x: neckW - p.x, y: p.y });
     }
     // Shoulder-neck → shoulder point
     for (let i = 1; i < shoulderPts.length; i++) {
@@ -162,12 +163,12 @@ export default {
     frontPoly.push({ x: 0, y: NECK_DEPTH_FRONT });
 
     // ── BACK PANEL ───────────────────────────────────────────────────────────
-    const backChestDepth = chestDepth * 0.95;
+    const backChestDepth = chestDepth;
     const backPoly = [];
 
     const neckBackRev = [...backNeckPts].reverse();
     for (const p of neckBackRev) {
-      backPoly.push({ x: neckW - p.x, y: NECK_DEPTH_BACK - p.y });
+      backPoly.push({ x: neckW - p.x, y: p.y });
     }
     for (let i = 1; i < shoulderPts.length; i++) {
       backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
@@ -193,8 +194,8 @@ export default {
 
     // ── COLLAR ───────────────────────────────────────────────────────────────
     // Camp collar: rectangle with the front corners angled.
-    // Width = half neckline circumference + 0.25″ ease. Height = 3″ cut (1.5″ finished × 2).
-    const collarLen = m.neck / 2 + 0.25;
+    // Width = full neckline circumference + 0.5″ ease (overlap). Height = 3″ cut (1.5″ finished × 2).
+    const collarLen = m.neck + 0.5;
     const collarH   = 3; // 1.5″ finished
     // "Rounded" front points are approximated in the instruction note.
 
