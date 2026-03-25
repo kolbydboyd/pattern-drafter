@@ -1,6 +1,8 @@
-# Pattern Drafter
+# People's Patterns
 
-A web-based tool that generates custom sewing patterns from body measurements. Input your measurements, choose your garment type and options, and get printable 1:1 scale patterns with full construction notes.
+Made-to-measure sewing patterns, generated entirely in the browser. Input your measurements, choose your garment type and options, and get printable 1:1 scale patterns with full construction notes.
+
+**[peoplespatterns.com](https://peoplespatterns.com) · [@peoplespatterns](https://instagram.com/peoplespatterns)**
 
 ## Quick Start
 
@@ -196,7 +198,7 @@ Standard drafting rules used:
 
 ```bash
 npm install -g @anthropic-ai/claude-code
-cd pattern-drafter
+cd peoples-patterns
 claude
 ```
 

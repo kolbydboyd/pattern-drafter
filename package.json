@@ -1,7 +1,7 @@
 {
-  "name": "pattern-drafter",
+  "name": "peoples-patterns",
   "version": "0.5.0",
-  "description": "Generate custom sewing patterns from body measurements",
+  "description": "Made-to-measure sewing patterns, generated in the browser from your measurements",
   "type": "module",
   "scripts": {
     "dev": "vite",

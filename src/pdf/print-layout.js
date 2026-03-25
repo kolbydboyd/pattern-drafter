@@ -374,6 +374,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
         ${chSVG}
         <div class="tile-footer">
           <span class="tf-name">${piece.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
+          <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
           <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1} \xb7 \xbe\u2033 overlap</span>
         </div>
       </div>`;
@@ -467,6 +468,7 @@ function buildCoverPage(garment, measurements, opts) {
 
   return `<div class="page cover-page">
     <div class="cover-body">
+      <div class="cover-brand">People\u2019s Patterns</div>
       <div class="cover-title">${garment.name}</div>
       <div class="cover-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit</div>
       <div class="cover-cols">
@@ -497,7 +499,7 @@ function buildCoverPage(garment, measurements, opts) {
         </ol>
       </div>
     </div>
-    <div class="cover-foot">Drafted ${date} \xb7 Pattern Drafter</div>
+    <div class="cover-foot">Drafted ${date} \xb7 People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</div>
   </div>`;
 }
 
@@ -637,9 +639,13 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 /* ── Cover ── */
 .cover-page { padding:0.8in 1in 0.5in; }
 .cover-body { height:100%; display:flex; flex-direction:column; gap:0.28in; }
+.cover-brand {
+  font-family:'Fraunces',serif; font-size:11pt; font-weight:300;
+  color:#aaa; letter-spacing:0.04em;
+}
 .cover-title {
   font-size:34pt; font-weight:700; color:#2c2a26;
-  border-bottom:2px solid #2c2a26; padding-bottom:0.18in;
+  border-bottom:2px solid #2c2a26; padding-bottom:0.18in; margin-top:-0.18in;
 }
 .cover-sub { font-size:10pt; color:#999; }
 .cover-cols { display:flex; gap:0.5in; }
@@ -697,6 +703,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
   z-index:20;
 }
 .tf-name { font-size:7.5pt; font-weight:700; color:#2c2a26; }
+.tf-brand { font-size:7pt; color:#888; }
 .tf-info { font-size:7pt; color:#aaa; }
 
 /* ── Shared ── */
