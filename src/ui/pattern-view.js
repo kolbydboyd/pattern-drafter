@@ -24,7 +24,17 @@ export function renderPanelSVG(piece) {
   // Scale polygon to SVG coords
   function toSVG(pt) { return { x: ox + sc(pt.x), y: oy + sc(pt.y) }; }
   const svgPoly = polygon.map(toSVG);
-  const svgSA = saPolygon.map(toSVG);
+
+  // Force the top edge of the SA outline to be perfectly horizontal.
+  // Find the two SA points with the smallest y values (waist corners) and
+  // snap them both to the same y: lowest polygon y minus SA distance.
+  const waistTopY = Math.min(...polygon.map(p => p.y)) - sa;
+  const saCopy = saPolygon.map(p => ({ ...p }));
+  const sorted = [...saCopy].sort((a, b) => a.y - b.y);
+  sorted[0].y = waistTopY;
+  sorted[1].y = waistTopY;
+
+  const svgSA = saCopy.map(toSVG);
 
   function polyPath(pts) {
     let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
