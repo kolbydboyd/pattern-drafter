@@ -250,9 +250,14 @@ function calculateYardage(pieces, fabricWidthIn) {
       w     = p.dimensions.length + sa * 2;
       h     = p.dimensions.width  + sa * 2;
       count = extractCutCount(p.instruction);
+    } else if (p.type === 'bodice' || p.type === 'sleeve') {
+      const sa = p.sa || 0.625;
+      w     = (p.width  || 0) + sa * 2;
+      h     = (p.height || 0) + sa * 2;
+      count = extractCutCount(p.instruction);
     } else {
-      w     = p.dimensions.width  + 0.625 * 2;
-      h     = p.dimensions.height + 0.625 * 2;
+      w     = (p.dimensions?.width  || 0) + 0.625 * 2;
+      h     = (p.dimensions?.height || 0) + 0.625 * 2;
       count = extractCutCount(p.instruction);
     }
     for (let i = 0; i < count; i++) instances.push({ w: w + GAP, h: h + GAP });
