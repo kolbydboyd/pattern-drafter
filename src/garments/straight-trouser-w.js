@@ -36,18 +36,18 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2″)'    },
-        { value: 'regular', label: 'Regular (+3″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)' },
+        { value: 'slim',    label: 'Slim (+2″)',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+3″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)', reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
-        { value: 'none',   label: 'No pleats'    },
-        { value: 'single', label: 'Single pleat' },
-        { value: 'double', label: 'Double pleat' },
+        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern' },
+        { value: 'single', label: 'Single pleat', reference: 'classic, Italian'   },
+        { value: 'double', label: 'Double pleat', reference: 'full, Savile Row'   },
       ],
       default: 'none',
     },
@@ -62,18 +62,18 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'structured',  label: 'Structured 1.5″ (button + hook-eye)' },
-        { value: 'contoured',   label: 'Contoured / petersham'               },
-        { value: 'elastic',     label: 'Elastic casing'                      },
+        { value: 'structured',  label: 'Structured 1.5″ (button + hook-eye)', reference: 'dress trouser, Dickies' },
+        { value: 'contoured',   label: 'Contoured / petersham',               reference: 'petersham, contoured'  },
+        { value: 'elastic',     label: 'Elastic casing',                      reference: 'chef pant, pull-on'    },
       ],
       default: 'structured',
     },
     pockets: {
       type: 'select', label: 'Front pockets',
       values: [
-        { value: 'slant',    label: 'Slant (western)'  },
-        { value: 'side',     label: 'Side seam'        },
-        { value: 'none',     label: 'None'             },
+        { value: 'slant',    label: 'Slant (western)',  reference: 'chino, Western' },
+        { value: 'side',     label: 'Side seam',        reference: 'hidden, clean'  },
+        { value: 'none',     label: 'None',             reference: 'minimal'        },
       ],
       default: 'slant',
     },

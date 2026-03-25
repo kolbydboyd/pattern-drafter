@@ -20,9 +20,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim', label: 'Slim (+1.5″)' },
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)' },
+        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },

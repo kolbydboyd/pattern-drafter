@@ -27,18 +27,18 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)'   },
-        { value: 'wide',    label: 'Wide (+6″)'      },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'wide',    label: 'Wide (+6″)',      reference: 'Margiela, deconstructed' },
       ],
       default: 'wide',
     },
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
-        { value: 'none',   label: 'No pleats'    },
-        { value: 'single', label: 'Single pleat' },
-        { value: 'double', label: 'Double pleat' },
+        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern' },
+        { value: 'single', label: 'Single pleat', reference: 'classic, Italian'   },
+        { value: 'double', label: 'Double pleat', reference: 'full, Savile Row'   },
       ],
       default: 'double',
     },

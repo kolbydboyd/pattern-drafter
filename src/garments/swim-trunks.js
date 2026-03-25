@@ -20,25 +20,25 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)'    },
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)'   },
+        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
     pocket: {
       type: 'select', label: 'Side pockets',
       values: [
-        { value: 'none',      label: 'None'                        },
-        { value: 'side-seam', label: 'Side-seam mesh bag ×2'       },
+        { value: 'none',      label: 'None',                         reference: 'minimal'       },
+        { value: 'side-seam', label: 'Side-seam mesh bag ×2',       reference: 'hidden, clean' },
       ],
       default: 'side-seam',
     },
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes — front & back mesh panels' },
-        { value: 'no',  label: 'No liner'                       },
+        { value: 'yes', label: 'Yes — front & back mesh panels', reference: 'athletic, brief-style' },
+        { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
     },

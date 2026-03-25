@@ -56,9 +56,9 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'fitted',     label: 'Fitted (+2″ with darts)' },
-        { value: 'semifitted', label: 'Semi-fitted (+3″)'       },
-        { value: 'relaxed',    label: 'Relaxed (+5″)'           },
+        { value: 'fitted',     label: 'Fitted (+2″ with darts)', reference: 'fitted, tailored'    },
+        { value: 'semifitted', label: 'Semi-fitted (+3″)',       reference: 'classic, off-the-rack' },
+        { value: 'relaxed',    label: 'Relaxed (+5″)',           reference: 'skater, workwear'      },
       ],
       default: 'semifitted',
     },

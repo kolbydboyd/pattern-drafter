@@ -22,8 +22,8 @@ export default {
     legShape: {
       type: 'select', label: 'Leg shape',
       values: [
-        { value: 'wide',     label: 'Wide leg'     },
-        { value: 'straight', label: 'Straight leg' },
+        { value: 'wide',     label: 'Wide leg',     reference: 'Yohji, palazzo' },
+        { value: 'straight', label: 'Straight leg', reference: '501, regular'   },
         { value: 'tapered',  label: 'Tapered leg'  },
       ],
       default: 'wide',
@@ -43,16 +43,16 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'elastic',    label: 'Elastic casing 1.5″ (fold-over)' },
-        { value: 'yoga',       label: 'Yoga fold-over knit band 3″'     },
+        { value: 'elastic',    label: 'Elastic casing 1.5″ (fold-over)', reference: 'chef pant, pull-on'   },
+        { value: 'yoga',       label: 'Yoga fold-over knit band 3″',     reference: 'yoga pant, activewear' },
       ],
       default: 'elastic',
     },
     pockets: {
       type: 'select', label: 'Pockets',
       values: [
-        { value: 'side', label: 'Side-seam pockets' },
-        { value: 'none', label: 'None'              },
+        { value: 'side', label: 'Side-seam pockets', reference: 'hidden, clean' },
+        { value: 'none', label: 'None',              reference: 'minimal'       },
       ],
       default: 'side',
     },

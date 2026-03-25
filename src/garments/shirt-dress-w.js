@@ -26,18 +26,18 @@ export default {
     collar: {
       type: 'select', label: 'Collar',
       values: [
-        { value: 'point',  label: 'Classic point collar'  },
-        { value: 'camp',   label: 'Camp / revere collar'  },
-        { value: 'band',   label: 'Mandarin band collar'  },
+        { value: 'point',  label: 'Classic point collar',  reference: 'dress shirt, Oxford' },
+        { value: 'camp',   label: 'Camp / revere collar',  reference: 'bowling, cabana'     },
+        { value: 'band',   label: 'Mandarin band collar',  reference: 'Mandarin, Nehru'     },
       ],
       default: 'point',
     },
     skirtShape: {
       type: 'select', label: 'Skirt shape',
       values: [
-        { value: 'aline',     label: 'A-line (+4″ hem flare per panel)' },
-        { value: 'straight',  label: 'Straight / fitted'                },
-        { value: 'gathered',  label: 'Gathered (1.5× hip width)'        },
+        { value: 'aline',     label: 'A-line (+4″ hem flare per panel)', reference: 'versatile, classic' },
+        { value: 'straight',  label: 'Straight / fitted',                reference: 'pencil, fitted'     },
+        { value: 'gathered',  label: 'Gathered (1.5× hip width)',        reference: 'full, romantic'     },
       ],
       default: 'aline',
     },
@@ -54,8 +54,8 @@ export default {
     fit: {
       type: 'select', label: 'Bodice fit',
       values: [
-        { value: 'fitted',    label: 'Fitted (+2″)'    },
-        { value: 'relaxed',   label: 'Relaxed (+4″)'   },
+        { value: 'fitted',    label: 'Fitted (+2″)',    reference: 'fitted, tailored' },
+        { value: 'relaxed',   label: 'Relaxed (+4″)',   reference: 'skater, workwear' },
       ],
       default: 'relaxed',
     },

@@ -28,10 +28,10 @@ export default {
     collar: {
       type: 'select', label: 'Collar',
       values: [
-        { value: 'point',   label: 'Point / spread collar'   },
-        { value: 'camp',    label: 'Camp / revere collar'    },
-        { value: 'band',    label: 'Band / Mandarin collar'  },
-        { value: 'peterpan', label: 'Peter Pan collar'       },
+        { value: 'point',    label: 'Point / spread collar',  reference: 'dress shirt, Oxford' },
+        { value: 'camp',     label: 'Camp / revere collar',   reference: 'bowling, cabana'     },
+        { value: 'band',     label: 'Band / Mandarin collar', reference: 'Mandarin, Nehru'     },
+        { value: 'peterpan', label: 'Peter Pan collar',       reference: 'retro, schoolgirl'   },
       ],
       default: 'point',
     },
@@ -48,9 +48,9 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'fitted',     label: 'Fitted (+2″ with darts)' },
-        { value: 'semifitted', label: 'Semi-fitted (+3″)'       },
-        { value: 'relaxed',    label: 'Relaxed (+5″)'           },
+        { value: 'fitted',     label: 'Fitted (+2″ with darts)', reference: 'fitted, tailored'    },
+        { value: 'semifitted', label: 'Semi-fitted (+3″)',       reference: 'classic, off-the-rack' },
+        { value: 'relaxed',    label: 'Relaxed (+5″)',           reference: 'skater, workwear'      },
       ],
       default: 'semifitted',
     },

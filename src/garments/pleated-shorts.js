@@ -25,33 +25,33 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)'   },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
-        { value: 'none',   label: 'No pleats'        },
-        { value: 'single', label: 'Single pleat'     },
-        { value: 'double', label: 'Double pleat'     },
+        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern'  },
+        { value: 'single', label: 'Single pleat', reference: 'classic, Italian'    },
+        { value: 'double', label: 'Double pleat', reference: 'full, Savile Row'    },
       ],
       default: 'single',
     },
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'standard', label: 'Standard — 1½″ finished, interfaced' },
-        { value: 'curtain',  label: 'Curtain — 1½″ finished, button + hook-and-eye' },
+        { value: 'standard', label: 'Standard — 1½″ finished, interfaced',         reference: 'classic, interfaced'    },
+        { value: 'curtain',  label: 'Curtain — 1½″ finished, button + hook-and-eye', reference: 'Savile Row, high-waisted' },
       ],
       default: 'standard',
     },
     fly: {
       type: 'select', label: 'Closure',
       values: [
-        { value: 'zip',    label: 'Zip fly'    },
-        { value: 'button', label: 'Button fly' },
+        { value: 'zip',    label: 'Zip fly',    reference: 'standard'           },
+        { value: 'button', label: 'Button fly', reference: 'jeans style, Western' },
       ],
       default: 'zip',
     },

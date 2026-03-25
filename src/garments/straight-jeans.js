@@ -22,20 +22,20 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)'    },
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)'   },
+        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
     legShape: {
       type: 'select', label: 'Leg shape',
       values: [
-        { value: 'skinny',   label: 'Skinny'   },
-        { value: 'slim',     label: 'Slim'     },
-        { value: 'straight', label: 'Straight' },
-        { value: 'bootcut',  label: 'Bootcut'  },
-        { value: 'wide',     label: 'Wide'     },
+        { value: 'skinny',   label: 'Skinny',   reference: '510, spray-on'    },
+        { value: 'slim',     label: 'Slim',     reference: '511, cigarette'   },
+        { value: 'straight', label: 'Straight', reference: '501, regular'     },
+        { value: 'bootcut',  label: 'Bootcut',  reference: '527, 70s flare'   },
+        { value: 'wide',     label: 'Wide',     reference: 'Yohji, palazzo'   },
       ],
       default: 'straight',
     },

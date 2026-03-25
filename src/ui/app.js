@@ -150,7 +150,7 @@ function buildInputs() {
     if (opt.type === 'select') {
       html += `<div class="f"><label>${opt.label}</label><select id="o-${key}">
         ${opt.values.map(v =>
-          `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}</option>`
+          `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
         ).join('')}
       </select></div>`;
     } else if (opt.type === 'number') {

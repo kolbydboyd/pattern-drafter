@@ -33,8 +33,8 @@ export default {
     collar: {
       type: 'select', label: 'Collar style',
       values: [
-        { value: 'camp',   label: 'Camp / revere (default)' },
-        { value: 'worker', label: 'Worker / point collar'   },
+        { value: 'camp',   label: 'Camp / revere (default)', reference: 'bowling, cabana'     },
+        { value: 'worker', label: 'Worker / point collar',   reference: 'dress shirt, Oxford' },
       ],
       default: 'camp',
     },
@@ -49,8 +49,8 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'standard',  label: 'Regular (+4″)' },
-        { value: 'relaxed',   label: 'Relaxed (+6″)' },
+        { value: 'standard',  label: 'Regular (+4″)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed',   label: 'Relaxed (+6″)', reference: 'skater, workwear'      },
       ],
       default: 'standard',
     },

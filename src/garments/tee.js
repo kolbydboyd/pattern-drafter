@@ -42,10 +42,10 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'fitted',    label: 'Slim / fitted (+2″)'  },
-        { value: 'standard',  label: 'Regular (+4″)'        },
-        { value: 'relaxed',   label: 'Relaxed (+6″)'        },
-        { value: 'oversized', label: 'Oversized (+10″)'     },
+        { value: 'fitted',    label: 'Slim / fitted (+2″)',  reference: 'fitted, tailored'    },
+        { value: 'standard',  label: 'Regular (+4″)',        reference: 'classic, off-the-rack' },
+        { value: 'relaxed',   label: 'Relaxed (+6″)',        reference: 'skater, workwear'      },
+        { value: 'oversized', label: 'Oversized (+10″)',     reference: 'avant-garde, oversized' },
       ],
       default: 'standard',
     },

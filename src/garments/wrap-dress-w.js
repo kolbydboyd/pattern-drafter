@@ -22,17 +22,17 @@ export default {
     fabric: {
       type: 'select', label: 'Fabric type',
       values: [
-        { value: 'woven', label: 'Woven (structured drape)' },
-        { value: 'knit',  label: 'Knit / jersey (stretchy)' },
+        { value: 'woven', label: 'Woven (structured drape)', reference: 'challis, crepe'  },
+        { value: 'knit',  label: 'Knit / jersey (stretchy)', reference: 'jersey, stretch' },
       ],
       default: 'woven',
     },
     skirtShape: {
       type: 'select', label: 'Skirt shape',
       values: [
-        { value: 'aline',    label: 'A-line (classic wrap)'           },
-        { value: 'flowy',    label: 'Flowy / semi-circle (lots of drape)' },
-        { value: 'straight', label: 'Straight (minimal flare)'        },
+        { value: 'aline',    label: 'A-line (classic wrap)',            reference: 'versatile, classic' },
+        { value: 'flowy',    label: 'Flowy / semi-circle (lots of drape)', reference: 'goddess, drape'     },
+        { value: 'straight', label: 'Straight (minimal flare)',         reference: 'pencil, fitted'     },
       ],
       default: 'aline',
     },
@@ -49,8 +49,8 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'standard', label: 'Standard (+3″ ease)' },
-        { value: 'relaxed',  label: 'Relaxed (+5″ ease)'  },
+        { value: 'standard', label: 'Standard (+3″ ease)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed',  label: 'Relaxed (+5″ ease)',  reference: 'skater, workwear'      },
       ],
       default: 'standard',
     },

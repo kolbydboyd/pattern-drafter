@@ -22,25 +22,25 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)' },
-        { value: 'relaxed', label: 'Relaxed (+4″)'   },
-        { value: 'wide',    label: 'Wide (+6″)'      },
+        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack'  },
+        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'       },
+        { value: 'wide',    label: 'Wide (+6″)',      reference: 'Margiela, deconstructed' },
       ],
       default: 'relaxed',
     },
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight — twin needle hem'  },
-        { value: 'jogger',   label: 'Jogger — tapered + rib cuff' },
+        { value: 'straight', label: 'Straight — twin needle hem',  reference: 'classic, relaxed'    },
+        { value: 'jogger',   label: 'Jogger — tapered + rib cuff', reference: 'streetwear, tapered' },
       ],
       default: 'straight',
     },
     pocket: {
       type: 'select', label: 'Pockets',
       values: [
-        { value: 'none',     label: 'None'                      },
-        { value: 'slash',    label: 'Slash/kangaroo side pockets' },
+        { value: 'none',  label: 'None',                       reference: 'minimal'        },
+        { value: 'slash', label: 'Slash/kangaroo side pockets', reference: 'chino, Western' },
       ],
       default: 'slash',
     },

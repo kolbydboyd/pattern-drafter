@@ -18,17 +18,17 @@ export default {
     flare: {
       type: 'select', label: 'Flare amount',
       values: [
-        { value: '2', label: 'Subtle (+2″ per panel at hem)' },
-        { value: '4', label: 'Classic (+4″ per panel at hem)' },
-        { value: '6', label: 'Full (+6″ per panel at hem)'   },
+        { value: '2', label: 'Subtle (+2″ per panel at hem)',  reference: 'subtle'       },
+        { value: '4', label: 'Classic (+4″ per panel at hem)', reference: 'classic A-line' },
+        { value: '6', label: 'Full (+6″ per panel at hem)',    reference: 'dramatic'      },
       ],
       default: '4',
     },
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'structured', label: 'Structured (1.5″ + interfacing)' },
-        { value: 'elastic',    label: 'Elastic casing (1″)'             },
+        { value: 'structured', label: 'Structured (1.5″ + interfacing)', reference: 'dress trouser, Dickies' },
+        { value: 'elastic',    label: 'Elastic casing (1″)',             reference: 'chef pant, pull-on'    },
       ],
       default: 'structured',
     },
@@ -43,8 +43,8 @@ export default {
     pockets: {
       type: 'select', label: 'Pockets',
       values: [
-        { value: 'yes', label: 'Side-seam pockets' },
-        { value: 'no',  label: 'None'               },
+        { value: 'yes', label: 'Side-seam pockets', reference: 'hidden, clean' },
+        { value: 'no',  label: 'None',               reference: 'minimal'       },
       ],
       default: 'yes',
     },

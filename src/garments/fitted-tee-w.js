@@ -41,8 +41,8 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'fitted',   label: 'Fitted (+2″)'   },
-        { value: 'relaxed',  label: 'Relaxed (+4″)'  },
+        { value: 'fitted',   label: 'Fitted (+2″)',   reference: 'fitted, tailored' },
+        { value: 'relaxed',  label: 'Relaxed (+4″)',  reference: 'skater, workwear' },
       ],
       default: 'fitted',
     },

@@ -18,9 +18,9 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'petersham', label: 'Petersham ribbon (1.5″)'     },
-        { value: 'structured', label: 'Structured band (1.5″ + interfacing)' },
-        { value: 'elastic',    label: 'Elastic casing (1″)'        },
+        { value: 'petersham',  label: 'Petersham ribbon (1.5″)',             reference: 'petersham, contoured'  },
+        { value: 'structured', label: 'Structured band (1.5″ + interfacing)', reference: 'dress trouser, Dickies' },
+        { value: 'elastic',    label: 'Elastic casing (1″)',                  reference: 'chef pant, pull-on'    },
       ],
       default: 'petersham',
     },
