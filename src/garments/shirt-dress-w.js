@@ -18,7 +18,7 @@ const FACING_W   = 2.0;
 export default {
   id: 'shirt-dress-w',
   name: 'Shirt Dress (W)',
-  category: 'dresses',
+  category: 'upper',
   difficulty: 'advanced',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
   measurementDefaults: { torsoLength: 16, skirtLength: 26 },

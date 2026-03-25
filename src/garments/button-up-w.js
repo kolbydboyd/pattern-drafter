@@ -20,7 +20,7 @@ const NECK_DEPTH_BACK  = 0.75;
 export default {
   id: 'button-up-w',
   name: 'Button-Up Shirt (W)',
-  category: 'tops',
+  category: 'upper',
   difficulty: 'advanced',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },

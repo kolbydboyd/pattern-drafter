@@ -21,7 +21,7 @@ const NECK_STYLES = {
 export default {
   id: 'shell-blouse-w',
   name: 'Shell Blouse (W)',
-  category: 'tops',
+  category: 'upper',
   difficulty: 'intermediate',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
   measurementDefaults: {},
