@@ -44,6 +44,18 @@ export default {
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.25, step: 0.25, min: 0.5, max: 2.5 },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.0,  step: 0.25, min: 1,   max: 3.5 },
+    riseStyle: {
+      type: 'select', label: 'Rise style',
+      values: [
+        { value: 'ultra-low',  label: 'Ultra low (2000s, −2.5″)'  },
+        { value: 'low',        label: 'Low rise (−1.5″)'           },
+        { value: 'mid',        label: 'Mid rise (body rise)'       },
+        { value: 'high',       label: 'High rise (+1.5″)'          },
+        { value: 'ultra-high', label: 'Ultra high (paperbag, +3″)' },
+      ],
+      default: 'mid',
+    },
+    riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 0.5,  step: 0.25, min: 0,   max: 1.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -71,10 +83,14 @@ export default {
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
     const inseam   = m.inseam || 5;
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const baseRise  = m.rise || 10;
+    const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
 
     const frontW = m.hip / 4 + ease.front;
     const backW  = m.hip / 4 + ease.back;
-    const H      = m.rise + inseam;
+    const H      = rise + inseam;
 
     const pieces = [];
 
@@ -82,13 +98,13 @@ export default {
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: 'Cut 2 (mirror L & R) · Nylon taslan outer',
-      width: frontW, height: H, rise: m.rise, inseam,
+      width: frontW, height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
     }));
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
-      width: backW, height: H, rise: m.rise, inseam,
+      width: backW, height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem, isBack: true, opts,
     }));
 
@@ -99,13 +115,13 @@ export default {
       pieces.push(buildPanel({
         type: 'front-liner', name: 'Front Liner Panel',
         instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer front',
-        width: frontW, height: linerH, rise: m.rise, inseam: linerInseam,
+        width: frontW, height: linerH, rise, inseam: linerInseam,
         ext: frontExt, cbRaise: 0, sa: 0.375, hem: 0.375, isBack: false, opts,
       }));
       pieces.push(buildPanel({
         type: 'back-liner', name: 'Back Liner Panel',
         instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer back',
-        width: backW, height: linerH, rise: m.rise, inseam: linerInseam,
+        width: backW, height: linerH, rise, inseam: linerInseam,
         ext: backExt, cbRaise, sa: 0.375, hem: 0.375, isBack: true, opts,
       }));
     }

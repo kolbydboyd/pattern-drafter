@@ -52,6 +52,18 @@ export default {
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3    },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5, step: 0.25, min: 1,   max: 4    },
+    riseStyle: {
+      type: 'select', label: 'Rise style',
+      values: [
+        { value: 'ultra-low',  label: 'Ultra low (2000s, −2.5″)'  },
+        { value: 'low',        label: 'Low rise (−1.5″)'           },
+        { value: 'mid',        label: 'Mid rise (body rise)'       },
+        { value: 'high',       label: 'High rise (+1.5″)'          },
+        { value: 'ultra-high', label: 'Ultra high (paperbag, +3″)' },
+      ],
+      default: 'mid',
+    },
+    riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 0.5, step: 0.25, min: 0,   max: 1.5  },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -84,10 +96,14 @@ export default {
 
     // Default inseam 5 inches if user hasn't overridden
     const inseam = m.inseam || 5;
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const baseRise  = m.rise || 10;
+    const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
 
     const frontW = m.hip / 4 + ease.front;
     const backW  = m.hip / 4 + ease.back;
-    const H      = m.rise + inseam;
+    const H      = rise + inseam;
 
     const pieces = [];
 
@@ -98,7 +114,7 @@ export default {
       instruction: 'Cut 2 (mirror L & R) · Curve on CENTER seam · Stretch fabric',
       width: frontW,
       height: H,
-      rise: m.rise,
+      rise,
       inseam,
       ext: frontExt,
       cbRaise: 0,
@@ -114,7 +130,7 @@ export default {
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)} · Stretch fabric`,
       width: backW,
       height: H,
-      rise: m.rise,
+      rise,
       inseam,
       ext: backExt,
       cbRaise,

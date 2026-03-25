@@ -21,15 +21,18 @@ export default {
   measurementDefaults: { inseam: 30, rise: 10 },
 
   options: {
-    rise: {
-      type: 'select', label: 'Rise',
+    riseStyle: {
+      type: 'select', label: 'Rise style',
       values: [
-        { value: 11,  label: 'High (11″)'      },
-        { value: 10,  label: 'Mid-high (10″)'  },
-        { value: 9,   label: 'Mid (9″)'        },
+        { value: 'ultra-low',  label: 'Ultra low (2000s, −2.5″)'  },
+        { value: 'low',        label: 'Low rise (−1.5″)'           },
+        { value: 'mid',        label: 'Mid rise (body rise)'       },
+        { value: 'high',       label: 'High rise (+1.5″)'          },
+        { value: 'ultra-high', label: 'Ultra high (paperbag, +3″)' },
       ],
-      default: 10,
+      default: 'mid',
     },
+    riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     ease: {
       type: 'select', label: 'Fit',
       values: [
@@ -130,7 +133,10 @@ export default {
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
 
-    const rise   = parseFloat(opts.rise) || m.rise || 10;
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const baseRise  = m.rise || 10;
+    const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam = (m.inseam || 30) - (opts.hemStyle === 'crop' ? 2 : 0);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;

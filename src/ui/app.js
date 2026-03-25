@@ -166,6 +166,21 @@ function buildInputs() {
 
   panel.innerHTML = html;
 
+  // Rise style auto-fill
+  const riseStyleEl    = document.getElementById('o-riseStyle');
+  const riseOverrideEl = document.getElementById('o-riseOverride');
+  if (riseStyleEl && riseOverrideEl) {
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const updateRiseOverride = () => {
+      const bodyRise = parseFloat(document.getElementById('m-rise')?.value) || 10;
+      const offset   = RISE_OFFSETS[riseStyleEl.value] ?? 0;
+      riseOverrideEl.value = (bodyRise + offset).toFixed(2);
+    };
+    riseStyleEl.addEventListener('change', updateRiseOverride);
+    document.getElementById('m-rise')?.addEventListener('input', updateRiseOverride);
+    updateRiseOverride();
+  }
+
   // Event listeners
   document.getElementById('gen-btn').addEventListener('click', generate);
   document.getElementById('export-btn').addEventListener('click', exportSVG);

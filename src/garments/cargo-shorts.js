@@ -83,6 +83,18 @@ export default {
       ],
       default: 1,
     },
+    riseStyle: {
+      type: 'select', label: 'Rise style',
+      values: [
+        { value: 'ultra-low',  label: 'Ultra low (2000s, −2.5″)'  },
+        { value: 'low',        label: 'Low rise (−1.5″)'           },
+        { value: 'mid',        label: 'Mid rise (body rise)'       },
+        { value: 'high',       label: 'High rise (+1.5″)'          },
+        { value: 'ultra-high', label: 'Ultra high (paperbag, +3″)' },
+      ],
+      default: 'mid',
+    },
+    riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     cbRaise: { type: 'number', label: 'CB raise', default: 0.75, step: 0.25, min: 0, max: 2 },
   },
 
@@ -99,7 +111,11 @@ export default {
 
     const frontW = m.hip / 4 + ease.front;
     const backW = m.hip / 4 + ease.back;
-    const H = m.rise + m.inseam;
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const baseRise  = m.rise || 10;
+    const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const H = rise + m.inseam;
 
     const pieces = [];
 

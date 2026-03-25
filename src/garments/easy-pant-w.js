@@ -28,15 +28,18 @@ export default {
       ],
       default: 'wide',
     },
-    rise: {
-      type: 'select', label: 'Rise',
+    riseStyle: {
+      type: 'select', label: 'Rise style',
       values: [
-        { value: 11,  label: 'High (11″)'  },
-        { value: 10,  label: 'Mid (10″)'   },
-        { value: 8.5, label: 'Low (8.5″)'  },
+        { value: 'ultra-low',  label: 'Ultra low (2000s, −2.5″)'  },
+        { value: 'low',        label: 'Low rise (−1.5″)'           },
+        { value: 'mid',        label: 'Mid rise (body rise)'       },
+        { value: 'high',       label: 'High rise (+1.5″)'          },
+        { value: 'ultra-high', label: 'Ultra high (paperbag, +3″)' },
       ],
-      default: 10,
+      default: 'high',
     },
+    riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
@@ -93,7 +96,10 @@ export default {
     const frontExt = parseFloat(opts.frontExt);
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
-    const rise     = parseFloat(opts.rise) || m.rise || 10;
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const baseRise  = m.rise || 10;
+    const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam   = m.inseam || 29;
 
     const frontW = m.hip / 4 + easeFront;
