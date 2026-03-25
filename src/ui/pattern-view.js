@@ -108,7 +108,7 @@ export function renderPanelSVG(piece) {
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
     ${dimsSVG}${labelsSVG}${pocketSVG}
-    <text x="${sc(mL)}" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--sa,#4a8a5a)">${fmtInches(sa)} SA · ${fmtInches(hem)} hem · No SA at waist</text>
+    <text x="${sc(mL)}" y="${svgH - 10}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--sa,#4a8a5a)">${fmtInches(sa)} SA all seams incl. waist · ${fmtInches(hem)} hem</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 24}" font-family="IBM Plex Mono" font-size="8" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 36}" font-family="IBM Plex Mono" font-size="6.5" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
   </svg>`;
@@ -142,7 +142,13 @@ export function renderGenericPieceSVG(piece) {
     return d + ' Z';
   }
 
-  const saPoly = offsetPolygon(polygon, () => -sa);  // outset by sa (negative = outward for CW winding)
+  const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
+  const saPoly = offsetPolygon(polygon, i => {
+    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+    // Fold edge: both endpoints at x = minX — no SA, the fold is not a seam
+    if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
+    return -sa;
+  });
 
   // Grain line: vertical through horizontal center of bounding box
   const gx = ox + sc((minX + maxX) / 2);
@@ -168,7 +174,6 @@ export function renderGenericPieceSVG(piece) {
     }
   }
 
-  const cutOnFold  = type !== 'sleeve' && piece.isCutOnFold !== false;
   const pieceLabel = type === 'sleeve'
     ? 'SLEEVE × 2 (mirror)'
     : cutOnFold
