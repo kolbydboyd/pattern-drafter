@@ -1,8 +1,18 @@
 /**
  * Measurement definitions for all garment types.
- * Each measurement includes ID, label, instructions, and validation.
+ *
+ * All measurements are in inches. Each entry describes a single body measurement:
+ *   id          — machine-readable key, matches the property name
+ *   label       — display name shown in the UI
+ *   instruction — how-to-measure guidance shown alongside the input field
+ *   category    — 'lower' | 'upper' | 'full' — used to filter measurements per garment
+ *   min/max     — validation bounds; inputs outside this range are flagged
+ *   step        — input increment (0.25 or 0.5 inches)
+ *   default     — pre-filled value for a median adult body
+ *
+ * @type {Object.<string, { id: string, label: string, instruction: string,
+ *   category: string, min: number, max: number, step: number, default: number }>}
  */
-
 export const MEASUREMENTS = {
   // ── Lower Body ──
   waist: {
@@ -117,7 +127,19 @@ export const MEASUREMENTS = {
 };
 
 /**
- * Which measurements each garment category needs
+ * Canonical measurement lists by garment category.
+ * Garment modules declare their `measurements` array from one of these sets,
+ * or define a custom subset.
+ *
+ * Keys:
+ *   lower         — shorts and basic pants (no knee)
+ *   lower-pants   — fitted trousers and jeans (adds knee)
+ *   lower-skirt   — skirts (waist, hip, skirtLength only)
+ *   upper         — tops without wrist measurement
+ *   upper-long    — tops where wrist matters (fitted shirts, jackets)
+ *   dress         — full-body garments combining upper + lower fields
+ *
+ * @type {Object.<string, string[]>}
  */
 export const GARMENT_MEASUREMENTS = {
   lower: ['waist', 'hip', 'rise', 'thigh', 'inseam'],

@@ -40,7 +40,7 @@ export default {
       ],
       default: 'crew',
     },
-    ease: {
+    fit: {
       type: 'select', label: 'Fit',
       values: [
         { value: 'fitted',    label: 'Slim / fitted (+2″)',  reference: 'fitted, tailored'    },
@@ -98,7 +98,7 @@ export default {
     const hem = parseFloat(opts.hem);
 
     // ── Ease + panel widths ──────────────────────────────────────────────────
-    const totalEase = UPPER_EASE[opts.ease] ?? 4;
+    const totalEase = UPPER_EASE[opts.fit] ?? 4;
     // Each half-panel = (chest + ease) / 4 so front and back side seams align
     const panelW = (m.chest + totalEase) / 4;
     const frontW = panelW;
@@ -118,7 +118,7 @@ export default {
     // armholeY: y-coordinate of underarm from pattern top (A) = chest/4 + tolerance
     // armholeDepth: depth from shoulder point → passed to armholeCurve
     // chestDepth: horizontal extent shoulder pt → side seam at underarm level
-    const armholeStyle = opts.ease === 'oversized' ? 'oversized' : 'standard';
+    const armholeStyle = opts.fit === 'oversized' ? 'oversized' : 'standard';
     const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
@@ -220,7 +220,7 @@ export default {
     // Full flat width at underarm = bicep + 2" ease (standard block rule)
     // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
     const slvFullWidth = m.bicep + 2;
-    const capHeight    = opts.ease === 'fitted' ? 5.5 : opts.ease === 'oversized' ? 5.0 : 5.5;
+    const capHeight    = opts.fit === 'fitted' ? 5.5 : opts.fit === 'oversized' ? 5.0 : 5.5;
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capPts       = curveToPoints(capCp, 16);
     // capPts: (0,0) = back underarm → (slvFullWidth, 0) = front underarm
@@ -360,7 +360,7 @@ export default {
         'Pre-wash jersey before cutting — cotton knits shrink 3–5% in first wash',
         'Neckband cut at 85% of neck opening so it lies flat without gaping',
         'Stretch neckband gently as you sew to match opening — do not stretch the bodice edge',
-        opts.ease === 'fitted' ? 'Slim fit: ease is minimal — use 4-way stretch fabric only' : '',
+        opts.fit === 'fitted' ? 'Slim fit: ease is minimal — use 4-way stretch fabric only' : '',
       ].filter(Boolean),
     });
   },

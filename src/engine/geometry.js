@@ -3,11 +3,25 @@
  * All measurements in inches. SVG scale applied at render time.
  */
 
+/**
+ * Normalize a 2-D vector to unit length.
+ * Returns {x:0, y:0} for the zero vector to avoid NaN propagation.
+ *
+ * @param {{ x: number, y: number }} v
+ * @returns {{ x: number, y: number }}
+ */
 export function norm(v) {
   const l = Math.sqrt(v.x * v.x + v.y * v.y);
   return l > 0 ? { x: v.x / l, y: v.y / l } : { x: 0, y: 0 };
 }
 
+/**
+ * Euclidean distance between two points.
+ *
+ * @param {{ x: number, y: number }} a
+ * @param {{ x: number, y: number }} b
+ * @returns {number} Distance in the same units as the input coordinates (inches)
+ */
 export function dist(a, b) {
   return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
 }
@@ -124,7 +138,12 @@ export function offsetPolygon(poly, edgeOffsetFn) {
 }
 
 /**
- * Convert polygon to SVG path string
+ * Convert an array of {x, y} points to an SVG path `d` attribute string.
+ * The path is automatically closed with a Z command.
+ * Coordinates are rounded to one decimal place.
+ *
+ * @param {Array<{ x: number, y: number }>} poly
+ * @returns {string} SVG path data string, e.g. "M 0.0 0.0 L 10.0 0.0 ... Z"
  */
 export function polyToPath(poly) {
   if (!poly.length) return '';
@@ -137,7 +156,12 @@ export function polyToPath(poly) {
 }
 
 /**
- * Format inches as a readable fraction string
+ * Format a decimal inch value as a human-readable fraction string.
+ * Fractions supported: ⅛, ¼, ⅜, ½, ⅝, ¾, ⅞ (tolerance ±0.06).
+ * Negative values are treated as their absolute value.
+ *
+ * @param {number} val - Measurement in inches (e.g. 1.625)
+ * @returns {string} Formatted string (e.g. "1⅝″", "2″", "3.3″")
  */
 export function fmtInches(val) {
   if (val < 0) val = -val;
@@ -155,7 +179,10 @@ export function fmtInches(val) {
 }
 
 /**
- * Leg shape definitions — knee and hem widths as ratio of hip panel width
+ * Leg shape definitions — knee and hem widths as a ratio of the hip panel half-width.
+ * Multiply by the computed hip half-width to get absolute knee/hem measurements.
+ *
+ * @type {Object.<string, { knee: number, hem: number }>}
  */
 export const LEG_SHAPES = {
   skinny:   { knee: 0.72, hem: 0.58 },
@@ -166,7 +193,10 @@ export const LEG_SHAPES = {
 };
 
 /**
- * Calculate ease distribution (front gets 40%, back gets 60%)
+ * Total lower-body ease by fit style in inches (added to hip circumference).
+ * Front panel receives 40%, back panel receives 60% — see easeDistribution().
+ *
+ * @type {Object.<string, number>}
  */
 export const EASE_VALUES = {
   slim: 1.5,
@@ -175,6 +205,13 @@ export const EASE_VALUES = {
   wide: 6,
 };
 
+/**
+ * Distribute total lower-body ease across front and back panels.
+ * Back gets 60% (accommodates seat); front gets 40%.
+ *
+ * @param {string} easeKey - Key from EASE_VALUES ('slim' | 'regular' | 'relaxed' | 'wide')
+ * @returns {{ front: number, back: number, total: number }} Ease in inches per panel
+ */
 export function easeDistribution(easeKey) {
   const total = EASE_VALUES[easeKey] || 2.5;
   return { front: total * 0.4, back: total * 0.6, total };

@@ -16,13 +16,14 @@ Deploy: push to GitHub, connect to [Vercel](https://vercel.com) (free tier), aut
 
 ```
 src/
-  engine/         # Core geometry math (shared across all garments)
-    measurements.js   # Measurement definitions, validation, how-to-measure instructions
-    geometry.js       # Point/path math, bezier curves, SA offset, seam allowance
-    materials.js      # Fabric, notions, thread, needle recommendations per garment
-  garments/       # Each garment is a self-contained module
-    _base-lower.js    # Lower body block (shared: shorts, pants, skirts)
-    _base-upper.js    # Upper body block (shared: tees, shirts, jackets)
+  engine/
+    geometry.js          # Point/path math, bezier curves, SA offset, seam allowance
+    upper-body.js        # Upper body block geometry (bodice, armhole, sleeve cap, neckline)
+    measurements.js      # Measurement definitions, validation, how-to-measure instructions
+    materials.js         # Fabric, notions, thread, needle, stitch database
+  garments/
+    index.js             # Registry — imports and exports all garment modules
+    ── Menswear · Bottoms ──
     cargo-shorts.js
     gym-shorts.js
     swim-trunks.js
@@ -31,26 +32,35 @@ src/
     chinos.js
     pleated-trousers.js
     sweatpants.js
+    ── Menswear · Tops ──
     tee.js
     camp-shirt.js
     crewneck.js
     hoodie.js
     crop-jacket.js
-    a-line-skirt.js
-    pencil-skirt.js
-    pleated-skirt.js
-    shift-dress.js
-  ui/             # Interface components
-    input-form.js     # Measurement inputs, garment selector, options
-    pattern-view.js   # SVG rendering of pattern pieces
-    materials-panel.js # Fabric/notions/stitch info display
-  pdf/            # Print output
-    tiler.js          # Tiled PDF generation with registration marks
-    large-format.js   # Single-sheet large format export
-public/
-  index.html
+    ── Womenswear · Bottoms ──
+    wide-leg-trouser-w.js
+    straight-trouser-w.js
+    easy-pant-w.js
+    slip-skirt-w.js
+    a-line-skirt-w.js
+    ── Womenswear · Tops ──
+    button-up-w.js
+    shell-blouse-w.js
+    fitted-tee-w.js
+    ── Womenswear · Dresses ──
+    shirt-dress-w.js
+    wrap-dress-w.js
+  ui/
+    app.js               # App logic, wizard flow, profile save/load, yardage calc, export
+    pattern-view.js      # SVG rendering of pattern pieces (panels, bodices, sleeves, rects)
+    measurement-teacher.js  # Inline measurement guide with annotated SVG diagrams
+    styles.css
+  pdf/
+    print-layout.js      # Tiled print-ready HTML output (Letter, 96 dpi, registration marks)
 docs/
-  GARMENT-MODULE-SPEC.md  # How to add a new garment
+  GARMENT-MODULE-SPEC.md   # How to add a new garment
+  MODULE-STATUS.md         # Per-module interface audit and known issues
 ```
 
 ## How Garment Modules Work
@@ -61,100 +71,126 @@ Each garment module exports a standard interface:
 export default {
   id: 'cargo-shorts',
   name: 'Cargo Shorts',
-  category: 'lower',           // uses lower body block
+  category: 'lower',            // 'lower' | 'upper' | 'tops' | 'dresses'
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+  measurementDefaults: { inseam: 9 },
   options: {
     ease: { type: 'select', values: ['slim','regular','relaxed'], default: 'regular' },
-    frontPocket: { type: 'select', values: ['none','slant','side-seam'], default: 'slant' },
     cargo: { type: 'boolean', default: true },
     // ...
   },
   pieces(measurements, options) {
-    // Returns array of pattern pieces, each with:
-    // - points/paths (geometry)
-    // - labels, dimensions, grain line
-    // - SA offset
+    // Returns array of pattern pieces.
+    // Each piece has: id, name, type, instruction, dimensions, and either
+    // polygon points (panel/bodice) or { width, height } (rectangle/pocket).
     return [frontPanel, backPanel, waistband, ...pocketPieces];
   },
   materials(measurements, options) {
     // Returns bill of materials
     return {
-      fabric: [{ name: 'Cotton twill or gabardine', weight: '8-10 oz', quantity: '1.75 yards' }],
-      notions: [{ name: '1.5" woven elastic', quantity: '32"' }, ...],
-      thread: { type: 'Polyester all-purpose', color: 'Match fabric' },
-      needle: { machine: 'Universal 90/14', hand: 'Sharps size 7' },
-      stitch: { seams: 'Straight stitch, 2.5mm length', topstitch: 'Straight, 3mm', finish: 'Zigzag or serge raw edges' },
+      fabrics:  [{ name, weight, quantity, notes }],
+      notions:  [{ name, quantity, notes }],
+      thread:   { name, weight, notes },
+      needle:   { name, use },
+      stitches: [{ name, length, width, use }],
+      notes:    [],
     };
   },
-  instructions() {
+  instructions(measurements, options) {
     // Returns ordered construction steps
-    return [ 'Prepare pockets...', 'Sew crotch seams...', ... ];
-  }
+    return [{ step: 1, title: 'Prepare pockets', detail: '...' }, ...];
+  },
 };
 ```
 
-Adding a new garment = adding one file to `src/garments/`. The engine and UI handle everything else.
+Adding a new garment = adding one file to `src/garments/` and one import line in `src/garments/index.js`.
 
-## Garment Roadmap
+## Garment Modules
 
-### Lower Body Block
-- [x] Cargo shorts
-- [x] Basic pants (straight, slim, bootcut, wide)
-- [x] Pleated trousers (high waist, wide leg)
-- [x] Gym shorts (no cargo, drawstring)
-- [x] Swim trunks (mesh liner, shorter inseam)
-- [x] Pleated shorts
-- [x] Straight jeans (5-pocket, zip fly)
-- [x] Chinos (slash pocket, welt back)
-- [x] Sweatpants (ribbed cuff, drawstring)
+### Menswear · Bottoms (8)
+| Module | Garment | Status |
+|---|---|---|
+| `cargo-shorts` | Cargo Shorts | ✅ |
+| `gym-shorts` | Gym Shorts | ✅ |
+| `swim-trunks` | Swim Trunks | ✅ |
+| `pleated-shorts` | Pleated Shorts | ✅ |
+| `straight-jeans` | Straight Jeans | ✅ |
+| `chinos` | Chinos | ✅ |
+| `pleated-trousers` | Pleated Trousers | ✅ |
+| `sweatpants` | Sweatpants | ✅ |
 
-### Upper Body Block
-- [x] Tee (crew neck, set-in sleeve)
-- [x] Camp/bowling shirt (open collar, short sleeve, button front)
-- [x] Crewneck sweatshirt (raglan or set-in, ribbed cuffs/hem)
-- [x] Hoodie (kangaroo pocket, drawstring hood)
-- [x] Crop jacket / chore coat (patch pockets, flat-fell seams)
+### Menswear · Tops (5)
+| Module | Garment | Status |
+|---|---|---|
+| `tee` | T-Shirt | ✅ |
+| `camp-shirt` | Camp Shirt | ✅ |
+| `crewneck` | Crewneck Sweatshirt | ✅ |
+| `hoodie` | Hoodie | ✅ |
+| `crop-jacket` | Crop Jacket | ✅ |
 
-### Skirts & Dresses
-- [ ] A-line skirt
-- [ ] Pencil skirt (with kick pleat)
-- [ ] Pleated skirt
-- [ ] Shift dress (upper block + a-line)
+### Womenswear · Bottoms (5)
+| Module | Garment | Status |
+|---|---|---|
+| `wide-leg-trouser-w` | Wide-Leg Trouser | ✅ |
+| `straight-trouser-w` | Straight Trouser | ✅ |
+| `easy-pant-w` | Easy Pant | ✅ |
+| `slip-skirt-w` | Slip Skirt | ✅ |
+| `a-line-skirt-w` | A-Line Skirt | ✅ |
 
-### Features
-- [x] SVG pattern output with dimensions
-- [x] Seam allowance offset
-- [x] Pocket generators (slant, side-seam, cargo, patch, welt)
-- [x] Fly option (zip, button, none)
-- [x] Leg shape (skinny, slim, straight, bootcut, wide)
-- [x] Pleat support
-- [x] Tiled PDF output for home printing
-- [ ] Large format single-sheet PDF
-- [x] Materials/notions/stitch info on pattern
-- [x] Construction instructions on pattern
-- [x] Dark mode toggle (CSS variables, localStorage persist)
-- [x] Measurement profiles (save/load named profiles in localStorage)
-- [x] Fabric yardage calculator (greedy row-packing, 45″ and 60″ widths)
-- [x] Visual measurement guide (inline SVG diagrams, per-garment)
-- [ ] Grading (scale pattern across sizes for production)
+### Womenswear · Tops (3)
+| Module | Garment | Status |
+|---|---|---|
+| `button-up-w` | Button-Up Shirt | ✅ |
+| `shell-blouse-w` | Shell Blouse | ✅ |
+| `fitted-tee-w` | Fitted Tee | ✅ |
 
-## Materials System
+### Womenswear · Dresses (2)
+| Module | Garment | Status |
+|---|---|---|
+| `shirt-dress-w` | Shirt Dress | ✅ |
+| `wrap-dress-w` | Wrap Dress | ✅ |
 
-Each pattern includes:
-- **Fabric**: type, weight, quantity, pre-treatment notes
-- **Notions**: elastic, zippers, buttons, interfacing, webbing, snaps
-- **Thread**: type (poly, cotton, heavy-duty) and color guidance
-- **Needle**: machine needle type/size, hand needle if needed
-- **Stitch settings**: stitch type, length, width for each operation
-- **Special notes**: e.g. "use ballpoint needle for knits", "interface waistband before cutting"
+See `docs/MODULE-STATUS.md` for a full interface audit and known issues per module.
+
+## Features
+
+### Pattern output — every garment produces
+- **Pattern pieces** — SVG at true scale with seam allowances, hem allowances, grain lines, notches, cut instructions
+- **Materials** — Recommended fabrics, yardage at 45″ and 58–60″ widths, notions list, thread, needle type, stitch guide
+- **Instructions** — Numbered construction steps with technique notes
+
+### App
+- **4-step flow** — Choose garment → Enter measurements → Set options → View pattern
+- **Saved measurement profiles** — Name and save multiple sets (e.g. "Me", "Client A")
+- **Measurement guide** — Inline how-to-measure instructions and SVG diagrams for every field
+- **Fabric yardage calculator** — Strip-packing estimate at two fabric widths with 10% buffer
+- **Rise presets** — Low / mid / high / ultra-high presets on all trousers and shorts
+- **Style reference labels** — Every option includes a plain-English reference string
+- **Print layout** — Print-ready tiled output at true scale with piece labels and SA key
+- **Dark mode** — Persistent light/dark toggle via localStorage
+
+## Engine
+
+| Module | Purpose |
+|---|---|
+| `geometry.js` | Bezier curves, polygon offsetting, SVG path output, leg shapes, ease values |
+| `upper-body.js` | Armhole, shoulder, neckline, sleeve cap curves from standard drafting rules |
+| `measurements.js` | Measurement schema (13 fields), labels, instructions, validation, garment categories |
+| `materials.js` | Fabric, thread, needle, stitch, notions database used by all garment modules |
+
+Standard drafting rules used:
+- Neck width = neck circumference / 6
+- Armhole level (scye depth) = chest / 4 + style tolerance
+- Back neck depth = neck width / 3
+- Sleeve cap height 5 – 6.5 inches depending on garment type
+- Chest ease: front 55%, back 45%
 
 ## Tech Stack
 
 - **Vite** — dev server + build
-- **Vanilla JS** — no framework needed, keeps it simple
-- **SVG** — pattern rendering
-- **jsPDF** (future) — client-side PDF generation
-- No backend. Everything runs in the browser. Free to host.
+- **Vanilla JS** — no framework, ES modules throughout
+- **SVG** — all pattern rendering
+- No backend. Runs entirely in the browser.
 
 ## Development with Claude Code
 
@@ -163,8 +199,6 @@ npm install -g @anthropic-ai/claude-code
 cd pattern-drafter
 claude
 ```
-
-Claude Code can read the full project, understand the module architecture, and add/edit individual garment files without touching anything else.
 
 ## License
 

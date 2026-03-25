@@ -1,9 +1,21 @@
 /**
  * Materials database and recommendation engine.
- * Each garment module specifies material requirements.
- * This module provides the standard definitions and formatting.
+ *
+ * Provides normalized definitions for fabrics, threads, needles, stitches,
+ * and notions. Garment modules reference these by key via buildMaterialsSpec().
+ *
+ * All fabric weights are in oz/yd². Stretch indicates whether the fabric has
+ * meaningful two-way or four-way stretch relevant to pattern ease calculations.
  */
 
+/**
+ * Fabric type definitions keyed by machine-readable ID.
+ * Each entry describes a fabric's display name, weight range, stretch
+ * behaviour, weave category ('woven' | 'knit'), and optional sewing notes.
+ *
+ * @type {Object.<string, { name: string, weight: string, stretch: boolean,
+ *   category: string, notes?: string }>}
+ */
 export const FABRIC_TYPES = {
   // ── Heavy wovens ──────────────────────────────────────────────────────────
   'cotton-twill':     { name: 'Cotton twill', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
@@ -59,6 +71,11 @@ export const FABRIC_TYPES = {
   'mesh':             { name: 'Athletic mesh', weight: '2–3 oz/yd²', stretch: true, category: 'knit', notes: 'For pocket linings, liner' },
 };
 
+/**
+ * Thread type definitions keyed by machine-readable ID.
+ *
+ * @type {Object.<string, { name: string, weight: string, notes: string }>}
+ */
 export const THREAD_TYPES = {
   'poly-all':    { name: 'Polyester all-purpose', weight: '40wt', notes: 'Standard for most garments' },
   'poly-heavy':  { name: 'Polyester heavy-duty', weight: '30wt', notes: 'For denim, canvas, topstitching' },
@@ -66,6 +83,12 @@ export const THREAD_TYPES = {
   'woolly-nylon':{ name: 'Woolly nylon', weight: 'texturized', notes: 'For serger loopers on knits' },
 };
 
+/**
+ * Machine needle type definitions keyed by machine-readable ID.
+ * Size notation follows the European/American dual system (e.g. 90/14).
+ *
+ * @type {Object.<string, { name: string, use: string }>}
+ */
 export const NEEDLE_TYPES = {
   'universal-70':   { name: 'Universal 70/10', use: 'Very fine wovens (lawn, voile, charmeuse, chiffon)' },
   'universal-75':   { name: 'Universal 75/11', use: 'Fine-light wovens (poplin, chambray, lawn)' },
@@ -79,6 +102,12 @@ export const NEEDLE_TYPES = {
   'denim-100':      { name: 'Denim/Jeans 100/16', use: 'Denim, heavy twill, multiple layers' },
 };
 
+/**
+ * Machine stitch type definitions keyed by machine-readable ID.
+ * Length and width are in millimetres. Width '0' means straight stitch.
+ *
+ * @type {Object.<string, { name: string, length: string, width: string, use: string }>}
+ */
 export const STITCH_TYPES = {
   'straight-1.8':  { name: 'Straight stitch', length: '1.8mm', width: '0', use: 'Fine fabrics, detail stitching, understitching' },
   'straight-2':    { name: 'Straight stitch', length: '2.0mm', width: '0', use: 'Fine wovens, French seams, understitching' },
@@ -95,7 +124,11 @@ export const STITCH_TYPES = {
 };
 
 /**
- * Standard notions that many garments share
+ * Standard notions shared across many garments, keyed by machine-readable ID.
+ * Garment modules reference these by key in their buildMaterialsSpec() call;
+ * quantity overrides can be provided per-garment.
+ *
+ * @type {Object.<string, { name: string, notes: string }>}
  */
 export const STANDARD_NOTIONS = {
   'elastic-1.5':       { name: '1.5″ woven elastic', notes: 'Woven, not braided — holds shape better' },
@@ -113,9 +146,29 @@ export const STANDARD_NOTIONS = {
 };
 
 /**
- * Build a materials spec for a garment
- * @param {Object} config - { fabrics, notions, thread, needle, stitches, notes }
- * @returns {Object} formatted materials object
+ * Build a normalised materials spec for a garment from a config object.
+ *
+ * Each array entry can be:
+ *   - A string key → looked up in the corresponding database (FABRIC_TYPES etc.)
+ *   - An object with a `ref` key → looked up and merged with extra fields (e.g. quantity)
+ *   - A plain object → used as-is
+ *
+ * @param {{
+ *   fabrics:  Array<string | Object>,
+ *   notions:  Array<string | { ref: string, quantity: string } | Object>,
+ *   thread:   string | Object,
+ *   needle:   string | Object,
+ *   stitches: Array<string | Object>,
+ *   notes?:   string[]
+ * }} config
+ * @returns {{
+ *   fabrics:  Object[],
+ *   notions:  Object[],
+ *   thread:   Object,
+ *   needle:   Object,
+ *   stitches: Object[],
+ *   notes:    string[]
+ * }}
  */
 export function buildMaterialsSpec(config) {
   return {

@@ -76,7 +76,6 @@ export function renderPanelSVG(piece) {
     const slashY1 = oy;
     const slashX2 = ox + sc(width);         // side seam exit point
     const slashY2 = oy + sc(6);
-    console.log(`[slant pocket] panel width=${width.toFixed(2)}" | slash: (${(width-3.5).toFixed(2)}", 0") → (${width.toFixed(2)}", 6") | SVG: (${slashX1.toFixed(1)},${slashY1.toFixed(1)}) → (${slashX2.toFixed(1)},${slashY2.toFixed(1)})`)
     // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
     const bagL = ox + sc(width - 7);        // left edge of bag
     const bagB = oy + sc(7);               // bottom of bag
