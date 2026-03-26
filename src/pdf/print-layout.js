@@ -21,9 +21,10 @@ const PAPER_SIZES = {
   a0:      { w: 33.1, h: 46.8,  label: 'A0/Plotter'},
 };
 
-const DPI = 96; // CSS px per inch
-const px  = in_ => in_ * DPI;
-const SM  = 0.4; // safe (unprintable) margin in inches — keep all content inside this boundary
+const DPI    = 96;  // CSS px per inch
+const px     = in_ => in_ * DPI;
+const SM     = 0.4; // safe (unprintable) margin in inches — keep all content inside this boundary
+const MARGIN = 1.5; // generous padding around each piece — prevents SA miter clipping on all edges
 
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
@@ -44,10 +45,10 @@ function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
           sa, hem, name, instruction } = piece;
 
-  const mL = ext + 0.45;
-  const mT = 0.55;
-  const mR = (sa || 0.5) + 0.45;  // SA extends `sa` past width — add full clearance
-  const mB = 0.5;
+  const mL = ext + MARGIN;
+  const mT = MARGIN;
+  const mR = (sa || 0.5) + MARGIN;  // SA extends `sa` past width — MARGIN ensures no clip
+  const mB = MARGIN;
 
   const wIn = mL + width + mR;
   const hIn = mT + height + mB;
@@ -117,7 +118,7 @@ function renderBodiceOrSleeveSVG(piece) {
   const minY = Math.min(...ys), maxY = Math.max(...ys);
   const pW = maxX - minX, pH = maxY - minY;
 
-  const mL = 0.45, mT = 0.55, mR = 0.45, mB = 0.5;
+  const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
   const wIn = mL + pW + mR;
   const hIn = mT + pH + mB;
 
@@ -221,7 +222,7 @@ function renderRectSVG(piece) {
   const W = dimensions.length;
   const H = dimensions.width;
 
-  const mL = 0.45, mT = 0.55, mR = 0.45, mB = 0.5;
+  const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
   const wIn = mL + W + mR;
   const hIn = mT + H + mB;
 
@@ -265,7 +266,7 @@ function renderPocketSVG(piece) {
   const W = dimensions.width;
   const H = dimensions.height;
 
-  const mL = 0.45, mT = 0.55, mR = 0.45, mB = 0.5;
+  const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
   const wIn = mL + W + mR;
   const hIn = mT + H + mB;
 
@@ -389,7 +390,7 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   const TY  = landscape ? TY_l : TY_p;
 
   // Seam avoidance: fold line and right cut edge must not land within 0.1″ of a tile seam
-  const foldEdge  = piece.type === 'panel' ? (piece.ext || 0) + 0.45 : 0.45;
+  const foldEdge  = piece.type === 'panel' ? (piece.ext || 0) + MARGIN : MARGIN;
   const rightEdge = wIn;
   let shiftX = 0;
   for (let c = 1; c <= Math.ceil(wIn / TX) + 1; c++) {
@@ -491,18 +492,18 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
     let wIn, hIn;
     if (piece.type === 'panel') {
       const sa = piece.sa || 0.5;
-      wIn = (piece.ext || 0) + 0.45 + piece.width + sa + 0.45;
-      hIn = 0.55 + piece.height + 0.5;
+      wIn = (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN;
+      hIn = MARGIN + piece.height + MARGIN;
     } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const xs = piece.polygon.map(p => p.x), ys = piece.polygon.map(p => p.y);
-      wIn = 0.45 + (Math.max(...xs) - Math.min(...xs)) + 0.45;
-      hIn = 0.55 + (Math.max(...ys) - Math.min(...ys)) + 0.5;
+      wIn = MARGIN + (Math.max(...xs) - Math.min(...xs)) + MARGIN;
+      hIn = MARGIN + (Math.max(...ys) - Math.min(...ys)) + MARGIN;
     } else if (piece.type === 'rectangle') {
-      wIn = 0.45 + piece.dimensions.length + 0.45;
-      hIn = 0.55 + piece.dimensions.width + 0.5;
+      wIn = MARGIN + piece.dimensions.length + MARGIN;
+      hIn = MARGIN + piece.dimensions.width + MARGIN;
     } else if (piece.dimensions) {
-      wIn = 0.45 + piece.dimensions.width + 0.45;
-      hIn = 0.55 + piece.dimensions.height + 0.5;
+      wIn = MARGIN + piece.dimensions.width + MARGIN;
+      hIn = MARGIN + piece.dimensions.height + MARGIN;
     } else {
       continue;
     }
