@@ -194,6 +194,7 @@ function buildInputs() {
 
   html += `<hr class="dv">
     <button class="btn" id="gen-btn">Generate Pattern</button>
+    <button class="btn-s" id="download-pdf-btn">Download PDF</button>
     <button class="btn-s" id="export-btn">Export SVGs</button>
     <button class="btn-s" id="print-btn">Print Pattern</button>
     <button class="btn-s" id="reset-btn">Reset to Defaults</button>`;
@@ -218,7 +219,8 @@ function buildInputs() {
   // Event listeners
   document.getElementById('gen-btn').addEventListener('click', generate);
   document.getElementById('export-btn').addEventListener('click', exportSVG);
-  document.getElementById('print-btn').addEventListener('click', printPattern);
+  document.getElementById('print-btn').addEventListener('click', captureEmailThenPrint);
+  document.getElementById('download-pdf-btn').addEventListener('click', captureEmailThenPrint);
   document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
@@ -560,6 +562,63 @@ function exportSVG() {
   });
 }
 
+// ═══ EMAIL CAPTURE ═══
+function storeEmail(email) {
+  const stored = JSON.parse(localStorage.getItem('captured_emails') || '[]');
+  if (!stored.includes(email)) {
+    stored.push(email);
+    localStorage.setItem('captured_emails', JSON.stringify(stored));
+  }
+}
+
+function showEmailGate(onSuccess) {
+  let dlg = document.getElementById('email-gate-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'email-gate-dlg';
+    dlg.innerHTML = `
+      <div class="email-gate-card">
+        <div class="email-gate-logo">People's Patterns</div>
+        <p class="email-gate-tagline">made-to-measure sewing patterns</p>
+        <p class="email-gate-body">Enter your email to download your pattern — free during beta</p>
+        <form id="email-gate-form" class="email-gate-form">
+          <input type="email" id="email-gate-input" placeholder="you@example.com" required autocomplete="email">
+          <label class="email-gate-check">
+            <input type="checkbox" id="email-gate-optin" checked>
+            Send me new pattern drops and sewing tips
+          </label>
+          <button type="submit" class="email-gate-submit">Download Pattern</button>
+        </form>
+        <button type="button" class="email-gate-cancel" id="email-gate-cancel">Maybe later</button>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  const form = dlg.querySelector('#email-gate-form');
+  const cancelBtn = dlg.querySelector('#email-gate-cancel');
+  const emailInput = dlg.querySelector('#email-gate-input');
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    if (!email) return;
+    storeEmail(email);
+    dlg.close();
+    onSuccess();
+  };
+
+  cancelBtn.onclick = () => dlg.close();
+
+  emailInput.value = '';
+  dlg.showModal();
+}
+
+function captureEmailThenPrint() {
+  const stored = JSON.parse(localStorage.getItem('captured_emails') || '[]');
+  if (stored.length > 0) { printPattern(); return; }
+  showEmailGate(() => printPattern());
+}
+
 // ═══ PRINT ═══
 function printPattern() {
   const g = GARMENTS[currentGarment];
@@ -632,5 +691,13 @@ function toggleTheme() {
 // ═══ BOOT ═══
 applyTheme(localStorage.getItem('theme') === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
+document.getElementById('email-bar-btn')?.addEventListener('click', () => {
+  const input = document.getElementById('email-bar-input');
+  const email = input?.value.trim();
+  if (!email || !email.includes('@')) return;
+  storeEmail(email);
+  input.value = '';
+  input.placeholder = "You're in! ✓";
+});
 buildInputs();
 setTimeout(generate, 50);

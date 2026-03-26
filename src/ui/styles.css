@@ -12,8 +12,8 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospac
 .theme-btn:hover{border-color:var(--gold);color:var(--gold)}
 
 .app{display:flex;gap:0}
-.inp{width:310px;min-width:310px;background:var(--card);border-right:1px solid var(--bdr);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 52px)}
-.out{flex:1;padding:18px;overflow:auto;max-height:calc(100vh - 52px)}
+.inp{width:310px;min-width:310px;background:var(--card);border-right:1px solid var(--bdr);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 92px)}
+.out{flex:1;padding:18px;overflow:auto;max-height:calc(100vh - 92px)}
 
 @media(max-width:800px){
   .app{flex-direction:column}
@@ -101,5 +101,30 @@ details.adv-meas summary:hover{color:var(--text)}
 .mt-text{flex:1}
 .mt-label{font-size:.7rem;font-weight:600;color:var(--text);margin-bottom:2px}
 .mt-inst{font-size:.7rem;color:var(--mid);line-height:1.4}
+
+/* ── Email capture bar ── */
+.email-bar{background:var(--ibg);border-bottom:1px solid var(--bdr);padding:7px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.6rem}
+.email-bar-label{color:var(--mid);letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+.email-bar input{padding:4px 8px;border:1px solid var(--bdr);border-radius:3px;background:var(--card);font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--text);outline:none;width:200px}
+.email-bar input:focus{border-color:var(--gold)}
+.email-bar-btn{padding:4px 12px;background:var(--gold);color:#fff;border:none;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;font-weight:600}
+.email-bar-btn:hover{filter:brightness(.88)}
+
+/* ── Email gate modal ── */
+#email-gate-dlg{padding:0;border:none;border-radius:8px;background:var(--card);max-width:420px;width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+#email-gate-dlg::backdrop{background:rgba(0,0,0,.65)}
+.email-gate-card{padding:2em;font-family:'IBM Plex Mono',monospace}
+.email-gate-logo{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;letter-spacing:-1px;color:var(--text);margin-bottom:2px}
+.email-gate-tagline{font-size:.5rem;color:var(--light);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1.4em}
+.email-gate-body{font-size:.72rem;color:var(--text);line-height:1.55;margin-bottom:1.2em}
+.email-gate-form{display:flex;flex-direction:column;gap:.7em}
+.email-gate-form input[type=email]{padding:8px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--ibg);font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text);outline:none}
+.email-gate-form input[type=email]:focus{border-color:var(--gold)}
+.email-gate-check{display:flex;align-items:flex-start;gap:.5em;font-size:.62rem;color:var(--mid);cursor:pointer;line-height:1.4}
+.email-gate-check input{margin-top:2px;flex-shrink:0;accent-color:var(--gold)}
+.email-gate-submit{padding:10px;background:var(--gold);color:#fff;border:none;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.email-gate-submit:hover{filter:brightness(.88)}
+.email-gate-cancel{margin-top:.6em;background:none;border:none;color:var(--light);font-family:'IBM Plex Mono',monospace;font-size:.55rem;cursor:pointer;text-decoration:underline;padding:0;display:block;text-align:center;width:100%}
+.email-gate-cancel:hover{color:var(--mid)}
 
 @media print{.grid-bg{display:none}}
