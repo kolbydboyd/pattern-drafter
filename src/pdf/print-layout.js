@@ -46,7 +46,7 @@ function renderPanelSVG(piece) {
 
   const mL = ext + 0.45;
   const mT = 0.55;
-  const mR = 0.45;
+  const mR = (sa || 0.5) + 0.45;  // SA extends `sa` past width — add full clearance
   const mB = 0.5;
 
   const wIn = mL + width + mR;
@@ -293,86 +293,184 @@ function renderPocketSVG(piece) {
 
 // ── Registration crosshair ─────────────────────────────────────────────────
 
-function crosshair(x, y, size = 14) {
+function crosshair(x, y, size = 14, label = '') {
+  const lbl = label
+    ? `<text x="${x + size + 3}" y="${y - size - 2}"
+        font-family="'IBM Plex Mono',monospace" font-size="7" font-weight="700"
+        fill="#000">${label}</text>`
+    : '';
   return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}"
       stroke="#000" stroke-width="0.6"/>
     <line x1="${x}" y1="${y - size}" x2="${x}" y2="${y + size}"
       stroke="#000" stroke-width="0.6"/>
-    <circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#000" stroke-width="0.6"/>`;
+    <circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#000" stroke-width="0.6"/>
+    ${lbl}`;
+}
+
+// ── Overlap zone markers (B&W: triangles + trim line) ─────────────────────
+
+function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
+  const step = 0.4 * DPI;  // triangle spacing
+  const tH = 6, tB = 5;    // triangle height / base (px)
+  let shapes = '';
+
+  if (direction === 'left') {
+    // Vertical overlap strip; trim line at x = SM + OV
+    const tx = px(SM + OV);
+    const yStart = px(SM), yEnd = px(tPH - SM);
+    shapes += `<line x1="${tx}" y1="${yStart}" x2="${tx}" y2="${yEnd}"
+      stroke="#000" stroke-width="0.9" stroke-dasharray="4,2"/>`;
+    // Triangles pointing right (tip at trim line)
+    for (let y = yStart + step / 2; y < yEnd - tH; y += step) {
+      shapes += `<polygon points="${tx - tH},${y - tB / 2} ${tx - tH},${y + tB / 2} ${tx},${y}" fill="#000"/>`;
+    }
+    shapes += `<text
+      font-family="'IBM Plex Mono',monospace" font-size="6" fill="#000"
+      transform="rotate(-90,${px(SM) + 7},${(px(SM) + yEnd) / 2})">TRIM HERE</text>`;
+  } else {
+    // Horizontal overlap strip; trim line at y = SM + OV
+    const ty = px(SM + OV);
+    const xStart = px(SM), xEnd = px(tPW - SM);
+    shapes += `<line x1="${xStart}" y1="${ty}" x2="${xEnd}" y2="${ty}"
+      stroke="#000" stroke-width="0.9" stroke-dasharray="4,2"/>`;
+    // Triangles pointing down (tip at trim line)
+    for (let x = xStart + step / 2; x < xEnd - tH; x += step) {
+      shapes += `<polygon points="${x - tB / 2},${ty - tH} ${x + tB / 2},${ty - tH} ${x},${ty}" fill="#000"/>`;
+    }
+    shapes += `<text x="${(xStart + xEnd) / 2}" y="${px(SM) + 8}"
+      font-family="'IBM Plex Mono',monospace" font-size="6" fill="#000"
+      text-anchor="middle">TRIM HERE</text>`;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg"
+      style="position:absolute;top:0;left:0;width:${tPW}in;height:${tPH}in;
+             pointer-events:none;z-index:5;overflow:visible">
+    ${shapes}
+  </svg>`;
+}
+
+// ── 1-inch ruler hash strip ────────────────────────────────────────────────
+
+function rulerStrip(tPW, SM) {
+  const rY  = px(SM * 0.55);  // baseline inside top margin
+  const x0  = px(SM);
+  const x1  = px(tPW - SM);
+  const totalIn = tPW - 2 * SM;
+  let marks = `<line x1="${x0}" y1="${rY}" x2="${x1}" y2="${rY}" stroke="#000" stroke-width="0.4"/>`;
+  const steps = Math.round(totalIn / 0.25);
+  for (let i = 0; i <= steps; i++) {
+    const x = x0 + px(i * 0.25);
+    if (x > x1 + 1) break;
+    const isIn = i % 4 === 0, isHalf = i % 2 === 0;
+    const h = isIn ? 8 : isHalf ? 5 : 3;
+    marks += `<line x1="${x}" y1="${rY}" x2="${x}" y2="${rY + h}" stroke="#000" stroke-width="${isIn ? 0.7 : 0.4}"/>`;
+    if (isIn && i > 0) {
+      marks += `<text x="${x}" y="${rY + h + 7}"
+        font-family="'IBM Plex Mono',monospace" font-size="6" text-anchor="middle" fill="#000">${i / 4}"</text>`;
+    }
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg"
+    style="position:absolute;top:0;left:0;width:${tPW}in;height:${SM}in;pointer-events:none;z-index:12;overflow:visible">
+    ${marks}
+  </svg>`;
+}
+
+// ── Tile layout helper (orientation + seam avoidance) ─────────────────────
+
+function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
+  const TX_p = PW - 2 * SM - OV, TY_p = PH - 2 * SM - OV;
+  const TX_l = PH - 2 * SM - OV, TY_l = PW - 2 * SM - OV;
+  const pages_p = Math.ceil(wIn / TX_p) * Math.ceil(hIn / TY_p);
+  const pages_l = Math.ceil(wIn / TX_l) * Math.ceil(hIn / TY_l);
+  const landscape = pages_l < pages_p;
+  const tPW = landscape ? PH : PW;
+  const tPH = landscape ? PW : PH;
+  const TX  = landscape ? TX_l : TX_p;
+  const TY  = landscape ? TY_l : TY_p;
+
+  // Seam avoidance: fold line and right cut edge must not land within 0.1″ of a tile seam
+  const foldEdge  = piece.type === 'panel' ? (piece.ext || 0) + 0.45 : 0.45;
+  const rightEdge = wIn;
+  let shiftX = 0;
+  for (let c = 1; c <= Math.ceil(wIn / TX) + 1; c++) {
+    const seam = c * TX;
+    for (const edge of [foldEdge, rightEdge]) {
+      if (Math.abs(edge - seam) < 0.1 || Math.abs(edge - (seam - OV)) < 0.1) {
+        shiftX = Math.max(shiftX, 0.25);
+      }
+    }
+  }
+
+  const effectiveW = wIn + shiftX;
+  const cols = Math.ceil(effectiveW / TX);
+  const rows = Math.ceil(hIn / TY);
+  return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW };
 }
 
 // ── Tile page builder ──────────────────────────────────────────────────────
 
 function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
-  // Usable advance per tile: full page minus two safe margins minus overlap zone
-  const TX = PW - 2 * SM - OV;
-  const TY = PH - 2 * SM - OV;
-
   let rendered;
-  if      (piece.type === 'panel')                              rendered = renderPanelSVG(piece);
-  else if (piece.type === 'bodice' || piece.type === 'sleeve')  rendered = renderBodiceOrSleeveSVG(piece);
-  else if (piece.type === 'rectangle')                          rendered = renderRectSVG(piece);
-  else if (piece.type === 'pocket')                             rendered = renderPocketSVG(piece);
+  if      (piece.type === 'panel')                             rendered = renderPanelSVG(piece);
+  else if (piece.type === 'bodice' || piece.type === 'sleeve') rendered = renderBodiceOrSleeveSVG(piece);
+  else if (piece.type === 'rectangle')                         rendered = renderRectSVG(piece);
+  else if (piece.type === 'pocket')                            rendered = renderPocketSVG(piece);
   else return '';
 
   const { svg, wIn, hIn } = rendered;
 
-  const cols = Math.ceil(wIn / TX);
-  const rows = Math.ceil(hIn / TY);
+  // Fix 3: choose orientation, Fix 2: seam avoidance
+  const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
+  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW } = layout;
 
   let pages = '';
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const offsetX = -(col * TX * DPI);
+      // Fix 2: shiftX offsets content right so fold/cut edges avoid overlap zones
+      const offsetX = -(col * TX * DPI) + shiftX * DPI;
       const offsetY = -(row * TY * DPI);
 
-      let overlapHtml = '';
-      if (col > 0) {
-        overlapHtml += `<div style="position:absolute;top:${SM}in;left:${SM}in;
-            width:${OV}in;height:${PH - 2 * SM}in;pointer-events:none;z-index:5;
-            background:repeating-linear-gradient(45deg,
-              transparent,transparent 4px,
-              rgba(160,160,160,0.2) 4px,rgba(160,160,160,0.2) 8px);
-            border-right:0.75px dashed #aaa;"></div>`;
-      }
-      if (row > 0) {
-        overlapHtml += `<div style="position:absolute;top:${SM}in;left:${SM}in;
-            width:${PW - 2 * SM}in;height:${OV}in;pointer-events:none;z-index:5;
-            background:repeating-linear-gradient(45deg,
-              transparent,transparent 4px,
-              rgba(160,160,160,0.2) 4px,rgba(160,160,160,0.2) 8px);
-            border-bottom:0.75px dashed #aaa;"></div>`;
-      }
+      // Fix 4: B&W overlap zone markers (triangles + trim line)
+      let overlapSvgs = '';
+      if (col > 0) overlapSvgs += overlapZoneSVG('left', tPW, tPH, SM, OV);
+      if (row > 0) overlapSvgs += overlapZoneSVG('top',  tPW, tPH, SM, OV);
 
-      // Crosshairs placed SM inches inward from each corner (within safe margin)
+      // Fix 5: labeled crosshairs — label = grid-intersection coordinate (rowLetter + colNumber)
+      // Adjacent tiles share the same label at their shared corner, enabling alignment verification
+      const rA = String.fromCharCode(65 + row);
+      const rB = String.fromCharCode(65 + row + 1);
       const chSVG = `<svg xmlns="http://www.w3.org/2000/svg"
-          style="position:absolute;top:0;left:0;
-                 width:${PW}in;height:${PH}in;
+          style="position:absolute;top:0;left:0;width:${tPW}in;height:${tPH}in;
                  pointer-events:none;z-index:10;overflow:visible">
-        ${crosshair(px(SM),       px(SM))}
-        ${crosshair(px(PW - SM),  px(SM))}
-        ${crosshair(px(SM),       px(PH - SM))}
-        ${crosshair(px(PW - SM),  px(PH - SM))}
+        ${crosshair(px(SM),        px(SM),        14, `${rA}${col}`    )}
+        ${crosshair(px(tPW - SM),  px(SM),        14, `${rA}${col + 1}`)}
+        ${crosshair(px(SM),        px(tPH - SM),  14, `${rB}${col}`    )}
+        ${crosshair(px(tPW - SM),  px(tPH - SM),  14, `${rB}${col + 1}`)}
       </svg>`;
+
+      // Fix 5: 1-inch ruler hash strip along top margin
+      const ruler = rulerStrip(tPW, SM);
 
       const tileId    = `${row + 1}-${col + 1}`;
       const gridLabel = `${rows}\xd7${cols}`;
+      const orientTag = landscape ? ' \xb7 LANDSCAPE' : '';
+      const orientCls = landscape ? ' landscape-tile' : '';
 
-      pages += `<div class="page tile-page">
-        <div class="tile-clip">
-          <div style="position:absolute;
-                      left:${offsetX}px;top:${offsetY}px;
-                      width:${wIn * DPI}px;height:${hIn * DPI}px;">
+      pages += `<div class="page tile-page${orientCls}" style="width:${tPW}in;height:${tPH}in">
+        <div class="tile-clip" style="width:${tPW - 2 * SM}in;height:${tPH - 2 * SM}in">
+          <div style="position:absolute;left:${offsetX}px;top:${offsetY}px;
+                      width:${effectiveW * DPI}px;height:${hIn * DPI}px">
             ${svg}
           </div>
         </div>
-        ${overlapHtml}
+        ${overlapSvgs}
         ${chSVG}
+        ${ruler}
         <div class="tile-footer">
           <span class="tf-name">${piece.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
           <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
-          <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1} \xb7 \xbe\u2033 overlap</span>
+          <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1}${orientTag} \xb7 \xbe\u2033 overlap</span>
         </div>
       </div>`;
     }
@@ -384,8 +482,6 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
 // ── Tile map (page 2 overview) ─────────────────────────────────────────────
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
-  const TX = PW - 2 * SM - OV;
-  const TY = PH - 2 * SM - OV;
   const CELL_W = 44, CELL_H = 18, GAP = 5, PAD = 10;
 
   let items = '';
@@ -394,7 +490,8 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
   for (const piece of pieces) {
     let wIn, hIn;
     if (piece.type === 'panel') {
-      wIn = (piece.ext || 0) + 0.45 + piece.width + 0.45;
+      const sa = piece.sa || 0.5;
+      wIn = (piece.ext || 0) + 0.45 + piece.width + sa + 0.45;
       hIn = 0.55 + piece.height + 0.5;
     } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const xs = piece.polygon.map(p => p.x), ys = piece.polygon.map(p => p.y);
@@ -410,16 +507,17 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
       continue;
     }
 
-    const cols = Math.ceil(wIn / TX);
-    const rows = Math.ceil(hIn / TY);
+    const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
+    const { landscape, cols, rows } = layout;
     const total = rows * cols;
+    const orientNote = landscape ? ' \xb7 L' : '';
 
     items += `<text x="${PAD}" y="${y + 12}"
       font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600"
       fill="#2c2a26">${piece.name}</text>
       <text x="${PAD + cols * (CELL_W + GAP) + 8}" y="${y + 12}"
       font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">
-        ${rows}\xd7${cols} = ${total} page${total !== 1 ? 's' : ''}
+        ${rows}\xd7${cols} = ${total} page${total !== 1 ? 's' : ''}${orientNote}
       </text>`;
 
     y += 18;
@@ -428,7 +526,9 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
       for (let c = 0; c < cols; c++) {
         const cx = PAD + c * (CELL_W + GAP);
         const cy = y + r * (CELL_H + GAP);
-        const fill = (r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd';
+        const fill = landscape
+          ? ((r + c) % 2 === 0 ? '#e8f0f8' : '#dce8f4')  // blue tint for landscape
+          : ((r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd');
         items += `<rect x="${cx}" y="${cy}" width="${CELL_W}" height="${CELL_H}"
             rx="2" fill="${fill}" stroke="#bbb" stroke-width="0.7"/>
           <text x="${cx + CELL_W / 2}" y="${cy + 12}"
@@ -492,7 +592,9 @@ function buildCoverPage(garment, measurements, opts) {
           <li>Cut pages just outside the crosshairs at each corner</li>
           <li>Overlap each page \xbe\u2033 onto the next, matching registration crosshairs</li>
           <li>Assemble in the order shown on the tile map (page 2)</li>
-          <li>Shaded margin on the left/top of a tile = the \xbe\u2033 overlap zone</li>
+          <li>Left/top trim zone: cut along the dashed \u201cTRIM HERE\u201d line to expose fresh edge for taping</li>
+          <li>Match crosshair letters (e.g.\u202fA1 \u2192 A1) between adjacent tiles to verify alignment</li>
+          <li>Check the 1\u2033 ruler strip at the top of each tile to confirm scale is correct</li>
         </ol>
       </div>
     </div>
@@ -532,7 +634,7 @@ function buildScalePage(pieces, PW, PH, OV) {
     </div>
     <div class="map-sect">
       <h3 class="sect-head">Tile Assembly Map</h3>
-      <p class="note">Each cell = one printed page. Label = row-col (e.g. 2-3 = row 2, col 3). Assemble left-to-right, top-to-bottom per piece.</p>
+      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape orientation. Crosshair letters (A0, B1 \u2026) match across adjacent tiles \u2014 align matching letters when taping.</p>
       ${buildTileMapSVG(pieces, PW, PH, OV)}
     </div>
   </div>`;
@@ -621,7 +723,8 @@ function buildCSS(PW, PH) {
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:#777; font-family:'IBM Plex Mono',monospace; }
 
-@page { size:${PW}in ${PH}in; margin:0; }
+@page           { size:${PW}in ${PH}in; margin:0; }
+@page landscape-page { size:${PH}in ${PW}in; margin:0; }
 
 .page {
   width:${PW}in; height:${PH}in;
@@ -686,10 +789,11 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 
 /* ── Tiles ── */
 .tile-page { background:#fff; }
+.landscape-tile { page:landscape-page; }
 .tile-clip {
   position:absolute; top:${SM}in; left:${SM}in;
-  width:${PW - 2 * SM}in; height:${PH - 2 * SM}in;
   overflow:hidden;
+  /* width/height overridden per-tile via inline style for landscape support */
 }
 .tile-footer {
   position:absolute; bottom:${SM}in; left:${SM}in; right:${SM}in;
