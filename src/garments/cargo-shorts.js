@@ -169,7 +169,7 @@ export default {
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
       pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match to front slash', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag', name: 'Slant Pocket Bag', instruction: 'Cut 2 · Lining fabric OK', dimensions: { width: 7, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag', name: 'Slant Pocket Bag', instruction: 'Cut 2 · Lining fabric OK', dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket' });
@@ -313,7 +313,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: -ext, y: rise }); // crotch extension point
 
   // Crotch curve back to waist (reverse order)
-  for (let i = curvePts.length - 2; i >= 0; i--) {
+  for (let i = curvePts.length - 2; i >= 1; i--) {
     poly.push(curvePts[i]);
   }
 

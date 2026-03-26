@@ -57,6 +57,15 @@ export default {
       ],
       default: 'side',
     },
+    frontPocket: {
+      type: 'select', label: 'Front pockets',
+      values: [
+        { value: 'none',  label: 'None'             },
+        { value: 'slant', label: 'Slant (western)' },
+        { value: 'side',  label: 'Side seam'       },
+      ],
+      default: 'none',
+    },
     hemStyle: {
       type: 'select', label: 'Hem',
       values: [
@@ -136,7 +145,7 @@ export default {
       poly.push({ x: ihX,   y: H     });
       poly.push({ x: ikX,   y: kneeY });
       poly.push({ x: -ext,  y: rise  });
-      for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+      for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
       const saPoly = offsetPolygon(poly, i => {
         const a = poly[i], b = poly[(i + 1) % poly.length];
@@ -177,6 +186,14 @@ export default {
 
     if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Same fabric or lining', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    }
+
+    if (opts.frontPocket === 'slant') {
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+    }
+    if (opts.frontPocket === 'side' && opts.pockets !== 'side') {
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
 
     if (opts.hemStyle === 'elastic') {

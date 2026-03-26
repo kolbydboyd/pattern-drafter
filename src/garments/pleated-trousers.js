@@ -34,6 +34,15 @@ export default {
       ],
       default: 'wide',
     },
+    frontPocket: {
+      type: 'select', label: 'Front pockets',
+      values: [
+        { value: 'slant', label: 'Slant (western)' },
+        { value: 'side',  label: 'Side seam'       },
+        { value: 'none',  label: 'None'             },
+      ],
+      default: 'slant',
+    },
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
@@ -144,8 +153,13 @@ export default {
 
     // ── POCKETS ──
     pieces.push({ id: 'welt-back',  name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
-    pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface or match fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-    pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric', dimensions: { width: 7, height: 9.5 }, type: 'pocket' });
+    if (opts.frontPocket === 'slant') {
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface or match fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric', dimensions: { width: 7, height: 12 }, type: 'pocket' });
+    }
+    if (opts.frontPocket === 'side') {
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    }
 
     // ── BELT LOOPS ──
     pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} · ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket' });
@@ -245,7 +259,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });
   poly.push({ x: -ext,  y: rise   });
-  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];

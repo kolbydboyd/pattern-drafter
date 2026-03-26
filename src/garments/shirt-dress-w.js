@@ -154,7 +154,7 @@ export default {
       for (let i = 1; i < armPts.length; i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
       poly.push({ x: sideX, y: torsoLen });
       poly.push({ x: 0, y: torsoLen });
-      poly.push({ x: 0, y: neckDepth });
+      // (0, neckDepth) is already the first polygon point from the reversed neck curve — don't push duplicate
       return poly;
     }
 

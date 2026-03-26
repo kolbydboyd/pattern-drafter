@@ -150,7 +150,7 @@ export default {
         poly.push({ x: sideX, y: torsoLen });
       }
       poly.push({ x: 0, y: torsoLen });
-      poly.push({ x: 0, y: neckDepth });
+      // (0, neckDepth) is already the first polygon point from the reversed neck curve — don't push duplicate
       return poly;
     }
 

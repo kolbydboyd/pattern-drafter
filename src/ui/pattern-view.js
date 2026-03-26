@@ -112,7 +112,7 @@ export function renderPanelSVG(piece) {
     const slashY2 = oy + sc(6);
     // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
     const bagL = ox + sc(width - 7);        // left edge of bag
-    const bagB = oy + sc(7);               // bottom of bag
+    const bagB = oy + sc(9.5);             // bottom of bag (7″ up to slash + 2.5″ deeper extension)
     // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
     pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>

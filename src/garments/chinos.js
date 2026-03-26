@@ -40,6 +40,15 @@ export default {
       ],
       default: 'straight',
     },
+    frontPocket: {
+      type: 'select', label: 'Front pockets',
+      values: [
+        { value: 'slant', label: 'Slant (western)' },
+        { value: 'side',  label: 'Side seam'       },
+        { value: 'none',  label: 'None'             },
+      ],
+      default: 'slant',
+    },
     backPocket: {
       type: 'select', label: 'Back pockets',
       values: [
@@ -133,8 +142,13 @@ export default {
     pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · Serge edge before attaching', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
 
     // ── POCKETS ──
-    pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-    pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining or drill · Serge all edges', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    if (opts.frontPocket === 'slant') {
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining or drill · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+    }
+    if (opts.frontPocket === 'side') {
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    }
 
     if (opts.backPocket !== 'none') {
       pieces.push({ id: 'welt-back', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · Serge bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
@@ -247,7 +261,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: inseamHemX,  y: height });
   poly.push({ x: inseamKneeX, y: kneeY  });
   poly.push({ x: -ext,        y: rise   });
-  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];

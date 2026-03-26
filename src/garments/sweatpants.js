@@ -45,6 +45,15 @@ export default {
       ],
       default: 'slash',
     },
+    frontPocket: {
+      type: 'select', label: 'Front pockets',
+      values: [
+        { value: 'none',  label: 'None'             },
+        { value: 'slant', label: 'Slant (western)' },
+        { value: 'side',  label: 'Side seam'       },
+      ],
+      default: 'none',
+    },
     riseStyle: {
       type: 'select', label: 'Rise style',
       values: [
@@ -141,6 +150,13 @@ export default {
         dimensions: { width: 8, height: 9 },
         type: 'pocket',
       });
+    }
+    if (opts.frontPocket === 'slant') {
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+    }
+    if (opts.frontPocket === 'side') {
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
 
     // ── RIBBED CUFFS (jogger only) ──
@@ -266,7 +282,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: inseamHemX,  y: height });
   poly.push({ x: inseamKneeX, y: kneeY  });
   poly.push({ x: -ext,        y: rise   });
-  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];

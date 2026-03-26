@@ -185,7 +185,7 @@ export default {
     }
     if (opts.pockets === 'slant') {
       pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
@@ -288,7 +288,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, knee
   poly.push({ x: inseamKneeX, y: height  });
   poly.push({ x: inseamKneeX, y: kneeY   });
   poly.push({ x: -ext,        y: rise    });
-  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];

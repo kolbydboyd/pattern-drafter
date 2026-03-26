@@ -332,7 +332,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: -ext,  y: height });
   poly.push({ x: -ext,  y: rise   });
 
-  for (let i = curvePts.length - 2; i >= 0; i--) {
+  for (let i = curvePts.length - 2; i >= 1; i--) {
     poly.push(curvePts[i]);
   }
 

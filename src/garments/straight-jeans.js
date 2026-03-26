@@ -40,6 +40,15 @@ export default {
       ],
       default: 'straight',
     },
+    frontPocket: {
+      type: 'select', label: 'Front pockets',
+      values: [
+        { value: 'slant', label: 'Slant (western)' },
+        { value: 'side',  label: 'Side seam'       },
+        { value: 'none',  label: 'None'             },
+      ],
+      default: 'slant',
+    },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5, step: 0.25, min: 1,   max: 4   },
     riseStyle: {
@@ -126,8 +135,13 @@ export default {
     pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · Topstitch curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
 
     // ── POCKETS ──
-    pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-    pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining (muslin or drill)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    if (opts.frontPocket === 'slant') {
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+    }
+    if (opts.frontPocket === 'side') {
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+    }
     pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · Serge edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket' });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
 
@@ -237,7 +251,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: inseamHemX, y: height  }); // hem at inseam
   poly.push({ x: inseamKneeX, y: kneeY  }); // knee on inseam
   poly.push({ x: -ext,       y: rise    }); // crotch extension point
-  for (let i = curvePts.length - 2; i >= 0; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];

@@ -195,7 +195,8 @@ function buildInputs() {
   html += `<hr class="dv">
     <button class="btn" id="gen-btn">Generate Pattern</button>
     <button class="btn-s" id="export-btn">Export SVGs</button>
-    <button class="btn-s" id="print-btn">Print Pattern</button>`;
+    <button class="btn-s" id="print-btn">Print Pattern</button>
+    <button class="btn-s" id="reset-btn">Reset to Defaults</button>`;
 
   panel.innerHTML = html;
 
@@ -218,6 +219,7 @@ function buildInputs() {
   document.getElementById('gen-btn').addEventListener('click', generate);
   document.getElementById('export-btn').addEventListener('click', exportSVG);
   document.getElementById('print-btn').addEventListener('click', printPattern);
+  document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
   document.getElementById('profile-select').addEventListener('change', e => {
@@ -417,6 +419,27 @@ function renderInstructions(steps) {
     html += `<div class="instr-step"><span class="num">${s.step}.</span> <span class="ttl">${s.title}</span> — <span class="dtl">${s.detail}</span></div>`;
   }
   return html;
+}
+
+// ═══ RESET TO DEFAULTS ═══
+function resetToDefaults() {
+  if (!confirm('Reset all measurements and options to defaults?')) return;
+  const g = GARMENTS[currentGarment];
+  for (const mId of g.measurements) {
+    const mDef = MEASUREMENTS[mId];
+    if (!mDef) continue;
+    const el = document.getElementById(`m-${mId}`);
+    if (el) el.value = g.measurementDefaults?.[mId] ?? mDef.default;
+  }
+  for (const mId of relevantOptionalIds(g)) {
+    const el = document.getElementById(`m-${mId}`);
+    if (el) el.value = '';
+  }
+  for (const [key, opt] of Object.entries(g.options)) {
+    const el = document.getElementById(`o-${key}`);
+    if (el) el.value = opt.default;
+  }
+  generate();
 }
 
 // ═══ GENERATE ═══
