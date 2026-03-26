@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * SVG renderer for pattern pieces.
  * Takes piece objects from garment modules, returns SVG strings.

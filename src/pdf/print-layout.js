@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Print layout generator.
  * Converts garment module output into a multi-page printable HTML document.

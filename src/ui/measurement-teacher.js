@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Measurement teacher — visual how-to-measure guide.
  * Renders a set of SVG diagrams + written instructions for a given list

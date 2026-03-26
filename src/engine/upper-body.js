@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Upper body geometry engine.
  *

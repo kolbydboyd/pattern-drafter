@@ -204,7 +204,8 @@ claude
 
 ## License
 
-Copyright (c) 2026 People's Patterns LLC. 
-All rights reserved. Unauthorized copying, 
-distribution, or use is prohibited.
+Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 
+Unauthorized copying, distribution, modification, or commercial
+use of this software is prohibited without explicit written
+permission from People's Patterns LLC.
