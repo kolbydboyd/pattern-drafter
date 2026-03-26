@@ -33,7 +33,7 @@ export function renderPanelSVG(piece) {
   const waistTopY = Math.min(...polygon.map(p => p.y)) - sa;
   const saCopy = saPolygon.map(p => ({ ...p }));
   for (let i = 0; i < polygon.length; i++) {
-    if (polygon[i].y > cbRaise + 0.01) break;
+    if (polygon[i].y > 0.01) break;
     if (Math.abs(polygon[i].x) < 0.01) {
       saCopy[i] = { x: -sa, y: waistTopY };            // left (center) corner — right angle
     } else if (Math.abs(polygon[i].x - width) < 0.01) {

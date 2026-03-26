@@ -253,8 +253,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const inseamHemX  = -ext   + hemInward;
 
   const poly = [];
-  poly.push({ x: 0,     y: cbRaise });
-  if (isBack) poly.push({ x: width * 0.5, y: cbRaise * 0.15 });
+  poly.push({ x: 0,     y: 0       });
   poly.push({ x: width,       y: 0      });
   poly.push({ x: sideKneeX,   y: kneeY  });
   poly.push({ x: sideHemX,    y: height });
@@ -262,6 +261,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: inseamKneeX, y: kneeY  });
   poly.push({ x: -ext,        y: rise   });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];
