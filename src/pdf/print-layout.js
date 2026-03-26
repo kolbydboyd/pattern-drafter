@@ -263,8 +263,9 @@ function renderRectSVG(piece) {
  */
 function renderPocketSVG(piece) {
   const { name, dimensions } = piece;
-  const W = dimensions.width;
-  const H = dimensions.height;
+  // Pocket bags use { width, height }; strip pieces (collar, facing, tie) use { length, width }
+  const W = dimensions.length ?? dimensions.width;
+  const H = dimensions.height  ?? dimensions.width;
 
   const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
   const wIn = mL + W + mR;
@@ -407,7 +408,9 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   const TX_l = PH - 2 * SM - OV, TY_l = PW - 2 * SM - OV;
   const pages_p = Math.ceil(wIn / TX_p) * Math.ceil(hIn / TY_p);
   const pages_l = Math.ceil(wIn / TX_l) * Math.ceil(hIn / TY_l);
-  const landscape = pages_l < pages_p;
+  // Panel pieces (pants, shorts) are always taller than wide — force portrait so
+  // tiles cover more of the long dimension per row and assembly is intuitive.
+  const landscape = piece.type !== 'panel' && pages_l < pages_p;
   const tPW = landscape ? PH : PW;
   const tPH = landscape ? PW : PH;
   const TX  = landscape ? TX_l : TX_p;
@@ -541,8 +544,9 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
       wIn = MARGIN + piece.dimensions.length + MARGIN;
       hIn = MARGIN + piece.dimensions.width + MARGIN;
     } else if (piece.dimensions) {
-      wIn = MARGIN + piece.dimensions.width + MARGIN;
-      hIn = MARGIN + piece.dimensions.height + MARGIN;
+      const d = piece.dimensions;
+      wIn = MARGIN + (d.length ?? d.width)  + MARGIN;
+      hIn = MARGIN + (d.height ?? d.width)  + MARGIN;
     } else {
       continue;
     }

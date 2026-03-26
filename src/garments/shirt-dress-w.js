@@ -163,7 +163,9 @@ export default {
 
     // Front panels split at CF + placket extension
     const frontRightPoly = frontBodice.map(p => ({ x: p.x + PLACKET_W, y: p.y }));
-    const frontLeftPoly  = frontRightPoly.map(p => ({ x: -p.x, y: p.y }));
+    // Mirror the right panel. Negating x flips CW→CCW winding; .reverse() restores CW
+    // so offsetPolygon computes the SA outline correctly (outside the stitch line).
+    const frontLeftPoly  = frontRightPoly.map(p => ({ x: -p.x, y: p.y })).reverse();
     const frontRightBB   = bb(frontRightPoly);
     const frontLeftBB    = bb(frontLeftPoly);
     const backBB         = bb(backBodice);
@@ -221,6 +223,7 @@ export default {
         id: 'bodice-front-right', name: 'Front Bodice (Right / buttonhole side)',
         instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttonholes on RIGHT front (womenswear convention)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
         type: 'bodice', polygon: frontRightPoly, path: pp(frontRightPoly),
+        isCutOnFold: false,
         width: frontRightBB.maxX, height: frontRightBB.maxY, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
@@ -228,6 +231,7 @@ export default {
         id: 'bodice-front-left', name: 'Front Bodice (Left / button side)',
         instruction: `Cut 1 (mirror of right front) · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttons on LEFT front (womenswear convention)`,
         type: 'bodice', polygon: frontLeftPoly, path: pp(frontLeftPoly),
+        isCutOnFold: false,
         width: frontLeftBB.maxX, height: frontLeftBB.maxY, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
