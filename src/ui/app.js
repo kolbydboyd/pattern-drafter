@@ -473,9 +473,13 @@ function _generate() {
           <tr><td>Finished</td><td>${fmtInches(piece.dimensions.width / 2)}</td></tr>
         </table></div>`;
     } else if (piece.type === 'pocket') {
+      const pd = piece.dimensions;
+      const pSize = pd.length != null
+        ? `${fmtInches(pd.length)} × ${fmtInches(pd.width)}`
+        : `${fmtInches(pd.width)} × ${fmtInches(pd.height)}`;
       html += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
         <table class="dt">
-          <tr><td>Size</td><td>${fmtInches(piece.dimensions.width)} × ${fmtInches(piece.dimensions.height)}</td></tr>
+          <tr><td>Size</td><td>${pSize}</td></tr>
         </table></div>`;
     }
   }
