@@ -294,53 +294,73 @@ function renderPocketSVG(piece) {
 
 // ── Registration crosshair ─────────────────────────────────────────────────
 
-function crosshair(x, y, size = 14, label = '') {
+function crosshair(x, y, size = 14, label = '', alignLabel = false) {
   const lbl = label
     ? `<text x="${x + size + 3}" y="${y - size - 2}"
         font-family="'IBM Plex Mono',monospace" font-size="7" font-weight="700"
         fill="#000">${label}</text>`
+    : '';
+  const aLbl = alignLabel
+    ? `<text x="${x + size + 3}" y="${y + size + 10}"
+        font-family="'IBM Plex Mono',monospace" font-size="6.5"
+        fill="#444">+ align here</text>`
     : '';
   return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}"
       stroke="#000" stroke-width="0.6"/>
     <line x1="${x}" y1="${y - size}" x2="${x}" y2="${y + size}"
       stroke="#000" stroke-width="0.6"/>
     <circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#000" stroke-width="0.6"/>
-    ${lbl}`;
+    ${lbl}${aLbl}`;
 }
 
-// ── Overlap zone markers (B&W: triangles + trim line) ─────────────────────
+// ── Overlap zone: scissors cut line at OUTER edge ─────────────────────────
+// Outer edge = page-side boundary of the overlap zone (where user cuts)
+// Inner edge = pattern-side boundary = SM+OV (where crosshairs sit for alignment)
 
 function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
-  const step = 0.4 * DPI;  // triangle spacing
-  const tH = 6, tB = 5;    // triangle height / base (px)
   let shapes = '';
 
   if (direction === 'left') {
-    // Vertical overlap strip; trim line at x = SM + OV
-    const tx = px(SM + OV);
-    const yStart = px(SM), yEnd = px(tPH - SM);
-    shapes += `<line x1="${tx}" y1="${yStart}" x2="${tx}" y2="${yEnd}"
-      stroke="#000" stroke-width="0.9" stroke-dasharray="4,2"/>`;
-    // Triangles pointing right (tip at trim line)
-    for (let y = yStart + step / 2; y < yEnd - tH; y += step) {
-      shapes += `<polygon points="${tx - tH},${y - tB / 2} ${tx - tH},${y + tB / 2} ${tx},${y}" fill="#000"/>`;
-    }
+    const cx    = px(SM);             // outer (page-side) cut line — solid
+    const yS    = px(SM), yE = px(tPH - SM);
+    const midY  = (yS + yE) / 2;
+
+    // Solid cut line at outer edge
+    shapes += `<line x1="${cx}" y1="${yS}" x2="${cx}" y2="${yE}"
+      stroke="#000" stroke-width="1.4"/>`;
+    // Dashed guide through the overlap zone interior
+    const dashX = cx + px(OV * 0.45);
+    shapes += `<line x1="${dashX}" y1="${yS}" x2="${dashX}" y2="${yE}"
+      stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
+    // ✂ scissors icon at top of cut line
+    shapes += `<text x="${cx}" y="${yS + 16}"
+      font-family="serif" font-size="13" fill="#000"
+      text-anchor="middle">\u2702</text>`;
+    // "cut here" label rotated along line
     shapes += `<text
-      font-family="'IBM Plex Mono',monospace" font-size="6" fill="#000"
-      transform="rotate(-90,${px(SM) + 7},${(px(SM) + yEnd) / 2})">TRIM HERE</text>`;
+      font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
+      text-anchor="middle"
+      transform="rotate(-90,${cx - 11},${midY})">cut here</text>`;
   } else {
-    // Horizontal overlap strip; trim line at y = SM + OV
-    const ty = px(SM + OV);
-    const xStart = px(SM), xEnd = px(tPW - SM);
-    shapes += `<line x1="${xStart}" y1="${ty}" x2="${xEnd}" y2="${ty}"
-      stroke="#000" stroke-width="0.9" stroke-dasharray="4,2"/>`;
-    // Triangles pointing down (tip at trim line)
-    for (let x = xStart + step / 2; x < xEnd - tH; x += step) {
-      shapes += `<polygon points="${x - tB / 2},${ty - tH} ${x + tB / 2},${ty - tH} ${x},${ty}" fill="#000"/>`;
-    }
-    shapes += `<text x="${(xStart + xEnd) / 2}" y="${px(SM) + 8}"
-      font-family="'IBM Plex Mono',monospace" font-size="6" fill="#000"
-      text-anchor="middle">TRIM HERE</text>`;
+    const cy    = px(SM);             // outer (page-side) cut line — solid
+    const xS    = px(SM), xE = px(tPW - SM);
+    const midX  = (xS + xE) / 2;
+
+    // Solid cut line at outer edge
+    shapes += `<line x1="${xS}" y1="${cy}" x2="${xE}" y2="${cy}"
+      stroke="#000" stroke-width="1.4"/>`;
+    // Dashed guide through the overlap zone interior
+    const dashY = cy + px(OV * 0.45);
+    shapes += `<line x1="${xS}" y1="${dashY}" x2="${xE}" y2="${dashY}"
+      stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
+    // ✂ scissors icon at left of cut line
+    shapes += `<text x="${xS + 16}" y="${cy - 3}"
+      font-family="serif" font-size="13" fill="#000"
+      text-anchor="middle">\u2702</text>`;
+    // "cut here" label
+    shapes += `<text x="${midX}" y="${cy - 4}"
+      font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
+      text-anchor="middle">cut here</text>`;
   }
 
   return `<svg xmlns="http://www.w3.org/2000/svg"
@@ -449,17 +469,24 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
       if (col > 0) overlapSvgs += overlapZoneSVG('left', tPW, tPH, SM, OV);
       if (row > 0) overlapSvgs += overlapZoneSVG('top',  tPW, tPH, SM, OV);
 
-      // Fix 5: labeled crosshairs — label = grid-intersection coordinate (rowLetter + colNumber)
-      // Adjacent tiles share the same label at their shared corner, enabling alignment verification
-      const rA = String.fromCharCode(65 + row);
-      const rB = String.fromCharCode(65 + row + 1);
+      // Crosshairs sit at the INNER edge of each overlap zone (SM+OV from the overlap side).
+      // This is what users align after cutting at the outer scissors line.
+      // Non-overlap edges keep crosshairs at the outer corner (SM from edge).
+      const rA   = String.fromCharCode(65 + row);
+      const rB   = String.fromCharCode(65 + row + 1);
+      const ovX  = px(SM + OV);  // inner left edge (after cutting left overlap)
+      const ovY  = px(SM + OV);  // inner top edge  (after cutting top overlap)
+      const tlX  = col > 0 ? ovX : px(SM);
+      const tlY  = row > 0 ? ovY : px(SM);
+      const trY  = row > 0 ? ovY : px(SM);
+      const blX  = col > 0 ? ovX : px(SM);
       const chSVG = `<svg xmlns="http://www.w3.org/2000/svg"
           style="position:absolute;top:0;left:0;width:${tPW}in;height:${tPH}in;
                  pointer-events:none;z-index:10;overflow:visible">
-        ${crosshair(px(SM),        px(SM),        14, `${rA}${col}`    )}
-        ${crosshair(px(tPW - SM),  px(SM),        14, `${rA}${col + 1}`)}
-        ${crosshair(px(SM),        px(tPH - SM),  14, `${rB}${col}`    )}
-        ${crosshair(px(tPW - SM),  px(tPH - SM),  14, `${rB}${col + 1}`)}
+        ${crosshair(tlX,           tlY,           14, `${rA}${col}`,     col > 0 || row > 0)}
+        ${crosshair(px(tPW - SM),  trY,           14, `${rA}${col + 1}`, row > 0           )}
+        ${crosshair(blX,           px(tPH - SM),  14, `${rB}${col}`,     col > 0           )}
+        ${crosshair(px(tPW - SM),  px(tPH - SM),  14, `${rB}${col + 1}`, false             )}
       </svg>`;
 
       // Fix 5: 1-inch ruler hash strip along top margin
@@ -602,12 +629,10 @@ function buildCoverPage(garment, measurements, opts) {
         <ol>
           <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
           <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right</li>
-          <li>Cut pages just outside the crosshairs at each corner</li>
-          <li>Overlap each page \xbe\u2033 onto the next, matching registration crosshairs</li>
           <li>Assemble in the order shown on the tile map (page 2)</li>
-          <li>Left/top trim zone: cut along the dashed \u201cTRIM HERE\u201d line to expose fresh edge for taping</li>
-          <li>Match crosshair letters (e.g.\u202fA1 \u2192 A1) between adjacent tiles to verify alignment</li>
-          <li>Check the 1\u2033 ruler strip at the top of each tile to confirm scale is correct</li>
+          <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile \u2014 this removes the shaded overlap strip</li>
+          <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile \u2014 matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement</li>
+          <li>Tape from the back. Check the 1\u2033 ruler strip to confirm scale before taping</li>
         </ol>
       </div>
     </div>
@@ -647,7 +672,7 @@ function buildScalePage(pieces, PW, PH, OV) {
     </div>
     <div class="map-sect">
       <h3 class="sect-head">Tile Assembly Map</h3>
-      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape orientation. Crosshair letters (A0, B1 \u2026) match across adjacent tiles \u2014 align matching letters when taping.</p>
+      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape. \u2022 Cut along the \u2702 scissors line at each overlap edge. \u2022 Slide trimmed tile until the \u2295 crosshairs match the adjacent tile (same letter = same point). \u2022 Tape from the back.</p>
       ${buildTileMapSVG(pieces, PW, PH, OV)}
     </div>
   </div>`;
