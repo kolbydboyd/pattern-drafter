@@ -78,7 +78,7 @@ function renderPanelSVG(piece) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
-      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
+      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="none"/>
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cX1}" y1="${cY}" x2="${cX2}" y2="${cY}"
         stroke="#d0ccc4" stroke-width="0.8" stroke-dasharray="12,7"/>
@@ -90,7 +90,7 @@ function renderPanelSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name} \xd7 2 (mirror)</text>
       <text x="${titleX}" y="${subY}"
-        font-family="'IBM Plex Mono',monospace" font-size="10"
+        font-family="'IBM Plex Mono',monospace" font-size="12"
         fill="#666" text-anchor="middle">${instruction}</text>
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a">
@@ -197,7 +197,7 @@ function renderBodiceOrSleeveSVG(piece) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
-      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
+      <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="none"/>
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}"
         stroke="#2c2a26" stroke-width="1.2" stroke-dasharray="18,9"/>
@@ -240,7 +240,7 @@ function renderRectSVG(piece) {
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       <rect x="${rx - saOff}" y="${ry - saOff}"
         width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-        stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,0.02)"/>
+        stroke="#000" stroke-width="1.5" fill="none"/>
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
         stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cx}" y1="${ry}" x2="${cx}" y2="${ry + rH}"
@@ -780,7 +780,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .scale-sect { margin-bottom:0.25in; }
 .sq-row { display:flex; gap:0.6in; align-items:flex-start; justify-content:center; margin:0.12in 0 0; }
 .sq-item { text-align:center; }
-.sq-label { font-size:8.5pt; color:#555; margin-top:0.1in; }
+.sq-label { font-size:9pt; color:#555; margin-top:0.1in; }
 
 /* ── Materials ── */
 .mat-page { padding:0.5in; }
@@ -798,7 +798,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 }
 .step-b { flex:1; }
 .step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
-.step-d { font-size:8.5pt; color:#555; line-height:1.55; }
+.step-d { font-size:9pt; color:#555; line-height:1.55; }
 
 /* ── Tiles ── */
 .tile-page { background:#fff; }
@@ -816,9 +816,9 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
   border-top:0.5px solid #ddd;
   z-index:20;
 }
-.tf-name { font-size:7.5pt; font-weight:700; color:#2c2a26; }
-.tf-brand { font-size:7pt; color:#888; }
-.tf-info { font-size:7pt; color:#aaa; }
+.tf-name { font-size:8pt; font-weight:700; color:#2c2a26; }
+.tf-brand { font-size:8pt; color:#888; }
+.tf-info { font-size:8pt; color:#aaa; }
 
 /* ── Shared ── */
 .page-head {
@@ -830,7 +830,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
   font-size:8pt; text-transform:uppercase; letter-spacing:0.06em;
   color:#aaa; margin-bottom:0.09in;
 }
-.note { font-size:8.5pt; color:#888; margin-bottom:0.08in; }
+.note { font-size:9pt; color:#888; margin-bottom:0.08in; }
 .ptable { width:100%; border-collapse:collapse; font-size:8.5pt; }
 .ptable th {
   text-align:left; border-bottom:1px solid #ddd;
