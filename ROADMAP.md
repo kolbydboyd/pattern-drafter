@@ -146,6 +146,10 @@ Target: one new module per week post-launch.
 | Blazer / structured jacket | high |
 | Trousers with proper fly-front geometry | high |
 | Knit dress | high |
+| Button-down shirt (chambray, linen, cotton, flannel) | high |
+| Sundress (pockets, collar options, strap options, back options) | high |
+| Quarter-zip | medium |
+| Boxers / panties | medium |
 | Circle skirt | medium |
 | Bias-cut skirt | medium |
 | Kids sizing (all categories) | medium |
