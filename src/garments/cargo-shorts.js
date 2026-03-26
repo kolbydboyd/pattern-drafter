@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Cargo Shorts — first complete garment module.
  * Uses lower body block for front/back panels.
@@ -155,7 +156,8 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLength = m.hip + ease.total + sa * 2;
+    const flyOverlap = (opts.fly === 'none') ? 0 : 2;
+    const wbLength = m.hip + ease.total + flyOverlap + sa * 2;
     const wbWidth = 4; // 2" finished
     pieces.push({
       id: 'waistband',
@@ -179,8 +181,8 @@ export default {
       pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining)', dimensions: { width: 7.5, height: 3 }, type: 'pocket' });
     }
     if (opts.backPocket !== 'none') {
-      const qty = opts.backPocket === 'patch2' ? 2 : 2; // always 2 (one per back panel)
-      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty} (one per back panel)`, dimensions: { width: 6, height: 7 }, type: 'pocket' });
+      const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
+      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (2 per back panel)' : ' (one per back panel)'}`, dimensions: { width: 6, height: 7 }, type: 'pocket' });
     }
     if (opts.fly === 'zip') {
       pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 3, height: m.rise }, type: 'pocket' });
