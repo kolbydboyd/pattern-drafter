@@ -61,6 +61,21 @@ const GARMENTS = {
 
 let currentGarment = 'cargo-shorts';
 
+// ═══ WIZARD STATE ═══
+let currentStep = 1;
+let stepsCompleted = 0;
+let selectedCategory = null;
+let renderedGarment = null;
+
+const GARMENT_CATEGORIES = [
+  { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
+  { id:'shorts',    label:'Shorts',    desc:'Casual, sport & tailored shorts', ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { id:'tops',      label:'Tops',      desc:'Tees, shirts, hoodies & blouses', ids:['tee','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
+  { id:'skirts',    label:'Skirts',    desc:'Slip & A-line skirts',            ids:['slip-skirt-w','a-line-skirt-w'] },
+  { id:'dresses',   label:'Dresses',   desc:'Shirt dress & wrap dress',        ids:['shirt-dress-w','wrap-dress-w'] },
+  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket'] },
+];
+
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
 function relevantOptionalIds(garment) {
   const has = id => garment.measurements.includes(id);
@@ -81,6 +96,14 @@ function loadProfiles() {
   catch { return []; }
 }
 
+function refreshProfileDropdown() {
+  const sel = document.getElementById('profile-select');
+  if (!sel) return;
+  const profiles = loadProfiles();
+  sel.innerHTML = `<option value="">— saved profiles —</option>` +
+    profiles.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+}
+
 function saveCurrentProfile() {
   const name = prompt('Profile name:')?.trim();
   if (!name) return;
@@ -98,7 +121,7 @@ function saveCurrentProfile() {
   const profiles = loadProfiles().filter(p => p.name !== name);
   profiles.push({ name, ...m });
   localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  buildInputs(); // re-render to update dropdown
+  refreshProfileDropdown();
 }
 
 function deleteCurrentProfile() {
@@ -107,7 +130,7 @@ function deleteCurrentProfile() {
   if (!name) return;
   const profiles = loadProfiles().filter(p => p.name !== name);
   localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  buildInputs();
+  refreshProfileDropdown();
 }
 
 function applyProfile(name) {
@@ -118,7 +141,7 @@ function applyProfile(name) {
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
-  generate();
+  if (currentStep === 4) generate();
 }
 
 // ═══ BUILD INPUT PANEL ═══
@@ -441,7 +464,7 @@ function resetToDefaults() {
     const el = document.getElementById(`o-${key}`);
     if (el) el.value = opt.default;
   }
-  generate();
+  if (currentStep === 4) generate();
 }
 
 // ═══ GENERATE ═══
@@ -674,6 +697,229 @@ function printPattern() {
   };
 }
 
+// ═══ WIZARD ═══
+function showWizard() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('wizard').style.display = '';
+  goToStep(1);
+}
+
+function goToStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-item').forEach(btn => {
+    const s = parseInt(btn.dataset.step);
+    btn.classList.remove('step-active', 'step-done');
+    if (s === n)    btn.classList.add('step-active');
+    else if (s < n) btn.classList.add('step-done');
+    btn.disabled = s > stepsCompleted + 1;
+  });
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`wiz-step-${i}`).style.display = i === n ? '' : 'none';
+  }
+  if (n === 1) renderStep1();
+  else if (n === 4) renderStep4();
+}
+
+function renderStep1() {
+  const el = document.getElementById('wiz-step-1');
+  if (selectedCategory) {
+    const cat = GARMENT_CATEGORIES.find(c => c.id === selectedCategory);
+    el.innerHTML = `
+      <div class="wiz-step-header">
+        <button class="wiz-back-cat" id="wiz-back-cat">← All categories</button>
+        <h2 class="wiz-step-title">${cat.label}</h2>
+        <p class="wiz-step-desc">Select a garment to continue</p>
+      </div>
+      <div class="gmt-grid">
+        ${cat.ids.map(id => {
+          const g = GARMENTS[id];
+          return `<button class="gmt-card" data-garment="${id}">
+            <div class="gmt-name">${g.name}</div>
+            ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
+          </button>`;
+        }).join('')}
+      </div>`;
+    el.querySelector('#wiz-back-cat').onclick = () => { selectedCategory = null; renderStep1(); };
+    el.querySelectorAll('.gmt-card').forEach(btn => {
+      btn.onclick = () => {
+        const newGarment = btn.dataset.garment;
+        if (newGarment !== currentGarment) {
+          currentGarment = newGarment;
+          stepsCompleted = 1;
+          renderedGarment = null;
+        }
+        if (renderedGarment !== currentGarment) {
+          buildMeasureStep();
+          buildOptionsStep();
+          renderedGarment = currentGarment;
+        }
+        stepsCompleted = Math.max(stepsCompleted, 1);
+        goToStep(2);
+      };
+    });
+  } else {
+    el.innerHTML = `
+      <div class="wiz-step-header">
+        <h2 class="wiz-step-title">Choose a garment</h2>
+        <p class="wiz-step-desc">Select a category to browse patterns</p>
+      </div>
+      <div class="cat-grid">
+        ${GARMENT_CATEGORIES.map(cat => `
+          <button class="cat-card" data-cat="${cat.id}">
+            <div class="cat-label">${cat.label}</div>
+            <p class="cat-desc">${cat.desc}</p>
+          </button>`).join('')}
+      </div>`;
+    el.querySelectorAll('.cat-card').forEach(btn => {
+      btn.onclick = () => { selectedCategory = btn.dataset.cat; renderStep1(); };
+    });
+  }
+}
+
+function buildMeasureStep() {
+  const g = GARMENTS[currentGarment];
+  const el = document.getElementById('wiz-step-2');
+  let html = `<div class="wiz-form-wrap">
+    <div class="wiz-form-header">
+      <h2 class="wiz-form-title">Measurements</h2>
+      <p class="wiz-form-desc">${g.name} — flexible tape over underwear. Don't pull tight.</p>
+    </div>
+    <div class="f profile-row">
+      <select id="profile-select" title="Load saved profile">
+        <option value="">— saved profiles —</option>
+        ${loadProfiles().map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
+      </select>
+      <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
+      <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
+    </div>
+    <button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">How to measure ▾</button>
+    <div id="mt-guide-container" style="display:none"></div>`;
+
+  for (const mId of g.measurements) {
+    const mDef = MEASUREMENTS[mId];
+    if (!mDef) continue;
+    const mDefault = g.measurementDefaults?.[mId] ?? mDef.default;
+    html += `<div class="f"><label>${mDef.label}</label>
+      <div class="hint">${mDef.instruction}</div>
+      <input type="number" id="m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
+  }
+
+  const optIds = relevantOptionalIds(g);
+  if (optIds.length) {
+    html += `<details class="adv-meas"><summary>Advanced Measurements</summary>
+      <p class="adv-hint">Leave blank to use calculated defaults. Fill in for more accurate shaping.</p>`;
+    for (const mId of optIds) {
+      const mDef = OPTIONAL_MEASUREMENTS[mId];
+      if (!mDef) continue;
+      html += `<div class="f"><label>${mDef.label}</label>
+        <div class="hint">${mDef.instruction}</div>
+        <input type="number" id="m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
+    }
+    html += `</details>`;
+  }
+
+  html += `<div class="wiz-nav-row">
+    <button class="btn-s" id="wiz-s2-back">← Back</button>
+    <button class="btn" id="wiz-s2-next">Next: Customize →</button>
+  </div></div>`;
+
+  el.innerHTML = html;
+
+  document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
+  document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
+  document.getElementById('profile-select').addEventListener('change', e => {
+    if (e.target.value) applyProfile(e.target.value);
+  });
+  document.getElementById('how-to-measure-btn').addEventListener('click', () => {
+    const container = document.getElementById('mt-guide-container');
+    const btn = document.getElementById('how-to-measure-btn');
+    const hidden = container.style.display === 'none';
+    if (hidden) {
+      container.innerHTML = renderMeasurementTeacher(g.measurements);
+      container.style.display = '';
+      btn.textContent = 'How to measure ▴';
+    } else {
+      container.style.display = 'none';
+      btn.textContent = 'How to measure ▾';
+    }
+  });
+  document.getElementById('wiz-s2-back').addEventListener('click', () => goToStep(1));
+  document.getElementById('wiz-s2-next').addEventListener('click', () => {
+    stepsCompleted = Math.max(stepsCompleted, 2);
+    goToStep(3);
+  });
+}
+
+function buildOptionsStep() {
+  const g = GARMENTS[currentGarment];
+  const el = document.getElementById('wiz-step-3');
+  let html = `<div class="wiz-form-wrap">
+    <div class="wiz-form-header">
+      <h2 class="wiz-form-title">Customize</h2>
+      <p class="wiz-form-desc">${g.name} — adjust fit and style options</p>
+    </div>`;
+
+  for (const [key, opt] of Object.entries(g.options)) {
+    if (opt.type === 'select') {
+      html += `<div class="f"><label>${opt.label}</label><select id="o-${key}">
+        ${opt.values.map(v =>
+          `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
+        ).join('')}
+      </select></div>`;
+    } else if (opt.type === 'number') {
+      html += `<div class="f"><label>${opt.label}</label>
+        <input type="number" id="o-${key}" value="${opt.default}" step="${opt.step || 0.25}"></div>`;
+    }
+  }
+
+  html += `<div class="wiz-nav-row">
+    <button class="btn-s" id="wiz-s3-back">← Back</button>
+    <button class="btn" id="wiz-s3-next">Generate Pattern →</button>
+  </div></div>`;
+
+  el.innerHTML = html;
+
+  // Rise style auto-fill (cross-step: m-rise is in step 2, o-riseStyle/o-riseOverride are here)
+  const riseStyleEl    = document.getElementById('o-riseStyle');
+  const riseOverrideEl = document.getElementById('o-riseOverride');
+  if (riseStyleEl && riseOverrideEl) {
+    const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
+    const updateRise = () => {
+      const bodyRise = parseFloat(document.getElementById('m-rise')?.value) || 10;
+      riseOverrideEl.value = (bodyRise + (RISE_OFFSETS[riseStyleEl.value] ?? 0)).toFixed(2);
+    };
+    riseStyleEl.addEventListener('change', updateRise);
+    document.getElementById('m-rise')?.addEventListener('input', updateRise);
+    updateRise();
+  }
+
+  document.getElementById('wiz-s3-back').addEventListener('click', () => goToStep(2));
+  document.getElementById('wiz-s3-next').addEventListener('click', () => {
+    stepsCompleted = Math.max(stepsCompleted, 3);
+    goToStep(4);
+  });
+}
+
+function renderStep4() {
+  stepsCompleted = Math.max(stepsCompleted, 4);
+  const stepEl = document.getElementById('wiz-step-4');
+  if (!stepEl.querySelector('.wiz-s4-bar')) {
+    const bar = document.createElement('div');
+    bar.className = 'wiz-s4-bar';
+    bar.innerHTML = `
+      <button class="btn-s" id="wiz-s4-back">← Customize</button>
+      <button class="btn-s" id="wiz-s4-print">Print Pattern</button>
+      <button class="btn-s" id="wiz-s4-download">Download PDF</button>
+      <button class="btn-s" id="wiz-s4-export">Export SVGs</button>`;
+    stepEl.insertBefore(bar, document.getElementById('output'));
+    document.getElementById('wiz-s4-back').addEventListener('click', () => goToStep(3));
+    document.getElementById('wiz-s4-print').addEventListener('click', captureEmailThenPrint);
+    document.getElementById('wiz-s4-download').addEventListener('click', captureEmailThenPrint);
+    document.getElementById('wiz-s4-export').addEventListener('click', exportSVG);
+  }
+  generate();
+}
+
 // ═══ DARK MODE ═══
 function applyTheme(dark) {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -691,13 +937,24 @@ function toggleTheme() {
 // ═══ BOOT ═══
 applyTheme(localStorage.getItem('theme') === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
-document.getElementById('email-bar-btn')?.addEventListener('click', () => {
-  const input = document.getElementById('email-bar-input');
+
+// Landing email capture
+document.getElementById('land-email-btn')?.addEventListener('click', () => {
+  const input = document.getElementById('land-email-input');
   const email = input?.value.trim();
   if (!email || !email.includes('@')) return;
   storeEmail(email);
   input.value = '';
   input.placeholder = "You're in! ✓";
 });
-buildInputs();
-setTimeout(generate, 50);
+
+// Get Started
+document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
+
+// Stepper back-navigation via event delegation
+document.getElementById('stepper')?.addEventListener('click', e => {
+  const btn = e.target.closest('.step-item');
+  if (!btn || btn.disabled) return;
+  const s = parseInt(btn.dataset.step);
+  if (s <= stepsCompleted + 1) goToStep(s);
+});

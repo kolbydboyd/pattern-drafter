@@ -5,14 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>People's Patterns — Made-to-Measure Sewing Patterns</title>
 <meta name="description" content="Generate made-to-measure sewing patterns instantly. Enter your body measurements, customize fit and style, download print-ready patterns. Shorts, pants, shirts, skirts, dresses, and more.">
-
-<!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="People's Patterns — Made-to-Measure Sewing Patterns">
 <meta property="og:description" content="Generate made-to-measure sewing patterns instantly. Enter your body measurements, customize fit and style, download print-ready patterns. Shorts, pants, shirts, skirts, dresses, and more.">
 <meta property="og:image" content="/og-image.png">
-
-<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="People's Patterns — Made-to-Measure Sewing Patterns">
 <meta name="twitter:description" content="Generate made-to-measure sewing patterns instantly. Enter your body measurements, customize fit and style, download print-ready patterns. Shorts, pants, shirts, skirts, dresses, and more.">
@@ -21,15 +17,73 @@
 </head>
 <body>
 <div class="hdr"><h1>People's Patterns</h1><span class="v">made-to-measure sewing patterns</span><button id="theme-btn" class="theme-btn" aria-label="Toggle dark mode">Dark</button></div>
-<div class="email-bar">
-  <span class="email-bar-label">Get notified when new patterns drop</span>
-  <input type="email" id="email-bar-input" placeholder="you@example.com" autocomplete="email">
-  <button class="email-bar-btn" id="email-bar-btn">Join</button>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing">
+  <div class="land-hero">
+    <div class="land-logo-block">
+      <span class="land-logo-p">People's</span>
+      <span class="land-logo-pat">PATTERNS</span>
+    </div>
+    <p class="land-tagline">made-to-measure sewing patterns</p>
+    <div class="land-features">
+      <div class="land-feat">
+        <div class="land-feat-num">01</div>
+        <div class="land-feat-title">Enter your measurements</div>
+        <p class="land-feat-desc">A flexible tape and five minutes is all you need — we guide you through every measurement.</p>
+      </div>
+      <div class="land-feat">
+        <div class="land-feat-num">02</div>
+        <div class="land-feat-title">Pick your garment</div>
+        <p class="land-feat-desc">Choose from pants, shorts, tops, skirts, dresses and more — new patterns added regularly.</p>
+      </div>
+      <div class="land-feat">
+        <div class="land-feat-num">03</div>
+        <div class="land-feat-title">Print and sew</div>
+        <p class="land-feat-desc">Download a tiled PDF sized to your printer. Cut, tape, and start sewing the same day.</p>
+      </div>
+    </div>
+    <button class="land-cta" id="get-started-btn">Get Started</button>
+    <div class="land-email-section">
+      <p class="land-email-label">Get notified when new patterns drop</p>
+      <div class="land-email-row">
+        <input type="email" id="land-email-input" placeholder="you@example.com" autocomplete="email">
+        <button class="land-email-btn" id="land-email-btn">Join</button>
+      </div>
+    </div>
+  </div>
+  <footer class="land-footer">
+    <span class="land-footer-copy">peoplespatterns.com</span>
+    <span class="land-footer-links">
+      <a href="#" class="land-footer-link">Instagram</a>
+      <a href="#" class="land-footer-link">Pinterest</a>
+      <a href="#" class="land-footer-link">Newsletter</a>
+    </span>
+  </footer>
 </div>
-<div class="app">
-  <div class="inp" id="input-panel"></div>
-  <div class="out" id="output"></div>
+
+<!-- ═══ WIZARD ═══ -->
+<div id="wizard" style="display:none">
+  <div class="stepper" id="stepper">
+    <button class="step-item step-active" data-step="1"><span class="step-n">1</span><span class="step-lbl"> Choose</span></button>
+    <span class="step-arr">›</span>
+    <button class="step-item" data-step="2" disabled><span class="step-n">2</span><span class="step-lbl"> Measure</span></button>
+    <span class="step-arr">›</span>
+    <button class="step-item" data-step="3" disabled><span class="step-n">3</span><span class="step-lbl"> Customize</span></button>
+    <span class="step-arr">›</span>
+    <button class="step-item" data-step="4" disabled><span class="step-n">4</span><span class="step-lbl"> Pattern</span></button>
+  </div>
+  <div id="wiz-step-1" class="wiz-step"></div>
+  <div id="wiz-step-2" class="wiz-step" style="display:none"></div>
+  <div id="wiz-step-3" class="wiz-step" style="display:none"></div>
+  <div id="wiz-step-4" class="wiz-step" style="display:none">
+    <div id="output"></div>
+  </div>
 </div>
+
+<!-- Hidden legacy anchor keeps #input-panel in DOM -->
+<div id="input-panel" style="display:none"></div>
+
 <script type="module" src="/src/ui/app.js"></script>
 </body>
 </html>
