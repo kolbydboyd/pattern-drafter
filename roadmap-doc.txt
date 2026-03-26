@@ -3,6 +3,19 @@ Refactor the app layout from a two-column single-page design into a multi-step w
 
 
 
+social channels owned:
+→ youtube
+→ instagram
+→ threads
+→ reddit (user account)
+→ tiktok (user account)
+→ tiktok (seller account / shop)
+→ pinterest
+→ facebook page
+→ etsy shop
+→ blog (on-site articles)
+→ domain
+
 launch checklist:
 domain
 ig handle
@@ -36,6 +49,14 @@ email capture for free tier & feedback
 landing page 10 sec explanation
 how to measure yourself video
 sew along video for best pattern 
+
+blog articles
+→ content flywheel: sew garment → film it → write the article → cut clips → post everywhere → traffic lands on site → pattern download
+→ one article per pattern: "how to sew cargo shorts from scratch" with embedded pattern generator CTA
+→ SEO targets: "how to draft [garment] pattern", "custom fit [garment] sewing tutorial", "free [garment] pattern [size]"
+→ article structure: intro → measurements needed → cutting guide → step-by-step construction → fit tips → pattern download CTA
+→ repurpose article into: youtube long-form, tiktok clips, instagram reels, pinterest pins, reddit posts
+→ build backlinks naturally — sewing bloggers, fabric shops, youtube descriptions
 
 affiliates with fabric companies, amazon for tools
 $25-35 beginner sewing tool kit upsell at first pattern buy - branded

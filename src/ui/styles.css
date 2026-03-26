@@ -193,9 +193,24 @@ details.adv-meas summary:hover{color:var(--text)}
 .wiz-nav-row .btn{flex:2}
 .wiz-nav-row .btn-s{flex:1}
 
-/* Step 4 — pattern toolbar */
-.wiz-s4-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10}
+/* Step 4 — toolbar + tabs */
+.wiz-s4-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 18px;background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10}
+.wiz-s4-bar .btn-s,.wiz-s4-back-btn{width:auto;margin-bottom:0}
+.s4-tabs{display:flex;gap:3px;margin-left:auto;flex-wrap:wrap}
+.s4-tab{padding:5px 14px;background:transparent;border:1px solid var(--bdr);border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.8px;text-transform:uppercase;color:var(--mid);cursor:pointer;transition:color .15s,border-color .15s,background .15s;white-space:nowrap}
+.s4-tab:hover{border-color:var(--gold);color:var(--text)}
+.s4-tab-active{background:var(--gold) !important;color:#fff !important;border-color:var(--gold) !important}
 #output{padding:18px}
+.s4-pane-inner{padding:4px 0 24px}
+.s4-pane-note{font-size:.6rem;color:var(--light);font-style:italic;margin-bottom:10px}
+
+/* Print pane */
+.s4-print-wrap{max-width:440px;padding:8px 0 24px}
+.s4-print-section{margin-bottom:20px}
+.s4-print-label{font-size:.52rem;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.s4-print-radio{display:block;font-size:.7rem;color:var(--text);padding:4px 0;cursor:pointer;line-height:1.5}
+.s4-print-radio input{margin-right:6px;accent-color:var(--gold)}
+.s4-print-actions{display:flex;flex-direction:column;gap:4px;max-width:280px}
 
 @media(max-width:600px){.step-lbl{display:none}.step-item{padding:12px 10px}}
 @media print{.grid-bg{display:none}}

@@ -66,6 +66,8 @@ let currentStep = 1;
 let stepsCompleted = 0;
 let selectedCategory = null;
 let renderedGarment = null;
+let activeTab = 'pieces';
+let selectedPaperSize = 'letter';
 
 const GARMENT_CATEGORIES = [
   { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
@@ -483,8 +485,8 @@ function _generate() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
 
-  const pieces = g.pieces(m, opts);
-  const materials = g.materials(m, opts);
+  const pieces       = g.pieces(m, opts);
+  const materials    = g.materials(m, opts);
   const instructions = expandJargon(g.instructions(m, opts));
 
   const isLower = g.category === 'lower';
@@ -493,14 +495,13 @@ function _generate() {
     ? [g.name, opts.fit ?? opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.waist ? fmtInches(m.waist) + ' waist' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
     : [g.name, opts.fit ?? opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
   const diffBadge = g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : '';
-  let html = `<div class="oh">${diffBadge}${overviewParts.join(' · ')}</div>`;
-  html += `<div class="po">`;
 
-  // Pattern pieces
+  // ── Pieces pane ──
+  let piecesHtml = `<div class="po">`;
   for (const piece of pieces) {
     if (piece.type === 'panel') {
       const svg = renderPanelSVG(piece);
-      html += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
         <table class="dt">
           <tr><td>Panel width</td><td>${fmtInches(piece.width)}</td></tr>
           <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
@@ -509,14 +510,14 @@ function _generate() {
         </table></div>`;
     } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const svg = renderGenericPieceSVG(piece);
-      html += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
         <table class="dt">
           <tr><td>Width</td><td>${fmtInches(piece.width)}</td></tr>
           <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
           ${piece.type === 'sleeve' ? `<tr><td>Cap height</td><td>${fmtInches(piece.capHeight)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'rectangle') {
-      html += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
+      piecesHtml += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
         <table class="dt" style="max-width:400px">
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>
@@ -527,14 +528,13 @@ function _generate() {
       const pSize = pd.length != null
         ? `${fmtInches(pd.length)} × ${fmtInches(pd.width)}`
         : `${fmtInches(pd.width)} × ${fmtInches(pd.height)}`;
-      html += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
+      piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
         </table></div>`;
     }
   }
-
-  // Fit check
+  // Fit check lives in pieces pane
   let fitCheckHtml = '';
   if (isUpper) {
     const frontP = pieces.find(p => p.id === 'bodice-front' || p.id === 'bodice-front-right');
@@ -557,22 +557,57 @@ function _generate() {
       ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
     </table>`;
   }
-  html += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;
+  piecesHtml += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;
+  piecesHtml += `</div>`;
 
-  // Materials
+  // ── Materials pane ──
   const y45 = calculateYardage(pieces, 45);
   const y60 = calculateYardage(pieces, 60);
-  html += `<div class="pc full"><h3>Materials & Stitch Guide</h3>
-    <div class="sub">Everything you need — fabric, notions, needle, thread, stitch settings</div>
-    ${renderMaterials(materials, y45, y60)}</div>`;
+  const materialsHtml = `<div class="s4-pane-inner">${renderMaterials(materials, y45, y60)}</div>`;
 
-  // Construction
-  html += `<div class="pc full"><h3>Construction Order</h3>
-    <div class="sub">Read all steps before starting. Press every seam.</div>
-    ${renderInstructions(instructions)}</div>`;
+  // ── Instructions pane ──
+  const instructionsHtml = `<div class="s4-pane-inner">
+    <p class="s4-pane-note">Read all steps before starting. Press every seam.</p>
+    ${renderInstructions(instructions)}
+  </div>`;
 
-  html += `</div>`;
-  document.getElementById('output').innerHTML = html;
+  // ── Print pane ──
+  const PAPER_SIZES = [
+    { id: 'letter',  label: 'US Letter  — 8.5 × 11 in   (tiled)' },
+    { id: 'a4',      label: 'A4         — 210 × 297 mm  (tiled)' },
+    { id: 'tabloid', label: 'Tabloid    — 11 × 17 in    (tiled)' },
+    { id: 'a0',      label: 'A0/Plotter — 33.1 × 46.8 in (single sheet)' },
+  ];
+  const printHtml = `<div class="s4-print-wrap">
+    <div class="s4-print-section">
+      <div class="s4-print-label">Paper Size</div>
+      ${PAPER_SIZES.map(s => `<label class="s4-print-radio">
+        <input type="radio" name="s4-ps" value="${s.id}"${s.id === selectedPaperSize ? ' checked' : ''}> ${s.label}
+      </label>`).join('')}
+    </div>
+    <div class="s4-print-actions">
+      <button class="btn" id="s4-print-btn">Print Pattern</button>
+      <button class="btn-s" id="s4-download-btn">Download PDF</button>
+      <button class="btn-s" id="s4-export-btn">Export SVGs</button>
+    </div>
+  </div>`;
+
+  document.getElementById('output').innerHTML =
+    `<div class="oh">${diffBadge}${overviewParts.join(' · ')}</div>` +
+    `<div id="s4-pane-pieces"       class="s4-pane">${piecesHtml}</div>` +
+    `<div id="s4-pane-materials"    class="s4-pane">${materialsHtml}</div>` +
+    `<div id="s4-pane-instructions" class="s4-pane">${instructionsHtml}</div>` +
+    `<div id="s4-pane-print"        class="s4-pane">${printHtml}</div>`;
+
+  // Wire print pane listeners
+  document.querySelectorAll('input[name="s4-ps"]').forEach(r =>
+    r.addEventListener('change', e => { selectedPaperSize = e.target.value; })
+  );
+  document.getElementById('s4-print-btn')?.addEventListener('click', captureEmailThenPrint);
+  document.getElementById('s4-download-btn')?.addEventListener('click', captureEmailThenPrint);
+  document.getElementById('s4-export-btn')?.addEventListener('click', exportSVG);
+
+  switchTab(activeTab);
 }
 
 // ═══ EXPORT ═══
@@ -648,55 +683,16 @@ function captureEmailThenPrint() {
 function printPattern() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
-
-  // Paper size picker modal
-  const SIZES = [
-    { id: 'letter',  label: 'US Letter  8.5 × 11 in   (tiled)' },
-    { id: 'a4',      label: 'A4         210 × 297 mm  (tiled)' },
-    { id: 'tabloid', label: 'Tabloid    11 × 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0/Plotter 33.1 × 46.8 in (single sheet)' },
-  ];
-
-  // Build a tiny inline <dialog> for paper size selection
-  let dlg = document.getElementById('print-size-dlg');
-  if (!dlg) {
-    dlg = document.createElement('dialog');
-    dlg.id = 'print-size-dlg';
-    dlg.style.cssText = 'font-family:IBM Plex Mono,monospace;font-size:13px;padding:1.2em 1.5em;border:1px solid #ccc;border-radius:6px;min-width:320px;box-shadow:0 4px 24px rgba(0,0,0,.18)';
-    dlg.innerHTML = `<form method="dialog">
-      <p style="font-weight:700;margin-bottom:.8em">Select paper size</p>
-      ${SIZES.map(s => `<label style="display:block;margin:.35em 0;cursor:pointer">
-        <input type="radio" name="ps" value="${s.id}" style="margin-right:.5em">${s.label}
-      </label>`).join('')}
-      <div style="margin-top:1em;display:flex;gap:.6em;justify-content:flex-end">
-        <button value="cancel" style="padding:.3em .9em">Cancel</button>
-        <button value="ok" style="padding:.3em .9em;font-weight:700">Print</button>
-      </div>
-    </form>`;
-    document.body.appendChild(dlg);
-    // Default selection
-    dlg.querySelector('input[value="letter"]').checked = true;
-  }
-
-  dlg.returnValue = '';
-  dlg.showModal();
-  dlg.onclose = () => {
-    if (dlg.returnValue !== 'ok') return;
-    const paperSize = dlg.querySelector('input[name="ps"]:checked')?.value || 'letter';
-
-    const pieces       = g.pieces(m, opts);
-    const materials    = g.materials(m, opts);
-    const instructions = g.instructions(m, opts);
-
-    const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, paperSize);
-
-    const win = window.open('', '_blank');
-    if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
-    win.addEventListener('load', () => win.print());
-  };
+  const pieces       = g.pieces(m, opts);
+  const materials    = g.materials(m, opts);
+  const instructions = g.instructions(m, opts);
+  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize);
+  const win = window.open('', '_blank');
+  if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.addEventListener('load', () => win.print());
 }
 
 // ═══ WIZARD ═══
@@ -720,6 +716,16 @@ function goToStep(n) {
   }
   if (n === 1) renderStep1();
   else if (n === 4) renderStep4();
+}
+
+function switchTab(name) {
+  activeTab = name;
+  for (const t of ['pieces', 'materials', 'instructions', 'print']) {
+    const pane = document.getElementById(`s4-pane-${t}`);
+    const btn  = document.getElementById(`s4-tab-${t}`);
+    if (pane) pane.style.display = t === name ? '' : 'none';
+    if (btn)  btn.classList.toggle('s4-tab-active', t === name);
+  }
 }
 
 function renderStep1() {
@@ -749,6 +755,7 @@ function renderStep1() {
           currentGarment = newGarment;
           stepsCompleted = 1;
           renderedGarment = null;
+          activeTab = 'pieces';
         }
         if (renderedGarment !== currentGarment) {
           buildMeasureStep();
@@ -909,15 +916,19 @@ function renderStep4() {
     const bar = document.createElement('div');
     bar.className = 'wiz-s4-bar';
     bar.innerHTML = `
-      <button class="btn-s" id="wiz-s4-back">← Customize</button>
-      <button class="btn-s" id="wiz-s4-print">Print Pattern</button>
-      <button class="btn-s" id="wiz-s4-download">Download PDF</button>
-      <button class="btn-s" id="wiz-s4-export">Export SVGs</button>`;
+      <button class="btn-s wiz-s4-back-btn" id="wiz-s4-back">← Customize</button>
+      <div class="s4-tabs" id="s4-tabs">
+        <button class="s4-tab" id="s4-tab-pieces"       data-tab="pieces">Pieces</button>
+        <button class="s4-tab" id="s4-tab-materials"    data-tab="materials">Materials</button>
+        <button class="s4-tab" id="s4-tab-instructions" data-tab="instructions">Instructions</button>
+        <button class="s4-tab" id="s4-tab-print"        data-tab="print">Print</button>
+      </div>`;
     stepEl.insertBefore(bar, document.getElementById('output'));
     document.getElementById('wiz-s4-back').addEventListener('click', () => goToStep(3));
-    document.getElementById('wiz-s4-print').addEventListener('click', captureEmailThenPrint);
-    document.getElementById('wiz-s4-download').addEventListener('click', captureEmailThenPrint);
-    document.getElementById('wiz-s4-export').addEventListener('click', exportSVG);
+    document.getElementById('s4-tabs').addEventListener('click', e => {
+      const tab = e.target.closest('.s4-tab');
+      if (tab) switchTab(tab.dataset.tab);
+    });
   }
   generate();
 }
