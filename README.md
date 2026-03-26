@@ -204,4 +204,7 @@ claude
 
 ## License
 
-MIT
+Copyright (c) 2026 People's Patterns LLC. 
+All rights reserved. Unauthorized copying, 
+distribution, or use is prohibited.
+
