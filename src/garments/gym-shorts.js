@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Gym Shorts — athletic lower body block.
  * 4-way stretch supplex/poly-spandex, side-seam pockets only,
@@ -142,7 +143,7 @@ export default {
 
     // ── WAISTBAND — FRONT HALF (drawstring + grommets) ──
     // Front half = waist circ / 2 + SA each end
-    const wbFrontLen   = (m.waist / 2 + ease.front * 2) + sa * 2;
+    const wbFrontLen   = (m.waist / 2 + ease.front) + sa * 2;
     const wbWidth      = 3.5;   // 1.75″ finished (doubled)
     pieces.push({
       id: 'waistband-front',
@@ -154,7 +155,7 @@ export default {
     });
 
     // ── WAISTBAND — BACK HALF (elastic casing) ──
-    const wbBackLen = (m.waist / 2 + ease.back * 2) + sa * 2;
+    const wbBackLen = (m.waist / 2 + ease.back) + sa * 2;
     pieces.push({
       id: 'waistband-back',
       name: 'Waistband — Back',
@@ -178,7 +179,7 @@ export default {
     // ── MESH LINER (optional) ──
     if (opts.liner === 'mesh') {
       // Simplified brief liner — mirror front panel, trimmed 0.5″ narrower each side
-      const linerW = frontW - 1;
+      const linerW = m.hip / 2 + 2;
       const linerH = H - inseam * 0.35;   // briefs stop above hem
       pieces.push({
         id: 'liner',
