@@ -8,8 +8,14 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospac
 .hdr{background:var(--dark);color:var(--hdr-text);padding:16px 24px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .hdr h1{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;letter-spacing:-1px}
 .hdr .v{font-size:.52rem;color:var(--light);letter-spacing:1.5px;text-transform:uppercase}
-.theme-btn{margin-left:auto;padding:4px 10px;background:transparent;color:var(--light);border:1px solid #3a3836;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:border-color .15s,color .15s}
+.theme-btn{padding:4px 10px;background:transparent;color:var(--light);border:1px solid #3a3836;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.5rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:border-color .15s,color .15s}
 .theme-btn:hover{border-color:var(--gold);color:var(--gold)}
+.hdr-social{margin-left:auto;display:flex;align-items:center;gap:12px}
+.social-icons{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.social-icon{display:inline-flex;align-items:center;justify-content:center;color:#8b6f47;text-decoration:none;transition:opacity .15s;line-height:0}
+.social-icon:hover{opacity:.75}
+.social-icon svg{width:20px;height:20px}
+[data-theme='dark'] .social-icon{color:#c9a96e}
 
 .app{display:flex;gap:0}
 .inp{width:310px;min-width:310px;background:var(--card);border-right:1px solid var(--bdr);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 92px)}
@@ -153,6 +159,8 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-footer-links{display:flex;gap:16px}
 .land-footer-link{color:var(--mid);text-decoration:none;letter-spacing:.5px}
 .land-footer-link:hover{color:var(--gold)}
+.land-footer .social-icon{color:var(--mid)}
+[data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 
 /* ── Wizard shell ── */
 #wizard{display:flex;flex-direction:column;height:calc(100vh - 52px)}
