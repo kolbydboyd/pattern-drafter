@@ -435,15 +435,22 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW };
 }
 
+// ── Piece renderer dispatch ────────────────────────────────────────────────
+
+/** Render any piece to { svg, wIn, hIn }. Returns null for unknown types. */
+function renderPiece(piece) {
+  if      (piece.type === 'panel')                              return renderPanelSVG(piece);
+  else if (piece.type === 'bodice' || piece.type === 'sleeve')  return renderBodiceOrSleeveSVG(piece);
+  else if (piece.type === 'rectangle')                          return renderRectSVG(piece);
+  else if (piece.type === 'pocket')                             return renderPocketSVG(piece);
+  return null;
+}
+
 // ── Tile page builder ──────────────────────────────────────────────────────
 
 function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
-  let rendered;
-  if      (piece.type === 'panel')                             rendered = renderPanelSVG(piece);
-  else if (piece.type === 'bodice' || piece.type === 'sleeve') rendered = renderBodiceOrSleeveSVG(piece);
-  else if (piece.type === 'rectangle')                         rendered = renderRectSVG(piece);
-  else if (piece.type === 'pocket')                            rendered = renderPocketSVG(piece);
-  else return '';
+  const rendered = renderPiece(piece);
+  if (!rendered) return '';
 
   const { svg, wIn, hIn } = rendered;
 
@@ -520,6 +527,62 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
   }
 
   return pages;
+}
+
+// ── Nested small-piece packer (large format only) ──────────────────────────
+
+/**
+ * Pack single-tile pieces onto shared A0 sheets using shelf packing.
+ * Pieces are placed left-to-right; a new shelf starts when the row fills;
+ * a new sheet starts when the page fills.
+ */
+function buildNestedSmallPages(smallPieces, PW, PH) {
+  if (smallPieces.length === 0) return '';
+  const availW = PW - 2 * SM;
+  const availH = PH - 2 * SM - 0.4; // reserve bottom strip for footer
+  const GAP = 0.3; // gap between pieces in inches
+
+  const pages = [];
+  let current = [], shelfX = 0, shelfY = 0, shelfH = 0;
+
+  for (const { rendered, piece } of smallPieces) {
+    const { svg, wIn, hIn } = rendered;
+
+    if (shelfX > 0 && shelfX + wIn > availW) {
+      // row full — next shelf
+      shelfY += shelfH + GAP;
+      shelfX = 0; shelfH = 0;
+    }
+    if (shelfY + hIn > availH) {
+      // page full — flush and start a new sheet
+      if (current.length) pages.push(current);
+      current = []; shelfX = 0; shelfY = 0; shelfH = 0;
+    }
+
+    current.push({ svg, wIn, hIn, x: shelfX, y: shelfY, piece });
+    shelfX += wIn + GAP;
+    shelfH = Math.max(shelfH, hIn);
+  }
+  if (current.length) pages.push(current);
+
+  return pages.map((items, pi) => {
+    const divs = items.map(({ svg, wIn, hIn, x, y }) =>
+      `<div style="position:absolute;left:${x * DPI}px;top:${y * DPI}px;
+                   width:${wIn * DPI}px;height:${hIn * DPI}px">${svg}</div>`
+    ).join('');
+    const names = items.map(i => i.piece.name).join(' \xb7 ');
+    const sheetLabel = pages.length > 1 ? ` \u2014 sheet ${pi + 1} of ${pages.length}` : '';
+    return `<div class="page tile-page" style="width:${PW}in;height:${PH}in">
+      <div class="tile-clip" style="width:${availW}in;height:${availH}in">
+        ${divs}
+      </div>
+      <div class="tile-footer">
+        <span class="tf-name">Small Pieces${sheetLabel}</span>
+        <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
+        <span class="tf-info">${names}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── Tile map (page 2 overview) ─────────────────────────────────────────────
@@ -758,6 +821,104 @@ function buildInstructionsPage(instructions) {
   </div>`;
 }
 
+// ── Large-format combined preamble (A0/plotter) ────────────────────────────
+
+/**
+ * For large-format paper, collapse the 4 preamble pages (cover, scale, materials,
+ * instructions) into a single sheet using a two-column layout.
+ */
+function buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV) {
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const measRows = garment.measurements.map(id => {
+    const def = MEASUREMENTS[id];
+    return `<tr><td>${def ? def.label : id}</td><td>${fmtInches(measurements[id])}</td></tr>`;
+  }).join('');
+  const optRows = Object.entries(opts).map(([k, v]) => {
+    const label = k.replace(/([A-Z])/g, ' $1').trim();
+    return `<tr><td>${label}</td><td>${v}</td></tr>`;
+  }).join('');
+  const fabricRows = (materials.fabrics || []).map(f =>
+    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
+  ).join('');
+  const notionRows = (materials.notions || []).map(n =>
+    `<tr><td>${n.name}</td><td>${n.quantity || ''}</td></tr>`
+  ).join('');
+  const stitchRows = (materials.stitches || []).map(s =>
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.use || ''}</td></tr>`
+  ).join('');
+  const stepsHtml = (instructions || []).map(s =>
+    `<div class="lf-step">
+      <div class="lf-step-n">${s.step}</div>
+      <div><div class="lf-step-t">${s.title}</div>
+      <div class="lf-step-d">${s.detail}</div></div>
+    </div>`
+  ).join('');
+
+  const sq2px = px(2), sq5px = (5 / 2.54) * DPI;
+  function scaleSVG(size, label) {
+    return `<div class="sq-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"
+          viewBox="0 0 ${size} ${size}" style="display:block">
+        <rect x="1" y="1" width="${size - 2}" height="${size - 2}"
+          fill="none" stroke="#2c2a26" stroke-width="1.5"/>
+        <line x1="${size / 2}" y1="1" x2="${size / 2}" y2="${size - 1}"
+          stroke="#ccc" stroke-width="0.7"/>
+        <line x1="1" y1="${size / 2}" x2="${size - 1}" y2="${size / 2}"
+          stroke="#ccc" stroke-width="0.7"/>
+      </svg>
+      <div style="font-size:9pt;color:#555;margin-top:6px;text-align:center">${label}</div>
+    </div>`;
+  }
+
+  return `<div class="page lf-preamble" style="width:${PW}in;height:${PH}in">
+    <div class="lf-header">
+      <div class="lf-brand">People\u2019s Patterns</div>
+      <div class="lf-garment-title">${garment.name}</div>
+      <div class="lf-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
+    </div>
+    <div class="lf-body">
+      <div class="lf-col">
+        <h3 class="sect-head">Body Measurements</h3>
+        <table class="ptable"><tbody>${measRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.28in">Pattern Options</h3>
+        <table class="ptable"><tbody>${optRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.28in">How to Assemble</h3>
+        <ol class="lf-howto">
+          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
+          <li>Verify the 2\xd72 in and 5\xd75 cm squares below measure exactly right</li>
+          <li>Assemble tiles in the order shown in the map at right</li>
+          <li>Cut along the \u2702 scissors line at each overlap edge</li>
+          <li>Align \u2295 crosshairs \u2014 matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement</li>
+          <li>Tape from the back; check the 1\u2033 ruler strip before taping</li>
+        </ol>
+        <h3 class="sect-head" style="margin-top:0.28in">Scale Verification \u2014 Measure before cutting fabric</h3>
+        <div class="sq-row" style="justify-content:flex-start;gap:0.5in;margin:0.1in 0 0">
+          ${scaleSVG(sq2px, 'Must be exactly 2 \xd7 2 in')}
+          ${scaleSVG(sq5px, 'Must be exactly 5 \xd7 5 cm')}
+        </div>
+        <h3 class="sect-head" style="margin-top:0.28in">Fabric Options</h3>
+        <table class="ptable"><thead><tr><th>Fabric</th><th>Weight</th><th>Notes</th></tr></thead>
+          <tbody>${fabricRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.18in">Notions</h3>
+        <table class="ptable"><thead><tr><th>Item</th><th>Qty</th></tr></thead>
+          <tbody>${notionRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.18in">Stitch Settings</h3>
+        <table class="ptable"><thead><tr><th>Stitch</th><th>Length</th><th>Use</th></tr></thead>
+          <tbody>${stitchRows}</tbody></table>
+      </div>
+      <div class="lf-col">
+        <h3 class="sect-head">Tile Assembly Map</h3>
+        <p class="note" style="margin-bottom:0.1in">Each cell = one printed sheet. Label = row-col. Assemble left-to-right, top-to-bottom.</p>
+        ${buildTileMapSVG(pieces, PW, PH, OV)}
+        <h3 class="sect-head" style="margin-top:0.3in">Construction Order</h3>
+        <p class="note" style="margin-bottom:0.15in">Read all steps before starting. Press every seam.</p>
+        <div class="lf-steps">${stepsHtml}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 // ── Shared print CSS ───────────────────────────────────────────────────────
 
 function buildCSS(PW, PH) {
@@ -867,6 +1028,22 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 }
 .ptable td { border-bottom:0.5px solid #f0f0f0; padding:3px 5px; vertical-align:top; }
 
+/* ── Large-format preamble ── */
+.lf-preamble { padding:0.6in 0.7in 0.4in; }
+.lf-header { border-bottom:2px solid #2c2a26; padding-bottom:0.18in; margin-bottom:0.28in; }
+.lf-brand { font-family:'Fraunces',serif; font-size:11pt; font-weight:300; color:#aaa; letter-spacing:0.04em; }
+.lf-garment-title { font-size:28pt; font-weight:700; color:#2c2a26; margin-top:0.06in; }
+.lf-sub { font-size:9pt; color:#999; margin-top:0.04in; }
+.lf-body { display:flex; gap:0.7in; }
+.lf-col { flex:1; min-width:0; }
+.lf-howto { padding-left:1.2em; font-size:9pt; line-height:1.85; color:#444; }
+.lf-howto strong { color:#c44; }
+.lf-steps { display:flex; flex-direction:column; gap:0.13in; }
+.lf-step { display:flex; gap:0.15in; align-items:flex-start; }
+.lf-step-n { font-size:18pt; font-weight:700; color:#e0ddd8; min-width:0.38in; text-align:right; line-height:1; padding-top:0.02in; flex-shrink:0; }
+.lf-step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
+.lf-step-d { font-size:9pt; color:#555; line-height:1.5; }
+
 @media print {
   body { background:#fff; }
   .page { margin:0; box-shadow:none; }
@@ -893,12 +1070,36 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
   const PW  = size.w;
   const PH  = size.h;
   const OV  = 0.75; // tile overlap in inches
+  const isLargeFormat = PW >= 30; // A0/plotter — collapse preamble + nest small pieces
 
-  const coverPage = buildCoverPage(garment, measurements, opts);
-  const scalePage = buildScalePage(pieces, PW, PH, OV);
-  const matPage   = buildMaterialsPage(materials);
-  const instrPage = buildInstructionsPage(instructions);
-  const tilePages = pieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('');
+  // ── Preamble pages ──────────────────────────────────────────────────────
+  const preamblePages = isLargeFormat
+    ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
+    : buildCoverPage(garment, measurements, opts)
+    + buildScalePage(pieces, PW, PH, OV)
+    + buildMaterialsPage(materials)
+    + buildInstructionsPage(instructions);
+
+  // ── Pattern piece pages ─────────────────────────────────────────────────
+  let tilePages;
+  if (isLargeFormat) {
+    // Separate pieces that fit on a single A0 sheet (small) from multi-tile (large)
+    const largePieces = [], smallQueue = [];
+    for (const p of pieces) {
+      const rendered = renderPiece(p);
+      if (!rendered) continue;
+      const layout = computeTileLayout(rendered.wIn, rendered.hIn, p, PW, PH, OV);
+      if (layout.cols === 1 && layout.rows === 1) {
+        smallQueue.push({ rendered, piece: p });
+      } else {
+        largePieces.push(p);
+      }
+    }
+    tilePages = largePieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('')
+              + buildNestedSmallPages(smallQueue, PW, PH);
+  } else {
+    tilePages = pieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('');
+  }
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -908,10 +1109,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
 <style>${buildCSS(PW, PH)}</style>
 </head>
 <body>
-${coverPage}
-${scalePage}
-${matPage}
-${instrPage}
+${preamblePages}
 ${tilePages}
 </body>
 </html>`;
