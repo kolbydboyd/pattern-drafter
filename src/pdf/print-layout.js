@@ -353,7 +353,9 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
 // ── 1-inch ruler hash strip ────────────────────────────────────────────────
 
 function rulerStrip(tPW, SM) {
-  const rY  = px(SM * 0.55);  // baseline inside top margin
+  // Placed at the BOTTOM margin — ticks grow upward, labels above ticks.
+  // bottom:0 positions the SVG flush with the page bottom edge.
+  const rY  = px(SM * 0.65);  // baseline near bottom of the strip (ticks go up)
   const x0  = px(SM);
   const x1  = px(tPW - SM);
   const totalIn = tPW - 2 * SM;
@@ -364,14 +366,16 @@ function rulerStrip(tPW, SM) {
     if (x > x1 + 1) break;
     const isIn = i % 4 === 0, isHalf = i % 2 === 0;
     const h = isIn ? 8 : isHalf ? 5 : 3;
-    marks += `<line x1="${x}" y1="${rY}" x2="${x}" y2="${rY + h}" stroke="#000" stroke-width="${isIn ? 0.7 : 0.4}"/>`;
+    marks += `<line x1="${x}" y1="${rY - h}" x2="${x}" y2="${rY}" stroke="#000" stroke-width="${isIn ? 0.7 : 0.4}"/>`;
     if (isIn && i > 0) {
-      marks += `<text x="${x}" y="${rY + h + 7}"
-        font-family="'IBM Plex Mono',monospace" font-size="6" text-anchor="middle" fill="#000">${i / 4}"</text>`;
+      marks += `<text x="${x}" y="${rY - h - 2}"
+        font-family="'IBM Plex Mono',monospace" font-size="6" text-anchor="middle"
+        dominant-baseline="auto" fill="#000">${i / 4}"</text>`;
     }
   }
   return `<svg xmlns="http://www.w3.org/2000/svg"
-    style="position:absolute;top:0;left:0;width:${tPW}in;height:${SM}in;pointer-events:none;z-index:12;overflow:visible">
+    style="position:absolute;bottom:0;left:0;width:${tPW}in;height:${SM}in;
+           pointer-events:none;z-index:11;overflow:visible">
     ${marks}
   </svg>`;
 }
@@ -428,9 +432,17 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      // Fix 2: shiftX offsets content right so fold/cut edges avoid overlap zones
-      const offsetX = -(col * TX * DPI) + shiftX * DPI;
-      const offsetY = -(row * TY * DPI);
+      // Compute base tile offsets (negative = scroll piece into view)
+      let offsetX = -(col * TX * DPI) + shiftX * DPI;
+      let offsetY = -(row * TY * DPI);
+
+      // Center small pieces that fit on a single tile (looks more professional)
+      if (cols === 1 && rows === 1) {
+        const contentW = (tPW - 2 * SM) * DPI;
+        const contentH = (tPH - 2 * SM) * DPI;
+        offsetX = Math.max(0, Math.round((contentW - effectiveW * DPI) / 2));
+        offsetY = Math.max(0, Math.round((contentH - hIn * DPI) / 2));
+      }
 
       // Fix 4: B&W overlap zone markers (triangles + trim line)
       let overlapSvgs = '';
