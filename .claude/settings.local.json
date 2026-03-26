@@ -24,7 +24,12 @@
       "Bash(git fetch:*)",
       "Bash(git rebase:*)",
       "Bash(git stash:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(for d:*)",
+      "Read(//c/Users/black/OneDrive/Desktop/pattern-drafter/**)",
+      "Bash(sqlite3:*)",
+      "Bash(for id:*)",
+      "Read(//c/Users/black/AppData/Roaming/Nucleo/icons/sets/2/**)"
     ]
   }
 }
