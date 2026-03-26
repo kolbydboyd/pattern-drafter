@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Hoodie — same as crewneck plus hood panels, kangaroo pocket (default),
  * drawstring channel, and optional full-zip front split.
@@ -83,7 +84,6 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
@@ -191,7 +191,7 @@ export default {
         id: 'bodice-front',
         name: isFullZip ? 'Front Panel (Left)' : 'Front Bodice',
         instruction: isFullZip
-          ? `Cut 2 (L & R mirror) · 1″ zipper tape extension at CF · Full-length zipper ${fmtInches(torsoLen + hoodH)}`
+          ? `Cut 2 (L & R mirror) · 1″ zipper tape extension at CF · Full-length zipper ${fmtInches(torsoLen + 2)}`
           : 'Cut 1 on fold (CF)',
         type: 'bodice',
         polygon: frontPoly,
@@ -282,7 +282,7 @@ export default {
     ];
 
     if (isFullZip) {
-      const zipLength = torsoLen + hoodH + 2; // body + hood + buffer
+      const zipLength = torsoLen + 2; // body + buffer (zipper ends at neckline, not through hood)
       pieces.push({
         id: 'zipper-tape',
         name: 'Zipper Tape Extension',
@@ -308,7 +308,7 @@ export default {
     ];
 
     if (isFullZip) {
-      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + hoodH + 2)}″`, notes: 'Full-length separating zipper — size to match total front opening' });
+      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper — runs hem to neckline only (not through hood)' });
       notions.push({ ref: 'interfacing-light', quantity: '0.5 yard (zipper tape extensions)' });
     }
 
