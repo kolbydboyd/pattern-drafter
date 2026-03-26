@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Main application — wires garment modules to the UI.
  * All imports are static/top-level. No dynamic imports needed.
@@ -31,33 +32,7 @@ import wrapDressW       from '../garments/wrap-dress-w.js';
 import { renderPanelSVG, renderGenericPieceSVG } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
-
-// ═══ GARMENT REGISTRY ═══
-const GARMENTS = {
-  'cargo-shorts':       cargoShorts,
-  'gym-shorts':         gymShorts,
-  'swim-trunks':        swimTrunks,
-  'pleated-shorts':     pleatedShorts,
-  'straight-jeans':     straightJeans,
-  'chinos':             chinos,
-  'pleated-trousers':   pleatedTrousers,
-  'sweatpants':         sweatpants,
-  'tee':                tee,
-  'camp-shirt':         campShirt,
-  'crewneck':           crewneck,
-  'hoodie':             hoodie,
-  'crop-jacket':        cropJacket,
-  'wide-leg-trouser-w': wideLegTrouserW,
-  'straight-trouser-w': straightTrouserW,
-  'easy-pant-w':        easyPantW,
-  'button-up-w':        buttonUpW,
-  'shell-blouse-w':     shellBlouseW,
-  'fitted-tee-w':       fittedTeeW,
-  'slip-skirt-w':       slipSkirtW,
-  'a-line-skirt-w':     aLineSkirtW,
-  'shirt-dress-w':      shirtDressW,
-  'wrap-dress-w':       wrapDressW,
-};
+import GARMENTS from '../garments/index.js';
 
 let currentGarment = 'cargo-shorts';
 
@@ -107,8 +82,13 @@ function refreshProfileDropdown() {
 }
 
 function saveCurrentProfile() {
-  const name = prompt('Profile name:')?.trim();
-  if (!name) return;
+  const nameInput = document.getElementById('profile-name-input');
+  const name = nameInput?.value?.trim();
+  if (!name) {
+    nameInput?.focus();
+    return;
+  }
+  nameInput.value = '';
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
@@ -179,6 +159,7 @@ function buildInputs() {
       </select>
       <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
       <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
+      <input type="text" id="profile-name-input" placeholder="Profile name" style="width:120px">
     </div>`;
   for (const mId of g.measurements) {
     const mDef = MEASUREMENTS[mId];
@@ -326,9 +307,10 @@ function calculateYardage(pieces, fabricWidthIn) {
       count = extractCutCount(p.instruction);
     } else if (p.type === 'bodice' || p.type === 'sleeve') {
       const sa = p.sa || 0.625;
-      w     = (p.width  || 0) + sa * 2;
-      h     = (p.height || 0) + sa * 2;
-      count = extractCutCount(p.instruction);
+      const isFold = p.instruction?.toLowerCase().includes('on fold');
+      w = (isFold ? (p.width || 0) * 2 : (p.width || 0)) + sa * 2;
+      h = (p.height || 0) + sa * 2;
+      count = isFold ? 1 : extractCutCount(p.instruction);
     } else {
       w     = (p.dimensions?.width  || 0) + 0.625 * 2;
       h     = (p.dimensions?.height || 0) + 0.625 * 2;
@@ -538,7 +520,13 @@ function _generate() {
   let fitCheckHtml = '';
   if (isUpper) {
     const frontP = pieces.find(p => p.id === 'bodice-front' || p.id === 'bodice-front-right');
-    const chestCirc = frontP ? frontP.width * 4 : 0;
+    const PLACKET_W = 1.5;
+    const panelWidth = frontP
+      ? (frontP.id === 'bodice-front-right'
+          ? frontP.width - PLACKET_W
+          : frontP.width)
+      : 0;
+    const chestCirc = panelWidth * 4;
     fitCheckHtml = `<table class="dt" style="max-width:480px">
       ${m.chest ? `<tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
       <tr><td>Chest (pattern circ)</td><td>${fmtInches(chestCirc)}</td></tr>
@@ -800,6 +788,7 @@ function buildMeasureStep() {
       </select>
       <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
       <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
+      <input type="text" id="profile-name-input" placeholder="Profile name" style="width:120px">
     </div>
     <button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">How to measure ▾</button>
     <div id="mt-guide-container" style="display:none"></div>`;
@@ -948,7 +937,10 @@ function toggleTheme() {
 }
 
 // ═══ BOOT ═══
-applyTheme(localStorage.getItem('theme') === 'dark');
+function getSavedTheme() {
+  try { return localStorage.getItem('theme'); } catch { return null; }
+}
+applyTheme(getSavedTheme() === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
 
 // Landing email capture
