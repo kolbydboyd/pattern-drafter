@@ -421,6 +421,15 @@ function renderInstructions(steps) {
 
 // ═══ GENERATE ═══
 function generate() {
+  try {
+    _generate();
+  } catch (err) {
+    console.error('generate() failed:', err);
+    document.getElementById('output').innerHTML =
+      `<div style="color:#c44;font-family:monospace;padding:20px;white-space:pre-wrap"><strong>Error generating pattern:</strong>\n${err.message}\n\nCheck the browser console (F12) for the full stack trace.</div>`;
+  }
+}
+function _generate() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
 

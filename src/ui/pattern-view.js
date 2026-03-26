@@ -34,7 +34,13 @@ export function renderPanelSVG(piece) {
   const saCopy = saPolygon.map(p => ({ ...p }));
   for (let i = 0; i < polygon.length; i++) {
     if (polygon[i].y > cbRaise + 0.01) break;
-    saCopy[i].y = waistTopY;
+    if (Math.abs(polygon[i].x) < 0.01) {
+      saCopy[i] = { x: -sa, y: waistTopY };            // left (center) corner — right angle
+    } else if (Math.abs(polygon[i].x - width) < 0.01) {
+      saCopy[i] = { x: width + sa, y: waistTopY };     // right (side) corner — right angle
+    } else {
+      saCopy[i] = { ...saCopy[i], y: waistTopY };      // mid-back point — keep x, snap y
+    }
   }
 
   const svgSA = saCopy.map(toSVG);
@@ -61,7 +67,13 @@ export function renderPanelSVG(piece) {
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${labelX}" y="${lineY+3}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+        <text x="${labelX}" y="${lineY+8}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+      } else if (d.color === '#b8963e' && !isHemDim) {
+        // Knee/width accent dim: label to the right of the dim line to avoid grain line
+        dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
+        <text x="${x2+5}" y="${textY}" font-family="IBM Plex Mono" font-size="9" fill="${col}" text-anchor="start" font-weight="500">${d.label}</text>`;
       } else {
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
@@ -78,10 +90,15 @@ export function renderPanelSVG(piece) {
     }
   }
 
-  // Labels
+  // Labels — ensure they sit outside the SA cut line
   let labelsSVG = '';
   for (const l of labels) {
-    const x = ox + sc(l.x), y = oy + sc(l.y);
+    let lx = l.x;
+    // rotation > 0 → SIDE SEAM (right side); keep outside width + sa
+    if (l.rotation > 0 && lx < width + sa + 0.3) lx = width + sa + 0.3;
+    // rotation < 0 → CENTER (left side); keep outside -sa
+    if (l.rotation < 0 && lx > -(sa + 0.3)) lx = -(sa + 0.3);
+    const x = ox + sc(lx), y = oy + sc(l.y);
     labelsSVG += `<text x="${x}" y="${y}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" transform="rotate(${l.rotation},${x},${y})">${l.text}</text>`;
   }
 
