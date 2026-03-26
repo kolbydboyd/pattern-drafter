@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Shirt Dress (Womenswear) — button-up bodice + attached skirt.
  * Skirt options: A-line, straight, or gathered. Belt/sash option.
@@ -125,7 +126,6 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
@@ -138,7 +138,12 @@ export default {
     }
     function bb(poly) {
       const xs = poly.map(p => p.x), ys = poly.map(p => p.y);
-      return { maxX: Math.max(...xs), maxY: Math.max(...ys) };
+      return {
+        maxX: Math.max(...xs),
+        maxY: Math.max(...ys),
+        width: Math.max(...xs) - Math.min(...xs),
+        height: Math.max(...ys) - Math.min(...ys),
+      };
     }
 
     const frontNeckPts = sc(necklineCurve(neckW, 2.5, 'crew'));
@@ -165,7 +170,9 @@ export default {
     const frontRightPoly = frontBodice.map(p => ({ x: p.x + PLACKET_W, y: p.y }));
     // Mirror the right panel. Negating x flips CW→CCW winding; .reverse() restores CW
     // so offsetPolygon computes the SA outline correctly (outside the stitch line).
-    const frontLeftPoly  = frontRightPoly.map(p => ({ x: -p.x, y: p.y })).reverse();
+    const mirrorXs = frontRightPoly.map(p => -p.x);
+    const minMirrorX = Math.min(...mirrorXs);
+    const frontLeftPoly  = frontRightPoly.map(p => ({ x: -p.x - minMirrorX, y: p.y })).reverse();
     const frontRightBB   = bb(frontRightPoly);
     const frontLeftBB    = bb(frontLeftPoly);
     const backBB         = bb(backBodice);
@@ -213,7 +220,7 @@ export default {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: bb(poly).maxX, height: adjSkirtL, isBack, sa, hem,
+        width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' half width at hip', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
       };
     }
@@ -224,7 +231,7 @@ export default {
         instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttonholes on RIGHT front (womenswear convention)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
         type: 'bodice', polygon: frontRightPoly, path: pp(frontRightPoly),
         isCutOnFold: false,
-        width: frontRightBB.maxX, height: frontRightBB.maxY, isBack: false, sa, hem,
+        width: frontRightBB.width, height: frontRightBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
       {
@@ -232,14 +239,14 @@ export default {
         instruction: `Cut 1 (mirror of right front) · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttons on LEFT front (womenswear convention)`,
         type: 'bodice', polygon: frontLeftPoly, path: pp(frontLeftPoly),
         isCutOnFold: false,
-        width: frontLeftBB.maxX, height: frontLeftBB.maxY, isBack: false, sa, hem,
+        width: frontLeftBB.width, height: frontLeftBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Bodice',
         instruction: 'Cut 1 on fold (CB)',
         type: 'bodice', polygon: backBodice, path: pp(backBodice),
-        width: backBB.maxX, height: backBB.maxY, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       buildSkirtPanel('skirt-front', 'Skirt Front', false, skirtFrontW),
@@ -274,7 +281,7 @@ export default {
         id: 'sleeve', name: `${opts.sleeve === 'roll' ? 'Roll-up' : opts.sleeve === 'long' ? 'Long' : 'Short'} Sleeve`,
         instruction: `Cut 2 (mirror L & R)${opts.sleeve === 'roll' ? ' · Tab and button to hold roll-up position' : ''}`,
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       });
     } else {
@@ -296,7 +303,7 @@ export default {
 
   materials(m, opts) {
     const notions = [
-      { ref: 'interfacing-medium', quantity: opts.collar === 'point' ? '0.75 yard' : '0.5 yard' },
+      { ref: 'interfacing-med', quantity: opts.collar === 'point' ? '0.75 yard' : '0.5 yard' },
       { name: `Buttons ¾″`, quantity: `${parseInt(opts.buttonCount) + 2} (dress front + cuffs)`, notes: `Womenswear: buttons on left front, buttonholes on right` },
     ];
 
