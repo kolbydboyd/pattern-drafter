@@ -1,205 +1,323 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-03-25 · v0.5.1_
+_Last updated: 2026-03-26 · v0.6.0_
 
 ---
 
-## Phase 1 — MVP
+## North Star
 
-Everything that must be true before showing this to anyone.
+The gap between a $20 generic indie pattern that 
+doesn't fit and a $150 custom-drafted pattern is 
+completely uncontested. We own that gap at $7–10.
 
-### Branding
-- [x] Rename app to People's Patterns across all files
-- [x] Header tagline: "made-to-measure sewing patterns"
-- [x] Print layout cover page + tile footers stamped with brand, peoplespatterns.com, @peoplespatterns
-- [x] package.json name: `peoples-patterns`
+**Revenue targets:**
+- Break even (recoup build cost): $2,500–3,000
+- Meaningful income: $50,000/year
+- Life-changing: $120,000–200,000/year
+- Ceiling without a team: $300,000–500,000/year
 
-### Print Layout
-- [x] Tiled print output at 1:1 scale (US Letter, A4, Tabloid, A0/plotter)
-- [x] Scale verification page — 2×2 in + 5×5 cm squares
-- [x] Tile assembly map
-- [x] Registration crosshairs at all four corners
-- [x] Print-safe margins — all content within safe boundary
-- [x] Materials & stitch guide page
-- [x] Numbered construction steps page
-- [x] Cover page with garment name, measurements used, pattern options
-- [ ] True PDF export (not just browser print-to-PDF)
-- [ ] DXF export for plotters
-
-### Line Styles & Visual Quality
-- [x] Solid cut line, dashed stitch line
-- [x] SA legend on every pattern piece SVG
-- [x] Pleat fold lines rendered on pleated front panels
-- [x] Waist SA angle fixed on lower body panels
-
-### SA Rendering
-- [x] **KI-001 ✅** SA outline now uses perpendicular edge offsetting on all bodice/sleeve pieces (was: inaccurate centroid scaling)
-- [x] **KI-005 ✅** Wrap dress front bodice fold annotation corrected; `isCutOnFold: false` suppresses fold edge label correctly
-- [ ] **KI-002** SA corner spikes at acute angles — crotch extension corner, V-neck apex.
-  - `geometry.js:124` already has a 2.5× miter cap with bevel fallback — may already be fixed.
-  - Crotch corner is ~90°, unlikely to spike. V-neck apex is higher risk: SA asymmetry (neckline=sa, fold edge=0) can push the miter along the fold line, but calculated offset (~0.6″) is within the 2.5× cap for typical V-neck geometry.
-  - **To verify:** load slim tee (V-neck) + slim cargo shorts, inspect SA cut line at both corners visually.
-  - **If still spiky:** change `* 2.5` → `* 1.5` at `geometry.js:124` (one line). If bevel fallback looks jagged at V-neck, add angle threshold (only miter if corner angle > ~30°).
-- [ ] **KI-006** Wrap dress skirt panels use `type: 'bodice'` SA rendering (approximate). Fix: switch to `type: 'panel'` or dedicated trapezoid renderer
-
-### Module Issues
-- [x] **KI-007 ✅** `measurementDefaults` added to cargo-shorts, gym-shorts, swim-trunks, pleated-shorts, shell-blouse-w
-- [x] **KI-008 ✅** `tee.js` option key renamed `ease` → `fit` for consistency with all other upper-body modules
-- [ ] **KI-003** Slant pocket indicator doesn't annotate mirror direction (visual only, no geometry error). Fix: add note on mirrored panel
-- [ ] **KI-004** Crotch extension label clips when ext < ~0.5″ on slim-fit shorts/trousers. Fix: clamp label x to minimum safe margin
-- [x] **KI-009 ✅** Category `'tops'` vs `'upper'` inconsistency — all 23 modules already use `'upper'` or `'lower'` consistently. No change needed.
-
-### 6 Launch Patterns — Code Complete + Muslin Tested
-All 23 modules are code-complete. The 6 launch patterns need to be generated, printed, tiled, cut in muslin, and fit-checked.
-
-| Pattern | Module | Code | Muslin |
-|---|---|---|---|
-| Cargo Shorts | `cargo-shorts` | ✅ | ⬜ pending |
-| Straight Leg Jeans | `straight-jeans` | ✅ | ⬜ pending |
-| T-Shirt | `tee` | ✅ | ⬜ pending |
-| Button-Up / Camp Shirt | `camp-shirt` | ✅ | ⬜ pending |
-| A-Line Skirt | `a-line-skirt-w` | ✅ | ⬜ pending |
-| Wide-Leg Trouser | `wide-leg-trouser-w` | ✅ | ⬜ pending |
-
-### UI & App
-- [x] 4-step flow: Choose → Measure → Customize → Pattern
-- [x] Saved measurement profiles (localStorage)
-- [x] Inline measurement guide with SVG diagrams
-- [x] Fabric yardage calculator
-- [x] Rise presets (low / mid / high / ultra-high)
-- [x] Dark mode (persistent via localStorage)
-- [ ] React + Tailwind migration (current: vanilla JS)
-- [ ] Full-screen step views with fixed stepper/breadcrumb bar
-- [ ] Slide/fade transitions between steps
-- [ ] Mobile-friendly measurement input
-- [ ] cm / inch toggle
+**The data play (2–3 year horizon):**
+As fit feedback accumulates — thousands of people 
+reporting "waist right, hip too tight" — we build 
+the most detailed real-body fit dataset in existence. 
+No clothing brand, pattern company, or fabric 
+manufacturer has this. It becomes a licensable asset.
 
 ---
 
-## Phase 2 — Launch
+## Current Status — v0.6.0
 
-### Accounts & Payments
-- [ ] Account + login required to generate/download
-- [ ] Stripe checkout — per-pattern purchase ($9–15)
-- [ ] Monthly membership — unlimited or throttled downloads, saved profiles, fit history, pattern library, discounts ($9–15/mo)
-- [ ] Gift cards (Stripe)
-- [ ] Cart for multi-pattern checkout
+23 garment modules · all code-complete · all bugs fixed
+6 launch patterns need muslin testing
+App live at peoplespatterns.com
 
-### Pattern Protection
-- [ ] Watermarked low-res preview until purchase
-- [ ] Full print-ready file unlocked after payment
-- [ ] Downloaded patterns stamped with customer name, order number, email, date
-- [ ] Patterns in account history only, no public links
-- [ ] Rate-limit downloads
-- [ ] Commercial-use terms for microbrands and businesses
+---
 
-### Email & Landing Page
-- [ ] Domain live (peoplespatterns.com)
-- [ ] Landing page — 10-second explanation above the fold
-- [ ] Email capture for free tier
-- [ ] "How to measure yourself" written guide + video embed
+## Immediate — This Week
 
-### Content — Pre-Launch
-- [ ] Instagram (@peoplespatterns) — 2–3 weeks of content before launch
-- [ ] TikTok — 2–3 weeks of content before launch
-- [ ] YouTube channel set up
-- [ ] Build-in-public content: app development process
-- [ ] Behind the scenes: sewing the patterns, muslin fitting sessions
-- [ ] Tiny tutorials: SA explainer, tiling explainer, how to measure yourself
+- [ ] **Sew 6 launch muslins** (the actual critical path)
+  - [ ] Cargo Shorts
+  - [ ] Straight Jeans
+  - [ ] T-Shirt
+  - [ ] Camp Shirt
+  - [ ] A-Line Skirt
+  - [ ] Wide-Leg Trouser (W)
+- [ ] Add social icons to landing page
+      (Instagram, TikTok, YouTube, Pinterest, Newsletter)
+      Gold in dark mode · warm brown in light mode
+- [ ] Make repo private
 
-### Sew-Along Videos
-One video per launch pattern: measure → generate → print → tile → cut → sew → finished garment.
+---
+
+## Phase 1 — Pre-Launch Infrastructure
+
+### Email List (do first — before any content)
+- [ ] Set up email provider (Resend, Mailchimp, or 
+      ConvertKit — ConvertKit best for creators)
+- [ ] Embed signup form on landing page
+- [ ] Set up welcome email sequence:
+      Email 1: "Here's how to measure yourself"
+      Email 2: "Your first pattern — what to expect"
+      Email 3: "How tiled PDFs work"
+- [ ] Add fit feedback form (post-sew survey):
+      "How did your pattern fit?"
+      Fields: garment, which measurement was off,
+      too big/small/right, photo upload optional
+      → This is the data play. Collect from day one.
+
+### Supabase — Accounts (do second)
+- [ ] Set up Supabase project (free tier)
+- [ ] Email/password auth
+- [ ] Cloud measurement profiles
+      (replaces fragile localStorage)
+- [ ] Fit history per user
+- [ ] Download history
+- [ ] Switching cost grows with every saved profile
+
+### Stripe — Payments (do third)
+- [ ] Stripe account and product setup
+- [ ] Per-pattern pricing by complexity:
+      Beginner (gym shorts, slip skirt): $7
+      Intermediate (tee, cargo shorts): $8
+      Advanced (jeans, shirt dress): $10
+      Complex (blazer, structured jacket): $12
+      No price difference between men's and 
+      women's equivalents — no pink tax.
+- [ ] Subscription: $12–15/month
+      Unlimited downloads + saved profiles + 
+      fit history + new pattern notifications
+- [ ] Watermarked preview until purchase
+- [ ] PDF stamped with name, order number, 
+      email, date after payment
+- [ ] Backend PDF authorization
+      (currently bypassable client-side)
+- [ ] Gift cards
+
+### Landing Page
+- [ ] 10-second explanation above the fold
+- [ ] Social links: Instagram, TikTok, YouTube,
+      Pinterest, Newsletter
+- [ ] "How to measure yourself" guide + video embed
+- [ ] Email capture prominent above fold
+- [ ] Before/after fit comparison visual
+
+---
+
+## Phase 2 — Launch Content
+
+### Accounts Already Set Up ✅
+- Instagram @peoplespatterns
+- TikTok
+- YouTube
+- Pinterest
+- Newsletter
+
+### Content Queue (2–3 weeks before launch)
+- [ ] Before/after fit video — TikTok first
+      Standard-sized pattern that gaps at waist
+      vs same garment from custom pattern on 
+      same body. 30 seconds. This is the viral format.
+- [ ] "I generated a jeans pattern for $8" series
+- [ ] Muslin fitting session videos
+- [ ] How tiled PDFs work (demystify the format)
+- [ ] How to measure yourself (short form)
+- [ ] Build-in-public content
+
+### Sew-Along Videos (one per launch pattern)
+measure → generate → print → tile → cut → sew → finished
 
 - [ ] Cargo Shorts
-- [ ] Straight Leg Jeans
+- [ ] Straight Jeans
 - [ ] T-Shirt
-- [ ] Button-Up / Camp Shirt
+- [ ] Camp Shirt
 - [ ] A-Line Skirt
 - [ ] Wide-Leg Trouser
 
-### Social Launch
-- [ ] Reddit: r/sewing, r/sewhelp, r/learnmachinesewing
-- [ ] Facebook sewing groups
-- [ ] Referral program — "give a friend a free pattern, get a free pattern"
+### Community Launch
+- [ ] PatternReview.com designer account
+      (593k members — most influential sewing community)
+      List patterns in independent shop
+      Post introducing made-to-measure concept
+      Engage with reviews — these become social proof
+- [ ] Reddit: r/sewing, r/sewhelp, r/myog
+- [ ] Seed 50–100 free downloads to sewists
+      with 5k–50k followers
+      In exchange for honest documented makes
+- [ ] Referral program:
+      Give a friend a free pattern, get a free pattern
 
 ---
 
-## Phase 3 — Growth
+## Phase 3 — Revenue Expansion
 
-### Physical Products & Affiliates
-- [ ] Etsy shop — sized (non-custom) versions of the 6 launch patterns for sewists who prefer not to enter measurements
-- [ ] Branded beginner sewing tool kit ($25–35): tape measure, chalk, pins, seam ripper, needles — upsell at first pattern purchase
-- [ ] Branded sewing tape measure as standalone product
-- [ ] Fabric company affiliate links on the materials page per garment
-- [ ] Amazon notions affiliate links
+### Affiliate Links (passive, implement early)
+- [ ] Embed affiliate links in every materials list
+      Fabric recommendations → Mood Fabrics, 
+      Fabric.com, Hawthorne Supply Co
+      Notions → Amazon, local craft suppliers
+      Thread, needles, interfacing — all affiliate
+- [ ] Every pattern download = potential $5–15 
+      in affiliate revenue on the materials purchase
+      1,000 downloads/month = $5,000–15,000/month
+      passive affiliate income
 
-### Community & Retention
-- [ ] Fit feedback loop — post-sew prompt ("how did it fit?") with structured options (too tight at chest, crotch too low, torso too long, etc.) to refine geometry over time
-- [ ] Shareable pattern links (view-only, watermarked)
-- [ ] Saved garment drafts (beyond measurement profiles)
-- [ ] Re-download with updated measurements, named saves (e.g. "Me Jan 2026", "Client A")
-- [ ] Pattern version history
-- [ ] Seasonal collections — quarterly themed drops with email campaign
-- [ ] Fashion students and schools — bulk / institutional pricing
+### Etsy + Craftsy Shop
+- [ ] Build grading function — run engine with 
+      standard size chart measurements
+      (XS/S/M/L/XL/2X/3X — unisex sizing)
+- [ ] Generate sized PDFs for 6 launch patterns
+- [ ] List on Etsy ($12–15 per pattern)
+- [ ] List on Craftsy (sewing-specific platform)
+- [ ] Different audience than direct site — 
+      pure incremental revenue, zero extra work
+      once grading is built
 
-### Additional Garment Modules
-Target: one new module per week post-launch.
+### Physical Products
+- [ ] Branded beginner kit ($25–30)
+      Tape measure, chalk, pins, seam ripper, 
+      needles, seam gauge
+      Upsell at first pattern purchase
+      Target 10% attach rate
+- [ ] Branded tape measure as standalone ($12–15)
+- [ ] Etsy listings for physical kits
 
-| Garment | Priority |
-|---|---|
-| Blazer / structured jacket | high |
-| Trousers with proper fly-front geometry | high |
-| Knit dress | high |
-| Button-down shirt (chambray, linen, cotton, flannel) | high |
-| Sundress (pockets, collar options, strap options, back options) | high |
-| Quarter-zip | medium |
-| Boxers / panties | medium |
-| Circle skirt | medium |
-| Bias-cut skirt | medium |
-| Kids sizing (all categories) | medium |
+### Professional / Institutional Tier
+- [ ] $50/month professional plan
+      Commercial use rights
+      Client measurement profile management
+      Bulk downloads
+      Targets: small fashion labels, costume 
+      designers, theater wardrobe, tailors,
+      fashion students
+- [ ] School / institutional bulk pricing
 
-### Drafting & Accuracy
-- [ ] Dart rotation and manipulation (bust, shoulder, waist)
-- [ ] Grading between sizes
-- [ ] Ease value fine-tuning per body section (hip vs. waist vs. chest independently)
-- [ ] Curved / contoured waistbands
-- [ ] Seam notch marks and drill holes on all exported pieces
-- [ ] Piece nesting / layout optimizer to minimize fabric waste
+---
+
+## Phase 4 — Catalog Growth
+
+### New Modules (one validated per week post-launch)
+Validation = code + muslin + fit confirmed
+
+| Garment | Type | Priority |
+|---|---|---|
+| Tote bag | bag | high |
+| Crossbody bag | bag | high |
+| Sundress | dress | high |
+| Knit dress | dress | high |
+| Duffle bag | bag | medium |
+| Daypack | bag | medium |
+| Circle skirt | skirt | medium |
+| Quarter-zip | upper | medium |
+| Boxers / underwear | lower | medium |
+| Kids sizing | all | medium |
+| Blazer | jacket | medium |
+| Bias-cut skirt | skirt | low |
+| Trench coat | jacket | low |
+
+### MYOG Push (Month 3)
+- [ ] Tote, crossbody, stuff sack
+- [ ] Duffle, daypack, simple backpack
+- [ ] Post in r/myog after first bag modules
+- [ ] Technical backpack (long-term)
+
+### Seasonal
+- [ ] Halloween costumes — target October launch
+- [ ] Holiday party dress — target November
+- [ ] Swimwear expansion — target June
+
+---
+
+## Phase 5 — The Data Play
+
+### Fit Feedback Collection
+- [ ] Post-sew survey on every download page
+- [ ] Structured fields:
+      Which measurement was off?
+      How much (too big / too small by how much)?
+      Overall fit rating
+      Photo upload (optional)
+- [ ] Aggregate by measurement + size range
+- [ ] Feed corrections back into geometry
+      (each module gets a correction factor
+      based on real-world fit reports)
+
+### What This Becomes
+- Most detailed real-body fit dataset for 
+  home sewists ever assembled
+- No clothing brand, pattern company, or 
+  fabric manufacturer has this
+- Licensable to:
+  Fabric companies understanding body diversity
+  Clothing brands improving sizing
+  Pattern companies modernizing blocks
+  Academic textile research
+- Timeline: meaningful data at ~5,000 fit reports
+  Licensable asset at ~50,000 fit reports
+
+---
+
+## Technical Debt & Improvements
+
+### Open Known Issues
+- [ ] KI-002 SA corner spikes at acute angles
+      (verify on slim V-neck tee first)
+- [ ] KI-003 Slant pocket mirror annotation
+- [ ] KI-004 Ext label clips at small values
+- [ ] KI-006 Wrap dress skirt SA scaling
+- [ ] KI-009 Category 'tops' vs 'upper' inconsistency
+
+### UI Improvements
+- [ ] Profile name input (replace prompt() with 
+      inline field — currently broken on mobile)
+- [ ] Measurement validation before generation
+- [ ] cm / inch toggle
+- [ ] Mobile-friendly measurement input
+- [ ] React migration (low priority until scale)
 
 ### Output Formats
-- [ ] Layered PDFs with per-layer SA toggle and fabric cut plan
-- [ ] Size chart import (industry sizing, custom)
+- [ ] Projector file export
+      (sales of home projectors for sewing up 20%
+      — significant and vocal user segment)
+- [ ] A0 single-sheet export
+- [ ] True PDF (not browser print)
+- [ ] DXF for plotters
+
+### Pattern Quality
+- [ ] Notch marks on all pieces
+      (most requested feature from experienced sewists)
+- [ ] Dart manipulation tools
+- [ ] Contoured waistband geometry
+- [ ] Piece nesting / layout optimizer
 
 ---
 
-## All Modules — Current Status
-
-23 modules total · 23 code-complete · 0 broken · 4 open minor issues (KI-002, KI-003, KI-004, KI-009)
+## Module Status
 
 | Module | Garment | Code | Muslin |
 |---|---|---|---|
-| `cargo-shorts` | Cargo Shorts | ✅ | ⬜ |
-| `gym-shorts` | Gym Shorts | ✅ | — |
-| `swim-trunks` | Swim Trunks | ✅ | — |
-| `pleated-shorts` | Pleated Shorts | ✅ | — |
-| `straight-jeans` | Straight Jeans | ✅ | ⬜ |
-| `chinos` | Chinos | ✅ | — |
-| `pleated-trousers` | Pleated Trousers | ✅ | — |
-| `sweatpants` | Sweatpants | ✅ | — |
-| `tee` | T-Shirt | ✅ | ⬜ |
-| `camp-shirt` | Camp Shirt | ✅ | ⬜ |
-| `crewneck` | Crewneck Sweatshirt | ✅ | — |
-| `hoodie` | Hoodie | ✅ | — |
-| `crop-jacket` | Crop Jacket | ✅ | — |
-| `wide-leg-trouser-w` | Wide-Leg Trouser (W) | ✅ | ⬜ |
-| `straight-trouser-w` | Straight Trouser (W) | ✅ | — |
-| `easy-pant-w` | Easy Pant (W) | ✅ | — |
-| `slip-skirt-w` | Slip Skirt (W) | ✅ | — |
-| `a-line-skirt-w` | A-Line Skirt (W) | ✅ | ⬜ |
-| `button-up-w` | Button-Up Shirt (W) | ✅ | — |
-| `shell-blouse-w` | Shell Blouse (W) | ✅ | — |
-| `fitted-tee-w` | Fitted Tee (W) | ✅ | — |
-| `shirt-dress-w` | Shirt Dress (W) | ✅ | — |
-| `wrap-dress-w` | Wrap Dress (W) | ✅ | — |
+| cargo-shorts | Cargo Shorts | ✅ | ⬜ |
+| gym-shorts | Gym Shorts | ✅ | — |
+| swim-trunks | Swim Trunks | ✅ | — |
+| pleated-shorts | Pleated Shorts | ✅ | — |
+| straight-jeans | Straight Jeans | ✅ | ⬜ |
+| chinos | Chinos | ✅ | — |
+| pleated-trousers | Pleated Trousers | ✅ | — |
+| sweatpants | Sweatpants | ✅ | — |
+| tee | T-Shirt | ✅ | ⬜ |
+| camp-shirt | Camp Shirt | ✅ | ⬜ |
+| crewneck | Crewneck Sweatshirt | ✅ | — |
+| hoodie | Hoodie | ✅ | — |
+| crop-jacket | Crop Jacket | ✅ | — |
+| wide-leg-trouser-w | Wide-Leg Trouser (W) | ✅ | ⬜ |
+| straight-trouser-w | Straight Trouser (W) | ✅ | — |
+| easy-pant-w | Easy Pant (W) | ✅ | — |
+| slip-skirt-w | Slip Skirt (W) | ✅ | — |
+| a-line-skirt-w | A-Line Skirt (W) | ✅ | ⬜ |
+| button-up-w | Button-Up Shirt (W) | ✅ | — |
+| shell-blouse-w | Shell Blouse (W) | ✅ | — |
+| fitted-tee-w | Fitted Tee (W) | ✅ | — |
+| shirt-dress-w | Shirt Dress (W) | ✅ | — |
+| wrap-dress-w | Wrap Dress (W) | ✅ | — |
 
-_⬜ = muslin required before launch · — = not a launch pattern_
+⬜ = muslin required before payments go live
+— = not a launch pattern, test post-launch
