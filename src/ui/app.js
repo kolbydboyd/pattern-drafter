@@ -141,6 +141,8 @@ function applyProfile(name) {
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
+  // Notify listeners (e.g. riseOverride auto-fill) that m-rise may have changed
+  document.getElementById('m-rise')?.dispatchEvent(new Event('input'));
   if (currentStep === 4) generate();
 }
 

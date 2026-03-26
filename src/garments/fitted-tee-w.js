@@ -23,7 +23,7 @@ const NECK_DEPTHS = {
 export default {
   id: 'fitted-tee-w',
   name: 'Fitted Tee (W)',
-  category: 'tops',
+  category: 'upper',
   difficulty: 'intermediate',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 7 },
