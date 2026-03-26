@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Core geometry engine for pattern drafting.
  * All measurements in inches. SVG scale applied at render time.
@@ -214,5 +215,5 @@ export const EASE_VALUES = {
  */
 export function easeDistribution(easeKey) {
   const total = EASE_VALUES[easeKey] || 2.5;
-  return { front: total * 0.4, back: total * 0.6, total };
+  return { front: total * 0.2, back: total * 0.3, total };
 }
