@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * A-Line Skirt (Womenswear) — trapezoid panels with hem flare.
  * Waist darts, structured or elastic waistband, optional side pockets.
@@ -88,7 +89,9 @@ export default {
 
     // Dart intake per panel (hip - waist, spread across 2 darts)
     const dartIntake = hipW - waistW;
-    const dartW      = Math.max(0.25, Math.min(dartIntake / 2, 0.75));
+    const dartW      = dartIntake > 0.5
+      ? Math.min(dartIntake / 2, 0.75)
+      : 0;
     const dartL      = 3.5;
 
     function pp(poly) {
@@ -107,7 +110,9 @@ export default {
         { x: 0,                   y: L },   // hem left
       ];
 
-      const dartNote = `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`;
+      const dartNote = dartW > 0
+        ? `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`
+        : 'No darts needed — waist and hip measurements are close';
 
       return {
         id, name,
@@ -150,8 +155,8 @@ export default {
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · Match front panel shape · Shorten ¾″ from hem · Float free at hem', dimensions: { length: hipW, width: L - 0.75 }, type: 'pocket' });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · Match back panel shape · Shorten ¾″ from hem', dimensions: { length: hipW, width: L - 0.75 }, type: 'pocket' });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE — trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE — trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
     }
 
     return pieces;
@@ -160,7 +165,7 @@ export default {
   materials(m, opts) {
     const notions = [];
     if (opts.waistband === 'structured') {
-      notions.push({ ref: 'interfacing-medium', quantity: '0.5 yard' });
+      notions.push({ ref: 'interfacing-med', quantity: '0.5 yard' });
     }
     if (opts.closure === 'zip') {
       notions.push({ name: 'Invisible zipper', quantity: `${Math.ceil((m.skirtLength || 26) * 0.45)}″`, notes: 'Left side seam' });

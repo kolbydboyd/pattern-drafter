@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Slip Skirt (Womenswear) — simple rectangle panels with waist darts.
  * Petersham, structured, or elastic waistband. Invisible CB zip. Optional lining.
@@ -147,7 +148,7 @@ export default {
   materials(m, opts) {
     const notions = [];
     if (opts.waistband === 'structured') {
-      notions.push({ ref: 'interfacing-medium', quantity: `${fmtInches((m.hip + 1) / 12 + 0.25)} yard` });
+      notions.push({ ref: 'interfacing-med', quantity: `${fmtInches((m.hip + 1) / 12 + 0.25)} yard` });
     }
     if (opts.waistband === 'petersham') {
       notions.push({ name: 'Petersham ribbon 1.5″', quantity: `${Math.ceil(m.hip + 2)}″` });

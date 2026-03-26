@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Materials database and recommendation engine.
  *
@@ -135,8 +136,10 @@ export const STANDARD_NOTIONS = {
   'elastic-1':         { name: '1″ woven elastic', notes: 'For lighter garments' },
   'elastic-0.75':      { name: '¾″ elastic', notes: 'For casings, waist gathering' },
   'drawstring':        { name: '½–¾″ flat drawstring cord', notes: 'Woven cotton or nylon' },
-  'interfacing-med':   { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
-  'interfacing-heavy': { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },
+  'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar — for lightweight wovens and facings' },
+  'interfacing-med':    { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
+  'interfacing-medium': { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
+  'interfacing-heavy':  { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },
   'webbing-1.5':       { name: '1.5″ nylon webbing', notes: 'Stiff, for internal belt/holster support' },
   'zipper':            { name: 'Zipper', notes: 'Length = rise measurement' },
   'buttons':           { name: 'Buttons', notes: 'Size and count varies by garment' },
