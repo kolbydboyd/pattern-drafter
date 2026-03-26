@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Wrap Dress (Womenswear) — overlapping front panels with self-fabric ties.
  * V-neckline angled from shoulder. Left and right fronts each extend 4–5″ past CF.
@@ -102,7 +103,6 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
@@ -254,7 +254,7 @@ export default {
         id: 'sleeve', name: 'Sleeve',
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.maxX, height: slvBB.maxY, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       });
     } else {

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Swim Trunks — nylon taslan outer with mesh liner panels.
  * Side-seam pockets with mesh drainage bags. Drawstring + grommets only (no elastic).

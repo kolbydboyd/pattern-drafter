@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Pleated Trousers — high-waisted wide-leg dress trousers.
  * 31 inch default inseam, 12 inch rise, double pleat default, +6″ ease.
@@ -7,7 +8,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, EASE_VALUES
+  fmtInches, easeDistribution
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 

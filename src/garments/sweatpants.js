@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Sweatpants — athletic knit trousers with elastic+drawstring waistband.
  * 30 inch default inseam, 10 inch rise, relaxed ease default.
@@ -7,7 +8,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES
+  fmtInches, LEG_SHAPES
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -88,10 +89,9 @@ export default {
   },
 
   pieces(m, opts) {
-    const ease     = easeDistribution(opts.ease === 'wide' ? 'relaxed' : opts.ease);  // map to known keys
     const easeVal  = opts.ease === 'wide' ? 6 : opts.ease === 'relaxed' ? 4 : 2.5;
-    const easeFront = easeVal * 0.4;
-    const easeBack  = easeVal * 0.6;
+    const easeFront = easeVal * 0.2;
+    const easeBack  = easeVal * 0.3;
 
     const sa       = parseFloat(opts.sa);
     const hem      = parseFloat(opts.hem);
@@ -264,8 +264,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   const kneeY       = rise + inseam * 0.55;
-  const kneeW       = calf  ? calf  / 4 : width * shape.knee;
-  const hemW        = ankle ? ankle / 4 : width * shape.hem;
+  const kneeW       = calf  ? calf  / 2 + 0.5 : width * shape.knee;
+  const hemW        = ankle ? ankle / 2 + 0.5 : width * shape.hem;
   const kneeInward  = (width - kneeW) * 0.5;
   const hemInward   = (width - hemW)  * 0.5;
   const sideKneeX   =  width - kneeInward;

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Wide-Leg Trouser (Womenswear) — drapey high-waisted wide leg.
  * 30″ default inseam, 11″ default rise (high waist), +5″ ease.

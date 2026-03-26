@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Crop Jacket (Chore Coat style) — woven outerwear, extra ease for layering.
  * Front panels split at CF for button/snap placket.
@@ -95,7 +96,6 @@ export default {
     const armholeY      = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen      = m.torsoLength + (opts.length === 'hip' ? 4 : 0);
     const slvLength     = m.sleeveLength ?? 26;

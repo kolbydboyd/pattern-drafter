@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Pleated Shorts — structured woven shorts with front pleats.
  * 7 inch default inseam, 10 inch rise.

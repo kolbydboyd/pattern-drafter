@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * T-Shirt — upper body knit garment.
  * Uses upper-body.js geometry for armhole, neckline, shoulder, and sleeve cap curves.
@@ -18,7 +19,6 @@ const SLEEVE_LENGTHS = { short: 8, three_quarter: 18, long: 25 };
 // ── Neckline depth by style (front inches; back is computed from neckW/3) ────
 // Crew front depth is computed dynamically: neck/6 + 0.5 (per standard block rule)
 const NECK_DEPTH_FRONT = {
-  crew:  null, // computed: neckW + 0.5 (where neckW = neck/6)
   vneck: 9.0,
   scoop: 6.5,
 };
@@ -123,7 +123,6 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
 
     // ── Neckline ─────────────────────────────────────────────────────────────

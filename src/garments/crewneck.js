@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Crewneck Sweatshirt — heavier knit with ribbed trim.
  * Front body, back body, sleeve ×2 (long, 25″ default).
@@ -84,7 +85,6 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;

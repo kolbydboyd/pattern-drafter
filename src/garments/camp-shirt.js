@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Camp Shirt — woven button-front with camp/convertible collar.
  * Front panels split at CF for button placket (+1.5″ each side).
@@ -108,7 +109,6 @@ export default {
     const armholeY      = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
-    const effCrossBack  = m.crossBack  || (m.shoulder - 2);
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
