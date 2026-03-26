@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Easy Pant (Womenswear) — pull-on with no fly, no zipper, elastic waist.
  * 29″ default inseam, 10″ rise. Relaxed ease +4″.
@@ -129,8 +130,8 @@ export default {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
       const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
-      const kneeW   = m.calf  ? m.calf  / 4 : width * shape.knee;
-      const hemW    = m.ankle ? m.ankle / 4 : width * shape.hem;
+      const kneeW   = m.calf  ? m.calf  / 2 + 0.5 : width * shape.knee;
+      const hemW    = m.ankle ? m.ankle / 2 + 0.5 : width * shape.hem;
       const kIn     = (width - kneeW) * 0.5;
       const hIn     = (width - hemW)  * 0.5;
       const skX     = width - kIn,  shkX = width - hIn;
@@ -178,10 +179,12 @@ export default {
     ];
 
     const wbCirc = m.hip + easeVal + sa * 2;
+    const pantOpening = (frontW + backW) * 2;
     if (opts.waistband === 'elastic') {
       pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · 3″ cut (1.5″ finished × 2) · Thread 1″ elastic = waist − 2″`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else {
-      pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(m.waist * 0.9)} long × 6″ cut (3″ finished fold-over)`, dimensions: { length: m.waist * 0.9, width: 6 }, type: 'rectangle', sa });
+      const yogaLen = Math.round(pantOpening * 0.85 * 4) / 4;
+      pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(yogaLen)} long × 6″ cut (3″ finished fold-over) · Stretch 15% to meet pant opening (${fmtInches(pantOpening)})`, dimensions: { length: yogaLen, width: 6 }, type: 'rectangle', sa });
     }
 
     if (opts.pockets === 'side') {

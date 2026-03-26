@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Chinos — clean tailored trousers with serger-finished seams.
  * 31 inch default inseam, 10 inch rise. Same leg shapes as straight-jeans.
@@ -155,7 +156,7 @@ export default {
     }
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips · ¾″ finished width · Serge or fold raw edges`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket' });
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips · Fold in thirds lengthwise (¾″ finished) · Length 4″ · Fold under ends before attaching to waistband`, dimensions: { length: 4, width: 2.5 }, type: 'pocket' });
 
     return pieces;
   },
@@ -243,8 +244,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   const kneeY       = rise + inseam * 0.55;
-  const kneeW       = calf  ? calf  / 4 : width * shape.knee;
-  const hemW        = ankle ? ankle / 4 : width * shape.hem;
+  const kneeW       = calf  ? calf  / 2 + 0.5 : width * shape.knee;
+  const hemW        = ankle ? ankle / 2 + 0.5 : width * shape.hem;
   const kneeInward  = (width - kneeW) * 0.5;
   const hemInward   = (width - hemW)  * 0.5;
   const sideKneeX   =  width - kneeInward;

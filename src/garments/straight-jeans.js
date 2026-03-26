@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Straight Jeans — 5-pocket denim with tapered leg shaping.
  * 31 inch default inseam, 10 inch rise.
@@ -230,8 +231,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   // Knee sits 55% down the inseam from the crotch
   const kneeY      = rise + inseam * 0.55;
   // If calf/ankle provided, derive per-panel width from body measurement; else use shape ratios
-  const kneeW      = calf  ? calf  / 4 : width * shape.knee;
-  const hemW       = ankle ? ankle / 4 : width * shape.hem;
+  const kneeW      = calf  ? calf  / 2 + 0.5 : width * shape.knee;
+  const hemW       = ankle ? ankle / 2 + 0.5 : width * shape.hem;
 
   // Each leg narrows symmetrically — half on side seam, half on inseam
   const kneeInward = (width - kneeW) * 0.5;

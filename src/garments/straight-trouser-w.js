@@ -1,3 +1,4 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * Straight-Leg Trouser (Womenswear) — classic straight leg with slight knee taper.
  * 30″ default inseam, 10″ default rise (mid-high). Regular ease +3″.
@@ -274,7 +275,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, knee
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   // Knee taper: if calf provided use body measurement, else use kneeFactor ratio
-  const kneeW       = calf ? calf / 4 : width * kneeFactor;
+  const kneeW       = calf ? calf / 2 + 0.5 : width * kneeFactor;
   const kneeInward  = (width - kneeW) * 0.5;
   const sideKneeX   = width - kneeInward;
   const inseamKneeX = -ext + kneeInward;
