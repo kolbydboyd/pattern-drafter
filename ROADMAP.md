@@ -35,7 +35,11 @@ Everything that must be true before showing this to anyone.
 ### SA Rendering
 - [x] **KI-001 ✅** SA outline now uses perpendicular edge offsetting on all bodice/sleeve pieces (was: inaccurate centroid scaling)
 - [x] **KI-005 ✅** Wrap dress front bodice fold annotation corrected; `isCutOnFold: false` suppresses fold edge label correctly
-- [ ] **KI-002** SA corner spikes at acute angles — crotch extension corner, V-neck apex. Fix: reduce miter cap from 2.5× to 1.5×, or bevel join below angle threshold
+- [ ] **KI-002** SA corner spikes at acute angles — crotch extension corner, V-neck apex.
+  - `geometry.js:124` already has a 2.5× miter cap with bevel fallback — may already be fixed.
+  - Crotch corner is ~90°, unlikely to spike. V-neck apex is higher risk: SA asymmetry (neckline=sa, fold edge=0) can push the miter along the fold line, but calculated offset (~0.6″) is within the 2.5× cap for typical V-neck geometry.
+  - **To verify:** load slim tee (V-neck) + slim cargo shorts, inspect SA cut line at both corners visually.
+  - **If still spiky:** change `* 2.5` → `* 1.5` at `geometry.js:124` (one line). If bevel fallback looks jagged at V-neck, add angle threshold (only miter if corner angle > ~30°).
 - [ ] **KI-006** Wrap dress skirt panels use `type: 'bodice'` SA rendering (approximate). Fix: switch to `type: 'panel'` or dedicated trapezoid renderer
 
 ### Module Issues
@@ -43,7 +47,7 @@ Everything that must be true before showing this to anyone.
 - [x] **KI-008 ✅** `tee.js` option key renamed `ease` → `fit` for consistency with all other upper-body modules
 - [ ] **KI-003** Slant pocket indicator doesn't annotate mirror direction (visual only, no geometry error). Fix: add note on mirrored panel
 - [ ] **KI-004** Crotch extension label clips when ext < ~0.5″ on slim-fit shorts/trousers. Fix: clamp label x to minimum safe margin
-- [ ] **KI-009** Category `'tops'` vs `'upper'` inconsistency across womenswear vs menswear top modules. Fix: standardize to `'upper'`
+- [x] **KI-009 ✅** Category `'tops'` vs `'upper'` inconsistency — all 23 modules already use `'upper'` or `'lower'` consistently. No change needed.
 
 ### 6 Launch Patterns — Code Complete + Muslin Tested
 All 23 modules are code-complete. The 6 launch patterns need to be generated, printed, tiled, cut in muslin, and fit-checked.
