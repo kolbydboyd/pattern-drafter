@@ -46,7 +46,8 @@
       "Bash(xargs -I{} basename {})",
       "Bash(ls src/garments/*.js)",
       "Bash(grep -v \"//.*—\")",
-      "Bash(node scripts/gen-illustrations.mjs)"
+      "Bash(node scripts/gen-illustrations.mjs)",
+      "Bash(powershell -Command \"Expand-Archive -Path files.zip -DestinationPath files-unzipped -Force\")"
     ]
   }
 }
