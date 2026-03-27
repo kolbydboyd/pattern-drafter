@@ -47,14 +47,7 @@ export default async function handler(req, res) {
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{
-      price_data: {
-        currency: 'usd',
-        unit_amount: price.cents,
-        product_data: {
-          name: `${price.label} — Made-to-Measure Pattern`,
-          description: 'Drafted to your exact measurements. Print-ready tiled PDF.',
-        },
-      },
+      price:    price.priceId,
       quantity: 1,
     }],
     success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
