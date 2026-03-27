@@ -340,8 +340,8 @@ details.adv-meas summary:hover{color:var(--text)}
 .acct-pattern-meta{font-size:.72rem;color:var(--mid);margin-bottom:10px}
 .acct-pattern-actions{display:flex;gap:6px;flex-wrap:wrap}
 /* Profile-grouped pattern list */
-.acct-profile-group{border:1px solid var(--bdr);border-radius:6px;margin-bottom:12px;overflow:hidden}
-.acct-profile-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;list-style:none;user-select:none;background:var(--ibg)}
+.acct-profile-group{border:1px solid var(--bdr);border-radius:6px;margin-bottom:12px;overflow:visible;position:relative}
+.acct-profile-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;list-style:none;user-select:none;background:var(--ibg);border-radius:5px 5px 0 0}
 .acct-profile-group-head:hover{background:var(--card)}
 .acct-profile-group-head::-webkit-details-marker{display:none}
 .acct-profile-group-name{font-family:'Fraunces',serif;font-size:.85rem;font-weight:400;color:var(--gold)}
