@@ -647,7 +647,15 @@ async function _applyWatermarkState(garmentId) {
 }
 
 // ═══ EXPORT ═══
-function exportSVG() {
+function exportSVG(btn) {
+  if (!getCurrentUser()) {
+    openAuthModal('download', () => exportSVG(btn));
+    return;
+  }
+  if (!_currentPurchased) {
+    _triggerBuyPattern(currentGarment);
+    return;
+  }
   const svgs = document.querySelectorAll('#output svg');
   if (!svgs.length) return alert('Generate first');
   svgs.forEach((s, i) => {
