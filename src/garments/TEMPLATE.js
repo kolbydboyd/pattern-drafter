@@ -70,6 +70,20 @@ function calfAnkleExample(calf, ankle, width, shape) {
   return { kneeW, hemW };
 }
 
+// ── NOTCH MARKS ────────────────────────────────────────────────────────────────
+// Add a `notches` array to each piece object. Each notch is { x, y, angle }
+// where angle (degrees) points outward from the cut line perpendicular.
+// Use edgeAngle(a, b) from geometry.js to compute the angle between two polygon
+// vertices — it returns the outward perpendicular direction.
+//
+// Lower body: hip on side seam, crotch junction, knee on both seams (if pants)
+// Upper body: shoulder midpoint, chest on side seam, 2 armhole quarter points
+// Sleeves:    center cap notch, 2 quarter notches
+// Skirts:     hip on side seam, dart endpoints, CF/CB marks
+//
+// The renderers (pattern-view.js, print-layout.js) auto-render notches as
+// filled 0.25″ triangles. If a piece has no notches array, it renders fine.
+
 // BEFORE SUBMITTING A NEW MODULE, VERIFY:
 // [ ] (frontW + backW) * 2 = m.hip + total ease
 // [ ] panelW * 4 = m.chest + total ease
@@ -79,3 +93,5 @@ function calfAnkleExample(calf, ankle, width, shape) {
 // [ ] bb() returns width/height not maxX/maxY
 // [ ] Mirror polygons shift to positive coordinate space
 // [ ] Copyright header is first line of file
+// [ ] Notches added to all polygon-based pieces (see notch section above)
+// [ ] Do not push duplicate closure points (neckline curves already emit CF/CB)
