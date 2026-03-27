@@ -46,6 +46,46 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
 }
 
 /**
+ * Render a grainline arrow: dashed vertical line with solid arrowheads at both ends.
+ */
+function grainlineSVG(gx, gy1, gy2) {
+  const ah = 5;  // arrowhead height
+  const aw = 3;  // arrowhead half-width
+  return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
+    <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
+    <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
+    <text x="${gx}" y="${(gy1 + gy2) / 2 - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">GRAIN</text>`;
+}
+
+/**
+ * Render a "PLACE ON FOLD" indicator along the fold edge.
+ * Draws small arrows pointing toward the fold and centered text.
+ * @param {number} fx  – SVG x of the fold edge
+ * @param {number} fy1 – SVG y top of fold edge
+ * @param {number} fy2 – SVG y bottom of fold edge
+ */
+function foldIndicatorSVG(fx, fy1, fy2) {
+  const len = fy2 - fy1;
+  const inset = len * 0.15;  // inset arrows from ends
+  const aw = 4;  // arrow width (pointing left toward fold)
+  const ah = 2.5;  // arrow half-height
+  const arrowX = fx + 8;  // arrows sit slightly right of fold
+  let svg = '';
+  // Small arrows pointing left toward fold, evenly spaced
+  const count = Math.max(2, Math.min(5, Math.floor(len / 30)));
+  for (let i = 0; i < count; i++) {
+    const ay = fy1 + inset + (len - 2 * inset) * i / (count - 1);
+    svg += `<polygon points="${arrowX - aw},${ay} ${arrowX},${ay - ah} ${arrowX},${ay + ah}" fill="#b8963e"/>`;
+  }
+  // Text along fold edge
+  const my = (fy1 + fy2) / 2;
+  svg += `<text x="${fx + 5}" y="${my}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e" text-anchor="middle" letter-spacing="2" transform="rotate(-90,${fx + 5},${my})">PLACE ON FOLD</text>`;
+  // Dashed line along fold edge
+  svg += `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+  return svg;
+}
+
+/**
  * Render a panel piece (front/back) as an SVG string
  */
 export function renderPanelSVG(piece) {
@@ -229,8 +269,7 @@ export function renderPanelSVG(piece) {
     <path d="${polyPath(svgSA)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
     <path d="${polyPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
-    <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
-    <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
+    ${grainlineSVG(gx, gy1, gy2)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
@@ -305,8 +344,6 @@ export function renderGenericPieceSVG(piece) {
     : cutOnFold
       ? piece.name?.toUpperCase() + ' (cut on fold)'
       : piece.name?.toUpperCase() + ' × 2 (mirror)';
-  const foldNote   = cutOnFold ? '← FOLD EDGE' : '';
-
   const legY2 = svgH - 28;
   const legendSVG2 = `
     <line x1="10" y1="${legY2-3}" x2="26" y2="${legY2-3}" stroke="#000" stroke-width="1.5"/>
@@ -323,8 +360,9 @@ export function renderGenericPieceSVG(piece) {
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#gp${piece.id})"/>
     <path d="${polyPath(saPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
     <path d="${polyPath(polygon)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
-    <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
-    <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
+    ${cutOnFold
+      ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
+      : grainlineSVG(gx, gy1, gy2)}
     ${dimsSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${notches.map(n => {
       const nx = ox + sc(n.x), ny = oy + sc(n.y);
       const rad = (n.angle || 0) * Math.PI / 180;
@@ -337,7 +375,6 @@ export function renderGenericPieceSVG(piece) {
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
-    ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
   </svg>`;
 }
 

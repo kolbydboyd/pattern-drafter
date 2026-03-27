@@ -83,10 +83,15 @@ function renderPanelSVG(piece) {
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cX1}" y1="${cY}" x2="${cX2}" y2="${cY}"
         stroke="#d0ccc4" stroke-width="0.8" stroke-dasharray="12,7"/>
-      <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}"
-        stroke="#2c2a26" stroke-width="1.2" stroke-dasharray="18,9"/>
-      <polygon points="${gx},${gy1 - 7} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
+      <line x1="${gx}" y1="${gy1 + 7}" x2="${gx}" y2="${gy2 - 7}"
+        stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="18,9"/>
+      <polygon points="${gx},${gy1} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
         fill="#2c2a26"/>
+      <polygon points="${gx},${gy2} ${gx - 4},${gy2 - 7} ${gx + 4},${gy2 - 7}"
+        fill="#2c2a26"/>
+      <text x="${gx}" y="${(gy1 + gy2) / 2 - 5}"
+        font-family="'IBM Plex Mono',monospace" font-size="8" fill="#2c2a26"
+        text-anchor="middle">GRAIN</text>
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name} \xd7 2 (mirror)</text>
@@ -179,10 +184,32 @@ function renderBodiceOrSleeveSVG(piece) {
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="none"/>
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
-      <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}"
-        stroke="#2c2a26" stroke-width="1.2" stroke-dasharray="18,9"/>
-      <polygon points="${gx},${gy1 - 7} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
+      ${cutOnFold ? `
+      <line x1="${(ox + minX) * DPI}" y1="${gy1}" x2="${(ox + minX) * DPI}" y2="${gy2}"
+        stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+      ${(() => { const fx = (ox + minX) * DPI, aw = 5, ah = 3;
+        const count = Math.max(2, Math.min(5, Math.floor((gy2 - gy1) / 30)));
+        const inset = (gy2 - gy1) * 0.15;
+        let arrows = '';
+        for (let i = 0; i < count; i++) {
+          const ay = gy1 + inset + (gy2 - gy1 - 2 * inset) * i / (count - 1);
+          arrows += '<polygon points="' + (fx + 10 - aw) + ',' + ay + ' ' + (fx + 10) + ',' + (ay - ah) + ' ' + (fx + 10) + ',' + (ay + ah) + '" fill="#b8963e"/>';
+        }
+        const my = (gy1 + gy2) / 2;
+        arrows += '<text x="' + (fx + 6) + '" y="' + my + '" font-family="IBM Plex Mono,monospace" font-size="9" fill="#b8963e" text-anchor="middle" letter-spacing="2" transform="rotate(-90,' + (fx + 6) + ',' + my + ')">PLACE ON FOLD</text>';
+        return arrows;
+      })()}
+      ` : `
+      <line x1="${gx}" y1="${gy1 + 7}" x2="${gx}" y2="${gy2 - 7}"
+        stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="18,9"/>
+      <polygon points="${gx},${gy1} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
         fill="#2c2a26"/>
+      <polygon points="${gx},${gy2} ${gx - 4},${gy2 - 7} ${gx + 4},${gy2 - 7}"
+        fill="#2c2a26"/>
+      <text x="${gx}" y="${(gy1 + gy2) / 2 - 5}"
+        font-family="'IBM Plex Mono',monospace" font-size="8" fill="#2c2a26"
+        text-anchor="middle">GRAIN</text>
+      `}
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
