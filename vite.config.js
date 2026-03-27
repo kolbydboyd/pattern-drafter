@@ -18,6 +18,7 @@ export default defineConfig({
         '404':     resolve(__dirname, '404.html'),
         success:   resolve(__dirname, 'success.html'),
         patterns:  resolve(__dirname, 'patterns.html'),
+        learn:     resolve(__dirname, 'learn.html'),
       },
     },
   },
