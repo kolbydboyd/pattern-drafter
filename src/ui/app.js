@@ -717,7 +717,10 @@ function _triggerBuyPattern(garmentId) {
   }
   import('../lib/checkout.js').then(mod => {
     const { m: mVals, opts } = readInputs();
-    mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id);
+    return mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id);
+  }).catch(err => {
+    console.error('Checkout error:', err);
+    alert('Could not start checkout: ' + err.message);
   });
 }
 
