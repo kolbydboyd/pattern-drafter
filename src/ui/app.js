@@ -1225,7 +1225,7 @@ document.getElementById('hdr-menu-btn')?.addEventListener('click', () => {
 document.addEventListener('click', e => {
   const menuBtn = document.getElementById('hdr-menu-btn');
   if (_mobileNav?.classList.contains('open') &&
-      !_mobileNav.contains(e.target) && e.target !== menuBtn) {
+      !_mobileNav.contains(e.target) && !menuBtn?.contains(e.target)) {
     _mobileNav.classList.remove('open');
   }
 });

@@ -32,7 +32,7 @@ menuBtn?.addEventListener('click', () => {
 });
 document.addEventListener('click', e => {
   if (mobileNav?.classList.contains('open') &&
-      !mobileNav.contains(e.target) && e.target !== menuBtn) {
+      !mobileNav.contains(e.target) && !menuBtn?.contains(e.target)) {
     mobileNav.classList.remove('open');
   }
 });

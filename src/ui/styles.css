@@ -29,8 +29,8 @@ body:has(.pg){display:flex;flex-direction:column}
 [data-theme='dark'] .social-icon{color:#c9a96e}
 
 .app{display:flex;gap:0}
-.inp{width:310px;min-width:310px;background:var(--card);border-right:1px solid var(--bdr);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 106px)}
-.out{flex:1;padding:18px;overflow:auto;max-height:calc(100vh - 106px)}
+.inp{width:310px;min-width:310px;background:var(--card);border-right:1px solid var(--bdr);padding:18px 14px;overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:calc(100vh - 106px)}
+.out{flex:1;padding:18px;overflow:auto;-webkit-overflow-scrolling:touch;max-height:calc(100vh - 106px)}
 
 @media(max-width:800px){
   .app{flex-direction:column}
@@ -187,7 +187,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .step-active .step-n{background:var(--gold);color:#fff}
 .step-done .step-n{background:var(--text);color:var(--card)}
 .step-arr{display:flex;align-items:center;color:var(--light);font-size:1rem;padding:0 4px;align-self:center;flex-shrink:0}
-.wiz-step{flex:1;overflow-y:auto}
+.wiz-step{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* Step 1 — garment picker */
 .wiz-step-header{padding:28px 28px 14px}
@@ -374,7 +374,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .acct-btn-danger:hover{background:var(--accent);color:#fff}
 /* ── Static pages (FAQ / Terms / Privacy) ────────────────────────────────── */
 .pg{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-.pg-body{flex:1;overflow-y:auto;padding:32px 24px}
+.pg-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:32px 24px}
 .pg-wrap{max-width:720px;margin:0 auto;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:40px 48px 52px}
 .pg-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:8px;letter-spacing:-.5px}
 .pg-effective{font-size:.6rem;color:var(--mid);letter-spacing:.8px;text-transform:uppercase;margin-bottom:48px}
