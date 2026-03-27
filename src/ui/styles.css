@@ -225,6 +225,7 @@ details.adv-meas summary:hover{color:var(--text)}
 
 /* ── Auth overlay + modal ── */
 .auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center}
+.auth-overlay[hidden]{display:none}
 .auth-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:2rem;position:relative;max-width:480px;width:calc(100% - 32px);box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
 .auth-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:1.3rem;color:var(--mid);cursor:pointer;line-height:1}
 .auth-close:hover{color:var(--text)}
