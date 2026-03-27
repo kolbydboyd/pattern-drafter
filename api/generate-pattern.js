@@ -1,11 +1,16 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Vercel serverless function — server-side PDF generation after purchase
 import { createClient } from '@supabase/supabase-js';
+import Stripe from 'stripe';
+import { sendEmail } from './send-email.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
+
+const RATE_LIMIT_MAX     = 10;   // max PDF generations per user per hour
+const RATE_LIMIT_WINDOW  = 3600; // seconds
 
 // Dynamic imports so bundler only loads what's available at runtime
 async function generatePDF(html) {
@@ -52,25 +57,71 @@ export default async function handler(req, res) {
 
   const { garmentId, userId, measurements, opts, sessionId } = req.body;
 
-  // 1. Verify the user has purchased this garment
-  // If sessionId is present the request is coming straight from the Stripe
-  // success redirect — trust it. The webhook may not have written the
-  // purchase row yet (race window), so skip the DB check in that case.
-  if (sessionId) {
-    // Trusted: Stripe session was already validated by session-info.js
-    // Stamp download on the purchase row fire-and-forget (may be a no-op
-    // if the webhook hasn't inserted the row yet, which is fine).
-    if (userId) {
-      const nowIso = new Date().toISOString();
-      supabase.from('purchases')
-        .update({ last_generated_at: nowIso })
-        .eq('user_id', userId)
-        .eq('garment_id', garmentId)
-        .then(() => {});
+  // All requests require a userId.
+  if (!userId) {
+    return res.status(403).json({ error: 'Not authorized' });
+  }
+
+  // 1. Rate limiting: max RATE_LIMIT_MAX generations per user per hour.
+  //    Count downloaded_at timestamps across all purchases in the last window.
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW * 1000).toISOString();
+  const { data: allUserPurchases } = await supabase
+    .from('purchases')
+    .select('downloaded_at')
+    .eq('user_id', userId);
+
+  let requestsThisWindow = 0;
+  for (const p of allUserPurchases || []) {
+    for (const ts of p.downloaded_at || []) {
+      if (ts >= windowStart) requestsThisWindow++;
     }
-  } else if (userId) {
+  }
+
+  if (requestsThisWindow >= RATE_LIMIT_MAX) {
+    return res.status(429).json({
+      error: 'Too many requests. You may generate up to 10 patterns per hour. Please try again later.',
+    });
+  }
+
+  // 2. Purchase verification — every path must be verified server-side.
+  let purchase = null;
+
+  if (sessionId) {
+    // Verify the Stripe session server-side. Never trust client-provided sessionId.
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    let stripeSession;
+    try {
+      stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    } catch (err) {
+      console.error('Stripe session retrieval failed:', err);
+      return res.status(403).json({ error: 'Could not verify payment session' });
+    }
+
+    if (stripeSession.payment_status !== 'paid') {
+      return res.status(403).json({ error: 'Payment not completed' });
+    }
+
+    if (stripeSession.metadata?.user_id !== userId) {
+      return res.status(403).json({ error: 'Session does not match the requesting user' });
+    }
+
+    if (stripeSession.metadata?.garment_id !== garmentId) {
+      return res.status(403).json({ error: 'Session does not match the requested pattern' });
+    }
+
+    // Look up the purchase row — webhook may not have inserted it yet (race window).
+    // Stripe verification above is the authoritative gate; DB row is best-effort here.
+    const { data: existingPurchase } = await supabase
+      .from('purchases')
+      .select('id, stripe_payment_intent, downloaded_at')
+      .eq('user_id', userId)
+      .eq('garment_id', garmentId)
+      .maybeSingle();
+
+    purchase = existingPurchase ?? null;
+  } else {
     // Re-download from account dashboard — purchase record must exist.
-    const { data: purchase, error: purchaseErr } = await supabase
+    const { data: existingPurchase, error: purchaseErr } = await supabase
       .from('purchases')
       .select('id, stripe_payment_intent, downloaded_at')
       .eq('user_id', userId)
@@ -81,49 +132,57 @@ export default async function handler(req, res) {
       console.error('Purchase lookup error:', purchaseErr);
       return res.status(500).json({ error: 'Could not verify purchase: ' + purchaseErr.message });
     }
-    if (!purchase) {
+    if (!existingPurchase) {
       return res.status(403).json({ error: 'Purchase not found' });
     }
+    purchase = existingPurchase;
+  }
 
-    // Subscription users have a monthly download limit of 10.
-    const isPerPatternPurchase = !!purchase.stripe_payment_intent;
-    if (!isPerPatternPurchase) {
-      const now        = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-      const { data: allPurchases } = await supabase
-        .from('purchases')
-        .select('downloaded_at')
-        .eq('user_id', userId)
-        .is('stripe_payment_intent', null);
+  // 3. Subscription users have a monthly download limit of 10.
+  //    Per-pattern purchasers (stripe_payment_intent set) have unlimited re-downloads.
+  if (purchase && !purchase.stripe_payment_intent) {
+    const now        = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const { data: subPurchases } = await supabase
+      .from('purchases')
+      .select('downloaded_at')
+      .eq('user_id', userId)
+      .is('stripe_payment_intent', null);
 
-      let monthCount = 0;
-      for (const p of allPurchases || []) {
-        for (const ts of p.downloaded_at || []) {
-          if (ts >= monthStart) monthCount++;
-        }
-      }
-
-      if (monthCount >= 10) {
-        const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
-          .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-        return res.status(429).json({
-          error: `You've downloaded 10 patterns this month. Your limit resets on ${resetDate}. Need more? Contact us at hello@peoplespatterns.com`,
-        });
+    let monthCount = 0;
+    for (const p of subPurchases || []) {
+      for (const ts of p.downloaded_at || []) {
+        if (ts >= monthStart) monthCount++;
       }
     }
 
-    // Stamp download timestamp (fire-and-forget)
-    const nowIso = new Date().toISOString();
+    if (monthCount >= 10) {
+      const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+        .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      return res.status(429).json({
+        error: `You've downloaded 10 patterns this month. Your limit resets on ${resetDate}. Need more? Contact us at hello@peoplespatterns.com`,
+      });
+    }
+  }
+
+  // 4. Stamp download timestamp (fire-and-forget).
+  const nowIso = new Date().toISOString();
+  if (purchase) {
     const updatedArr = [...(purchase.downloaded_at || []), nowIso];
     supabase.from('purchases')
       .update({ last_generated_at: nowIso, downloaded_at: updatedArr })
       .eq('id', purchase.id)
       .then(() => {});
   } else {
-    return res.status(403).json({ error: 'Not authorized' });
+    // sessionId path where webhook hasn't inserted the row yet — update when it does.
+    supabase.from('purchases')
+      .update({ last_generated_at: nowIso })
+      .eq('user_id', userId)
+      .eq('garment_id', garmentId)
+      .then(() => {});
   }
 
-  // 2. Import garment module and generate pieces/materials/instructions
+  // 5. Import garment module and generate pieces/materials/instructions
   //    Garment modules are ESM — use dynamic import
   let garment;
   try {
@@ -137,14 +196,14 @@ export default async function handler(req, res) {
   const materials    = garment.materials(measurements, opts);
   const instructions = garment.instructions(measurements, opts);
 
-  // 3. Generate HTML print layout
+  // 6. Generate HTML print layout
   const { generatePrintLayout } = await import('../src/pdf/print-layout.js');
   const html = generatePrintLayout(
     garment, pieces, materials, instructions,
     measurements, opts, 'letter'
   );
 
-  // 4. Render to PDF
+  // 7. Render to PDF
   let pdfBuffer;
   try {
     pdfBuffer = await generatePDF(html);
@@ -181,6 +240,24 @@ export default async function handler(req, res) {
       p_user_id:   userId,
       p_garment_id: garmentId,
     });
+  }
+
+  // 8. Send purchase confirmation email (only on first post-purchase generation)
+  if (sessionId && userId) {
+    try {
+      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(userId);
+      if (authUser?.email) {
+        const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
+        sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
+          garmentName,
+          downloadUrl: signed.signedUrl,
+          measurements,
+          expiresHours: 48,
+        }).catch(err => console.error('Purchase confirmation email failed:', err));
+      }
+    } catch (err) {
+      console.error('Failed to look up user for confirmation email:', err);
+    }
   }
 
   res.status(200).json({ downloadUrl: signed.signedUrl });
