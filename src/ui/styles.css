@@ -307,6 +307,21 @@ details.adv-meas summary:hover{color:var(--text)}
 .acct-pattern-name{font-size:.7rem;font-weight:600;color:var(--text);text-transform:capitalize;margin-bottom:4px}
 .acct-pattern-meta{font-size:.58rem;color:var(--mid);margin-bottom:10px}
 .acct-pattern-actions{display:flex;gap:6px;flex-wrap:wrap}
+/* Profile-grouped pattern list */
+.acct-profile-group{border:1px solid var(--bdr);border-radius:6px;margin-bottom:12px;overflow:hidden}
+.acct-profile-group-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;list-style:none;user-select:none;background:var(--ibg)}
+.acct-profile-group-head:hover{background:var(--card)}
+.acct-profile-group-head::-webkit-details-marker{display:none}
+.acct-profile-group-name{font-family:'Fraunces',serif;font-size:.85rem;font-weight:400;color:var(--gold)}
+.acct-profile-group-default{color:var(--mid);font-family:'IBM Plex Mono',monospace;font-size:.65rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.acct-profile-group-count{font-size:.55rem;color:var(--light);font-family:'IBM Plex Mono',monospace;letter-spacing:.5px}
+.acct-pattern-list{display:flex;flex-direction:column;gap:0}
+.acct-pattern-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid var(--bdr);flex-wrap:wrap}
+.acct-pattern-row:first-child{border-top:none}
+.acct-pattern-row-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.acct-pattern-row-name{font-size:.68rem;font-weight:600;color:var(--text);text-transform:capitalize}
+.acct-pattern-row-meta{font-size:.55rem;color:var(--mid)}
+.acct-pattern-row-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
 .acct-order-list{display:flex;flex-direction:column;gap:8px}
 .acct-order-row{display:grid;grid-template-columns:80px 90px 1fr 60px 70px;gap:10px;align-items:center;padding:10px 12px;background:var(--ibg);border:1px solid var(--bdr);border-radius:4px;font-size:.6rem;color:var(--text)}
 .acct-order-id{color:var(--mid)}

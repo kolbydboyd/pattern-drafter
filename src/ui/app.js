@@ -39,6 +39,8 @@ import { PATTERN_PRICES } from '../lib/pricing.js';
 
 let currentGarment    = 'cargo-shorts';
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
+let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
+let _activeProfileName = null; // display name, shown in step 2 label
 
 // ═══ WIZARD STATE ═══
 let currentStep = 1;
@@ -85,6 +87,14 @@ function _showSaveFeedback(anchor) {
   setTimeout(() => msg.remove(), 1400);
 }
 
+// Update active profile state + step 2 stepper label
+function _setActiveProfile(id, name) {
+  _activeProfileId   = id   ?? null;
+  _activeProfileName = name ?? null;
+  const lbl = document.querySelector('[data-step="2"] .step-lbl');
+  if (lbl) lbl.textContent = name ? ` Measure · ${name}` : ' Measure';
+}
+
 function loadProfiles() {
   try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }
   catch { return []; }
@@ -122,24 +132,25 @@ async function saveCurrentProfile() {
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
 
-  // Save to localStorage (wizard dropdown)
-  const profiles = loadProfiles().filter(p => p.name !== name);
-  profiles.push({ name, ...m });
-  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  refreshProfileDropdown();
-
-  // Save to Supabase (account dashboard)
+  // Save to Supabase first to get the UUID
   const user = getCurrentUser();
   const btn  = document.getElementById('save-profile-btn');
   const orig = btn?.textContent;
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  const { error } = await saveMeasurementProfile(user.id, name, m);
+  const { data: savedProfile, error } = await saveMeasurementProfile(user.id, name, m);
   if (btn) { btn.disabled = false; btn.textContent = orig; }
 
   if (error) {
     console.error('Supabase save failed:', error.message);
-    // localStorage save still succeeded — profile available in wizard
   }
+
+  // Save to localStorage (wizard dropdown) — include Supabase ID for purchase linkage
+  const profileId = savedProfile?.id ?? null;
+  const profiles = loadProfiles().filter(p => p.name !== name);
+  profiles.push({ id: profileId, name, ...m });
+  localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+  refreshProfileDropdown();
+  _setActiveProfile(profileId, name);
 
   nameInput.value = '';
   _showSaveFeedback(btn?.closest('.profile-row') || btn?.parentElement);
@@ -152,13 +163,15 @@ function deleteCurrentProfile() {
   const profiles = loadProfiles().filter(p => p.name !== name);
   localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
   refreshProfileDropdown();
+  if (_activeProfileName === name) _setActiveProfile(null, null);
 }
 
 function applyProfile(name) {
   const profile = loadProfiles().find(p => p.name === name);
   if (!profile) return;
+  _setActiveProfile(profile.id ?? null, name);
   for (const [key, val] of Object.entries(profile)) {
-    if (key === 'name') continue;
+    if (key === 'name' || key === 'id') continue;
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
@@ -748,7 +761,7 @@ function _triggerBuyPattern(garmentId) {
   }
   import('../lib/checkout.js').then(mod => {
     const { m: mVals, opts } = readInputs();
-    return mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id);
+    return mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id, _activeProfileId);
   }).catch(err => {
     console.error('Checkout error:', err);
     alert('Could not start checkout: ' + err.message);

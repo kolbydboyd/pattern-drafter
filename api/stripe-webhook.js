@@ -43,12 +43,13 @@ export default async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session  = event.data.object;
-    const { userId, garmentId, measurements, opts } = session.metadata;
+    const { userId, garmentId, profileId, measurements, opts } = session.metadata;
 
     // Record purchase in Supabase
     const { error } = await supabase.from('purchases').insert({
       user_id:               userId || null,
       garment_id:            garmentId,
+      profile_id:            profileId || null,
       stripe_payment_intent: session.payment_intent,
       amount_cents:          session.amount_total,
     });

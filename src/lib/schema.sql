@@ -47,11 +47,17 @@ create table if not exists purchases (
   id                    uuid default gen_random_uuid() primary key,
   user_id               uuid references profiles(id) on delete cascade not null,
   garment_id            text not null,
+  profile_id            uuid references measurement_profiles(id) on delete set null,
   stripe_payment_intent text,
   amount_cents          integer,
   purchased_at          timestamptz default now(),
   download_count        integer default 0
 );
+
+-- ── Migration: add profile_id to existing purchases table ─────────────────────
+-- Run this once if the table already exists (new installs use the CREATE above):
+--   alter table purchases
+--     add column if not exists profile_id uuid references measurement_profiles(id) on delete set null;
 alter table purchases enable row level security;
 create policy "Users can read own purchases"
   on purchases for select using (auth.uid() = user_id);

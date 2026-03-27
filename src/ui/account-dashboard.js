@@ -204,23 +204,100 @@ async function _renderPatterns(main, user) {
     return;
   }
 
-  html += `<div class="acct-pattern-grid">`;
+  // Group by profile_id (null → "My Measurements" default group)
+  const groups = new Map(); // profileId (or '__default__') → { name, measurements, purchases[] }
   for (const p of data) {
-    const date = new Date(p.purchased_at).toLocaleDateString();
-    html += `<div class="acct-pattern-card">
-      <div class="acct-pattern-name">${p.garment_id.replace(/-/g, ' ')}</div>
-      <div class="acct-pattern-meta">Purchased ${date} · Downloaded ${p.download_count}×</div>
-      <button class="acct-btn-sm acct-redownload" data-garment="${p.garment_id}">Download Again</button>
-    </div>`;
+    const key  = p.profile_id ?? '__default__';
+    const prof = p.measurement_profiles;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        name:         prof?.name ?? null,
+        measurements: prof?.measurements ?? {},
+        purchases:    [],
+      });
+    }
+    groups.get(key).purchases.push(p);
   }
-  html += `</div>`;
+
+  // Render each group as a collapsible section
+  let gi = 0;
+  for (const [key, group] of groups) {
+    const groupId   = `acct-pg-${gi++}`;
+    const label     = group.name ?? 'My Measurements';
+    const isDefault = !group.name;
+    html += `<details class="acct-profile-group" open>
+      <summary class="acct-profile-group-head">
+        <span class="acct-profile-group-name${isDefault ? ' acct-profile-group-default' : ''}">${label}</span>
+        <span class="acct-profile-group-count">${group.purchases.length} pattern${group.purchases.length !== 1 ? 's' : ''}</span>
+      </summary>
+      <div class="acct-pattern-list" id="${groupId}">`;
+
+    for (const p of group.purchases) {
+      const date    = new Date(p.purchased_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const name    = p.garment_id.replace(/-/g, ' ');
+      const dlCount = p.download_count ?? 0;
+      const hasMeas = Object.keys(group.measurements).length > 0;
+      html += `<div class="acct-pattern-row">
+        <div class="acct-pattern-row-info">
+          <span class="acct-pattern-row-name">${name}</span>
+          <span class="acct-pattern-row-meta">purchased ${date}${dlCount ? ` · ${dlCount}× downloaded` : ''}</span>
+        </div>
+        <div class="acct-pattern-row-actions">
+          ${hasMeas ? `<button class="acct-btn-sm acct-regen"
+            data-garment="${p.garment_id}"
+            data-profile-key="${key}">Re-generate</button>` : ''}
+          <button class="acct-btn-xs acct-redownload"
+            data-garment="${p.garment_id}">Open in wizard ›</button>
+        </div>
+      </div>`;
+    }
+
+    html += `</div></details>`;
+  }
+
   main.innerHTML = html;
 
+  // Re-generate: call /api/generate-pattern with stored profile measurements
+  main.querySelectorAll('.acct-regen').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const garmentId = btn.dataset.garment;
+      const key       = btn.dataset.profileKey;
+      const group     = [...groups.entries()].find(([k]) => k === key)?.[1];
+      if (!group) return;
+
+      const orig = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Generating…';
+
+      try {
+        const res = await fetch('/api/generate-pattern', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            garmentId,
+            userId:       user.id,
+            measurements: group.measurements,
+            opts:         {},
+          }),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) { alert('Could not generate: ' + (json.error ?? res.statusText)); return; }
+        const a = document.createElement('a');
+        a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
+        document.body.appendChild(a); a.click(); a.remove();
+        _showToast('Pattern downloaded');
+      } catch (err) {
+        alert('Generation failed — please try again.');
+      } finally {
+        btn.disabled = false; btn.textContent = orig;
+      }
+    });
+  });
+
+  // Open in wizard: navigate to that garment + download tab
   main.querySelectorAll('.acct-redownload').forEach(btn => {
     btn.addEventListener('click', () => {
       const garmentId = btn.dataset.garment;
       _closeAccountDashboard();
-      // Ask app.js to open this garment at the download tab
       window.dispatchEvent(new CustomEvent('pp:redownload', { detail: { garmentId } }));
     });
   });

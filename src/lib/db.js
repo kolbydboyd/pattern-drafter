@@ -54,7 +54,7 @@ export async function deleteMeasurementProfile(id) {
 export async function getPurchases(userId) {
   const { data, error } = await supabase
     .from('purchases')
-    .select('*')
+    .select('*, measurement_profiles(id, name, measurements)')
     .eq('user_id', userId)
     .order('purchased_at', { ascending: false });
   return { data, error };
@@ -66,6 +66,7 @@ export async function hasPurchased(userId, garmentId) {
     .select('id')
     .eq('user_id', userId)
     .eq('garment_id', garmentId)
+    .limit(1)
     .maybeSingle();
   return { data: !!data, error };
 }

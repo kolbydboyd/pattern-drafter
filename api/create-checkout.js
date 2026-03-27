@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { garmentId, userId, measurements, opts } = req.body;
+  const { garmentId, userId, measurements, opts, profileId } = req.body;
 
   const price = PATTERN_PRICES[garmentId];
   if (!price) {
@@ -29,6 +29,7 @@ export default async function handler(req, res) {
     metadata: {
       userId:       userId ?? '',
       garmentId,
+      profileId:    profileId ?? '',
       measurements: JSON.stringify(measurements ?? {}),
       opts:         JSON.stringify(opts ?? {}),
     },
