@@ -220,3 +220,18 @@ export function easeDistribution(easeKeyOrTotal) {
     : (EASE_VALUES[easeKeyOrTotal] || 2.5);
   return { front: total * 0.2, back: total * 0.3, total };
 }
+
+/**
+ * Compute the outward-pointing angle (in degrees) at a point on a polygon edge.
+ * The angle is perpendicular to the edge direction, pointing away from the
+ * polygon interior (assuming CW winding for lower-body, varies for upper).
+ *
+ * @param {{ x: number, y: number }} a - start of edge
+ * @param {{ x: number, y: number }} b - end of edge
+ * @returns {number} angle in degrees (0 = right, 90 = down in SVG coords)
+ */
+export function edgeAngle(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  // Perpendicular pointing right of travel direction (outward for CW winding)
+  return Math.atan2(dx, -dy) * (180 / Math.PI);
+}

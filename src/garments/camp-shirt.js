@@ -11,7 +11,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
@@ -212,18 +212,48 @@ export default {
     const backBB    = bbox(backPoly);
     const sleeveBB  = bbox(sleevePoly);
 
+    // Notch positions
+    const shoulderMidX = (neckW + shoulderPtX) / 2;
+    const shoulderMidY = slopeDrop / 2;
+    const armholeY2    = armholeDepthFromChest(m.chest, 'standard');
+    const chestNotchY  = armholeY2;
+    const armQTop      = slopeDrop + armholeDepth * 0.25;
+    const armQBot      = slopeDrop + armholeDepth * 0.75;
+    const shoulderAngle = edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop });
+
+    const frontNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: shoulderAngle },
+      { x: sideX,        y: chestNotchY,  angle: 0 },
+      { x: shoulderPtX + chestDepth * 0.3, y: armQTop, angle: shoulderAngle },
+      { x: sideX - 0.2, y: armQBot, angle: shoulderAngle },
+    ];
+    const backNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: shoulderAngle },
+      { x: backSideX,    y: chestNotchY,  angle: 0 },
+      { x: shoulderPtX + backChestDepth * 0.3, y: armQTop, angle: shoulderAngle },
+      { x: backSideX - 0.2, y: armQBot, angle: shoulderAngle },
+    ];
+    const slvMidX = slvTopW;
+    const sleeveNotches = [
+      { x: slvMidX, y: 0, angle: -90 },  // center cap
+      { x: slvTopW * 0.5, y: 0, angle: -90 },  // quarter notch
+      { x: slvTopW * 1.5, y: 0, angle: -90 },  // quarter notch
+    ];
+
     const pieces = [
       {
         id: 'bodice-front',
         name: 'Front Panel (Left)',
         instruction: `Cut 2 (L & R mirror) · CF edge has ${fmtInches(PLACKET_W)} placket extension · Button side: ${btnCount} buttonholes at ${btnholeSz} · Buttonhole side: ${btnCount} buttons spaced evenly`,
         type: 'bodice',
+        isCutOnFold: false,
         polygon: frontPoly,
         path: polyToPathStr(frontPoly),
         width: frontBB.maxX - frontBB.minX,
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -240,6 +270,7 @@ export default {
         height: backBB.maxY - backBB.minY,
         isBack: true,
         sa, hem,
+        notches: backNotches,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -258,6 +289,7 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: slvTopW * 2,
         sa, hem,
+        notches: sleeveNotches,
         dims: [
           { label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: slvLength, type: 'v' },

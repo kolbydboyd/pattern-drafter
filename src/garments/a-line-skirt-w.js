@@ -5,7 +5,7 @@
  * Flare amount controls how much wider the hem is than the hip.
  */
 
-import { fmtInches } from '../engine/geometry.js';
+import { fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -114,11 +114,29 @@ export default {
         ? `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`
         : 'No darts needed — waist and hip measurements are close';
 
+      // Hip level ~ 7″ below waist; interpolate side seam x at that y
+      const hipY = 7;
+      const sideHipX = flarePerSide + hipW + (hemW - flarePerSide - hipW) * (hipY / L);
+      // Notches: hip on side seam, dart endpoints, CF/CB at waist
+      const notches = [
+        // Hip level on side seam
+        { x: sideHipX, y: hipY, angle: edgeAngle(poly[1], poly[2]) },
+        // CF/CB mark at waist center
+        { x: flarePerSide + hipW / 2, y: 0, angle: -90 },
+      ];
+      // Dart endpoint notches (at bottom of each dart)
+      if (dartW > 0) {
+        const d1x = flarePerSide + hipW * 0.25;
+        const d2x = flarePerSide + hipW * 0.75;
+        notches.push({ x: d1x, y: dartL, angle: -90 });
+        notches.push({ x: d2x, y: dartL, angle: -90 });
+      }
+
       return {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${opts.closure === 'zip' && !isBack ? ' · Leave left side seam open for invisible zip' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: hemW, height: L, isBack, sa, hem,
+        width: hemW, height: L, isBack, sa, hem, notches,
         dims: [
           { label: fmtInches(hipW) + ' at hip', x1: flarePerSide, y1: -0.5, x2: flarePerSide + hipW, y2: -0.5, type: 'h' },
           { label: fmtInches(hemW) + ' at hem', x1: 0, y1: L + 0.5, x2: hemW, y2: L + 0.5, type: 'h' },

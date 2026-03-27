@@ -5,7 +5,7 @@
  * Two darts per panel to absorb waist-hip differential.
  */
 
-import { fmtInches } from '../engine/geometry.js';
+import { fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -108,11 +108,28 @@ export default {
         ? `${dartCount} darts per panel · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · spaced at ¼ and ¾ of waist`
         : `1 dart per panel · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · centered at waist`;
 
+      // Hip level ~ 7″ below waist
+      const hipY = 7;
+      // Notches: hip on side seam, dart endpoints, CF/CB at waist
+      const notches = [
+        // Hip level on side seam (right edge, pointing outward)
+        { x: hipW, y: hipY, angle: 0 },
+        // CF/CB mark at waist center
+        { x: hipW / 2, y: 0, angle: -90 },
+      ];
+      // Dart endpoint notches
+      if (dartCount === 2) {
+        notches.push({ x: hipW * 0.25, y: dartL, angle: -90 });
+        notches.push({ x: hipW * 0.75, y: dartL, angle: -90 });
+      } else {
+        notches.push({ x: hipW * 0.5, y: dartL, angle: -90 });
+      }
+
       return {
         id, name,
         instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
-        width: hipW, height: L, isBack: id === 'skirt-back', sa, hem,
+        width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches,
         dims,
       };
     }

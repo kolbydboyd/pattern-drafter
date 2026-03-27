@@ -44,7 +44,7 @@ function polyPath(pts, ox, oy) {
  */
 function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction, darts = [] } = piece;
+          sa, hem, name, instruction, darts = [], notches = [] } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
@@ -102,6 +102,15 @@ function renderPanelSVG(piece) {
         <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
         <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
       }).join('\n')}
+      ${notches.map(n => {
+        const nx = (ox + n.x) * DPI, ny = (oy + n.y) * DPI;
+        const rad = (n.angle || 0) * Math.PI / 180;
+        const h = 0.25 * DPI, w = 0.1 * DPI;
+        const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
+        const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
+        const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
+        return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
+      }).join('\n')}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
@@ -115,7 +124,7 @@ function renderPanelSVG(piece) {
  * Returns { svg, wIn, hIn }.
  */
 function renderBodiceOrSleeveSVG(piece) {
-  const { polygon, sa = 0.5, hem = 0.75, name, type } = piece;
+  const { polygon, sa = 0.5, hem = 0.75, name, type, notches = [] } = piece;
 
   const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
@@ -175,6 +184,15 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
+      ${notches.map(n => {
+        const nx = (ox + n.x) * DPI, ny = (oy + n.y) * DPI;
+        const rad = (n.angle || 0) * Math.PI / 180;
+        const h = 0.25 * DPI, w = 0.1 * DPI;
+        const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
+        const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
+        const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
+        return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
+      }).join('\n')}
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>

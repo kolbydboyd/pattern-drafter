@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -335,6 +335,13 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(seatDepth || 7) + ' seat', x: -ext - 1.2, y1: 0, y2: seatDepth || 7, type: 'v', color: '#b8963e' },
   ];
 
+  // Notch marks: hip level on side seam, crotch junction
+  const effSeatDepth = seatDepth || 7;
+  const notches = [
+    { x: width, y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
+    { x: -ext,  y: rise,         angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+  ];
+
   return {
     id: type,
     name,
@@ -346,6 +353,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     dimensions: dims,
     width, height, rise, inseam, ext, cbRaise, sa, hem,
     isBack,
+    notches,
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90 },
       { text: 'CENTER', x: -0.5, y: rise * 0.3, rotation: -90 },

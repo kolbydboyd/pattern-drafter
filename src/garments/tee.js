@@ -10,7 +10,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // ── Sleeve length presets ────────────────────────────────────────────────────
@@ -262,6 +262,34 @@ export default {
     const backBB  = bbox(backPoly);
     const slvBB   = bbox(sleevePoly);
 
+    // Notch positions for bodice and sleeve
+    const shoulderMidX = (neckW + halfShoulder) / 2;
+    const shoulderMidY = slopeDrop / 2;
+    const chestNotchY  = armholeY;  // chest/bust level = armhole depth
+    const armQuarterTop = slopeDrop + armholeDepth * 0.25;  // top quarter for sleeve cap match
+    const armQuarterBot = slopeDrop + armholeDepth * 0.75;  // underarm quarter
+
+    const frontNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: halfShoulder, y: slopeDrop }) },
+      { x: panelW,       y: chestNotchY,  angle: 0 },  // chest on side seam (pointing right)
+      { x: halfShoulder + chestDepth * 0.3, y: armQuarterTop, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: panelW - 0.2, y: armQuarterBot, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+    ];
+    const backNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: halfShoulder, y: slopeDrop }) },
+      { x: panelW,       y: chestNotchY,  angle: 0 },
+      { x: halfShoulder + backChestDepth * 0.3, y: armQuarterTop, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: panelW - 0.2, y: armQuarterBot, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+    ];
+    // Sleeve notches: center cap at top, quarter notches at underarm
+    const slvCapMidX = slvFullWidth / 2;
+    const slvCapMinY = Math.min(...sleevePoly.map(p => p.y));
+    const sleeveNotches = [
+      { x: slvCapMidX,    y: slvCapMinY,   angle: -90 },  // center cap notch (pointing up)
+      { x: slvFullWidth * 0.25, y: capHeight, angle: edgeAngle({ x: 0, y: capHeight }, { x: slvFullWidth * 0.25, y: capHeight * 0.5 }) },
+      { x: slvFullWidth * 0.75, y: capHeight, angle: edgeAngle({ x: slvFullWidth, y: capHeight }, { x: slvFullWidth * 0.75, y: capHeight * 0.5 }) },
+    ];
+
     const pieces = [
       {
         id: 'bodice-front',
@@ -276,6 +304,7 @@ export default {
         armholeDepth,
         isBack: false,
         sa, hem,
+        notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -294,6 +323,7 @@ export default {
         armholeDepth,
         isBack: true,
         sa, hem,
+        notches: backNotches,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -312,6 +342,7 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: slvFullWidth,
         sa, hem,
+        notches: sleeveNotches,
         dims: [
           { label: fmtInches(slvFullWidth) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvFullWidth, y2: capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvFullWidth + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },

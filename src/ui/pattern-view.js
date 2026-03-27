@@ -14,7 +14,7 @@ const sc = i => i * SC;
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], opts } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -157,6 +157,21 @@ export function renderPanelSVG(piece) {
     <text x="${dx.toFixed(1)}" y="${(dy2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">dart</text>`;
   }
 
+  // Notch marks (small triangles on cut line)
+  let notchSVG = '';
+  for (const n of notches) {
+    const nx = ox + sc(n.x);
+    const ny = oy + sc(n.y);
+    const rad = (n.angle || 0) * Math.PI / 180;
+    const h = sc(0.25);  // 0.25″ tall triangle
+    const w = sc(0.1);   // half-width of triangle base
+    // Triangle tip points outward along angle, base perpendicular
+    const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
+    const bx1 = nx + Math.cos(rad + Math.PI / 2) * w, by1 = ny + Math.sin(rad + Math.PI / 2) * w;
+    const bx2 = nx + Math.cos(rad - Math.PI / 2) * w, by2 = ny + Math.sin(rad - Math.PI / 2) * w;
+    notchSVG += `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
+  }
+
   // Reference lines
   const cLineY = oy + sc(rise);
   const gx = ox + sc(width * .42), gy1 = oy + sc(1.8), gy2 = oy + sc(height - 1.8);
@@ -180,7 +195,7 @@ export function renderPanelSVG(piece) {
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
-    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}
+    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     ${legendSVG}
@@ -193,7 +208,7 @@ export function renderPanelSVG(piece) {
  * Piece must have: polygon (array of {x,y} in inches), dims (optional), type, name, sa, hem
  */
 export function renderGenericPieceSVG(piece) {
-  const { polygon, dims = [], type, sa = 0.5, hem = 0.75 } = piece;
+  const { polygon, dims = [], type, sa = 0.5, hem = 0.75, notches = [] } = piece;
 
   // Compute bounding box
   const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
@@ -273,7 +288,15 @@ export function renderGenericPieceSVG(piece) {
     <path d="${polyPath(polygon)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
-    ${dimsSVG}
+    ${dimsSVG}${notches.map(n => {
+      const nx = ox + sc(n.x), ny = oy + sc(n.y);
+      const rad = (n.angle || 0) * Math.PI / 180;
+      const h = sc(0.25), w = sc(0.1);
+      const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
+      const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
+      const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
+      return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
+    }).join('')}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
