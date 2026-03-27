@@ -211,7 +211,6 @@ function buildInputs() {
   html += `<hr class="dv">
     <button class="btn" id="gen-btn">Generate Pattern</button>
     <button class="btn-s" id="download-pdf-btn">Download PDF</button>
-    <button class="btn-s" id="export-btn">Export SVGs</button>
     <button class="btn-s" id="print-btn">Print Pattern</button>
     <button class="btn-s" id="reset-btn">Reset to Defaults</button>`;
 
@@ -234,7 +233,6 @@ function buildInputs() {
 
   // Event listeners
   document.getElementById('gen-btn').addEventListener('click', generate);
-  document.getElementById('export-btn').addEventListener('click', exportSVG);
   document.getElementById('print-btn').addEventListener('click', () => handlePrint(document.getElementById('print-btn')));
   document.getElementById('download-pdf-btn').addEventListener('click', () => handleDownloadPDF(document.getElementById('download-pdf-btn')));
   document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
@@ -584,7 +582,6 @@ function _generate() {
     <div class="s4-print-actions">
       <button class="btn" id="s4-print-btn">Print Pattern</button>
       <button class="btn-s" id="s4-download-btn">Download PDF</button>
-      <button class="btn-s" id="s4-export-btn">Export SVGs</button>
     </div>
   </div>`;
 
@@ -601,7 +598,6 @@ function _generate() {
   );
   document.getElementById('s4-print-btn')?.addEventListener('click', () => handlePrint(document.getElementById('s4-print-btn')));
   document.getElementById('s4-download-btn')?.addEventListener('click', () => handleDownloadPDF(document.getElementById('s4-download-btn')));
-  document.getElementById('s4-export-btn')?.addEventListener('click', exportSVG);
 
   switchTab(activeTab);
 
@@ -647,24 +643,19 @@ async function _applyWatermarkState(garmentId) {
 }
 
 // ═══ EXPORT ═══
-function exportSVG(btn) {
-  if (!getCurrentUser()) {
-    openAuthModal('download', () => exportSVG(btn));
-    return;
-  }
-  if (!_currentPurchased) {
-    _triggerBuyPattern(currentGarment);
-    return;
-  }
-  const svgs = document.querySelectorAll('#output svg');
-  if (!svgs.length) return alert('Generate first');
-  svgs.forEach((s, i) => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(s)], { type: 'image/svg+xml' }));
-    a.download = `pattern-piece-${i + 1}.svg`;
-    a.click();
-  });
-}
+// Reserved for professional tier — plotter/institutional export feature
+// function exportSVG(btn) {
+//   if (!getCurrentUser()) { openAuthModal('download', () => exportSVG(btn)); return; }
+//   if (!_currentPurchased) { _triggerBuyPattern(currentGarment); return; }
+//   const svgs = document.querySelectorAll('#output svg');
+//   if (!svgs.length) return alert('Generate first');
+//   svgs.forEach((s, i) => {
+//     const a = document.createElement('a');
+//     a.href = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(s)], { type: 'image/svg+xml' }));
+//     a.download = `pattern-piece-${i + 1}.svg`;
+//     a.click();
+//   });
+// }
 
 // ═══ EMAIL CAPTURE ═══
 function storeEmail(email) {
