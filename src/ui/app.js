@@ -34,7 +34,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, getWishlist, addToWishlist, removeFromWishlist } from '../lib/db.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 
 let currentGarment    = 'cargo-shorts';
@@ -49,6 +49,7 @@ let selectedCategory = null;
 let renderedGarment = null;
 let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
+let _wishlistSet = new Set(); // garment IDs in user's wishlist
 
 const GARMENT_CATEGORIES = [
   { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
@@ -104,7 +105,7 @@ function refreshProfileDropdown() {
   const sel = document.getElementById('profile-select');
   if (!sel) return;
   const profiles = loadProfiles();
-  sel.innerHTML = `<option value="">— saved profiles —</option>` +
+  sel.innerHTML = `<option value="">- saved profiles -</option>` +
     profiles.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
 }
 
@@ -206,7 +207,7 @@ function buildInputs() {
   html += `<h2>Body</h2><p class="sd">Flexible tape over underwear. Don't pull tight.</p>
     <div class="f profile-row">
       <select id="profile-select" title="Load saved profile">
-        <option value="">— saved profiles —</option>
+        <option value="">- saved profiles -</option>
         ${profileOptions}
       </select>
       <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
@@ -397,26 +398,26 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Fabric Options</h5>`;
   for (const f of mat.fabrics) {
     if (!f?.name) continue;
-    html += `<div class="mat-row">${f.name} <span class="note">(${f.weight})</span>${f.notes ? ` — <span class="note">${f.notes}</span>` : ''}</div>`;
+    html += `<div class="mat-row">${f.name} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
   html += `<div class="mat-section"><h5>Notions</h5>`;
   for (const n of mat.notions) {
     if (!n?.name) continue;
-    html += `<div class="mat-row">${n.name}${n.quantity ? ` — <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    html += `<div class="mat-row">${n.name}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
   html += `<div class="mat-section"><h5>Thread & Needle</h5>
-    <div class="mat-row">Thread: ${mat.thread?.name ?? 'Polyester all-purpose'} (${mat.thread?.weight ?? '40wt'}) — <span class="note">${mat.thread?.notes ?? ''}</span></div>
-    <div class="mat-row">Needle: ${mat.needle?.name ?? String(mat.needle ?? 'Universal')} — <span class="note">${mat.needle?.use ?? ''}</span></div>
+    <div class="mat-row">Thread: ${mat.thread?.name ?? 'Polyester all-purpose'} (${mat.thread?.weight ?? '40wt'}) <span class="note">${mat.thread?.notes ?? ''}</span></div>
+    <div class="mat-row">Needle: ${mat.needle?.name ?? String(mat.needle ?? 'Universal')} <span class="note">${mat.needle?.use ?? ''}</span></div>
   </div>`;
 
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
     if (!s?.name) continue;
-    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} — ${s.use}</span>`;
+    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
   }
   html += `</div>`;
 
@@ -447,14 +448,14 @@ function renderMaterials(mat, yardage45, yardage60) {
 function expandJargon(steps) {
   const seen = new Set();
   const JARGON = [
-    { key: 'rst',         rx: /\bRST\b/,                           fn: () => 'right sides together (RST — good sides of fabric facing each other)' },
+    { key: 'rst',         rx: /\bRST\b/,                           fn: () => 'right sides together (RST: good sides of fabric facing each other)' },
     { key: 'press',       rx: /\b([Pp]ress(?:ed|ing)?)\b(?!\s+cloth)/,  fn: (_, c) => `${c} with iron (don't slide; press straight down and lift)` },
     { key: 'baste',       rx: /\b([Bb]aste[ds]?|[Bb]asting)\b/,    fn: (_, c) => `${c} (temporary long stitch to hold in place)` },
     { key: 'understitch', rx: /\b([Uu]nderstitch(?:ed|ing)?)\b/,    fn: (_, c) => `${c} (sew the seam allowance to the facing close to the seam so it rolls inward)` },
     { key: 'topstitch',   rx: /\b([Tt]opstitch(?:ed|ing)?)\b/,      fn: (_, c) => `${c} (visible stitch on the outside of the garment)` },
     { key: 'sa',          rx: /\bSA\b/,                             fn: () => 'seam allowance (SA)' },
     { key: 'bodkin',      rx: /\b([Bb]odkin)\b/,                    fn: (_, c) => `${c} (or large safety pin)` },
-    { key: 'clipcurve',   rx: /[Cc]lip (?:the )?curve/,             fn: () => 'clip the curve (cut small snips into the seam allowance so it lies flat around curves — don\'t cut through the stitching)' },
+    { key: 'clipcurve',   rx: /[Cc]lip (?:the )?curve/,             fn: () => 'clip the curve (cut small snips into the seam allowance so it lies flat around curves; don\'t cut through the stitching)' },
     { key: 'bartack',     rx: /[Bb]ar[ -]?tack/,                    fn: () => 'bar tack (tight zigzag reinforcement stitch at stress points)' },
     { key: 'fellseam',    rx: /flat-?fell(?:ed)? seam|fell(?:ed)? seam/i, fn: () => 'flat-felled seam (seam enclosed on itself for durability, like on jeans)' },
     { key: 'serger',      rx: /\b([Ss]erger)\b/,                    fn: (_, c) => `${c}/overlocker (or use zigzag stitch if you don't have one)` },
@@ -477,7 +478,7 @@ function expandJargon(steps) {
 function renderInstructions(steps) {
   let html = '';
   for (const s of steps) {
-    html += `<div class="instr-step"><span class="num">${s.step}.</span> <span class="ttl">${s.title}</span> — <span class="dtl">${s.detail}</span></div>`;
+    html += `<div class="instr-step"><span class="num">${s.step}.</span> <span class="ttl">${s.title}</span> <span class="dtl">${s.detail}</span></div>`;
   }
   return html;
 }
@@ -611,10 +612,10 @@ function _generate() {
 
   // ── Print pane ──
   const PAPER_SIZES = [
-    { id: 'letter',  label: 'US Letter  — 8.5 × 11 in   (tiled)' },
-    { id: 'a4',      label: 'A4         — 210 × 297 mm  (tiled)' },
-    { id: 'tabloid', label: 'Tabloid    — 11 × 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0/Plotter — 33.1 × 46.8 in (single sheet)' },
+    { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
+    { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
+    { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
+    { id: 'a0',      label: 'A0/Plotter  33.1 x 46.8 in (single sheet)' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
@@ -677,7 +678,7 @@ async function _applyWatermarkState(garmentId) {
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
     banner.innerHTML = `
-      <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` — ${dollars}` : ''}</span>
+      <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
       <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-buy-btn').addEventListener('click', () => {
@@ -719,7 +720,7 @@ function showEmailGate(onSuccess) {
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
         <p class="email-gate-tagline">made-to-measure sewing patterns</p>
-        <p class="email-gate-body">Enter your email to download your pattern — free during beta</p>
+        <p class="email-gate-body">Enter your email to download your pattern. Free during beta.</p>
         <form id="email-gate-form" class="email-gate-form">
           <input type="email" id="email-gate-input" placeholder="you@example.com" required autocomplete="email">
           <label class="email-gate-check">
@@ -819,7 +820,7 @@ async function handleDownloadPDF(btn) {
     a.click();
     a.remove();
   } catch (err) {
-    alert('Download failed — please try again.');
+    alert('Download failed. Please try again.');
   } finally {
     btn.disabled    = false;
     btn.textContent = origText;
@@ -866,7 +867,7 @@ function goToStep(n) {
   for (let i = 1; i <= 4; i++) {
     document.getElementById(`wiz-step-${i}`).style.display = i === n ? '' : 'none';
   }
-  if (n === 1) renderStep1();
+  if (n === 1) { _loadWishlist().then(renderStep1); }
   else if (n === 4) renderStep4();
 }
 
@@ -878,6 +879,42 @@ function switchTab(name) {
     if (pane) pane.style.display = t === name ? '' : 'none';
     if (btn)  btn.classList.toggle('s4-tab-active', t === name);
   }
+}
+
+async function _loadWishlist() {
+  const user = getCurrentUser();
+  if (!user) {
+    // Guest: use localStorage
+    try {
+      const stored = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      _wishlistSet = new Set(stored);
+    } catch { _wishlistSet = new Set(); }
+    return;
+  }
+  const { data } = await getWishlist(user.id);
+  _wishlistSet = new Set((data || []).map(r => r.garment_id));
+}
+
+async function _toggleWishlist(garmentId, heartBtn) {
+  const isOn = _wishlistSet.has(garmentId);
+  const user  = getCurrentUser();
+
+  if (user) {
+    if (isOn) {
+      await removeFromWishlist(user.id, garmentId);
+      _wishlistSet.delete(garmentId);
+    } else {
+      await addToWishlist(user.id, garmentId);
+      _wishlistSet.add(garmentId);
+    }
+  } else {
+    // Guest: localStorage
+    if (isOn) { _wishlistSet.delete(garmentId); }
+    else       { _wishlistSet.add(garmentId); }
+    localStorage.setItem('wishlist', JSON.stringify([..._wishlistSet]));
+  }
+  heartBtn.classList.toggle('gmt-heart--on', _wishlistSet.has(garmentId));
+  heartBtn.setAttribute('aria-pressed', String(_wishlistSet.has(garmentId)));
 }
 
 function renderStep1() {
@@ -893,15 +930,34 @@ function renderStep1() {
       <div class="gmt-grid">
         ${cat.ids.map(id => {
           const g = GARMENTS[id];
+          const wishlisted = _wishlistSet.has(id);
+          const price = PATTERN_PRICES[id];
+          const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
           return `<button class="gmt-card" data-garment="${id}">
-            <div class="gmt-name">${g.name}</div>
-            ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
+            <div class="gmt-card-img">
+              <img src="/garment-illustrations/${id}.svg" alt="${g.name} illustration" width="80" height="100" loading="lazy">
+            </div>
+            <div class="gmt-card-info">
+              <div class="gmt-name">${g.name}</div>
+              <div class="gmt-card-meta">
+                ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
+                ${dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
+              </div>
+            </div>
+            <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
           </button>`;
         }).join('')}
       </div>`;
     el.querySelector('#wiz-back-cat').onclick = () => { selectedCategory = null; renderStep1(); };
+    el.querySelectorAll('.gmt-heart').forEach(hBtn => {
+      hBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        _toggleWishlist(hBtn.dataset.garment, hBtn);
+      });
+    });
     el.querySelectorAll('.gmt-card').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = e => {
+        if (e.target.closest('.gmt-heart')) return;
         const newGarment = btn.dataset.garment;
         if (newGarment !== currentGarment) {
           currentGarment = newGarment;
@@ -932,7 +988,7 @@ function renderStep1() {
           </button>`).join('')}
       </div>`;
     el.querySelectorAll('.cat-card').forEach(btn => {
-      btn.onclick = () => { selectedCategory = btn.dataset.cat; renderStep1(); };
+      btn.onclick = () => { selectedCategory = btn.dataset.cat; _loadWishlist().then(renderStep1); };
     });
   }
 }
@@ -943,11 +999,11 @@ function buildMeasureStep() {
   let html = `<div class="wiz-form-wrap">
     <div class="wiz-form-header">
       <h2 class="wiz-form-title">Measurements</h2>
-      <p class="wiz-form-desc">${g.name} — flexible tape over underwear. Don't pull tight.</p>
+      <p class="wiz-form-desc">${g.name}: flexible tape over underwear. Don't pull tight.</p>
     </div>
     <div class="f profile-row">
       <select id="profile-select" title="Load saved profile">
-        <option value="">— saved profiles —</option>
+        <option value="">- saved profiles -</option>
         ${loadProfiles().map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
       </select>
       <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
@@ -1018,7 +1074,7 @@ function buildOptionsStep() {
   let html = `<div class="wiz-form-wrap">
     <div class="wiz-form-header">
       <h2 class="wiz-form-title">Customize</h2>
-      <p class="wiz-form-desc">${g.name} — adjust fit and style options</p>
+      <p class="wiz-form-desc">${g.name}: adjust fit and style options</p>
     </div>`;
 
   for (const [key, opt] of Object.entries(g.options)) {
@@ -1125,13 +1181,29 @@ window.addEventListener('pp:redownload', e => {
 initAuthModal();
 
 // Landing email capture
-document.getElementById('land-email-btn')?.addEventListener('click', () => {
+document.getElementById('land-email-btn')?.addEventListener('click', async () => {
   const input = document.getElementById('land-email-input');
+  const btn   = document.getElementById('land-email-btn');
   const email = input?.value.trim();
   if (!email || !email.includes('@')) return;
-  storeEmail(email);
-  input.value = '';
-  input.placeholder = "You're in! ✓";
+
+  btn.disabled    = true;
+  btn.textContent = '...';
+
+  try {
+    await fetch('/api/join-list', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email }),
+    });
+    storeEmail(email);
+    input.value       = '';
+    input.placeholder = "You're in!";
+    btn.textContent   = 'Done';
+  } catch {
+    btn.disabled    = false;
+    btn.textContent = 'Join';
+  }
 });
 
 // Get Started
@@ -1143,4 +1215,21 @@ document.getElementById('stepper')?.addEventListener('click', e => {
   if (!btn || btn.disabled) return;
   const s = parseInt(btn.dataset.step);
   if (s <= stepsCompleted + 1) goToStep(s);
+});
+
+// Mobile hamburger
+const _mobileNav = document.getElementById('hdr-nav-mobile');
+document.getElementById('hdr-menu-btn')?.addEventListener('click', () => {
+  _mobileNav?.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  const menuBtn = document.getElementById('hdr-menu-btn');
+  if (_mobileNav?.classList.contains('open') &&
+      !_mobileNav.contains(e.target) && e.target !== menuBtn) {
+    _mobileNav.classList.remove('open');
+  }
+});
+document.getElementById('theme-btn-m')?.addEventListener('click', () => {
+  document.getElementById('theme-btn')?.click();
+  _mobileNav?.classList.remove('open');
 });

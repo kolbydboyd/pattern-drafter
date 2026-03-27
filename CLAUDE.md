@@ -10,207 +10,371 @@ When all tasks are complete, report:
 - Any tasks that were skipped and why
 - Any remaining build errors
 
-## 1 - Polished Email Templates
-Create polished HTML email templates for People's 
-Patterns in src/lib/email-templates.js.
+## 1 
+Add a soft download limit for subscription users
+to prevent bulk downloading on day one.
 
-Brand:
-  Font: system-ui with IBM Plex Mono for code/data
-  Primary color: #2c2a26 (near black)
-  Gold accent: #c9a96e
-  Background: #f5f3ef (warm off-white)
-  Max width: 560px centered
-  Border radius: 6px on cards
+In api/generate-pattern.js, for subscription 
+users (not per-pattern purchasers):
 
-Create these templates as functions that return 
-HTML strings:
+Add a downloads_this_month counter:
+  - Check how many patterns the user has 
+    downloaded in the current calendar month
+  - If under 10: allow download, increment counter
+  - If over 10: show a message:
+    "You've downloaded 10 patterns this month.
+     Your limit resets on [date]. Need more?
+     Contact us at hello@peoplespatterns.com"
 
-1. welcomeEmail({ name })
-Subject: "Welcome to People's Patterns"
+Add to purchases/downloads table:
+  downloaded_at timestamptz[]  
+  -- array of download timestamps
 
-Layout:
-  [Logo / wordmark: "People's Patterns" in gold]
-  [Thin gold rule]
-  
-  "Made-to-measure patterns, starting at $7."
-  
-  "You're all set. Here's how to get started:"
-  
-  [Three steps in a clean grid]
-  1. Enter your measurements once
-     Takes 3 minutes. Save them to your profile 
-     and never measure again.
-  2. Choose your garment
-     23 patterns and growing. Every one drafted 
-     to your body, not a size chart.
-  3. Print and sew
-     Tiles to standard printer paper. Full 
-     materials list and construction guide included.
-  
-  [Button: "Start Your First Pattern" → site URL]
-  
-  [Thin rule]
-  "How to measure yourself →" (link to guide)
-  
-  [Footer]
-  People's Patterns · peoplespatterns.com
-  @peoplespatterns
-  You're receiving this because you created an 
-  account. [Unsubscribe] (for non-transactional only)
+Monthly limit: 10 patterns
+This is still 10x more than a normal sewist 
+needs and stops the edge case of someone 
+downloading the entire library in one session.
 
-2. purchaseConfirmationEmail({ name, garmentName, 
-   downloadUrl, measurements, expiresHours = 48 })
-Subject: "Your [garmentName] pattern is ready"
+Do NOT apply this limit to per-pattern 
+purchasers — they paid per pattern and 
+should have unlimited re-downloads of 
+what they bought.
 
-Layout:
-  [Logo]
-  [Gold rule]
-  
-  "Your [garmentName] pattern is ready."
-  
-  [Large gold button: "Download Pattern →"]
-  
-  "This link expires in 48 hours. You can 
-   re-download any time from your account."
-  
-  [Card: "Drafted to your measurements"]
-  Show 4-6 key measurements in a clean two-column
-  grid using monospace font:
-    Waist    32″
-    Hip      38″
-    Rise     10.5″
-    Inseam   30″
-  
-  [Thin rule]
-  
-  "Questions about your pattern? Reply to 
-   this email — we read every one."
-  
-  [Footer]
-  Order confirmation · peoplespatterns.com
+## 2 - 404 page
+Create a styled 404 page at src/ui/404.html 
+or as a component rendered when a route 
+is not found.
 
-3. fitFeedbackEmail({ name, garmentName, 
-   purchaseDate, feedbackUrl })
-Subject: "How did your [garmentName] fit?"
+Design:
+  Same header and footer as the main app
+  Dark/light mode aware
+  Centered content, vertically centered 
+  in the remaining space between header 
+  and footer
 
-Layout:
-  [Logo]
-  [Gold rule]
+Content:
+  Large "404" in Fraunces Light, gold color
+    font-size: 96px, opacity 0.4
   
-  "Hope your [garmentName] turned out great."
+  Heading below it:
+    "Pattern not found."
   
-  "If you've had a chance to sew it, your fit 
-   feedback helps us improve the pattern for 
-   everyone with similar measurements."
+  Subtext:
+    "This page doesn't exist or may have 
+     been moved."
   
-  [Button: "Share How It Fit →" → feedback form]
-  
-  [Three options as visual pills]
-  "It fit perfectly"  "Needed adjustments"  "Still working on it"
-  (all link to the feedback form)
-  
-  "Takes 2 minutes. Your response directly 
-   improves the geometry for the next person 
-   who sews this pattern."
-  
-  [Footer]
-  You purchased [garmentName] on [date]
-  peoplespatterns.com · Unsubscribe
+  Two buttons:
+    [Go Home] → /
+    [Browse Patterns] → /?step=1
 
-4. passwordResetEmail({ resetUrl })
-Subject: "Reset your People's Patterns password"
+## 3 - em dash removal
 
-Layout:
-  [Logo]
-  [Gold rule]
+Find and replace every em dash (—) in all 
+user-facing content across the entire codebase.
+
+Files to check:
+  src/ui/app.js
+  src/ui/auth-modal.js
+  src/ui/account-dashboard.js
+  src/pdf/print-layout.js
+  index.html
+  src/ui/styles.css (any content properties)
+  /faq (the FAQ page)
+  /terms (Terms of Service)
+  /privacy (Privacy Policy)
+  /success (success page)
+  src/lib/email-templates.js
+  Any other user-facing HTML or JS strings
+
+Replacement rules:
+  " — " (space em dash space) 
+    → replace with ": " or rewrite the sentence
   
-  "Password reset requested."
+  Examples:
+    "Your pattern is ready — check your email"
+    → "Your pattern is ready. Check your email."
+    
+    "Made-to-measure — starting at $7"
+    → "Made-to-measure sewing patterns, starting at $7"
+    
+    "Cargo Shorts — tile 1-1 of 5x3"
+    → "Cargo Shorts, tile 1-1 of 5x3"
+
+Do NOT remove hyphens in compound words 
+(made-to-measure, step-by-step, etc.)
+Do NOT change hyphens in tile labels (1-1, 2-3)
+Do NOT change hyphens in measurement ranges
+
+Only remove the standalone em dash character 
+used as a parenthetical separator.
+
+After replacing, do a final search for any 
+remaining — character to confirm none were missed.
+
+## 4 - success page
+PROMPT 2 — SUCCESS PAGE
+
+Create a /success page shown after 
+Stripe checkout completes.
+
+This page receives ?session_id=xxx in 
+the URL from Stripe's redirect.
+
+Design: same header/footer, centered content
+
+Content:
+
+  Gold checkmark icon (SVG, large, ~48px)
   
-  "Click the button below to set a new password. 
-   This link expires in 1 hour."
+  Heading:
+    "Your pattern is ready."
   
-  [Button: "Reset Password →"]
+  Subtext:
+    "Check your email for the download link.
+     You can also download directly below."
   
-  "If you didn't request this, ignore this email. 
-   Your password won't change."
+  [Download Pattern] button
+    Calls /api/generate-pattern with the 
+    session ID to get the download URL
+    Shows loading state while generating
+    
+  [Go to My Patterns] button (secondary)
+    Links to account dashboard My Patterns tab
   
-  [Footer]
-  peoplespatterns.com
-
-All templates should:
-  - Be responsive (work on mobile email clients)
-  - Use inline CSS only (email clients strip <style> tags)
-  - Include a plain text fallback version
-  - Have preheader text (hidden preview text after subject)
-  - Be tested against common email clients
-    (Gmail, Apple Mail, Outlook basics)
-
-## 2 - Centered Auth Modal with Benefits
-Fix the auth modal positioning and add a benefits 
-panel to the signup state.
-
-POSITIONING:
-  Change from upper-right to centered on screen.
-  Add a dark overlay behind it:
-    position: fixed
-    inset: 0
-    background: rgba(0, 0, 0, 0.55)
-    z-index: 1000
-    display: flex
-    align-items: center
-    justify-content: center
+  Below the buttons, a card showing:
+    What you purchased (garment name)
+    Key measurements used
+    Purchase date
+    Order reference (Stripe session ID truncated)
   
-  The modal itself:
-    max-width: 480px
-    width: calc(100% - 32px)
-    background: var(--bg-color)
-    border-radius: 8px
-    padding: 2rem
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3)
+  At the bottom, subtle text:
+    "A confirmation has been sent to 
+     [user email]. Questions? Reply to 
+     that email."
+
+If the session_id is missing or invalid:
+  Show a gentle error:
+    "We could not find your order.
+     Check My Patterns in your account
+     or contact hello@peoplespatterns.com"
+
+No em dashes anywhere.
+
+## 5 - email capture join button
+
+The JOIN button on the landing page email 
+capture is not wired up. Fix it.
+
+When user enters email and clicks JOIN:
+
+1. Validate email format client-side
+   If invalid: shake the input, show 
+   "Enter a valid email address" below it
+
+2. POST to a new serverless function 
+   api/join-list.js that:
+   a. Adds the email to a 'newsletter' 
+      table in Supabase:
+        create table newsletter (
+          id uuid default gen_random_uuid(),
+          email text unique not null,
+          joined_at timestamptz default now(),
+          confirmed boolean default false
+        );
+   b. Sends a welcome email via Resend 
+      using the welcomeEmail template 
+      from src/lib/email-templates.js
+   c. Returns { success: true }
+
+3. On success, replace the input + button with:
+   "You're on the list."
+   In the same space, same font size, gold color
+   No animation needed, just a clean swap
+
+4. On error (email already exists):
+   Show: "You're already on the list."
+   Same treatment, not an error state
+
+5. On network error:
+   Show: "Something went wrong. Try again."
+   Re-enable the button
+
+No em dashes anywhere in any UI text.
+
+## 6 - mobile header fix
+
+The header is broken on mobile. Fix it to 
+be clean and functional on small screens.
+
+Current problems:
+  Social icons, email, auth buttons all 
+  crammed into one row on mobile
+  Text overflows or wraps awkwardly
+
+Mobile header (max-width: 768px):
+
+Row 1: People's Patterns wordmark (left) 
+       + hamburger menu icon (right)
+       Height: 48px
+
+On hamburger tap, a full-width dropdown 
+slides down containing:
+  Sign In / account email
+  Create Account (if logged out)
+  ---- (divider)
+  Social icons in a row, centered
+    Instagram, TikTok, YouTube, Pinterest
+  ---- (divider)  
+  FAQ
+  Terms
+  Privacy
+  ---- (divider)
+  Light / Dark toggle
+
+The main site content sits below the 48px 
+header on mobile. The hamburger menu 
+overlays the content when open.
+
+Tapping outside the menu or tapping the 
+hamburger again closes it.
+
+Desktop header (min-width: 769px):
+  Keep exactly as it is currently.
+  Do not change desktop header at all.
+
+## 7 - wishlist heart icon
+Wire up the wishlist feature with a heart 
+icon on each garment card in step 1.
+
+Nucleo icons are available on this machine.
+Check /path/to/nucleo for the heart icon SVG.
+Use: heart (empty) and heart-fill (filled)
+If Nucleo path is unclear, use a clean SVG 
+heart drawn with a path element.
+
+HEART ICON PLACEMENT:
+  On each garment card in the step 1 
+  garment selection grid, add a heart icon 
+  in the top right corner of the card.
   
-  Click outside the modal to close it.
-  ESC key closes it.
-
-SIGNUP STATE — add a benefits section above the form:
-
-  "Save your measurements and get:"
+  Position: absolute, top: 10px, right: 10px
+  Size: 18x18px
   
-  [Four benefit rows with gold checkmarks]
-  ✓  Measurement profiles — enter once, use forever
-  ✓  Purchase history — re-download any time
-  ✓  Fit history — track what works for your body
-  ✓  New pattern notifications
+  States:
+    Not wishlisted: empty heart outline
+      color: rgba(255,255,255,0.3) in dark mode
+      color: rgba(0,0,0,0.2) in light mode
+    
+    Wishlisted: filled heart
+      color: #c9a96e (gold)
+    
+    Hover: empty heart brightens slightly
+    
+  Transition: 0.15s ease on fill/color
+
+BEHAVIOR:
+  If not logged in and user clicks heart:
+    Open auth modal with trigger:
+      "Save patterns to your wishlist"
   
-  [thin rule]
+  If logged in:
+    Toggle wishlist status via 
+    addToWishlist() / removeFromWishlist() 
+    from src/lib/db.js
+    Update heart icon immediately (optimistic UI)
+    If API call fails, revert the icon
+
+  On page load for logged-in users:
+    Fetch their wishlist once
+    Pre-fill all heart icons accordingly
+
+WISHLIST COUNT:
+  In the header next to the account email,
+  show a small count badge if wishlist > 0:
+    [kolby@... ▾] [♥ 3]
+  Clicking the heart count goes to the 
+  wishlist tab in account dashboard.
+
+## 8 - garment placeholder images
+
+Add placeholder images to the garment cards 
+in step 1 to make the choose step more 
+visual and engaging.
+
+Since real photography isn't available yet,
+use a clean illustrated placeholder approach:
+
+OPTION A (preferred): 
+Generate simple flat-style SVG illustrations 
+for each garment category. Not photo-realistic,
+just clean silhouettes that communicate the 
+garment shape.
+
+Create src/ui/garment-illustrations.js that 
+exports an SVG string for each garment ID.
+
+Style for all illustrations:
+  ViewBox: 0 0 160 200
+  Background: transparent
+  Lines/fills: use brand colors
+    Primary shape fill: rgba(201,169,110,0.12)
+      (very subtle gold tint)
+    Outline stroke: #c9a96e at 1.5px
+  Simple, minimal, fashion-illustration style
+  No faces or people, just the garment shape
+
+Garment silhouettes to create:
+  cargo-shorts: shorts with side pockets
+  gym-shorts: simple athletic shorts
+  swim-trunks: board shorts silhouette
+  pleated-shorts: tailored shorts with pleats
+  straight-jeans: straight leg jeans
+  chinos: slim tailored trousers
+  pleated-trousers: wide leg with pleats
+  sweatpants: relaxed tapered pants
+  tee: classic crew neck tee
+  camp-shirt: short sleeve button up collar
+  crewneck: sweatshirt silhouette
+  hoodie: hoodie with front pocket
+  crop-jacket: cropped jacket
+  wide-leg-trouser-w: wide palazzo style
+  straight-trouser-w: straight tailored
+  easy-pant-w: relaxed pull-on pant
+  button-up-w: fitted button up shirt
+  shell-blouse-w: sleeveless blouse
+  fitted-tee-w: fitted crew neck
+  slip-skirt-w: straight midi skirt
+  a-line-skirt-w: a-line skirt flare
+  shirt-dress-w: shirt dress
+  wrap-dress-w: wrap dress with tie
+
+GARMENT CARD REDESIGN:
+  Each card in step 1 becomes:
   
-  [then the email/password form below]
+  [Illustration — top 60% of card]
+    Image area: background #22201c in dark mode
+    The SVG illustration centered in this area
+  
+  [Info — bottom 40% of card]
+    Garment name (bold)
+    Difficulty badge (beginner/intermediate/advanced)
+    Price: $7 / $8 / $10
+    Heart icon (wishlist) top right of card
+  
+  Card dimensions: roughly 180x240px
+  Grid: 4 columns on desktop, 2 on tablet, 
+    1 on mobile (or 2 if they fit)
+  
+  Selected card: gold border 2px, 
+    slight scale(1.02) transform
 
-LOGIN STATE — keep clean, no benefits panel.
-  Just the form with a subtle 
-  "Don't have an account? Sign up free" link.
+This makes step 1 look like a real pattern 
+catalog rather than a dropdown list.
 
-TRIGGER MESSAGE — when the modal opens from a 
-specific action, show a contextual headline:
-
-  Triggered by save profile:
-    "Save your measurements"
-    Subtext: "Create a free account to save your 
-    measurements and access them anywhere."
-
-  Triggered by download/purchase:
-    "Create an account to purchase"
-    Subtext: "You'll be able to re-download 
-    this pattern any time from your account."
-
-  Triggered by header button:
-    "Welcome to People's Patterns"
-    No subtext.
-
-Pass the trigger context when calling 
-openAuthModal(trigger) so it can show the 
-right headline.
-
-
+When you have real photography later, 
+replace the SVG illustrations with 
+<img> tags pointing to the photo URLs.
+The card structure stays the same.
 
 ## When all tasks are complete:
 - Run `npm run build` one final time

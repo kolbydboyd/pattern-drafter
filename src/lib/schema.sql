@@ -67,6 +67,8 @@ create table if not exists purchases (
 --     add column if not exists display_name text default null;
 --   alter table purchases
 --     add column if not exists notes text default null;
+--   alter table purchases
+--     add column if not exists downloaded_at timestamptz[] default '{}';
 --
 -- ── Auto-delete trashed patterns older than 30 days (run once in Supabase) ────
 -- Requires pg_cron extension enabled in Supabase Dashboard → Extensions
@@ -132,6 +134,16 @@ begin
   where user_id = p_user_id and garment_id = p_garment_id;
 end;
 $$;
+
+-- ── newsletter ────────────────────────────────────────────────────────────────
+-- Simple email list for new-pattern notifications (no account required)
+create table if not exists newsletter (
+  id           uuid default gen_random_uuid() primary key,
+  email        text unique not null,
+  subscribed_at timestamptz default now()
+);
+alter table newsletter enable row level security;
+-- No user-facing RLS needed — inserts handled by service role via api/join-list.js
 
 -- ── Supabase Storage ──────────────────────────────────────────────────────────
 -- Create a private 'patterns' bucket in the Supabase Dashboard:

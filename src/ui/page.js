@@ -23,3 +23,23 @@ document.getElementById('theme-btn')?.addEventListener('click', () => {
 document.getElementById('hdr-logo')?.addEventListener('click', () => {
   location.href = '/';
 });
+
+// Mobile hamburger
+const menuBtn  = document.getElementById('hdr-menu-btn');
+const mobileNav = document.getElementById('hdr-nav-mobile');
+menuBtn?.addEventListener('click', () => {
+  mobileNav?.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (mobileNav?.classList.contains('open') &&
+      !mobileNav.contains(e.target) && e.target !== menuBtn) {
+    mobileNav.classList.remove('open');
+  }
+});
+document.getElementById('theme-btn-m')?.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = !isDark;
+  localStorage.setItem('theme', next ? 'dark' : 'light');
+  applyTheme(next);
+  mobileNav?.classList.remove('open');
+});

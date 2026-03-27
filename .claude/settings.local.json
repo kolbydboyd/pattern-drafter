@@ -39,7 +39,14 @@
       "Bash(STRIPE_KEY=\"sk_test_51TFNtOIMnm6cvvgYnYrF61cBtGWoOh3J6yHQt9YOxjXYDCFaALIvyo5gmggZRzAfwm8h7bwaQJXVHi3JMXt9vxHk00LUh8HEof\")",
       "Bash(curl -s -u \"$STRIPE_KEY:\" \"https://api.stripe.com/v1/webhook_endpoints?limit=10\")",
       "Bash(curl -sv -X POST https://peoplespatterns.com/api/create-checkout -H \"Content-Type: application/json\" -d '{\"\"\"\"garmentId\"\"\"\":\"\"\"\"tee\"\"\"\",\"\"\"\"userId\"\"\"\":\"\"\"\"test-user-123\"\"\"\",\"\"\"\"measurements\"\"\"\":{\"\"\"\"chest\"\"\"\":38},\"\"\"\"opts\"\"\"\":{}}')",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(vercel logs:*)",
+      "Bash(node -e \"import\\(''sharp''\\).then\\(m => console.log\\(''sharp ok'', m.default.versions\\)\\).catch\\(e => console.error\\(''fail'', e.message\\)\\)\")",
+      "Bash(ls C:/Users/black/OneDrive/Desktop/pattern-drafter/*.json)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(ls src/garments/*.js)",
+      "Bash(grep -v \"//.*—\")",
+      "Bash(node scripts/gen-illustrations.mjs)"
     ]
   }
 }

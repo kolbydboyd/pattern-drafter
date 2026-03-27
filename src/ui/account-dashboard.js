@@ -235,7 +235,7 @@ async function _renderPatterns(main, user, tab = 'active') {
     if (tab === 'active') {
       html += `<div class="pat-empty-state">
         <p class="acct-empty">No patterns yet.</p>
-        <p class="acct-empty">Browse the catalog to find your first garment — every pattern is drafted to your exact measurements.</p>
+        <p class="acct-empty">Browse the catalog to find your first garment. Every pattern is drafted to your exact measurements.</p>
         <button class="acct-btn-sm pat-browse-btn">Browse Patterns</button>
       </div>`;
     } else if (tab === 'archived') {
@@ -313,7 +313,7 @@ async function _renderPatterns(main, user, tab = 'active') {
         a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
         document.body.appendChild(a); a.click(); a.remove();
         _showToast('Download started');
-      } catch { _showToast('Download failed — try again.'); }
+      } catch { _showToast('Download failed. Try again.'); }
       finally { btn.disabled = false; btn.textContent = 'Download'; }
     });
   });
@@ -445,7 +445,7 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent) {
     .slice(0, 4);
   const measStr  = measParts.join(' · ');
   const noteHtml = p.notes ? `<p class="pat-card-note">${p.notes}</p>` : '';
-  const genPart  = p.last_generated_at ? ` — generated ${fmt(p.last_generated_at)}` : '';
+  const genPart  = p.last_generated_at ? `, generated ${fmt(p.last_generated_at)}` : '';
   const meta     = `Purchased ${fmt(p.purchased_at)}${genPart}`;
   const hasMeas  = Object.keys(meas).length > 0;
 
@@ -545,7 +545,7 @@ function _showRegenModal(user, garmentId, purchaseId, measurements, profileName,
       _showToast('Pattern regenerated');
     } catch {
       confirmBtn.disabled = false; confirmBtn.textContent = 'Re-generate Pattern';
-      _showToast('Generation failed — try again.');
+      _showToast('Generation failed. Try again.');
     }
   });
 }
@@ -642,8 +642,8 @@ async function _renderOrders(main, user) {
   html += `<div class="acct-order-list">`;
   for (const o of data) {
     const date  = new Date(o.created_at).toLocaleDateString();
-    const items = Array.isArray(o.items) ? o.items.map(i => i.garment_id || i).join(', ') : '—';
-    const total = o.total_cents ? `$${(o.total_cents / 100).toFixed(2)}` : '—';
+    const items = Array.isArray(o.items) ? o.items.map(i => i.garment_id || i).join(', ') : '-';
+    const total = o.total_cents ? `$${(o.total_cents / 100).toFixed(2)}` : '-';
     html += `<div class="acct-order-row">
       <div class="acct-order-id">${o.id.slice(0, 8)}…</div>
       <div class="acct-order-date">${date}</div>

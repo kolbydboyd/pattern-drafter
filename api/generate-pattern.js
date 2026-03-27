@@ -56,7 +56,7 @@ export default async function handler(req, res) {
   if (userId) {
     const { data: purchase } = await supabase
       .from('purchases')
-      .select('id')
+      .select('id, stripe_payment_intent, amount_cents, downloaded_at')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
@@ -65,11 +65,43 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Purchase not found' });
     }
 
-    // Stamp last_generated_at so dashboard can show "generated {date}"
+    // Subscription users (no Stripe payment intent = admin unlock or future subscription)
+    // have a monthly download limit of 10. Per-pattern purchasers are unlimited.
+    const isPerPatternPurchase = !!purchase.stripe_payment_intent;
+    if (!isPerPatternPurchase) {
+      const now        = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+      // Count downloads this calendar month across all non-paid purchases for this user
+      const { data: allPurchases } = await supabase
+        .from('purchases')
+        .select('downloaded_at')
+        .eq('user_id', userId)
+        .is('stripe_payment_intent', null);
+
+      let monthCount = 0;
+      for (const p of allPurchases || []) {
+        for (const ts of p.downloaded_at || []) {
+          if (ts >= monthStart) monthCount++;
+        }
+      }
+
+      if (monthCount >= 10) {
+        const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+          .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+        return res.status(429).json({
+          error: `You've downloaded 10 patterns this month. Your limit resets on ${resetDate}. Need more? Contact us at hello@peoplespatterns.com`,
+        });
+      }
+    }
+
+    // Stamp last_generated_at and append download timestamp (fire-and-forget)
+    const nowIso = new Date().toISOString();
+    const updatedArr = [...(purchase.downloaded_at || []), nowIso];
     supabase.from('purchases')
-      .update({ last_generated_at: new Date().toISOString() })
+      .update({ last_generated_at: nowIso, downloaded_at: updatedArr })
       .eq('id', purchase.id)
-      .then(() => {});          // fire-and-forget, don't block response
+      .then(() => {});
   } else {
     // Allow session-ID based access right after webhook (race window)
     if (!sessionId) {
