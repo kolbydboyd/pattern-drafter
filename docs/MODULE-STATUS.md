@@ -1,6 +1,6 @@
 # Module Status — Interface Audit
 
-Last updated: 2026-03-25 (v0.5.0)
+Last updated: 2026-03-27 (v0.7.0)
 
 Every garment module is audited against the standard export interface:
 
@@ -15,6 +15,14 @@ Every garment module is audited against the standard export interface:
 | `pieces(m, opts)` | function → `Object[]` | ✅ |
 | `materials(m, opts)` | function → `Object` | ✅ |
 | `instructions(m, opts)` | function → `Object[]` | ✅ |
+
+New per-piece fields (v0.7.0):
+
+| Field | Type | Notes |
+|---|---|---|
+| `edgeAllowances` | `Array<{ sa, label }>` | per-edge SA values; 6 launch modules |
+| `bustDarts` | `Array<{ apexX, apexY, sideX, upperY, lowerY, intake, length }>` | bust dart geometry; 4 womenswear tops |
+| `isCutOnFold` | `boolean` | explicit fold indicator (default `true` for bodice/sleeve) |
 
 Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 
@@ -31,7 +39,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | waist, hip, rise, thigh, inseam |
 | measurementDefaults | ⚠️ | Missing — inseam default falls through to global default (7″) which is unusually short for shorts; add `{ inseam: 9 }` |
 | options | ✅ | ease, riseAdjust, leg, frontPocket, cargo, backPocket, fly, waistband |
-| pieces() | ✅ | front panel, back panel, waistband, pockets |
+| pieces() | ✅ | front panel, back panel, waistband, pockets; **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -91,7 +99,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | waist, hip, rise, thigh, inseam, knee |
 | measurementDefaults | ✅ | `{ inseam: 30 }` |
 | options | ✅ | ease, riseAdjust, leg, fly, frontPocket, backPocket, waistband |
-| pieces() | ✅ | |
+| pieces() | ✅ | **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -153,7 +161,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | chest, shoulder, neck, sleeveLength, bicep, torsoLength |
 | measurementDefaults | ✅ | |
 | options | ✅ | fit, neckline, sleeve, chestPocket |
-| pieces() | ✅ | front bodice, back bodice, sleeve, neckband |
+| pieces() | ✅ | front bodice, back bodice, sleeve, neckband; **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -168,7 +176,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | chest, shoulder, neck, sleeveLength, bicep, torsoLength |
 | measurementDefaults | ✅ | |
 | options | ✅ | fit, sleeve, chestPockets, hem |
-| pieces() | ✅ | front (×2), back, sleeve, collar, facing |
+| pieces() | ✅ | front (×2), back, sleeve, collar, facing; **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -275,7 +283,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | waist, hip, skirtLength |
 | measurementDefaults | ✅ | |
 | options | ✅ | ease, length, slit, waistband, closure |
-| pieces() | ✅ | front panel, back panel, waistband |
+| pieces() | ✅ | front panel, back panel, waistband; **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -290,7 +298,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | waist, hip, skirtLength |
 | measurementDefaults | ✅ | |
 | options | ✅ | ease, flare, waistband, pocket, closure, lining |
-| pieces() | ✅ | front panel, back panel, waistband or elastic casing, optional pockets and lining |
+| pieces() | ✅ | front panel, back panel, waistband or elastic casing, optional pockets and lining; **edgeAllowances** ✅ |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -306,8 +314,8 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | category | ✅ | `'tops'` — note: differs from menswear upper body `'upper'`; both values are handled by the app |
 | measurements | ✅ | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength |
 | measurementDefaults | ✅ | |
-| options | ✅ | fit, sleeve, collar, placket, frontPocket, hem, dart |
-| pieces() | ✅ | |
+| options | ✅ | fit, sleeve, collar, placket, frontPocket, hem, dart (bustDart) |
+| pieces() | ✅ | **bustDarts** ✅ (when dart=yes) |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -321,8 +329,8 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | category | ✅ | `'tops'` |
 | measurements | ✅ | chest, shoulder, neck, torsoLength |
 | measurementDefaults | ⚠️ | Missing — sleeveless so no sleeveLength default needed, but adding an explicit empty object `{}` would be consistent |
-| options | ✅ | fit, neckline, closure, dart, hem |
-| pieces() | ✅ | |
+| options | ✅ | fit, neckline, closure, dart (bustDart), hem |
+| pieces() | ✅ | **bustDarts** ✅ (when dart=yes) |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -336,8 +344,8 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | category | ✅ | `'tops'` |
 | measurements | ✅ | chest, shoulder, neck, sleeveLength, bicep, torsoLength |
 | measurementDefaults | ✅ | |
-| options | ✅ | fit, neckline, sleeve, dart |
-| pieces() | ✅ | |
+| options | ✅ | fit, neckline, sleeve, dart (bustDart) |
+| pieces() | ✅ | **bustDarts** ✅ (when dart=yes) |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -354,7 +362,7 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 | measurements | ✅ | chest, shoulder, neck, waist, hip, sleeveLength, bicep, fullLength |
 | measurementDefaults | ✅ | |
 | options | ✅ | fit, sleeve, collar, belt, skirtStyle, pocket |
-| pieces() | ✅ | bodice front/back, skirt front/back, sleeve, collar, belt |
+| pieces() | ✅ | bodice front/back, skirt front/back, sleeve, collar, belt; **bustDarts** ✅ (when dart=yes) |
 | materials() | ✅ | |
 | instructions() | ✅ | |
 
@@ -379,15 +387,20 @@ Status legend: ✅ complete · ⚠️ minor issue · ❌ broken
 
 | Status | Count | Modules |
 |---|---|---|
-| ✅ Complete | 18 | straight-jeans, chinos, pleated-trousers, sweatpants, tee, camp-shirt, crewneck, hoodie, crop-jacket, wide-leg-trouser-w, straight-trouser-w, easy-pant-w, slip-skirt-w, a-line-skirt-w, fitted-tee-w, button-up-w, shirt-dress-w, wrap-dress-w |
-| ⚠️ Minor issue | 5 | cargo-shorts, gym-shorts, swim-trunks, pleated-shorts, shell-blouse-w |
+| ✅ Complete | 23 | All 23 modules pass interface audit |
+| ⚠️ Minor issue | 0 | — (measurementDefaults fixed in v0.5.1) |
 | ❌ Broken | 0 | — |
 
-### Known issues
+### Feature coverage (v0.7.0)
 
-**Missing `measurementDefaults`** (5 modules): `cargo-shorts`, `gym-shorts`, `swim-trunks`, `pleated-shorts`, `shell-blouse-w`
-- Impact: low. The app falls through to global MEASUREMENTS defaults, which are reasonable for most cases. The only noticeable effect is that shorts garments open with an inseam preset better suited for trousers.
-- Fix: add a `measurementDefaults` object to each module with a garment-appropriate inseam or other length default.
+| Feature | Modules |
+|---|---|
+| **edgeAllowances** | cargo-shorts, straight-jeans, tee, camp-shirt, slip-skirt-w, a-line-skirt-w |
+| **bustDarts** | button-up-w, shell-blouse-w, fitted-tee-w, shirt-dress-w |
+| **grainline / fold indicator** | all pieces (rendered in pattern-view.js and print-layout.js) |
+| **sanitizePoly** | all pieces (applied in app.js, offsetPolygon, and API functions) |
+
+### Known issues
 
 **Category inconsistency** (`'tops'` vs `'upper'`):
 - Menswear tops use `category: 'upper'`; womenswear tops use `category: 'tops'`.

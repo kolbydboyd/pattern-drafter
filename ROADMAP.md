@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-03-26 · v0.6.0_
+_Last updated: 2026-03-27 · v0.7.0_
 
 ---
 
@@ -25,9 +25,13 @@ manufacturer has this. It becomes a licensable asset.
 
 ---
 
-## Current Status — v0.6.0
+## Current Status — v0.7.0
 
 23 garment modules · all code-complete · all bugs fixed
+Per-edge seam allowances on 6 launch patterns
+Bust dart geometry on 4 womenswear tops
+Polygon sanitizer applied everywhere
+Single-engine PDF renderer with scale verification
 6 launch patterns need muslin testing
 App live at peoplespatterns.com
 
@@ -265,6 +269,10 @@ Validation = code + muslin + fit confirmed
 - [ ] KI-004 Ext label clips at small values
 - [ ] KI-006 Wrap dress skirt SA scaling
 - [ ] KI-009 Category 'tops' vs 'upper' inconsistency
+- [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated by design)
+- [ ] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
+- [x] KI-012 Dual PDF renderer removed (accepted risk)
+- [ ] KI-013 Scale check depends on CSS class name
 
 ### UI Improvements
 - [ ] Profile name input (replace prompt() with 
@@ -283,11 +291,17 @@ Validation = code + muslin + fit confirmed
 - [ ] DXF for plotters
 
 ### Pattern Quality
+- [x] Per-edge seam allowances (6 launch modules)
+- [x] Grainline arrows and fold indicators on all pieces
+- [x] Bust dart geometry (4 womenswear tops)
+- [x] Polygon sanitizer (dedup, collinear removal, CW winding)
+- [x] Single PDF renderer with scale verification
 - [ ] Notch marks on all pieces
       (most requested feature from experienced sewists)
-- [ ] Dart manipulation tools
+- [ ] Dart manipulation tools (partial: bust darts done)
 - [ ] Contoured waistband geometry
 - [ ] Piece nesting / layout optimizer
+- [ ] Scale bust dart intake with cup size (KI-011)
 
 ---
 

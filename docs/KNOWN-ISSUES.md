@@ -1,6 +1,6 @@
 # Known Issues
 
-Last updated: 2026-03-25 (v0.5.1)
+Last updated: 2026-03-27 (v0.7.0)
 
 Rendering bugs, geometry inaccuracies, and UX gaps found during the full project audit. Each entry includes the affected file(s), reproduction steps, and suggested fix.
 
@@ -144,6 +144,49 @@ Debug log that printed slant pocket SVG coordinates on every generate call for g
 
 ---
 
+### KI-010 · edgeAllowances dropped after sanitizePoly changes point count
+
+**Severity**: low — falls back to default uniform SA
+**Status**: mitigated (by design)
+**Affects**: any module with `edgeAllowances` when `sanitizePoly` removes collinear/duplicate points
+**Files**: `src/ui/app.js`, `api/generate-pattern.js`, `api/regenerate-pattern.js`
+
+**Description**
+`sanitizePoly` may change the polygon point count (removing duplicates or collinear points). When this happens, `edgeAllowances` indices no longer match the polygon edges, so the code nullifies `edgeAllowances` and the renderer falls back to uniform SA. This is intentional safety behavior, not a bug, but means per-edge SA labels may not render for pathological polygons.
+
+---
+
+### KI-011 · Bust dart geometry uses fixed intake of 1.5"
+
+**Severity**: low — adequate for standard cup sizes, may be too small/large for extremes
+**Affects**: `button-up-w`, `shell-blouse-w`, `fitted-tee-w`, `shirt-dress-w`
+
+**Description**
+All four womenswear bust dart modules use `const dartIntake = 1.5` regardless of bust measurement. For cup sizes below B or above DD, the dart intake should scale with the bust-to-chest difference. A future improvement would compute `dartIntake = (bustCirc - chestCirc) / 4` or similar.
+
+---
+
+### KI-012 · Dual PDF renderer removed; Chromium-only may fail on some platforms
+
+**Severity**: medium — PDF generation fails entirely if Chromium is unavailable
+**Status**: accepted risk (v0.7.0)
+**Affects**: `api/generate-pattern.js`, `api/regenerate-pattern.js`
+
+**Description**
+The html-pdf-node fallback was removed in v0.7.0 to ensure consistent scale. If `@sparticuz/chromium-min` fails to launch (e.g. on a platform without the binary), PDF generation returns a 500 error with no fallback. Vercel serverless is the target platform and Chromium works reliably there.
+
+---
+
+### KI-013 · Scale verification depends on `.scale-check-square` CSS class
+
+**Severity**: low — verification is advisory, not blocking
+**Affects**: `api/generate-pattern.js`, `api/regenerate-pattern.js`
+
+**Description**
+The post-render scale check queries `document.querySelector('.scale-check-square')`. If `print-layout.js` ever changes the class name or removes the calibration square element, the check silently skips (returns null). The PDF still generates correctly; only the verification is lost.
+
+---
+
 ## Summary
 
 | ID | Description | Severity | Status |
@@ -157,4 +200,8 @@ Debug log that printed slant pocket SVG coordinates on every generate call for g
 | KI-007 | Five garments missing measurementDefaults | low | ✅ fixed |
 | KI-008 | tee.js used `ease` option key instead of `fit` | low | ✅ fixed |
 | KI-009 | Category `'tops'` vs `'upper'` inconsistency | low | open |
+| KI-010 | edgeAllowances dropped after sanitizePoly | low | mitigated |
+| KI-011 | Bust dart intake fixed at 1.5" | low | open |
+| KI-012 | No PDF fallback renderer | medium | accepted |
+| KI-013 | Scale check depends on CSS class name | low | open |
 | — | console.log left in slant pocket renderer | — | ✅ removed |

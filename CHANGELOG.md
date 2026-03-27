@@ -4,6 +4,50 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.7.0] — 2026-03-27
+
+### Per-edge seam allowances
+- Added `edgeAllowances` arrays to 6 launch modules: `cargo-shorts`, `straight-jeans`, `tee`, `camp-shirt`, `a-line-skirt-w`, `slip-skirt-w`
+- Each edge gets a named SA value (e.g. waist 0.625", hem 1.5", neckline 0.375", fold 0")
+- `offsetPolygon` calls updated to use `i => -edgeAllowances[i].sa` per-edge function
+- Labels rendered on each edge in both screen and print views
+
+### Grainline arrows and fold indicators
+- All pattern pieces now have consistent double-ended grainline arrows (dashed, stroke-width 0.8)
+- Cut-on-fold pieces show "PLACE ON FOLD" text with directional arrows instead of grainline
+- Applied to both `renderPanelSVG` and `renderGenericPieceSVG` in pattern-view.js
+- Applied to both renderers in print-layout.js
+
+### Bust dart geometry
+- Added bust dart rendering to 4 womenswear tops: `button-up-w`, `shell-blouse-w`, `fitted-tee-w`, `shirt-dress-w`
+- When bust dart option enabled, front piece includes actual dart lines (dashed, gold), matchpoint notches at side seam, and "dart" label
+- `shirt-dress-w` correctly transforms dart coordinates for offset and mirrored front panels
+- `bustDarts` array on piece objects: `{ apexX, apexY, sideX, upperY, lowerY, intake, length }`
+
+### Polygon sanitizer
+- New `sanitizePoly(pts)` in `geometry.js`: removes duplicate points (0.01" tolerance), collinear points (0.5° tolerance), ensures CW winding
+- Applied inside `offsetPolygon()` (covers all SA computations)
+- Applied in `app.js` after both `g.pieces()` calls (covers all rendering)
+- Applied in `api/generate-pattern.js` and `api/regenerate-pattern.js` (covers server-side PDF)
+- If sanitization changes point count, `edgeAllowances` is dropped (renderer falls back to uniform SA)
+
+### PDF renderer consolidation
+- Removed `html-pdf-node` fallback from both API functions
+- All PDF output now uses headless Chromium only, eliminating subtle scale differences
+- Added automated scale verification: measures the 2x2" calibration square after rendering, logs warning if deviation > 0.5%
+
+---
+
+## [0.6.0] — 2026-03-26
+
+### Infrastructure
+- Supabase auth, Stripe payments, email system, account dashboard
+- 404 page, success page, newsletter join, mobile header, wishlist, garment illustrations
+- Subscription download limits, purchase verification, rate limiting
+- See CLAUDE.md tasks 1-8 for full details
+
+---
+
 ## [0.5.0] — 2026-03-25
 
 ### Engine — upper body block rewritten to standard drafting rules
