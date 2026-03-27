@@ -145,6 +145,41 @@ create table if not exists newsletter (
 alter table newsletter enable row level security;
 -- No user-facing RLS needed — inserts handled by service role via api/join-list.js
 
+-- ── pattern_sessions ──────────────────────────────────────────────────────────
+-- Tracks when users generate a pattern preview (client calls /api/log-generation).
+-- Used by the email cron to identify generated-but-not-purchased users.
+create table if not exists pattern_sessions (
+  id          uuid default gen_random_uuid() primary key,
+  user_id     uuid references profiles(id) on delete set null,
+  email       text,
+  garment_id  text not null,
+  generated_at timestamptz default now(),
+  purchased   boolean default false
+);
+alter table pattern_sessions enable row level security;
+create policy "Users can insert own pattern sessions"
+  on pattern_sessions for insert with check (auth.uid() = user_id);
+create policy "Users can update own pattern sessions"
+  on pattern_sessions for update using (auth.uid() = user_id);
+-- Migration: run once on existing installs
+--   (table is new, no migration needed)
+
+-- ── email_log ─────────────────────────────────────────────────────────────────
+-- Tracks every transactional email sent. Check before sending to prevent duplicates.
+create table if not exists email_log (
+  id         uuid default gen_random_uuid() primary key,
+  user_id    uuid references profiles(id) on delete set null,
+  email      text not null,
+  template   text not null,
+  sent_at    timestamptz default now(),
+  garment_id text,
+  metadata   jsonb
+);
+alter table email_log enable row level security;
+-- Service role only — no user-facing reads needed
+-- Migration: run once on existing installs
+--   (table is new, no migration needed)
+
 -- ── Supabase Storage ──────────────────────────────────────────────────────────
 -- Create a private 'patterns' bucket in the Supabase Dashboard:
 --   Storage → New bucket → Name: "patterns" → Public: OFF

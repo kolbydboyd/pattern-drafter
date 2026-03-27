@@ -2,6 +2,7 @@
 // Vercel serverless function — handles Stripe webhook events
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { sendEmail } from './send-email.js';
 
 // Use service role key here (server-side only, never in browser)
 const supabase = createClient(
@@ -63,6 +64,43 @@ export default async function handler(req, res) {
       items:          [{ garment_id: garmentId }],
       total_cents:    session.amount_total,
     });
+
+    // Send post-purchase email: welcome on first purchase, next-pattern rec for repeat buyers
+    if (userId) {
+      const { count: prevPurchases } = await supabase
+        .from('purchases')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .neq('stripe_payment_intent', session.payment_intent); // exclude the one we just inserted
+
+      const userRecord = await supabase.auth.admin.getUserById(userId);
+      const email = userRecord?.data?.user?.email;
+      if (email) {
+        const isFirst = (prevPurchases ?? 0) === 0;
+        const emailType = isFirst ? 'WELCOME' : 'NEXT_PATTERN_RECOMMENDATION';
+        const emailData = isFirst
+          ? {}
+          : { garmentName: garmentId.replace(/-/g, ' '), recommendations: [] };
+        sendEmail(emailType, email, emailData)
+          .then(result => supabase.from('email_log').insert({
+            user_id:    userId,
+            email,
+            template:   emailType,
+            garment_id: garmentId,
+            metadata:   { stripe_session: session.id },
+          }))
+          .catch(err => console.error('Post-purchase email failed:', err));
+      }
+
+      // Mark pattern_session as purchased (if one exists)
+      supabase.from('pattern_sessions')
+        .update({ purchased: true })
+        .eq('user_id', userId)
+        .eq('garment_id', garmentId)
+        .eq('purchased', false)
+        .then(() => {})
+        .catch(() => {});
+    }
 
     // Trigger PDF generation (async, fire-and-forget via internal fetch)
     const origin = process.env.VERCEL_URL
