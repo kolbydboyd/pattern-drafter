@@ -233,14 +233,15 @@ async function _renderPatterns(main, user) {
       <div class="acct-pattern-list" id="${groupId}">`;
 
     for (const p of group.purchases) {
-      const date    = new Date(p.purchased_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      const fmt     = d => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
       const name    = p.garment_id.replace(/-/g, ' ');
-      const dlCount = p.download_count ?? 0;
       const hasMeas = Object.keys(group.measurements).length > 0;
+      const genPart = p.last_generated_at ? ` — generated ${fmt(p.last_generated_at)}` : '';
+      const meta    = `purchased ${fmt(p.purchased_at)}${genPart}`;
       html += `<div class="acct-pattern-row">
         <div class="acct-pattern-row-info">
           <span class="acct-pattern-row-name">${name}</span>
-          <span class="acct-pattern-row-meta">purchased ${date}${dlCount ? ` · ${dlCount}× downloaded` : ''}</span>
+          <span class="acct-pattern-row-meta">${meta}</span>
         </div>
         <div class="acct-pattern-row-actions">
           ${hasMeas ? `<button class="acct-btn-sm acct-regen"

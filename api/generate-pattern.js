@@ -64,6 +64,12 @@ export default async function handler(req, res) {
     if (!purchase) {
       return res.status(403).json({ error: 'Purchase not found' });
     }
+
+    // Stamp last_generated_at so dashboard can show "generated {date}"
+    supabase.from('purchases')
+      .update({ last_generated_at: new Date().toISOString() })
+      .eq('id', purchase.id)
+      .then(() => {});          // fire-and-forget, don't block response
   } else {
     // Allow session-ID based access right after webhook (race window)
     if (!sessionId) {

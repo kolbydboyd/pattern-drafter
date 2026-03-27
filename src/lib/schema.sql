@@ -54,10 +54,11 @@ create table if not exists purchases (
   download_count        integer default 0
 );
 
--- ── Migration: add profile_id to existing purchases table ─────────────────────
--- Run this once if the table already exists (new installs use the CREATE above):
+-- ── Migrations: run these once on existing installs ───────────────────────────
 --   alter table purchases
 --     add column if not exists profile_id uuid references measurement_profiles(id) on delete set null;
+--   alter table purchases
+--     add column if not exists last_generated_at timestamptz;
 alter table purchases enable row level security;
 create policy "Users can read own purchases"
   on purchases for select using (auth.uid() = user_id);

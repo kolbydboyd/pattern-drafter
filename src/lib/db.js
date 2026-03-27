@@ -54,7 +54,7 @@ export async function deleteMeasurementProfile(id) {
 export async function getPurchases(userId) {
   const { data, error } = await supabase
     .from('purchases')
-    .select('*, measurement_profiles(id, name, measurements)')
+    .select('*, last_generated_at, measurement_profiles(id, name, measurements)')
     .eq('user_id', userId)
     .order('purchased_at', { ascending: false });
   return { data, error };
