@@ -6,6 +6,12 @@ import {
   purchaseConfirmationEmail,
   fitFeedbackEmail,
   passwordResetEmail,
+  generatedNotPurchasedEmail,
+  cartAbandonEmail,
+  purchasedNotDownloadedEmail,
+  postPurchaseSewHelpEmail,
+  nextPatternRecommendationEmail,
+  monthlyNewsletterEmail,
 } from '../src/lib/email-templates.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -26,6 +32,24 @@ export async function sendEmail(type, to, data = {}) {
       break;
     case 'PASSWORD_RESET':
       tmpl = passwordResetEmail(data);
+      break;
+    case 'GENERATED_NOT_PURCHASED':
+      tmpl = generatedNotPurchasedEmail(data);
+      break;
+    case 'CART_ABANDON':
+      tmpl = cartAbandonEmail(data);
+      break;
+    case 'PURCHASED_NOT_DOWNLOADED':
+      tmpl = purchasedNotDownloadedEmail(data);
+      break;
+    case 'POST_PURCHASE_SEW_HELP':
+      tmpl = postPurchaseSewHelpEmail(data);
+      break;
+    case 'NEXT_PATTERN_RECOMMENDATION':
+      tmpl = nextPatternRecommendationEmail(data);
+      break;
+    case 'MONTHLY_NEWSLETTER':
+      tmpl = monthlyNewsletterEmail(data);
       break;
     default:
       throw new Error(`Unknown email type: ${type}`);

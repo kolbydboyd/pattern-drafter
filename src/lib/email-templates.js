@@ -374,6 +374,430 @@ Unsubscribe: ${SITE_URL}/unsubscribe`;
   };
 }
 
+// ─── 5. Generated But Not Purchased ──────────────────────────────────────────
+
+export function generatedNotPurchasedEmail({
+  name = '',
+  garmentName,
+  chest,
+  waist,
+  hip,
+  fitOption = '',
+  patternUrl,
+} = {}) {
+  const greeting = name ? `Hey ${name},` : 'Hey,';
+  const subject  = 'Your custom pattern is still waiting';
+
+  const measStr = [chest && `chest ${chest}"`, waist && `waist ${waist}"`, hip && `hip ${hip}"`]
+    .filter(Boolean).join(', ');
+
+  const body = `
+<p style="margin:0 0 20px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  You generated a custom ${garmentName} pattern yesterday with your measurements.
+  That pattern was built specifically for your body${measStr ? ` (${measStr}${fitOption ? `, ${fitOption} fit` : ''})` : ''}.
+  Nobody else has that exact combination.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  It's ready to download whenever you are.
+</p>
+
+${btn(`Download your ${garmentName} pattern →`, patternUrl)}
+
+${rule()}
+
+<p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.7;">
+  <strong>Quick printing tip:</strong> print page 2 first (the scale verification page) and
+  measure the test square. If it's exactly 2 inches, you're good. If not, check that your
+  printer is set to 100% scale, not "fit to page."
+</p>
+<p style="margin:16px 0 0;font-family:${SANS};font-size:13px;color:#777773;">
+  Questions? Reply to this email.
+</p>`;
+
+  const plain = `${greeting}
+
+You generated a custom ${garmentName} pattern yesterday with your measurements.
+That pattern was built specifically for your body. It's ready to download.
+
+Download it here: ${patternUrl}
+
+Quick printing tip: print page 2 first (the scale verification page) and measure the test square.
+If it's exactly 2 inches, you're good. If not, check that your printer is set to 100% scale.
+
+Questions? Reply to this email.
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Your custom ${garmentName} pattern is still waiting — ready to download.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 6. Cart Abandon ──────────────────────────────────────────────────────────
+
+export function cartAbandonEmail({
+  name = '',
+  garmentName,
+  checkoutUrl,
+} = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi,';
+  const subject  = "You're one click away from your custom pattern";
+
+  const body = `
+<p style="margin:0 0 20px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  Looks like you started checking out for your ${garmentName} pattern but didn't finish.
+  No pressure. Your pattern and measurements are saved. When you're ready:
+</p>
+
+${btn('Complete your purchase →', checkoutUrl)}
+
+${rule()}
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:13px;font-weight:700;color:${NEAR_BLACK};">Every pattern includes:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  ${['Print-ready tiled PDF (US Letter or A4)', 'Full materials and stitch guide', 'Step-by-step construction instructions', 'Scale verification page', 'Your exact measurements built in'].map(item => `
+  <tr>
+    <td width="20" valign="top" style="font-family:${SANS};font-size:13px;color:${GOLD};padding-top:1px;">&#10003;</td>
+    <td style="font-family:${SANS};font-size:13px;color:#555551;padding-bottom:6px;">${item}</td>
+  </tr>`).join('')}
+</table>
+
+<p style="margin:16px 0 0;font-family:${SANS};font-size:13px;color:#777773;">
+  If something went wrong with payment, or if you have questions about what's included, just reply here.
+</p>`;
+
+  const plain = `${greeting}
+
+Looks like you started checking out for your ${garmentName} pattern but didn't finish.
+Your pattern and measurements are saved. When you're ready:
+
+Complete your purchase: ${checkoutUrl}
+
+Every pattern includes:
+- Print-ready tiled PDF (US Letter or A4)
+- Full materials and stitch guide
+- Step-by-step construction instructions
+- Scale verification page
+- Your exact measurements built in
+
+Questions? Reply to this email.
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Your ${garmentName} pattern is saved and waiting — complete checkout when ready.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 7. Purchased But Not Downloaded ─────────────────────────────────────────
+
+export function purchasedNotDownloadedEmail({
+  name = '',
+  garmentName,
+  downloadUrl,
+} = {}) {
+  const greeting = name ? `Hey ${name},` : 'Hey,';
+  const subject  = "Don't forget to download your pattern";
+
+  const steps = [
+    'Print at 100% scale (never "fit to page")',
+    'Check the scale verification square on page 2',
+    'Cut along the scissors line on each tile',
+    'Match the crosshair marks between tiles',
+    'Tape from the back',
+  ];
+
+  const body = `
+<p style="margin:0 0 20px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  You purchased your ${garmentName} pattern but haven't downloaded it yet.
+  Your pattern is ready and waiting in your account.
+</p>
+
+${btn('Download now →', downloadUrl)}
+
+${rule()}
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:13px;font-weight:700;color:${NEAR_BLACK};">Quick printing checklist:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  ${steps.map((s, i) => `
+  <tr>
+    <td width="24" valign="top" style="font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};padding-top:1px;">${i + 1}.</td>
+    <td style="font-family:${SANS};font-size:13px;color:#555551;padding-bottom:6px;">${s}</td>
+  </tr>`).join('')}
+</table>
+
+<p style="margin:16px 0 0;font-family:${SANS};font-size:13px;color:#777773;">
+  You can re-download any time from your account.
+</p>`;
+
+  const plain = `${greeting}
+
+You purchased your ${garmentName} pattern but haven't downloaded it yet.
+
+Download now: ${downloadUrl}
+
+Quick printing checklist:
+1. Print at 100% scale (never "fit to page")
+2. Check the scale verification square on page 2
+3. Cut along the scissors line on each tile
+4. Match the crosshair marks between tiles
+5. Tape from the back
+
+You can re-download any time from your account.
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Your ${garmentName} pattern is purchased but not downloaded yet.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 8. Post-Purchase Sew Help ────────────────────────────────────────────────
+
+export function postPurchaseSewHelpEmail({
+  name = '',
+  garmentName,
+} = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi,';
+  const subject  = `Tips for sewing your ${garmentName}`;
+
+  const tips = [
+    'Press every seam as you go (iron down, lift, don\'t slide)',
+    'Match your notch marks — they\'re there so pieces align correctly',
+    'Check the materials guide for the right needle and stitch settings',
+  ];
+
+  const body = `
+<p style="margin:0 0 20px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  By now you might be getting ready to cut and sew your ${garmentName}. A few tips:
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:14px;font-weight:700;color:${NEAR_BLACK};">
+  Cut a muslin first.
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.7;">
+  Seriously. Use cheap fabric (muslin is $4-6/yard) to test the fit before cutting your
+  good fabric. It takes 30 minutes and saves hours of frustration.
+</p>
+
+${rule()}
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:13px;font-weight:700;color:${NEAR_BLACK};">When you sew:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  ${tips.map(t => `
+  <tr>
+    <td width="16" valign="top" style="font-family:${SANS};font-size:13px;color:${GOLD};padding-top:1px;">-</td>
+    <td style="font-family:${SANS};font-size:13px;color:#555551;padding-bottom:6px;">${t}</td>
+  </tr>`).join('')}
+</table>
+
+<p style="margin:16px 0 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.7;">
+  The construction steps are numbered in order. Don't skip ahead. Each step builds on the last.
+</p>
+
+${rule()}
+
+<p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.6;">
+  If something doesn't fit right on the muslin, reply to this email and tell me what happened.
+  I'll help you figure out the adjustment.
+</p>
+<p style="margin:12px 0 0;font-family:${SANS};font-size:13px;color:#777773;">— Kol, People's Patterns</p>`;
+
+  const plain = `${greeting}
+
+By now you might be getting ready to cut and sew your ${garmentName}.
+
+Cut a muslin first. Use cheap fabric to test the fit before cutting your good fabric.
+It takes 30 minutes and saves hours of frustration.
+
+When you sew:
+- Press every seam as you go
+- Match your notch marks
+- Check the materials guide for the right needle and stitch settings
+
+The construction steps are numbered in order. Don't skip ahead.
+
+If something doesn't fit right, reply and tell me what happened. I'll help.
+
+— Kol, People's Patterns
+${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Sewing tips for your ${garmentName} — muslin advice and construction notes.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 9. Next Pattern Recommendation ──────────────────────────────────────────
+
+export function nextPatternRecommendationEmail({
+  name = '',
+  garmentName,
+  recommendations = [],
+} = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi,';
+  const subject  = 'Your measurements are ready for your next project';
+
+  const recRows = recommendations.slice(0, 3).map(r => `
+<tr>
+  <td style="padding:10px 0;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">${r.name}</p>
+    ${r.description ? `<p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;">${r.description}</p>` : ''}
+    <p style="margin:6px 0 0;">
+      <a href="${r.url || SITE_URL}" style="font-family:${SANS};font-size:13px;color:${GOLD};text-decoration:none;font-weight:600;">Generate this pattern →</a>
+    </p>
+  </td>
+</tr>`).join('');
+
+  const body = `
+<p style="margin:0 0 20px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  Your measurement profile is saved and ready. That means your next pattern is faster:
+  no measuring, just pick a style and generate.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.7;">
+  Based on your ${garmentName}, these patterns use the same body block and will fit
+  with the same confidence:
+</p>
+
+${recRows ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${recRows}</table>` : ''}
+
+${btn('Browse all patterns →', SITE_URL)}
+
+${rule()}
+
+<p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.6;">
+  Building a wardrobe from one measurement profile is where People's Patterns really shines.
+  Every garment fits the same body — yours.
+</p>`;
+
+  const plain = `${greeting}
+
+Your measurement profile is saved and ready for your next pattern.
+
+Based on your ${garmentName}, these patterns use the same body block:
+${recommendations.slice(0, 3).map(r => `- ${r.name}${r.description ? ': ' + r.description : ''} — ${r.url || SITE_URL}`).join('\n')}
+
+Browse all patterns: ${SITE_URL}
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Your measurements are saved — your next pattern takes 2 clicks.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 10. Monthly Newsletter ───────────────────────────────────────────────────
+
+export function monthlyNewsletterEmail({
+  month = '',
+  highlight = '',
+  newPattern = null,
+  fitUpdate = null,
+  tutorial = null,
+  communityFeature = null,
+  teaser = '',
+} = {}) {
+  const subject = month && highlight
+    ? `${month} at People's Patterns — ${highlight}`
+    : "What's new at People's Patterns";
+
+  const sections = [];
+
+  if (newPattern) {
+    sections.push(`
+<tr>
+  <td style="padding:0 0 24px;">
+    <p style="margin:0 0 4px;font-family:${MONO};font-size:11px;font-weight:700;color:${GOLD};letter-spacing:0.08em;text-transform:uppercase;">New Pattern</p>
+    <p style="margin:0 0 6px;font-family:${SANS};font-size:16px;font-weight:700;color:${NEAR_BLACK};">${newPattern.name}</p>
+    <p style="margin:0 0 10px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">${newPattern.description || ''}</p>
+    <a href="${newPattern.url || SITE_URL}" style="font-family:${SANS};font-size:13px;color:${GOLD};text-decoration:none;font-weight:600;">Generate yours →</a>
+  </td>
+</tr>`);
+  }
+
+  if (fitUpdate) {
+    sections.push(`
+<tr>
+  <td style="padding:0 0 24px;">
+    <p style="margin:0 0 4px;font-family:${MONO};font-size:11px;font-weight:700;color:${GOLD};letter-spacing:0.08em;text-transform:uppercase;">Fit Update</p>
+    <p style="margin:0 0 6px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">${fitUpdate}</p>
+  </td>
+</tr>`);
+  }
+
+  if (tutorial) {
+    sections.push(`
+<tr>
+  <td style="padding:0 0 24px;">
+    <p style="margin:0 0 4px;font-family:${MONO};font-size:11px;font-weight:700;color:${GOLD};letter-spacing:0.08em;text-transform:uppercase;">New Tutorial</p>
+    <p style="margin:0 0 6px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">${tutorial.title}</p>
+    ${tutorial.description ? `<p style="margin:0 0 10px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">${tutorial.description}</p>` : ''}
+    ${tutorial.url ? `<a href="${tutorial.url}" style="font-family:${SANS};font-size:13px;color:${GOLD};text-decoration:none;font-weight:600;">Watch →</a>` : ''}
+  </td>
+</tr>`);
+  }
+
+  if (communityFeature) {
+    sections.push(`
+<tr>
+  <td style="padding:0 0 24px;">
+    <p style="margin:0 0 4px;font-family:${MONO};font-size:11px;font-weight:700;color:${GOLD};letter-spacing:0.08em;text-transform:uppercase;">From the Community</p>
+    <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.7;">${communityFeature}</p>
+  </td>
+</tr>`);
+  }
+
+  const body = `
+<p style="margin:0 0 24px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  What's new this month
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  ${sections.join('\n  <tr><td style="padding:0 0 4px;"><div style="height:1px;background:#e0ddd6;"></div></td></tr>\n  ')}
+</table>
+
+${teaser ? `${rule()}<p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;">Coming next month: ${teaser}</p>` : ''}`;
+
+  const plain = `What's new this month at People's Patterns
+
+${newPattern ? `NEW PATTERN: ${newPattern.name}\n${newPattern.description || ''}\n${newPattern.url || SITE_URL}\n\n` : ''}${fitUpdate ? `FIT UPDATE:\n${fitUpdate}\n\n` : ''}${tutorial ? `NEW TUTORIAL: ${tutorial.title}\n${tutorial.description || ''}\n${tutorial.url || ''}\n\n` : ''}${communityFeature ? `FROM THE COMMUNITY:\n${communityFeature}\n\n` : ''}${teaser ? `Coming next month: ${teaser}\n\n` : ''}People's Patterns · ${SITE_URL} · @peoplespatterns`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: highlight || `What's new at People's Patterns this month.`,
+      subject,
+      body,
+      footerExtra: `<a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
 // ─── 4. Password Reset ────────────────────────────────────────────────────────
 
 export function passwordResetEmail({ resetUrl } = {}) {
