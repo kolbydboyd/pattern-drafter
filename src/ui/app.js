@@ -5,7 +5,7 @@
  */
 
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
-import { fmtInches, easeDistribution } from '../engine/geometry.js';
+import { fmtInches, easeDistribution, sanitizePoly } from '../engine/geometry.js';
 import cargoShorts      from '../garments/cargo-shorts.js';
 import gymShorts        from '../garments/gym-shorts.js';
 import swimTrunks       from '../garments/swim-trunks.js';
@@ -520,6 +520,16 @@ function _generate() {
   const { m, opts } = readInputs();
 
   const pieces       = g.pieces(m, opts);
+  // Sanitize all piece polygons to prevent zero-length edges and winding bugs
+  for (const p of pieces) {
+    if (p.polygon) {
+      const orig = p.polygon;
+      p.polygon = sanitizePoly(orig);
+      // If sanitization changed point count, drop edgeAllowances (renderer falls back to defaults)
+      if (p.edgeAllowances && p.polygon.length !== orig.length) p.edgeAllowances = null;
+    }
+    if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);
+  }
   const materials    = g.materials(m, opts);
   const instructions = expandJargon(g.instructions(m, opts));
 
@@ -836,6 +846,15 @@ function printPattern() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
   const pieces       = g.pieces(m, opts);
+  // Sanitize all piece polygons for print layout
+  for (const p of pieces) {
+    if (p.polygon) {
+      const orig = p.polygon;
+      p.polygon = sanitizePoly(orig);
+      if (p.edgeAllowances && p.polygon.length !== orig.length) p.edgeAllowances = null;
+    }
+    if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);
+  }
   const materials    = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
   const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize);

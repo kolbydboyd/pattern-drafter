@@ -80,6 +80,70 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
 }
 
 /**
+ * Sanitize a polygon by removing degenerate points and ensuring CW winding.
+ *
+ * 1. Removes consecutive duplicate points (within 0.01″ tolerance)
+ * 2. Removes collinear points that don't contribute to the shape
+ *    (cross-product / edge-length below 0.5° angular tolerance)
+ * 3. Ensures consistent clockwise winding order
+ *
+ * This prevents zero-length edges, degenerate miter calculations in
+ * offsetPolygon, and winding-order bugs across all garment modules.
+ *
+ * @param {Array<{ x: number, y: number }>} pts - input polygon
+ * @returns {Array<{ x: number, y: number }>} sanitized polygon (new array)
+ */
+export function sanitizePoly(pts) {
+  if (!pts || pts.length < 3) return pts;
+
+  // Step 1 — remove consecutive duplicate points (including wrap-around)
+  let deduped = [pts[0]];
+  for (let i = 1; i < pts.length; i++) {
+    if (dist(pts[i], deduped[deduped.length - 1]) > 0.01) {
+      deduped.push(pts[i]);
+    }
+  }
+  // Check last vs first
+  if (deduped.length > 1 && dist(deduped[deduped.length - 1], deduped[0]) < 0.01) {
+    deduped.pop();
+  }
+  if (deduped.length < 3) return deduped;
+
+  // Step 2 — remove collinear points (cross-product test)
+  // sin(0.5°) ≈ 0.00873 — points forming a deviation below this are collinear
+  const sinTol = Math.sin(0.5 * Math.PI / 180);
+  const n = deduped.length;
+  const filtered = [];
+  for (let i = 0; i < n; i++) {
+    const prev = deduped[(i - 1 + n) % n];
+    const curr = deduped[i];
+    const next = deduped[(i + 1) % n];
+    const dx1 = curr.x - prev.x, dy1 = curr.y - prev.y;
+    const dx2 = next.x - curr.x, dy2 = next.y - curr.y;
+    const len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+    const len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+    if (len1 < 0.01 || len2 < 0.01) continue; // degenerate edge — skip
+    // Cross product of unit vectors = sin of angle between them
+    const cross = Math.abs(dx1 * dy2 - dy1 * dx2) / (len1 * len2);
+    if (cross > sinTol) {
+      filtered.push(curr); // non-collinear — keep
+    }
+  }
+  if (filtered.length < 3) return deduped; // fallback — don't collapse to nothing
+
+  // Step 3 — ensure clockwise winding (negative signed area)
+  let area2 = 0;
+  for (let i = 0; i < filtered.length; i++) {
+    const j = (i + 1) % filtered.length;
+    area2 += filtered[i].x * filtered[j].y;
+    area2 -= filtered[j].x * filtered[i].y;
+  }
+  if (area2 > 0) filtered.reverse(); // was CCW → flip to CW
+
+  return filtered;
+}
+
+/**
  * Compute perpendicular offset for a polygon (for seam allowance).
  * Each EDGE gets a uniform offset so seam lines run perfectly parallel to
  * their corresponding cut lines. At corners where adjacent edges have
@@ -93,6 +157,8 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
  * @returns {Array} offset polygon (may have more points than input at step corners)
  */
 export function offsetPolygon(poly, edgeOffsetFn) {
+  // Sanitize input to prevent zero-length edges and degenerate miters
+  poly = sanitizePoly(poly);
   const n = poly.length;
   const result = [];
 

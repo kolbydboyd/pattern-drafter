@@ -88,6 +88,16 @@ export default async function handler(req, res) {
   }
 
   const pieces       = garment.pieces(measurements, opts ?? {});
+  // Sanitize all piece polygons
+  const { sanitizePoly } = await import('../src/engine/geometry.js');
+  for (const p of pieces) {
+    if (p.polygon) {
+      const orig = p.polygon;
+      p.polygon = sanitizePoly(orig);
+      if (p.edgeAllowances && p.polygon.length !== orig.length) p.edgeAllowances = null;
+    }
+    if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);
+  }
   const materials    = garment.materials(measurements, opts ?? {});
   const instructions = garment.instructions(measurements, opts ?? {});
 
