@@ -59,6 +59,26 @@ create table if not exists purchases (
 --     add column if not exists profile_id uuid references measurement_profiles(id) on delete set null;
 --   alter table purchases
 --     add column if not exists last_generated_at timestamptz;
+--   alter table purchases
+--     add column if not exists status text default 'active';
+--   alter table purchases
+--     add column if not exists trashed_at timestamptz default null;
+--   alter table purchases
+--     add column if not exists display_name text default null;
+--   alter table purchases
+--     add column if not exists notes text default null;
+--
+-- ── Auto-delete trashed patterns older than 30 days (run once in Supabase) ────
+-- Requires pg_cron extension enabled in Supabase Dashboard → Extensions
+--   select cron.schedule(
+--     'delete-old-trash',
+--     '0 3 * * *',
+--     $$
+--       delete from purchases
+--       where status = 'trashed'
+--       and trashed_at < now() - interval '30 days';
+--     $$
+--   );
 alter table purchases enable row level security;
 create policy "Users can read own purchases"
   on purchases for select using (auth.uid() = user_id);

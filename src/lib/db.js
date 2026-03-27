@@ -60,6 +60,77 @@ export async function getPurchases(userId) {
   return { data, error };
 }
 
+export async function getPatterns(userId, status = 'active') {
+  let q = supabase
+    .from('purchases')
+    .select('*, last_generated_at, measurement_profiles(id, name, measurements)')
+    .eq('user_id', userId)
+    .order('purchased_at', { ascending: false });
+  if (status !== 'all') q = q.eq('status', status);
+  const { data, error } = await q;
+  return { data, error };
+}
+
+export async function trashPattern(purchaseId, userId) {
+  const { error } = await supabase
+    .from('purchases')
+    .update({ status: 'trashed', trashed_at: new Date().toISOString() })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export async function restorePattern(purchaseId, userId) {
+  const { error } = await supabase
+    .from('purchases')
+    .update({ status: 'active', trashed_at: null })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export async function archivePattern(purchaseId, userId) {
+  const { error } = await supabase
+    .from('purchases')
+    .update({ status: 'archived', trashed_at: null })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export async function permanentlyDeletePattern(purchaseId, userId) {
+  const { error } = await supabase
+    .from('purchases')
+    .delete()
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export async function renamePattern(purchaseId, userId, displayName) {
+  const { error } = await supabase
+    .from('purchases')
+    .update({ display_name: displayName || null })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export async function addPatternNote(purchaseId, userId, note) {
+  const { error } = await supabase
+    .from('purchases')
+    .update({ notes: note || null })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+  return { error };
+}
+
+export function getDaysUntilDeletion(trashedAt) {
+  if (!trashedAt) return 30;
+  const elapsed = (Date.now() - new Date(trashedAt).getTime()) / (1000 * 60 * 60 * 24);
+  return Math.max(0, Math.ceil(30 - elapsed));
+}
+
 export async function hasPurchased(userId, garmentId) {
   const { data, error } = await supabase
     .from('purchases')

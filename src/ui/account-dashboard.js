@@ -3,7 +3,11 @@ import { getUser, signOut } from '../lib/auth.js';
 import {
   getMeasurementProfiles, saveMeasurementProfile,
   archiveMeasurementProfile, deleteMeasurementProfile,
-  getPurchases, getWishlist, removeFromWishlist,
+  getPurchases, getPatterns,
+  trashPattern, restorePattern, archivePattern,
+  permanentlyDeletePattern, renamePattern, addPatternNote,
+  getDaysUntilDeletion,
+  getWishlist, removeFromWishlist,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -189,118 +193,400 @@ async function _renderMeasurements(main, user) {
 }
 
 // ── 2. My Patterns ────────────────────────────────────────────────────────────
-async function _renderPatterns(main, user) {
-  const { data, error } = await getPurchases(user.id);
+
+// Shared modal helper — dark overlay, centered card
+function _showModal({ title, body, buttons }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'pat-modal-overlay';
+  overlay.innerHTML = `
+    <div class="pat-modal" role="dialog" aria-modal="true">
+      <h3 class="pat-modal-title">${title}</h3>
+      <div class="pat-modal-body">${body}</div>
+      <div class="pat-modal-btns">${buttons}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+  }, { once: false });
+  return { overlay, close };
+}
+
+async function _renderPatterns(main, user, tab = 'active') {
+  const { data, error } = await getPatterns(user.id, tab);
   if (error) { main.innerHTML = `<p class="acct-error">${error.message}</p>`; return; }
 
-  let html = `<h2 class="acct-section-title">My Patterns</h2>`;
+  const fmt = d => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+  // Tab bar
+  let html = `<h2 class="acct-section-title">My Patterns</h2>
+    <div class="pat-tabs">
+      <button class="pat-tab${tab === 'active'   ? ' pat-tab-active' : ''}" data-tab="active">Active</button>
+      <button class="pat-tab${tab === 'archived' ? ' pat-tab-active' : ''}" data-tab="archived">Archived</button>
+      <button class="pat-tab${tab === 'trashed'  ? ' pat-tab-active' : ''}" data-tab="trashed">Trash</button>
+    </div>`;
+
+  if (tab === 'trashed') {
+    html += `<div class="pat-trash-banner">Patterns in trash are permanently deleted after 30 days. Restore a pattern at any time before then.</div>`;
+  }
+
   if (!data?.length) {
-    html += `<p class="acct-empty">No patterns yet — <a class="acct-link" href="#">browse the catalog</a>.</p>`;
+    if (tab === 'active') {
+      html += `<div class="pat-empty-state">
+        <p class="acct-empty">No patterns yet.</p>
+        <p class="acct-empty">Browse the catalog to find your first garment — every pattern is drafted to your exact measurements.</p>
+        <button class="acct-btn-sm pat-browse-btn">Browse Patterns</button>
+      </div>`;
+    } else if (tab === 'archived') {
+      html += `<p class="acct-empty">No archived patterns.<br>Archive patterns you want to keep but don't need in your main list.</p>`;
+    } else {
+      html += `<p class="acct-empty">Trash is empty.</p>`;
+    }
     main.innerHTML = html;
-    main.querySelector('.acct-link')?.addEventListener('click', e => {
-      e.preventDefault();
-      _closeAccountDashboard();
-    });
+    main.querySelectorAll('.pat-tab').forEach(b => b.addEventListener('click', () => _renderPatterns(main, user, b.dataset.tab)));
+    main.querySelector('.pat-browse-btn')?.addEventListener('click', () => _closeAccountDashboard());
     return;
   }
 
-  // Group by profile_id (null → "My Measurements" default group)
-  const groups = new Map(); // profileId (or '__default__') → { name, measurements, purchases[] }
-  for (const p of data) {
-    const key  = p.profile_id ?? '__default__';
-    const prof = p.measurement_profiles;
-    if (!groups.has(key)) {
-      groups.set(key, {
-        name:         prof?.name ?? null,
-        measurements: prof?.measurements ?? {},
-        purchases:    [],
-      });
+  // Group active/archived by profile; trash shown flat
+  if (tab === 'trashed') {
+    html += `<div class="pat-card-list">`;
+    for (const p of data) {
+      const days    = getDaysUntilDeletion(p.trashed_at);
+      const urgent  = days <= 7;
+      const name    = p.display_name || p.garment_id.replace(/-/g, ' ');
+      const meas    = p.measurement_profiles?.measurements ?? {};
+      html += _patCardHtml(p, name, meas, fmt, tab, days, urgent);
     }
-    groups.get(key).purchases.push(p);
-  }
-
-  // Render each group as a collapsible section
-  let gi = 0;
-  for (const [key, group] of groups) {
-    const groupId   = `acct-pg-${gi++}`;
-    const label     = group.name ?? 'My Measurements';
-    const isDefault = !group.name;
-    html += `<details class="acct-profile-group" open>
-      <summary class="acct-profile-group-head">
-        <span class="acct-profile-group-name${isDefault ? ' acct-profile-group-default' : ''}">${label}</span>
-        <span class="acct-profile-group-count">${group.purchases.length} pattern${group.purchases.length !== 1 ? 's' : ''}</span>
-      </summary>
-      <div class="acct-pattern-list" id="${groupId}">`;
-
-    for (const p of group.purchases) {
-      const fmt     = d => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      const name    = p.garment_id.replace(/-/g, ' ');
-      const hasMeas = Object.keys(group.measurements).length > 0;
-      const genPart = p.last_generated_at ? ` — generated ${fmt(p.last_generated_at)}` : '';
-      const meta    = `purchased ${fmt(p.purchased_at)}${genPart}`;
-      html += `<div class="acct-pattern-row">
-        <div class="acct-pattern-row-info">
-          <span class="acct-pattern-row-name">${name}</span>
-          <span class="acct-pattern-row-meta">${meta}</span>
-        </div>
-        <div class="acct-pattern-row-actions">
-          ${hasMeas ? `<button class="acct-btn-sm acct-regen"
-            data-garment="${p.garment_id}"
-            data-profile-key="${key}">Re-generate</button>` : ''}
-          <button class="acct-btn-xs acct-redownload"
-            data-garment="${p.garment_id}">Open in wizard ›</button>
-        </div>
-      </div>`;
+    html += `</div>`;
+  } else {
+    // Group by profile_id
+    const groups = new Map();
+    for (const p of data) {
+      const key  = p.profile_id ?? '__default__';
+      const prof = p.measurement_profiles;
+      if (!groups.has(key)) {
+        groups.set(key, { name: prof?.name ?? null, measurements: prof?.measurements ?? {}, purchases: [] });
+      }
+      groups.get(key).purchases.push(p);
     }
 
-    html += `</div></details>`;
+    for (const [, group] of groups) {
+      const label     = group.name ?? 'My Measurements';
+      const isDefault = !group.name;
+      html += `<details class="acct-profile-group" open>
+        <summary class="acct-profile-group-head">
+          <span class="acct-profile-group-name${isDefault ? ' acct-profile-group-default' : ''}">${label}</span>
+          <span class="acct-profile-group-count">${group.purchases.length} pattern${group.purchases.length !== 1 ? 's' : ''}</span>
+        </summary>
+        <div class="pat-card-list">`;
+      for (const p of group.purchases) {
+        const name = p.display_name || p.garment_id.replace(/-/g, ' ');
+        html += _patCardHtml(p, name, group.measurements, fmt, tab, null, false);
+      }
+      html += `</div></details>`;
+    }
   }
 
   main.innerHTML = html;
 
-  // Re-generate: call /api/generate-pattern with stored profile measurements
-  main.querySelectorAll('.acct-regen').forEach(btn => {
+  // Tab switching
+  main.querySelectorAll('.pat-tab').forEach(b => b.addEventListener('click', () => _renderPatterns(main, user, b.dataset.tab)));
+
+  // Download button
+  main.querySelectorAll('.pat-dl-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const garmentId = btn.dataset.garment;
-      const key       = btn.dataset.profileKey;
-      const group     = [...groups.entries()].find(([k]) => k === key)?.[1];
-      if (!group) return;
-
-      const orig = btn.textContent;
+      const { garmentId, purchaseId } = btn.dataset;
+      const card = btn.closest('.pat-card');
+      const measJson = card?.dataset.measurements;
+      const meas = measJson ? JSON.parse(measJson) : {};
       btn.disabled = true; btn.textContent = 'Generating…';
-
       try {
-        const res = await fetch('/api/generate-pattern', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            garmentId,
-            userId:       user.id,
-            measurements: group.measurements,
-            opts:         {},
-          }),
+        const res  = await fetch('/api/generate-pattern', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ garmentId, userId: user.id, measurements: meas, opts: {} }),
         });
         const json = await res.json();
-        if (!res.ok || json.error) { alert('Could not generate: ' + (json.error ?? res.statusText)); return; }
+        if (!res.ok || json.error) { _showToast('Error: ' + (json.error ?? res.statusText)); return; }
         const a = document.createElement('a');
         a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
         document.body.appendChild(a); a.click(); a.remove();
-        _showToast('Pattern downloaded');
-      } catch (err) {
-        alert('Generation failed — please try again.');
-      } finally {
-        btn.disabled = false; btn.textContent = orig;
-      }
+        _showToast('Download started');
+      } catch { _showToast('Download failed — try again.'); }
+      finally { btn.disabled = false; btn.textContent = 'Download'; }
     });
   });
 
-  // Open in wizard: navigate to that garment + download tab
-  main.querySelectorAll('.acct-redownload').forEach(btn => {
+  // Re-generate button
+  main.querySelectorAll('.pat-regen-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const garmentId = btn.dataset.garment;
-      _closeAccountDashboard();
-      window.dispatchEvent(new CustomEvent('pp:redownload', { detail: { garmentId } }));
+      const { garmentId, purchaseId } = btn.dataset;
+      const card  = btn.closest('.pat-card');
+      const meas  = JSON.parse(card?.dataset.measurements || '{}');
+      const profName = card?.dataset.profileName || '';
+      _showRegenModal(user, garmentId, purchaseId, meas, profName, () => _renderPatterns(main, user, tab));
     });
+  });
+
+  // Restore button (trash tab)
+  main.querySelectorAll('.pat-restore-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await restorePattern(btn.dataset.purchaseId, user.id);
+      _showToast('Pattern restored');
+      _renderPatterns(main, user, tab);
+    });
+  });
+
+  // Delete Forever button (trash tab)
+  main.querySelectorAll('.pat-delete-forever-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { purchaseId, garmentName } = btn.dataset;
+      _showDeleteForeverModal(user, purchaseId, garmentName, () => _renderPatterns(main, user, tab));
+    });
+  });
+
+  // ⋯ overflow menu
+  main.querySelectorAll('.pat-overflow-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      // Close other open menus
+      main.querySelectorAll('.pat-overflow-menu.open').forEach(m => {
+        if (m !== btn.nextElementSibling) m.classList.remove('open');
+      });
+      btn.nextElementSibling?.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    main.querySelectorAll('.pat-overflow-menu.open').forEach(m => m.classList.remove('open'));
+  }, { once: false });
+
+  // Overflow menu actions
+  main.querySelectorAll('.pat-menu-rename').forEach(item => {
+    item.addEventListener('click', () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      const card     = item.closest('.pat-card');
+      const nameEl   = card?.querySelector('.pat-card-name');
+      const curName  = nameEl?.textContent ?? '';
+      const purchaseId = item.dataset.purchaseId;
+      const garmentId  = item.dataset.garmentId;
+      nameEl.innerHTML = `<input class="pat-rename-input" maxlength="60" value="${curName.replace(/"/g, '&quot;')}">`;
+      const inp = nameEl.querySelector('input');
+      inp.focus(); inp.select();
+      const save = async () => {
+        const val = inp.value.trim() || garmentId.replace(/-/g, ' ');
+        nameEl.textContent = val;
+        await renamePattern(purchaseId, user.id, val === garmentId.replace(/-/g, ' ') ? null : val);
+      };
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { nameEl.textContent = curName; } });
+      inp.addEventListener('blur', save);
+    });
+  });
+
+  main.querySelectorAll('.pat-menu-note').forEach(item => {
+    item.addEventListener('click', () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      const card       = item.closest('.pat-card');
+      const notesArea  = card?.querySelector('.pat-card-notes-wrap');
+      if (!notesArea) return;
+      const existing   = notesArea.dataset.note ?? '';
+      notesArea.innerHTML = `
+        <textarea class="pat-notes-textarea" maxlength="200" placeholder="Add a note…">${existing}</textarea>
+        <span class="pat-char-count">${200 - existing.length} characters remaining</span>`;
+      const ta = notesArea.querySelector('textarea');
+      ta.focus();
+      ta.addEventListener('input', () => {
+        notesArea.querySelector('.pat-char-count').textContent = `${200 - ta.value.length} characters remaining`;
+      });
+      ta.addEventListener('blur', async () => {
+        const val = ta.value.trim();
+        notesArea.dataset.note = val;
+        notesArea.innerHTML = val ? `<p class="pat-card-note">${val}</p>` : '';
+        await addPatternNote(item.dataset.purchaseId, user.id, val || null);
+      });
+    });
+  });
+
+  main.querySelectorAll('.pat-menu-archive').forEach(item => {
+    item.addEventListener('click', async () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      await archivePattern(item.dataset.purchaseId, user.id);
+      _showToast('Pattern archived');
+      _renderPatterns(main, user, tab);
+    });
+  });
+
+  main.querySelectorAll('.pat-menu-activate').forEach(item => {
+    item.addEventListener('click', async () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      await restorePattern(item.dataset.purchaseId, user.id);
+      _showToast('Moved to Active');
+      _renderPatterns(main, user, tab);
+    });
+  });
+
+  main.querySelectorAll('.pat-menu-trash').forEach(item => {
+    item.addEventListener('click', () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      const garmentName = item.dataset.garmentName;
+      const purchaseId  = item.dataset.purchaseId;
+      _showTrashModal(user, purchaseId, garmentName, () => _renderPatterns(main, user, tab));
+    });
+  });
+}
+
+// ── Pattern card HTML helper ──────────────────────────────────────────────────
+function _patCardHtml(p, name, measurements, fmt, tab, days, urgent) {
+  const meas     = measurements ?? {};
+  const measKeys = ['chest', 'waist', 'hip', 'inseam', 'rise', 'length'];
+  const measParts = measKeys
+    .filter(k => meas[k])
+    .map(k => `${meas[k]}″ ${k}`)
+    .slice(0, 4);
+  const measStr  = measParts.join(' · ');
+  const noteHtml = p.notes ? `<p class="pat-card-note">${p.notes}</p>` : '';
+  const genPart  = p.last_generated_at ? ` — generated ${fmt(p.last_generated_at)}` : '';
+  const meta     = `Purchased ${fmt(p.purchased_at)}${genPart}`;
+  const hasMeas  = Object.keys(meas).length > 0;
+
+  // Countdown for trash
+  let countdownHtml = '';
+  if (tab === 'trashed' && days !== null) {
+    const cls = urgent ? 'pat-trash-countdown urgent' : 'pat-trash-countdown';
+    const label = days === 1 ? 'Deleted in 1 day' : days === 0 ? 'Deletes today' : `Deleted in ${days} days`;
+    countdownHtml = `<span class="${cls}">${label}</span>`;
+  }
+
+  // Action buttons
+  let actionHtml;
+  if (tab === 'trashed') {
+    actionHtml = `
+      <button class="acct-btn-sm pat-restore-btn" data-purchase-id="${p.id}">Restore</button>
+      <button class="acct-btn-sm pat-btn-danger pat-delete-forever-btn"
+        data-purchase-id="${p.id}"
+        data-garment-name="${name}">Delete Forever</button>`;
+  } else {
+    const menuItems = tab === 'active'
+      ? `<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
+         <button class="pat-menu-item pat-menu-note" data-purchase-id="${p.id}">Add note</button>
+         <button class="pat-menu-item pat-menu-archive" data-purchase-id="${p.id}">Archive</button>
+         <button class="pat-menu-item pat-menu-trash pat-menu-item-danger" data-purchase-id="${p.id}" data-garment-name="${name}">Move to Trash</button>`
+      : `<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
+         <button class="pat-menu-item pat-menu-activate" data-purchase-id="${p.id}">Move to Active</button>
+         <button class="pat-menu-item pat-menu-trash pat-menu-item-danger" data-purchase-id="${p.id}" data-garment-name="${name}">Move to Trash</button>`;
+
+    actionHtml = `
+      ${hasMeas ? `<button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Download</button>
+      <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>` : ''}
+      <div class="pat-overflow-wrap">
+        <button class="pat-overflow-btn" aria-label="More options">⋯</button>
+        <div class="pat-overflow-menu">${menuItems}</div>
+      </div>`;
+  }
+
+  return `<div class="pat-card"
+    data-purchase-id="${p.id}"
+    data-measurements="${JSON.stringify(meas).replace(/"/g, '&quot;')}"
+    data-profile-name="${p.measurement_profiles?.name ?? ''}">
+    <div class="pat-card-main">
+      <div class="pat-card-info">
+        <span class="pat-card-name">${name}</span>
+        ${measStr ? `<span class="pat-card-meas">${measStr}</span>` : ''}
+        <span class="pat-card-meta">${meta}</span>
+        ${countdownHtml}
+        <div class="pat-card-notes-wrap" data-note="${(p.notes ?? '').replace(/"/g, '&quot;')}">${noteHtml}</div>
+      </div>
+      <div class="pat-card-actions">${actionHtml}</div>
+    </div>
+  </div>`;
+}
+
+// ── Re-generate confirmation modal ───────────────────────────────────────────
+function _showRegenModal(user, garmentId, purchaseId, measurements, profileName, onSuccess) {
+  const name    = garmentId.replace(/-/g, ' ');
+  const measKeys = ['chest', 'waist', 'hip', 'inseam', 'rise', 'length', 'thigh', 'knee'];
+  const measRows = measKeys.filter(k => measurements[k])
+    .map(k => `<div class="regen-meas-row"><span class="regen-meas-key">${k}</span><span class="regen-meas-val">${measurements[k]}″</span></div>`).join('');
+
+  const { overlay, close } = _showModal({
+    title: `Re-generate ${name}`,
+    body: `
+      <p class="pat-modal-text">This will draft a new pattern using your ${profileName ? `<strong>${profileName}</strong>` : 'current'} measurements.</p>
+      ${measRows ? `<div class="regen-meas-grid">${measRows}</div>` : ''}
+      <p class="pat-modal-text pat-modal-subtext">Your previous pattern will be moved to your archive automatically.</p>`,
+    buttons: `<button class="pat-modal-cancel">Cancel</button>
+      <button class="pat-modal-confirm" id="regen-confirm-btn">Re-generate Pattern</button>`,
+  });
+
+  overlay.querySelector('.pat-modal-cancel').addEventListener('click', close);
+  const confirmBtn = overlay.querySelector('#regen-confirm-btn');
+  confirmBtn.addEventListener('click', async () => {
+    confirmBtn.disabled = true; confirmBtn.textContent = 'Generating…';
+    try {
+      const res  = await fetch('/api/regenerate-pattern', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ garmentId, userId: user.id, purchaseId, measurements, opts: {} }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        confirmBtn.disabled = false; confirmBtn.textContent = 'Re-generate Pattern';
+        _showToast('Error: ' + (json.error ?? res.statusText));
+        return;
+      }
+      // Show success state
+      overlay.querySelector('.pat-modal').innerHTML = `
+        <h3 class="pat-modal-title">Pattern ready</h3>
+        <p class="pat-modal-text" style="margin-bottom:1.2rem">Your new ${name} pattern is ready to download.</p>
+        <div class="pat-modal-btns">
+          <a class="pat-modal-confirm" href="${json.downloadUrl}" download="${garmentId}-pattern.pdf">Download Pattern</a>
+          <button class="pat-modal-cancel" id="regen-done-btn">Done</button>
+        </div>`;
+      overlay.querySelector('#regen-done-btn').addEventListener('click', () => { close(); onSuccess(); });
+      _showToast('Pattern regenerated');
+    } catch {
+      confirmBtn.disabled = false; confirmBtn.textContent = 'Re-generate Pattern';
+      _showToast('Generation failed — try again.');
+    }
+  });
+}
+
+// ── Move to Trash modal ───────────────────────────────────────────────────────
+function _showTrashModal(user, purchaseId, garmentName, onSuccess) {
+  const { overlay, close } = _showModal({
+    title: 'Move to Trash?',
+    body: `<p class="pat-modal-text">Your <strong>${garmentName}</strong> pattern will be moved to trash and permanently deleted in 30 days.</p>
+           <p class="pat-modal-text">You can restore it any time before then from your Trash tab.</p>`,
+    buttons: `<button class="pat-modal-cancel">Cancel</button>
+      <button class="pat-modal-warn" id="trash-confirm-btn">Move to Trash</button>`,
+  });
+  overlay.querySelector('.pat-modal-cancel').addEventListener('click', close);
+  overlay.querySelector('#trash-confirm-btn').addEventListener('click', async () => {
+    await trashPattern(purchaseId, user.id);
+    close(); _showToast('Moved to Trash'); onSuccess();
+  });
+}
+
+// ── Delete Forever modal ──────────────────────────────────────────────────────
+function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
+  const { overlay, close } = _showModal({
+    title: 'Delete Forever?',
+    body: `<p class="pat-modal-text">This will permanently delete your <strong>${garmentName}</strong> pattern. This cannot be undone.</p>
+           <p class="pat-modal-text">If you want to sew this pattern again in the future, you will need to purchase it again.</p>
+           <div class="pat-modal-field">
+             <label class="pat-modal-field-label">Type DELETE to confirm</label>
+             <input class="pat-modal-input" id="delete-confirm-input" placeholder="DELETE" autocomplete="off">
+           </div>`,
+    buttons: `<button class="pat-modal-cancel">Cancel</button>
+      <button class="pat-modal-danger" id="delete-forever-btn" disabled>Delete Forever</button>`,
+  });
+  overlay.querySelector('.pat-modal-cancel').addEventListener('click', close);
+  const delBtn = overlay.querySelector('#delete-forever-btn');
+  overlay.querySelector('#delete-confirm-input').addEventListener('input', e => {
+    delBtn.disabled = e.target.value.trim() !== 'DELETE';
+  });
+  delBtn.addEventListener('click', async () => {
+    await permanentlyDeletePattern(purchaseId, user.id);
+    close(); _showToast('Pattern deleted'); onSuccess();
   });
 }
 
