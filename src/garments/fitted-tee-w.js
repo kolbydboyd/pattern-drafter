@@ -9,7 +9,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const SLEEVE_LENGTHS = { short: 7, cap: 3, three_quarter: 17, long: 24 };
@@ -204,6 +204,21 @@ export default {
       { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
     ];
 
+    // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
+    let capEaseNote = '';
+    if (opts.sleeve !== 'cap') {
+      const frontArmArc = arcLength(frontArmPts);
+      const backArmArc  = arcLength(backArmPts);
+      const armholeArc  = frontArmArc + backArmArc;
+      const valCapCp    = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
+      const capArc      = arcLength(sampleBezier(valCapCp.p0, valCapCp.p1, valCapCp.p2, valCapCp.p3, 16));
+      const capEase     = capArc - armholeArc;
+      if (capEase < 0.5 || capEase > 3) {
+        console.warn(`[fitted-tee-w] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+      }
+      capEaseNote = ` · Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
+    }
+
     const nbLen = m.neck * 0.80; // 80% — slightly tighter for womenswear
     const frontBB = bb(frontPoly), backBB = bb(backPoly), slvBB = bb(sleevePoly);
 
@@ -224,7 +239,7 @@ export default {
       },
       {
         id: 'sleeve', name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} sleeve`,
+        instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} sleeve${capEaseNote}`,
         type: 'sleeve', polygon: sleevePoly, path: pp(sleevePoly),
         width: slvBB.width, height: slvBB.height, capHeight, sleeveLength: slvLen, sleeveWidth: slvWidth * 2, sa, hem, notches: sleeveNotches,
         dims: [{ label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, x2: slvWidth * 2, y2: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],

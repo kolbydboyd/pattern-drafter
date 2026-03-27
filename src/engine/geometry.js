@@ -50,6 +50,18 @@ export function sampleBezier(p0, p1, p2, p3, steps = 16) {
 }
 
 /**
+ * Arc length of a polyline (array of {x, y} points).
+ * Sum of Euclidean distances between consecutive points.
+ */
+export function arcLength(pts) {
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    len += dist(pts[i - 1], pts[i]);
+  }
+  return len;
+}
+
+/**
  * Generate crotch curve control points for pants/shorts
  * @param {number} ox - x origin (center seam top)
  * @param {number} oy - y origin (waist)

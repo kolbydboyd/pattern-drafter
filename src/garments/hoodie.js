@@ -11,7 +11,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -204,6 +204,17 @@ export default {
       { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
     ];
 
+    // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
+    const frontArmArc = arcLength(frontArmPts);
+    const backArmArc  = arcLength(backArmPts);
+    const armholeArc  = frontArmArc + backArmArc;
+    const capArc      = arcLength(capPts);
+    const capEase     = capArc - armholeArc;
+    if (capEase < 0.5 || capEase > 3) {
+      console.warn(`[hoodie] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+    }
+    const capEaseNote = `Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
+
     const frontBB  = bbox(frontPoly);
     const backBB   = bbox(backPoly);
     const sleeveBB = bbox(sleevePoly);
@@ -249,7 +260,7 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: 'Cut 2 (mirror L & R) · Cap top, set into armhole',
+        instruction: `Cut 2 (mirror L & R) · Cap top, set into armhole · ${capEaseNote}`,
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),

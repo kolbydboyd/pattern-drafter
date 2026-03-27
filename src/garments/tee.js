@@ -10,7 +10,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // ── Sleeve length presets ────────────────────────────────────────────────────
@@ -237,6 +237,17 @@ export default {
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
     // Back underarm up (already first point via close)
 
+    // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
+    const frontArmArc = arcLength(frontArmholePts);
+    const backArmArc  = arcLength(curveToPoints(armholeCurve(shoulderW, backChestDepth, armholeDepth, true)));
+    const armholeArc  = frontArmArc + backArmArc;
+    const capArc      = arcLength(capPts);
+    const capEase     = capArc - armholeArc;
+    if (capEase < 0.5 || capEase > 3) {
+      console.warn(`[tee] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+    }
+    const capEaseNote = `Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
+
     // ── NECKBAND ─────────────────────────────────────────────────────────────
     // Rib strip: circumference of neckline opening × 0.85 (stretched), 1.5" finished
     const neckCircumference = m.neck;
@@ -332,7 +343,7 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · Cap top · ${opts.sleeveStyle === 'short' ? 'Short sleeve' : opts.sleeveStyle === 'three_quarter' ? '¾ sleeve' : 'Long sleeve'}`,
+        instruction: `Cut 2 (mirror L & R) · Cap top · ${opts.sleeveStyle === 'short' ? 'Short sleeve' : opts.sleeveStyle === 'three_quarter' ? '¾ sleeve' : 'Long sleeve'} · ${capEaseNote}`,
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),
