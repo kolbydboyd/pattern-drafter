@@ -159,7 +159,6 @@ export default {
     frontPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
-    frontPoly.push({ x: 0, y: NECK_DEPTH_FRONT });
 
     // Bust dart indicator (note: actual dart is a modification to side seam, simplified here)
     const bustDartNote = opts.bustDart === 'yes' ? ' · Bust dart from side seam: 1–1.5″ wide × 3–4″ long, pointing toward bust apex' : '';
@@ -172,7 +171,6 @@ export default {
     for (let i=1;i<backArmPts.length;i++) backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     backPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
-    backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
     // Sleeve polygon (tapered)
     const effArmToElbow = m.armToElbow || (slvLen * 0.45);

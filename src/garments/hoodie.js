@@ -127,7 +127,6 @@ export default {
     frontPoly.push({ x: sideX, y: torsoLen });
     frontPoly.push({ x: -ZIP_EXT, y: torsoLen });
     frontPoly.push({ x: -ZIP_EXT, y: neckDepthFront });
-    frontPoly.push({ x: 0, y: neckDepthFront });
 
     // ── BACK BODICE ──────────────────────────────────────────────────────────
     const neckDepthBack  = 0.75;
@@ -146,7 +145,6 @@ export default {
     const backSideX = shoulderPtX + backChestDepth;
     backPoly.push({ x: backSideX, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
-    backPoly.push({ x: 0, y: neckDepthBack });
 
     // ── SLEEVE ───────────────────────────────────────────────────────────────
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);

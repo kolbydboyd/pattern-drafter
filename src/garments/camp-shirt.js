@@ -160,10 +160,8 @@ export default {
     frontPoly.push({ x: sideX, y: torsoLen });
     // Hem → CF fold (including placket extension)
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
-    // CF fold up to neckline low point
+    // CF fold up to neckline low point (polygon closes to first point via polyToPath Z)
     frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
-    // Back to CF low point of neckline (close)
-    frontPoly.push({ x: 0, y: NECK_DEPTH_FRONT });
 
     // ── BACK PANEL ───────────────────────────────────────────────────────────
     const backPoly = [];
@@ -181,7 +179,6 @@ export default {
     const backSideX = shoulderPtX + backChestDepth;
     backPoly.push({ x: backSideX, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
-    backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
     // ── SLEEVE (straight rectangle with 10% taper toward hem) ────────────────
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);

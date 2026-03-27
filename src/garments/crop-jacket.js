@@ -138,7 +138,6 @@ export default {
     frontPoly.push({ x: sideX, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
-    frontPoly.push({ x: 0, y: NECK_DEPTH_FRONT });
 
     // ── BACK PANEL ───────────────────────────────────────────────────────────
     const backPoly = [];
@@ -152,7 +151,6 @@ export default {
     }
     backPoly.push({ x: shoulderPtX + backChestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
-    backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
     // ── SLEEVE (straight, long, no taper) ────────────────────────────────────
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
