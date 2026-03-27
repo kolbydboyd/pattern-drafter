@@ -134,27 +134,27 @@ details.adv-meas summary:hover{color:var(--text)}
 .email-gate-cancel:hover{color:var(--mid)}
 
 /* ── Landing page ── */
-#landing{display:flex;flex-direction:column;min-height:calc(100vh - 52px)}
-.land-hero{flex:1;max-width:860px;margin:0 auto;padding:72px 24px 56px;text-align:center}
-.land-logo-block{margin-bottom:14px;line-height:1}
-.land-logo-p{display:block;font-family:'Fraunces',serif;font-size:clamp(3rem,9vw,5.5rem);font-weight:300;letter-spacing:-3px;color:var(--text)}
-.land-logo-pat{display:block;font-family:'IBM Plex Mono',monospace;font-size:clamp(.65rem,1.8vw,.95rem);letter-spacing:10px;text-transform:uppercase;color:var(--gold);margin-top:6px}
-.land-tagline{font-size:.65rem;color:var(--light);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:52px}
-.land-features{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:52px}
-.land-feat{flex:1;min-width:200px;max-width:260px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;padding:24px 20px;text-align:left}
-.land-feat-num{font-family:'IBM Plex Mono',monospace;font-size:.5rem;color:var(--gold);letter-spacing:3px;margin-bottom:10px}
-.land-feat-title{font-family:'Fraunces',serif;font-size:.88rem;font-weight:400;color:var(--text);margin-bottom:8px}
-.land-feat-desc{font-size:.64rem;color:var(--mid);line-height:1.55}
-.land-cta{display:block;background:var(--gold);color:#fff;border:none;border-radius:4px;padding:14px 44px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin:0 auto 40px;transition:filter .15s}
+#landing{display:flex;flex-direction:column;height:calc(100vh - 52px);overflow:hidden}
+.land-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:860px;margin:0 auto;padding:20px 24px 12px;text-align:center}
+.land-logo-block{margin-bottom:8px;line-height:1}
+.land-logo-p{display:block;font-family:'Fraunces',serif;font-size:clamp(2.4rem,7vw,4.2rem);font-weight:300;letter-spacing:-3px;color:var(--text)}
+.land-logo-pat{display:block;font-family:'IBM Plex Mono',monospace;font-size:clamp(.6rem,1.6vw,.85rem);letter-spacing:10px;text-transform:uppercase;color:var(--gold);margin-top:4px}
+.land-tagline{font-size:.65rem;color:var(--light);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:20px}
+.land-features{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.land-feat{flex:1;min-width:200px;max-width:260px;background:var(--card);border:1px solid var(--bdr);border-radius:6px;padding:16px 18px;text-align:left}
+.land-feat-num{font-family:'IBM Plex Mono',monospace;font-size:.5rem;color:var(--gold);letter-spacing:3px;margin-bottom:6px}
+.land-feat-title{font-family:'Fraunces',serif;font-size:.88rem;font-weight:400;color:var(--text);margin-bottom:6px}
+.land-feat-desc{font-size:.64rem;color:var(--mid);line-height:1.5}
+.land-cta{display:block;background:var(--gold);color:#fff;border:none;border-radius:4px;padding:12px 44px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin:0 auto 14px;transition:filter .15s}
 .land-cta:hover{filter:brightness(.88)}
 .land-email-section{text-align:center}
-.land-email-label{font-size:.6rem;color:var(--mid);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px}
-.land-email-row{display:flex;gap:8px;justify-content:center;margin-top:8px}
-.land-email-row input{padding:7px 10px;border:1px solid var(--bdr);border-radius:3px;background:var(--ibg);font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text);outline:none;width:220px}
+.land-email-label{font-size:.6rem;color:var(--mid);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.land-email-row{display:flex;gap:8px;justify-content:center;margin-top:6px}
+.land-email-row input{padding:6px 10px;border:1px solid var(--bdr);border-radius:3px;background:var(--ibg);font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--text);outline:none;width:220px}
 .land-email-row input:focus{border-color:var(--gold)}
-.land-email-btn{padding:7px 16px;background:var(--gold);color:#fff;border:none;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;font-weight:600;transition:filter .15s}
+.land-email-btn{padding:6px 16px;background:var(--gold);color:#fff;border:none;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;font-weight:600;transition:filter .15s}
 .land-email-btn:hover{filter:brightness(.88)}
-.land-footer{border-top:1px solid var(--bdr);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;font-size:.58rem;flex-wrap:wrap;gap:10px}
+.land-footer{flex-shrink:0;border-top:1px solid var(--bdr);padding:8px 24px;display:flex;align-items:center;justify-content:space-between;font-size:.58rem;flex-wrap:wrap;gap:8px}
 .land-footer-copy{color:var(--mid);letter-spacing:.5px}
 .land-footer-links{display:flex;gap:16px}
 .land-footer-link{color:var(--mid);text-decoration:none;letter-spacing:.5px}
