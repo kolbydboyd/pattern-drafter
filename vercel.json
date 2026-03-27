@@ -27,6 +27,11 @@
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/404", "destination": "/404.html" },
-    { "source": "/success", "destination": "/success.html" }
+    { "source": "/success", "destination": "/success.html" },
+    { "source": "/patterns", "destination": "/patterns.html" },
+    { "source": "/patterns/:garment", "destination": "/patterns.html" }
+  ],
+  "crons": [
+    { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
   ]
 }
