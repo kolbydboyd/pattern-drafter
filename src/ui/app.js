@@ -1256,3 +1256,65 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   document.getElementById('theme-btn')?.click();
   _mobileNav?.classList.remove('open');
 });
+
+// ── Exit-intent email capture (desktop only, once per session) ─────────────────
+(function initExitIntent() {
+  const STORAGE_KEY = 'pp-exit-shown';
+  if (sessionStorage.getItem(STORAGE_KEY)) return;
+
+  let banner = null;
+
+  function createBanner() {
+    if (banner) return;
+    banner = document.createElement('div');
+    banner.id = 'exit-intent-banner';
+    banner.innerHTML = `
+      <div class="exit-intent-inner">
+        <p class="exit-intent-msg">Save your measurement profile: enter your email and pick up where you left off.</p>
+        <form class="exit-intent-form" id="exit-intent-form">
+          <input type="email" id="exit-intent-email" placeholder="you@example.com" autocomplete="email">
+          <button type="submit" class="exit-intent-btn">Save</button>
+        </form>
+        <button class="exit-intent-close" id="exit-intent-close" aria-label="Dismiss">&#x2715;</button>
+      </div>`;
+    document.body.appendChild(banner);
+    sessionStorage.setItem(STORAGE_KEY, '1');
+
+    document.getElementById('exit-intent-close')?.addEventListener('click', () => {
+      banner.remove();
+      banner = null;
+    });
+
+    document.getElementById('exit-intent-form')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const emailInput = document.getElementById('exit-intent-email');
+      const email = emailInput?.value.trim();
+      if (!email || !email.includes('@')) return;
+
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '...';
+
+      try {
+        await fetch('/api/join-list', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email }),
+        });
+        const inner = banner.querySelector('.exit-intent-inner');
+        if (inner) inner.innerHTML = '<p class="exit-intent-success">Your profile is saved. Come back anytime.</p>';
+        setTimeout(() => { banner?.remove(); banner = null; }, 3000);
+      } catch {
+        submitBtn.disabled  = false;
+        submitBtn.textContent = 'Save';
+      }
+    });
+  }
+
+  // Only trigger on desktop (pointer device, not touch-primary)
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mouseleave', e => {
+      if (e.clientY <= 10) createBanner();
+    }, { once: true });
+  }
+})();
