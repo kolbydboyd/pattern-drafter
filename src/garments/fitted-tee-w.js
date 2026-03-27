@@ -9,7 +9,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const SLEEVE_LENGTHS = { short: 7, cap: 3, three_quarter: 17, long: 24 };
@@ -173,6 +173,37 @@ export default {
       sleevePoly.push({ x: 0, y: capHeight + slvLen });
     }
 
+    // ── NOTCH MARKS ─────────────────────────────────────────────────────────
+    const shoulderMidX = neckW + shoulderW / 2;
+    const shoulderMidY = slopeDrop / 2;
+    const sideX = shoulderPtX + chestDepth;
+    const backSideX = shoulderPtX + backChestDepth;
+
+    const frontNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: sideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+    ];
+
+    const backNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: backSideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+    ];
+
+    const capW = slvWidth * 2;
+    const sleeveNotches = opts.sleeve === 'cap' ? [
+      { x: capW / 2, y: 0, angle: -90 },
+      { x: capW * 0.25, y: 0, angle: -90 },
+      { x: capW * 0.75, y: 0, angle: -90 },
+    ] : [
+      { x: capW / 2, y: 0, angle: -90 },
+      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
+      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
+    ];
+
     const nbLen = m.neck * 0.80; // 80% — slightly tighter for womenswear
     const frontBB = bb(frontPoly), backBB = bb(backPoly), slvBB = bb(sleevePoly);
 
@@ -181,21 +212,21 @@ export default {
         id: 'bodice-front', name: 'Front Body',
         instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Horizontal bust dart at side seam' : ''}`,
         type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
-        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem, notches: frontNotches,
         dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Body',
         instruction: 'Cut 1 on fold (CB)',
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
-        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'sleeve', name: 'Sleeve',
         instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} sleeve`,
         type: 'sleeve', polygon: sleevePoly, path: pp(sleevePoly),
-        width: slvBB.width, height: slvBB.height, capHeight, sleeveLength: slvLen, sleeveWidth: slvWidth * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight, sleeveLength: slvLen, sleeveWidth: slvWidth * 2, sa, hem, notches: sleeveNotches,
         dims: [{ label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, x2: slvWidth * 2, y2: (opts.sleeve==='cap' ? 0 : capHeight) + 0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       },
       { id: 'neckband', name: 'Neckband (rib)', instruction: `Cut 1 from rib knit on fold · ${fmtInches(nbLen)} long × 2.5″ cut (1.25″ finished) · 80% of neck opening`, dimensions: { length: nbLen, width: 2.5 }, type: 'rectangle', sa },

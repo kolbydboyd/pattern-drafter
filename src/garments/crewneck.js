@@ -12,7 +12,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -190,6 +190,31 @@ export default {
     const slvHemW  = slvWidth * 2;  // opening width (flat)
     const cuffLen  = slvHemW * 0.85;
 
+    // ── NOTCH MARKS ─────────────────────────────────────────────────────────
+    const shoulderMidX = neckW + shoulderW / 2;
+    const shoulderMidY = slopeDrop / 2;
+
+    const frontNotches = isRaglan ? [] : [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: sideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+    ];
+
+    const backNotches = isRaglan ? [] : [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: backSideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+    ];
+
+    const capW = slvWidth * 2;
+    const sleeveNotches = isRaglan ? [] : [
+      { x: capW / 2, y: 0, angle: -90 },
+      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
+      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
+    ];
+
     const frontBB  = bbox(frontPoly);
     const backBB   = bbox(backPoly);
     const sleeveBB = bbox(sleevePoly);
@@ -206,6 +231,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -222,6 +248,7 @@ export default {
         height: backBB.maxY - backBB.minY,
         isBack: true,
         sa, hem,
+        notches: backNotches,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -240,6 +267,7 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: slvWidth * 2,
         sa, hem,
+        notches: sleeveNotches,
         dims: [
           { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: (isRaglan ? 0 : capHeight) + 0.4, x2: slvWidth * 2, y2: (isRaglan ? 0 : capHeight) + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: isRaglan ? 0 : capHeight, y2: (isRaglan ? 0 : capHeight) + slvLength, type: 'v' },

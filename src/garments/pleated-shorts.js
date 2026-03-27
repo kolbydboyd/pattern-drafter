@@ -9,7 +9,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution
+  fmtInches, easeDistribution, edgeAngle
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -281,11 +281,18 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   if (!isBack && numPleats >= 1) pleats.push({ x: width * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
   if (!isBack && numPleats >= 2) pleats.push({ x: width * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
 
+  // Notch marks: hip level on side seam, crotch junction
+  const notches = [
+    { x: width, y: rise, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
+    { x: -ext,  y: rise, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+  ];
+
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
+    notches,
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },

@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const NECK_STYLES = {
@@ -153,6 +153,26 @@ export default {
     const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckStyle.front, frontW, shoulderPtX + chestDepth);
     const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckStyle.back,  backW,  shoulderPtX + chestDepth);
 
+    // ── NOTCH MARKS ─────────────────────────────────────────────────────────
+    const shoulderMidX = neckW + shoulderW / 2;
+    const shoulderMidY = slopeDrop / 2;
+    const sideX = shoulderPtX + chestDepth;
+    const backSideX = shoulderPtX + backChestDepth;
+
+    const frontNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: sideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+    ];
+
+    const backNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: backSideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+    ];
+
     const frontBB = bb(frontPoly), backBB = bb(backPoly);
 
     const pieces = [
@@ -160,14 +180,14 @@ export default {
         id: 'bodice-front', name: 'Front Body',
         instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
         type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
-        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem, notches: frontNotches,
         dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
         id: 'bodice-back', name: 'Back Body',
         instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB' : ''}`,
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
-        width: backBB.width, height: backBB.height, isBack: true, sa, hem,
+        width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket' },
@@ -185,11 +205,16 @@ export default {
         { x: 0,           y: slvLen },
       ];
       const slvBB = bb(slvPoly);
+      const sleeveNotches = [
+        { x: slvW, y: 0, angle: -90 },
+        { x: slvW * 0.5, y: 0, angle: -90 },
+        { x: slvW * 1.5, y: 0, angle: -90 },
+      ];
       pieces.push({
         id: 'sleeve', name: `${opts.sleeves === 'cap' ? 'Cap' : 'Short'} Sleeve`,
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
+        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem, notches: sleeveNotches,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }],
       });
     } else if (opts.sleeves === 'flutter') {

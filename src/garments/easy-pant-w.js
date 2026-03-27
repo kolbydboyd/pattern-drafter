@@ -7,7 +7,7 @@
  */
 
 import {
-  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
+  edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -153,6 +153,14 @@ export default {
         return (a.y > H - 0.5 && b.y > H - 0.5) ? -hem : -sa;
       });
 
+      const effSeatDepth = m.seatDepth || 7;
+      const notches = [
+        { x: width, y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
+        { x: -ext,  y: rise,         angle: edgeAngle({ x: ikX, y: kneeY }, { x: -ext, y: rise }) },
+        { x: skX,   y: kneeY,        angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
+        { x: ikX,   y: kneeY,        angle: edgeAngle({ x: -ext, y: rise }, { x: ikX, y: kneeY }) },
+      ];
+
       return {
         id: type, name: type === 'front' ? 'Front Panel' : 'Back Panel',
         instruction: `Cut 2 (mirror L & R)`,
@@ -169,7 +177,7 @@ export default {
           { text: 'SIDE SEAM', x: width + 0.3, y: H * 0.35,  rotation: 90  },
           { text: 'CENTER',    x: -0.5,         y: rise * 0.3, rotation: -90 },
         ],
-        type: 'panel', opts,
+        notches, type: 'panel', opts,
       };
     }
 

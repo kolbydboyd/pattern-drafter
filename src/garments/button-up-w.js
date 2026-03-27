@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5;
@@ -183,6 +183,32 @@ export default {
       { x: slvTopW - slvBotW,                  y: slvLen },
     ];
 
+    // ── NOTCH MARKS ─────────────────────────────────────────────────────────
+    const shoulderMidX = neckW + shoulderW / 2;
+    const shoulderMidY = slopeDrop / 2;
+    const sideX = shoulderPtX + chestDepth;
+    const backSideX = shoulderPtX + backChestDepth;
+
+    const frontNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: sideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+    ];
+
+    const backNotches = [
+      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: backSideX, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+    ];
+
+    const sleeveNotches = [
+      { x: slvTopW, y: 0, angle: -90 },
+      { x: slvTopW * 0.5, y: 0, angle: -90 },
+      { x: slvTopW * 1.5, y: 0, angle: -90 },
+    ];
+
     const collarLen = m.neck + 0.5;
     const frontBB = bbox(frontPoly), backBB = bbox(backPoly), slvBB = bbox(sleevePoly);
     const btnCount = parseInt(opts.buttons) || 7;
@@ -193,7 +219,7 @@ export default {
         instruction: `Cut 2 (L & R mirror) · ${fmtInches(PLACKET_W)} placket at CF · Left panel: buttonholes · Right panel: buttons${bustDartNote}`,
         type: 'bodice', polygon: frontPoly, path: polyPath(frontPoly),
         width: frontBB.maxX - frontBB.minX, height: frontBB.maxY - frontBB.minY,
-        isBack: false, sa, hem,
+        isBack: false, sa, hem, notches: frontNotches,
         dims: [{ label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
@@ -201,7 +227,7 @@ export default {
         instruction: `Cut 1 on fold (CB)${opts.backDetail === 'yoke' ? ' · Stop at yoke seam line' : ''}${opts.backDetail === 'pleat' ? ' · CB pleat 1″ each side' : ''}`,
         type: 'bodice', polygon: backPoly, path: polyPath(backPoly),
         width: backBB.maxX - backBB.minX, height: backBB.maxY - backBB.minY,
-        isBack: true, sa, hem,
+        isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
       {
@@ -209,7 +235,7 @@ export default {
         instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} · Straight grain along length`,
         type: 'sleeve', polygon: sleevePoly, path: polyPath(sleevePoly),
         width: slvBB.maxX - slvBB.minX, height: slvBB.maxY - slvBB.minY,
-        capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem,
+        capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem, notches: sleeveNotches,
         dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       },
       { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × 3″ cut`, dimensions: { length: collarLen, width: 3 }, type: 'rectangle', sa },

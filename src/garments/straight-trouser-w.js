@@ -7,7 +7,7 @@
  */
 
 import {
-  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
+  edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -333,6 +333,13 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     }
   }
 
+  const notches = [
+    { x: hipWidth,     y: hipLineY, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    { x: -ext,         y: rise,     angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
+    { x: sideKneeX,    y: kneeY,    angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY }) },
+    { x: inseamKneeX,  y: kneeY,    angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
+  ];
+
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
@@ -342,6 +349,6 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    pleats, darts, type: 'panel', opts,
+    notches, pleats, darts, type: 'panel', opts,
   };
 }

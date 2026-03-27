@@ -10,7 +10,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W  = 1.5;
@@ -166,6 +166,23 @@ export default {
     const frontBodice = buildBodice(false, frontNeckPts, frontArmPts, 2.5, shoulderPtX + chestDepth);
     const backBodice  = buildBodice(true,  backNeckPts,  backArmPts,  0.75, shoulderPtX + chestDepth);
 
+    // Notch marks — front bodice
+    const frontShoulderMidX = neckW + shoulderW / 2;
+    const frontShoulderMidY = slopeDrop / 2;
+    const frontNotches = [
+      { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: panelW, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: panelW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+    ];
+    // Notch marks — back bodice
+    const backNotches = [
+      { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: panelW, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: panelW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+    ];
+
     // Front panels split at CF + placket extension
     const frontRightPoly = frontBodice.map(p => ({ x: p.x + PLACKET_W, y: p.y }));
     // Mirror the right panel. Negating x flips CW→CCW winding; .reverse() restores CW
@@ -216,12 +233,18 @@ export default {
       }
 
       const gatherNote = opts.skirtShape === 'gathered' ? ' · Gather waist edge to match bodice waist width' : '';
+      const hipLevel = Math.min(8, adjSkirtL * 0.3);
+      const skirtNotches = [
+        { x: panelW / 2, y: 0, angle: -90 },
+        { x: panelW, y: hipLevel, angle: 0 },
+      ];
       return {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
         width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' half width at hip', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
+        notches: skirtNotches,
       };
     }
 
@@ -233,6 +256,7 @@ export default {
         isCutOnFold: false,
         width: frontRightBB.width, height: frontRightBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
+        notches: frontNotches,
       },
       {
         id: 'bodice-front-left', name: 'Front Bodice (Left / button side)',
@@ -241,6 +265,7 @@ export default {
         isCutOnFold: false,
         width: frontLeftBB.width, height: frontLeftBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
+        notches: frontNotches,
       },
       {
         id: 'bodice-back', name: 'Back Bodice',
@@ -248,6 +273,7 @@ export default {
         type: 'bodice', polygon: backBodice, path: pp(backBodice),
         width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
+        notches: backNotches,
       },
       buildSkirtPanel('skirt-front', 'Skirt Front', false, skirtFrontW),
       buildSkirtPanel('skirt-back',  'Skirt Back',  true,  skirtBackW),
@@ -277,12 +303,20 @@ export default {
       const slvW    = (m.bicep || 13) / 2 + easeVal * 0.15 + 0.5;
       const slvPoly = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
       const slvBB   = bb(slvPoly);
+      const capW = slvW * 2;
+      const capH = 0;
+      const sleeveNotches = [
+        { x: capW / 2, y: 0, angle: -90 },
+        { x: capW * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: capW / 2, y: 0 }) },
+        { x: capW * 0.75, y: capH * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capH }) },
+      ];
       pieces.push({
         id: 'sleeve', name: `${opts.sleeve === 'roll' ? 'Roll-up' : opts.sleeve === 'long' ? 'Long' : 'Short'} Sleeve`,
         instruction: `Cut 2 (mirror L & R)${opts.sleeve === 'roll' ? ' · Tab and button to hold roll-up position' : ''}`,
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
         width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        notches: sleeveNotches,
       });
     } else {
       pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });

@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -162,6 +162,23 @@ export default {
     const backBodicePoly  = buildBackBodice();
     const frontBB = bb(frontBodicePoly), backBB = bb(backBodicePoly);
 
+    // Notch marks — front bodice
+    const frontShoulderMidX = neckW + shoulderW / 2;
+    const frontShoulderMidY = slopeDrop / 2;
+    const frontNotches = [
+      { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: frontW, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: frontW, y: armholeY }) },
+      { x: frontW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: frontW, y: armholeY }) },
+    ];
+    // Notch marks — back bodice
+    const backNotches = [
+      { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+      { x: backW, y: armholeY, angle: 0 },
+      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backW, y: armholeY }) },
+      { x: backW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backW, y: armholeY }) },
+    ];
+
     // Skirt
     const skirtL     = m.skirtLength || 28;
     const lengthMod  = opts.length === 'mini' ? -10 : opts.length === 'knee' ? -5 : opts.length === 'maxi' ? 8 : 0;
@@ -197,12 +214,18 @@ export default {
         ];
       }
       const gatherNote = opts.skirtShape === 'flowy' ? ' · Gather waist to match bodice waist width' : '';
+      const hipLevel = Math.min(8, adjSkirtL * 0.3);
+      const skirtNotches = [
+        { x: panelW / 2, y: 0, angle: -90 },
+        { x: panelW, y: hipLevel, angle: 0 },
+      ];
       return {
         id, name,
         instruction: `Cut 1${isBack ? ' on fold (CB)' : ' — left and right fronts are mirror images'}${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
         width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
+        notches: skirtNotches,
       };
     }
 
@@ -214,6 +237,7 @@ export default {
         isCutOnFold: false,
         width: frontBB.width, height: frontBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + wrapExt) + ' width + wrap', x1: -wrapExt, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
+        notches: frontNotches,
       },
       {
         id: 'bodice-back', name: 'Back Bodice',
@@ -221,6 +245,7 @@ export default {
         type: 'bodice', polygon: backBodicePoly, path: pp(backBodicePoly),
         width: backBB.width, height: backBB.height, isBack: true, sa, hem,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
+        notches: backNotches,
       },
       buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2 — mirror)', false),
       buildSkirtPanel('skirt-back',  'Skirt Back Panel', true),
@@ -250,12 +275,20 @@ export default {
       const slvW      = (m.bicep || 13) / 2 + easeVal * 0.15;
       const slvPoly   = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
       const slvBB     = bb(slvPoly);
+      const capW = slvW * 2;
+      const capH = 0;
+      const sleeveNotches = [
+        { x: capW / 2, y: 0, angle: -90 },
+        { x: capW * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: capW / 2, y: 0 }) },
+        { x: capW * 0.75, y: capH * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capH }) },
+      ];
       pieces.push({
         id: 'sleeve', name: 'Sleeve',
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
         width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
         dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        notches: sleeveNotches,
       });
     } else {
       pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
