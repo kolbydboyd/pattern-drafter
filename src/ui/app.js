@@ -235,8 +235,8 @@ function buildInputs() {
   // Event listeners
   document.getElementById('gen-btn').addEventListener('click', generate);
   document.getElementById('export-btn').addEventListener('click', exportSVG);
-  document.getElementById('print-btn').addEventListener('click', captureEmailThenPrint);
-  document.getElementById('download-pdf-btn').addEventListener('click', captureEmailThenPrint);
+  document.getElementById('print-btn').addEventListener('click', () => handlePrint(document.getElementById('print-btn')));
+  document.getElementById('download-pdf-btn').addEventListener('click', () => handleDownloadPDF(document.getElementById('download-pdf-btn')));
   document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
@@ -599,8 +599,8 @@ function _generate() {
   document.querySelectorAll('input[name="s4-ps"]').forEach(r =>
     r.addEventListener('change', e => { selectedPaperSize = e.target.value; })
   );
-  document.getElementById('s4-print-btn')?.addEventListener('click', captureEmailThenPrint);
-  document.getElementById('s4-download-btn')?.addEventListener('click', captureEmailThenPrint);
+  document.getElementById('s4-print-btn')?.addEventListener('click', () => handlePrint(document.getElementById('s4-print-btn')));
+  document.getElementById('s4-download-btn')?.addEventListener('click', () => handleDownloadPDF(document.getElementById('s4-download-btn')));
   document.getElementById('s4-export-btn')?.addEventListener('click', exportSVG);
 
   switchTab(activeTab);
@@ -641,10 +641,7 @@ async function _applyWatermarkState(garmentId) {
       <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-buy-btn').addEventListener('click', () => {
-      import('../lib/checkout.js').then(m => {
-        const { m: mVals, opts } = readInputs();
-        m.buyPattern(garmentId, mVals, opts, user?.id);
-      });
+      _triggerBuyPattern(garmentId);
     });
   }
 }
@@ -712,16 +709,75 @@ function showEmailGate(onSuccess) {
   dlg.showModal();
 }
 
-function captureEmailThenPrint() {
+// ── Purchase gate helpers ─────────────────────────────────────────────────────
+function _triggerBuyPattern(garmentId) {
+  const user = getCurrentUser();
+  if (!user) {
+    openAuthModal('download', () => _triggerBuyPattern(garmentId));
+    return;
+  }
+  import('../lib/checkout.js').then(mod => {
+    const { m: mVals, opts } = readInputs();
+    mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id);
+  });
+}
+
+function handlePrint(btn) {
   if (!getCurrentUser()) {
-    openAuthModal('download', () => captureEmailThenPrint());
+    openAuthModal('download', () => handlePrint(btn));
     return;
   }
   if (!_currentPurchased) {
-    document.getElementById('wm-buy-btn')?.click();
+    _triggerBuyPattern(currentGarment);
     return;
   }
   printPattern();
+}
+
+async function handleDownloadPDF(btn) {
+  if (!getCurrentUser()) {
+    openAuthModal('download', () => handleDownloadPDF(btn));
+    return;
+  }
+  if (!_currentPurchased) {
+    _triggerBuyPattern(currentGarment);
+    return;
+  }
+
+  const origText  = btn.textContent;
+  btn.disabled    = true;
+  btn.textContent = 'Generating…';
+
+  try {
+    const user       = getCurrentUser();
+    const { m, opts } = readInputs();
+    const res = await fetch('/api/generate-pattern', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        garmentId:    currentGarment,
+        userId:       user.id,
+        measurements: m,
+        opts,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || json.error) {
+      alert('Could not generate PDF: ' + (json.error ?? res.statusText));
+      return;
+    }
+    const a  = document.createElement('a');
+    a.href   = json.downloadUrl;
+    a.download = `${currentGarment}-pattern.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (err) {
+    alert('Download failed — please try again.');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = origText;
+  }
 }
 
 // ═══ PRINT ═══
