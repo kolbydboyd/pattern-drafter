@@ -29,7 +29,11 @@
       "Read(//c/Users/black/OneDrive/Desktop/pattern-drafter/**)",
       "Bash(sqlite3:*)",
       "Bash(for id:*)",
-      "Read(//c/Users/black/AppData/Roaming/Nucleo/icons/sets/2/**)"
+      "Read(//c/Users/black/AppData/Roaming/Nucleo/icons/sets/2/**)",
+      "Bash(python3 -c \":*)",
+      "Bash(npm install:*)",
+      "Bash(\"C:/Users/black/OneDrive/Desktop/pattern-drafter/.env.local\")",
+      "Bash(python3:*)"
     ]
   }
 }
