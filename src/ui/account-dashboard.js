@@ -8,39 +8,56 @@ import {
 import { supabase } from '../lib/supabase.js';
 
 // ── Open / close ──────────────────────────────────────────────────────────────
+function _closeAccountDashboard() {
+  const overlay = document.getElementById('acct-overlay');
+  if (overlay) overlay.hidden = true;
+  document.body.style.overflow = '';
+}
+
 export function openAccountDashboard(section = 'measurements') {
-  let modal = document.getElementById('acct-modal');
-  if (!modal) {
-    modal = document.createElement('dialog');
-    modal.id = 'acct-modal';
-    modal.className = 'acct-modal';
-    modal.innerHTML = `
-      <div class="acct-wrap">
-        <div class="acct-sidebar">
-          <div class="acct-brand">People's Patterns</div>
-          <nav class="acct-nav">
-            <button class="acct-nav-item" data-section="measurements">My Measurements</button>
-            <button class="acct-nav-item" data-section="patterns">My Patterns</button>
-            <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
-            <button class="acct-nav-item" data-section="orders">Orders</button>
-            <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
-            <button class="acct-nav-item" data-section="settings">Account Settings</button>
-          </nav>
-          <button class="acct-close-btn" id="acct-close">✕ Close</button>
-        </div>
-        <div class="acct-main" id="acct-main">
-          <div class="acct-loading">Loading…</div>
+  let overlay = document.getElementById('acct-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'acct-overlay';
+    overlay.className = 'acct-overlay';
+    overlay.hidden = true;
+    overlay.innerHTML = `
+      <div class="acct-modal" role="dialog" aria-modal="true">
+        <div class="acct-wrap">
+          <div class="acct-sidebar">
+            <div class="acct-brand">People's Patterns</div>
+            <nav class="acct-nav">
+              <button class="acct-nav-item" data-section="measurements">My Measurements</button>
+              <button class="acct-nav-item" data-section="patterns">My Patterns</button>
+              <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
+              <button class="acct-nav-item" data-section="orders">Orders</button>
+              <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
+              <button class="acct-nav-item" data-section="settings">Account Settings</button>
+            </nav>
+            <button class="acct-close-btn" id="acct-close">✕ Close</button>
+          </div>
+          <div class="acct-main" id="acct-main">
+            <div class="acct-loading">Loading…</div>
+          </div>
         </div>
       </div>`;
-    document.body.appendChild(modal);
+    document.body.appendChild(overlay);
 
-    modal.addEventListener('click', e => { if (e.target === modal) modal.close(); });
-    document.getElementById('acct-close').addEventListener('click', () => modal.close());
-    modal.querySelectorAll('.acct-nav-item').forEach(btn => {
+    // Click outside the modal card closes
+    overlay.addEventListener('click', e => { if (e.target === overlay) _closeAccountDashboard(); });
+    document.getElementById('acct-close').addEventListener('click', _closeAccountDashboard);
+    overlay.querySelectorAll('.acct-nav-item').forEach(btn => {
       btn.addEventListener('click', () => _showSection(btn.dataset.section));
     });
+
+    // ESC key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !overlay.hidden) _closeAccountDashboard();
+    });
   }
-  modal.showModal();
+
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
   _showSection(section);
 }
 
@@ -149,7 +166,7 @@ async function _renderPatterns(main, user) {
     main.innerHTML = html;
     main.querySelector('.acct-link')?.addEventListener('click', e => {
       e.preventDefault();
-      document.getElementById('acct-modal')?.close();
+      _closeAccountDashboard();
     });
     return;
   }

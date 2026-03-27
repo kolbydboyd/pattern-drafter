@@ -269,8 +269,9 @@ details.adv-meas summary:hover{color:var(--text)}
 .hdr-dd-signout{color:var(--accent)}
 
 /* ── Account dashboard ── */
-.acct-modal{border:none;padding:0;background:transparent;max-width:900px;width:calc(100% - 32px);max-height:90vh}
-.acct-modal::backdrop{background:rgba(0,0,0,.55)}
+.acct-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center}
+.acct-overlay[hidden]{display:none}
+.acct-modal{max-width:900px;width:calc(100% - 32px);max-height:90vh}
 .acct-wrap{display:flex;background:var(--card);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;height:80vh;max-height:700px}
 .acct-sidebar{width:190px;min-width:190px;background:var(--ibg);border-right:1px solid var(--bdr);display:flex;flex-direction:column;padding:20px 0}
 .acct-brand{font-family:'Fraunces',serif;font-size:.85rem;font-weight:300;padding:0 16px 16px;border-bottom:1px solid var(--bdr);margin-bottom:8px;color:var(--text)}
