@@ -14,7 +14,7 @@ const sc = i => i * SC;
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], opts } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -144,6 +144,19 @@ export function renderPanelSVG(piece) {
     <text x="${midX.toFixed(1)}" y="${(py2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">pleat</text>`;
   }
 
+  // Dart V-lines (back panel waist darts)
+  let dartSVG = '';
+  for (const d of darts) {
+    const dx = ox + sc(d.x);
+    const dy1 = oy;
+    const dy2 = oy + sc(d.length);
+    const halfW = sc(d.intake / 2);
+    dartSVG += `
+    <line x1="${(dx - halfW).toFixed(1)}" y1="${dy1.toFixed(1)}" x2="${dx.toFixed(1)}" y2="${dy2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="${(dx + halfW).toFixed(1)}" y1="${dy1.toFixed(1)}" x2="${dx.toFixed(1)}" y2="${dy2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="${dx.toFixed(1)}" y="${(dy2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">dart</text>`;
+  }
+
   // Reference lines
   const cLineY = oy + sc(rise);
   const gx = ox + sc(width * .42), gy1 = oy + sc(1.8), gy2 = oy + sc(height - 1.8);
@@ -167,7 +180,7 @@ export function renderPanelSVG(piece) {
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
-    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}
+    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     ${legendSVG}

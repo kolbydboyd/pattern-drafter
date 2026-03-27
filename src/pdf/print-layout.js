@@ -44,7 +44,7 @@ function polyPath(pts, ox, oy) {
  */
 function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction } = piece;
+          sa, hem, name, instruction, darts = [] } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
@@ -93,6 +93,15 @@ function renderPanelSVG(piece) {
       <text x="${titleX}" y="${subY}"
         font-family="'IBM Plex Mono',monospace" font-size="12"
         fill="#666" text-anchor="middle">${instruction}</text>
+      ${darts.map(d => {
+        const dx = (ox + d.x) * DPI;
+        const dy1 = oy * DPI;
+        const dy2 = (oy + d.length) * DPI;
+        const halfW = (d.intake / 2) * DPI;
+        return `<line x1="${dx - halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
+      }).join('\n')}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem

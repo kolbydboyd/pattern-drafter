@@ -133,7 +133,7 @@ export default {
     const backHipW    = m.hip / 4 + ease.back;
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
-    const hipLineY    = 8;
+    const hipLineY    = m.seatDepth || 7;
     const H           = rise + inseam;
 
     const pieces = [];
@@ -366,20 +366,18 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
-  // Waist-to-hip shaping
-  const waistInward  = (hipWidth - waistWidth) * 0.5;
-  const sideWaistX   = hipWidth - waistInward;
-  const inseamWaistX = waistInward;
+  // Waist-to-hip shaping: all taper on side seam, center seam stays at x=0
+  const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: inseamWaistX, y: 0       });   // waist at center seam
+  poly.push({ x: 0,            y: 0       });   // waist at center seam
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: hipWidth,     y: height  });
   poly.push({ x: -ext,         y: height  });
   poly.push({ x: -ext,         y: rise    });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
-  if (isBack && cbRaise > 0) poly.push({ x: inseamWaistX, y: cbRaise }); // CB seam top
+  if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];
@@ -387,7 +385,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   });
 
   const dims = [
-    { label: fmtInches(waistWidth) + ' waist', x1: inseamWaistX, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
+    { label: fmtInches(waistWidth) + ' waist', x1: 0, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
     { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
     { label: fmtInches(rise)   + ' rise',      x: hipWidth + 1.2, y1: 0,           y2: rise,                   type: 'v' },
     { label: fmtInches(inseam) + ' inseam',    x: hipWidth + 1.2, y1: rise,        y2: height,                 type: 'v' },
@@ -401,12 +399,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
 
   // Waist darts for back panel
   const darts = [];
-  if (isBack && dartIntake > 0) {
+  if (isBack && dartIntake > 1) {
     if (dartIntake <= 1.5) {
-      darts.push({ x: waistWidth * 0.4, intake: dartIntake, length: hipLineY - 0.5 });
+      darts.push({ x: waistWidth * 0.4, intake: dartIntake, length: 4.5 });
     } else {
-      darts.push({ x: waistWidth * 0.3, intake: dartIntake / 2, length: hipLineY - 0.5 });
-      darts.push({ x: waistWidth * 0.6, intake: dartIntake / 2, length: hipLineY - 1 });
+      darts.push({ x: waistWidth * 0.3, intake: dartIntake / 2, length: 4.5 });
+      darts.push({ x: waistWidth * 0.6, intake: dartIntake / 2, length: 4 });
     }
   }
 
