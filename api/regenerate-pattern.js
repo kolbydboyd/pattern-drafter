@@ -8,31 +8,45 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
+// PDF generation via headless Chromium (single renderer, no fallback).
 async function generatePDF(html) {
+  const chromium  = (await import('@sparticuz/chromium-min')).default;
+  const puppeteer = (await import('puppeteer-core')).default;
+  const browser = await puppeteer.launch({
+    args:            chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath:  await chromium.executablePath(
+      `https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar`
+    ),
+    headless: chromium.headless,
+  });
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  const pdf = await page.pdf({ format: 'Letter', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+
+  // Scale verification: check the 2x2" calibration square
   try {
-    const chromium  = (await import('@sparticuz/chromium-min')).default;
-    const puppeteer = (await import('puppeteer-core')).default;
-    const browser = await puppeteer.launch({
-      args:            chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath:  await chromium.executablePath(
-        `https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar`
-      ),
-      headless: chromium.headless,
+    const box = await page.evaluate(() => {
+      const rect = document.querySelector('.scale-check-square');
+      if (!rect) return null;
+      const r = rect.getBoundingClientRect();
+      return { w: r.width, h: r.height };
     });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({ format: 'Letter', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
-    await browser.close();
-    return pdf;
-  } catch {
-    const htmlPdf = (await import('html-pdf-node')).default;
-    const file    = { content: html };
-    const options = { format: 'Letter', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } };
-    return new Promise((resolve, reject) => {
-      htmlPdf.generatePdf(file, options, (err, buf) => err ? reject(err) : resolve(buf));
-    });
+    if (box) {
+      const expectedPx = 2 * 96;
+      const deviationW = Math.abs(box.w - expectedPx) / expectedPx;
+      const deviationH = Math.abs(box.h - expectedPx) / expectedPx;
+      const maxDev = Math.max(deviationW, deviationH);
+      if (maxDev > 0.005) {
+        console.warn(`[SCALE WARNING] Calibration square deviation: ${(maxDev * 100).toFixed(2)}% (w=${box.w.toFixed(1)}px, h=${box.h.toFixed(1)}px, expected=${expectedPx}px)`);
+      }
+    }
+  } catch (scaleErr) {
+    console.warn('Scale check failed (non-fatal):', scaleErr.message);
   }
+
+  await browser.close();
+  return pdf;
 }
 
 export default async function handler(req, res) {

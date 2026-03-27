@@ -12,42 +12,56 @@ const supabase = createClient(
 const RATE_LIMIT_MAX     = 10;   // max PDF generations per user per hour
 const RATE_LIMIT_WINDOW  = 3600; // seconds
 
-// Dynamic imports so bundler only loads what's available at runtime
+// PDF generation via headless Chromium (single renderer, no fallback).
+// Using one engine guarantees consistent scale across all outputs.
 async function generatePDF(html) {
-  // Try @sparticuz/chromium-min + puppeteer-core first (smaller Lambda bundle)
+  const chromium   = (await import('@sparticuz/chromium-min')).default;
+  const puppeteer  = (await import('puppeteer-core')).default;
+
+  const browser = await puppeteer.launch({
+    args:            chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath:  await chromium.executablePath(
+      `https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar`
+    ),
+    headless: chromium.headless,
+  });
+
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  const pdf = await page.pdf({
+    format:          'Letter',
+    printBackground: true,
+    margin:          { top: 0, right: 0, bottom: 0, left: 0 },
+  });
+
+  // Scale verification: measure the 2x2" calibration square in PDF coordinates.
+  // Letter = 612x792pt (8.5x11" at 72pt/in). The calibration square should be
+  // exactly 144x144pt (2" x 72pt/in). Extract its bounding box from the page.
   try {
-    const chromium   = (await import('@sparticuz/chromium-min')).default;
-    const puppeteer  = (await import('puppeteer-core')).default;
-
-    const browser = await puppeteer.launch({
-      args:            chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath:  await chromium.executablePath(
-        `https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar`
-      ),
-      headless: chromium.headless,
+    const box = await page.evaluate(() => {
+      const rect = document.querySelector('.scale-check-square');
+      if (!rect) return null;
+      const r = rect.getBoundingClientRect();
+      return { w: r.width, h: r.height };
     });
-
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'networkidle0' });
-    const pdf = await page.pdf({
-      format:          'Letter',
-      printBackground: true,
-      margin:          { top: 0, right: 0, bottom: 0, left: 0 },
-    });
-    await browser.close();
-    return pdf;
-  } catch (chromiumErr) {
-    console.warn('chromium-min failed, falling back to html-pdf-node:', chromiumErr.message);
-
-    // Fallback: html-pdf-node (lighter, less accurate rendering)
-    const htmlPdf = (await import('html-pdf-node')).default;
-    const file    = { content: html };
-    const options = { format: 'Letter', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } };
-    return new Promise((resolve, reject) => {
-      htmlPdf.generatePdf(file, options, (err, buf) => err ? reject(err) : resolve(buf));
-    });
+    if (box) {
+      // Page is rendered at 96 DPI on screen; PDF is 72 DPI.
+      // 2 inches at 96 DPI = 192px on screen.
+      const expectedPx = 2 * 96; // 192px at screen DPI
+      const deviationW = Math.abs(box.w - expectedPx) / expectedPx;
+      const deviationH = Math.abs(box.h - expectedPx) / expectedPx;
+      const maxDev = Math.max(deviationW, deviationH);
+      if (maxDev > 0.005) {
+        console.warn(`[SCALE WARNING] Calibration square deviation: ${(maxDev * 100).toFixed(2)}% (w=${box.w.toFixed(1)}px, h=${box.h.toFixed(1)}px, expected=${expectedPx}px)`);
+      }
+    }
+  } catch (scaleErr) {
+    console.warn('Scale check failed (non-fatal):', scaleErr.message);
   }
+
+  await browser.close();
+  return pdf;
 }
 
 export default async function handler(req, res) {
