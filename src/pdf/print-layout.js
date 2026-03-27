@@ -11,7 +11,7 @@
  *   5+) Tiled pattern pieces at 1:1 scale, tiled to selected paper size
  */
 
-import { fmtInches } from '../engine/geometry.js';
+import { fmtInches, offsetPolygon } from '../engine/geometry.js';
 import { MEASUREMENTS } from '../engine/measurements.js';
 
 // ── Paper size registry ────────────────────────────────────────────────────
@@ -110,12 +110,6 @@ function renderPanelSVG(piece) {
   };
 }
 
-/** Normalize a 2D vector */
-function normVec(v) {
-  const len = Math.hypot(v.x, v.y);
-  return len < 1e-9 ? { x: 0, y: 0 } : { x: v.x / len, y: v.y / len };
-}
-
 /**
  * Render a bodice or sleeve piece as a full-size SVG string.
  * Returns { svg, wIn, hIn }.
@@ -135,48 +129,13 @@ function renderBodiceOrSleeveSVG(piece) {
   const ox = mL - minX;
   const oy = mT - minY;
 
-  // Compute SA outline with fold-edge = 0 offset (mirrors renderGenericPieceSVG logic)
+  // Compute SA outline using shared offsetPolygon (fold-edge = 0 offset)
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
-  const n = polygon.length;
-  const saPoints = [];
-  for (let i = 0; i < n; i++) {
-    const prev = polygon[(i - 1 + n) % n];
-    const curr = polygon[i];
-    const next = polygon[(i + 1) % n];
-    const eInIdx  = (i - 1 + n) % n;
-    const eOutIdx = i;
-    const aIn  = polygon[eInIdx],  bIn  = polygon[(eInIdx + 1) % n];
-    const aOut = polygon[eOutIdx], bOut = polygon[(eOutIdx + 1) % n];
-    const oIn  = (cutOnFold && Math.abs(aIn.x - minX) < 0.01 && Math.abs(bIn.x - minX) < 0.01) ? 0 : -sa;
-    const oOut = (cutOnFold && Math.abs(aOut.x - minX) < 0.01 && Math.abs(bOut.x - minX) < 0.01) ? 0 : -sa;
-
-    const nIn  = normVec({ x: -(curr.y - prev.y), y: curr.x - prev.x });
-    const nOut = normVec({ x: -(next.y - curr.y), y: next.x - curr.x });
-
-    const p1 = { x: curr.x + nIn.x  * oIn,  y: curr.y + nIn.y  * oIn  };
-    const p2 = { x: curr.x + nOut.x * oOut,  y: curr.y + nOut.y * oOut };
-
-    const d1 = { x: curr.x - prev.x, y: curr.y - prev.y };
-    const d2 = { x: next.x - curr.x, y: next.y - curr.y };
-    const denom = d1.x * d2.y - d1.y * d2.x;
-
-    if (Math.abs(denom) < 1e-9) {
-      saPoints.push(p1);
-      if (Math.abs(oIn - oOut) >= 1e-9) saPoints.push(p2);
-    } else {
-      const dp = { x: p2.x - p1.x, y: p2.y - p1.y };
-      const t  = (dp.x * d2.y - dp.y * d2.x) / denom;
-      const ix = p1.x + t * d1.x;
-      const iy = p1.y + t * d1.y;
-      const maxDist = Math.max(Math.abs(oIn), Math.abs(oOut)) * 2.5;
-      if ((ix - curr.x) ** 2 + (iy - curr.y) ** 2 <= maxDist * maxDist) {
-        saPoints.push({ x: ix, y: iy });
-      } else {
-        saPoints.push(p1);
-        saPoints.push(p2);
-      }
-    }
-  }
+  const saPoints = offsetPolygon(polygon, i => {
+    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+    if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
+    return -sa;
+  });
 
   function pts2path(pts) {
     let d = `M ${(ox + pts[0].x) * DPI} ${(oy + pts[0].y) * DPI}`;
