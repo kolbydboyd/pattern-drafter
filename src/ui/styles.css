@@ -308,6 +308,7 @@ details.adv-meas summary:hover{color:var(--text)}
   .hdr-social,.hdr-auth,.hdr .v,.dark-mode-toggle{display:none!important}
   #hdr-menu-btn{display:block}
   .hdr{position:relative;flex-wrap:nowrap}
+  .land-hero{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start;padding-top:28px}
 }
 
 /* ── Account dashboard ── */
