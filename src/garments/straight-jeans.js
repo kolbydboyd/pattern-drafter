@@ -98,25 +98,33 @@ export default {
     const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW  = m.hip / 4 + ease.back;
-    const H      = rise + inseam;
+    const frontHipW   = m.hip / 4 + ease.front;
+    const backHipW    = m.hip / 4 + ease.back;
+    const frontWaistW = m.waist / 4 + ease.front;
+    const backWaistW  = m.waist / 4 + ease.back;
+    const hipLineY    = 7.5;
+    const H           = rise + inseam;
 
     const pieces = [];
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: 'Cut 2 (mirror L & R) · Curve on CENTER · Mark knee point',
-      width: frontW, height: H, rise, inseam,
+      waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
+      height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem,
       isBack: false, shape, opts,
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
+    const backDartIntake = backHipW - backWaistW;
+
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)} · Mark knee point`,
-      width: backW, height: H, rise, inseam,
+      waistWidth: backWaistW + backDartIntake, hipWidth: backHipW, hipLineY,
+      dartIntake: backDartIntake,
+      height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem,
       isBack: true, shape, opts,
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
@@ -224,35 +232,41 @@ export default {
 
 // ── Panel builder with knee-point leg shaping ─────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
   // Knee sits 55% down the inseam from the crotch
   const kneeY      = rise + inseam * 0.55;
   // If calf/ankle provided, derive per-panel width from body measurement; else use shape ratios
-  const kneeW      = calf  ? calf  / 2 + 0.5 : width * shape.knee;
-  const hemW       = ankle ? ankle / 2 + 0.5 : width * shape.hem;
+  const kneeW      = calf  ? calf  / 2 + 0.5 : hipWidth * shape.knee;
+  const hemW       = ankle ? ankle / 2 + 0.5 : hipWidth * shape.hem;
 
   // Each leg narrows symmetrically — half on side seam, half on inseam
-  const kneeInward = (width - kneeW) * 0.5;
-  const hemInward  = (width - hemW)  * 0.5;
+  const kneeInward = (hipWidth - kneeW) * 0.5;
+  const hemInward  = (hipWidth - hemW)  * 0.5;
 
-  const sideKneeX    =  width - kneeInward;
-  const sideHemX     =  width - hemInward;
+  const sideKneeX    =  hipWidth - kneeInward;
+  const sideHemX     =  hipWidth - hemInward;
   const inseamKneeX  = -ext   + kneeInward;
   const inseamHemX   = -ext   + hemInward;
 
+  // Waist-to-hip shaping
+  const waistInward  = (hipWidth - waistWidth) * 0.5;
+  const sideWaistX   = hipWidth - waistInward;
+  const inseamWaistX = waistInward;
+
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
-  poly.push({ x: width,      y: 0       }); // waist at side seam
-  poly.push({ x: sideKneeX,  y: kneeY   }); // knee on side seam
-  poly.push({ x: sideHemX,   y: height  }); // hem at side seam
-  poly.push({ x: inseamHemX, y: height  }); // hem at inseam
-  poly.push({ x: inseamKneeX, y: kneeY  }); // knee on inseam
-  poly.push({ x: -ext,       y: rise    }); // crotch extension point
+  poly.push({ x: inseamWaistX, y: 0       });   // waist at center seam
+  poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
+  poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
+  poly.push({ x: sideKneeX,    y: kneeY   });   // knee on side seam
+  poly.push({ x: sideHemX,     y: height  });   // hem at side seam
+  poly.push({ x: inseamHemX,   y: height  });   // hem at inseam
+  poly.push({ x: inseamKneeX,  y: kneeY   });   // knee on inseam
+  poly.push({ x: -ext,         y: rise    });   // crotch extension point
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
-  if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
+  if (isBack && cbRaise > 0) poly.push({ x: inseamWaistX, y: cbRaise }); // CB seam top
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];
@@ -261,24 +275,36 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   const effSeatDepth = seatDepth || 7;
   const dims = [
-    { label: fmtInches(width),              x1: 0,          y1: -0.5,   x2: width,      y2: -0.5,   type: 'h' },
-    { label: fmtInches(kneeW) + ' knee',    x1: inseamKneeX, y1: kneeY + 0.4, x2: sideKneeX, y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
-    { label: fmtInches(hemW)  + ' hem',     x1: inseamHemX, y1: height - 0.5, x2: sideHemX,  y2: height - 0.5, type: 'h', color: '#b8963e' },
-    { label: fmtInches(rise)   + ' rise',   x: width + 1.2, y1: 0,      y2: rise,               type: 'v' },
-    { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise,   y2: height,             type: 'v' },
-    { label: fmtInches(ext)    + ' ext',    x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,   type: 'h', color: '#c44' },
+    { label: fmtInches(waistWidth) + ' waist', x1: inseamWaistX, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
+    { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
+    { label: fmtInches(kneeW) + ' knee',       x1: inseamKneeX,  y1: kneeY + 0.4, x2: sideKneeX, y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
+    { label: fmtInches(hemW)  + ' hem',        x1: inseamHemX,   y1: height - 0.5, x2: sideHemX,  y2: height - 0.5, type: 'h', color: '#b8963e' },
+    { label: fmtInches(rise)   + ' rise',      x: hipWidth + 1.2, y1: 0,      y2: rise,               type: 'v' },
+    { label: fmtInches(inseam) + ' inseam',    x: hipWidth + 1.2, y1: rise,   y2: height,             type: 'v' },
+    { label: fmtInches(ext)    + ' ext',       x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,   type: 'h', color: '#c44' },
     { label: fmtInches(effSeatDepth) + ' seat', x: -ext - 1.2, y1: 0, y2: effSeatDepth,        type: 'v', color: '#b8963e' },
   ];
+
+  // Waist darts for back panel
+  const darts = [];
+  if (isBack && dartIntake > 0) {
+    if (dartIntake <= 1.5) {
+      darts.push({ x: waistWidth * 0.4, intake: dartIntake, length: hipLineY - 0.5 });
+    } else {
+      darts.push({ x: waistWidth * 0.3, intake: dartIntake / 2, length: hipLineY - 0.5 });
+      darts.push({ x: waistWidth * 0.6, intake: dartIntake / 2, length: hipLineY - 1 });
+    }
+  }
 
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
-    dimensions: dims, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
+    dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
     labels: [
-      { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
-      { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
+      { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
+      { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    type: 'panel', opts,
+    darts, type: 'panel', opts,
   };
 }

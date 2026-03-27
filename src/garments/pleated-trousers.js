@@ -108,9 +108,12 @@ export default {
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
 
-    const frontW = m.hip / 4 + easeFront + pleatExtra;
-    const backW  = m.hip / 4 + easeBack;
-    const H      = rise + inseam;
+    const frontHipW   = m.hip / 4 + easeFront + pleatExtra;
+    const backHipW    = m.hip / 4 + easeBack;
+    const frontWaistW = m.waist / 4 + easeFront + pleatExtra;
+    const backWaistW  = m.waist / 4 + easeBack;
+    const hipLineY    = 8;
+    const H           = rise + inseam;
 
     const pieces = [];
 
@@ -118,14 +121,19 @@ export default {
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat folded toward side seam, ${fmtInches(PLEAT_DEPTH)} each` : ''}`,
-      width: frontW, height: H, rise, inseam,
+      waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
+      height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
     }));
+
+    const backDartIntake = backHipW - backWaistW;
 
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)}`,
-      width: backW, height: H, rise, inseam,
+      waistWidth: backWaistW + backDartIntake, hipWidth: backHipW, hipLineY,
+      dartIntake: backDartIntake,
+      height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem, isBack: true, opts,
     }));
 
@@ -249,18 +257,24 @@ export default {
 
 // ── Panel builder — straight leg (no knee taper) ──────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 16);
 
+  // Waist-to-hip shaping
+  const waistInward  = (hipWidth - waistWidth) * 0.5;
+  const sideWaistX   = hipWidth - waistInward;
+  const inseamWaistX = waistInward;
+
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
-  poly.push({ x: width, y: 0      });
-  poly.push({ x: width, y: height });
-  poly.push({ x: -ext,  y: height });
-  poly.push({ x: -ext,  y: rise   });
+  poly.push({ x: inseamWaistX, y: 0       });   // waist at center seam
+  poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
+  poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
+  poly.push({ x: hipWidth,     y: height  });   // hem at side seam
+  poly.push({ x: -ext,         y: height  });
+  poly.push({ x: -ext,         y: rise    });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
-  if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
+  if (isBack && cbRaise > 0) poly.push({ x: inseamWaistX, y: cbRaise }); // CB seam top
 
   const saPoly = offsetPolygon(poly, i => {
     const a = poly[i], b = poly[(i + 1) % poly.length];
@@ -268,26 +282,38 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   });
 
   const dims = [
-    { label: fmtInches(width),              x1: 0,          y1: -0.5,       x2: width,  y2: -0.5,       type: 'h' },
-    { label: fmtInches(rise)   + ' rise',   x: width + 1.2, y1: 0,          y2: rise,                   type: 'v' },
-    { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise,       y2: height,                 type: 'v' },
-    { label: fmtInches(height) + ' total',  x: width + 2.3, y1: 0,          y2: height,                 type: 'v' },
-    { label: fmtInches(ext)    + ' ext',    x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,           type: 'h', color: '#c44' },
+    { label: fmtInches(waistWidth) + ' waist', x1: inseamWaistX, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
+    { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
+    { label: fmtInches(rise)   + ' rise',      x: hipWidth + 1.2, y1: 0,          y2: rise,                   type: 'v' },
+    { label: fmtInches(inseam) + ' inseam',    x: hipWidth + 1.2, y1: rise,       y2: height,                 type: 'v' },
+    { label: fmtInches(height) + ' total',     x: hipWidth + 2.3, y1: 0,          y2: height,                 type: 'v' },
+    { label: fmtInches(ext)    + ' ext',       x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,           type: 'h', color: '#c44' },
   ];
 
   const pleats = [];
-  if (!isBack && numPleats >= 1) pleats.push({ x: width * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
-  if (!isBack && numPleats >= 2) pleats.push({ x: width * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 1) pleats.push({ x: waistWidth * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 2) pleats.push({ x: waistWidth * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+
+  // Waist darts for back panel
+  const darts = [];
+  if (isBack && dartIntake > 0) {
+    if (dartIntake <= 1.5) {
+      darts.push({ x: waistWidth * 0.4, intake: dartIntake, length: hipLineY - 0.5 });
+    } else {
+      darts.push({ x: waistWidth * 0.3, intake: dartIntake / 2, length: hipLineY - 0.5 });
+      darts.push({ x: waistWidth * 0.6, intake: dartIntake / 2, length: hipLineY - 1 });
+    }
+  }
 
   return {
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
-    dimensions: dims, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
+    dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
     labels: [
-      { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
-      { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
+      { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
+      { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    pleats, type: 'panel', opts,
+    pleats, darts, type: 'panel', opts,
   };
 }
