@@ -10,11 +10,47 @@ const SC = 20; // 1 inch = 20 SVG units
 const sc = i => i * SC;
 
 /**
+ * Build SVG text labels showing per-edge SA values along the cut line.
+ * Groups consecutive edges with the same label into one annotation.
+ */
+function edgeSALabels(polygon, edgeAllowances, ox, oy) {
+  if (!edgeAllowances || !edgeAllowances.length) return '';
+  const n = polygon.length;
+  let svg = '';
+  let i = 0;
+  while (i < n) {
+    const { sa: saVal, label } = edgeAllowances[i];
+    let j = i;
+    while (j < n && edgeAllowances[j].label === label) j++;
+    // Skip fold edges and zero-length groups
+    if (saVal > 0) {
+      // Find the midpoint of the middle edge in this group
+      const mid = Math.floor((i + j - 1) / 2);
+      const a = polygon[mid], b = polygon[(mid + 1) % n];
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 0.01) {
+        // Normal pointing outward (CW winding: left of travel)
+        const nx = -dy / len, ny = dx / len;
+        const off = saVal * 0.5 + 0.15;
+        const tx = ox + sc(mx + nx * off), ty = oy + sc(my + ny * off);
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        if (angle > 90 || angle < -90) angle += 180;
+        svg += `<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#999" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${tx.toFixed(1)},${ty.toFixed(1)})">${fmtInches(saVal)}</text>`;
+      }
+    }
+    i = j;
+  }
+  return svg;
+}
+
+/**
  * Render a panel piece (front/back) as an SVG string
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, opts } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -195,7 +231,7 @@ export function renderPanelSVG(piece) {
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
-    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}
+    ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
     ${legendSVG}
@@ -208,7 +244,7 @@ export function renderPanelSVG(piece) {
  * Piece must have: polygon (array of {x,y} in inches), dims (optional), type, name, sa, hem
  */
 export function renderGenericPieceSVG(piece) {
-  const { polygon, dims = [], type, sa = 0.5, hem = 0.75, notches = [] } = piece;
+  const { polygon, dims = [], type, sa = 0.5, hem = 0.75, notches = [], edgeAllowances } = piece;
 
   // Compute bounding box
   const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
@@ -233,6 +269,7 @@ export function renderGenericPieceSVG(piece) {
 
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
   const saPoly = offsetPolygon(polygon, i => {
+    if (edgeAllowances && edgeAllowances[i]) return -edgeAllowances[i].sa;
     const a = polygon[i], b = polygon[(i + 1) % polygon.length];
     // Fold edge: both endpoints at x = minX — no SA, the fold is not a seam
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
@@ -288,7 +325,7 @@ export function renderGenericPieceSVG(piece) {
     <path d="${polyPath(polygon)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${gx}" y1="${gy1}" x2="${gx}" y2="${gy2}" stroke="#2c2a26" stroke-width=".5" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1-4} ${gx-2.5},${gy1+2.5} ${gx+2.5},${gy1+2.5}" fill="#2c2a26"/>
-    ${dimsSVG}${notches.map(n => {
+    ${dimsSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${notches.map(n => {
       const nx = ox + sc(n.x), ny = oy + sc(n.y);
       const rad = (n.angle || 0) * Math.PI / 180;
       const h = sc(0.25), w = sc(0.1);

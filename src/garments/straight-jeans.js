@@ -266,10 +266,18 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  // Per-edge seam allowances
+  const crotchEdgeCount = curvePts.length - 2; // 15 crotch curve edges
+  const edgeAllowances = poly.map((_, i) => {
+    if (i === 0) return { sa, label: 'Waist' };
+    if (i >= 1 && i <= 3) return { sa, label: 'Side seam' };
+    if (i === 4) return { sa: hem, label: 'Hem' };
+    if (i >= 5 && i <= 6) return { sa, label: 'Inseam' };
+    if (i >= 7 && i < 7 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
+    return { sa, label: 'Center' };
   });
+
+  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
 
   const effSeatDepth = seatDepth || 7;
   const dims = [
@@ -307,7 +315,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
-    notches,
+    notches, edgeAllowances,
     labels: [
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },

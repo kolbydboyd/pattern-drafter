@@ -210,6 +210,39 @@ export default {
     const btnDiam    = 0.5; // ½″ default button
     const btnholeSz  = fmtInches(btnDiam + 0.125);
 
+    // ── PER-EDGE SEAM ALLOWANCES ───────────────────────────────────────────
+    const nNeckPts     = frontNeckPts.length;          // 13
+    const nShoulderPts = shoulderPts.length - 1;       // 12 added (skip first)
+    const nFrontArmPts = frontArmPts.length - 1;       // 12 added
+    const nBackArmPts  = backArmPts.length - 1;        // 12 added
+
+    // Front: neckline → shoulder → armhole → side seam → hem → placket up → closing
+    const frontEdgeAllowances = [];
+    for (let i = 0; i < nNeckPts - 1; i++) frontEdgeAllowances.push({ sa: 0.375, label: 'Neckline' });
+    for (let i = 0; i < nShoulderPts; i++) frontEdgeAllowances.push({ sa: 0.625, label: 'Shoulder' });
+    for (let i = 0; i < nFrontArmPts; i++) frontEdgeAllowances.push({ sa: 0.375, label: 'Armhole' });
+    frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' }); // armhole→hem
+    frontEdgeAllowances.push({ sa: hem, label: 'Hem' });         // hem across
+    frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });   // placket up
+    while (frontEdgeAllowances.length < frontPoly.length) frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });
+
+    // Back: neckline → shoulder → armhole → side seam → hem → fold
+    const backEdgeAllowances = [];
+    for (let i = 0; i < nNeckPts - 1; i++) backEdgeAllowances.push({ sa: 0.375, label: 'Neckline' });
+    for (let i = 0; i < nShoulderPts; i++) backEdgeAllowances.push({ sa: 0.625, label: 'Shoulder' });
+    for (let i = 0; i < nBackArmPts; i++) backEdgeAllowances.push({ sa: 0.375, label: 'Armhole' });
+    backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
+    backEdgeAllowances.push({ sa: hem, label: 'Hem' });
+    while (backEdgeAllowances.length < backPoly.length) backEdgeAllowances.push({ sa: 0, label: 'Fold' });
+
+    // Sleeve: flat rectangle — top(cap) → front side → hem → back side
+    const sleeveEdgeAllowances = [
+      { sa: 0.625, label: 'Cap' },
+      { sa: 0.625, label: 'Side seam' },
+      { sa: hem,   label: 'Hem' },
+      { sa: 0.625, label: 'Side seam' },
+    ];
+
     const frontBB   = bbox(frontPoly);
     const backBB    = bbox(backPoly);
     const sleeveBB  = bbox(sleevePoly);
@@ -256,6 +289,7 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
+        edgeAllowances: frontEdgeAllowances,
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -273,6 +307,7 @@ export default {
         isBack: true,
         sa, hem,
         notches: backNotches,
+        edgeAllowances: backEdgeAllowances,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -292,6 +327,7 @@ export default {
         sleeveWidth: slvTopW * 2,
         sa, hem,
         notches: sleeveNotches,
+        edgeAllowances: sleeveEdgeAllowances,
         dims: [
           { label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: slvLength, type: 'v' },

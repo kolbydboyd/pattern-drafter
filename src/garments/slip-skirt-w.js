@@ -125,11 +125,19 @@ export default {
         notches.push({ x: hipW * 0.5, y: dartL, angle: -90 });
       }
 
+      // Per-edge seam allowances: waist, side, hem, fold
+      const edgeAllowances = [
+        { sa,      label: 'Waist' },
+        { sa,      label: 'Side seam' },
+        { sa: 1.5, label: 'Hem' },
+        { sa: 0,   label: 'Fold' },
+      ];
+
       return {
         id, name,
         instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
-        width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches,
+        width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
         dims,
       };
     }

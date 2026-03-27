@@ -140,7 +140,9 @@ function renderBodiceOrSleeveSVG(piece) {
 
   // Compute SA outline using shared offsetPolygon (fold-edge = 0 offset)
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
+  const ea = piece.edgeAllowances;
   const saPoints = offsetPolygon(polygon, i => {
+    if (ea && ea[i]) return -ea[i].sa;
     const a = polygon[i], b = polygon[(i + 1) % polygon.length];
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
     return -sa;

@@ -319,11 +319,19 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   }
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  // SA offset
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  // Per-edge seam allowances
+  const crotchEdgeCount = curvePts.length - 2; // 15 crotch curve edges
+  const edgeAllowances = poly.map((_, i) => {
+    if (i === 0) return { sa, label: 'Waist' };
+    if (i === 1) return { sa, label: 'Side seam' };
+    if (i === 2) return { sa: hem, label: 'Hem' };
+    if (i === 3) return { sa, label: 'Inseam' };
+    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
+    return { sa, label: 'Center' };
   });
+
+  // SA offset
+  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
 
   // Build dimension annotations
   const dims = [
@@ -353,7 +361,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     dimensions: dims,
     width, height, rise, inseam, ext, cbRaise, sa, hem,
     isBack,
-    notches,
+    notches, edgeAllowances,
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90 },
       { text: 'CENTER', x: -0.5, y: rise * 0.3, rotation: -90 },

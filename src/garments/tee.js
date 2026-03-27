@@ -269,6 +269,49 @@ export default {
       return d + ' Z';
     }
 
+    // ── PER-EDGE SEAM ALLOWANCES ─────────────────────────────────────────────
+    const nNeckPts     = frontNeckPts.length;   // 13
+    const nShoulderPts = frontShoulderPts.length - 1; // 12 added (skip first)
+    const nArmholeFPts = frontArmholePts.length - 1;  // 12 added
+    const nArmholeBPts = backArmholePts.length - 1;   // 12 added
+
+    function buildBodyEA(poly, nNeck, nShoulder, nArm, hasShirttail) {
+      const ea = [];
+      let idx = 0;
+      for (let i = 0; i < nNeck - 1; i++) ea.push({ sa: 0.375, label: 'Neckline' });
+      idx += nNeck - 1;
+      for (let i = 0; i < nShoulder; i++) ea.push({ sa: 0.625, label: 'Shoulder' });
+      idx += nShoulder;
+      for (let i = 0; i < nArm; i++) ea.push({ sa: 0.375, label: 'Armhole' });
+      idx += nArm;
+      // Side seam
+      ea.push({ sa: 0.625, label: 'Side seam' });
+      idx++;
+      // Hem (1 or 2 edges depending on shirttail)
+      if (hasShirttail) { ea.push({ sa: hem, label: 'Hem' }); idx++; }
+      ea.push({ sa: hem, label: 'Hem' });
+      idx++;
+      // Fold edge
+      ea.push({ sa: 0, label: 'Fold' });
+      idx++;
+      // Remaining edges to close (fold or zero-length closing)
+      while (ea.length < poly.length) ea.push({ sa: 0, label: 'Fold' });
+      return ea;
+    }
+
+    const hasShirttail = opts.hemStyle === 'shirttail';
+    const frontEdgeAllowances = buildBodyEA(frontPoly, nNeckPts, nShoulderPts, nArmholeFPts, hasShirttail);
+    const backEdgeAllowances  = buildBodyEA(backPoly,  nNeckPts, nShoulderPts, nArmholeBPts, hasShirttail);
+
+    // Sleeve: cap curve edges, then hem, then back seam (closing)
+    const nCapPts = capPts.length; // 17
+    const sleeveEdgeAllowances = sleevePoly.map((_, i) => {
+      if (i < nCapPts - 1) return { sa: 0.375, label: 'Sleeve cap' };
+      if (i === nCapPts - 1) return { sa: 0.625, label: 'Side seam' };
+      if (i === nCapPts)     return { sa: hem, label: 'Hem' };
+      return { sa: 0.625, label: 'Side seam' };
+    });
+
     const frontBB = bbox(frontPoly);
     const backBB  = bbox(backPoly);
     const slvBB   = bbox(sleevePoly);
@@ -316,6 +359,7 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
+        edgeAllowances: frontEdgeAllowances,
         dims: [
           { label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -335,6 +379,7 @@ export default {
         isBack: true,
         sa, hem,
         notches: backNotches,
+        edgeAllowances: backEdgeAllowances,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -354,6 +399,7 @@ export default {
         sleeveWidth: slvFullWidth,
         sa, hem,
         notches: sleeveNotches,
+        edgeAllowances: sleeveEdgeAllowances,
         dims: [
           { label: fmtInches(slvFullWidth) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvFullWidth, y2: capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: slvFullWidth + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },

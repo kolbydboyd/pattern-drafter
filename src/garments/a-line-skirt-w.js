@@ -132,11 +132,19 @@ export default {
         notches.push({ x: d2x, y: dartL, angle: -90 });
       }
 
+      // Per-edge seam allowances: waist, side, hem, fold
+      const edgeAllowances = [
+        { sa,      label: 'Waist' },
+        { sa,      label: 'Side seam' },
+        { sa: 1.5, label: 'Hem' },
+        { sa: 0,   label: 'Fold' },
+      ];
+
       return {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${opts.closure === 'zip' && !isBack ? ' · Leave left side seam open for invisible zip' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: hemW, height: L, isBack, sa, hem, notches,
+        width: hemW, height: L, isBack, sa, hem, notches, edgeAllowances,
         dims: [
           { label: fmtInches(hipW) + ' at hip', x1: flarePerSide, y1: -0.5, x2: flarePerSide + hipW, y2: -0.5, type: 'h' },
           { label: fmtInches(hemW) + ' at hem', x1: 0, y1: L + 0.5, x2: hemW, y2: L + 0.5, type: 'h' },
