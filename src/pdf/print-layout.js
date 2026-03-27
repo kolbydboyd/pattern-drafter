@@ -590,68 +590,83 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
   const CELL_W = 44, CELL_H = 18, GAP = 5, PAD = 10;
+  const SVG_W = 460;
+  const COL_GAP = 40;
 
-  let items = '';
-  let y = PAD;
+  // Escape XML special chars so piece names never bleed into surrounding markup
+  const xmlEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  for (const piece of pieces) {
-    let wIn, hIn;
+  // Resolve piece dimensions (returns null to skip)
+  function pieceDims(piece) {
     if (piece.type === 'panel') {
       const sa = piece.sa || 0.5;
-      wIn = (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN;
-      hIn = MARGIN + piece.height + MARGIN;
-    } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
+      return { wIn: (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN, hIn: MARGIN + piece.height + MARGIN };
+    }
+    if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const xs = piece.polygon.map(p => p.x), ys = piece.polygon.map(p => p.y);
-      wIn = MARGIN + (Math.max(...xs) - Math.min(...xs)) + MARGIN;
-      hIn = MARGIN + (Math.max(...ys) - Math.min(...ys)) + MARGIN;
-    } else if (piece.type === 'rectangle') {
-      wIn = MARGIN + piece.dimensions.length + MARGIN;
-      hIn = MARGIN + piece.dimensions.width + MARGIN;
-    } else if (piece.dimensions) {
+      return { wIn: MARGIN + (Math.max(...xs) - Math.min(...xs)) + MARGIN, hIn: MARGIN + (Math.max(...ys) - Math.min(...ys)) + MARGIN };
+    }
+    if (piece.type === 'rectangle') {
+      return { wIn: MARGIN + piece.dimensions.length + MARGIN, hIn: MARGIN + piece.dimensions.width + MARGIN };
+    }
+    if (piece.dimensions) {
       const d = piece.dimensions;
-      wIn = MARGIN + (d.length ?? d.width)  + MARGIN;
-      hIn = MARGIN + (d.height ?? d.width)  + MARGIN;
-    } else {
-      continue;
+      return { wIn: MARGIN + (d.length ?? d.width) + MARGIN, hIn: MARGIN + (d.height ?? d.width) + MARGIN };
     }
-
-    const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
-    const { landscape, cols, rows } = layout;
-    const total = rows * cols;
-    const orientNote = landscape ? ' \xb7 L' : '';
-
-    items += `<text x="${PAD}" y="${y + 12}"
-      font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600"
-      fill="#2c2a26">${piece.name}</text>
-      <text x="${PAD + cols * (CELL_W + GAP) + 8}" y="${y + 12}"
-      font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">
-        ${rows}\xd7${cols} = ${total} page${total !== 1 ? 's' : ''}${orientNote}
-      </text>`;
-
-    y += 18;
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const cx = PAD + c * (CELL_W + GAP);
-        const cy = y + r * (CELL_H + GAP);
-        const fill = landscape
-          ? ((r + c) % 2 === 0 ? '#e8f0f8' : '#dce8f4')  // blue tint for landscape
-          : ((r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd');
-        items += `<rect x="${cx}" y="${cy}" width="${CELL_W}" height="${CELL_H}"
-            rx="2" fill="${fill}" stroke="#bbb" stroke-width="0.7"/>
-          <text x="${cx + CELL_W / 2}" y="${cy + 12}"
-            font-family="'IBM Plex Mono',monospace" font-size="8"
-            fill="#666" text-anchor="middle">${r + 1}-${c + 1}</text>`;
-      }
-    }
-
-    y += rows * (CELL_H + GAP) + 14;
+    return null;
   }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg"
-      width="460" height="${y + PAD}" style="display:block">
-    ${items}
-  </svg>`;
+  // Filter pieces that have renderable dimensions
+  const valid = pieces.filter(p => pieceDims(p) !== null);
+  const n = valid.length;
+
+  // Column count: 1 for ≤3 pieces, 2 for 4-6, 3 for 7+
+  const numCols = n >= 7 ? 3 : n >= 4 ? 2 : 1;
+  const perCol = Math.ceil(n / numCols);
+  const colW = (SVG_W - PAD * 2 - COL_GAP * (numCols - 1)) / numCols;
+
+  let items = '';
+  let maxH = 0;
+
+  for (let ci = 0; ci < numCols; ci++) {
+    const col = valid.slice(ci * perCol, (ci + 1) * perCol);
+    const xOff = PAD + ci * (colW + COL_GAP);
+    let y = PAD;
+
+    for (const piece of col) {
+      const { wIn, hIn } = pieceDims(piece);
+      const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
+      const { landscape, cols, rows } = layout;
+      const total = rows * cols;
+      const orientNote = landscape ? ' \xb7 L' : '';
+      const countLabel = `${rows}\xd7${cols} = ${total} page${total !== 1 ? 's' : ''}${orientNote}`;
+
+      // Piece name — each on its own element, explicitly terminated, XML-escaped
+      items += `\n<text x="${xOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(piece.name)}</text>`;
+      // Count label — separate element at different x
+      items += `\n<text x="${xOff + cols * (CELL_W + GAP) + 8}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">${countLabel}</text>`;
+
+      y += 18;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = xOff + c * (CELL_W + GAP);
+          const cy = y + r * (CELL_H + GAP);
+          const fill = landscape
+            ? ((r + c) % 2 === 0 ? '#e8f0f8' : '#dce8f4')
+            : ((r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd');
+          items += `\n<rect x="${cx}" y="${cy}" width="${CELL_W}" height="${CELL_H}" rx="2" fill="${fill}" stroke="#bbb" stroke-width="0.7"/>`;
+          items += `\n<text x="${cx + CELL_W / 2}" y="${cy + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">${r + 1}-${c + 1}</text>`;
+        }
+      }
+
+      y += rows * (CELL_H + GAP) + 14;
+    }
+
+    maxH = Math.max(maxH, y);
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${maxH + PAD}" style="display:block">${items}\n</svg>`;
 }
 
 // ── Individual page builders ───────────────────────────────────────────────

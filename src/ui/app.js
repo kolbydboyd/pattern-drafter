@@ -72,6 +72,19 @@ function relevantOptionalIds(garment) {
 // ═══ MEASUREMENT PROFILES ═══
 const PROFILES_KEY = 'pd-profiles';
 
+// Briefly show a green "Saved!" badge near a reference element
+function _showSaveFeedback(anchor) {
+  const msg = document.createElement('span');
+  msg.textContent = 'Saved!';
+  msg.style.cssText = 'color:var(--sa);font-size:.72rem;margin-left:8px;font-family:"IBM Plex Mono",monospace;opacity:1;transition:opacity .4s ease .8s';
+  const target = anchor || document.getElementById('save-profile-btn')?.parentElement;
+  if (!target) return;
+  target.appendChild(msg);
+  // trigger fade-out then remove
+  requestAnimationFrame(() => requestAnimationFrame(() => { msg.style.opacity = '0'; }));
+  setTimeout(() => msg.remove(), 1400);
+}
+
 function loadProfiles() {
   try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || []; }
   catch { return []; }
@@ -129,6 +142,7 @@ async function saveCurrentProfile() {
   }
 
   nameInput.value = '';
+  _showSaveFeedback(btn?.closest('.profile-row') || btn?.parentElement);
 }
 
 function deleteCurrentProfile() {

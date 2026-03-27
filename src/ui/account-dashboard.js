@@ -7,6 +7,16 @@ import {
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
+// ── Toast feedback ────────────────────────────────────────────────────────────
+function _showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#4a8a5a;color:#fff;padding:8px 18px;border-radius:4px;font-family:"IBM Plex Mono",monospace;font-size:.78rem;z-index:9999;opacity:1;transition:opacity .4s ease .6s;pointer-events:none';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => { t.style.opacity = '0'; }));
+  setTimeout(() => t.remove(), 1200);
+}
+
 // ── Open / close ──────────────────────────────────────────────────────────────
 function _closeAccountDashboard() {
   const overlay = document.getElementById('acct-overlay');
@@ -156,7 +166,10 @@ async function _renderMeasurements(main, user) {
 
     if (error) { alert('Could not save profile: ' + error.message); return; }
     if (nameInput) nameInput.value = '';
-    _showSection('measurements');
+
+    // Brief green confirmation before refreshing the list
+    _showToast('Profile saved');
+    setTimeout(() => _showSection('measurements'), 900);
   });
 
   main.querySelectorAll('.acct-archive-profile').forEach(btn => {
