@@ -10,6 +10,93 @@ const SC = 20; // 1 inch = 20 SVG units
 const sc = i => i * SC;
 
 /**
+ * Compute the average centroid of a polygon (inch coords).
+ */
+function polygonCentroid(poly) {
+  let cx = 0, cy = 0;
+  for (const p of poly) { cx += p.x; cy += p.y; }
+  return { x: cx / poly.length, y: cy / poly.length };
+}
+
+/**
+ * For each notch in the notches array, snap its base to the nearest point on
+ * saPolyInches and compute the outward-facing normal at that edge.
+ * Returns SVG polygon elements: filled triangles with base on the cut line,
+ * apex pointing outward (away from the polygon centroid).
+ *
+ * @param {Array<{x,y}>} saPolyInches  – SA polygon vertices in inches
+ * @param {Array<{x,y}>} notches       – notch positions in inches
+ * @param {number}       ox            – SVG x origin offset
+ * @param {number}       oy            – SVG y origin offset
+ */
+function renderNotchesSVG(saPolyInches, notches, ox, oy) {
+  if (!notches || !notches.length) return '';
+  const centroid = polygonCentroid(saPolyInches);
+  const n = saPolyInches.length;
+  const TRI_H = 0.20;   // triangle height, inches
+  const TRI_HW = 0.075; // triangle half-base-width, inches (total base = 0.15")
+  let svg = '';
+
+  for (const notch of notches) {
+    // Find closest point on SA polygon boundary to the notch's intended position
+    let bestDist = Infinity;
+    let bestPx = 0, bestPy = 0;
+    let bestNx = 0, bestNy = -1;
+
+    for (let i = 0; i < n; i++) {
+      const a = saPolyInches[i];
+      const b = saPolyInches[(i + 1) % n];
+      const edx = b.x - a.x, edy = b.y - a.y;
+      const lenSq = edx * edx + edy * edy;
+      if (lenSq < 1e-10) continue;
+
+      // Project notch onto this edge segment, clamped to [0,1]
+      let t = ((notch.x - a.x) * edx + (notch.y - a.y) * edy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      const cpx = a.x + t * edx, cpy = a.y + t * edy;
+      const dist = Math.sqrt((notch.x - cpx) ** 2 + (notch.y - cpy) ** 2);
+
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestPx = cpx;
+        bestPy = cpy;
+
+        // Edge length and unit direction
+        const len = Math.sqrt(lenSq);
+        const edux = edx / len, eduy = edy / len;
+
+        // Two candidate normals (perpendicular to edge)
+        const nx1 = eduy, ny1 = -edux;
+        const nx2 = -eduy, ny2 = edux;
+
+        // Pick the one pointing away from the polygon centroid
+        const toCx = cpx - centroid.x, toCy = cpy - centroid.y;
+        if (nx1 * toCx + ny1 * toCy >= 0) {
+          bestNx = nx1; bestNy = ny1;
+        } else {
+          bestNx = nx2; bestNy = ny2;
+        }
+      }
+    }
+
+    // Convert base point to SVG coords
+    const px = ox + sc(bestPx), py = oy + sc(bestPy);
+
+    // Apex: base point + outward normal * triangle height
+    const apexX = px + sc(TRI_H) * bestNx;
+    const apexY = py + sc(TRI_H) * bestNy;
+
+    // Base corners: perpendicular to outward normal, centered on base point
+    // Perpendicular of (bestNx, bestNy) is (-bestNy, bestNx) and (bestNy, -bestNx)
+    const b1x = px + sc(TRI_HW) * (-bestNy), b1y = py + sc(TRI_HW) * bestNx;
+    const b2x = px + sc(TRI_HW) * bestNy,   b2y = py + sc(TRI_HW) * (-bestNx);
+
+    svg += `<polygon points="${b1x.toFixed(1)},${b1y.toFixed(1)} ${apexX.toFixed(1)},${apexY.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}" fill="#2c2a26"/>`;
+  }
+  return svg;
+}
+
+/**
  * Build SVG text labels showing per-edge SA values along the cut line.
  * Groups consecutive edges with the same label into one annotation.
  */
@@ -233,20 +320,8 @@ export function renderPanelSVG(piece) {
     <text x="${dx.toFixed(1)}" y="${(dy2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">dart</text>`;
   }
 
-  // Notch marks (small triangles on cut line)
-  let notchSVG = '';
-  for (const n of notches) {
-    const nx = ox + sc(n.x);
-    const ny = oy + sc(n.y);
-    const rad = (n.angle || 0) * Math.PI / 180;
-    const h = sc(0.25);  // 0.25″ tall triangle
-    const w = sc(0.1);   // half-width of triangle base
-    // Triangle tip points outward along angle, base perpendicular
-    const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
-    const bx1 = nx + Math.cos(rad + Math.PI / 2) * w, by1 = ny + Math.sin(rad + Math.PI / 2) * w;
-    const bx2 = nx + Math.cos(rad - Math.PI / 2) * w, by2 = ny + Math.sin(rad - Math.PI / 2) * w;
-    notchSVG += `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
-  }
+  // Notch marks: base snapped to SA cut line, apex pointing outward
+  const notchSVG = renderNotchesSVG(saCopy, notches, ox, oy);
 
   // Reference lines
   const cLineY = oy + sc(rise);
@@ -376,15 +451,7 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${notches.map(n => {
-      const nx = ox + sc(n.x), ny = oy + sc(n.y);
-      const rad = (n.angle || 0) * Math.PI / 180;
-      const h = sc(0.25), w = sc(0.1);
-      const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
-      const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
-      const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
-      return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
-    }).join('')}
+    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(saPoly, notches, ox, oy)}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
