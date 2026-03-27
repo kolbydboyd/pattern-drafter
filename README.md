@@ -1,8 +1,10 @@
 # People's Patterns
 
-Made-to-measure sewing patterns, generated entirely in the browser. Input your measurements, choose your garment type and options, and get printable 1:1 scale patterns with full construction notes.
+Made-to-measure sewing patterns. Input your measurements, choose your garment type and options, and get printable 1:1 scale patterns with full construction notes.
 
 **[peoplespatterns.com](https://peoplespatterns.com) · [@peoplespatterns](https://instagram.com/peoplespatterns)**
+
+> This repository is **private and proprietary**. See [License](#license) below.
 
 ## Quick Start
 
@@ -12,7 +14,34 @@ npm run dev     # local dev server at localhost:5173
 npm run build   # production build to /dist
 ```
 
-Deploy: push to GitHub, connect to [Vercel](https://vercel.com) (free tier), auto-deploys on every push.
+## Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Frontend | Vite + vanilla JS (ES modules) | Wizard UI, SVG pattern rendering, measurement input |
+| Auth & DB | Supabase | User accounts, purchase records, wishlists, newsletter signups |
+| Payments | Stripe | Checkout sessions, webhooks, subscription and per-pattern purchases |
+| Email | Resend | Transactional emails (purchase confirmation, welcome, download links) |
+| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list` |
+| Hosting | Vercel | Auto-deploys on push to main |
+
+## Environment Variables
+
+The following environment variables are required for full functionality:
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `SUPABASE_URL` | Server | Supabase project URL (server-side API calls) |
+| `SUPABASE_ANON_KEY` | Server | Supabase anonymous/public key (server-side) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server | Supabase service role key (admin operations, webhook handler) |
+| `STRIPE_SECRET_KEY` | Server | Stripe secret key (checkout session creation, verification) |
+| `STRIPE_WEBHOOK_SECRET` | Server | Stripe webhook signing secret (event verification) |
+| `RESEND_API_KEY` | Server | Resend API key (transactional email sending) |
+| `VITE_SUPABASE_URL` | Client | Supabase project URL (browser-side auth) |
+| `VITE_SUPABASE_ANON_KEY` | Client | Supabase anonymous key (browser-side auth) |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Client | Stripe publishable key (Checkout.js redirect) |
+
+Server variables are set in Vercel project settings. Client variables (prefixed `VITE_`) are embedded at build time.
 
 ## Architecture
 
@@ -57,9 +86,20 @@ src/
     app.js               # App logic, wizard flow, profile save/load, yardage calc, export
     pattern-view.js      # SVG rendering of pattern pieces (panels, bodices, sleeves, rects)
     measurement-teacher.js  # Inline measurement guide with annotated SVG diagrams
+    auth-modal.js        # Supabase auth (sign in, sign up, magic link)
+    account-dashboard.js # My Patterns, wishlist, profile management
     styles.css
   pdf/
     print-layout.js      # Tiled print-ready HTML output (Letter, 96 dpi, registration marks)
+  lib/
+    supabase.js          # Supabase client init + auth helpers
+    db.js                # DB queries (purchases, wishlists, downloads)
+    email-templates.js   # HTML email templates (welcome, purchase confirmation)
+api/
+  checkout.js            # Stripe checkout session creation
+  stripe-webhook.js      # Stripe webhook handler (payment confirmation, DB writes)
+  generate-pattern.js    # PDF generation + download (purchase-verified, rate-limited)
+  join-list.js           # Newsletter email capture
 docs/
   GARMENT-MODULE-SPEC.md   # How to add a new garment
   MODULE-STATUS.md         # Per-module interface audit and known issues
@@ -112,70 +152,73 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 ### Menswear · Bottoms (8)
 | Module | Garment | Status |
 |---|---|---|
-| `cargo-shorts` | Cargo Shorts | ✅ |
-| `gym-shorts` | Gym Shorts | ✅ |
-| `swim-trunks` | Swim Trunks | ✅ |
-| `pleated-shorts` | Pleated Shorts | ✅ |
-| `straight-jeans` | Straight Jeans | ✅ |
-| `chinos` | Chinos | ✅ |
-| `pleated-trousers` | Pleated Trousers | ✅ |
-| `sweatpants` | Sweatpants | ✅ |
+| `cargo-shorts` | Cargo Shorts | done |
+| `gym-shorts` | Gym Shorts | done |
+| `swim-trunks` | Swim Trunks | done |
+| `pleated-shorts` | Pleated Shorts | done |
+| `straight-jeans` | Straight Jeans | done |
+| `chinos` | Chinos | done |
+| `pleated-trousers` | Pleated Trousers | done |
+| `sweatpants` | Sweatpants | done |
 
 ### Menswear · Tops (5)
 | Module | Garment | Status |
 |---|---|---|
-| `tee` | T-Shirt | ✅ |
-| `camp-shirt` | Camp Shirt | ✅ |
-| `crewneck` | Crewneck Sweatshirt | ✅ |
-| `hoodie` | Hoodie | ✅ |
-| `crop-jacket` | Crop Jacket | ✅ |
+| `tee` | T-Shirt | done |
+| `camp-shirt` | Camp Shirt | done |
+| `crewneck` | Crewneck Sweatshirt | done |
+| `hoodie` | Hoodie | done |
+| `crop-jacket` | Crop Jacket | done |
 
 ### Womenswear · Bottoms (5)
 | Module | Garment | Status |
 |---|---|---|
-| `wide-leg-trouser-w` | Wide-Leg Trouser | ✅ |
-| `straight-trouser-w` | Straight Trouser | ✅ |
-| `easy-pant-w` | Easy Pant | ✅ |
-| `slip-skirt-w` | Slip Skirt | ✅ |
-| `a-line-skirt-w` | A-Line Skirt | ✅ |
+| `wide-leg-trouser-w` | Wide-Leg Trouser | done |
+| `straight-trouser-w` | Straight Trouser | done |
+| `easy-pant-w` | Easy Pant | done |
+| `slip-skirt-w` | Slip Skirt | done |
+| `a-line-skirt-w` | A-Line Skirt | done |
 
 ### Womenswear · Tops (3)
 | Module | Garment | Status |
 |---|---|---|
-| `button-up-w` | Button-Up Shirt | ✅ |
-| `shell-blouse-w` | Shell Blouse | ✅ |
-| `fitted-tee-w` | Fitted Tee | ✅ |
+| `button-up-w` | Button-Up Shirt | done |
+| `shell-blouse-w` | Shell Blouse | done |
+| `fitted-tee-w` | Fitted Tee | done |
 
 ### Womenswear · Dresses (2)
 | Module | Garment | Status |
 |---|---|---|
-| `shirt-dress-w` | Shirt Dress | ✅ |
-| `wrap-dress-w` | Wrap Dress | ✅ |
+| `shirt-dress-w` | Shirt Dress | done |
+| `wrap-dress-w` | Wrap Dress | done |
 
 See `docs/MODULE-STATUS.md` for a full interface audit and known issues per module.
 
 ## Features
 
-### Pattern output — every garment produces
-- **Pattern pieces** — SVG at true scale with seam allowances, hem allowances, grain lines, notches, cut instructions
-- **Materials** — Recommended fabrics, yardage at 45″ and 58–60″ widths, notions list, thread, needle type, stitch guide
-- **Instructions** — Numbered construction steps with technique notes
+### Pattern output
+- **Pattern pieces** with SVG at true scale, seam allowances, hem allowances, grain lines, notches, cut instructions
+- **Materials** with recommended fabrics, yardage at 45" and 58-60" widths, notions list, thread, needle type, stitch guide
+- **Instructions** with numbered construction steps and technique notes
 
 ### App
-- **4-step flow** — Choose garment → Enter measurements → Set options → View pattern
-- **Saved measurement profiles** — Name and save multiple sets (e.g. "Me", "Client A")
-- **Measurement guide** — Inline how-to-measure instructions and SVG diagrams for every field
-- **Fabric yardage calculator** — Strip-packing estimate at two fabric widths with 10% buffer
-- **Rise presets** — Low / mid / high / ultra-high presets on all trousers and shorts
-- **Style reference labels** — Every option includes a plain-English reference string
-- **Print layout** — Print-ready tiled output at true scale with piece labels and SA key
-- **Dark mode** — Persistent light/dark toggle via localStorage
+- **4-step flow**: Choose garment, enter measurements, set options, view pattern
+- **Saved measurement profiles**: Name and save multiple sets (e.g. "Me", "Client A")
+- **Measurement guide**: Inline how-to-measure instructions and SVG diagrams for every field
+- **Fabric yardage calculator**: Strip-packing estimate at two fabric widths with 10% buffer
+- **Rise presets**: Low / mid / high / ultra-high presets on all trousers and shorts
+- **Style reference labels**: Every option includes a plain-English reference string
+- **Print layout**: Print-ready tiled output at true scale with piece labels and SA key
+- **Dark mode**: Persistent light/dark toggle via localStorage
+- **Auth**: Sign in / sign up with email or magic link via Supabase
+- **Account dashboard**: My Patterns (active/archived/trash), wishlist, profile
+- **Wishlist**: Heart icon on garment cards, synced to Supabase
 
 ## Engine
 
 | Module | Purpose |
 |---|---|
-| `geometry.js` | Bezier curves, polygon offsetting, SVG path output, leg shapes, ease values |
+| `geometry.js` | Bezier curves, polygon offsetting, arc length, SVG path output, leg shapes, ease values |
 | `upper-body.js` | Armhole, shoulder, neckline, sleeve cap curves from standard drafting rules |
 | `measurements.js` | Measurement schema (13 fields), labels, instructions, validation, garment categories |
 | `materials.js` | Fabric, thread, needle, stitch, notions database used by all garment modules |
@@ -184,15 +227,9 @@ Standard drafting rules used:
 - Neck width = neck circumference / 6
 - Armhole level (scye depth) = chest / 4 + style tolerance
 - Back neck depth = neck width / 3
-- Sleeve cap height 5 – 6.5 inches depending on garment type
+- Sleeve cap height 5 to 6.5 inches depending on garment type
+- Sleeve cap ease validated against armhole arc length (1-2" expected)
 - Chest ease: front 55%, back 45%
-
-## Tech Stack
-
-- **Vite** — dev server + build
-- **Vanilla JS** — no framework, ES modules throughout
-- **SVG** — all pattern rendering
-- No backend. Runs entirely in the browser.
 
 ## Development with Claude Code
 
@@ -206,6 +243,6 @@ claude
 
 Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 
-Unauthorized copying, distribution, modification, or commercial
-use of this software is prohibited without explicit written
-permission from People's Patterns LLC.
+This software is proprietary and confidential. Unauthorized copying,
+distribution, modification, or commercial use is strictly prohibited
+without explicit written permission from People's Patterns LLC.
