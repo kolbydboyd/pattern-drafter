@@ -1,5 +1,5 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-import { getUser, signOut } from '../lib/auth.js';
+import { getUser, signOut, getSession } from '../lib/auth.js';
 import {
   getMeasurementProfiles, saveMeasurementProfile,
   archiveMeasurementProfile, deleteMeasurementProfile,
@@ -294,27 +294,45 @@ async function _renderPatterns(main, user, tab = 'active') {
   // Tab switching
   main.querySelectorAll('.pat-tab').forEach(b => b.addEventListener('click', () => _renderPatterns(main, user, b.dataset.tab)));
 
-  // Download button
+  // Shared download logic
+  async function _doDownload(garmentId, card, labelEl, originalLabel) {
+    const measJson = card?.dataset.measurements;
+    const meas = measJson ? JSON.parse(measJson) : {};
+    if (labelEl) { labelEl.textContent = 'Generating…'; }
+    try {
+      const { session } = await getSession();
+      const res  = await fetch('/api/generate-pattern', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ garmentId, measurements: meas, opts: {} }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) { _showToast('Error: ' + (json.error ?? res.statusText)); return; }
+      const a = document.createElement('a');
+      a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
+      document.body.appendChild(a); a.click(); a.remove();
+      _showToast('Download started');
+    } catch { _showToast('Download failed. Try again.'); }
+    finally { if (labelEl) { labelEl.textContent = originalLabel; } }
+  }
+
+  // Download button (standalone, desktop)
   main.querySelectorAll('.pat-dl-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const { garmentId, purchaseId } = btn.dataset;
-      const card = btn.closest('.pat-card');
-      const measJson = card?.dataset.measurements;
-      const meas = measJson ? JSON.parse(measJson) : {};
-      btn.disabled = true; btn.textContent = 'Generating…';
-      try {
-        const res  = await fetch('/api/generate-pattern', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ garmentId, userId: user.id, measurements: meas, opts: {} }),
-        });
-        const json = await res.json();
-        if (!res.ok || json.error) { _showToast('Error: ' + (json.error ?? res.statusText)); return; }
-        const a = document.createElement('a');
-        a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
-        document.body.appendChild(a); a.click(); a.remove();
-        _showToast('Download started');
-      } catch { _showToast('Download failed. Try again.'); }
-      finally { btn.disabled = false; btn.textContent = 'Download'; }
+      btn.disabled = true;
+      await _doDownload(btn.dataset.garmentId, btn.closest('.pat-card'), btn, 'Download');
+      btn.disabled = false;
+    });
+  });
+
+  // Download PDF menu item (overflow menu, always accessible on mobile)
+  main.querySelectorAll('.pat-menu-dl').forEach(item => {
+    item.addEventListener('click', async () => {
+      item.closest('.pat-overflow-menu')?.classList.remove('open');
+      await _doDownload(item.dataset.garmentId, item.closest('.pat-card'), null, null);
     });
   });
 
@@ -466,12 +484,16 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent) {
         data-purchase-id="${p.id}"
         data-garment-name="${name}">Delete Forever</button>`;
   } else {
+    const dlMenuItem = hasMeas
+      ? `<button class="pat-menu-item pat-menu-dl" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Download PDF</button>
+         <hr class="pat-menu-divider">`
+      : '';
     const menuItems = tab === 'active'
-      ? `<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
+      ? `${dlMenuItem}<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
          <button class="pat-menu-item pat-menu-note" data-purchase-id="${p.id}">Add note</button>
          <button class="pat-menu-item pat-menu-archive" data-purchase-id="${p.id}">Archive</button>
          <button class="pat-menu-item pat-menu-trash pat-menu-item-danger" data-purchase-id="${p.id}" data-garment-name="${name}">Move to Trash</button>`
-      : `<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
+      : `${dlMenuItem}<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
          <button class="pat-menu-item pat-menu-activate" data-purchase-id="${p.id}">Move to Active</button>
          <button class="pat-menu-item pat-menu-trash pat-menu-item-danger" data-purchase-id="${p.id}" data-garment-name="${name}">Move to Trash</button>`;
 

@@ -55,12 +55,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { garmentId, userId, measurements, opts, sessionId } = req.body;
+  const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+    || req.socket?.remoteAddress || 'unknown';
 
-  // All requests require a userId.
-  if (!userId) {
+  const { garmentId, measurements, opts, sessionId } = req.body;
+
+  // Authenticate user server-side from the Authorization header.
+  // Never trust a client-provided userId in the request body.
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    console.warn(`[REJECTED] Missing auth token | ip=${clientIp} garment=${garmentId}`);
     return res.status(403).json({ error: 'Not authorized' });
   }
+
+  const token = authHeader.slice(7);
+  const { data: { user: authUser }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !authUser) {
+    console.warn(`[REJECTED] Invalid auth token | ip=${clientIp} garment=${garmentId} error=${authErr?.message}`);
+    return res.status(403).json({ error: 'Not authorized' });
+  }
+
+  const userId = authUser.id;
 
   // 1. Rate limiting: max RATE_LIMIT_MAX generations per user per hour.
   //    Count downloaded_at timestamps across all purchases in the last window.
@@ -78,6 +93,7 @@ export default async function handler(req, res) {
   }
 
   if (requestsThisWindow >= RATE_LIMIT_MAX) {
+    console.warn(`[REJECTED] Rate limit exceeded | user=${userId} ip=${clientIp} garment=${garmentId} count=${requestsThisWindow}`);
     return res.status(429).json({
       error: 'Too many requests. You may generate up to 10 patterns per hour. Please try again later.',
     });
@@ -93,19 +109,22 @@ export default async function handler(req, res) {
     try {
       stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
     } catch (err) {
-      console.error('Stripe session retrieval failed:', err);
+      console.warn(`[REJECTED] Stripe session retrieval failed | user=${userId} ip=${clientIp} sessionId=${sessionId} error=${err.message}`);
       return res.status(403).json({ error: 'Could not verify payment session' });
     }
 
     if (stripeSession.payment_status !== 'paid') {
+      console.warn(`[REJECTED] Payment not completed | user=${userId} ip=${clientIp} sessionId=${sessionId} status=${stripeSession.payment_status}`);
       return res.status(403).json({ error: 'Payment not completed' });
     }
 
     if (stripeSession.metadata?.user_id !== userId) {
+      console.warn(`[REJECTED] Session user mismatch | user=${userId} ip=${clientIp} sessionId=${sessionId} session_user=${stripeSession.metadata?.user_id}`);
       return res.status(403).json({ error: 'Session does not match the requesting user' });
     }
 
     if (stripeSession.metadata?.garment_id !== garmentId) {
+      console.warn(`[REJECTED] Session garment mismatch | user=${userId} ip=${clientIp} sessionId=${sessionId} requested=${garmentId} session_garment=${stripeSession.metadata?.garment_id}`);
       return res.status(403).json({ error: 'Session does not match the requested pattern' });
     }
 
@@ -133,6 +152,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Could not verify purchase: ' + purchaseErr.message });
     }
     if (!existingPurchase) {
+      console.warn(`[REJECTED] No purchase record | user=${userId} ip=${clientIp} garment=${garmentId}`);
       return res.status(403).json({ error: 'Purchase not found' });
     }
     purchase = existingPurchase;
@@ -159,6 +179,7 @@ export default async function handler(req, res) {
     if (monthCount >= 10) {
       const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
         .toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+      console.warn(`[REJECTED] Monthly subscription limit | user=${userId} ip=${clientIp} garment=${garmentId} monthCount=${monthCount}`);
       return res.status(429).json({
         error: `You've downloaded 10 patterns this month. Your limit resets on ${resetDate}. Need more? Contact us at hello@peoplespatterns.com`,
       });
@@ -243,21 +264,14 @@ export default async function handler(req, res) {
   }
 
   // 8. Send purchase confirmation email (only on first post-purchase generation)
-  if (sessionId && userId) {
-    try {
-      const { data: { user: authUser } } = await supabase.auth.admin.getUserById(userId);
-      if (authUser?.email) {
-        const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
-        sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
-          garmentName,
-          downloadUrl: signed.signedUrl,
-          measurements,
-          expiresHours: 48,
-        }).catch(err => console.error('Purchase confirmation email failed:', err));
-      }
-    } catch (err) {
-      console.error('Failed to look up user for confirmation email:', err);
-    }
+  if (sessionId && authUser?.email) {
+    const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
+    sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
+      garmentName,
+      downloadUrl: signed.signedUrl,
+      measurements,
+      expiresHours: 48,
+    }).catch(err => console.error('Purchase confirmation email failed:', err));
   }
 
   res.status(200).json({ downloadUrl: signed.signedUrl });

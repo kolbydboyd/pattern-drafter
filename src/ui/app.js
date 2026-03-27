@@ -36,6 +36,7 @@ import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
 import { hasPurchased, saveMeasurementProfile, getWishlist, addToWishlist, removeFromWishlist } from '../lib/db.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+import { getSession } from '../lib/auth.js';
 
 let currentGarment    = 'cargo-shorts';
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
@@ -797,13 +798,16 @@ async function handleDownloadPDF(btn) {
 
   try {
     const user       = getCurrentUser();
+    const { session } = await getSession();
     const { m, opts } = readInputs();
     const res = await fetch('/api/generate-pattern', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
       body:    JSON.stringify({
         garmentId:    currentGarment,
-        userId:       user.id,
         measurements: m,
         opts,
       }),

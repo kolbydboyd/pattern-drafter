@@ -1,5 +1,6 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Success page — runs after Stripe checkout redirect
+import { getSession } from '../lib/auth.js';
 
 const params     = new URLSearchParams(location.search);
 const sessionId  = params.get('session_id');
@@ -40,12 +41,15 @@ async function init() {
     elDlBtn.disabled    = true;
     elDlBtn.textContent = 'Generating...';
     try {
+      const { session } = await getSession();
       const r = await fetch('/api/generate-pattern', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({
           garmentId:    info.garmentId,
-          userId:       info.userId || undefined,
           measurements: info.measurements,
           opts:         info.opts,
           sessionId:    info.sessionId,

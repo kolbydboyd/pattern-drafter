@@ -27,6 +27,11 @@ export function onAuthStateChange(callback) {
   });
 }
 
+export async function getSession() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  return { session, error };
+}
+
 export async function resetPassword(email) {
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${window.location.origin}/reset-password`,
