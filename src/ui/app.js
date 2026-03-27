@@ -86,7 +86,7 @@ function refreshProfileDropdown() {
 
 function saveCurrentProfile() {
   if (!getCurrentUser()) {
-    openAuthModal('login', () => saveCurrentProfile());
+    openAuthModal('save-profile', () => saveCurrentProfile());
     return;
   }
   const nameInput = document.getElementById('profile-name-input');
@@ -712,7 +712,7 @@ function showEmailGate(onSuccess) {
 
 function captureEmailThenPrint() {
   if (!getCurrentUser()) {
-    openAuthModal('login', () => printPattern());
+    openAuthModal('download', () => printPattern());
     return;
   }
   printPattern();

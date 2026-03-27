@@ -2,9 +2,10 @@
 import { signUp, signIn, signOut, getUser, onAuthStateChange, resetPassword } from '../lib/auth.js';
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let _modalState   = 'login';   // 'login' | 'signup'
-let _pendingAction = null;     // function to call after successful auth
-let _authUser     = null;
+let _modalState    = 'login';   // 'login' | 'signup'
+let _trigger       = 'header';  // 'header' | 'save-profile' | 'download'
+let _pendingAction = null;      // function to call after successful auth
+let _authUser      = null;
 
 // ── Auth state broadcast ──────────────────────────────────────────────────────
 const _listeners = [];
@@ -25,21 +26,63 @@ getUser().then(({ user }) => {
 
 export function getCurrentUser() { return _authUser; }
 
+// ── Contextual headlines ───────────────────────────────────────────────────────
+const HEADLINES = {
+  'save-profile': {
+    title:    'Save your measurements',
+    subtext:  'Create a free account to save your measurements and access them anywhere.',
+  },
+  'download': {
+    title:    'Create an account to purchase',
+    subtext:  'You\'ll be able to re-download this pattern any time from your account.',
+  },
+  'header': {
+    title:    'Welcome to People\'s Patterns',
+    subtext:  null,
+  },
+};
+
 // ── Modal HTML ────────────────────────────────────────────────────────────────
 export function renderAuthModal() {
   return `
-  <dialog id="auth-modal" class="auth-modal">
-    <div class="auth-card">
+  <div id="auth-overlay" class="auth-overlay" hidden>
+    <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-heading">
       <button class="auth-close" id="auth-close" aria-label="Close">&times;</button>
       <div class="auth-logo">People's Patterns</div>
       <div id="auth-modal-body"></div>
     </div>
-  </dialog>`;
+  </div>`;
+}
+
+const BENEFITS = [
+  'Measurement profiles — enter once, use forever',
+  'Purchase history — re-download any time',
+  'Fit history — track what works for your body',
+  'New pattern notifications',
+];
+
+function _benefitsHTML() {
+  const rows = BENEFITS.map(b =>
+    `<div class="auth-benefit"><span class="auth-benefit-check">✓</span>${b}</div>`
+  ).join('');
+  return `
+    <p class="auth-benefits-heading">Save your measurements and get:</p>
+    <div class="auth-benefits">${rows}</div>
+    <hr class="auth-benefits-rule">`;
+}
+
+function _contextHTML() {
+  const h = HEADLINES[_trigger] || HEADLINES.header;
+  return `
+    <div class="auth-context">
+      <h2 class="auth-context-title" id="auth-heading">${h.title}</h2>
+      ${h.subtext ? `<p class="auth-context-sub">${h.subtext}</p>` : ''}
+    </div>`;
 }
 
 function _loginHTML(err) {
   return `
-    <h2 class="auth-heading">Sign in</h2>
+    ${_contextHTML()}
     ${err ? `<p class="auth-error">${err}</p>` : ''}
     <form id="auth-form">
       <div class="auth-field">
@@ -56,13 +99,13 @@ function _loginHTML(err) {
       <a href="#" id="auth-forgot">Forgot password?</a>
     </p>
     <p class="auth-switch">
-      Don't have an account? <a href="#" id="auth-toggle">Sign up</a>
+      Don't have an account? <a href="#" id="auth-toggle">Sign up free</a>
     </p>`;
 }
 
 function _signupHTML(err) {
   return `
-    <h2 class="auth-heading">Create account</h2>
+    ${_benefitsHTML()}
     ${err ? `<p class="auth-error">${err}</p>` : ''}
     <form id="auth-form">
       <div class="auth-field">
@@ -116,7 +159,7 @@ function _wireForm() {
     const email = document.getElementById('auth-email').value.trim();
     const pass  = document.getElementById('auth-password').value;
 
-    btn.disabled  = true;
+    btn.disabled    = true;
     btn.textContent = _modalState === 'signup' ? 'Creating…' : 'Signing in…';
 
     if (_modalState === 'signup') {
@@ -131,7 +174,6 @@ function _wireForm() {
       }
       const { error } = await signUp(email, pass);
       if (error) { _renderBody('signup', error.message); return; }
-      // Show "check email" message for email confirmation
       document.getElementById('auth-modal-body').innerHTML = `
         <p class="auth-success" style="text-align:center;margin-top:16px">
           Account created! Check your email to confirm your address,<br>
@@ -150,31 +192,55 @@ function _wireForm() {
 }
 
 // ── Open / close ──────────────────────────────────────────────────────────────
-export function openAuthModal(state = 'login', afterAuth = null) {
-  _modalState   = state;
+
+// openAuthModal(trigger, afterAuth)
+//   trigger: 'header' | 'save-profile' | 'download'
+//            or legacy state string 'login'|'signup' (backwards compat)
+export function openAuthModal(triggerOrState = 'header', afterAuth = null) {
+  // Backwards-compat: if called with 'login' or 'signup', treat as header trigger
+  if (triggerOrState === 'login' || triggerOrState === 'signup') {
+    _modalState    = triggerOrState;
+    _trigger       = 'header';
+  } else {
+    _trigger    = triggerOrState;
+    _modalState = 'signup'; // non-header triggers default to signup
+  }
   _pendingAction = afterAuth;
-  const modal = document.getElementById('auth-modal');
-  if (!modal) return;
-  _renderBody(state);
-  modal.showModal();
+
+  const overlay = document.getElementById('auth-overlay');
+  if (!overlay) return;
+  _renderBody(_modalState);
+  overlay.hidden = false;
+  document.body.style.overflow = 'hidden';
+
+  // Focus first input after paint
+  requestAnimationFrame(() => {
+    document.getElementById('auth-email')?.focus();
+  });
 }
 
 export function closeAuthModal() {
-  document.getElementById('auth-modal')?.close();
+  const overlay = document.getElementById('auth-overlay');
+  if (overlay) overlay.hidden = true;
+  document.body.style.overflow = '';
 }
 
 // ── Init (call once on page load) ─────────────────────────────────────────────
 export function initAuthModal() {
-  // Inject modal HTML if not already present
-  if (!document.getElementById('auth-modal')) {
+  if (!document.getElementById('auth-overlay')) {
     document.body.insertAdjacentHTML('beforeend', renderAuthModal());
   }
 
   document.getElementById('auth-close')?.addEventListener('click', closeAuthModal);
 
-  // Close on backdrop click
-  document.getElementById('auth-modal')?.addEventListener('click', e => {
+  // Click outside the card closes
+  document.getElementById('auth-overlay')?.addEventListener('click', e => {
     if (e.target === e.currentTarget) closeAuthModal();
+  });
+
+  // ESC key closes
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAuthModal();
   });
 }
 
@@ -182,7 +248,6 @@ export function initAuthModal() {
 export function updateHeaderAuth(user) {
   let slot = document.getElementById('hdr-auth');
   if (!slot) {
-    // Insert slot before theme button
     const themeBtn = document.getElementById('theme-btn');
     if (!themeBtn) return;
     slot = document.createElement('div');
