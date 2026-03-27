@@ -215,6 +215,15 @@ async function _renderPatterns(main, user) {
   }
   html += `</div>`;
   main.innerHTML = html;
+
+  main.querySelectorAll('.acct-redownload').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const garmentId = btn.dataset.garment;
+      _closeAccountDashboard();
+      // Ask app.js to open this garment at the download tab
+      window.dispatchEvent(new CustomEvent('pp:redownload', { detail: { garmentId } }));
+    });
+  });
 }
 
 // ── 3. Wishlist ───────────────────────────────────────────────────────────────

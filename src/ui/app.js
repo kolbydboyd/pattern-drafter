@@ -1094,6 +1094,21 @@ function getSavedTheme() {
 applyTheme(getSavedTheme() === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
 document.getElementById('hdr-logo')?.addEventListener('click', showLanding);
+
+// Re-download from account dashboard: open wizard at the right garment + download tab
+window.addEventListener('pp:redownload', e => {
+  const { garmentId } = e.detail;
+  showWizard();
+  currentGarment = garmentId;
+  const sel = document.getElementById('garment-select');
+  if (sel) sel.value = garmentId;
+  buildInputs();
+  generate();
+  // Jump straight to step 4 and open the print/download tab
+  goToStep(4);
+  switchTab('print');
+});
+
 initAuthModal();
 
 // Landing email capture
