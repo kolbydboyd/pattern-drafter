@@ -209,11 +209,14 @@ export const EASE_VALUES = {
 /**
  * Distribute total lower-body ease across front and back panels.
  * Back gets 60% (accommodates seat); front gets 40%.
+ * Each value is per quarter-panel (one of four panels in the garment).
  *
- * @param {string} easeKey - Key from EASE_VALUES ('slim' | 'regular' | 'relaxed' | 'wide')
- * @returns {{ front: number, back: number, total: number }} Ease in inches per panel
+ * @param {string|number} easeKeyOrTotal - Key from EASE_VALUES or a numeric total in inches
+ * @returns {{ front: number, back: number, total: number }} Ease in inches per quarter-panel
  */
-export function easeDistribution(easeKey) {
-  const total = EASE_VALUES[easeKey] || 2.5;
+export function easeDistribution(easeKeyOrTotal) {
+  const total = typeof easeKeyOrTotal === 'number'
+    ? easeKeyOrTotal
+    : (EASE_VALUES[easeKeyOrTotal] || 2.5);
   return { front: total * 0.2, back: total * 0.3, total };
 }

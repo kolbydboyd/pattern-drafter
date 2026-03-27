@@ -9,7 +9,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches,
+  fmtInches, easeDistribution,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -111,9 +111,8 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal   = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
-    const easeFront = easeVal * 0.45;  // slightly more ease to front for womenswear drape
-    const easeBack  = easeVal * 0.55;
+    const easeVal = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
+    const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
     const hem      = parseFloat(opts.hem);
@@ -130,10 +129,10 @@ export default {
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + easeFront + pleatExtra;
-    const backHipW    = m.hip / 4 + easeBack;
-    const frontWaistW = m.waist / 4 + easeFront + pleatExtra;
-    const backWaistW  = m.waist / 4 + easeBack;
+    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    const backHipW    = m.hip / 4 + ease.back;
+    const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
+    const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = 8;
     const H           = rise + inseam;
 
@@ -163,7 +162,7 @@ export default {
     }));
 
     // ── WAISTBAND ────────────────────────────────────────────────────────────
-    const wbCirc = m.hip + easeVal + pleatExtra * 2 + sa * 2;
+    const wbCirc = m.hip + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       // 1.5″ finished = 3″ cut

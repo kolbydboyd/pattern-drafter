@@ -14,9 +14,6 @@ import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLEAT_DEPTH = 1.5; // inches per pleat (front panel only)
 
-// Wide ease for dress trousers
-const EASE_WIDE = 6;
-
 export default {
   id: 'pleated-trousers',
   name: 'Pleated Trousers',
@@ -88,10 +85,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeKey  = opts.ease;
-    const easeVal  = easeKey === 'wide' ? EASE_WIDE : (easeKey === 'relaxed' ? 4 : 2.5);
-    const easeFront = easeVal * 0.4;
-    const easeBack  = easeVal * 0.6;
+    const ease = easeDistribution(opts.ease || 'wide');
 
     const sa       = parseFloat(opts.sa);
     const hem      = parseFloat(opts.hem);
@@ -108,10 +102,10 @@ export default {
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
 
-    const frontHipW   = m.hip / 4 + easeFront + pleatExtra;
-    const backHipW    = m.hip / 4 + easeBack;
-    const frontWaistW = m.waist / 4 + easeFront + pleatExtra;
-    const backWaistW  = m.waist / 4 + easeBack;
+    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    const backHipW    = m.hip / 4 + ease.back;
+    const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
+    const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = 8;
     const H           = rise + inseam;
 
@@ -138,7 +132,7 @@ export default {
     }));
 
     // ── CURTAIN WAISTBAND (2″ finished) ──
-    const wbLen = m.hip + easeVal + pleatExtra * 2 + sa * 2;
+    const wbLen = m.hip + ease.total + pleatExtra * 2 + sa * 2;
     const wbW   = 4;  // 2″ finished = 4″ cut (doubled + SA)
     pieces.push({
       id: 'waistband',
