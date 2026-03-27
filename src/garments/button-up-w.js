@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5;
@@ -209,7 +209,14 @@ export default {
       { x: slvTopW * 1.5, y: 0, angle: -90 },
     ];
 
-    const collarLen = m.neck + 0.5;
+    // ── COLLAR from neckline arc ──────────────────────────────────────────────
+    const frontNeckArc = arcLength(frontNeckPts);
+    const backNeckArc  = arcLength(backNeckPts);
+    const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
+    const collarLen    = necklineLen;
+    const standH       = 1.25;  // collar stand height (finished)
+    const fallH        = 2.0;   // collar fall height (finished)
+
     const frontBB = bbox(frontPoly), backBB = bbox(backPoly), slvBB = bbox(sleevePoly);
     const btnCount = parseInt(opts.buttons) || 7;
 
@@ -238,8 +245,8 @@ export default {
         capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem, notches: sleeveNotches,
         dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
       },
-      { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × 3″ cut`, dimensions: { length: collarLen, width: 3 }, type: 'rectangle', sa },
-      { id: 'collar-stand', name: 'Collar Stand', instruction: 'Cut 2 · Interface one · 1.5″ wide × neckline length', dimensions: { length: m.neck + 0.5, width: 1.5 }, type: 'pocket' },
+      { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: fallH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
+      { id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 · Interface one · ${fmtInches(collarLen)} long × ${fmtInches(standH * 2 + sa * 2)} cut (${fmtInches(standH)} finished stand) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: standH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
       { id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(torsoLen - NECK_DEPTH_FRONT)} long`, dimensions: { width: PLACKET_W + 0.5, height: torsoLen - NECK_DEPTH_FRONT }, type: 'pocket' },
     ];
 

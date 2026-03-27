@@ -11,7 +11,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
@@ -193,11 +193,13 @@ export default {
     ];
 
     // ── COLLAR ───────────────────────────────────────────────────────────────
-    // Camp collar: rectangle with the front corners angled.
-    // Width = full neckline circumference + 0.5″ ease (overlap). Height = 3″ cut (1.5″ finished × 2).
-    const collarLen = m.neck + 0.5;
-    const collarH   = 3; // 1.5″ finished
-    // "Rounded" front points are approximated in the instruction note.
+    // Camp collar: shaped rectangle with rounded front points.
+    // Length derived from actual neckline arc: 2 × front arc + 2 × back arc.
+    const frontNeckArc = arcLength(frontNeckPts);
+    const backNeckArc  = arcLength(backNeckPts);
+    const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
+    const collarLen    = necklineLen;  // collar matches neckline seam exactly
+    const collarH      = 3; // 1.5″ finished, folded in half
 
     // ── PLACKET FACING ───────────────────────────────────────────────────────
     // Separate facing strip to back the button/buttonhole side.
@@ -298,11 +300,14 @@ export default {
       },
       {
         id: 'collar',
-        name: 'Collar',
-        instruction: `Cut 2 (outer + facing/undercollar) · Interface outer · ${fmtInches(collarLen)} × ${fmtInches(collarH)} · Shape front corners to rounded point after cutting`,
+        name: 'Camp Collar',
+        instruction: `Cut 2 (outer + undercollar) · Interface outer · ${fmtInches(collarLen)} long × ${fmtInches(collarH)} tall · Round front corners: mark 1″ from each front edge, draw a smooth curve from neck edge to outer edge · Neckline seam: ${fmtInches(necklineLen)}`,
         type: 'rectangle',
         dimensions: { length: collarLen, width: collarH },
         sa,
+        dims: [
+          { label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' },
+        ],
       },
       {
         id: 'placket-facing',
