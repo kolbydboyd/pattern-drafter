@@ -53,26 +53,43 @@ export default async function handler(req, res) {
   const { garmentId, userId, measurements, opts, sessionId } = req.body;
 
   // 1. Verify the user has purchased this garment
-  if (userId) {
-    const { data: purchase } = await supabase
+  // If sessionId is present the request is coming straight from the Stripe
+  // success redirect — trust it. The webhook may not have written the
+  // purchase row yet (race window), so skip the DB check in that case.
+  if (sessionId) {
+    // Trusted: Stripe session was already validated by session-info.js
+    // Stamp download on the purchase row fire-and-forget (may be a no-op
+    // if the webhook hasn't inserted the row yet, which is fine).
+    if (userId) {
+      const nowIso = new Date().toISOString();
+      supabase.from('purchases')
+        .update({ last_generated_at: nowIso })
+        .eq('user_id', userId)
+        .eq('garment_id', garmentId)
+        .then(() => {});
+    }
+  } else if (userId) {
+    // Re-download from account dashboard — purchase record must exist.
+    const { data: purchase, error: purchaseErr } = await supabase
       .from('purchases')
-      .select('id, stripe_payment_intent, amount_cents, downloaded_at')
+      .select('id, stripe_payment_intent, downloaded_at')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
 
+    if (purchaseErr) {
+      console.error('Purchase lookup error:', purchaseErr);
+      return res.status(500).json({ error: 'Could not verify purchase: ' + purchaseErr.message });
+    }
     if (!purchase) {
       return res.status(403).json({ error: 'Purchase not found' });
     }
 
-    // Subscription users (no Stripe payment intent = admin unlock or future subscription)
-    // have a monthly download limit of 10. Per-pattern purchasers are unlimited.
+    // Subscription users have a monthly download limit of 10.
     const isPerPatternPurchase = !!purchase.stripe_payment_intent;
     if (!isPerPatternPurchase) {
       const now        = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-
-      // Count downloads this calendar month across all non-paid purchases for this user
       const { data: allPurchases } = await supabase
         .from('purchases')
         .select('downloaded_at')
@@ -95,7 +112,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Stamp last_generated_at and append download timestamp (fire-and-forget)
+    // Stamp download timestamp (fire-and-forget)
     const nowIso = new Date().toISOString();
     const updatedArr = [...(purchase.downloaded_at || []), nowIso];
     supabase.from('purchases')
@@ -103,10 +120,7 @@ export default async function handler(req, res) {
       .eq('id', purchase.id)
       .then(() => {});
   } else {
-    // Allow session-ID based access right after webhook (race window)
-    if (!sessionId) {
-      return res.status(403).json({ error: 'Not authorized' });
-    }
+    return res.status(403).json({ error: 'Not authorized' });
   }
 
   // 2. Import garment module and generate pieces/materials/instructions

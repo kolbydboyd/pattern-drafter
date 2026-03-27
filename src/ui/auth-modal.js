@@ -301,4 +301,43 @@ export function updateHeaderAuth(user) {
     document.getElementById('hdr-signup-btn').addEventListener('click', () =>
       openAuthModal('signup'));
   }
+
+  // ── Mobile nav auth ────────────────────────────────────────────────────────
+  const mWrap = document.getElementById('hdr-nav-m-auth-wrap');
+  if (!mWrap) return;
+  const mNav  = document.getElementById('hdr-nav-mobile');
+
+  if (user) {
+    const truncated = user.email.length > 26 ? user.email.slice(0, 24) + '…' : user.email;
+    mWrap.innerHTML = `
+      <div class="hdr-nav-m-auth" style="flex-direction:column;gap:4px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:.67rem;color:var(--gold);padding:2px 0">${truncated}</span>
+        <div style="display:flex;gap:8px">
+          <button class="hdr-signin-btn" id="hdr-m-patterns-btn">My Patterns</button>
+          <button class="hdr-signin-btn hdr-dd-signout" id="hdr-m-signout-btn">Sign Out</button>
+        </div>
+      </div>`;
+    document.getElementById('hdr-m-patterns-btn').addEventListener('click', () => {
+      mNav?.classList.remove('open');
+      import('./account-dashboard.js').then(m => m.openAccountDashboard('patterns'));
+    });
+    document.getElementById('hdr-m-signout-btn').addEventListener('click', async () => {
+      mNav?.classList.remove('open');
+      await signOut();
+    });
+  } else {
+    mWrap.innerHTML = `
+      <div class="hdr-nav-m-auth">
+        <button class="hdr-signin-btn" id="hdr-m-signin-btn">Sign In</button>
+        <button class="hdr-signup-btn" id="hdr-m-signup-btn">Create Account</button>
+      </div>`;
+    document.getElementById('hdr-m-signin-btn').addEventListener('click', () => {
+      mNav?.classList.remove('open');
+      openAuthModal('login');
+    });
+    document.getElementById('hdr-m-signup-btn').addEventListener('click', () => {
+      mNav?.classList.remove('open');
+      openAuthModal('signup');
+    });
+  }
 }
