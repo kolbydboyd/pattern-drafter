@@ -267,3 +267,49 @@ export function renderGenericPieceSVG(piece) {
     ${foldNote ? `<text x="${sc(mL)}" y="${oy + sc((minY+maxY)/2)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" transform="rotate(-90,${sc(mL)},${oy + sc((minY+maxY)/2)})">${foldNote}</text>` : ''}
   </svg>`;
 }
+
+/**
+ * Append a tiled diagonal watermark to a live SVG DOM element.
+ * Call after the SVG is in the DOM.
+ * @param {SVGElement} svgEl
+ */
+export function addWatermark(svgEl) {
+  if (!svgEl) return;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const fill   = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.12)';
+
+  const vb    = svgEl.viewBox.baseVal;
+  const w     = vb.width  || svgEl.clientWidth  || 300;
+  const h     = vb.height || svgEl.clientHeight || 400;
+  const xStep = 120;
+  const yStep = 80;
+  const ns    = 'http://www.w3.org/2000/svg';
+
+  const g = document.createElementNS(ns, 'g');
+  g.setAttribute('class', 'wm-layer');
+
+  for (let y = -yStep; y < h + yStep; y += yStep) {
+    for (let x = -xStep; x < w + xStep; x += xStep) {
+      const t = document.createElementNS(ns, 'text');
+      t.setAttribute('x', x);
+      t.setAttribute('y', y);
+      t.setAttribute('font-family', 'IBM Plex Mono, monospace');
+      t.setAttribute('font-size', '14');
+      t.setAttribute('fill', fill);
+      t.setAttribute('transform', `rotate(-35, ${x}, ${y})`);
+      t.setAttribute('pointer-events', 'none');
+      t.textContent = 'peoplespatterns.com';
+      g.appendChild(t);
+    }
+  }
+
+  svgEl.appendChild(g);
+}
+
+/**
+ * Remove watermark layer from all SVGs in a container.
+ * @param {Element} container
+ */
+export function removeWatermarks(container) {
+  container.querySelectorAll('.wm-layer').forEach(el => el.remove());
+}

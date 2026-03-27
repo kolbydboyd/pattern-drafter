@@ -29,10 +29,13 @@ import slipSkirtW       from '../garments/slip-skirt-w.js';
 import aLineSkirtW      from '../garments/a-line-skirt-w.js';
 import shirtDressW      from '../garments/shirt-dress-w.js';
 import wrapDressW       from '../garments/wrap-dress-w.js';
-import { renderPanelSVG, renderGenericPieceSVG } from './pattern-view.js';
+import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
+import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
+import { hasPurchased } from '../lib/db.js';
+import { PATTERN_PRICES } from '../lib/pricing.js';
 
 let currentGarment = 'cargo-shorts';
 
@@ -82,6 +85,10 @@ function refreshProfileDropdown() {
 }
 
 function saveCurrentProfile() {
+  if (!getCurrentUser()) {
+    openAuthModal('login', () => saveCurrentProfile());
+    return;
+  }
   const nameInput = document.getElementById('profile-name-input');
   const name = nameInput?.value?.trim();
   if (!name) {
@@ -596,6 +603,48 @@ function _generate() {
   document.getElementById('s4-export-btn')?.addEventListener('click', exportSVG);
 
   switchTab(activeTab);
+
+  // Async: apply or remove watermark based on purchase status
+  _applyWatermarkState(currentGarment);
+}
+
+async function _applyWatermarkState(garmentId) {
+  const output = document.getElementById('output');
+  if (!output) return;
+
+  // Remove any existing watermark/banner first
+  removeWatermarks(output);
+  document.getElementById('wm-purchase-banner')?.remove();
+
+  const user      = getCurrentUser();
+  let   purchased = false;
+  if (user) {
+    const { data } = await hasPurchased(user.id, garmentId);
+    purchased = !!data;
+  }
+
+  if (!purchased) {
+    // Apply watermark to every SVG in the output
+    output.querySelectorAll('svg').forEach(svg => addWatermark(svg));
+
+    // Insert purchase banner above output
+    const price   = PATTERN_PRICES[garmentId];
+    const label   = price?.label ?? 'this pattern';
+    const dollars = price ? `$${(price.cents / 100).toFixed(2)}` : '';
+    const banner  = document.createElement('div');
+    banner.id = 'wm-purchase-banner';
+    banner.className = 'wm-banner';
+    banner.innerHTML = `
+      <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` — ${dollars}` : ''}</span>
+      <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
+    output.parentNode.insertBefore(banner, output);
+    document.getElementById('wm-buy-btn').addEventListener('click', () => {
+      import('../lib/checkout.js').then(m => {
+        const { m: mVals, opts } = readInputs();
+        m.buyPattern(garmentId, mVals, opts, user?.id);
+      });
+    });
+  }
 }
 
 // ═══ EXPORT ═══
@@ -662,9 +711,11 @@ function showEmailGate(onSuccess) {
 }
 
 function captureEmailThenPrint() {
-  const stored = JSON.parse(localStorage.getItem('captured_emails') || '[]');
-  if (stored.length > 0) { printPattern(); return; }
-  showEmailGate(() => printPattern());
+  if (!getCurrentUser()) {
+    openAuthModal('login', () => printPattern());
+    return;
+  }
+  printPattern();
 }
 
 // ═══ PRINT ═══
@@ -942,6 +993,7 @@ function getSavedTheme() {
 }
 applyTheme(getSavedTheme() === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
+initAuthModal();
 
 // Landing email capture
 document.getElementById('land-email-btn')?.addEventListener('click', () => {

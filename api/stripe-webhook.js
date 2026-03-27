@@ -1,0 +1,84 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
+// Vercel serverless function — handles Stripe webhook events
+import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+
+// Use service role key here (server-side only, never in browser)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+);
+
+export const config = { api: { bodyParser: false } };
+
+async function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on('data', c => chunks.push(typeof c === 'string' ? Buffer.from(c) : c));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
+    req.on('error', reject);
+  });
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const stripe    = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const rawBody   = await getRawBody(req);
+  const signature = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).json({ error: `Webhook error: ${err.message}` });
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session  = event.data.object;
+    const { userId, garmentId, measurements, opts } = session.metadata;
+
+    // Record purchase in Supabase
+    const { error } = await supabase.from('purchases').insert({
+      user_id:               userId || null,
+      garment_id:            garmentId,
+      stripe_payment_intent: session.payment_intent,
+      amount_cents:          session.amount_total,
+    });
+    if (error) console.error('Failed to insert purchase:', error);
+
+    // Record order
+    await supabase.from('orders').insert({
+      user_id:        userId || null,
+      stripe_session: session.id,
+      status:         'completed',
+      items:          [{ garment_id: garmentId }],
+      total_cents:    session.amount_total,
+    });
+
+    // Trigger PDF generation (async, fire-and-forget via internal fetch)
+    const origin = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000';
+    fetch(`${origin}/api/generate-pattern`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        garmentId,
+        userId,
+        measurements: JSON.parse(measurements || '{}'),
+        opts:         JSON.parse(opts || '{}'),
+        sessionId:    session.id,
+      }),
+    }).catch(err => console.error('PDF generation trigger failed:', err));
+  }
+
+  res.status(200).json({ received: true });
+}
