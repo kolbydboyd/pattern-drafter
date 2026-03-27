@@ -133,9 +133,29 @@ async function _renderMeasurements(main, user) {
   main.innerHTML = html;
 
   document.getElementById('acct-add-profile-btn')?.addEventListener('click', async () => {
-    const name = document.getElementById('new-profile-name')?.value.trim();
-    if (!name) return;
-    await saveMeasurementProfile(user.id, name, {});
+    const nameInput = document.getElementById('new-profile-name');
+    const name = nameInput?.value.trim();
+    if (!name) { nameInput?.focus(); return; }
+
+    // Collect whatever measurement inputs are currently in the wizard DOM
+    const m = {};
+    document.querySelectorAll('input[id^="m-"]').forEach(el => {
+      const key = el.id.slice(2);
+      const v = parseFloat(el.value);
+      if (!isNaN(v) && v > 0) m[key] = v;
+    });
+
+    const btn = document.getElementById('acct-add-profile-btn');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    const { error } = await saveMeasurementProfile(user.id, name, m);
+    btn.disabled = false;
+    btn.textContent = orig;
+
+    if (error) { alert('Could not save profile: ' + error.message); return; }
+    if (nameInput) nameInput.value = '';
     _showSection('measurements');
   });
 

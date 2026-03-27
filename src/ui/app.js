@@ -34,7 +34,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile } from '../lib/db.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 
 let currentGarment    = 'cargo-shorts';
@@ -85,7 +85,7 @@ function refreshProfileDropdown() {
     profiles.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
 }
 
-function saveCurrentProfile() {
+async function saveCurrentProfile() {
   if (!getCurrentUser()) {
     openAuthModal('save-profile', () => saveCurrentProfile());
     return;
@@ -96,7 +96,7 @@ function saveCurrentProfile() {
     nameInput?.focus();
     return;
   }
-  nameInput.value = '';
+
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
@@ -108,10 +108,27 @@ function saveCurrentProfile() {
     const raw = el.value.trim();
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
+
+  // Save to localStorage (wizard dropdown)
   const profiles = loadProfiles().filter(p => p.name !== name);
   profiles.push({ name, ...m });
   localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
   refreshProfileDropdown();
+
+  // Save to Supabase (account dashboard)
+  const user = getCurrentUser();
+  const btn  = document.getElementById('save-profile-btn');
+  const orig = btn?.textContent;
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  const { error } = await saveMeasurementProfile(user.id, name, m);
+  if (btn) { btn.disabled = false; btn.textContent = orig; }
+
+  if (error) {
+    console.error('Supabase save failed:', error.message);
+    // localStorage save still succeeded — profile available in wizard
+  }
+
+  nameInput.value = '';
 }
 
 function deleteCurrentProfile() {
@@ -799,6 +816,11 @@ function printPattern() {
 }
 
 // ═══ WIZARD ═══
+function showLanding() {
+  document.getElementById('landing').style.display = '';
+  document.getElementById('wizard').style.display = 'none';
+}
+
 function showWizard() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('wizard').style.display = '';
@@ -1040,8 +1062,8 @@ function renderStep4() {
 // ═══ DARK MODE ═══
 function applyTheme(dark) {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = dark ? 'Light' : 'Dark';
+  const icon = document.querySelector('#theme-btn .dark-mode-toggle__icon');
+  if (icon) icon.classList.toggle('dark-mode-toggle__icon--moon', dark);
 }
 
 function toggleTheme() {
@@ -1057,6 +1079,7 @@ function getSavedTheme() {
 }
 applyTheme(getSavedTheme() === 'dark');
 document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
+document.getElementById('hdr-logo')?.addEventListener('click', showLanding);
 initAuthModal();
 
 // Landing email capture
