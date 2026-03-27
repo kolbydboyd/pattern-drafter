@@ -222,6 +222,14 @@ function renderBodiceOrSleeveSVG(piece) {
         const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
         return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
       }).join('\n')}
+      ${(piece.bustDarts || []).map(d => {
+        const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
+        const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
+        const lx = (ox + d.sideX) * DPI, ly = (oy + d.lowerY) * DPI;
+        return `<line x1="${ux.toFixed(1)}" y1="${uy.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="${(ax - 10).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
+      }).join('\n')}
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>

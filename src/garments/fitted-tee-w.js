@@ -154,8 +154,24 @@ export default {
       return poly;
     }
 
-    const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckDepths.front, shoulderPtX + chestDepth);
-    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckDepths.back,  shoulderPtX + chestDepth);
+    const sideX = shoulderPtX + chestDepth;
+    const frontPoly = buildBody(false, frontNeckPts, frontArmPts, neckDepths.front, sideX);
+    const backPoly  = buildBody(true,  backNeckPts,  backArmPts,  neckDepths.back,  sideX);
+
+    // Bust dart geometry (horizontal side-seam dart)
+    const bustDarts = [];
+    if (opts.bustDart === 'yes') {
+      const bustLevel = (slopeDrop + armholeY) / 2;
+      const bustPointX = panelW / 2;
+      const dartIntake = 1.5;
+      const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
+      const dartApexX  = sideX - dartLength;
+      bustDarts.push({
+        apexX: dartApexX, apexY: bustLevel,
+        sideX, upperY: bustLevel - dartIntake / 2, lowerY: bustLevel + dartIntake / 2,
+        intake: dartIntake, length: dartLength,
+      });
+    }
 
     // Sleeve
     const effArmToElbow = m.armToElbow || (slvLen * 0.45);
@@ -176,7 +192,6 @@ export default {
     // ── NOTCH MARKS ─────────────────────────────────────────────────────────
     const shoulderMidX = neckW + shoulderW / 2;
     const shoulderMidY = slopeDrop / 2;
-    const sideX = shoulderPtX + chestDepth;
     const backSideX = shoulderPtX + backChestDepth;
 
     const frontNotches = [
@@ -185,6 +200,12 @@ export default {
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
     ];
+    // Bust dart matchpoint notches at side seam
+    if (bustDarts.length > 0) {
+      const bd = bustDarts[0];
+      frontNotches.push({ x: bd.sideX, y: bd.upperY, angle: 0 });
+      frontNotches.push({ x: bd.sideX, y: bd.lowerY, angle: 0 });
+    }
 
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
@@ -225,9 +246,9 @@ export default {
     const pieces = [
       {
         id: 'bodice-front', name: 'Front Body',
-        instruction: `Cut 1 on fold (CF)${opts.bustDart === 'yes' ? ' · Horizontal bust dart at side seam' : ''}`,
+        instruction: `Cut 1 on fold (CF)${bustDarts.length ? ` · Bust dart: ${fmtInches(bustDarts[0].intake)} intake × ${fmtInches(bustDarts[0].length)} long from side seam` : ''}`,
         type: 'bodice', polygon: frontPoly, path: pp(frontPoly),
-        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem, notches: frontNotches,
+        width: frontBB.width, height: frontBB.height, isBack: false, sa, hem, notches: frontNotches, bustDarts,
         dims: [{ label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {

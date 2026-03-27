@@ -163,8 +163,24 @@ export default {
       return poly;
     }
 
-    const frontBodice = buildBodice(false, frontNeckPts, frontArmPts, 2.5, shoulderPtX + chestDepth);
-    const backBodice  = buildBodice(true,  backNeckPts,  backArmPts,  0.75, shoulderPtX + chestDepth);
+    const sideX = shoulderPtX + chestDepth;
+    const frontBodice = buildBodice(false, frontNeckPts, frontArmPts, 2.5, sideX);
+    const backBodice  = buildBodice(true,  backNeckPts,  backArmPts,  0.75, sideX);
+
+    // Bust dart geometry (horizontal side-seam dart)
+    const bustDarts = [];
+    if (opts.bustDart === 'yes') {
+      const bustLevel = (slopeDrop + armholeY) / 2;
+      const bustPointX = panelW / 2;
+      const dartIntake = 1.5;
+      const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
+      const dartApexX  = sideX - dartLength;
+      bustDarts.push({
+        apexX: dartApexX, apexY: bustLevel,
+        sideX, upperY: bustLevel - dartIntake / 2, lowerY: bustLevel + dartIntake / 2,
+        intake: dartIntake, length: dartLength,
+      });
+    }
 
     // Notch marks — front bodice
     const frontShoulderMidX = neckW + shoulderW / 2;
@@ -175,6 +191,12 @@ export default {
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
       { x: panelW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
     ];
+    // Bust dart matchpoint notches at side seam
+    if (bustDarts.length > 0) {
+      const bd = bustDarts[0];
+      frontNotches.push({ x: bd.sideX, y: bd.upperY, angle: 0 });
+      frontNotches.push({ x: bd.sideX, y: bd.lowerY, angle: 0 });
+    }
     // Notch marks — back bodice
     const backNotches = [
       { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
@@ -193,6 +215,14 @@ export default {
     const frontRightBB   = bb(frontRightPoly);
     const frontLeftBB    = bb(frontLeftPoly);
     const backBB         = bb(backBodice);
+
+    // Bust darts shifted for right front panel (+ PLACKET_W) and mirrored for left
+    const rightBustDarts = bustDarts.map(d => ({
+      ...d, apexX: d.apexX + PLACKET_W, sideX: d.sideX + PLACKET_W,
+    }));
+    const leftBustDarts = rightBustDarts.map(d => ({
+      ...d, apexX: -d.apexX - minMirrorX, sideX: -d.sideX - minMirrorX,
+    }));
 
     // Skirt geometry
     const skirtL = m.skirtLength || 26;
@@ -251,12 +281,12 @@ export default {
     const pieces = [
       {
         id: 'bodice-front-right', name: 'Front Bodice (Right / buttonhole side)',
-        instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttonholes on RIGHT front (womenswear convention)${opts.bustDart === 'yes' ? ' · Bust dart from side seam toward bust apex' : ''}`,
+        instruction: `Cut 1 · Placket ${fmtInches(PLACKET_W)} extension at CF · ${parseInt(opts.buttonCount)} buttonholes on RIGHT front (womenswear convention)${bustDarts.length ? ` · Bust dart: ${fmtInches(bustDarts[0].intake)} intake × ${fmtInches(bustDarts[0].length)} long from side seam` : ''}`,
         type: 'bodice', polygon: frontRightPoly, path: pp(frontRightPoly),
         isCutOnFold: false,
         width: frontRightBB.width, height: frontRightBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
-        notches: frontNotches,
+        notches: frontNotches, bustDarts: rightBustDarts,
       },
       {
         id: 'bodice-front-left', name: 'Front Bodice (Left / button side)',
@@ -265,7 +295,7 @@ export default {
         isCutOnFold: false,
         width: frontLeftBB.width, height: frontLeftBB.height, isBack: false, sa, hem,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
-        notches: frontNotches,
+        notches: frontNotches, bustDarts: leftBustDarts,
       },
       {
         id: 'bodice-back', name: 'Back Bodice',

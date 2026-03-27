@@ -160,8 +160,21 @@ export default {
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
 
-    // Bust dart indicator (note: actual dart is a modification to side seam, simplified here)
-    const bustDartNote = opts.bustDart === 'yes' ? ' · Bust dart from side seam: 1–1.5″ wide × 3–4″ long, pointing toward bust apex' : '';
+    // Bust dart geometry (horizontal side-seam dart)
+    const sideX = shoulderPtX + chestDepth;
+    const bustDarts = [];
+    if (opts.bustDart === 'yes') {
+      const bustLevel = (slopeDrop + armholeY) / 2;
+      const bustPointX = panelW / 2;
+      const dartIntake = 1.5;
+      const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
+      const dartApexX  = sideX - dartLength;
+      bustDarts.push({
+        apexX: dartApexX, apexY: bustLevel,
+        sideX, upperY: bustLevel - dartIntake / 2, lowerY: bustLevel + dartIntake / 2,
+        intake: dartIntake, length: dartLength,
+      });
+    }
 
     // Back panel polygon
     const yokeH = opts.backDetail === 'yoke' ? 3.5 : 0;
@@ -186,7 +199,6 @@ export default {
     // ── NOTCH MARKS ─────────────────────────────────────────────────────────
     const shoulderMidX = neckW + shoulderW / 2;
     const shoulderMidY = slopeDrop / 2;
-    const sideX = shoulderPtX + chestDepth;
     const backSideX = shoulderPtX + backChestDepth;
 
     const frontNotches = [
@@ -195,6 +207,12 @@ export default {
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
     ];
+    // Bust dart matchpoint notches at side seam
+    if (bustDarts.length > 0) {
+      const bd = bustDarts[0];
+      frontNotches.push({ x: bd.sideX, y: bd.upperY, angle: 0 });
+      frontNotches.push({ x: bd.sideX, y: bd.lowerY, angle: 0 });
+    }
 
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
@@ -223,10 +241,10 @@ export default {
     const pieces = [
       {
         id: 'bodice-front', name: 'Front Panel (Left)',
-        instruction: `Cut 2 (L & R mirror) · ${fmtInches(PLACKET_W)} placket at CF · Left panel: buttonholes · Right panel: buttons${bustDartNote}`,
+        instruction: `Cut 2 (L & R mirror) · ${fmtInches(PLACKET_W)} placket at CF · Left panel: buttonholes · Right panel: buttons${bustDarts.length ? ` · Bust dart: ${fmtInches(bustDarts[0].intake)} intake × ${fmtInches(bustDarts[0].length)} long from side seam` : ''}`,
         type: 'bodice', polygon: frontPoly, path: polyPath(frontPoly),
         width: frontBB.maxX - frontBB.minX, height: frontBB.maxY - frontBB.minY,
-        isBack: false, sa, hem, notches: frontNotches,
+        isBack: false, sa, hem, notches: frontNotches, bustDarts,
         dims: [{ label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {

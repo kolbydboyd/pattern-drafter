@@ -339,6 +339,19 @@ export function renderGenericPieceSVG(piece) {
     }
   }
 
+  // Bust dart lines (horizontal side-seam darts on womenswear bodice)
+  const { bustDarts = [] } = piece;
+  let bustDartSVG = '';
+  for (const d of bustDarts) {
+    const ax = ox + sc(d.apexX), ay = oy + sc(d.apexY);
+    const ux = ox + sc(d.sideX), uy = oy + sc(d.upperY);
+    const lx = ox + sc(d.sideX), ly = oy + sc(d.lowerY);
+    bustDartSVG += `
+    <line x1="${ux.toFixed(1)}" y1="${uy.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="${(ax - 8).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">dart</text>`;
+  }
+
   const pieceLabel = type === 'sleeve'
     ? 'SLEEVE × 2 (mirror)'
     : cutOnFold
@@ -363,7 +376,7 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2)}
-    ${dimsSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${notches.map(n => {
+    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${notches.map(n => {
       const nx = ox + sc(n.x), ny = oy + sc(n.y);
       const rad = (n.angle || 0) * Math.PI / 180;
       const h = sc(0.25), w = sc(0.1);
