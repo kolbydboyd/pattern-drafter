@@ -1,33 +1,7 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Vercel serverless function — creates a Stripe Checkout session
 import Stripe from 'stripe';
-
-// PATTERN_PRICES duplicated here (server-side, no Vite env)
-const PATTERN_PRICES = {
-  'gym-shorts':         { cents: 700,  label: 'Gym Shorts' },
-  'swim-trunks':        { cents: 700,  label: 'Swim Trunks' },
-  'slip-skirt-w':       { cents: 700,  label: 'Slip Skirt' },
-  'tee':                { cents: 800,  label: 'T-Shirt' },
-  'cargo-shorts':       { cents: 800,  label: 'Cargo Shorts' },
-  'pleated-shorts':     { cents: 800,  label: 'Pleated Shorts' },
-  'crewneck':           { cents: 800,  label: 'Crewneck Sweatshirt' },
-  'hoodie':             { cents: 800,  label: 'Hoodie' },
-  'fitted-tee-w':       { cents: 800,  label: 'Fitted Tee' },
-  'a-line-skirt-w':     { cents: 800,  label: 'A-Line Skirt' },
-  'easy-pant-w':        { cents: 800,  label: 'Easy Pant' },
-  'shell-blouse-w':     { cents: 800,  label: 'Shell Blouse' },
-  'straight-jeans':     { cents: 1000, label: 'Straight Jeans' },
-  'chinos':             { cents: 1000, label: 'Chinos' },
-  'pleated-trousers':   { cents: 1000, label: 'Pleated Trousers' },
-  'sweatpants':         { cents: 1000, label: 'Sweatpants' },
-  'camp-shirt':         { cents: 1000, label: 'Camp Shirt' },
-  'crop-jacket':        { cents: 1000, label: 'Crop Jacket' },
-  'wide-leg-trouser-w': { cents: 1000, label: 'Wide-Leg Trouser' },
-  'straight-trouser-w': { cents: 1000, label: 'Straight Trouser' },
-  'button-up-w':        { cents: 1000, label: 'Button-Up Shirt' },
-  'shirt-dress-w':      { cents: 1000, label: 'Shirt Dress' },
-  'wrap-dress-w':       { cents: 1000, label: 'Wrap Dress' },
-};
+import { PATTERN_PRICES } from '../src/lib/pricing.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
