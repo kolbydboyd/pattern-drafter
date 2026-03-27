@@ -37,7 +37,8 @@ import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
 import { hasPurchased } from '../lib/db.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 
-let currentGarment = 'cargo-shorts';
+let currentGarment    = 'cargo-shorts';
+let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
 
 // ═══ WIZARD STATE ═══
 let currentStep = 1;
@@ -622,6 +623,7 @@ async function _applyWatermarkState(garmentId) {
     const { data } = await hasPurchased(user.id, garmentId);
     purchased = !!data;
   }
+  _currentPurchased = purchased;
 
   if (!purchased) {
     // Apply watermark to every SVG in the output
@@ -712,7 +714,11 @@ function showEmailGate(onSuccess) {
 
 function captureEmailThenPrint() {
   if (!getCurrentUser()) {
-    openAuthModal('download', () => printPattern());
+    openAuthModal('download', () => captureEmailThenPrint());
+    return;
+  }
+  if (!_currentPurchased) {
+    document.getElementById('wm-buy-btn')?.click();
     return;
   }
   printPattern();
