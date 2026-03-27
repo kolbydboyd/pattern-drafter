@@ -110,8 +110,8 @@ export function sanitizePoly(pts) {
   if (deduped.length < 3) return deduped;
 
   // Step 2 — remove collinear points (cross-product test)
-  // sin(0.5°) ≈ 0.00873 — points forming a deviation below this are collinear
-  const sinTol = Math.sin(0.5 * Math.PI / 180);
+  // sin(2.0°) ≈ 0.03490 — raised from 0.5° to preserve bezier curve points on gentle arcs
+  const sinTol = Math.sin(2.0 * Math.PI / 180);
   const n = deduped.length;
   const filtered = [];
   for (let i = 0; i < n; i++) {

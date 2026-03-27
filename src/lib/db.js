@@ -4,12 +4,34 @@ import { supabase } from './supabase.js';
 // ── Measurement Profiles ──────────────────────────────────────────────────────
 
 export async function getMeasurementProfiles(userId) {
-  const { data, error } = await supabase
+  const [profilesRes, countsRes] = await Promise.all([
+    supabase
+      .from('measurement_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('purchases')
+      .select('profile_id')
+      .eq('user_id', userId)
+      .not('profile_id', 'is', null),
+  ]);
+
+  const profiles = profilesRes.data ?? [];
+  const counts = {};
+  for (const row of countsRes.data ?? []) {
+    counts[row.profile_id] = (counts[row.profile_id] ?? 0) + 1;
+  }
+  const enriched = profiles.map(p => ({ ...p, pattern_count: counts[p.id] ?? 0 }));
+  return { data: enriched, error: profilesRes.error };
+}
+
+export async function updateProfileLastUsed(profileId) {
+  const { error } = await supabase
     .from('measurement_profiles')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-  return { data, error };
+    .update({ last_used_at: new Date().toISOString() })
+    .eq('id', profileId);
+  return { error };
 }
 
 export async function saveMeasurementProfile(userId, name, measurements) {

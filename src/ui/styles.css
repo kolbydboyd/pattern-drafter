@@ -335,7 +335,17 @@ details.adv-meas summary:hover{color:var(--text)}
 .acct-profile-card{background:var(--ibg);border:1px solid var(--bdr);border-radius:5px;padding:12px 14px}
 .acct-profile-dim{opacity:.55}
 .acct-profile-name{font-size:.83rem;font-weight:600;color:var(--text);margin-bottom:3px}
-.acct-profile-meta{font-size:.72rem;color:var(--mid);margin-bottom:10px}
+.acct-profile-meta{font-size:.72rem;color:var(--mid);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px}
+.acct-profile-meta span::before{content:'· ';color:var(--light)}
+.acct-profile-meta span:first-child::before{content:''}
+.acct-meas-chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.acct-meas-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.25);border-radius:3px;padding:2px 7px;font-size:.7rem}
+.acct-meas-chip-lbl{color:var(--mid)}
+.acct-meas-chip-val{color:var(--gold);font-weight:600;font-family:'IBM Plex Mono',monospace}
+.acct-edit-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.acct-edit-lbl{width:60px;font-size:.78rem;color:var(--mid);flex-shrink:0}
+.acct-btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--mid)}
+.acct-btn-ghost:hover{border-color:var(--gold);color:var(--text)}
 .acct-profile-actions{display:flex;gap:6px}
 .acct-pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .acct-pattern-card{background:var(--ibg);border:1px solid var(--bdr);border-radius:5px;padding:14px}

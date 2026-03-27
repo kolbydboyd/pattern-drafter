@@ -55,6 +55,8 @@ create table if not exists purchases (
 );
 
 -- ── Migrations: run these once on existing installs ───────────────────────────
+--   alter table measurement_profiles
+--     add column if not exists last_used_at timestamptz;
 --   alter table purchases
 --     add column if not exists profile_id uuid references measurement_profiles(id) on delete set null;
 --   alter table purchases

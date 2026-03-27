@@ -34,7 +34,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, getWishlist, addToWishlist, removeFromWishlist } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist } from '../lib/db.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession } from '../lib/auth.js';
 
@@ -180,6 +180,8 @@ function applyProfile(name) {
   // Notify listeners (e.g. riseOverride auto-fill) that m-rise may have changed
   document.getElementById('m-rise')?.dispatchEvent(new Event('input'));
   if (currentStep === 4) generate();
+  // Track last used in Supabase (fire and forget)
+  if (profile.id) updateProfileLastUsed(profile.id).catch(() => {});
 }
 
 // ═══ BUILD INPUT PANEL ═══

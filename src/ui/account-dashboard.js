@@ -2,6 +2,7 @@
 import { getUser, signOut, getSession } from '../lib/auth.js';
 import {
   getMeasurementProfiles, saveMeasurementProfile,
+  updateMeasurementProfile, updateProfileLastUsed,
   archiveMeasurementProfile, deleteMeasurementProfile,
   getPurchases, getPatterns,
   trashPattern, restorePattern, archivePattern,
@@ -98,6 +99,19 @@ async function _showSection(section) {
 }
 
 // ── 1. My Measurements ────────────────────────────────────────────────────────
+function _keyMeasHtml(m) {
+  const fields = [
+    { key: 'chest', label: 'Chest' },
+    { key: 'waist', label: 'Waist' },
+    { key: 'hip',   label: 'Hip'   },
+  ];
+  const chips = fields
+    .filter(f => m[f.key])
+    .map(f => `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">${f.label}</span><span class="acct-meas-chip-val">${m[f.key]}"</span></span>`)
+    .join('');
+  return chips ? `<div class="acct-meas-chips">${chips}</div>` : '';
+}
+
 async function _renderMeasurements(main, user) {
   const { data, error } = await getMeasurementProfiles(user.id);
   if (error) { main.innerHTML = `<p class="acct-error">${error.message}</p>`; return; }
@@ -105,11 +119,13 @@ async function _renderMeasurements(main, user) {
   const active   = (data || []).filter(p => !p.archived);
   const archived = (data || []).filter(p => p.archived);
 
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+
   let html = `<h2 class="acct-section-title">My Measurements</h2>`;
 
   html += `<div class="acct-add-profile">
-    <input class="acct-input" type="text" id="new-profile-name" placeholder="Profile name">
-    <button class="acct-btn-sm" id="acct-add-profile-btn">+ Add Profile</button>
+    <input class="acct-input" type="text" id="new-profile-name" placeholder="New profile name">
+    <button class="acct-btn-sm" id="acct-add-profile-btn">+ New Profile</button>
   </div>`;
 
   if (!active.length) {
@@ -117,12 +133,20 @@ async function _renderMeasurements(main, user) {
   } else {
     html += `<div class="acct-profile-list">`;
     for (const p of active) {
-      const date = new Date(p.created_at).toLocaleDateString();
-      html += `<div class="acct-profile-card" data-id="${p.id}">
+      const created  = fmtDate(p.created_at);
+      const lastUsed = fmtDate(p.last_used_at);
+      const count    = p.pattern_count ?? 0;
+      const m        = p.measurements ?? {};
+      html += `<div class="acct-profile-card" data-id="${p.id}" data-measurements='${JSON.stringify(m)}'>
         <div class="acct-profile-name">${p.name}</div>
-        <div class="acct-profile-meta">Saved ${date}</div>
+        ${_keyMeasHtml(m)}
+        <div class="acct-profile-meta">
+          <span>Saved ${created}</span>
+          ${lastUsed ? `<span>Last used ${lastUsed}</span>` : ''}
+          <span>${count} pattern${count !== 1 ? 's' : ''}</span>
+        </div>
         <div class="acct-profile-actions">
-          <button class="acct-btn-xs acct-load-profile" data-id="${p.id}">Load</button>
+          <button class="acct-btn-xs acct-edit-profile" data-id="${p.id}">Edit</button>
           <button class="acct-btn-xs acct-archive-profile" data-id="${p.id}">Archive</button>
           <button class="acct-btn-xs acct-btn-danger acct-delete-profile" data-id="${p.id}">Delete</button>
         </div>
@@ -134,8 +158,12 @@ async function _renderMeasurements(main, user) {
   if (archived.length) {
     html += `<details class="acct-archived"><summary>Archived (${archived.length})</summary><div class="acct-profile-list">`;
     for (const p of archived) {
+      const m     = p.measurements ?? {};
+      const count = p.pattern_count ?? 0;
       html += `<div class="acct-profile-card acct-profile-dim" data-id="${p.id}">
         <div class="acct-profile-name">${p.name}</div>
+        ${_keyMeasHtml(m)}
+        <div class="acct-profile-meta"><span>${count} pattern${count !== 1 ? 's' : ''}</span></div>
         <div class="acct-profile-actions">
           <button class="acct-btn-xs acct-delete-profile" data-id="${p.id}">Delete</button>
         </div>
@@ -151,29 +179,28 @@ async function _renderMeasurements(main, user) {
     const name = nameInput?.value.trim();
     if (!name) { nameInput?.focus(); return; }
 
-    // Collect whatever measurement inputs are currently in the wizard DOM
-    const m = {};
-    document.querySelectorAll('input[id^="m-"]').forEach(el => {
-      const key = el.id.slice(2);
-      const v = parseFloat(el.value);
-      if (!isNaN(v) && v > 0) m[key] = v;
-    });
-
     const btn = document.getElementById('acct-add-profile-btn');
     const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
-    const { error } = await saveMeasurementProfile(user.id, name, m);
+    const { error } = await saveMeasurementProfile(user.id, name, {});
     btn.disabled = false;
     btn.textContent = orig;
 
     if (error) { alert('Could not save profile: ' + error.message); return; }
     if (nameInput) nameInput.value = '';
-
-    // Brief green confirmation before refreshing the list
-    _showToast('Profile saved');
+    _showToast('Profile created');
     setTimeout(() => _showSection('measurements'), 900);
+  });
+
+  main.querySelectorAll('.acct-edit-profile').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.acct-profile-card');
+      const id   = btn.dataset.id;
+      const m    = JSON.parse(card.dataset.measurements || '{}');
+      _showEditProfileModal(user, id, card.querySelector('.acct-profile-name').textContent, m);
+    });
   });
 
   main.querySelectorAll('.acct-archive-profile').forEach(btn => {
@@ -189,6 +216,59 @@ async function _renderMeasurements(main, user) {
       await deleteMeasurementProfile(btn.dataset.id);
       _showSection('measurements');
     });
+  });
+}
+
+function _showEditProfileModal(user, profileId, currentName, currentMeas) {
+  const EDIT_FIELDS = [
+    { key: 'chest',  label: 'Chest'  },
+    { key: 'waist',  label: 'Waist'  },
+    { key: 'hip',    label: 'Hip'    },
+    { key: 'inseam', label: 'Inseam' },
+    { key: 'height', label: 'Height' },
+  ];
+  const fieldsHtml = EDIT_FIELDS.map(f => `
+    <div class="acct-edit-row">
+      <label class="acct-edit-lbl">${f.label}</label>
+      <input class="acct-input acct-edit-meas" type="number" data-key="${f.key}"
+        value="${currentMeas[f.key] ?? ''}" placeholder="inches" step="0.25" min="0">
+    </div>`).join('');
+
+  const { overlay, close } = _showModal({
+    title: 'Edit Profile',
+    body: `
+      <div class="acct-edit-row" style="margin-bottom:12px">
+        <label class="acct-edit-lbl">Name</label>
+        <input class="acct-input" id="edit-profile-name" type="text" value="${currentName}">
+      </div>
+      ${fieldsHtml}`,
+    buttons: `<button class="acct-btn-sm" id="edit-prof-save">Save</button>
+              <button class="acct-btn-sm acct-btn-ghost" id="edit-prof-cancel">Cancel</button>`,
+  });
+
+  overlay.querySelector('#edit-prof-cancel').addEventListener('click', close);
+  overlay.querySelector('#edit-prof-save').addEventListener('click', async () => {
+    const name = overlay.querySelector('#edit-profile-name').value.trim();
+    if (!name) { overlay.querySelector('#edit-profile-name').focus(); return; }
+    const m = { ...currentMeas };
+    overlay.querySelectorAll('.acct-edit-meas').forEach(el => {
+      const v = parseFloat(el.value);
+      if (!isNaN(v) && v > 0) m[el.dataset.key] = v;
+      else delete m[el.dataset.key];
+    });
+    const saveBtn = overlay.querySelector('#edit-prof-save');
+    saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+    const { error } = await updateMeasurementProfile(profileId, m);
+    if (!error && name !== currentName) {
+      await import('../lib/supabase.js').then(async ({ supabase }) => {
+        await supabase.from('measurement_profiles').update({ name }).eq('id', profileId);
+      });
+    }
+    saveBtn.disabled = false; saveBtn.textContent = 'Save';
+    if (error) { alert('Could not save: ' + error.message); return; }
+    close();
+    _showToast('Profile updated');
+    _showSection('measurements');
   });
 }
 
