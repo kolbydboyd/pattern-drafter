@@ -33,7 +33,13 @@
       "Bash(python3 -c \":*)",
       "Bash(npm install:*)",
       "Bash(\"C:/Users/black/OneDrive/Desktop/pattern-drafter/.env.local\")",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(SUPA_URL=\"https://sjruodvnlqvhwpbychhg.supabase.co\" SERVICE_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqcnVvZHZubHF2aHdwYnljaGhnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDU2ODczMCwiZXhwIjoyMDkwMTQ0NzMwfQ.OinODznYYoZtGXsw3ahWkBcatlaaUPCelU4N2yYnt1M\" __NEW_LINE_73f3b5066c86f2e7__ echo \"=== SUPABASE STORAGE BUCKETS ===\" curl -s -H \"apikey: $SERVICE_KEY\" -H \"Authorization: Bearer $SERVICE_KEY\" \"$SUPA_URL/storage/v1/bucket\")",
+      "Bash(STRIPE_KEY=\"sk_test_51TFNtOIMnm6cvvgYnYrF61cBtGWoOh3J6yHQt9YOxjXYDCFaALIvyo5gmggZRzAfwm8h7bwaQJXVHi3JMXt9vxHk00LUh8HEof\" __NEW_LINE_9a68cf2c53bac30e__ echo \"=== STRIPE WEBHOOK ENDPOINTS ===\" curl -s -u \"$STRIPE_KEY:\" \"https://api.stripe.com/v1/webhook_endpoints?limit=10\")",
+      "Bash(STRIPE_KEY=\"sk_test_51TFNtOIMnm6cvvgYnYrF61cBtGWoOh3J6yHQt9YOxjXYDCFaALIvyo5gmggZRzAfwm8h7bwaQJXVHi3JMXt9vxHk00LUh8HEof\")",
+      "Bash(curl -s -u \"$STRIPE_KEY:\" \"https://api.stripe.com/v1/webhook_endpoints?limit=10\")",
+      "Bash(curl -sv -X POST https://peoplespatterns.com/api/create-checkout -H \"Content-Type: application/json\" -d '{\"\"\"\"garmentId\"\"\"\":\"\"\"\"tee\"\"\"\",\"\"\"\"userId\"\"\"\":\"\"\"\"test-user-123\"\"\"\",\"\"\"\"measurements\"\"\"\":{\"\"\"\"chest\"\"\"\":38},\"\"\"\"opts\"\"\"\":{}}')",
+      "Bash(curl:*)"
     ]
   }
 }
