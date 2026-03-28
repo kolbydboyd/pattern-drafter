@@ -532,6 +532,9 @@ details.adv-meas summary:hover{color:var(--text)}
 .regen-meas-val{font-size:.67rem;color:var(--text);font-weight:600}
 
 /* ── Watermark purchase banner ── */
+.regen-all-banner{background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.35);border-radius:5px;padding:12px 16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px}
+.regen-all-msg{font-size:.78rem;color:var(--text);line-height:1.5}
+.regen-all-btns{display:flex;gap:8px;align-items:center}
 .wrd-wrap{background:var(--ibg);border:1px solid var(--bdr);border-radius:6px;padding:14px 16px;margin-bottom:20px}
 .wrd-milestone{font-size:.72rem;color:var(--gold);font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;margin-bottom:12px}
 .wrd-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}

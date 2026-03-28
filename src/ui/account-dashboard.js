@@ -252,15 +252,19 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
   overlay.querySelector('#edit-prof-save').addEventListener('click', async () => {
     const name = overlay.querySelector('#edit-profile-name').value.trim();
     if (!name) { overlay.querySelector('#edit-profile-name').focus(); return; }
-    const m = { ...currentMeas };
+    const newMeas = { ...currentMeas };
     overlay.querySelectorAll('.acct-edit-meas').forEach(el => {
       const v = parseFloat(el.value);
-      if (!isNaN(v) && v > 0) m[el.dataset.key] = v;
-      else delete m[el.dataset.key];
+      if (!isNaN(v) && v > 0) newMeas[el.dataset.key] = v;
+      else delete newMeas[el.dataset.key];
     });
+
+    // Detect measurement change (compare key values)
+    const measChanged = JSON.stringify(newMeas) !== JSON.stringify(currentMeas);
+
     const saveBtn = overlay.querySelector('#edit-prof-save');
     saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
-    const { error } = await updateMeasurementProfile(profileId, m);
+    const { error } = await updateMeasurementProfile(profileId, newMeas);
     if (!error && name !== currentName) {
       await import('../lib/supabase.js').then(async ({ supabase }) => {
         await supabase.from('measurement_profiles').update({ name }).eq('id', profileId);
@@ -269,8 +273,55 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
     saveBtn.disabled = false; saveBtn.textContent = 'Save';
     if (error) { alert('Could not save: ' + error.message); return; }
     close();
-    _showToast('Profile updated');
+
+    if (measChanged) {
+      _showRegenAllBanner(user, profileId, name || currentName, newMeas);
+    } else {
+      _showToast('Profile updated');
+    }
     _showSection('measurements');
+  });
+}
+
+function _showRegenAllBanner(user, profileId, profileName, newMeas) {
+  document.getElementById('regen-all-banner')?.remove();
+  const banner = document.createElement('div');
+  banner.id = 'regen-all-banner';
+  banner.className = 'regen-all-banner';
+  banner.innerHTML = `
+    <span class="regen-all-msg">Measurements updated for <strong>${profileName}</strong>. Re-generate all linked patterns with your new measurements?</span>
+    <div class="regen-all-btns">
+      <button class="acct-btn-sm" id="regen-all-confirm">Re-generate All</button>
+      <button class="acct-btn-xs acct-btn-ghost" id="regen-all-dismiss">Dismiss</button>
+    </div>`;
+  const main = document.getElementById('acct-main');
+  if (main) main.insertAdjacentElement('afterbegin', banner);
+
+  banner.querySelector('#regen-all-dismiss').addEventListener('click', () => banner.remove());
+  banner.querySelector('#regen-all-confirm').addEventListener('click', async () => {
+    const btn = banner.querySelector('#regen-all-confirm');
+    btn.disabled = true; btn.textContent = 'Re-generating…';
+
+    // Fetch all active purchases linked to this profile
+    const { data: purchases } = await getPatterns(user.id, 'active');
+    const linked = (purchases || []).filter(p => p.profile_id === profileId && Object.keys(newMeas).length > 0);
+
+    let done = 0;
+    for (const p of linked) {
+      try {
+        const { session } = await (await import('../lib/auth.js')).getSession();
+        await fetch('/api/regenerate-pattern', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ garmentId: p.garment_id, userId: user.id, purchaseId: p.id, measurements: newMeas, opts: {} }),
+        });
+        done++;
+      } catch { /* skip failed */ }
+    }
+
+    banner.remove();
+    _showToast(`${done} pattern${done !== 1 ? 's' : ''} re-generated`);
+    _showSection('patterns');
   });
 }
 
