@@ -372,7 +372,7 @@ export function renderPanelSVG(piece) {
   }
 
   // Notch marks: base snapped to SA cut line, apex pointing outward
-  const notchSVG = renderNotchesSVG(saCopy, notches, ox, oy);
+  const notchSVG = renderNotchesSVG(saPolygon, notches, ox, oy);
 
   // Reference lines
   const cLineY = oy + sc(rise);
