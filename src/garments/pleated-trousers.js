@@ -19,6 +19,7 @@ export default {
   name: 'Pleated Trousers',
   category: 'lower',
   difficulty: 'advanced',
+  priceTier: 'tailored',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 31 },
 

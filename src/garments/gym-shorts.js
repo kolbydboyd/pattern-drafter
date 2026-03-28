@@ -16,6 +16,7 @@ export default {
   name: 'Gym Shorts',
   category: 'lower',
   difficulty: 'beginner',
+  priceTier: 'simple',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 7 },
 

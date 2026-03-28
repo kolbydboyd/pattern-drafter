@@ -17,6 +17,7 @@ export default {
   name: 'Wrap Dress (W)',
   category: 'upper',
   difficulty: 'intermediate',
+  priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
   measurementDefaults: { torsoLength: 16, skirtLength: 28 },
 

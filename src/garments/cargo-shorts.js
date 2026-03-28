@@ -16,6 +16,7 @@ export default {
   name: 'Cargo Shorts',
   category: 'lower',
   difficulty: 'intermediate',
+  priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 10 },
 

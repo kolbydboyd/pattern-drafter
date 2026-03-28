@@ -20,6 +20,7 @@ export default {
   name: 'Crewneck Sweatshirt',
   category: 'upper',
   difficulty: 'intermediate',
+  priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 25 },
 

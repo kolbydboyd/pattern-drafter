@@ -26,6 +26,7 @@ export default {
   name: 'Fitted Tee (W)',
   category: 'upper',
   difficulty: 'intermediate',
+  priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 7 },
 

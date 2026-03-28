@@ -51,7 +51,10 @@
       "Bash(grep -r \"sendEmail\\\\|PURCHASE_CONFIRMATION\" /c/Users/black/OneDrive/Desktop/pattern-drafter --include=*.js --include=*.jsx --exclude-dir=node_modules --exclude-dir=dist)",
       "Bash(ls *.md)",
       "Bash(node scripts/generate-sitemap.js)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(ls *.html)",
+      "Bash(grep -l \"difficulty:\" src/garments/*.js)",
+      "Bash(grep -n \"SUBSCRIPTION_PRICE\\\\b\" src/ui/app.js api/*.js)"
     ]
   }
 }

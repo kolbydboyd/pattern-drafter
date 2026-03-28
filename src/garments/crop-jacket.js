@@ -22,6 +22,7 @@ export default {
   name: 'Crop Jacket',
   category: 'upper',
   difficulty: 'advanced',
+  priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
 

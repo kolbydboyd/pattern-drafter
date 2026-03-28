@@ -28,6 +28,7 @@ export default {
   name: 'T-Shirt',
   category: 'upper',
   difficulty: 'beginner',
+  priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 25 },
 

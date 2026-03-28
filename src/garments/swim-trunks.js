@@ -16,6 +16,7 @@ export default {
   name: 'Swim Trunks',
   category: 'lower',
   difficulty: 'beginner',
+  priceTier: 'simple',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 5 },
 

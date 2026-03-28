@@ -21,6 +21,7 @@ export default {
   name: 'Pleated Shorts',
   category: 'lower',
   difficulty: 'intermediate',
+  priceTier: 'tailored',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 11 },
 

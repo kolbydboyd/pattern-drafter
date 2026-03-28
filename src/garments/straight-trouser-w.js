@@ -19,6 +19,7 @@ export default {
   name: 'Straight Trouser (W)',
   category: 'lower',
   difficulty: 'advanced',
+  priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30, rise: 10 },
 
