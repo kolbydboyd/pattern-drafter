@@ -209,7 +209,7 @@ export default {
     // Pockets
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Sew facing to front panel along slash line (RST). Clip, turn, press. Understitch facing. Attach pocket bag to facing. Baste bag edges to panel at side and waist.',
+      detail: 'Sew facing to front panel along slash line {RST}. Clip, turn, press. Understitch facing. Attach pocket bag to facing. Baste bag edges to panel at side and waist.',
     });
     steps.push({
       step: n++, title: 'Prepare back welt pockets',
@@ -231,15 +231,15 @@ export default {
       steps.push({ step: n++, title: 'Install button fly', detail: 'Interface both plackets. Attach left and right plackets to CF edges. Sew buttonholes on left placket. Mark and sew buttons on right. Topstitch placket curve.' });
     }
 
-    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB (RST). Clip curve. Press open.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams (RST). Press open.' });
+    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. Clip curve. Press open.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. Press open.' });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam from hem to hem. Clip crotch curve. Press toward back.' });
 
     steps.push({
       step: n++, title: 'Construct waistband',
       detail: opts.waistband === 'curtain'
-        ? 'Interface waistband. Fold and press. Sew to shorts waist (RST). Fold, topstitch. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
-        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist (RST). Fold over, slipstitch inside. Topstitch. Install waistband button and work buttonhole.',
+        ? 'Interface waistband. Fold and press. Sew to shorts waist {RST}. Fold, topstitch. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
+        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, slipstitch inside. Topstitch. Install waistband button and work buttonhole.',
     });
 
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, press. Topstitch close to inner fold. Press from RS.` });

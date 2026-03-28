@@ -281,19 +281,19 @@ export default {
     if (opts.bustDart === 'yes') {
       steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold front RS together along dart legs. Sew from side to apex tapering to nothing. Press downward.' });
     }
-    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders (RST). Serge or zigzag. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. Serge or zigzag. Press toward back.' });
     if (opts.closure === 'zip') {
       steps.push({ step: n++, title: 'Install center back zipper', detail: 'Sew CB seam below zipper stop only. Install invisible zipper from neckline down. Close remaining seam. Press.' });
     }
-    steps.push({ step: n++, title: 'Attach neckline facing', detail: 'Sew front and back neckline facing pieces at shoulders. Interface. Sew facing to neckline (RST). Clip curve every ½″. Understitch. Press to inside. Slipstitch to shoulder seams.' });
+    steps.push({ step: n++, title: 'Attach neckline facing', detail: 'Sew front and back neckline facing pieces at shoulders. Interface. Sew facing to neckline {RST}. Clip curve every ½″. Understitch. Press to inside. Slipstitch to shoulder seams.' });
     if (opts.sleeves === 'sleeveless') {
-      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join front and back armhole facing pieces at shoulder and underarm. Sew to armhole (RST). Clip curves. Understitch. Press to inside.' });
+      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join front and back armhole facing pieces at shoulder and underarm. Sew to armhole {RST}. Clip curves. Understitch. Press to inside.' });
     } else if (opts.sleeves !== 'flutter') {
-      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew (RST). Serge SA together. Press toward sleeve.' });
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. Serge SA together. Press toward sleeve.' });
     } else {
       steps.push({ step: n++, title: 'Attach flutter sleeves', detail: 'Match bias flutter sleeve to armhole, RST. Ease or gather slightly to fit. Sew. Press SA toward bodice.' });
     }
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Sew front to back at side seams (RST). Serge or French seam. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Sew front to back at side seams {RST}. Serge or French seam. Press toward back.' });
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ½″ twice, press. Topstitch close to fold. For curved hem: clip SA first.` });
     steps.push({ step: n++, title: 'Finish', detail: 'Press entire blouse. Check facings are fully turned to the inside.' });
 

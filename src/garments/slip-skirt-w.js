@@ -218,18 +218,18 @@ export default {
       steps.push({ step: n++, title: 'Install invisible zipper', detail: 'Press zip coils flat. Sew right side of zip to right CB seam allowance. Sew left side to left CB seam allowance. Attach zip foot. Close remaining CB seam below zip stop.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams (RST). Sew from waist to hem. Press open. For fine fabrics: use French seams — sew WS together first at 3mm, press, flip RS together, sew at ¼″.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. Press open. For fine fabrics: use French seams — sew WS together first at 3mm, press, flip RS together, sew at ¼″.' });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams as for shell. Leave CB open for zipper. Press.' });
     }
 
     if (opts.waistband === 'petersham') {
-      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge (RST), easing any fullness. Press up. Slipstitch folded edge to WS. Attach hook and bar at CB.' });
+      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge {RST}, easing any fullness. Press up. Slipstitch folded edge to WS. Attach hook and bar at CB.' });
     } else if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise (RST), sew ends. Turn. Sew one long edge to waist (RST). Fold over, slipstitch or edgestitch other edge to WS.' });
+      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, slipstitch or edgestitch other edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half (WST). Sew to waist (RST). Fold inside. Topstitch leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. Topstitch leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
     }
 
     if (opts.lining === 'yes') {

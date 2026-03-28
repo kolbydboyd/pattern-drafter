@@ -220,29 +220,29 @@ export default {
     if (opts.pocket === 'slash') {
       steps.push({
         step: n++, title: 'Prepare slash pockets',
-        detail: 'Serge all pocket bag edges. Mark pocket opening on front and back panels at mid-hip height. Sew pocket bag to front and back panels along opening seam (RST). Press bags away from opening. Understitch if desired. Baste bags to panel at side seam edges.',
+        detail: 'Serge all pocket bag edges. Mark pocket opening on front and back panels at mid-hip height. Sew pocket bag to front and back panels along opening seam {RST}. Press bags away from opening. Understitch if desired. Baste bags to panel at side seam edges.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join front panels at CF (RST). Stretch stitch from waist to crotch. Clip curve. Press or serge.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join back panels at CB (RST). Stretch stitch. Clip. Press.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join front panels at CF {RST}. Stretch stitch from waist to crotch. Clip curve. Press or serge.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join back panels at CB {RST}. Stretch stitch. Clip. Press.' });
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'slash'
         ? 'Sew above and below pocket opening with stretch stitch. Sew around bag to join both halves. Trim corners. Press open.'
-        : 'Join front to back at side seams (RST). Stretch stitch. Press open or serge together.',
+        : 'Join front to back at side seams {RST}. Stretch stitch. Press open or serge together.',
     });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. Clip curve. Press toward back.' });
 
     steps.push({
       step: n++, title: 'Construct waistband',
-      detail: 'Fold waistband in half lengthwise (WST), press. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist (RST), stretching to fit. Stretch stitch. Fold to inside. Topstitch all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
+      detail: 'Fold waistband in half lengthwise {WST}, press. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. Topstitch all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
     });
 
     if (isJogger) {
       steps.push({
         step: n++, title: 'Attach rib cuffs',
-        detail: 'Fold each rib cuff in half widthwise (WST). Divide hem opening and cuff into quarters, pin at quarters. Sew cuff to hem opening (RST), stretching cuff to match opening. Use stretch stitch or serger. Fold seam allowance up into leg, topstitch from RS if desired.',
+        detail: 'Fold each rib cuff in half widthwise {WST}. Divide hem opening and cuff into quarters, pin at quarters. Sew cuff to hem opening {RST}, stretching cuff to match opening. Use stretch stitch or serger. Fold seam allowance up into leg, topstitch from RS if desired.',
       });
     } else {
       steps.push({

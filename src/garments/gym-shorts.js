@@ -258,19 +258,19 @@ export default {
     steps.push({
       step: n++,
       title: 'Sew center front seam',
-      detail: 'Join two front panels at center seam (RST). Use stretch stitch from waist to crotch curve. Clip curve every ½″. Press seam open or to one side.',
+      detail: 'Join two front panels at center seam {RST}. Use stretch stitch from waist to crotch curve. Clip curve every ½″. Press seam open or to one side.',
     });
     steps.push({
       step: n++,
       title: 'Sew center back seam',
-      detail: 'Join two back panels at center seam (RST). Stretch stitch. Clip crotch curve. Press.',
+      detail: 'Join two back panels at center seam {RST}. Stretch stitch. Clip crotch curve. Press.',
     });
     steps.push({
       step: n++,
       title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
-        ? 'Pin front to back at side seams (RST). Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bag, joining both bags together. Clip corners. Press side seams open.'
-        : 'Join front to back at side seams (RST) with stretch stitch. Press open.',
+        ? 'Pin front to back at side seams {RST}. Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bag, joining both bags together. Clip corners. Press side seams open.'
+        : 'Join front to back at side seams {RST} with stretch stitch. Press open.',
     });
     steps.push({
       step: n++,
@@ -282,12 +282,12 @@ export default {
     steps.push({
       step: n++,
       title: 'Construct front waistband',
-      detail: `Fuse interfacing to front waistband. Install ${opts.grommets === 'grommets' ? 'grommets ¾″ from each CF end' : 'worked buttonholes ¾″ from each CF end'} for drawstring exits. Fold in half lengthwise (WST), press. Pin to shorts front waist (RST), sew. Fold over to inside, pin covering seam. Topstitch through all layers with straight stitch.`,
+      detail: `Fuse interfacing to front waistband. Install ${opts.grommets === 'grommets' ? 'grommets ¾″ from each CF end' : 'worked buttonholes ¾″ from each CF end'} for drawstring exits. Fold in half lengthwise {WST}, press. Pin to shorts front waist {RST}, sew. Fold over to inside, pin covering seam. Topstitch through all layers with straight stitch.`,
     });
     steps.push({
       step: n++,
       title: 'Construct back waistband',
-      detail: 'Fold back waistband in half lengthwise (WST), press. Pin to shorts back waist (RST), sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a bodkin. Overlap ends 1″, zigzag to join. Close gap. Double topstitch top and bottom edges of casing.',
+      detail: 'Fold back waistband in half lengthwise {WST}, press. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, zigzag to join. Close gap. Double topstitch top and bottom edges of casing.',
     });
     steps.push({
       step: n++,

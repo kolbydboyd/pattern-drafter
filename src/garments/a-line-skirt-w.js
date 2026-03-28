@@ -226,23 +226,23 @@ export default {
     steps.push({ step: n++, title: 'Sew waist darts', detail: 'Fold dart RS together, sew from waist to point tapering to nothing. Press back darts toward CB, front darts toward CF. Clip at dart base if needed.' });
 
     if (opts.pockets === 'yes') {
-      steps.push({ step: n++, title: 'Attach pocket bags', detail: 'Sew one pocket bag piece to each front side seam SA (RST). Sew matching piece to each back side seam SA. Press bags toward front.' });
+      steps.push({ step: n++, title: 'Attach pocket bags', detail: 'Sew one pocket bag piece to each front side seam SA {RST}. Sew matching piece to each back side seam SA. Press bags toward front.' });
     }
 
     if (opts.closure === 'zip') {
-      steps.push({ step: n++, title: 'Install invisible zipper', detail: 'Press zip coils. Sew zip to front and back left side seam SAs (RST), starting at waist. Close remaining seam below zip stop with a regular foot.' });
+      steps.push({ step: n++, title: 'Install invisible zipper', detail: 'Press zip coils. Sew zip to front and back left side seam SAs {RST}, starting at waist. Close remaining seam below zip stop with a regular foot.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'yes' ? 'Sew front to back at right side seam (RST) from waist to hem. For left seam with pockets: sew above and below pocket opening, sew around pocket bag. Press seams open.' : `Sew front to back at both side seams (RST). Press open.${opts.closure === 'zip' ? ' Left side seam already sewn below zip.' : ''}` });
+    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'yes' ? 'Sew front to back at right side seam {RST} from waist to hem. For left seam with pockets: sew above and below pocket opening, sew around pocket bag. Press seams open.' : `Sew front to back at both side seams {RST}. Press open.${opts.closure === 'zip' ? ' Left side seam already sewn below zip.' : ''}` });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams. If applicable, leave left side seam open for zip. Press.' });
     }
 
     if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist (RST), matching CF/CB. Grade SA. Press up. Fold over, press under ⅝″ on inner edge. Edgestitch or slipstitch inner edge to WS.' });
+      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. Press up. Fold over, press under ⅝″ on inner edge. Edgestitch or slipstitch inner edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise (WST). Sew to waist (RST). Fold inside, topstitch leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, topstitch leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, zigzag. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
@@ -250,7 +250,7 @@ export default {
     }
 
     if (opts.hem === 'faced') {
-      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge (RST). Grade SA. Clip curves every ½″. Understitch. Press facing to WS. Slipstitch facing edge to WS.' });
+      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. Clip curves every ½″. Understitch. Press facing to WS. Slipstitch facing edge to WS.' });
     } else {
       steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, press, slipstitch or edgestitch.' });
     }

@@ -367,11 +367,11 @@ export default {
     if (isRaglan) {
       steps.push({
         step: n++, title: 'Sew raglan seams',
-        detail: 'Sew each sleeve to front and back along diagonal raglan seam (RST). Stretch stitch or serge. Press toward bodice.',
+        detail: 'Sew each sleeve to front and back along diagonal raglan seam {RST}. Stretch stitch or serge. Press toward bodice.',
       });
       steps.push({
         step: n++, title: 'Attach neckband',
-        detail: 'Fold neckband in half lengthwise (WST). Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
+        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
       });
       steps.push({
         step: n++, title: 'Sew side seams and underarm seams',
@@ -380,11 +380,11 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Sew shoulder seams',
-        detail: 'Join front to back at shoulders (RST). Stretch stitch or serge. Press toward back.',
+        detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
       });
       steps.push({
         step: n++, title: 'Attach neckband',
-        detail: 'Fold neckband in half lengthwise (WST). Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
+        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
       });
       steps.push({
         step: n++, title: 'Set sleeves',
@@ -398,11 +398,11 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach sleeve cuffs',
-      detail: 'Fold each cuff in half widthwise (WST). Divide cuff and sleeve opening into quarters. Sew cuff to sleeve opening (RST), stretching cuff to match. Stretch stitch or serge. Press SA up into sleeve.',
+      detail: 'Fold each cuff in half widthwise {WST}. Divide cuff and sleeve opening into quarters. Sew cuff to sleeve opening {RST}, stretching cuff to match. Stretch stitch or serge. Press SA up into sleeve.',
     });
     steps.push({
       step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise (WST). Divide into quarters, pin to body hem (RST). Stretch stitch or serge, stretching band to fit. Press SA up into body.',
+      detail: 'Fold waistband in half lengthwise {WST}. Divide into quarters, pin to body hem {RST}. Stretch stitch or serge, stretching band to fit. Press SA up into body.',
     });
     steps.push({
       step: n++, title: 'Finish',

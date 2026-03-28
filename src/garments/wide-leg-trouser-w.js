@@ -275,7 +275,7 @@ export default {
     if (opts.backPockets === 'welt2') {
       steps.push({
         step: n++, title: 'Prepare back welt pockets',
-        detail: 'Mark pocket positions on back panels: 2.5″ below waist line, centered. Sew welt pieces (RST) on each side of marked opening. Slash opening. Turn welts through, press. Attach bag halves inside. Whipstitch bag sides together. Bar tack both ends of each opening.',
+        detail: 'Mark pocket positions on back panels: 2.5″ below waist line, centered. Sew welt pieces {RST} on each side of marked opening. Slash opening. Turn welts through, press. Attach bag halves inside. Whipstitch bag sides together. Bar tack both ends of each opening.',
       });
     }
 
@@ -283,12 +283,12 @@ export default {
     if (opts.pockets === 'slant') {
       steps.push({
         step: n++, title: 'Prepare slant pockets',
-        detail: 'Interface facing. Sew facing to front panel along slash line (RST). Clip curve, turn, press. Understitch facing. Attach pocket bag to facing bottom. Baste bag edges to panel edges.',
+        detail: 'Interface facing. Sew facing to front panel along slash line {RST}. Clip curve, turn, press. Understitch facing. Attach pocket bag to facing bottom. Baste bag edges to panel edges.',
       });
     } else if (opts.pockets === 'side') {
       steps.push({
         step: n++, title: 'Prepare side-seam pockets',
-        detail: 'Sew each bag pair together along curved pocket edge (RST). Press. Baste straight edges of bags to front and back panel side seam allowances at pocket position.',
+        detail: 'Sew each bag pair together along curved pocket edge {RST}. Press. Baste straight edges of bags to front and back panel side seam allowances at pocket position.',
       });
     } else if (opts.pockets === 'welt') {
       steps.push({
@@ -320,29 +320,29 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Sew center front seam',
-        detail: 'Join front panels at CF (RST). Clip crotch curve. Press open or serge.',
+        detail: 'Join front panels at CF {RST}. Clip crotch curve. Press open or serge.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB (RST). Clip curve. Press open. Serge each side separately.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams (RST). For side-seam pockets: sew above and below pocket opening; sew around bag. Press seams open. Serge each SA separately.' });
+    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. Clip curve. Press open. Serge each side separately.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. For side-seam pockets: sew above and below pocket opening; sew around bag. Press seams open. Serge each SA separately.' });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'One continuous seam from front hem to back hem through crotch. Clip crotch curve. Press toward back. Serge.' });
 
     // Waistband
     if (opts.waistband === 'structured') {
       steps.push({
         step: n++, title: 'Construct structured waistband',
-        detail: 'Fuse interfacing to outer waistband. Fold lengthwise (RST). Sew short ends — right side with 1″ extension for button overlap. Turn, press. Sew to trouser waist (RST). Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
+        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Turn, press. Sew to trouser waist {RST}. Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
       });
     } else if (opts.waistband === 'elastic') {
       steps.push({
         step: n++, title: 'Construct elastic waistband casing',
-        detail: 'Fold casing strip in half lengthwise (WST), press. Sew to trouser waist (RST). Fold over to inside, topstitch leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a bodkin. Overlap elastic ends 1″, zigzag. Close gap. Topstitch close to folded edge.',
+        detail: 'Fold casing strip in half lengthwise {WST}, press. Sew to trouser waist {RST}. Fold over to inside, topstitch leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, zigzag. Close gap. Topstitch close to folded edge.',
       });
     } else {
       steps.push({
         step: n++, title: 'Construct wide/petersham waistband',
-        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist (RST), clip curves. Fold waistband over, press. Grade SA in layers to reduce bulk. Topstitch or slipstitch inner edge. Install hook-and-eye at closure.',
+        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, clip curves. Fold waistband over, press. Grade SA in layers to reduce bulk. Topstitch or slipstitch inner edge. Install hook-and-eye at closure.',
       });
     }
 

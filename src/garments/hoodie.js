@@ -381,13 +381,13 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew hood back seam',
-      detail: 'Sew two hood panels together at curved back seam (RST). Clip curve at top. Press seam toward one side.',
+      detail: 'Sew two hood panels together at curved back seam {RST}. Clip curve at top. Press seam toward one side.',
     });
 
     if (isLined) {
       steps.push({
         step: n++, title: 'Attach hood lining',
-        detail: 'Sew outer hood to lining around face opening (RST). Trim seam. Turn RS out, press. Baste neck edges together, treating as one layer going forward.',
+        detail: 'Sew outer hood to lining around face opening {RST}. Trim seam. Turn RS out, press. Baste neck edges together, treating as one layer going forward.',
       });
     }
 
@@ -399,18 +399,18 @@ export default {
     if (isFullZip) {
       steps.push({
         step: n++, title: 'Prepare zipper extensions',
-        detail: 'Interface zipper tape extension pieces. Fold in half lengthwise (WST). Sew to CF edges of front panels. Press flat. Baste zipper tape to extensions, RS up. Topstitch from RS.',
+        detail: 'Interface zipper tape extension pieces. Fold in half lengthwise {WST}. Sew to CF edges of front panels. Press flat. Baste zipper tape to extensions, RS up. Topstitch from RS.',
       });
     }
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front to back at shoulders (RST). Stretch stitch or serge. Press toward back.',
+      detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
     });
 
     steps.push({
       step: n++, title: 'Attach hood to body',
-      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline (RST). Sew. Clip curve. Serge or zigzag SA together. Press down.',
+      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. Clip curve. Serge or zigzag SA together. Press down.',
     });
 
     steps.push({
@@ -425,7 +425,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach sleeve cuffs and waistband',
-      detail: 'Fold each rib piece in half lengthwise (WST). Divide cuff/waistband and opening into quarters. Sew with stretch stitch, stretching rib to match opening. Press SA into body.',
+      detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff/waistband and opening into quarters. Sew with stretch stitch, stretching rib to match opening. Press SA into body.',
     });
 
     steps.push({

@@ -200,13 +200,13 @@ export default {
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch (RST). Stretch stitch. Clip curve every ½″. Press.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB (RST). Stretch stitch. Clip. Press.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. Clip curve every ½″. Press.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. Clip. Press.' });
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
         ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. Press open.'
-        : 'Join front to back at side seams (RST). Stretch stitch. Press open.',
+        : 'Join front to back at side seams {RST}. Stretch stitch. Press open.',
     });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. Clip curve. Press toward back.' });
 
@@ -216,7 +216,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise (WST), press. Pin to trunks waist (RST), matching side seams. Sew. Fold over to inside, pin covering seam. Topstitch close to inner fold with stretch stitch.',
+      detail: 'Fold waistband in half lengthwise {WST}, press. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. Topstitch close to inner fold with stretch stitch.',
     });
     steps.push({
       step: n++, title: 'Thread drawstring',
