@@ -330,19 +330,19 @@ export default {
     let n = 1;
 
     steps.push({ step: n++, title: 'Stay-stitch and prepare', detail: 'Stay-stitch V-neckline at ½″ on both front panels. Stay-stitch waist edges. For wovens: press-mark CF fold line on front panels.' });
-    steps.push({ step: n++, title: 'Sew bodice shoulder seams', detail: 'Join front to back at shoulders (RST). Press toward back.' });
-    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V (RST), matching shoulder seams. Clip at V point — nearly to stitching. Understitch. Press facing to WS. Tack at shoulder seams.' });
+    steps.push({ step: n++, title: 'Sew bodice shoulder seams', detail: 'Join front to back at shoulders {RST}. Press toward back.' });
+    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. Clip at V point — nearly to stitching. Understitch. Press facing to WS. Tack at shoulder seams.' });
 
     if (opts.sleeve !== 'sleeveless') {
-      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew (RST). Press SA toward sleeve. Serge or zigzag.' });
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. Press SA toward sleeve. Serge or zigzag.' });
       steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Sew front to back continuously from bodice hem through underarm to sleeve hem. Leave a small opening at inner side seam for hidden tie to pass through. Press open.' });
     } else {
-      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join facing pieces, interface. Sew to armhole (RST). Clip, understitch, press to WS.' });
+      steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join facing pieces, interface. Sew to armhole {RST}. Clip, understitch, press to WS.' });
       steps.push({ step: n++, title: 'Sew bodice side seams', detail: 'Sew front to back at both side seams. Leave opening at inner side for hidden tie.' });
     }
 
-    steps.push({ step: n++, title: 'Attach skirt to bodice', detail: `Join skirt panels at side seams. ${opts.skirtShape === 'flowy' ? 'Gather skirt waist to match bodice width. ' : ''}Sew skirt to bodice at waist (RST). Press SA upward.` });
-    steps.push({ step: n++, title: 'Make and attach ties', detail: 'Fold tie strips in half lengthwise (RST), sew long edge and one short end. Trim corners, turn with a tube turner, press. Attach inner ties at inner side seam (pass through opening to tie at back) and outer ties at outer side seam (tie at front or back).' });
+    steps.push({ step: n++, title: 'Attach skirt to bodice', detail: `Join skirt panels at side seams. ${opts.skirtShape === 'flowy' ? 'Gather skirt waist to match bodice width. ' : ''}Sew skirt to bodice at waist {RST}. Press SA upward.` });
+    steps.push({ step: n++, title: 'Make and attach ties', detail: 'Fold tie strips in half lengthwise {RST}, sew long edge and one short end. Trim corners, turn with a tube turner, press. Attach inner ties at inner side seam (pass through opening to tie at back) and outer ties at outer side seam (tie at front or back).' });
     steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang dress 24 hours. Mark hem level from floor. Fold up twice, press, topstitch or slipstitch. For drapey fabrics: hand hem with slipstitch.' });
     steps.push({ step: n++, title: 'Finish', detail: 'Press entire dress with a pressing cloth. Check neckline facing lies flat. Try on and adjust tie length if needed.' });
 

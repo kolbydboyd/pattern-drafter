@@ -204,13 +204,13 @@ export default {
     if (opts.backPocket !== 'none') {
       steps.push({
         step: n++, title: 'Prepare back welt pockets',
-        detail: `Serge pocket bag edges. Mark welt positions on back panels. Sew bound welts (RST), slash, turn, press. Attach bag halves. Whipstitch bag sides. Bar tack ends.${opts.backPocket === 'welt-button' ? ' Work buttonhole on upper welt, attach button.' : ''}`,
+        detail: `Serge pocket bag edges. Mark welt positions on back panels. Sew bound welts {RST}, slash, turn, press. Attach bag halves. Whipstitch bag sides. Bar tack ends.${opts.backPocket === 'welt-button' ? ' Work buttonhole on upper welt, attach button.' : ''}`,
       });
     }
 
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Serge pocket bag and facing edges. Sew facing to front panel slash line (RST). Clip, turn, press. Understitch facing. Attach bag to facing. Baste bag to panel at side and waist.',
+      detail: 'Serge pocket bag and facing edges. Sew facing to front panel slash line {RST}. Clip, turn, press. Understitch facing. Attach bag to facing. Baste bag to panel at side and waist.',
     });
     steps.push({
       step: n++, title: 'Install zip fly',
@@ -218,11 +218,11 @@ export default {
     });
     steps.push({
       step: n++, title: 'Sew center back seam',
-      detail: 'Join back panels at CB (RST). Clip curve. Serge seam allowances together. Press toward one side.',
+      detail: 'Join back panels at CB {RST}. Clip curve. Serge seam allowances together. Press toward one side.',
     });
     steps.push({
       step: n++, title: 'Sew side seams',
-      detail: 'Join front to back at side seams (RST). Press open. Serge each seam allowance separately. Topstitch at 3.0mm if desired.',
+      detail: 'Join front to back at side seams {RST}. Press open. Serge each seam allowance separately. Topstitch at 3.0mm if desired.',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
@@ -230,7 +230,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface waistband. Sew to trousers waist (RST). Fold over. Topstitch top and bottom edges at 3.0mm. Waistband button and buttonhole at CF overlap.',
+      detail: 'Interface waistband. Sew to trousers waist {RST}. Fold over. Topstitch top and bottom edges at 3.0mm. Waistband button and buttonhole at CF overlap.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',

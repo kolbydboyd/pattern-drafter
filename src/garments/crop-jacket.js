@@ -342,32 +342,32 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: `Interface outer collar with 2 layers. Sew outer to facing (RST) on three sides, leaving neck edge open. Trim seam to 3mm. Clip corners (point collar) or notch curves. Turn, press. For point collar: shape points precisely — use a point turner. Topstitch 3.5mm from edge if desired.`,
+      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. Clip corners (point collar) or notch curves. Turn, press. For point collar: shape points precisely — use a point turner. Topstitch 3.5mm from edge if desired.`,
     });
 
     steps.push({
       step: n++, title: 'Prepare front facings and plackets',
-      detail: `Interface facing strips. Press placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge (RST). Press, topstitch. Facing creates clean interior at front opening.`,
+      detail: `Interface facing strips. Press placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge {RST}. Press, topstitch. Facing creates clean interior at front opening.`,
     });
 
     steps.push({
       step: n++, title: 'Sew shoulder seams (flat-fell)',
-      detail: 'Sew front to back at shoulders (RST). Press both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, press. Topstitch at 3.5mm close to fold. Result: two visible rows of topstitch on RS.',
+      detail: 'Sew front to back at shoulders {RST}. Press both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, press. Topstitch at 3.5mm close to fold. Result: two visible rows of topstitch on RS.',
     });
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline (RST), matching CF marks. Sew. Clip curve. Fold facing SA under, pin to WS covering seam. Topstitch from RS through all layers.',
+      detail: 'Pin outer collar to neckline {RST}, matching CF marks. Sew. Clip curve. Fold facing SA under, pin to WS covering seam. Topstitch from RS through all layers.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Sew sleeves into armhole (RST), starting at underarm notch. Ease fullness at cap evenly. Sew. Topstitch SA toward sleeve at 6mm from seam.',
+      detail: 'Sew sleeves into armhole {RST}, starting at underarm notch. Ease fullness at cap evenly. Sew. Topstitch SA toward sleeve at 6mm from seam.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams (flat-fell)',
-      detail: 'Sew front to back at side seams (RST), from hem through underarm continuously to sleeve hem. Apply flat-fell finish: press toward back, trim front SA to 3mm, fold back SA over, topstitch at 3.5mm.',
+      detail: 'Sew front to back at side seams {RST}, from hem through underarm continuously to sleeve hem. Apply flat-fell finish: press toward back, trim front SA to 3mm, fold back SA over, topstitch at 3.5mm.',
     });
 
     steps.push({

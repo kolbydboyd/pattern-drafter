@@ -36,6 +36,7 @@ import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
 import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
+import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession, signIn } from '../lib/auth.js';
 
@@ -516,7 +517,13 @@ function renderInstructions(steps) {
     { key: 'finishing', label: 'FINISHING',           trigger: t => /^hem$|^finish$|press.*garment|bar tack|set rivet|blind hem/i.test(t) },
   ];
   const emitted = new Set();
-  let html = '';
+
+  // Glossary toggle + collapsible panel at the top
+  const glossaryTerms = Object.entries(GLOSSARY)
+    .map(([term, def]) => `<dt>${term}</dt><dd>${def}</dd>`)
+    .join('');
+  let html = `<span class="instr-glossary-toggle" id="gloss-toggle">glossary ▾</span>
+<dl class="instr-glossary-panel" id="gloss-panel">${glossaryTerms}</dl>`;
 
   for (const s of steps) {
     // Check if this step triggers a new section header (each section fires at most once)
@@ -528,11 +535,12 @@ function renderInstructions(steps) {
       }
     }
 
-    // Split long detail text at sentence boundaries for readability
+    // Split long detail text at sentence boundaries, then expand glossary markers
     const rawDetail = s.detail || '';
-    const detail = rawDetail.length > 200
+    const split = rawDetail.length > 200
       ? rawDetail.replace(/\.\s+/g, '.<br>').trim()
       : rawDetail;
+    const detail = expandGlossary(split);
 
     html += `<div class="instr-step"><span class="num">${s.step}.</span><span class="instr-body"><span class="ttl">${s.title}.</span> <span class="dtl">${detail}</span></span></div>`;
   }
@@ -711,6 +719,15 @@ function _generate() {
   document.getElementById('s4-download-btn')?.addEventListener('click', () => handleDownloadPDF(document.getElementById('s4-download-btn')));
 
   switchTab(activeTab);
+
+  // Glossary toggle
+  document.getElementById('gloss-toggle')?.addEventListener('click', () => {
+    const panel = document.getElementById('gloss-panel');
+    const toggle = document.getElementById('gloss-toggle');
+    if (!panel) return;
+    panel.classList.toggle('open');
+    toggle.textContent = panel.classList.contains('open') ? 'glossary ▴' : 'glossary ▾';
+  });
 
   // Async: apply or remove watermark based on purchase status
   _applyWatermarkState(currentGarment);

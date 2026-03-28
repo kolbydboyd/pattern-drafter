@@ -303,16 +303,16 @@ export default {
     if (opts.bustDart === 'yes') {
       steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold front RS together along dart. Sew from side seam to apex tapering to nothing. Press downward. Knit does not need clipping.' });
     }
-    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders (RST). Stretch stitch or serge. Press toward back.' });
-    steps.push({ step: n++, title: 'Attach neckband', detail: 'Fold neckband in half lengthwise (WST). Divide into 4 equal sections; pin to neckline. Stretch band to match opening. Stretch stitch or serge. Press toward bodice.' });
+    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.' });
+    steps.push({ step: n++, title: 'Attach neckband', detail: 'Fold neckband in half lengthwise {WST}. Divide into 4 equal sections; pin to neckline. Stretch band to match opening. Stretch stitch or serge. Press toward bodice.' });
     if (opts.sleeve !== 'cap') {
       steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap center to shoulder seam. Divide into quarters, pin. Ease cap to fit. Stretch stitch or serge. Press toward sleeve.' });
     } else {
-      steps.push({ step: n++, title: 'Attach cap sleeves', detail: 'Pin straight edge of cap sleeve to armhole (RST). Stretch stitch or serge. Press toward sleeve.' });
+      steps.push({ step: n++, title: 'Attach cap sleeves', detail: 'Pin straight edge of cap sleeve to armhole {RST}. Stretch stitch or serge. Press toward sleeve.' });
     }
     steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Sew front to back continuously from hem through underarm to sleeve hem. Stretch stitch or serge. Press toward back.' });
     if (opts.hemStyle === 'banded') {
-      steps.push({ step: n++, title: 'Attach hem band', detail: 'Fold hem band in half (WST). Divide into quarters, pin to body hem. Stretch to fit. Stretch stitch or serge.' });
+      steps.push({ step: n++, title: 'Attach hem band', detail: 'Fold hem band in half {WST}. Divide into quarters, pin to body hem. Stretch to fit. Stretch stitch or serge.' });
     } else {
       steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' — clip curves at sides' : ''}. Twin needle from RS in one pass. Or serge edge and fold.` });
     }

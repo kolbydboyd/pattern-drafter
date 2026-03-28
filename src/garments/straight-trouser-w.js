@@ -246,7 +246,7 @@ export default {
       steps.push({ step: n++, title: 'Prepare back welt pockets', detail: 'Mark positions 2.5″ below waist, centered. Sew welts, slash, turn, press. Attach bags. Whipstitch sides. Bar tack ends.' });
     }
     if (opts.pockets === 'slant') {
-      steps.push({ step: n++, title: 'Prepare slant pockets', detail: 'Interface facing. Sew to front slash (RST). Clip, turn, press. Understitch. Attach bag. Baste edges.' });
+      steps.push({ step: n++, title: 'Prepare slant pockets', detail: 'Interface facing. Sew to front slash {RST}. Clip, turn, press. Understitch. Attach bag. Baste edges.' });
     } else if (opts.pockets === 'side') {
       steps.push({ step: n++, title: 'Prepare side-seam pockets', detail: 'Sew bag pairs together on curved edge. Baste straight edges to front and back side seam SAs at pocket position.' });
     }
@@ -260,12 +260,12 @@ export default {
       steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join fronts at CF. Clip curve. Press open. Serge.' });
     }
     steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join backs at CB. Clip curve. Press open. Serge each side.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams (RST). Press open. Serge each SA separately.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. Press open. Serge each SA separately.' });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam from front hem to back hem through crotch. Clip curve. Press toward back. Serge.' });
     if (opts.waistband === 'structured' || opts.waistband === 'contoured') {
-      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew to trouser waist (RST). Fold over. Grade SA in layers before turning. Slipstitch or edgestitch inside. Install button and hook-and-eye.' });
+      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew to trouser waist {RST}. Fold over. Grade SA in layers before turning. Slipstitch or edgestitch inside. Install button and hook-and-eye.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half (WST). Sew to waist (RST). Fold to inside, topstitch leaving 2″ gap at CB. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half {WST}. Sew to waist {RST}. Fold to inside, topstitch leaving 2″ gap at CB. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
     }
     if (opts.crease === 'crease') {
       steps.push({ step: n++, title: 'Press front creases', detail: 'Fold each front leg so the inseam lies exactly on top of the side seam. Press a sharp crease from waist to hem using heavy steam and a press cloth. The crease should run straight down the center of each leg.' });

@@ -493,17 +493,17 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front to back at shoulders (RST). Stretch stitch or serge. Press toward back.',
+      detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
     });
 
     steps.push({
       step: n++, title: 'Attach neckband',
-      detail: `Fold neckband in half lengthwise (WST), press. Divide neckband and neck opening into quarters, pin at quarters. Sew neckband to neck opening (RST), stretching band to fit opening. Serge or stretch stitch. Press SA toward bodice. Topstitch from RS if desired.`,
+      detail: `Fold neckband in half lengthwise {WST}, press. Divide neckband and neck opening into quarters, pin at quarters. Sew neckband to neck opening {RST}, stretching band to fit opening. Serge or stretch stitch. Press SA toward bodice. Topstitch from RS if desired.`,
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Divide sleeve cap and armhole opening into quarters, pin at quarters. Sew sleeve into armhole (RST), easing cap to fit. Stretch stitch. Serge SA together. Press toward sleeve.',
+      detail: 'Divide sleeve cap and armhole opening into quarters, pin at quarters. Sew sleeve into armhole {RST}, easing cap to fit. Stretch stitch. Serge SA together. Press toward sleeve.',
     });
 
     steps.push({

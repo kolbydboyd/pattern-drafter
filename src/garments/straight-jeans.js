@@ -196,7 +196,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Prepare slant + coin pockets',
-      detail: 'Sew facing to front slash (RST). Clip, turn, press. Understitch. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, press). Topstitch coin pocket to RS of right front panel in upper right corner of pocket opening. Baste pocket and coin pocket to panel edges.',
+      detail: 'Sew facing to front slash {RST}. Clip, turn, press. Understitch. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, press). Topstitch coin pocket to RS of right front panel in upper right corner of pocket opening. Baste pocket and coin pocket to panel edges.',
     });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
@@ -208,7 +208,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at outseam (RST). Press toward back. Topstitch outseam fell: fold back panel SA over front, topstitch two rows ⅛″ and ¼″ from seam edge (visible from RS as double topstitch).',
+      detail: 'Join front to back at outseam {RST}. Press toward back. Topstitch outseam fell: fold back panel SA over front, topstitch two rows ⅛″ and ¼″ from seam edge (visible from RS as double topstitch).',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
@@ -216,7 +216,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface waistband. Sew to jeans waist (RST), matching CB, side seams, CF. Fold over. Topstitch top and bottom edge with gold topstitch thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
+      detail: 'Interface waistband. Sew to jeans waist {RST}, matching CB, side seams, CF. Fold over. Topstitch top and bottom edge with gold topstitch thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',

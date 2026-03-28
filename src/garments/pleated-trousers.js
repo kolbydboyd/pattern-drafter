@@ -209,7 +209,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Interface facing. Sew facing to front slash line (RST). Clip, turn, press. Understitch. Attach pocket bag. Baste edges to panel.',
+      detail: 'Interface facing. Sew facing to front slash line {RST}. Clip, turn, press. Understitch. Attach pocket bag. Baste edges to panel.',
     });
 
     if (numPleats > 0) {
@@ -224,16 +224,16 @@ export default {
       detail: 'Interface fly shield. Sew fronts at CF from crotch to fly bottom. Sew zipper to right CF. Sew fly shield to left CF. Topstitch fly J-curve from RS.',
     });
     steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join backs at CB. Clip curve. Serge or press open.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams (RST). Press open. Serge each SA separately.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. Press open. Serge each SA separately.' });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam hem to hem. Clip crotch curve. Serge together. Press toward back.' });
 
     steps.push({
       step: n++, title: 'Construct curtain waistband',
-      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, press. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist (RST). Fold over. Topstitch or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
+      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, press. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. Topstitch or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
     });
     steps.push({
       step: n++, title: 'Construct and attach French bearer',
-      detail: 'Interface bearer piece. Fold in half (WST), press. Sew edges, turn, press. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
+      detail: 'Interface bearer piece. Fold in half {WST}, press. Sew edges, turn, press. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
