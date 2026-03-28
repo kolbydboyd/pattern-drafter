@@ -179,7 +179,7 @@ function foldIndicatorSVG(fx, fy1, fy2) {
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, crotchBezier, opts } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -214,6 +214,34 @@ export function renderPanelSVG(piece) {
   function polyPath(pts) {
     let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
     for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+    return d + ' Z';
+  }
+
+  // Build a stitch-line path that replaces the sampled crotch-curve polyline with a
+  // single smooth cubic bezier C command using the original control points.
+  // All other edges (straight seams, hem, inseam) remain as L segments.
+  // The bezier is traced in the reverse direction (p3 → p0) to match polygon winding.
+  function crotchPath(pts) {
+    if (!crotchBezier) return polyPath(pts);
+    const { p0, p1, p2, p3 } = crotchBezier;
+    // Find the polygon vertex that is the crotch extension tip (matches p3 in inch coords)
+    let p3Idx = -1;
+    for (let i = 0; i < polygon.length; i++) {
+      if (Math.abs(polygon[i].x - p3.x) < 0.02 && Math.abs(polygon[i].y - p3.y) < 0.02) {
+        p3Idx = i; break;
+      }
+    }
+    if (p3Idx === -1) return polyPath(pts); // fallback if not found
+    // Convert bezier control points to SVG coords
+    const sp0 = { x: ox + sc(p0.x), y: oy + sc(p0.y) };
+    const sp1 = { x: ox + sc(p1.x), y: oy + sc(p1.y) };
+    const sp2 = { x: ox + sc(p2.x), y: oy + sc(p2.y) };
+    // Walk straight edges to crotch tip with L, then emit C to waist center, then close
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let i = 1; i <= p3Idx; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+    // Time-reversed cubic bezier: from p3 (current position) through p2, p1, to p0
+    d += ` C ${sp2.x.toFixed(1)},${sp2.y.toFixed(1)} ${sp1.x.toFixed(1)},${sp1.y.toFixed(1)} ${sp0.x.toFixed(1)},${sp0.y.toFixed(1)}`;
+    // Z closes from p0 back to polygon[0]; for back panels with cbRaise this draws the CB straight seam
     return d + ' Z';
   }
 
@@ -384,7 +412,7 @@ export function renderPanelSVG(piece) {
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
     <path d="${polyPath(svgSA)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <path d="${polyPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    <path d="${crotchPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
