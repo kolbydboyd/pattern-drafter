@@ -7,7 +7,7 @@
  */
 
 import {
-  edgeAngle, crotchCurvePoints, sampleBezier, monotoneCrotchCurve, offsetPolygon, polyToPath,
+  edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -254,7 +254,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = monotoneCrotchCurve(sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32));
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
 
   // Waist-to-hip shaping: all taper on side seam, center seam stays at x=0
   const sideWaistX = waistWidth;
