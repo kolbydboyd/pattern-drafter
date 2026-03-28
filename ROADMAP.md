@@ -111,11 +111,16 @@ manufacturer has this. It becomes a licensable asset.
 ## Phase 2 — Launch Content
 
 ### Social Accounts ✅
-- Instagram @peoplespatterns
-- TikTok
-- YouTube
-- Pinterest
-- Newsletter
+- Instagram: @peoplespatterns
+- Threads: @peoplespatterns
+- Facebook: @peoplespatterns
+- Pinterest: @peoplespatterns
+- Etsy: @peoplespatterns
+- TikTok Shop: @peoplespatterns
+- TikTok (regular): @peoplespatternsofficial
+- YouTube: @peoplespatterns
+- Reddit: u/peoplespatterns
+- Newsletter: hello@peoplespatterns.com
 
 ### Content Queue (2–3 weeks before launch)
 - [ ] Before/after fit video — TikTok first
