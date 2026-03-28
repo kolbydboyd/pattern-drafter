@@ -8,7 +8,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches,
+  fmtInches, insetCrotchBezier,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -178,7 +178,7 @@ export default {
           { text: 'SIDE SEAM', x: width + 0.3, y: H * 0.35,  rotation: 90  },
           { text: 'CENTER',    x: -0.5,         y: rise * 0.3, rotation: -90 },
         ],
-        notches, crotchBezier: ccp, type: 'panel', opts,
+        notches, crotchBezier: ccp, crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
       };
     }
 

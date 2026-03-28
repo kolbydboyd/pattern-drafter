@@ -6,9 +6,11 @@ _Last updated: 2026-03-27 · v0.7.0_
 
 ## North Star
 
-The gap between a $20 generic indie pattern that 
-doesn't fit and a $150 custom-drafted pattern is 
-completely uncontested. We own that gap at $7–10.
+The gap between a $20 generic indie pattern that
+doesn't fit and a $150 custom-drafted pattern is
+completely uncontested. We own that gap at $9–19.
+
+**Positioning:** "The easiest way for home sewists to make clothes that actually fit their body."
 
 **Revenue targets:**
 - Break even (recoup build cost): $2,500–3,000
@@ -17,27 +19,52 @@ completely uncontested. We own that gap at $7–10.
 - Ceiling without a team: $300,000–500,000/year
 
 **The data play (2–3 year horizon):**
-As fit feedback accumulates — thousands of people 
-reporting "waist right, hip too tight" — we build 
-the most detailed real-body fit dataset in existence. 
-No clothing brand, pattern company, or fabric 
+As fit feedback accumulates — thousands of people
+reporting "waist right, hip too tight" — we build
+the most detailed real-body fit dataset in existence.
+No clothing brand, pattern company, or fabric
 manufacturer has this. It becomes a licensable asset.
 
 ---
 
-## Current Status — v0.7.0
+## What's Done
 
-23 garment modules · all code-complete · all bugs fixed
-Per-edge seam allowances on 6 launch patterns
-Bust dart geometry on 4 womenswear tops
-Polygon sanitizer applied everywhere
-Single-engine PDF renderer with scale verification
-6 launch patterns need muslin testing
-App live at peoplespatterns.com
+- [x] 23 garment modules built and code-complete
+- [x] Pattern generation engine working
+- [x] Print layout with tiling and scale verification
+- [x] Single PDF renderer
+- [x] Supabase backend (auth, profiles, purchases, fit history, download history)
+- [x] Stripe checkout with 3-tier pricing ($9/$14/$19) and bundles
+- [x] Watermarked preview until purchase
+- [x] Email via Resend (welcome, purchase, feedback request)
+- [x] Email signup forms on landing, FAQ, privacy pages
+- [x] Vercel serverless functions (webhooks, email, PDF)
+- [x] PostHog analytics with custom event tracking
+- [x] A/B testing via PostHog feature flags
+- [x] Fit feedback system in account dashboard
+- [x] Affiliate links in materials lists
+- [x] Gift cards (account dashboard)
+- [x] Social icons on landing page
+- [x] Repo made private
+- [x] Domain: peoplespatterns.com
+- [x] All social handles secured
+- [x] Brand kit complete (fonts, colors, avatars, banners)
+- [x] FAQ page with schema markup
+- [x] Pricing page
+- [x] Sitemap generation
+- [x] Per-edge seam allowances on launch patterns
+- [x] Bust dart geometry on 4 womenswear tops
+- [x] Polygon sanitizer (dedup, collinear removal, CW winding)
+- [x] Notches added to launch patterns
+- [x] Sleeve cap to armhole validation
+- [x] Grainline arrows and fold indicators on all pieces
+- [x] Purchase bypass patched (backend PDF authorization)
+- [x] Account dashboard (measurements, patterns, projects, wishlist, orders, gift cards, settings)
+- [x] cm / inch toggle
 
 ---
 
-## Immediate — This Week
+## Immediate — Launch Blockers
 
 - [ ] **Sew 6 launch muslins** (the actual critical path)
   - [ ] Cargo Shorts
@@ -46,70 +73,44 @@ App live at peoplespatterns.com
   - [ ] Camp Shirt
   - [ ] A-Line Skirt
   - [ ] Wide-Leg Trouser (W)
-- [ ] Add social icons to landing page
-      (Instagram, TikTok, YouTube, Pinterest, Newsletter)
-      Gold in dark mode · warm brown in light mode
-- [ ] Make repo private
+- [ ] **Photograph sewn samples** — multiple angles, fit details, on body
+- [ ] **Fix any fit issues found during muslin testing**
+- [ ] **Test full purchase flow end-to-end** — checkout, webhook, PDF generation, download, re-download
+- [ ] **Test print layout at 1:1 scale** — verify scale square, tiles assemble, no clipping
+- [ ] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
+- [ ] **Set up Google Search Console** and submit sitemap
+- [ ] **Update pricing in Stripe** to match new 3-tier structure if not already done
 
 ---
 
-## Phase 1 — Pre-Launch Infrastructure
+## Phase 1 — Pre-Launch Polish
 
-### Email List (do first — before any content)
-- [ ] Set up email provider (Resend, Mailchimp, or 
-      ConvertKit — ConvertKit best for creators)
-- [ ] Embed signup form on landing page
-- [ ] Set up welcome email sequence:
+### Content (do before public promotion)
+- [ ] Add sewn sample photos to pattern pages — biggest trust signal
+- [ ] Film "how to measure yourself" video — #1 content asset
+- [ ] Film "how People's Patterns works" video — product demo
+- [ ] Create first 3 blog articles from video transcripts
+- [ ] Create individual pattern pages with SEO meta tags
+- [ ] Post branded avatars and banners to all social accounts
+
+### Email Flows (templates exist, verify sequences work)
+- [ ] Welcome sequence:
       Email 1: "Here's how to measure yourself"
       Email 2: "Your first pattern — what to expect"
       Email 3: "How tiled PDFs work"
-- [ ] Add fit feedback form (post-sew survey):
-      "How did your pattern fit?"
-      Fields: garment, which measurement was off,
-      too big/small/right, photo upload optional
-      → This is the data play. Collect from day one.
+- [ ] Generated-not-purchased follow-up
+- [ ] Post-sew fit feedback request
 
-### Supabase — Accounts (do second)
-- [ ] Set up Supabase project (free tier)
-- [ ] Email/password auth
-- [ ] Cloud measurement profiles
-      (replaces fragile localStorage)
-- [ ] Fit history per user
-- [ ] Download history
-- [ ] Switching cost grows with every saved profile
-
-### Stripe — Payments (do third)
-- [ ] Stripe account and product setup
-- [ ] Per-pattern pricing by complexity:
-      Beginner (gym shorts, slip skirt): $7
-      Intermediate (tee, cargo shorts): $8
-      Advanced (jeans, shirt dress): $10
-      Complex (blazer, structured jacket): $12
-      No price difference between men's and 
-      women's equivalents — no pink tax.
-- [ ] Subscription: $12–15/month
-      Unlimited downloads + saved profiles + 
-      fit history + new pattern notifications
-- [ ] Watermarked preview until purchase
-- [ ] PDF stamped with name, order number, 
-      email, date after payment
-- [ ] Backend PDF authorization
-      (currently bypassable client-side)
-- [ ] Gift cards
-
-### Landing Page
-- [ ] 10-second explanation above the fold
-- [ ] Social links: Instagram, TikTok, YouTube,
-      Pinterest, Newsletter
-- [ ] "How to measure yourself" guide + video embed
-- [ ] Email capture prominent above fold
-- [ ] Before/after fit comparison visual
+### Privacy / Technical
+- [ ] Move body measurements out of Stripe session metadata
+      (store only in Supabase, pass reference ID to Stripe)
+- [ ] Document required schema state or use proper Supabase migrations
 
 ---
 
 ## Phase 2 — Launch Content
 
-### Accounts Already Set Up ✅
+### Social Accounts ✅
 - Instagram @peoplespatterns
 - TikTok
 - YouTube
@@ -119,9 +120,8 @@ App live at peoplespatterns.com
 ### Content Queue (2–3 weeks before launch)
 - [ ] Before/after fit video — TikTok first
       Standard-sized pattern that gaps at waist
-      vs same garment from custom pattern on 
-      same body. 30 seconds. This is the viral format.
-- [ ] "I generated a jeans pattern for $8" series
+      vs custom-fit pattern on same body. 30 seconds.
+- [ ] "I generated a jeans pattern for $14" series
 - [ ] Muslin fitting session videos
 - [ ] How tiled PDFs work (demystify the format)
 - [ ] How to measure yourself (short form)
@@ -140,13 +140,9 @@ measure → generate → print → tile → cut → sew → finished
 ### Community Launch
 - [ ] PatternReview.com designer account
       (593k members — most influential sewing community)
-      List patterns in independent shop
-      Post introducing made-to-measure concept
-      Engage with reviews — these become social proof
 - [ ] Reddit: r/sewing, r/sewhelp, r/myog
 - [ ] Seed 50–100 free downloads to sewists
       with 5k–50k followers
-      In exchange for honest documented makes
 - [ ] Referral program:
       Give a friend a free pattern, get a free pattern
 
@@ -154,45 +150,27 @@ measure → generate → print → tile → cut → sew → finished
 
 ## Phase 3 — Revenue Expansion
 
-### Affiliate Links (passive, implement early)
-- [ ] Embed affiliate links in every materials list
-      Fabric recommendations → Mood Fabrics, 
-      Fabric.com, Hawthorne Supply Co
-      Notions → Amazon, local craft suppliers
-      Thread, needles, interfacing — all affiliate
-- [ ] Every pattern download = potential $5–15 
-      in affiliate revenue on the materials purchase
-      1,000 downloads/month = $5,000–15,000/month
-      passive affiliate income
+### Membership Tiers (from pricing strategy)
+- [ ] Club: $12/mo (1 credit/month, member pricing 20% off)
+- [ ] Wardrobe: $24/mo (3 credits/month, early access, premium exports)
+- [ ] Annual pricing at 2 months free
+- [ ] Credit system (1 credit = 1 pattern, rolls over 3 months)
 
 ### Etsy + Craftsy Shop
-- [ ] Build grading function — run engine with 
-      standard size chart measurements
-      (XS/S/M/L/XL/2X/3X — unisex sizing)
+- [ ] Build grading function — run engine with
+      standard size chart measurements (XS–3X)
 - [ ] Generate sized PDFs for 6 launch patterns
 - [ ] List on Etsy ($12–15 per pattern)
-- [ ] List on Craftsy (sewing-specific platform)
-- [ ] Different audience than direct site — 
-      pure incremental revenue, zero extra work
-      once grading is built
+- [ ] List on Craftsy
 
 ### Physical Products
 - [ ] Branded beginner kit ($25–30)
-      Tape measure, chalk, pins, seam ripper, 
-      needles, seam gauge
-      Upsell at first pattern purchase
-      Target 10% attach rate
-- [ ] Branded tape measure as standalone ($12–15)
+- [ ] Branded tape measure ($12–15)
 - [ ] Etsy listings for physical kits
 
 ### Professional / Institutional Tier
 - [ ] $50/month professional plan
-      Commercial use rights
-      Client measurement profile management
-      Bulk downloads
-      Targets: small fashion labels, costume 
-      designers, theater wardrobe, tailors,
-      fashion students
+      Commercial use rights, client profiles, bulk downloads
 - [ ] School / institutional bulk pricing
 
 ---
@@ -222,10 +200,9 @@ Validation = code + muslin + fit confirmed
 - [ ] Tote, crossbody, stuff sack
 - [ ] Duffle, daypack, simple backpack
 - [ ] Post in r/myog after first bag modules
-- [ ] Technical backpack (long-term)
 
 ### Seasonal
-- [ ] Halloween costumes — target October launch
+- [ ] Halloween costumes — target October
 - [ ] Holiday party dress — target November
 - [ ] Swimwear expansion — target June
 
@@ -234,27 +211,18 @@ Validation = code + muslin + fit confirmed
 ## Phase 5 — The Data Play
 
 ### Fit Feedback Collection
-- [ ] Post-sew survey on every download page
-- [ ] Structured fields:
-      Which measurement was off?
-      How much (too big / too small by how much)?
-      Overall fit rating
-      Photo upload (optional)
+- [x] Post-sew feedback form in account dashboard
 - [ ] Aggregate by measurement + size range
 - [ ] Feed corrections back into geometry
       (each module gets a correction factor
       based on real-world fit reports)
 
 ### What This Becomes
-- Most detailed real-body fit dataset for 
+- Most detailed real-body fit dataset for
   home sewists ever assembled
-- No clothing brand, pattern company, or 
-  fabric manufacturer has this
 - Licensable to:
-  Fabric companies understanding body diversity
-  Clothing brands improving sizing
-  Pattern companies modernizing blocks
-  Academic textile research
+  Fabric companies, clothing brands, pattern
+  companies, academic textile research
 - Timeline: meaningful data at ~5,000 fit reports
   Licensable asset at ~50,000 fit reports
 
@@ -264,41 +232,30 @@ Validation = code + muslin + fit confirmed
 
 ### Open Known Issues
 - [ ] KI-002 SA corner spikes at acute angles
-      (verify on slim V-neck tee first)
 - [ ] KI-003 Slant pocket mirror annotation
 - [ ] KI-004 Ext label clips at small values
 - [ ] KI-006 Wrap dress skirt SA scaling
 - [ ] KI-009 Category 'tops' vs 'upper' inconsistency
-- [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated by design)
+- [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated)
 - [ ] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
 - [x] KI-012 Dual PDF renderer removed (accepted risk)
 - [ ] KI-013 Scale check depends on CSS class name
 
 ### UI Improvements
-- [ ] Profile name input (replace prompt() with 
-      inline field — currently broken on mobile)
+- [ ] Profile name input (replace prompt() with
+      inline field — broken on mobile)
 - [ ] Measurement validation before generation
-- [ ] cm / inch toggle
 - [ ] Mobile-friendly measurement input
-- [ ] React migration (low priority until scale)
+- [ ] React/Tailwind migration (low priority until scale)
 
 ### Output Formats
 - [ ] Projector file export
-      (sales of home projectors for sewing up 20%
-      — significant and vocal user segment)
 - [ ] A0 single-sheet export
-- [ ] True PDF (not browser print)
 - [ ] DXF for plotters
 
 ### Pattern Quality
-- [x] Per-edge seam allowances (6 launch modules)
-- [x] Grainline arrows and fold indicators on all pieces
-- [x] Bust dart geometry (4 womenswear tops)
-- [x] Polygon sanitizer (dedup, collinear removal, CW winding)
-- [x] Single PDF renderer with scale verification
-- [ ] Notch marks on all pieces
-      (most requested feature from experienced sewists)
-- [ ] Dart manipulation tools (partial: bust darts done)
+- [ ] Notch marks on all pieces (partial — on launch patterns)
+- [ ] Dart manipulation tools (partial — bust darts done)
 - [ ] Contoured waistband geometry
 - [ ] Piece nesting / layout optimizer
 - [ ] Scale bust dart intake with cup size (KI-011)
@@ -335,3 +292,18 @@ Validation = code + muslin + fit confirmed
 
 ⬜ = muslin required before payments go live
 — = not a launch pattern, test post-launch
+
+---
+
+## Reference: Strategy Documents
+
+See `peoples-patterns-strategy/` for detailed plans:
+
+1. **01-email-flows.md** — All 8 email templates with implementation prompts
+2. **02-social-media-strategy.md** — Platform strategies, content calendars, schedules
+3. **03-website-seo.md** — Site structure, keywords, technical SEO
+4. **04-retention-features.md** — Saved profiles, fit feedback, project history, recommendations
+5. **05-sales-funnel.md** — Full funnel from discovery to repeat purchase
+6. **06-upsell-crosssell-downsell.md** — Revenue maximization per touchpoint
+7. **07-pricing-strategy.md** — 3-tier pricing, bundles, membership tiers, per-garment pricing
+8. **08-master-action-plan.md** — 30-day launch plan, revenue targets, solo founder playbook
