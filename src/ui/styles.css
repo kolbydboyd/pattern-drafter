@@ -23,7 +23,9 @@ body:has(#pattern-page-root),body:has(#learn-root){height:auto;overflow-y:auto}
 .dark-mode-toggle__icon--moon .dark-mode-toggle__rays{transition:opacity .2s linear;opacity:0}
 .dark-mode-toggle__cut-out{transition:transform .5s cubic-bezier(0.54,-0.42,0.29,1.3)}
 .dark-mode-toggle__icon--moon .dark-mode-toggle__cut-out{transform:translateX(-30%);transition:transform .5s cubic-bezier(0.21,0.17,0.43,1.43)}
-.hdr-social{margin-left:auto;display:flex;align-items:center;gap:12px}
+#hdr-nav-desktop{margin-left:auto;display:flex;align-items:center;gap:28px}
+#hdr-nav-desktop a{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.5px;color:var(--light);text-decoration:none;text-transform:uppercase}
+#hdr-nav-desktop a:hover{color:var(--gold)}
 .social-icons{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .social-icon{display:inline-flex;align-items:center;justify-content:center;color:#8b6f47;text-decoration:none;transition:opacity .15s;line-height:0}
 .social-icon:hover{opacity:.75}
@@ -333,7 +335,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .hdr-nav-m-theme button{background:none;border:none;cursor:pointer;color:var(--light);padding:0;display:flex;align-items:center;gap:8px}
 .hdr-nav-m-theme button:hover{color:var(--gold)}
 @media(max-width:768px){
-  .hdr-social,.hdr-auth,.hdr .v,.dark-mode-toggle{display:none!important}
+  #hdr-nav-desktop,.hdr-auth,.hdr .v,.dark-mode-toggle{display:none!important}
   #hdr-menu-btn{display:block}
   .hdr{position:relative;flex-wrap:nowrap}
   .land-hero{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start;padding-top:28px}
