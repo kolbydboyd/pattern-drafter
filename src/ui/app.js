@@ -39,7 +39,15 @@ import { getRecommendations } from '../engine/recommendations.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession } from '../lib/auth.js';
 
-let currentGarment    = 'cargo-shorts';
+// ── URL sync ──────────────────────────────────────────────────────────────────
+// Read ?garment= from the URL on load so direct links pre-select correctly
+const _urlGarmentParam = new URLSearchParams(location.search).get('garment');
+let currentGarment    = (_urlGarmentParam && GARMENTS[_urlGarmentParam]) ? _urlGarmentParam : 'cargo-shorts';
+
+function _syncGarmentUrl(id) {
+  window.history.replaceState(null, '', '?garment=' + encodeURIComponent(id));
+}
+
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
 let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
 let _activeProfileName = null; // display name, shown in step 2 label
@@ -292,6 +300,7 @@ function buildInputs() {
   });
   document.getElementById('garment-select').addEventListener('change', e => {
     currentGarment = e.target.value;
+    _syncGarmentUrl(currentGarment);
     buildInputs();
     generate();
   });
@@ -1099,6 +1108,7 @@ function renderStep1() {
         const newGarment = btn.dataset.garment;
         if (newGarment !== currentGarment) {
           currentGarment = newGarment;
+          _syncGarmentUrl(currentGarment);
           stepsCompleted = 1;
           renderedGarment = null;
           activeTab = 'pieces';
@@ -1307,6 +1317,7 @@ window.addEventListener('pp:redownload', e => {
   const { garmentId } = e.detail;
   showWizard();
   currentGarment = garmentId;
+  _syncGarmentUrl(currentGarment);
   const sel = document.getElementById('garment-select');
   if (sel) sel.value = garmentId;
   buildInputs();
@@ -1346,6 +1357,16 @@ document.getElementById('land-email-btn')?.addEventListener('click', async () =>
 
 // Get Started
 document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
+
+// If ?garment= was in the URL, open the wizard and pre-select it
+if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
+  const sel = document.getElementById('garment-select');
+  if (sel) sel.value = currentGarment;
+  showWizard();
+  buildInputs();
+  generate();
+  goToStep(4);
+}
 
 // Pattern generation counter — fetch once and display
 (function loadPatternCount() {
