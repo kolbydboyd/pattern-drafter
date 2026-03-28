@@ -381,7 +381,7 @@ export default {
     const isLong   = opts.sleeveStyle === 'long';
 
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) — +1 spare` },
+      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) - +1 spare` },
       { ref: 'interfacing-light', quantity: '0.5 yard (collar + placket facings)' },
     ];
 
@@ -392,11 +392,11 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-1.8', 'zigzag-small'],
       notes: [
-        'Pre-wash fabric before cutting — linen can shrink 5–8%, rayon 3–5%',
-        'French seams optional: sew WS together at 3mm, trim, fold, sew RS together at 6mm — clean interior, no serger needed',
-        `Button spacing: divide placket length by ${btnCount - 1} — place top button 1″ from neckline, bottom button 1″ from hem`,
-        'Interface collar (outer layer only) with woven or sew-in interfacing — fusible can show through light fabrics',
-        'Sew buttonholes before attaching buttons — test buttonhole size on a scrap first',
+        'Pre-wash fabric before cutting - linen can shrink 5–8%, rayon 3–5%',
+        'French seams optional: sew WS together at 3mm, trim, fold, sew RS together at 6mm - clean interior, no serger needed',
+        `Button spacing: divide placket length by ${btnCount - 1} - place top button 1″ from neckline, bottom button 1″ from hem`,
+        'Interface collar (outer layer only) with woven or sew-in interfacing - fusible can show through light fabrics',
+        'Sew buttonholes before attaching buttons - test buttonhole size on a scrap first',
         isLong ? 'Long sleeve: roll up and hold with a button tab or hem at desired length before finishing' : '',
       ].filter(Boolean),
     });
@@ -436,7 +436,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with {zigzag} or French seam. {press} toward sleeve.',
+      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit - no ease needed for short sleeves. Sew. Finish seam with {zigzag} or French seam. {press} toward sleeve.',
     });
 
     steps.push({

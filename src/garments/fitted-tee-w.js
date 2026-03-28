@@ -294,11 +294,11 @@ export default {
       needle: 'ballpoint-75',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Ballpoint 75/11 or 80/12 — prevents snags on fine jersey',
-        'Stretch stitch or serger for all seams — no straight stitch',
+        'Ballpoint 75/11 or 80/12 - prevents snags on fine jersey',
+        'Stretch stitch or serger for all seams - no straight stitch',
         'Neckband at 80% of neckline opening: slightly snugger than unisex tee for a clean, flat finish',
-        opts.bustDart === 'yes' ? 'Bust dart on knit: fold RS together, sew from side seam toward bust apex — knit does not ravel so no need to {clip}' : 'Knit stretches to accommodate shape — bust darts optional on fitted styles',
-        'Twin needle hem from RS — creates two parallel rows of {topstitch}; or use coverstitch machine',
+        opts.bustDart === 'yes' ? 'Bust dart on knit: fold RS together, sew from side seam toward bust apex - knit does not ravel so no need to {clip}' : 'Knit stretches to accommodate shape - bust darts optional on fitted styles',
+        'Twin needle hem from RS - creates two parallel rows of {topstitch}; or use coverstitch machine',
         'Pre-wash jersey: cotton knits shrink 3–5%',
       ].filter(Boolean),
     });
@@ -321,7 +321,7 @@ export default {
     if (opts.hemStyle === 'banded') {
       steps.push({ step: n++, title: 'Attach hem band', detail: 'Fold hem band in half {WST}. Divide into quarters, pin to body hem. Stretch to fit. Stretch stitch or {serge}.' });
     } else {
-      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' — {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
+      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' - {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
     }
     steps.push({ step: n++, title: 'Finish', detail: '{press} lightly. Neckband should lie flat and not gap.' });
     return steps;

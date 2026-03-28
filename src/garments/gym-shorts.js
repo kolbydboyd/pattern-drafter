@@ -148,7 +148,7 @@ export default {
     const wbWidth      = 3.5;   // 1.75″ finished (doubled)
     pieces.push({
       id: 'waistband-front',
-      name: 'Waistband — Front',
+      name: 'Waistband - Front',
       instruction: `Cut 1 · Interface · ${fmtInches(wbWidth / 2)} finished · Grommet/buttonhole placement at CF`,
       dimensions: { length: wbFrontLen, width: wbWidth },
       type: 'rectangle',
@@ -159,7 +159,7 @@ export default {
     const wbBackLen = (m.waist / 2 + ease.back) + sa * 2;
     pieces.push({
       id: 'waistband-back',
-      name: 'Waistband — Back',
+      name: 'Waistband - Back',
       instruction: `Cut 1 · Casing for 1″ elastic · ${fmtInches(wbWidth / 2)} finished`,
       dimensions: { length: wbBackLen, width: wbWidth },
       type: 'rectangle',
@@ -185,7 +185,7 @@ export default {
       pieces.push({
         id: 'liner',
         name: 'Brief Liner',
-        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed — {serge} raw edges',
+        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed - {serge} raw edges',
         dimensions: { width: linerW, height: linerH },
         type: 'pocket',
       });
@@ -199,13 +199,13 @@ export default {
    */
   materials(m, opts) {
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist / 2 + 2)}″ — back waistband casing` },
-      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ — front tie + tails` },
-      { ref: 'interfacing-med', quantity: '0.25 yard — front waistband only' },
+      { ref: 'elastic-1',    quantity: `${Math.round(m.waist / 2 + 2)}″ - back waistband casing` },
+      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ - front tie + tails` },
+      { ref: 'interfacing-med', quantity: '0.25 yard - front waistband only' },
     ];
 
     if (opts.grommets === 'grommets') {
-      notions.push({ ref: 'grommets', quantity: '2 — CF drawstring exits, ½″ inner dia' });
+      notions.push({ ref: 'grommets', quantity: '2 - CF drawstring exits, ½″ inner dia' });
     }
 
     if (opts.liner === 'mesh') {
@@ -219,12 +219,12 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'zigzag-med', 'straight-3', 'zigzag-small'],
       notes: [
-        'Color guidance — hides sweat best: black, navy, dark charcoal, dark olive. Avoid light gray and light blue.',
-        'Pre-wash fabric before cutting — supplex and nylon-taslan resist shrinkage but relax slightly',
-        'Use a stretch stitch or narrow {zigzag} for all seams — straight stitch will pop on stretch fabric',
+        'Color guidance - hides sweat best: black, navy, dark charcoal, dark olive. Avoid light gray and light blue.',
+        'Pre-wash fabric before cutting - supplex and nylon-taslan resist shrinkage but relax slightly',
+        'Use a stretch stitch or narrow {zigzag} for all seams - straight stitch will pop on stretch fabric',
         'Interface front waistband only; back casing does not need interfacing',
         'Use a ballpoint needle to avoid skipped stitches on knit/stretch weaves',
-        '{press} seams with a damp cloth and low heat — high heat damages synthetic fibers',
+        '{press} seams with a damp cloth and low heat - high heat damages synthetic fibers',
       ],
     });
   },
@@ -304,7 +304,7 @@ export default {
     steps.push({
       step: n++,
       title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch - do not use straight stitch on stretch hems.`,
     });
     steps.push({
       step: n++,

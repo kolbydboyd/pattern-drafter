@@ -291,7 +291,7 @@ export default {
   materials(m, opts) {
     const btnCount = parseInt(opts.buttons) || 7;
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons — +1 spare, +2 per cuff if applicable' },
+      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons - +1 spare, +2 per cuff if applicable' },
       { ref: 'interfacing-light', quantity: '0.75 yard (collar + stand + facings + cuffs)' },
     ];
     return buildMaterialsSpec({
@@ -301,10 +301,10 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-1.8', 'zigzag-small'],
       notes: [
-        'Buttons on LEFT front (womenswear) — buttonholes on right placket, buttons on left',
+        'Buttons on LEFT front (womenswear) - buttonholes on right placket, buttons on left',
         'French seams recommended for lightweight fabrics: sew at 3mm WS together, trim, fold RST, sew at 6mm',
-        'Interface collar (outer only) with woven sew-in interfacing for lightweight fabrics — fusible can show through',
-        opts.bustDart === 'yes' ? 'Bust dart: mark on RS with tailor\'s chalk. Fold RS together at dart legs. Sew from side seam to point — taper to nothing at apex. {press} down.' : '',
+        'Interface collar (outer only) with woven sew-in interfacing for lightweight fabrics - fusible can show through',
+        opts.bustDart === 'yes' ? 'Bust dart: mark on RS with tailor\'s chalk. Fold RS together at dart legs. Sew from side seam to point - taper to nothing at apex. {press} down.' : '',
         'Horizontal buttonholes on collar stand and cuffs; vertical buttonholes on placket',
       ].filter(Boolean),
     });

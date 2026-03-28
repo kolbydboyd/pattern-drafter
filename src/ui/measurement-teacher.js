@@ -254,7 +254,7 @@ export function renderMeasurementTeacher(measurementIds) {
     .join('');
 
   return `<div class="mt-guide">
-    <div class="mt-header">How to measure — use a flexible tape measure</div>
+    <div class="mt-header">How to measure - use a flexible tape measure</div>
     <div class="mt-list">${items}</div>
   </div>`;
 }

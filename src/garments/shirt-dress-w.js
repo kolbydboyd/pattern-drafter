@@ -387,12 +387,12 @@ export default {
       needle: 'universal-75',
       stitches: ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Stay-stitch neckline and waist seam immediately after cutting — both bias areas will stretch before assembly',
+        'Stay-stitch neckline and waist seam immediately after cutting - both bias areas will stretch before assembly',
         'Womenswear convention: buttons attach on LEFT front, buttonholes on RIGHT front (as worn)',
         opts.skirtShape === 'gathered' ? 'Gather skirt waist: two rows of long basting stitch, draw up bobbin threads evenly, pin to bodice waist, stitch' : 'Stay-stitch skirt waist edge before attaching to bodice to prevent stretching',
         opts.bustDart === 'yes' ? 'Bust dart: fold RS together, sew side seam to apex, {press} downward' : '',
         opts.belt !== 'none' ? 'Belt loops: fold strip in thirds lengthwise, {edgestitch} both long edges, cut to 2″ sections' : '',
-        'French seams for side seams give a clean interior — worth doing on lighter fabrics',
+        'French seams for side seams give a clean interior - worth doing on lighter fabrics',
       ].filter(Boolean),
     });
   },

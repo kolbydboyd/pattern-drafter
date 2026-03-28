@@ -473,7 +473,7 @@ export default {
   materials(m, opts) {
     const isLong = opts.sleeveStyle === 'long' || opts.sleeveStyle === 'three_quarter';
     const notions = [
-      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband — high recovery stretch' },
+      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband - high recovery stretch' },
     ];
     if (isLong) {
       notions.push({ name: 'Rib knit (extra)', quantity: '0.5 yard', notes: 'For sleeve cuffs if desired' });
@@ -486,13 +486,13 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Use a ballpoint (jersey) needle 80/12 — prevents skipped stitches and snags on knit fabric',
-        'Use a stretch stitch or serger for ALL seams — a standard straight stitch will pop when stretched',
+        'Use a ballpoint (jersey) needle 80/12 - prevents skipped stitches and snags on knit fabric',
+        'Use a stretch stitch or serger for ALL seams - a standard straight stitch will pop when stretched',
         'Twin needle for hem (RS shows two parallel rows) or fold under and coverstitch',
-        'Pre-wash jersey before cutting — cotton knits shrink 3–5% in first wash',
+        'Pre-wash jersey before cutting - cotton knits shrink 3–5% in first wash',
         'Neckband cut at 85% of neck opening so it lies flat without gaping',
-        'Stretch neckband gently as you sew to match opening — do not stretch the bodice edge',
-        opts.fit === 'fitted' ? 'Slim fit: ease is minimal — use 4-way stretch fabric only' : '',
+        'Stretch neckband gently as you sew to match opening - do not stretch the bodice edge',
+        opts.fit === 'fitted' ? 'Slim fit: ease is minimal - use 4-way stretch fabric only' : '',
       ].filter(Boolean),
     });
   },
@@ -543,12 +543,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' - clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on — neckband should sit flat and not gap.',
+      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on - neckband should sit flat and not gap.',
     });
 
     return steps;

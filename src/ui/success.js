@@ -38,7 +38,7 @@ async function init() {
   }
 
   elName.textContent   = info.garmentName;
-  elAmount.textContent = info.amountCents ? `— $${(info.amountCents / 100).toFixed(2)}` : '';
+  elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
   elState.hidden = false;
 
   trackEvent('purchase_completed', {
@@ -85,7 +85,7 @@ async function init() {
         ? ` <span class="success-upsell-price"><s>$${fullPrice}</s> $${discountPrice}</span>`
         : '';
       document.getElementById('success-upsell-text').innerHTML =
-        `Add ${upsellName} — same measurements, 25% off.${priceNote}`;
+        `Add ${upsellName} - same measurements, 25% off.${priceNote}`;
       const upsellWrap = document.getElementById('success-upsell');
       upsellWrap.hidden = false;
       document.getElementById('success-upsell-btn').addEventListener('click', () => {

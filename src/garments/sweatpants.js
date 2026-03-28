@@ -34,8 +34,8 @@ export default {
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight — twin needle hem',  reference: 'classic, relaxed'    },
-        { value: 'jogger',   label: 'Jogger — tapered + rib cuff', reference: 'streetwear, tapered' },
+        { value: 'straight', label: 'Straight - twin needle hem',   reference: 'classic, relaxed'    },
+        { value: 'jogger',   label: 'Jogger - tapered + rib cuff',  reference: 'streetwear, tapered' },
       ],
       default: 'straight',
     },
@@ -188,11 +188,11 @@ export default {
     const isJogger = opts.legStyle === 'jogger';
 
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.85)}″ — back half of waistband` },
-      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ — front tie + tails` },
+      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.85)}″ - back half of waistband` },
+      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ - front tie + tails` },
     ];
     if (isJogger) {
-      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs — high recovery stretch' });
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs - high recovery stretch' });
     }
 
     return buildMaterialsSpec({
@@ -202,11 +202,11 @@ export default {
       needle: 'ballpoint-90',
       stitches: ['stretch', 'overlock', 'zigzag-med', 'coverstitch'],
       notes: [
-        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry — prevents skipped stitches',
-        'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
-        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery — no hem needed' : 'twin needle creates two parallel rows of {topstitch} visible from RS; or use coverstitch if available'}`,
-        'Pre-wash fleece/terry before cutting — knits can shrink 3–5% in first wash',
-        'Do not {press} fleece with high heat — use low steam or finger {press} seams open',
+        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry - prevents skipped stitches',
+        'Use stretch stitch or serger for ALL seams - a straight stitch will pop when stretched',
+        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery - no hem needed' : 'twin needle creates two parallel rows of {topstitch} visible from RS; or use coverstitch if available'}`,
+        'Pre-wash fleece/terry before cutting - knits can shrink 3–5% in first wash',
+        'Do not {press} fleece with high heat - use low steam or finger {press} seams open',
         'Elastic runs through back half of waistband only. Drawstring ties at front only.',
       ],
     });
@@ -236,7 +236,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, {zigzag}. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
+      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing - length = half the waist minus a little ease. Overlap elastic ends 1″, {zigzag}. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
     });
 
     if (isJogger) {

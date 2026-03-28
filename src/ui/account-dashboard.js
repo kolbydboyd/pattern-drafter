@@ -865,10 +865,10 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
 // ── Fit Feedback modal ────────────────────────────────────────────────────────
 function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
   const OVERALL_OPTS = [
-    { value: 'perfect',          label: 'Perfect — no changes needed' },
-    { value: 'good',             label: 'Good — minor tweaks only' },
-    { value: 'needs_adjustment', label: 'Needs adjustment — a few areas off' },
-    { value: 'poor',             label: 'Poor — significant fitting issues' },
+    { value: 'perfect',          label: 'Perfect - no changes needed' },
+    { value: 'good',             label: 'Good - minor tweaks only' },
+    { value: 'needs_adjustment', label: 'Needs adjustment - a few areas off' },
+    { value: 'poor',             label: 'Poor - significant fitting issues' },
   ];
   const AREA_OPTS = [
     { key: 'chest_fit',  label: 'Chest'    },
@@ -890,7 +890,7 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
     <div class="acct-edit-row">
       <label class="acct-edit-lbl" style="width:72px">${area.label}</label>
       <select class="acct-input fb-area-select" data-key="${area.key}">
-        <option value="">—</option>
+        <option value="">-</option>
         ${AREA_VALS.map(v => `<option value="${v}">${v.replace(/_/g, ' ')}</option>`).join('')}
       </select>
     </div>`).join('');
@@ -970,10 +970,10 @@ const WARDROBE_CATEGORIES = [
 ];
 
 const MILESTONES = [
-  { count: 1,  msg: '1st pattern — welcome to custom fit!' },
-  { count: 3,  msg: '3 patterns — building a wardrobe' },
-  { count: 5,  msg: '5 patterns — capsule complete' },
-  { count: 10, msg: '10 patterns — true custom wardrobe' },
+  { count: 1,  msg: '1st pattern - welcome to custom fit!' },
+  { count: 3,  msg: '3 patterns - building a wardrobe' },
+  { count: 5,  msg: '5 patterns - capsule complete' },
+  { count: 10, msg: '10 patterns - true custom wardrobe' },
 ];
 
 function _wardrobeProgressHtml(purchasedGarmentIds) {
@@ -1002,7 +1002,7 @@ function _wardrobeProgressHtml(purchasedGarmentIds) {
   const nextCat = WARDROBE_CATEGORIES.find(c => !c.garments.some(g => purchased.has(g)));
   const nextHint = nextCat
     ? `<p class="wrd-next">Complete your wardrobe: try a <strong>${nextCat.label.toLowerCase()}</strong> next.</p>`
-    : '<p class="wrd-next">You\'ve covered every category — impressive wardrobe!</p>';
+    : '<p class="wrd-next">You\'ve covered every category - impressive wardrobe!</p>';
 
   return `<div class="wrd-wrap">
     ${milestone ? `<div class="wrd-milestone">${milestone}</div>` : ''}

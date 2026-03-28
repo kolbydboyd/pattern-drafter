@@ -42,7 +42,7 @@ export default {
     closure: {
       type: 'select', label: 'Back closure',
       values: [
-        { value: 'pullover', label: 'Pullover — no zip'            },
+        { value: 'pullover', label: 'Pullover - no zip'             },
         { value: 'zip',      label: 'Invisible zip at center back' },
       ],
       default: 'pullover',
@@ -212,7 +212,7 @@ export default {
       },
       {
         id: 'bodice-back', name: 'Back Body',
-        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB' : ''}`,
+        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB' : ''}`,
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
         width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
@@ -251,7 +251,7 @@ export default {
     }
 
     if (opts.closure === 'zip') {
-      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ — install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ - install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket' });
     }
 
     return pieces;
@@ -273,7 +273,7 @@ export default {
       notes: [
         'Use universal 75/11 or 80/12 needle for lightweight wovens',
         'Lining suggestion: cut front body from cotton batiste or silk habotai for opacity with lightweight fabrics',
-        '{understitch} all facings to the SA before pressing to the inside — prevents facing from rolling to the RS',
+        '{understitch} all facings to the SA before pressing to the inside - prevents facing from rolling to the RS',
         opts.bustDart === 'yes' ? 'Bust dart: fold RS together, sew from side seam to apex tapering to nothing, {press} down' : '',
         'French seams work well for the side seams on lightweight fabrics',
       ].filter(Boolean),

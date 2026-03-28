@@ -6,21 +6,21 @@ export const TIER_PRICES = {
     cents:   900,
     label:   'Simple',
     priceId: 'price_1TFlLvEcctnfQkkLPYNfYdUP',  // replace with live Stripe price ID
-    description: 'Beginner-friendly builds — elastic waists, minimal shaping',
+    description: 'Beginner-friendly builds - elastic waists, minimal shaping',
     examples: ['Gym Shorts', 'T-Shirt', 'Slip Skirt', 'Easy Pant'],
   },
   core: {
     cents:   1400,
     label:   'Core',
     priceId: 'price_1TFlMEEcctnfQkkLrWGrSnx3',
-    description: 'Everyday wardrobe staples — standard closures, moderate shaping',
+    description: 'Everyday wardrobe staples - standard closures, moderate shaping',
     examples: ['Cargo Shorts', 'Straight Jeans', 'Camp Shirt', 'A-Line Skirt'],
   },
   tailored: {
     cents:   1900,
     label:   'Tailored',
     priceId: 'price_1TFlMTEcctnfQkkLjaWAjH7D',
-    description: 'Detailed construction — pleats, darts, linings, precision fit',
+    description: 'Detailed construction - pleats, darts, linings, precision fit',
     examples: ['Pleated Trousers', 'Hoodie', 'Button-Up Shirt', 'Wrap Dress'],
   },
 };
@@ -100,14 +100,14 @@ export const BUNDLES = {
     label:   '3-Pattern Capsule',
     priceId: 'price_1TFlRNEcctnfQkkL9vDPJQh0',
     patternCount: 3,
-    description: 'Any 3 patterns — mix tiers, same measurements',
+    description: 'Any 3 patterns - mix tiers, same measurements',
   },
   wardrobe5: {
     cents:   4900,
     label:   '5-Pattern Wardrobe',
     priceId: 'price_1TFlSEEcctnfQkkLQRVMAUXS',
     patternCount: 5,
-    description: 'Any 5 patterns — build a complete capsule wardrobe',
+    description: 'Any 5 patterns - build a complete capsule wardrobe',
   },
 };
 

@@ -222,7 +222,7 @@ export default {
   materials(m, opts) {
     const isKnit = opts.waistband === 'yoga';
     const notions = [
-      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic — waist − 2″ for snug fit' },
+      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic - waist − 2″ for snug fit' },
     ];
 
     return buildMaterialsSpec({
@@ -232,11 +232,11 @@ export default {
       needle: isKnit ? 'ballpoint-80' : 'universal-80',
       stitches: isKnit ? ['stretch', 'overlock', 'zigzag-med'] : ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Great beginner project — only 5 seams total before the waistband and hem',
+        'Great beginner project - only 5 seams total before the waistband and hem',
         'Use universal 80/12 for wovens (rayon, linen, lawn); ballpoint 80/12 for knit ponte or jersey',
-        isKnit ? 'For knit fabric: use stretch stitch or serger for ALL seams — straight stitch will pop when stretched' : 'Drapey wovens: stay-stitch waist and hip curves before assembling to prevent bias stretch',
+        isKnit ? 'For knit fabric: use stretch stitch or serger for ALL seams - straight stitch will pop when stretched' : 'Drapey wovens: stay-stitch waist and hip curves before assembling to prevent bias stretch',
         'Elastic waist: cut elastic at waist measurement minus 2″ for a comfortable snug fit that doesn\'t dig in',
-        'Pre-wash rayon and viscose — they can shrink 3–5% and the dye may bleed in the first wash',
+        'Pre-wash rayon and viscose - they can shrink 3–5% and the dye may bleed in the first wash',
       ],
     });
   },
