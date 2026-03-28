@@ -282,6 +282,45 @@ export function renderPanelSVG(piece) {
       <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
       <text x="${bagL + 2}" y="${bagB + 9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
   }
+  if (!isBack && opts?.frontPocket === 'side') {
+    // Two tick marks on the side seam showing the pocket opening span.
+    // Standard placement: starts 2″ below waist, extends 6.5″ down.
+    const pTop = 2;
+    const pBot = 2 + 6.5; // 8.5″ below waist
+
+    // Interpolate the side seam (right edge) x coordinate at a given y.
+    // Polygon right-side edges: index 1 (side waist) → 2 (side hip) → 3 (side knee) → 4 (side hem).
+    function sideSeamXatY(ty) {
+      for (let i = 1; i <= 4; i++) {
+        const a = polygon[i], b = polygon[i + 1];
+        if (!a || !b) break;
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= ty && ty <= yMax) {
+          return a.x + (ty - a.y) / (b.y - a.y) * (b.x - a.x);
+        }
+      }
+      return width; // fallback to hip width
+    }
+
+    const sxTop = sideSeamXatY(pTop);
+    const sxBot = sideSeamXatY(pBot);
+
+    const txTop = ox + sc(sxTop), tyTop = oy + sc(pTop);
+    const txBot = ox + sc(sxBot), tyBot = oy + sc(pBot);
+    const tickLen = sc(0.35); // tick extends 0.35″ inward from side seam
+    const col = '#8a4a4a';
+
+    // Top tick mark
+    pocketSVG += `<line x1="${(txTop - tickLen).toFixed(1)}" y1="${tyTop.toFixed(1)}" x2="${txTop.toFixed(1)}" y2="${tyTop.toFixed(1)}" stroke="${col}" stroke-width="1.2"/>`;
+    // Bottom tick mark
+    pocketSVG += `<line x1="${(txBot - tickLen).toFixed(1)}" y1="${tyBot.toFixed(1)}" x2="${txBot.toFixed(1)}" y2="${tyBot.toFixed(1)}" stroke="${col}" stroke-width="1.2"/>`;
+    // Dashed bracket along the seam between the two ticks
+    pocketSVG += `<line x1="${txTop.toFixed(1)}" y1="${tyTop.toFixed(1)}" x2="${txBot.toFixed(1)}" y2="${tyBot.toFixed(1)}" stroke="${col}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+    // Label: "pocket opening" — rotated 90°, positioned outside the cut line
+    const labelX = ox + sc(sxTop + sa + 0.3);
+    const labelMidY = (tyTop + tyBot) / 2;
+    pocketSVG += `<text x="${labelX.toFixed(1)}" y="${labelMidY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}" text-anchor="middle" transform="rotate(90,${labelX.toFixed(1)},${labelMidY.toFixed(1)})">pocket opening</text>`;
+  }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
