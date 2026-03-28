@@ -153,7 +153,7 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · Serge edge', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
 
     // ── POCKETS ──
     pieces.push({ id: 'welt-back',  name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
@@ -187,11 +187,11 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Press with steam on a wool setting. Always use a press cloth to prevent shine on wool and rayon.',
+        '{press} with steam on a wool setting. Always use a {press} cloth to prevent shine on wool and rayon.',
         'Interface ALL waistband layers for structure — use heavy interfacing on the outer layer',
-        'The French bearer is the inner hook extension at CF that keeps the waistband flat under the trouser front. Cut from matching fabric, interface, fold and press.',
+        'The French bearer is the inner hook extension at CF that keeps the waistband flat under the trouser front. Cut from matching fabric, interface, fold and {press}.',
         'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting — dry clean before cutting if needed.',
-        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise serge/zigzag.',
+        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/zigzag.',
         'Hem note: dress trousers should have a slight BREAK at the shoe — hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
         'Bar tack all pocket openings and crotch junction.',
       ],
@@ -205,45 +205,45 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare back welt pockets',
-      detail: 'Mark pocket positions on back panels (2.5″ below waist, centered in panel). Sew bound welts, slash, turn, press. Attach bag halves. Whipstitch bag sides. Bar tack ends.',
+      detail: 'Mark pocket positions on back panels (2.5″ below waist, centered in panel). Sew bound welts, slash, turn, {press}. Attach bag halves. Whipstitch bag sides. Bar tack ends.',
     });
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Interface facing. Sew facing to front slash line {RST}. Clip, turn, press. Understitch. Attach pocket bag. Baste edges to panel.',
+      detail: 'Interface facing. Sew facing to front slash line {RST}. {clip}, turn, {press}. {understitch}. Attach pocket bag. {baste} edges to panel.',
     });
 
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist. Baste ⅜″ from edge. Press pleat down 4–5″ with steam from WS, then allow to drape. The pleat should release naturally below the hip.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist. {baste} ⅜″ from edge. {press} pleat down 4–5″ with steam from WS, then allow to drape. The pleat should release naturally below the hip.`,
       });
     }
 
     steps.push({
       step: n++, title: 'Install zip fly',
-      detail: 'Interface fly shield. Sew fronts at CF from crotch to fly bottom. Sew zipper to right CF. Sew fly shield to left CF. Topstitch fly J-curve from RS.',
+      detail: 'Interface fly shield. Sew fronts at CF from crotch to fly bottom. Sew zipper to right CF. Sew fly shield to left CF. {topstitch} fly J-curve from RS.',
     });
-    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join backs at CB. Clip curve. Serge or press open.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. Press open. Serge each SA separately.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam hem to hem. Clip crotch curve. Serge together. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join backs at CB. {clip} curve. {serge} or {press} open.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. {press} open. {serge} each SA separately.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam hem to hem. {clip} crotch curve. {serge} together. {press} toward back.' });
 
     steps.push({
       step: n++, title: 'Construct curtain waistband',
-      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, press. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. Topstitch or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
+      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
     });
     steps.push({
       step: n++, title: 'Construct and attach French bearer',
-      detail: 'Interface bearer piece. Fold in half {WST}, press. Sew edges, turn, press. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
+      detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew edges, turn, {press}. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
-      detail: 'Fold, press, topstitch loop strips. Attach at CB, side seams, flanking CF. Bar tack top and bottom.',
+      detail: 'Fold, {press}, {topstitch} loop strips. Attach at CB, side seams, flanking CF. Bar tack top and bottom.',
     });
     steps.push({
       step: n++, title: 'Hem — fit first',
-      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. Press. Hand slipstitch or blind hem stitch for an invisible finish on dress trousers.`,
+      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand slipstitch or blind hem stitch for an invisible finish on dress trousers.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Press entire garment with steam and press cloth. Bar tack all stress points. Steam-press front trouser creases — align side seam to inseam and press fold from waist to hem.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases — align side seam to inseam and {press} fold from waist to hem.' });
 
     return steps;
   },

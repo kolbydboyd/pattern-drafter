@@ -201,8 +201,8 @@ export default {
     }
 
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side' && opts.pockets !== 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -243,24 +243,24 @@ export default {
     let n = 1;
 
     if (opts.pockets === 'side') {
-      steps.push({ step: n++, title: 'Prepare side-seam pockets', detail: 'Sew each pocket bag pair together along curved edge {RST}. Baste flat edges to front and back side seam SAs at pocket position (usually hip level).' });
+      steps.push({ step: n++, title: 'Prepare side-seam pockets', detail: 'Sew each pocket bag pair together along curved edge {RST}. {baste} flat edges to front and back side seam SAs at pocket position (usually hip level).' });
     }
-    steps.push({ step: n++, title: 'Sew center front and back seams', detail: 'Join front panels at CF {RST}. Join back panels at CB {RST}. Clip crotch curves. Press open or serge.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'side' ? 'Sew front to back above and below pocket opening. Sew around pocket bag to join halves. Press open.' : 'Sew front to back at both side seams {RST}. Press open.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. Clip crotch curve. Press toward back. Serge or zigzag.' });
+    steps.push({ step: n++, title: 'Sew center front and back seams', detail: 'Join front panels at CF {RST}. Join back panels at CB {RST}. {clip} crotch curves. {press} open or {serge}.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'side' ? 'Sew front to back above and below pocket opening. Sew around pocket bag to join halves. {press} open.' : 'Sew front to back at both side seams {RST}. {press} open.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. {clip} crotch curve. {press} toward back. {serge} or zigzag.' });
     steps.push({
       step: n++, title: 'Attach waistband and thread elastic',
       detail: opts.waistband === 'elastic'
-        ? 'Fold casing strip in half lengthwise {WST}, press. Sew to waist edge {RST}. Fold to inside. Topstitch leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, zigzag. Close gap. Topstitch close to fold.'
+        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, zigzag. Close gap. {topstitch} close to fold.'
         : 'Fold yoga band in half lengthwise {WST}. Divide into quarters, pin to waist. Stretch band slightly to match waist. Sew with stretch stitch. Fold band down to outside of pant for a fold-over yoga waist.',
     });
     steps.push({
       step: n++, title: 'Hem',
       detail: opts.hemStyle === 'elastic'
-        ? 'Fold cuff in half {WST}. Sew to hem opening {RST}, stretching to fit. Press SA into leg.'
+        ? 'Fold cuff in half {WST}. Sew to hem opening {RST}, stretching to fit. {press} SA into leg.'
         : opts.hemStyle === 'rolled'
-          ? 'Roll hem ¼″ twice, topstitch with straight stitch. Best on lightweight rayon or lawn.'
-          : `Fold up ${fmtInches(parseFloat(opts.hem))} twice, press. Topstitch close to inner fold.`,
+          ? 'Roll hem ¼″ twice, {topstitch} with straight stitch. Best on lightweight rayon or lawn.'
+          : `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} close to inner fold.`,
     });
 
     return steps;

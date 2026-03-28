@@ -312,8 +312,8 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-3', 'straight-3.5', 'bartack'],
       notes: [
-        'Topstitch all seams at 3.5mm — use contrasting or matching thread as desired',
-        'Flat-fell seams on shoulder and side seams: sew, press to one side, trim lower SA to 3mm, fold upper SA over, topstitch',
+        '{topstitch} all seams at 3.5mm — use contrasting or matching thread as desired',
+        'Flat-fell seams on shoulder and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
         'Pre-wash canvas to preshrink — canvas can shrink 5–8% in first wash',
         'Interface collar with 2 layers of medium woven interfacing for structure',
         'Bar tack all four corners of each pocket — canvas is heavy and will stress pocket attachment',
@@ -331,48 +331,48 @@ export default {
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
-        detail: 'Mark pencil slot division line 1.5″ from right edge. Fold top under 1″, topstitch twice. Press sides and bottom under ⅝″. Topstitch slot division line through pocket. Position on left front panel. Topstitch on 3 sides. Bar tack all four corners.',
+        detail: 'Mark pencil slot division line 1.5″ from right edge. Fold top under 1″, {topstitch} twice. {press} sides and bottom under ⅝″. {topstitch} slot division line through pocket. Position on left front panel. {topstitch} on 3 sides. Bar tack all four corners.',
       });
     }
 
     steps.push({
       step: n++, title: 'Prepare hip patch pockets',
-      detail: 'Fold top edge under 1″ twice, topstitch. Press remaining three edges under ⅝″. Position on front panels at hip level. Topstitch on 3 sides at 3.5mm. Bar tack all four corners.',
+      detail: 'Fold top edge under 1″ twice, {topstitch}. {press} remaining three edges under ⅝″. Position on front panels at hip level. {topstitch} on 3 sides at 3.5mm. Bar tack all four corners.',
     });
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. Clip corners (point collar) or notch curves. Turn, press. For point collar: shape points precisely — use a point turner. Topstitch 3.5mm from edge if desired.`,
+      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely — use a point turner. {topstitch} 3.5mm from edge if desired.`,
     });
 
     steps.push({
       step: n++, title: 'Prepare front facings and plackets',
-      detail: `Interface facing strips. Press placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge {RST}. Press, topstitch. Facing creates clean interior at front opening.`,
+      detail: `Interface facing strips. {press} placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge {RST}. {press}, {topstitch}. Facing creates clean interior at front opening.`,
     });
 
     steps.push({
       step: n++, title: 'Sew shoulder seams (flat-fell)',
-      detail: 'Sew front to back at shoulders {RST}. Press both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, press. Topstitch at 3.5mm close to fold. Result: two visible rows of topstitch on RS.',
+      detail: 'Sew front to back at shoulders {RST}. {press} both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, {press}. {topstitch} at 3.5mm close to fold. Result: two visible rows of {topstitch} on RS.',
     });
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF marks. Sew. Clip curve. Fold facing SA under, pin to WS covering seam. Topstitch from RS through all layers.',
+      detail: 'Pin outer collar to neckline {RST}, matching CF marks. Sew. {clip} curve. Fold facing SA under, pin to WS covering seam. {topstitch} from RS through all layers.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Sew sleeves into armhole {RST}, starting at underarm notch. Ease fullness at cap evenly. Sew. Topstitch SA toward sleeve at 6mm from seam.',
+      detail: 'Sew sleeves into armhole {RST}, starting at underarm notch. Ease fullness at cap evenly. Sew. {topstitch} SA toward sleeve at 6mm from seam.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams (flat-fell)',
-      detail: 'Sew front to back at side seams {RST}, from hem through underarm continuously to sleeve hem. Apply flat-fell finish: press toward back, trim front SA to 3mm, fold back SA over, topstitch at 3.5mm.',
+      detail: 'Sew front to back at side seams {RST}, from hem through underarm continuously to sleeve hem. Apply flat-fell finish: {press} toward back, trim front SA to 3mm, fold back SA over, {topstitch} at 3.5mm.',
     });
 
     steps.push({
       step: n++, title: 'Hem sleeves and body',
-      detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} twice, press. Topstitch at 3.5mm. Repeat for jacket body hem.`,
+      detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} at 3.5mm. Repeat for jacket body hem.`,
     });
 
     steps.push({
@@ -384,7 +384,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press with steam on cotton/linen setting. Bar tack any remaining stress points. Try on and check collar stands evenly.',
+      detail: '{press} with steam on cotton/linen setting. Bar tack any remaining stress points. Try on and check collar stands evenly.',
     });
 
     return steps;

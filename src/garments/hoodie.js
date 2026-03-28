@@ -297,7 +297,7 @@ export default {
       {
         id: 'kangaroo-pocket',
         name: 'Kangaroo Pocket',
-        instruction: 'Cut 1 · Center on front bodice at waist level · Round bottom corners (2″ radius) · Topstitch sides and bottom',
+        instruction: 'Cut 1 · Center on front bodice at waist level · Round bottom corners (2″ radius) · {topstitch} sides and bottom',
         type: 'pocket',
         dimensions: { width: 10, height: 7 },
       },
@@ -359,11 +359,11 @@ export default {
       notes: [
         'Use a ballpoint (jersey) needle 90/14 for fleece and french terry',
         'Use stretch stitch or serger for all body seams',
-        'Hood casing: fold face opening under ¾″ twice, topstitch to create drawstring channel',
+        'Hood casing: fold face opening under ¾″ twice, {topstitch} to create drawstring channel',
         'Install grommets at CF of hood casing before joining hood to body',
         'Pre-wash fleece before cutting — knits can shrink 3–5%',
-        isFullZip ? 'Full zip: sew zipper tape extensions first, then baste zipper in place, topstitch from RS' : '',
-        isLined ? 'Lined hood: sew outer and lining with RS together around face opening, turn, press, then treat as one layer for attaching to body' : '',
+        isFullZip ? 'Full zip: sew zipper tape extensions first, then {baste} zipper in place, {topstitch} from RS' : '',
+        isLined ? 'Lined hood: sew outer and lining with RS together around face opening, turn, {press}, then treat as one layer for attaching to body' : '',
       ].filter(Boolean),
     });
   },
@@ -376,56 +376,56 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach kangaroo pocket',
-      detail: 'Round the two bottom corners of pocket (2″ radius). Serge top edge, fold under ½″, topstitch. Press remaining edges under ½″. Position centered on front body at waist level. Topstitch on sides and bottom. Bar tack top corners.',
+      detail: 'Round the two bottom corners of pocket (2″ radius). {serge} top edge, fold under ½″, {topstitch}. {press} remaining edges under ½″. Position centered on front body at waist level. {topstitch} on sides and bottom. Bar tack top corners.',
     });
 
     steps.push({
       step: n++, title: 'Sew hood back seam',
-      detail: 'Sew two hood panels together at curved back seam {RST}. Clip curve at top. Press seam toward one side.',
+      detail: 'Sew two hood panels together at curved back seam {RST}. {clip} curve at top. {press} seam toward one side.',
     });
 
     if (isLined) {
       steps.push({
         step: n++, title: 'Attach hood lining',
-        detail: 'Sew outer hood to lining around face opening {RST}. Trim seam. Turn RS out, press. Baste neck edges together, treating as one layer going forward.',
+        detail: 'Sew outer hood to lining around face opening {RST}. Trim seam. Turn RS out, {press}. {baste} neck edges together, treating as one layer going forward.',
       });
     }
 
     steps.push({
       step: n++, title: 'Make drawstring casing',
-      detail: `Press face opening under ¾″ twice (first fold ¾″, second fold ¾″). Install two grommets at CF opening, centered in casing width. Topstitch casing close to inner fold, leaving grommet area accessible for cord insertion.`,
+      detail: `{press} face opening under ¾″ twice (first fold ¾″, second fold ¾″). Install two grommets at CF opening, centered in casing width. {topstitch} casing close to inner fold, leaving grommet area accessible for cord insertion.`,
     });
 
     if (isFullZip) {
       steps.push({
         step: n++, title: 'Prepare zipper extensions',
-        detail: 'Interface zipper tape extension pieces. Fold in half lengthwise {WST}. Sew to CF edges of front panels. Press flat. Baste zipper tape to extensions, RS up. Topstitch from RS.',
+        detail: 'Interface zipper tape extension pieces. Fold in half lengthwise {WST}. Sew to CF edges of front panels. {press} flat. {baste} zipper tape to extensions, RS up. {topstitch} from RS.',
       });
     }
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
+      detail: 'Join front to back at shoulders {RST}. Stretch stitch or {serge}. {press} toward back.',
     });
 
     steps.push({
       step: n++, title: 'Attach hood to body',
-      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. Clip curve. Serge or zigzag SA together. Press down.',
+      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. {clip} curve. {serge} or zigzag SA together. {press} down.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit. Stretch stitch or serge. Press toward sleeve.',
+      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit. Stretch stitch or {serge}. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side and sleeve seams',
-      detail: 'Sew front to back at side seams continuously from waistband level through underarm to sleeve hem. Stretch stitch or serge. Press toward back.',
+      detail: 'Sew front to back at side seams continuously from waistband level through underarm to sleeve hem. Stretch stitch or {serge}. {press} toward back.',
     });
 
     steps.push({
       step: n++, title: 'Attach sleeve cuffs and waistband',
-      detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff/waistband and opening into quarters. Sew with stretch stitch, stretching rib to match opening. Press SA into body.',
+      detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff/waistband and opening into quarters. Sew with stretch stitch, stretching rib to match opening. {press} SA into body.',
     });
 
     steps.push({
@@ -435,7 +435,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press lightly with low steam. Try on — hood should sit comfortably without pulling neckline down.',
+      detail: '{press} lightly with low steam. Try on — hood should sit comfortably without pulling neckline down.',
     });
 
     return steps;

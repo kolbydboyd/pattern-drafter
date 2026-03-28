@@ -146,7 +146,7 @@ export default {
       pieces.push({
         id: 'pocket-bag',
         name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Athletic mesh — allows water drainage · Serge all edges',
+        instruction: 'Cut 4 (2 per side) · Athletic mesh — allows water drainage · {serge} all edges',
         dimensions: { width: 6.5, height: 7 },
         type: 'pocket',
       });
@@ -176,8 +176,8 @@ export default {
         'Color guidance — hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
         'Use rust-proof grommets (brass or stainless) — standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
-        'Serge or zigzag all seams — do not leave raw edges on mesh; they will fray in water',
-        'Do not press nylon with high heat — use a damp pressing cloth on low if needed',
+        '{serge} or zigzag all seams — do not leave raw edges on mesh; they will fray in water',
+        'Do not {press} nylon with high heat — use a damp pressing cloth on low if needed',
       ],
     });
   },
@@ -189,26 +189,26 @@ export default {
     if (opts.liner === 'yes') {
       steps.push({
         step: n++, title: 'Assemble liner',
-        detail: 'Serge all liner panel edges. Join liner fronts at CF crotch seam. Join liner backs at CB. Join liner at side seams. Join inseam. Baste liner WS to WS of outer at waist edge (¼″). Treat as one unit going forward.',
+        detail: '{serge} all liner panel edges. Join liner fronts at CF crotch seam. Join liner backs at CB. Join liner at side seams. Join inseam. {baste} liner WS to WS of outer at waist edge (¼″). Treat as one unit going forward.',
       });
     }
 
     if (opts.pocket === 'side-seam') {
       steps.push({
         step: n++, title: 'Prepare pocket bags',
-        detail: 'Serge all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. Press away from opening.',
+        detail: '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. Clip curve every ½″. Press.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. Clip. Press.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. {clip} curve every ½″. {press}.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
-        ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. Press open.'
-        : 'Join front to back at side seams {RST}. Stretch stitch. Press open.',
+        ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. {press} open.'
+        : 'Join front to back at side seams {RST}. Stretch stitch. {press} open.',
     });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. Clip curve. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
 
     steps.push({
       step: n++, title: 'Install grommets in waistband',
@@ -216,7 +216,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, press. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. Topstitch close to inner fold with stretch stitch.',
+      detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
     });
     steps.push({
       step: n++, title: 'Thread drawstring',
@@ -224,7 +224,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. Topstitch with zigzag (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with zigzag (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
     });
     steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should zigzag slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 

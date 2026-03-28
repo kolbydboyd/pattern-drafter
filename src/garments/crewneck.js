@@ -319,7 +319,7 @@ export default {
       pieces.push({
         id: 'kangaroo-pocket',
         name: 'Kangaroo Pocket',
-        instruction: 'Cut 1 · Center on front bodice at waist level · Curve bottom corners (2″ radius) · Topstitch sides and bottom',
+        instruction: 'Cut 1 · Center on front bodice at waist level · Curve bottom corners (2″ radius) · {topstitch} sides and bottom',
         type: 'pocket',
         dimensions: { width: 10, height: 7 },
       });
@@ -345,7 +345,7 @@ export default {
         'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
         'Stretch rib trim as you sew to match body opening — do not stretch the body edge',
         'Pre-wash fleece/terry before cutting — knits can shrink 3–5% in first wash',
-        'Do not press fleece with high heat — use low steam or finger press seams open',
+        'Do not {press} fleece with high heat — use low steam or finger {press} seams open',
         isRaglan ? 'Raglan: sew four seams only (2 front, 2 back) — no shoulder seam or armhole setting required' : 'Ease sleeve cap evenly — divide cap and armhole into quarters and pin at quarters before sewing',
         opts.kangaroo === 'kangaroo' ? 'Kangaroo pocket: sew to front body BEFORE sewing shoulder seams for easiest access' : '',
       ].filter(Boolean),
@@ -360,53 +360,53 @@ export default {
     if (opts.kangaroo === 'kangaroo') {
       steps.push({
         step: n++, title: 'Attach kangaroo pocket',
-        detail: 'Round the two bottom corners of pocket (2″ radius). Serge or zigzag all edges. Fold top edge under ½″, topstitch. Position centered on front body at waist level. Topstitch sides and bottom close to edge. Bar tack top corners.',
+        detail: 'Round the two bottom corners of pocket (2″ radius). {serge} or zigzag all edges. Fold top edge under ½″, {topstitch}. Position centered on front body at waist level. {topstitch} sides and bottom close to edge. Bar tack top corners.',
       });
     }
 
     if (isRaglan) {
       steps.push({
         step: n++, title: 'Sew raglan seams',
-        detail: 'Sew each sleeve to front and back along diagonal raglan seam {RST}. Stretch stitch or serge. Press toward bodice.',
+        detail: 'Sew each sleeve to front and back along diagonal raglan seam {RST}. Stretch stitch or {serge}. {press} toward bodice.',
       });
       steps.push({
         step: n++, title: 'Attach neckband',
-        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
+        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or {serge}, stretching band to fit. {press} toward bodice.',
       });
       steps.push({
         step: n++, title: 'Sew side seams and underarm seams',
-        detail: 'Sew front to back at side seams continuously from waistband level up through underarm and sleeve hem. Stretch stitch or serge. Press toward back.',
+        detail: 'Sew front to back at side seams continuously from waistband level up through underarm and sleeve hem. Stretch stitch or {serge}. {press} toward back.',
       });
     } else {
       steps.push({
         step: n++, title: 'Sew shoulder seams',
-        detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
+        detail: 'Join front to back at shoulders {RST}. Stretch stitch or {serge}. {press} toward back.',
       });
       steps.push({
         step: n++, title: 'Attach neckband',
-        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or serge, stretching band to fit. Press toward bodice.',
+        detail: 'Fold neckband in half lengthwise {WST}. Divide into quarters, pin to neck opening. Stretch stitch or {serge}, stretching band to fit. {press} toward bodice.',
       });
       steps.push({
         step: n++, title: 'Set sleeves',
-        detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit. Stretch stitch or serge. Press toward sleeve.',
+        detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit. Stretch stitch or {serge}. {press} toward sleeve.',
       });
       steps.push({
         step: n++, title: 'Sew side and sleeve seams',
-        detail: 'Sew front to back at side seams continuously from hem through underarm to sleeve hem. Stretch stitch or serge. Press toward back.',
+        detail: 'Sew front to back at side seams continuously from hem through underarm to sleeve hem. Stretch stitch or {serge}. {press} toward back.',
       });
     }
 
     steps.push({
       step: n++, title: 'Attach sleeve cuffs',
-      detail: 'Fold each cuff in half widthwise {WST}. Divide cuff and sleeve opening into quarters. Sew cuff to sleeve opening {RST}, stretching cuff to match. Stretch stitch or serge. Press SA up into sleeve.',
+      detail: 'Fold each cuff in half widthwise {WST}. Divide cuff and sleeve opening into quarters. Sew cuff to sleeve opening {RST}, stretching cuff to match. Stretch stitch or {serge}. {press} SA up into sleeve.',
     });
     steps.push({
       step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise {WST}. Divide into quarters, pin to body hem {RST}. Stretch stitch or serge, stretching band to fit. Press SA up into body.',
+      detail: 'Fold waistband in half lengthwise {WST}. Divide into quarters, pin to body hem {RST}. Stretch stitch or {serge}, stretching band to fit. {press} SA up into body.',
     });
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press with damp cloth on low heat. Rib trim should lay flat. Try on and check sleeve and body length.',
+      detail: '{press} with damp cloth on low heat. Rib trim should lay flat. Try on and check sleeve and body length.',
     });
 
     return steps;

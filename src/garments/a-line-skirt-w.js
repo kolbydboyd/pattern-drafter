@@ -178,7 +178,7 @@ export default {
     if (opts.hem === 'faced') {
       // Facing strip follows the curved hem
       const hemCirc = hemW * 2;
-      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · Understitch and press to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket' });
+      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · {understitch} and {press} to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket' });
     }
 
     if (opts.lining === 'yes') {
@@ -209,10 +209,10 @@ export default {
       stitches: ['straight-2.5', 'zigzag-small'],
       notes: [
         'Stay-stitch waist and hip curves at ½″ before assembling to prevent bias stretch',
-        'Press darts toward CB on back panel, toward CF on front — creates a smooth hip curve',
-        opts.pockets === 'yes' ? 'Baste pocket bags to side seam SAs before sewing side seams — they should sit at hip height (approx 7–8″ below waist)' : '',
+        '{press} darts toward CB on back panel, toward CF on front — creates a smooth hip curve',
+        opts.pockets === 'yes' ? '{baste} pocket bags to side seam SAs before sewing side seams — they should sit at hip height (approx 7–8″ below waist)' : '',
         'Hang finished skirt 24 hours before marking the final hem — A-line skirts drop slightly at the sides, especially in lighter fabrics',
-        opts.hem === 'faced' ? 'Understitch hem facing before pressing to WS — prevents it from rolling to the outside when wearing' : 'Clip hem SA every ½–1″ on curved sections to allow it to lie flat',
+        opts.hem === 'faced' ? '{understitch} hem facing before pressing to WS — prevents it from rolling to the outside when wearing' : '{clip} hem SA every ½–1″ on curved sections to allow it to lie flat',
         'For structured waistband: stitch in the ditch from RS to secure WS edge invisibly',
       ].filter(Boolean),
     });
@@ -223,26 +223,26 @@ export default {
     let n = 1;
 
     steps.push({ step: n++, title: 'Stay-stitch waist and hip', detail: 'Stitch ½″ from waist on both panels. Also stay-stitch ½″ from side seams at hip level. This prevents the bias areas from stretching during construction.' });
-    steps.push({ step: n++, title: 'Sew waist darts', detail: 'Fold dart RS together, sew from waist to point tapering to nothing. Press back darts toward CB, front darts toward CF. Clip at dart base if needed.' });
+    steps.push({ step: n++, title: 'Sew waist darts', detail: 'Fold dart RS together, sew from waist to point tapering to nothing. {press} back darts toward CB, front darts toward CF. {clip} at dart base if needed.' });
 
     if (opts.pockets === 'yes') {
-      steps.push({ step: n++, title: 'Attach pocket bags', detail: 'Sew one pocket bag piece to each front side seam SA {RST}. Sew matching piece to each back side seam SA. Press bags toward front.' });
+      steps.push({ step: n++, title: 'Attach pocket bags', detail: 'Sew one pocket bag piece to each front side seam SA {RST}. Sew matching piece to each back side seam SA. {press} bags toward front.' });
     }
 
     if (opts.closure === 'zip') {
-      steps.push({ step: n++, title: 'Install invisible zipper', detail: 'Press zip coils. Sew zip to front and back left side seam SAs {RST}, starting at waist. Close remaining seam below zip stop with a regular foot.' });
+      steps.push({ step: n++, title: 'Install invisible zipper', detail: '{press} zip coils. Sew zip to front and back left side seam SAs {RST}, starting at waist. Close remaining seam below zip stop with a regular foot.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'yes' ? 'Sew front to back at right side seam {RST} from waist to hem. For left seam with pockets: sew above and below pocket opening, sew around pocket bag. Press seams open.' : `Sew front to back at both side seams {RST}. Press open.${opts.closure === 'zip' ? ' Left side seam already sewn below zip.' : ''}` });
+    steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'yes' ? 'Sew front to back at right side seam {RST} from waist to hem. For left seam with pockets: sew above and below pocket opening, sew around pocket bag. {press} seams open.' : `Sew front to back at both side seams {RST}. {press} open.${opts.closure === 'zip' ? ' Left side seam already sewn below zip.' : ''}` });
 
     if (opts.lining === 'yes') {
-      steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams. If applicable, leave left side seam open for zip. Press.' });
+      steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams. If applicable, leave left side seam open for zip. {press}.' });
     }
 
     if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. Press up. Fold over, press under ⅝″ on inner edge. Edgestitch or slipstitch inner edge to WS.' });
+      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. {press} up. Fold over, {press} under ⅝″ on inner edge. Edgestitch or slipstitch inner edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, topstitch leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, zigzag. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
@@ -250,12 +250,12 @@ export default {
     }
 
     if (opts.hem === 'faced') {
-      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. Clip curves every ½″. Understitch. Press facing to WS. Slipstitch facing edge to WS.' });
+      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. Slipstitch facing edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, press, slipstitch or edgestitch.' });
+      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, slipstitch or edgestitch.' });
     }
 
-    steps.push({ step: n++, title: 'Finish', detail: 'Press entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });
 
     return steps;
   },

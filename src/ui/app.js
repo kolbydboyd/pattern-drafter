@@ -477,36 +477,6 @@ function renderMaterials(mat, yardage45, yardage60) {
   return html;
 }
 
-// ═══ JARGON EXPANSION ═══
-function expandJargon(steps) {
-  const seen = new Set();
-  const JARGON = [
-    { key: 'rst',         rx: /\bRST\b/,                           fn: () => 'right sides together (RST: good sides of fabric facing each other)' },
-    { key: 'press',       rx: /\b([Pp]ress(?:ed|ing)?)\b(?!\s+cloth)/,  fn: (_, c) => `${c} with iron (don't slide; press straight down and lift)` },
-    { key: 'baste',       rx: /\b([Bb]aste[ds]?|[Bb]asting)\b/,    fn: (_, c) => `${c} (temporary long stitch to hold in place)` },
-    { key: 'understitch', rx: /\b([Uu]nderstitch(?:ed|ing)?)\b/,    fn: (_, c) => `${c} (sew the seam allowance to the facing close to the seam so it rolls inward)` },
-    { key: 'topstitch',   rx: /\b([Tt]opstitch(?:ed|ing)?)\b/,      fn: (_, c) => `${c} (visible stitch on the outside of the garment)` },
-    { key: 'sa',          rx: /\bSA\b/,                             fn: () => 'seam allowance (SA)' },
-    { key: 'bodkin',      rx: /\b([Bb]odkin)\b/,                    fn: (_, c) => `${c} (or large safety pin)` },
-    { key: 'clipcurve',   rx: /[Cc]lip (?:the )?curve/,             fn: () => 'clip the curve (cut small snips into the seam allowance so it lies flat around curves; don\'t cut through the stitching)' },
-    { key: 'bartack',     rx: /[Bb]ar[ -]?tack/,                    fn: () => 'bar tack (tight zigzag reinforcement stitch at stress points)' },
-    { key: 'fellseam',    rx: /flat-?fell(?:ed)? seam|fell(?:ed)? seam/i, fn: () => 'flat-felled seam (seam enclosed on itself for durability, like on jeans)' },
-    { key: 'serger',      rx: /\b([Ss]erger)\b/,                    fn: (_, c) => `${c}/overlocker (or use zigzag stitch if you don't have one)` },
-    { key: 'serge',       rx: /\b([Ss]erged?)\b/,                   fn: (_, c) => `${c} (or zigzag stitch)` },
-  ];
-
-  return steps.map(s => {
-    let detail = s.detail;
-    for (const { key, rx, fn } of JARGON) {
-      if (!seen.has(key)) {
-        const next = detail.replace(rx, (...args) => { seen.add(key); return fn(...args); });
-        detail = next;
-      }
-    }
-    return { ...s, detail };
-  });
-}
-
 // ═══ RENDER INSTRUCTIONS ═══
 function renderInstructions(steps) {
   // Section headers inserted before the first step that matches each trigger.
@@ -594,7 +564,7 @@ function _generate() {
     if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);
   }
   const materials    = g.materials(m, opts);
-  const instructions = expandJargon(g.instructions(m, opts));
+  const instructions = g.instructions(m, opts);
 
   const isLower = g.category === 'lower';
   const isUpper = !isLower;
@@ -608,7 +578,7 @@ function _generate() {
   for (const piece of pieces) {
     if (piece.type === 'panel') {
       const svg = renderPanelSVG(piece);
-      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>${svg}
         <table class="dt">
           <tr><td>Panel width</td><td>${fmtInches(piece.width)}</td></tr>
           <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
@@ -617,14 +587,14 @@ function _generate() {
         </table></div>`;
     } else if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const svg = renderGenericPieceSVG(piece);
-      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>${svg}
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>${svg}
         <table class="dt">
           <tr><td>Width</td><td>${fmtInches(piece.width)}</td></tr>
           <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
           ${piece.type === 'sleeve' ? `<tr><td>Cap height</td><td>${fmtInches(piece.capHeight)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'rectangle') {
-      piecesHtml += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
+      piecesHtml += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
         <table class="dt" style="max-width:400px">
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>
@@ -635,7 +605,7 @@ function _generate() {
       const pSize = pd.length != null
         ? `${fmtInches(pd.length)} × ${fmtInches(pd.width)}`
         : `${fmtInches(pd.width)} × ${fmtInches(pd.height)}`;
-      piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${piece.instruction}</div>
+      piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
         </table></div>`;

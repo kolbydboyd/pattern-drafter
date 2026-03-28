@@ -62,11 +62,12 @@ export function monotoneCrotchCurve(pts) {
   if (!pts || pts.length < 2) return pts;
   const out = [{ x: pts[0].x, y: pts[0].y }];
   for (let i = 1; i < pts.length; i++) {
-    const prev = out[i - 1];
-    out.push({
-      x: Math.min(pts[i].x, prev.x),  // x can only decrease (move left)
-      y: Math.max(pts[i].y, prev.y),  // y can only increase (move down)
-    });
+    const prev = out[out.length - 1];
+    // Skip any point where x reverses (goes right) — these cause step artifacts.
+    // Clamp y only (never decreases), keep x as-is since we've already skipped reversals.
+    if (pts[i].x > prev.x + 0.001) continue;
+    const ny = Math.max(pts[i].y, prev.y);
+    out.push({ x: pts[i].x, y: ny });
   }
   return out;
 }

@@ -142,7 +142,7 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · Topstitch curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {topstitch} curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -152,7 +152,7 @@ export default {
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · Serge edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket' });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket' });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
 
     // ── BELT LOOPS ──
@@ -176,12 +176,12 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
-        'Topstitch with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look — use a topstitch needle for heavier thread',
-        'Fell seams on inseam and outseam: after sewing, press seam to one side, fold raw edge under, topstitch from RS two rows visible',
+        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look — use a {topstitch} needle for heavier thread',
+        'Fell seams on inseam and outseam: after sewing, {press} seam to one side, fold raw edge under, {topstitch} from RS two rows visible',
         'Pre-wash denim once (hot wash, dry on high) to pre-shrink before cutting',
         'Use a denim needle (100/16) and heavy polyester thread 30wt — lighter thread will break under tension',
         'Copper rivet all high-stress points: bottom of front pocket openings, coin pocket sides, crotch junction',
-        'Press denim with a damp cloth — dry pressing may leave shine marks on dark denim',
+        '{press} denim with a damp cloth — dry pressing may leave shine marks on dark denim',
       ],
     });
   },
@@ -192,39 +192,39 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare back welt pockets',
-      detail: 'Mark pocket positions on back panels. Sew bound welts, slash, turn and press. Attach pocket bags. Whipstitch bag sides. Bar tack welt ends. Topstitch welts with 3.5mm gold thread.',
+      detail: 'Mark pocket positions on back panels. Sew bound welts, slash, turn and {press}. Attach pocket bags. Whipstitch bag sides. Bar tack welt ends. {topstitch} welts with 3.5mm gold thread.',
     });
     steps.push({
       step: n++, title: 'Prepare slant + coin pockets',
-      detail: 'Sew facing to front slash {RST}. Clip, turn, press. Understitch. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, press). Topstitch coin pocket to RS of right front panel in upper right corner of pocket opening. Baste pocket and coin pocket to panel edges.',
+      detail: 'Sew facing to front slash {RST}. {clip}, turn, {press}. {understitch}. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, {press}). {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} pocket and coin pocket to panel edges.',
     });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
-      detail: 'Join back panels at CB crotch seam. Clip curve. Fell seam toward left back or press open for stretch denim.',
+      detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
     });
     steps.push({
       step: n++, title: 'Install zip fly',
-      detail: 'Interface fly shield. Staystitch CF seam allowances. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Pin and topstitch the fly J-curve from RS using topstitch thread. Secure fly shield to inside.',
+      detail: 'Interface fly shield. {staystitch} CF seam allowances. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Pin and {topstitch} the fly J-curve from RS using {topstitch} thread. Secure fly shield to inside.',
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at outseam {RST}. Press toward back. Topstitch outseam fell: fold back panel SA over front, topstitch two rows ⅛″ and ¼″ from seam edge (visible from RS as double topstitch).',
+      detail: 'Join front to back at outseam {RST}. {press} toward back. {topstitch} outseam fell: fold back panel SA over front, {topstitch} two rows ⅛″ and ¼″ from seam edge (visible from RS as double {topstitch}).',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
-      detail: 'Continuous seam from hem to hem. Clip crotch curve. Fell toward front: fold front inseam SA over, press, topstitch from RS.',
+      detail: 'Continuous seam from hem to hem. {clip} crotch curve. Fell toward front: fold front inseam SA over, {press}, {topstitch} from RS.',
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface waistband. Sew to jeans waist {RST}, matching CB, side seams, CF. Fold over. Topstitch top and bottom edge with gold topstitch thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
+      detail: 'Interface waistband. Sew to jeans waist {RST}, matching CB, side seams, CF. Fold over. {topstitch} top and bottom edge with gold {topstitch} thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
-      detail: 'Press loop strips in thirds. Topstitch both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, topstitch top and bottom with a bar tack.',
+      detail: '{press} loop strips in thirds. {topstitch} both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, {topstitch} top and bottom with a bar tack.',
     });
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at base of front pocket openings and coin pocket sides. Add one at crotch seam junction if fabric is heavy.' });
-    steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice. Topstitch with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
-    steps.push({ step: n++, title: 'Finish', detail: 'Press seams. Bar tack all remaining stress points. Turn jeans inside out and press seam allowances flat with damp cloth.' });
+    steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });
 
     return steps;
   },

@@ -192,11 +192,11 @@ export default {
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
         'Pre-wash linen (hot wash, tumble dry) — shrinks 3–5%',
-        `Pleat construction: mark pleat fold lines on WS. Fold pleat toward side seam, pin. Baste across waist edge ⅜″ from top. Press pleat from WS with steam.`,
+        `Pleat construction: mark pleat fold lines on WS. Fold pleat toward side seam, pin. {baste} across waist edge ⅜″ from top. {press} pleat from WS with steam.`,
         'Interface both waistband layers for a stiff, structured finish',
-        'Welt back pockets: understitch welts, bar tack ends. Bound buttonhole or sew-through button on welt.',
+        'Welt back pockets: {understitch} welts, bar tack ends. Bound buttonhole or sew-through button on welt.',
         'Bar tack all pocket openings and crotch junction',
-        'Press every seam — structured shorts require crisp pressing throughout',
+        '{press} every seam — structured shorts require crisp pressing throughout',
       ],
     });
   },
@@ -209,41 +209,41 @@ export default {
     // Pockets
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Sew facing to front panel along slash line {RST}. Clip, turn, press. Understitch facing. Attach pocket bag to facing. Baste bag edges to panel at side and waist.',
+      detail: 'Sew facing to front panel along slash line {RST}. {clip}, turn, {press}. {understitch} facing. Attach pocket bag to facing. {baste} bag edges to panel at side and waist.',
     });
     steps.push({
       step: n++, title: 'Prepare back welt pockets',
-      detail: 'Mark welt pocket positions on back panel (2.5″ below waist, centered). Sew bound-welt opening. Slash and turn welts. Press. Attach pocket bag halves. Whipstitch bag sides together. Bar tack ends.',
+      detail: 'Mark welt pocket positions on back panel (2.5″ below waist, centered). Sew bound-welt opening. Slash and turn welts. {press}. Attach pocket bag halves. Whipstitch bag sides together. Bar tack ends.',
     });
 
     // Pleats
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. Baste ⅜″ from waist edge. Press pleat from WS with steam — press down 3–4″, then release to drape naturally.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam — {press} down 3–4″, then release to drape naturally.`,
       });
     }
 
     // Fly
     if (opts.fly === 'zip') {
-      steps.push({ step: n++, title: 'Install zip fly', detail: 'Interface fly shield. Staystitch CF seam allowances. Sew front panels at CF from crotch curve up to bottom of fly opening. Clip curve. Sew zipper to right CF extension, RS up. Sew fly shield to left extension. Topstitch fly curve from RS. Attach fly shield to inside.' });
+      steps.push({ step: n++, title: 'Install zip fly', detail: 'Interface fly shield. {staystitch} CF seam allowances. Sew front panels at CF from crotch curve up to bottom of fly opening. {clip} curve. Sew zipper to right CF extension, RS up. Sew fly shield to left extension. {topstitch} fly curve from RS. Attach fly shield to inside.' });
     } else {
-      steps.push({ step: n++, title: 'Install button fly', detail: 'Interface both plackets. Attach left and right plackets to CF edges. Sew buttonholes on left placket. Mark and sew buttons on right. Topstitch placket curve.' });
+      steps.push({ step: n++, title: 'Install button fly', detail: 'Interface both plackets. Attach left and right plackets to CF edges. Sew buttonholes on left placket. Mark and sew buttons on right. {topstitch} placket curve.' });
     }
 
-    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. Clip curve. Press open.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. Press open.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam from hem to hem. Clip crotch curve. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. {clip} curve. {press} open.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. {press} open.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous seam from hem to hem. {clip} crotch curve. {press} toward back.' });
 
     steps.push({
       step: n++, title: 'Construct waistband',
       detail: opts.waistband === 'curtain'
-        ? 'Interface waistband. Fold and press. Sew to shorts waist {RST}. Fold, topstitch. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
-        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, slipstitch inside. Topstitch. Install waistband button and work buttonhole.',
+        ? 'Interface waistband. Fold and {press}. Sew to shorts waist {RST}. Fold, {topstitch}. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
+        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, slipstitch inside. {topstitch}. Install waistband button and work buttonhole.',
     });
 
-    steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, press. Topstitch close to inner fold. Press from RS.` });
-    steps.push({ step: n++, title: 'Finish', detail: 'Press entire garment. Bar tack all stress points. Hang press front creases with a damp cloth if desired.' });
+    steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} close to inner fold. {press} from RS.` });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment. Bar tack all stress points. Hang {press} front creases with a damp cloth if desired.' });
 
     return steps;
   },

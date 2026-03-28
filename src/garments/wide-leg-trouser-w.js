@@ -199,7 +199,7 @@ export default {
       pieces.push({
         id: 'fly-shield',
         name: 'Fly Shield',
-        instruction: 'Cut 1 · Interface · Serge curved edge',
+        instruction: 'Cut 1 · Interface · {serge} curved edge',
         dimensions: { width: 2.5, height: rise },
         type: 'pocket',
       });
@@ -254,11 +254,11 @@ export default {
         'Drapey fabrics hang better on wide legs — avoid stiff canvas or structured wovens that will tent at the hip',
         'Use a universal 80/12 needle for lighter fabrics (rayon, lawn); step up to 90/14 for wool or linen',
         'Stay-stitch the waist seam (⅝″ from edge) BEFORE attaching waistband — drapey fabrics stretch on the bias at the waist',
-        'Press pleats with steam from the WS — use a press cloth on rayon and wool to prevent shine',
+        '{press} pleats with steam from the WS — use a {press} cloth on rayon and wool to prevent shine',
         'Grade seam allowances at the waistband to reduce bulk: trim each layer to a different width before folding over',
-        'For an invisible hem: fold up hem allowance, press, and hand-sew with a catch stitch or use a blind hem foot at the shortest stitch length',
+        'For an invisible hem: fold up hem allowance, {press}, and hand-sew with a catch stitch or use a blind hem foot at the shortest stitch length',
         'Pre-wash rayon and tencel before cutting — both can shrink 3–5% and they are not dry-cleanable',
-        'Linen note: wash in hot water twice to preshrink fully. Press damp with high steam.',
+        'Linen note: wash in hot water twice to preshrink fully. {press} damp with high steam.',
         'Trouser break: fit the hem while wearing the shoes you plan to wear — mark break at the top of the shoe, approximately ½–¾″ of fabric resting forward on the shoe.',
       ],
     });
@@ -275,7 +275,7 @@ export default {
     if (opts.backPockets === 'welt2') {
       steps.push({
         step: n++, title: 'Prepare back welt pockets',
-        detail: 'Mark pocket positions on back panels: 2.5″ below waist line, centered. Sew welt pieces {RST} on each side of marked opening. Slash opening. Turn welts through, press. Attach bag halves inside. Whipstitch bag sides together. Bar tack both ends of each opening.',
+        detail: 'Mark pocket positions on back panels: 2.5″ below waist line, centered. Sew welt pieces {RST} on each side of marked opening. Slash opening. Turn welts through, {press}. Attach bag halves inside. Whipstitch bag sides together. Bar tack both ends of each opening.',
       });
     }
 
@@ -283,17 +283,17 @@ export default {
     if (opts.pockets === 'slant') {
       steps.push({
         step: n++, title: 'Prepare slant pockets',
-        detail: 'Interface facing. Sew facing to front panel along slash line {RST}. Clip curve, turn, press. Understitch facing. Attach pocket bag to facing bottom. Baste bag edges to panel edges.',
+        detail: 'Interface facing. Sew facing to front panel along slash line {RST}. {clip} curve, turn, {press}. {understitch} facing. Attach pocket bag to facing bottom. {baste} bag edges to panel edges.',
       });
     } else if (opts.pockets === 'side') {
       steps.push({
         step: n++, title: 'Prepare side-seam pockets',
-        detail: 'Sew each bag pair together along curved pocket edge {RST}. Press. Baste straight edges of bags to front and back panel side seam allowances at pocket position.',
+        detail: 'Sew each bag pair together along curved pocket edge {RST}. {press}. {baste} straight edges of bags to front and back panel side seam allowances at pocket position.',
       });
     } else if (opts.pockets === 'welt') {
       steps.push({
         step: n++, title: 'Prepare front welt pockets',
-        detail: 'Mark pocket openings 3.5″ below waist line. Sew welts and cut slash. Turn, press. Attach bags. Bar tack ends.',
+        detail: 'Mark pocket openings 3.5″ below waist line. Sew welts and cut slash. Turn, {press}. Attach bags. Bar tack ends.',
       });
     }
 
@@ -301,7 +301,7 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. Baste across waist at ⅜″. Press pleat from WS using steam and a press cloth — press only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT press the full leg length.`,
+        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. {baste} across waist at ⅜″. {press} pleat from WS using steam and a {press} cloth — {press} only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT {press} the full leg length.`,
       });
     }
 
@@ -315,45 +315,45 @@ export default {
     if (hasFly) {
       steps.push({
         step: n++, title: 'Install zip fly',
-        detail: 'Interface fly shield. Sew front CF seam below fly opening only (from crotch curve to fly base). Clip crotch curve. Sew invisible zipper to right CF opening, then close fly by sewing fly shield to left CF behind zipper. Topstitch fly J-curve from RS at 1″.',
+        detail: 'Interface fly shield. Sew front CF seam below fly opening only (from crotch curve to fly base). {clip} crotch curve. Sew invisible zipper to right CF opening, then close fly by sewing fly shield to left CF behind zipper. {topstitch} fly J-curve from RS at 1″.',
       });
     } else {
       steps.push({
         step: n++, title: 'Sew center front seam',
-        detail: 'Join front panels at CF {RST}. Clip crotch curve. Press open or serge.',
+        detail: 'Join front panels at CF {RST}. {clip} crotch curve. {press} open or {serge}.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. Clip curve. Press open. Serge each side separately.' });
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. For side-seam pockets: sew above and below pocket opening; sew around bag. Press seams open. Serge each SA separately.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'One continuous seam from front hem to back hem through crotch. Clip crotch curve. Press toward back. Serge.' });
+    steps.push({ step: n++, title: 'Sew center back seam', detail: 'Join back panels at CB {RST}. {clip} curve. {press} open. {serge} each side separately.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at side seams {RST}. For side-seam pockets: sew above and below pocket opening; sew around bag. {press} seams open. {serge} each SA separately.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'One continuous seam from front hem to back hem through crotch. {clip} crotch curve. {press} toward back. {serge}.' });
 
     // Waistband
     if (opts.waistband === 'structured') {
       steps.push({
         step: n++, title: 'Construct structured waistband',
-        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Turn, press. Sew to trouser waist {RST}. Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
+        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Turn, {press}. Sew to trouser waist {RST}. Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
       });
     } else if (opts.waistband === 'elastic') {
       steps.push({
         step: n++, title: 'Construct elastic waistband casing',
-        detail: 'Fold casing strip in half lengthwise {WST}, press. Sew to trouser waist {RST}. Fold over to inside, topstitch leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, zigzag. Close gap. Topstitch close to folded edge.',
+        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, zigzag. Close gap. {topstitch} close to folded edge.',
       });
     } else {
       steps.push({
         step: n++, title: 'Construct wide/petersham waistband',
-        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, clip curves. Fold waistband over, press. Grade SA in layers to reduce bulk. Topstitch or slipstitch inner edge. Install hook-and-eye at closure.',
+        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, {clip} curves. Fold waistband over, {press}. Grade SA in layers to reduce bulk. {topstitch} or slipstitch inner edge. Install hook-and-eye at closure.',
       });
     }
 
     steps.push({
       step: n++, title: 'Hem — fit first',
-      detail: `Try on trousers with your intended shoes. Mark the trouser break (hem rests at top of shoe with ½–¾″ draping forward). For straight hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, press. Hand sew with catch stitch or blind hem stitch for an invisible finish. For wide cuff: fold up ${fmtInches(parseFloat(opts.hem))} to outside, press crisp fold, topstitch or hand stitch.`,
+      detail: `Try on trousers with your intended shoes. Mark the trouser break (hem rests at top of shoe with ½–¾″ draping forward). For straight hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand sew with catch stitch or blind hem stitch for an invisible finish. For wide cuff: fold up ${fmtInches(parseFloat(opts.hem))} to outside, {press} crisp fold, {topstitch} or hand stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press entire garment with steam and press cloth. Re-press front trouser crease from waist to hem (align side seam to inseam, press fold). Bar tack all pocket openings and crotch junction.',
+      detail: '{press} entire garment with steam and {press} cloth. Re-{press} front trouser crease from waist to hem (align side seam to inseam, {press} fold). Bar tack all pocket openings and crotch junction.',
     });
 
     return steps;

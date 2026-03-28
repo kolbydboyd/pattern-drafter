@@ -403,43 +403,43 @@ export default {
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
-        detail: 'Serge or zigzag top edge. Fold top under ½″, topstitch. Press remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. Topstitch on 3 sides. Bar tack top corners.',
+        detail: '{serge} or zigzag top edge. Fold top under ½″, {topstitch}. {press} remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. {topstitch} on 3 sides. Bar tack top corners.',
       });
     }
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: 'Fuse interfacing to outer collar. Sew outer to undercollar {RST} along front and outer edges, leaving neck edge open. Clip corners, trim seams to 3mm. Turn RS out, press flat. Understitch undercollar if desired. Shape front points: fold front edge diagonally, press, trim. Topstitch if using worker collar style.',
+      detail: 'Fuse interfacing to outer collar. Sew outer to undercollar {RST} along front and outer edges, leaving neck edge open. {clip} corners, trim seams to 3mm. Turn RS out, {press} flat. {understitch} undercollar if desired. Shape front points: fold front edge diagonally, {press}, trim. {topstitch} if using worker collar style.',
     });
 
     steps.push({
       step: n++, title: 'Prepare front plackets',
-      detail: `Press center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, press. Sew facing to placket edge {RST}, press, fold under, slipstitch or topstitch to WS.`,
+      detail: `{press} center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, {press}. Sew facing to placket edge {RST}, {press}, fold under, slipstitch or {topstitch} to WS.`,
     });
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front panels to back at shoulders {RST}. Press toward back. For French seams: sew WS together at 3mm, trim, press open, fold RST, sew at 6mm.',
+      detail: 'Join front panels to back at shoulders {RST}. {press} toward back. For French seams: sew WS together at 3mm, trim, {press} open, fold RST, sew at 6mm.',
     });
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. Clip curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. Slipstitch or edgestitch.',
+      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. {clip} curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. Slipstitch or edgestitch.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with zigzag or French seam. Press toward sleeve.',
+      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with zigzag or French seam. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams and sleeve seams',
-      detail: 'Sew front to back at side seams in one continuous seam from shirt hem to sleeve hem {RST}. For French seams: sew WS together, trim, fold, sew again. Press toward back.',
+      detail: 'Sew front to back at side seams in one continuous seam from shirt hem to sleeve hem {RST}. For French seams: sew WS together, trim, fold, sew again. {press} toward back.',
     });
 
     steps.push({
       step: n++, title: 'Hem sleeves and body',
-      detail: `Sleeve hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, press, topstitch. Body hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, press, topstitch close to inner fold.`,
+      detail: `Sleeve hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch}. Body hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch} close to inner fold.`,
     });
 
     steps.push({
@@ -449,7 +449,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press entire shirt. Check collar sits flat and even. Try on and verify button placket hangs straight.',
+      detail: '{press} entire shirt. Check collar sits flat and even. Try on and verify button placket hangs straight.',
     });
 
     return steps;
