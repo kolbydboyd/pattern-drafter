@@ -34,7 +34,8 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases } from '../lib/db.js';
+import { getRecommendations } from '../engine/recommendations.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession } from '../lib/auth.js';
 
@@ -661,6 +662,9 @@ function _generate() {
 
   // Async: apply or remove watermark based on purchase status
   _applyWatermarkState(currentGarment);
+
+  // Async: inject recommendations section below output
+  _renderRecommendationsSection(currentGarment);
 }
 
 async function _applyWatermarkState(garmentId) {
@@ -698,6 +702,49 @@ async function _applyWatermarkState(garmentId) {
       _triggerBuyPattern(garmentId);
     });
   }
+}
+
+// ═══ RECOMMENDATIONS ═══
+async function _renderRecommendationsSection(garmentId) {
+  // Remove any previous recs section
+  document.getElementById('pp-recs-section')?.remove();
+
+  const user = getCurrentUser();
+  let purchasedIds = [];
+  if (user) {
+    const { data } = await getPurchases(user.id);
+    purchasedIds = (data || []).map(p => p.garment_id);
+  }
+
+  const recs = getRecommendations(garmentId, purchasedIds, 3);
+  if (!recs.length) return;
+
+  const section = document.createElement('div');
+  section.id = 'pp-recs-section';
+  section.className = 'recs-section';
+  section.innerHTML = `
+    <h3 class="recs-title">Your measurements also work for:</h3>
+    <div class="recs-grid">
+      ${recs.map(id => {
+        const displayName = id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        return `<button class="recs-card" data-garment="${id}">
+          <span class="recs-card-name">${displayName}</span>
+          <span class="recs-card-cta">Generate →</span>
+        </button>`;
+      }).join('')}
+    </div>`;
+
+  const output = document.getElementById('output');
+  if (!output) return;
+  output.insertAdjacentElement('afterend', section);
+
+  section.querySelectorAll('.recs-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id  = card.dataset.garment;
+      const sel = document.getElementById('garment-select');
+      if (sel) { sel.value = id; currentGarment = id; buildInputs(); generate(); }
+    });
+  });
 }
 
 // ═══ EXPORT ═══
