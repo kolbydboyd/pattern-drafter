@@ -61,7 +61,8 @@
       "Bash(grep -n \"sampleBezier.*32\\)\\)\" src/garments/*.js)",
       "Bash(gh run:*)",
       "Bash(npx vercel:*)",
-      "Bash(\"C:\\\\Users\\\\black\\\\OneDrive\\\\Desktop\\\\pattern-drafter\\\\src\\\\ui\\\\app.js\")"
+      "Bash(\"C:\\\\Users\\\\black\\\\OneDrive\\\\Desktop\\\\pattern-drafter\\\\src\\\\ui\\\\app.js\")",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
