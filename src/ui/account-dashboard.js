@@ -401,7 +401,8 @@ async function _renderPatterns(main, user, tab = 'active') {
       const days    = getDaysUntilDeletion(p.trashed_at);
       const urgent  = days <= 7;
       const name    = p.display_name || p.garment_id.replace(/-/g, ' ');
-      const meas    = p.measurement_profiles?.measurements ?? {};
+      // Use purchase-level snapshot first; fall back to linked profile
+      const meas    = p.measurements || p.measurement_profiles?.measurements || {};
       html += _patCardHtml(p, name, meas, fmt, tab, days, urgent, feedbackSet);
     }
     html += `</div>`;
@@ -427,8 +428,10 @@ async function _renderPatterns(main, user, tab = 'active') {
         </summary>
         <div class="pat-card-list">`;
       for (const p of group.purchases) {
-        const name = p.display_name || p.garment_id.replace(/-/g, ' ');
-        html += _patCardHtml(p, name, group.measurements, fmt, tab, null, false, feedbackSet);
+        const name    = p.display_name || p.garment_id.replace(/-/g, ' ');
+        // Purchase snapshot first; current profile as fallback
+        const effMeas = p.measurements || group.measurements;
+        html += _patCardHtml(p, name, effMeas, fmt, tab, null, false, feedbackSet);
       }
       html += `</div></details>`;
     }
@@ -442,7 +445,9 @@ async function _renderPatterns(main, user, tab = 'active') {
   // Shared download logic
   async function _doDownload(garmentId, card, labelEl, originalLabel) {
     const measJson = card?.dataset.measurements;
+    const optsJson = card?.dataset.opts;
     const meas = measJson ? JSON.parse(measJson) : {};
+    const opts = optsJson ? JSON.parse(optsJson) : {};
     if (labelEl) { labelEl.textContent = 'Generating…'; }
     try {
       const { session } = await getSession();
@@ -452,7 +457,7 @@ async function _renderPatterns(main, user, tab = 'active') {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ garmentId, measurements: meas, opts: {} }),
+        body: JSON.stringify({ garmentId, measurements: meas, opts }),
       });
       const json = await res.json();
       if (!res.ok || json.error) { _showToast('Error: ' + (json.error ?? res.statusText)); return; }
@@ -477,7 +482,7 @@ async function _renderPatterns(main, user, tab = 'active') {
   main.querySelectorAll('.pat-dl-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      await _doDownload(btn.dataset.garmentId, btn.closest('.pat-card'), btn, 'Download');
+      await _doDownload(btn.dataset.garmentId, btn.closest('.pat-card'), btn, 'Re-download PDF');
       btn.disabled = false;
     });
   });
@@ -646,10 +651,8 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         data-purchase-id="${p.id}"
         data-garment-name="${name}">Delete Forever</button>`;
   } else {
-    const dlMenuItem = hasMeas
-      ? `<button class="pat-menu-item pat-menu-dl" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Download PDF</button>
-         <hr class="pat-menu-divider">`
-      : '';
+    const dlMenuItem = `<button class="pat-menu-item pat-menu-dl" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>
+         <hr class="pat-menu-divider">`;
     const menuItems = tab === 'active'
       ? `${dlMenuItem}<button class="pat-menu-item pat-menu-rename" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Rename</button>
          <button class="pat-menu-item pat-menu-note" data-purchase-id="${p.id}">Add note</button>
@@ -666,8 +669,8 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
       : '';
     actionHtml = `
-      ${hasMeas ? `<button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Download</button>
-      <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>` : ''}
+      <button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>
+      <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>
       ${fbBtn}
       <div class="pat-overflow-wrap">
         <button class="pat-overflow-btn" aria-label="More options">⋯</button>
@@ -678,6 +681,7 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
   return `<div class="pat-card"
     data-purchase-id="${p.id}"
     data-measurements="${JSON.stringify(meas).replace(/"/g, '&quot;')}"
+    data-opts="${JSON.stringify(p.opts || {}).replace(/"/g, '&quot;')}"
     data-profile-name="${p.measurement_profiles?.name ?? ''}">
     <div class="pat-card-main">
       <div class="pat-card-info">

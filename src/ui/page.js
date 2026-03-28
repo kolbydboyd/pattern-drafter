@@ -11,7 +11,14 @@ function applyTheme(dark) {
   if (icon) icon.classList.toggle('dark-mode-toggle__icon--moon', dark);
 }
 
-applyTheme(getSavedTheme() === 'dark');
+// Default to system preference when no saved preference exists
+const _saved = getSavedTheme();
+applyTheme(_saved !== null ? _saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+// Track system preference changes (only when user hasn't overridden)
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+  if (getSavedTheme() === null) applyTheme(e.matches);
+});
 
 document.getElementById('theme-btn')?.addEventListener('click', () => {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
