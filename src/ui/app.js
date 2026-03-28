@@ -1383,23 +1383,30 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   _mobileNav?.classList.remove('open');
 });
 
-// ── Exit-intent email capture (desktop only, once per session) ─────────────────
+// ── Exit-intent measurement save capture (desktop only, once per session) ──────
 (function initExitIntent() {
   const STORAGE_KEY = 'pp-exit-shown';
   if (sessionStorage.getItem(STORAGE_KEY)) return;
+  if (getCurrentUser()) return; // already signed in — no banner needed
 
   let banner = null;
 
   function createBanner() {
     if (banner) return;
+
+    // Snapshot any measurements the user has entered so far
+    let measSnapshot = {};
+    try { measSnapshot = readInputs().m ?? {}; } catch { /* no measurements yet */ }
+    const hasMeas = Object.values(measSnapshot).some(v => v > 0);
+
     banner = document.createElement('div');
     banner.id = 'exit-intent-banner';
     banner.innerHTML = `
       <div class="exit-intent-inner">
-        <p class="exit-intent-msg">Save your measurement profile: enter your email and pick up where you left off.</p>
+        <p class="exit-intent-msg">Save your measurements and get your first pattern free.</p>
         <form class="exit-intent-form" id="exit-intent-form">
-          <input type="email" id="exit-intent-email" placeholder="you@example.com" autocomplete="email">
-          <button type="submit" class="exit-intent-btn">Save</button>
+          <input type="email" id="exit-intent-email" placeholder="your@email.com" autocomplete="email" required>
+          <button type="submit" class="exit-intent-btn">Save${hasMeas ? ' & get free pattern' : ''}</button>
         </form>
         <button class="exit-intent-close" id="exit-intent-close" aria-label="Dismiss">&#x2715;</button>
       </div>`;
@@ -1419,28 +1426,31 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 
       const submitBtn = e.target.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
-      submitBtn.textContent = '...';
+      submitBtn.textContent = 'Saving…';
 
       try {
-        await fetch('/api/join-list', {
+        await fetch('/api/save-meas-capture', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ email }),
+          body:    JSON.stringify({ email, measurements: hasMeas ? measSnapshot : {} }),
         });
         const inner = banner.querySelector('.exit-intent-inner');
         if (inner) inner.innerHTML = '<p class="exit-intent-success">Your profile is saved. Come back anytime.</p>';
-        setTimeout(() => { banner?.remove(); banner = null; }, 3000);
+        setTimeout(() => { banner?.remove(); banner = null; }, 3500);
       } catch {
-        submitBtn.disabled  = false;
+        submitBtn.disabled    = false;
         submitBtn.textContent = 'Save';
       }
     });
   }
 
-  // Only trigger on desktop (pointer device, not touch-primary)
+  // Trigger when mouse moves above y=10 on desktop (toward browser bar/tabs)
   if (window.matchMedia('(pointer: fine)').matches) {
-    document.addEventListener('mouseleave', e => {
-      if (e.clientY <= 10) createBanner();
-    }, { once: true });
+    document.addEventListener('mousemove', function onMove(e) {
+      if (e.clientY <= 10) {
+        document.removeEventListener('mousemove', onMove);
+        createBanner();
+      }
+    });
   }
 })();
