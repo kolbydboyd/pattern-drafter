@@ -237,6 +237,27 @@ export default {
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
     // Back underarm up (already first point via close)
 
+    // ── JUNCTION DEDUPLICATION ───────────────────────────────────────────────
+    // Remove consecutive points closer than 0.05" — catches near-duplicate
+    // endpoints where curve segments join (neckline→shoulder, shoulder→armhole,
+    // cap curve→side seam rectangle corners).
+    function dedupPoly(poly, label) {
+      const result = [poly[0]];
+      for (let i = 1; i < poly.length; i++) {
+        const prev = result[result.length - 1];
+        const dx = poly[i].x - prev.x, dy = poly[i].y - prev.y;
+        if (Math.sqrt(dx * dx + dy * dy) >= 0.05) result.push(poly[i]);
+      }
+      if (result.length !== poly.length) {
+        console.log(`[tee] ${label} dedup: ${poly.length} → ${result.length} pts`);
+      }
+      return result;
+    }
+
+    frontPoly.splice(0, frontPoly.length, ...dedupPoly(frontPoly, 'front'));
+    backPoly.splice(0, backPoly.length, ...dedupPoly(backPoly, 'back'));
+    sleevePoly.splice(0, sleevePoly.length, ...dedupPoly(sleevePoly, 'sleeve'));
+
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
     const frontArmArc = arcLength(frontArmholePts);
     const backArmArc  = arcLength(curveToPoints(armholeCurve(shoulderW, backChestDepth, armholeDepth, true)));
