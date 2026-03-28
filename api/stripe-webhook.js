@@ -81,7 +81,25 @@ export default async function handler(req, res) {
 // ── Single pattern purchase ──────────────────────────────────────────────────
 
 async function handlePatternPurchase(session, stripe) {
-  const { userId, garmentId, profileId, measurements, opts, a0_addon } = session.metadata;
+  const { userId, garmentId, pendingId, a0_addon } = session.metadata;
+
+  // Look up measurements + opts from Supabase (never stored in Stripe metadata).
+  // Body measurements are sensitive personal data kept in our DB only.
+  let measurements = null, opts = null, profileId = null;
+  if (pendingId) {
+    const { data: pending } = await supabase
+      .from('pending_checkouts')
+      .select('measurements, opts, profile_id')
+      .eq('id', pendingId)
+      .single();
+    if (pending) {
+      measurements = pending.measurements;
+      opts         = pending.opts;
+      profileId    = pending.profile_id;
+    } else {
+      console.warn('Pending checkout not found:', pendingId);
+    }
+  }
 
   const { error } = await supabase.from('purchases').insert({
     user_id:               userId || null,
@@ -90,8 +108,8 @@ async function handlePatternPurchase(session, stripe) {
     stripe_payment_intent: session.payment_intent,
     amount_cents:          session.amount_total,
     a0_addon:              a0_addon === 'true',
-    measurements:          measurements ? JSON.parse(measurements) : null,
-    opts:                  opts        ? JSON.parse(opts)         : null,
+    measurements:          measurements,
+    opts:                  opts,
   });
   if (error) console.error('Failed to insert purchase:', error);
 
@@ -106,6 +124,12 @@ async function handlePatternPurchase(session, stripe) {
   await sendPostPurchaseEmail(userId, garmentId, session);
   await markSessionPurchased(userId, garmentId);
   await triggerPdf(garmentId, userId, measurements, opts, session.id);
+
+  // Clean up the pending checkout row (no longer needed)
+  if (pendingId) {
+    supabase.from('pending_checkouts').delete().eq('id', pendingId)
+      .then(() => {}).catch(() => {});
+  }
 }
 
 // ── Bundle purchase ──────────────────────────────────────────────────────────

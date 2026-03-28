@@ -22,6 +22,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Unknown garment: ${garmentId}` });
     }
 
+    // Store measurements + opts in Supabase so they never reach Stripe.
+    // Body measurements are sensitive personal data — Stripe only gets
+    // a reference ID, garment choice, and style options.
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+    const { data: pendingRow, error: pendingErr } = await supabase
+      .from('pending_checkouts')
+      .insert({
+        user_id:      userId || null,
+        garment_id:   garmentId,
+        profile_id:   profileId || null,
+        measurements: measurements ?? {},
+        opts:         opts ?? {},
+      })
+      .select('id')
+      .single();
+    if (pendingErr) {
+      console.error('Failed to create pending checkout:', pendingErr.message);
+      return res.status(500).json({ error: 'Could not prepare checkout' });
+    }
+
     const lineItems = [{ price: price.priceId, quantity: 1 }];
     if (addA0 && A0_UPSELL.priceId) {
       lineItems.push({ price: A0_UPSELL.priceId, quantity: 1 });
@@ -37,9 +61,7 @@ export default async function handler(req, res) {
         checkoutMode: 'pattern',
         userId:       userId ?? '',
         garmentId,
-        profileId:    profileId ?? '',
-        measurements: JSON.stringify(measurements ?? {}),
-        opts:         JSON.stringify(opts ?? {}),
+        pendingId:    pendingRow.id,
         a0_addon:     addA0 ? 'true' : 'false',
       },
     });

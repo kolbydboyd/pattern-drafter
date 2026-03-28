@@ -151,6 +151,27 @@ create table if not exists newsletter (
 alter table newsletter enable row level security;
 -- No user-facing RLS needed — inserts handled by service role via api/join-list.js
 
+-- ── pending_checkouts ────────────────────────────────────────────────────────
+-- Temporary store for measurements + opts during checkout flow.
+-- Body measurements are stored here instead of in Stripe metadata to keep
+-- sensitive personal data out of third-party payment systems.
+-- Rows are consumed by stripe-webhook.js on payment completion, then can be
+-- cleaned up by a cron job (e.g. delete rows older than 48 hours).
+create table if not exists pending_checkouts (
+  id           uuid default gen_random_uuid() primary key,
+  user_id      uuid references profiles(id) on delete set null,
+  garment_id   text not null,
+  profile_id   uuid references measurement_profiles(id) on delete set null,
+  measurements jsonb not null,
+  opts         jsonb not null default '{}',
+  created_at   timestamptz default now()
+);
+alter table pending_checkouts enable row level security;
+-- Service role only — no user-facing access. Created by create-checkout.js,
+-- read by stripe-webhook.js, both using service role key.
+-- Migration: run once on existing installs
+--   CREATE TABLE pending_checkouts (...) — copy from above
+
 -- ── pattern_sessions ──────────────────────────────────────────────────────────
 -- Tracks when users generate a pattern preview (client calls /api/log-generation).
 -- Used by the email cron to identify generated-but-not-purchased users.

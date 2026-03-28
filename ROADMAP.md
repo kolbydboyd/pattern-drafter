@@ -111,11 +111,16 @@ manufacturer has this. It becomes a licensable asset.
 ## Phase 2 — Launch Content
 
 ### Social Accounts ✅
-- Instagram @peoplespatterns
-- TikTok
-- YouTube
-- Pinterest
-- Newsletter
+- Instagram: @peoplespatterns
+- Threads: @peoplespatterns
+- Facebook: @peoplespatterns
+- Pinterest: @peoplespatterns
+- Etsy: @peoplespatterns
+- TikTok Shop: @peoplespatterns
+- TikTok (regular): @peoplespatternsofficial
+- YouTube: @peoplespatterns
+- Reddit: u/peoplespatterns
+- Newsletter: hello@peoplespatterns.com
 
 ### Content Queue (2–3 weeks before launch)
 - [ ] Before/after fit video — TikTok first
@@ -292,6 +297,155 @@ Fun patterns that drive social engagement and seasonal sales.
 - [ ] Halloween costume base — target October launch
 - [ ] Holiday party dress — target November
 - [ ] Swimwear (bikini, rash guard) — target June
+
+### Technique coverage map
+Every sewing technique covered by at least one module in the catalog.
+When adding a new module, check this list — if it introduces a technique
+not yet covered, it has higher catalog value.
+
+| Technique | Covered by | Status |
+|---|---|---|
+| Set-in sleeve | tee, camp-shirt, button-up-w, blazer | done |
+| Raglan sleeve | crewneck, hoodie | done |
+| Two-piece sleeve | denim-jacket | done |
+| Kimono / dolman sleeve | - | not yet — easy tee variant |
+| Collar stand + roll | camp-shirt, button-up-w, denim-jacket | done |
+| Spread / notch lapel | blazer, trench | not yet |
+| Hood | hoodie | done |
+| Welt pocket | straight-jeans, chinos, blazer | done (jeans/chinos), blazer pending |
+| Patch pocket | tee, crop-jacket, tote | done |
+| Flap pocket | denim-jacket, cargo-shorts | done |
+| Slash / slant pocket | jeans, chinos, sweatpants | done |
+| Zip fly | straight-jeans, chinos | done |
+| Button placket | button-up-w, denim-jacket | done |
+| Elastic waist | sweatpants, gym-shorts, easy-pant-w | done |
+| Drawstring | swim-trunks, sweatpants | done |
+| Waist darts | jeans back, trousers | done |
+| Bust darts | button-up-w, fitted-tee-w, shell-blouse-w | done |
+| Princess seams | - | not yet — blazer or fitted dress adds |
+| Gathers | sundress skirt | not yet |
+| Pleats | pleated-shorts, pleated-trousers | done |
+| Yoke (horizontal) | denim-jacket | done |
+| Lining | blazer, slip-skirt-w, coat | partial (slip skirt) |
+| Bias cut | bias-cut skirt | not yet |
+| Knit / stretch construction | tee, leggings, boxers | partial (tee), full with leggings |
+| Flat-felled seam | straight-jeans, denim-jacket | done |
+| French seam | shell-blouse-w, slip-skirt-w | done |
+| Cylinder construction | duffle bag | not yet |
+| Webbing / strap | tote, crossbody, daypack | not yet |
+| Invisible zipper | a-line-skirt-w, slip-skirt-w | done |
+| Exposed / sport zipper | hoodie, daypack | done (hoodie) |
+| Boning / structure | corset | not yet — future |
+| Bias binding / tape | apron, tank top | not yet |
+| Rolled hem | - | not yet — easy add on any garment |
+
+### Quick-add projects (high volume, low complexity)
+These take 1-2 hours to build, generate high social engagement,
+and serve as gateway projects for new sewists. No body measurements
+needed — just dimensions.
+
+| Project | Difficulty | Time to build | Notes |
+|---|---|---|---|
+| Zippered pouch (3 sizes) | beginner | 1 hr | #1 most-sewn project on earth. Lining, zipper, boxed corners. |
+| Pillowcase / envelope pillow | trivial | 30 min | Absolute beginner gateway. Custom dimensions. |
+| Drawstring bag / stuff sack | beginner | 1 hr | MYOG staple. Cord channel, grommet option. |
+| Scrunchie | trivial | 30 min | #1 beginner project on TikTok. Elastic + tube. |
+| Pet bandana | trivial | 30 min | Viral niche. Measure neck, pick size. |
+| Baby bib | beginner | 30 min | Gift economy. Snap or tie closure. |
+| Phone crossbody / wallet | beginner | 1 hr | Small, fast, gift-friendly. Card slots. |
+| Laptop sleeve | beginner | 1 hr | Dropdown: select device model, auto-dimensions. |
+| Table runner / placemat set | beginner | 1 hr | Home dec crossover. Custom table dimensions. |
+| Curtain panels | beginner | 1 hr | Enter window dimensions, get cut-to-size pattern. |
+| Tool roll | beginner | 1 hr | Workshop/craft storage. Custom pocket count + widths. |
+| Guitar strap | beginner | 30 min | Niche but dedicated community. Webbing + pad. |
+| Dog coat | intermediate | 2 hr | Measure your dog, get a pattern. Viral potential. |
+| Diaper bag | intermediate | 2 hr | Structured bag variant. Huge gifting market. |
+| Camera bag / insert | intermediate | 2 hr | MYOG crossover. Custom padded compartments. |
+
+### Body type selector — children's sizing without new modules
+
+Every garment module already accepts any measurement values. A "body
+type" selector at step 1 loads appropriate defaults and hides
+irrelevant options. No new engine work needed.
+
+**Implementation:**
+- [ ] Add body type selector to wizard step 1: Adult / Child (4-12) / Toddler (1-3)
+- [ ] Per-type measurement defaults:
+      Adult: current defaults (chest 38, waist 32, etc.)
+      Child 4-6: chest 23, waist 21, hip 23, rise 7, shoulder 11, neck 11
+      Child 8-10: chest 27, waist 23, hip 27, rise 8, shoulder 13, neck 12
+      Child 12: chest 31, waist 25, hip 31, rise 9, shoulder 14, neck 13
+      Toddler: chest 21, waist 20, hip 21, rise 6.5, shoulder 9.5, neck 10
+- [ ] Per-type option filtering:
+      Children: hide bust dart option, hide ultra-low/ultra-high rise,
+      default to elastic waist on all pants, hide "fitted" ease option
+      Toddler: force elastic waist, hide zip fly, hide welt pockets,
+      default to snap/velcro closures
+- [ ] Per-type ease adjustment:
+      Children need proportionally more ease for movement and growth
+      Add +1" to standard ease values for children
+      Add +1.5" for toddlers
+- [ ] UI: body type selector shows as a toggle row above garment cards
+      Switching type reloads the defaults in step 2
+
+**Not in scope:** Infant sizing (onesies, sleep sacks — different block
+geometry entirely). Baby accessories (bibs, burp cloths) are covered
+by the quick-add projects above.
+
+### 2D plan render — real-time 3-view garment preview
+
+As the user selects garment options, a front / side / back line drawing
+updates in real time showing the garment shape. Like a paper doll but
+driven by the actual pattern geometry.
+
+**Why it matters:**
+- Users can SEE what their choices look like before generating
+- Eliminates "I picked V-neck but I wanted scoop" confusion
+- Screenshots beautifully for marketing and social sharing
+- Makes the product feel premium (no other pattern company has this)
+- Reduces refund requests / support tickets
+
+**Implementation plan:**
+
+Phase 1 — Static garment silhouettes (quick win):
+- [ ] SVG line drawings for each garment category (tops, pants, skirts, dresses, jackets)
+- [ ] Swap elements on/off based on options: pocket placement,
+      neckline shape, collar style, sleeve length, hem shape
+- [ ] Show in step 3 (options) as a preview panel beside the option controls
+- [ ] 3 views: front, side, back — arranged horizontally
+- [ ] Monochrome line art on transparent background
+- [ ] Difficulty: moderate — hand-drawn SVG templates with conditional visibility
+
+Phase 2 — Measurement-driven proportions (medium effort):
+- [ ] Scale the silhouette proportions from user's measurements
+      (wider hip = visually wider hip on the drawing)
+- [ ] Neckline depth, shoulder width, sleeve length all proportional
+- [ ] Garment length reflects actual torso/inseam input
+- [ ] Reuses geometry from the engine (armholeCurve, necklineCurve, etc.)
+      at a miniature scale
+- [ ] Difficulty: moderate — math already exists, just needs a miniature renderer
+
+Phase 3 — Live pattern piece overlay (ambitious):
+- [ ] Actual pattern piece outlines rendered at small scale
+- [ ] Shows how pieces relate to each other and to the body
+- [ ] Toggle between "on body" view and "flat layout" view
+- [ ] Difficulty: high — needs body outline + piece positioning
+
+**Technical approach:**
+The engine already computes all the coordinates (neckline curve, armhole,
+shoulder slope, sleeve cap, crotch curve). The 2D plan render is a
+second renderer that draws a simplified body outline and maps the
+pattern geometry onto it at a reduced scale. Front view = front bodice
+polygon reflected around CF. Side view = bodice depth at key points
+(shoulder, bust, waist, hip). Back view = back bodice reflected.
+
+For lower body: front view = front panel reflected. The leg taper,
+knee point, and hem width are already computed.
+
+For bags: front/side/top orthographic views from the bag dimensions.
+
+**Priority:** Phase 1 (static silhouettes) in Month 2 post-launch.
+Phase 2 (measurement-driven) in Month 4. Phase 3 is a stretch goal.
 
 ---
 
