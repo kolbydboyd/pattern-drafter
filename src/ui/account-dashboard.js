@@ -44,6 +44,7 @@ export function openAccountDashboard(section = 'measurements') {
             <nav class="acct-nav">
               <button class="acct-nav-item" data-section="measurements">My Measurements</button>
               <button class="acct-nav-item" data-section="patterns">My Patterns</button>
+              <button class="acct-nav-item" data-section="projects">My Projects</button>
               <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
               <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
@@ -90,6 +91,7 @@ async function _showSection(section) {
   switch (section) {
     case 'measurements': await _renderMeasurements(main, user); break;
     case 'patterns':     await _renderPatterns(main, user); break;
+    case 'projects':     await _renderProjects(main, user); break;
     case 'wishlist':     await _renderWishlist(main, user); break;
     case 'orders':       await _renderOrders(main, user); break;
     case 'giftcards':    await _renderGiftCards(main, user); break;
@@ -621,6 +623,83 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
       <div class="pat-card-actions">${actionHtml}</div>
     </div>
   </div>`;
+}
+
+// ── 2b. My Projects ───────────────────────────────────────────────────────────
+async function _renderProjects(main, user) {
+  const [{ data, error }, { data: feedbackData }] = await Promise.all([
+    getPatterns(user.id, 'all'),
+    getFitFeedback(user.id),
+  ]);
+  if (error) { main.innerHTML = `<p class="acct-error">${error.message}</p>`; return; }
+
+  const feedbackMap = new Map((feedbackData || []).map(f => [f.purchase_id, f]));
+  const active = (data || []).filter(p => p.status !== 'trashed');
+  const fmt = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  let html = `<h2 class="acct-section-title">My Projects</h2>`;
+
+  if (!active.length) {
+    html += `<p class="acct-empty">No projects yet. Purchase a pattern to get started.</p>`;
+    main.innerHTML = html;
+    return;
+  }
+
+  html += `<div class="proj-card-list">`;
+  for (const p of active) {
+    const name       = p.display_name || p.garment_id.replace(/-/g, ' ');
+    const meas       = p.measurement_profiles?.measurements ?? {};
+    const profName   = p.measurement_profiles?.name ?? null;
+    const fb         = feedbackMap.get(p.id);
+    const fbBadge    = fb
+      ? `<span class="proj-fb-badge proj-fb-${fb.overall_fit}">${fb.overall_fit.replace(/_/g,' ')}</span>`
+      : `<span class="proj-fb-badge proj-fb-none">no feedback yet</span>`;
+    const notePreview = p.notes
+      ? `<p class="proj-note-preview">${p.notes.slice(0, 80)}${p.notes.length > 80 ? '…' : ''}</p>`
+      : '';
+    const hasMeas = Object.keys(meas).length > 0;
+
+    html += `<div class="proj-card" data-purchase-id="${p.id}"
+        data-garment-id="${p.garment_id}"
+        data-measurements="${JSON.stringify(meas).replace(/"/g, '&quot;')}"
+        data-profile-name="${profName ?? ''}">
+      <div class="proj-card-top">
+        <span class="proj-card-name">${name}</span>
+        ${fbBadge}
+      </div>
+      <div class="proj-card-meta">
+        <span>Purchased ${fmt(p.purchased_at)}</span>
+        ${profName ? `<span>Profile: ${profName}</span>` : ''}
+        ${p.last_generated_at ? `<span>Generated ${fmt(p.last_generated_at)}</span>` : ''}
+      </div>
+      ${notePreview}
+      <div class="proj-card-actions">
+        ${hasMeas ? `<button class="acct-btn-sm proj-sew-again" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}">Sew Again</button>` : ''}
+        ${!fb ? `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">Rate fit</button>` : ''}
+      </div>
+    </div>`;
+  }
+  html += `</div>`;
+  main.innerHTML = html;
+
+  // Sew Again — re-generate with same measurements
+  main.querySelectorAll('.proj-sew-again').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card     = btn.closest('.proj-card');
+      const meas     = JSON.parse(card.dataset.measurements || '{}');
+      const profName = card.dataset.profileName || '';
+      _showRegenModal(user, card.dataset.garmentId, card.dataset.purchaseId, meas, profName,
+        () => _renderProjects(main, user));
+    });
+  });
+
+  // Feedback buttons
+  main.querySelectorAll('.pat-feedback-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { purchaseId, garmentId, garmentName } = btn.dataset;
+      _showFeedbackModal(user, purchaseId, garmentId, garmentName, () => _renderProjects(main, user));
+    });
+  });
 }
 
 // ── Re-generate confirmation modal ───────────────────────────────────────────
