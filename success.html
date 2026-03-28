@@ -50,17 +50,32 @@
 
       <div id="success-state" hidden>
         <div class="success-check">&#10003;</div>
-        <h1 class="pg-title">Pattern purchased.</h1>
+        <h1 class="pg-title">Your <span id="success-garment-name"></span> pattern is ready!</h1>
         <p class="success-subtitle">
-          <span id="success-garment-name"></span>
           <span class="success-amount" id="success-amount"></span>
         </p>
-        <p class="success-body">Your pattern has been drafted to your measurements and is ready to download.</p>
         <div class="success-actions">
-          <button id="success-download-btn" class="success-dl-btn">Download Pattern</button>
-          <a href="/" class="success-secondary-link">View My Patterns</a>
+          <button id="success-download-btn" class="success-dl-btn">Download PDF</button>
+          <a href="/" class="success-secondary-link">My Patterns</a>
         </div>
-        <p class="success-note">Your pattern is also saved in My Patterns. You can re-download it any time.</p>
+
+        <!-- Measurements used -->
+        <div id="success-meas-wrap" class="success-meas-wrap" hidden>
+          <p class="success-meas-label">Measurements used:</p>
+          <div id="success-meas-chips" class="success-meas-chips"></div>
+        </div>
+
+        <!-- Recommendations -->
+        <div id="success-recs-wrap" class="success-recs-wrap" hidden>
+          <h2 class="success-recs-title">Your measurements also work for:</h2>
+          <div id="success-recs-grid" class="success-recs-grid"></div>
+          <div id="success-upsell" class="success-upsell" hidden>
+            <span id="success-upsell-text"></span>
+            <button id="success-upsell-btn" class="success-upsell-btn">Add for 25% off</button>
+          </div>
+        </div>
+
+        <p class="success-note">Saved in My Patterns. Re-download any time from your account.</p>
       </div>
 
       <div id="success-error" class="success-error-msg" hidden></div>
