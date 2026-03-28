@@ -74,8 +74,23 @@ export function arcLength(pts) {
 export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
   const p0 = { x: ox, y: oy + cbRaise };
   const p3 = { x: ox - ext, y: oy + rise };
-  const p1 = { x: ox, y: oy + rise * (isBack ? 0.5 : 0.6) };
+  // p1.x stays on the center seam (ox); curve sweeps horizontally only below p2
+  let p1 = { x: ox, y: oy + rise * (isBack ? 0.5 : 0.6) };
   const p2 = { x: ox - ext * (isBack ? 0.55 : 0.35), y: oy + rise * (isBack ? 0.88 : 0.93) };
+
+  // Monotonicity check: x values must only decrease from p0 to p3
+  // (curve must stay on or left of center seam — never swing back)
+  const testPts = sampleBezier(p0, p1, p2, p3, 32);
+  let reversed = false;
+  for (let i = 1; i < testPts.length; i++) {
+    if (testPts[i].x > testPts[i - 1].x + 0.001) { reversed = true; break; }
+  }
+  if (reversed) {
+    // Introduce a small horizontal offset on p1 to prevent reversal
+    p1 = { x: ox - ext * 0.08, y: p1.y };
+    console.warn('[geometry] crotchCurve: x reversal detected — adjusted p1.x');
+  }
+
   return { p0, p1, p2, p3 };
 }
 
@@ -110,8 +125,8 @@ export function sanitizePoly(pts) {
   if (deduped.length < 3) return deduped;
 
   // Step 2 — remove collinear points (cross-product test)
-  // sin(2.0°) ≈ 0.03490 — raised from 0.5° to preserve bezier curve points on gentle arcs
-  const sinTol = Math.sin(2.0 * Math.PI / 180);
+  // sin(0.25°) ≈ 0.00436 — tight tolerance preserves gentle bezier arcs (crotch curve, neckline)
+  const sinTol = Math.sin(0.25 * Math.PI / 180);
   const n = deduped.length;
   const filtered = [];
   for (let i = 0; i < n; i++) {
