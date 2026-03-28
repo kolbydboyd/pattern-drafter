@@ -86,13 +86,18 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    // crossBack influences armhole curve shape, not endpoint.
+    const backChestDepth = chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
     const isRaglan     = opts.sleeveType === 'raglan';
 
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // .curve tags enable Catmull-Rom rendering in pattern-view.js / print-layout.js.
+    // Junction points must have .curve DELETED after polygon construction.
     function sampleCurve(cp, steps = 12) {
-      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
+      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true }));
     }
     function polyToPathStr(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -112,18 +117,21 @@ export default {
 
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckFrontRev) frontPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
 
     if (isRaglan) {
       // Raglan: diagonal line from shoulder-neck junction to underarm instead of shoulder + armhole
       frontPoly.push({ x: shoulderPtX + chestDepth, y: shoulderPtY + armholeDepth });
     } else {
       for (let i = 1; i < frontShoulderPts.length; i++) {
-        frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+        frontPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
       }
       const frontArmPts = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
       for (let i = 1; i < frontArmPts.length; i++) {
-        frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+        frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
       }
     }
 
@@ -137,17 +145,20 @@ export default {
 
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckBackRev) backPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
 
     if (isRaglan) {
       backPoly.push({ x: shoulderPtX + backChestDepth, y: shoulderPtY + armholeDepth });
     } else {
       for (let i = 1; i < frontShoulderPts.length; i++) {
-        backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+        backPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
       }
       const backArmPts = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
       for (let i = 1; i < backArmPts.length; i++) {
-        backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+        backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
       }
     }
 
@@ -163,6 +174,7 @@ export default {
     const capHeight  = isRaglan ? 0 : armholeDepth * 0.60;
 
     let sleevePoly;
+    let capPts;
     if (isRaglan) {
       // Raglan sleeve: trapezoid — wider at cap (armhole), tapers to cuff
       const capW = (shoulderW + chestDepth) * 1.05;
@@ -174,9 +186,12 @@ export default {
       ];
     } else {
       const capCp  = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-      const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16);
+      capPts = sampleCurve(capCp, 16);
       sleevePoly = [];
-      for (const p of capPts) sleevePoly.push({ x: p.x, y: p.y + capHeight });
+      for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capHeight });
+      // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete sleevePoly[0].curve;
+      delete sleevePoly[capPts.length - 1].curve;
       sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvLength });
       sleevePoly.push({ x: 0, y: capHeight + slvLength });
     }

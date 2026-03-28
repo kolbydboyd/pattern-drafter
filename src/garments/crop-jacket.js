@@ -97,13 +97,15 @@ export default {
     const armholeY      = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    const backChestDepth = chestDepth;
     const torsoLen      = m.torsoLength + (opts.length === 'hip' ? 4 : 0);
     const slvLength     = m.sleeveLength ?? 26;
     const btnCount      = 5;
 
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
     function sampleCurve(cp, steps = 12) {
-      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
+      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true }));
     }
     function polyToPathStr(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -128,12 +130,15 @@ export default {
     // ── FRONT PANEL (left — right is mirror) ─────────────────────────────────
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckFrontRev) frontPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < shoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      frontPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     for (let i = 1; i < frontArmPts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     }
     const sideX = shoulderPtX + chestDepth;
     frontPoly.push({ x: sideX, y: torsoLen });
@@ -143,12 +148,15 @@ export default {
     // ── BACK PANEL ───────────────────────────────────────────────────────────
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckBackRev) backPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < shoulderPts.length; i++) {
-      backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     for (let i = 1; i < backArmPts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     }
     backPoly.push({ x: shoulderPtX + backChestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });

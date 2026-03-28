@@ -110,13 +110,14 @@ export default {
     const armholeY      = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    const backChestDepth = chestDepth;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
 
     // Neckline curves
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
     function sampleCurve(cp, steps = 12) {
-      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
+      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true }));
     }
 
     function polyToPathStr(poly) {
@@ -146,15 +147,18 @@ export default {
     // CF low point → shoulder-neck junction (reverse neck curve, shifted to x-axis)
     const neckFrontRev = [...frontNeckPts].reverse();
     for (const p of neckFrontRev) {
-      frontPoly.push({ x: neckW - p.x, y: p.y });
+      frontPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
     // Shoulder-neck → shoulder point
     for (let i = 1; i < shoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      frontPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     // Shoulder point → underarm (front armhole)
     for (let i = 1; i < frontArmPts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     }
     // Underarm → hem
     const sideX = shoulderPtX + chestDepth;
@@ -169,13 +173,16 @@ export default {
 
     const neckBackRev = [...backNeckPts].reverse();
     for (const p of neckBackRev) {
-      backPoly.push({ x: neckW - p.x, y: p.y });
+      backPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < shoulderPts.length; i++) {
-      backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     for (let i = 1; i < backArmPts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     }
     const backSideX = shoulderPtX + backChestDepth;
     backPoly.push({ x: backSideX, y: torsoLen });

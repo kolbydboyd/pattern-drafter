@@ -235,7 +235,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Knee sits 55% down the inseam from the crotch
   const kneeY      = rise + inseam * 0.55;
@@ -264,21 +264,14 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: inseamHemX,   y: height  });   // hem at inseam
   poly.push({ x: inseamKneeX,  y: kneeY   });   // knee on inseam
   poly.push({ x: -ext,         y: rise    });   // crotch extension point
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  // Per-edge seam allowances
-  const crotchEdgeCount = curvePts.length - 2; // 15 crotch curve edges
-  const edgeAllowances = poly.map((_, i) => {
-    if (i === 0) return { sa, label: 'Waist' };
-    if (i >= 1 && i <= 3) return { sa, label: 'Side seam' };
-    if (i === 4) return { sa: hem, label: 'Hem' };
-    if (i >= 5 && i <= 6) return { sa, label: 'Inseam' };
-    if (i >= 7 && i < 7 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
-    return { sa, label: 'Center' };
+  // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
-
-  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
 
   const effSeatDepth = seatDepth || 7;
 
@@ -327,7 +320,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
-    notches, edgeAllowances, crotchBezier: ccp, crotchBezierSA: insetCrotchBezier(ccp, sa),
+    notches, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa),
     labels: [
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },

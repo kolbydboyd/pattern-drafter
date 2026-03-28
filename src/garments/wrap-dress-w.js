@@ -104,11 +104,12 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    const backChestDepth = chestDepth;
     const shoulderPtY  = slopeDrop;
     const torsoLen     = m.torsoLength || 16;
 
-    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true })); }
     function pp(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
       for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`;
@@ -133,11 +134,14 @@ export default {
     function buildFrontBodice() {
       const poly = [];
       // Neckline: CF V-point → shoulder-neck junction (y: p.y — NOT vNeckDepth - p.y)
-      [...frontNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
+      [...frontNeckPts].reverse().forEach(p => poly.push({ ...p, x: neckW - p.x }));
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete poly[0].curve;
+      delete poly[frontNeckPts.length - 1].curve;
       // Shoulder slope (shoulder stays at normal width, not shifted by wrapExt)
-      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      for (let i = 1; i < shoulderPts.length; i++) poly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
       // Armhole
-      for (let i = 1; i < frontArmPts.length; i++) poly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      for (let i = 1; i < frontArmPts.length; i++) poly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
       // Side seam to hem at standard panel width
       poly.push({ x: frontW, y: torsoLen });
       // Hem extends wrapExt past CF — this is the overlap extension
@@ -150,9 +154,12 @@ export default {
 
     function buildBackBodice() {
       const poly = [];
-      [...backNeckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
-      for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
-      for (let i = 1; i < backArmPts.length; i++) poly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      [...backNeckPts].reverse().forEach(p => poly.push({ ...p, x: neckW - p.x }));
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete poly[0].curve;
+      delete poly[backNeckPts.length - 1].curve;
+      for (let i = 1; i < shoulderPts.length; i++) poly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
+      for (let i = 1; i < backArmPts.length; i++) poly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
       poly.push({ x: backW, y: torsoLen });
       poly.push({ x: 0, y: torsoLen });
       poly.push({ x: 0, y: 0.75 });

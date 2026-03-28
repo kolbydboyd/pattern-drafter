@@ -297,7 +297,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   // Crotch curve
   const ccp = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Main polygon
   const poly = [];
@@ -317,7 +317,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   // Crotch curve back to waist (reverse order)
   for (let i = curvePts.length - 2; i >= 1; i--) {
-    poly.push(curvePts[i]);
+    poly.push({ ...curvePts[i], curve: true });
   }
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
@@ -328,12 +328,16 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     if (i === 1) return { sa, label: 'Side seam' };
     if (i === 2) return { sa: hem, label: 'Hem' };
     if (i === 3) return { sa, label: 'Inseam' };
-    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
+    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa, label: 'Crotch' };
     return { sa, label: 'Center' };
   });
 
-  // SA offset
-  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
+  // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    // Hem edge: both endpoints at y ≈ height
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
+  });
 
   // Build dimension annotations
   const dims = [
@@ -363,7 +367,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     dimensions: dims,
     width, height, rise, inseam, ext, cbRaise, sa, hem,
     isBack,
-    notches, edgeAllowances, crotchBezier: ccp, crotchBezierSA: insetCrotchBezier(ccp, sa),
+    notches, edgeAllowances, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    // The stitch line uses Catmull-Rom → cubic bezier through offsetPolygon
+    // points for uniform SA + smooth rendering. See geometry.js + pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa),
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90 },
       { text: 'CENTER', x: -0.5, y: rise * 0.3, rotation: -90 },

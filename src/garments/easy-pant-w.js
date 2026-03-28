@@ -129,7 +129,7 @@ export default {
 
     function buildPanel(type, isBack, width, ext) {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-      const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+      const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
       const kneeW   = m.calf  ? m.calf  / 2 + 0.5 : width * shape.knee;
       const hemW    = m.ankle ? m.ankle / 2 + 0.5 : width * shape.hem;
@@ -146,12 +146,12 @@ export default {
       poly.push({ x: ihX,   y: H     });
       poly.push({ x: ikX,   y: kneeY });
       poly.push({ x: -ext,  y: rise  });
-      for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+      for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-      const saPoly = offsetPolygon(poly, i => {
-        const a = poly[i], b = poly[(i + 1) % poly.length];
-        return (a.y > H - 0.5 && b.y > H - 0.5) ? -hem : -sa;
+      const saPoly = offsetPolygon(poly, (i, a, b) => {
+        if (Math.abs(a.y - H) < 0.5 && Math.abs(b.y - H) < 0.5) return -hem;
+        return -sa;
       });
 
       const effSeatDepth = m.seatDepth || 7;
@@ -178,7 +178,10 @@ export default {
           { text: 'SIDE SEAM', x: width + 0.3, y: H * 0.35,  rotation: 90  },
           { text: 'CENTER',    x: -0.5,         y: rise * 0.3, rotation: -90 },
         ],
-        notches, crotchBezier: ccp, crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
+        notches, crotchBezier: ccp,
+        // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+        // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+        crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
       };
     }
 

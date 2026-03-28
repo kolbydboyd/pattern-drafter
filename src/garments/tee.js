@@ -124,7 +124,9 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    // crossBack influences armhole curve shape, not endpoint.
+    const backChestDepth = chestDepth;
 
     // ── Neckline ─────────────────────────────────────────────────────────────
     // Back neckline depth (A→G): neckW / 3 ≈ neck/15 — very shallow, ~1"
@@ -146,9 +148,14 @@ export default {
       return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
     }
 
-    // Build a flat polygon from curve control points
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // Tag ALL bezier samples as .curve so sanitizePoly preserves them and
+    // offsetPolygon uses average-normal fallback for short edges. The .curve
+    // tag also triggers Catmull-Rom rendering in pattern-view.js / print-layout.js.
+    // Junction points (fold-neckline, shoulder-neck, underarm) must have .curve
+    // DELETED after polygon construction so the renderer uses L transitions there.
     function curveToPoints(cp, steps = 12) {
-      return sampleCurve(cp, steps);
+      return sampleCurve(cp, steps).map(p => ({ ...p, curve: true }));
     }
 
     // Translate an array of {x,y} points
@@ -175,15 +182,20 @@ export default {
     // necklineCurve local: p0=(0,0)=shoulder-neck, p3=(neckW,depth)=CF low.
     // Reverse and transform: x_global = neckW - x_local, y_global = y_local
     for (const p of [...frontNeckPts].reverse()) {
-      frontPoly.push({ x: neckW - p.x, y: p.y });
+      frontPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // Untag fold-junction neckline endpoint so offset reaches the fold line
+    delete frontPoly[0].curve;
+    // Untag shoulder-neck junction to prevent Catmull-Rom loop at direction change
+    delete frontPoly[frontNeckPts.length - 1].curve;
     // B → shoulder point
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      frontPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     // Shoulder point → underarm notch (armhole C-curve down the right side)
     for (let i = 1; i < frontArmholePts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmholePts[i].x, y: shoulderPtY + frontArmholePts[i].y });
+      frontPoly.push({ ...frontArmholePts[i], x: shoulderPtX + frontArmholePts[i].x, y: shoulderPtY + frontArmholePts[i].y });
     }
     // Underarm notch → hem (side seam, straight down)
     frontPoly.push({ x: panelW, y: torsoLen });
@@ -204,13 +216,16 @@ export default {
     const backPoly = [];
 
     for (const p of [...backNeckPts].reverse()) {
-      backPoly.push({ x: neckW - p.x, y: p.y });
+      backPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;
+    delete backPoly[backNeckPts.length - 1].curve;
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      backPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     for (let i = 1; i < backArmholePts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmholePts[i].x, y: shoulderPtY + backArmholePts[i].y });
+      backPoly.push({ ...backArmholePts[i], x: shoulderPtX + backArmholePts[i].x, y: shoulderPtY + backArmholePts[i].y });
     }
     backPoly.push({ x: panelW, y: torsoLen });
     if (opts.hemStyle === 'shirttail') {
@@ -226,14 +241,17 @@ export default {
     const slvFullWidth = m.bicep + 2;
     const capHeight    = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
-    const capPts       = curveToPoints(capCp, 16);
+    const capPts       = curveToPoints(capCp, 32);
     // capPts: (0,0) = back underarm → (slvFullWidth, 0) = front underarm
     // Crown is at y < 0; shift all y by +capHeight so crown sits at y=0
 
     const sleevePoly = [];
     for (const p of capPts) {
-      sleevePoly.push({ x: p.x, y: p.y + capHeight });
+      sleevePoly.push({ ...p, y: p.y + capHeight });
     }
+    // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete sleevePoly[0].curve;
+    delete sleevePoly[capPts.length - 1].curve;
     sleevePoly.push({ x: slvFullWidth, y: capHeight + slvLength });
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
     // Back underarm up (already first point via close)

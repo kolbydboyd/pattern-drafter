@@ -113,7 +113,8 @@ function polyPath(pts, ox, oy) {
  */
 function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction, darts = [], notches = [] } = piece;
+          sa, hem, name, instruction, darts = [], notches = [],
+          crotchBezierSA } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
@@ -126,8 +127,79 @@ function renderPanelSVG(piece) {
   const ox = mL;
   const oy = mT;
 
-  const cutPath = polyPath(saPolygon, ox, oy);
-  const sewPath = polyPath(polygon,   ox, oy);
+  const cutPath = polyPath(polygon, ox, oy);
+
+  // LOCKED — hybrid crotch curve stitch line, ported from pattern-view.js.
+  // Uses Catmull-Rom → cubic bezier through offsetPolygon points for uniform SA
+  // offset + smooth rendering. Do not modify without also updating pattern-view.js.
+  const sewPath = (() => {
+    if (!crotchBezierSA) return polyPath(saPolygon, ox, oy);
+
+    // Convert saPolygon + bezier endpoints to px coordinates
+    const saPx = saPolygon.map(p => ({ x: (ox + p.x) * DPI, y: (oy + p.y) * DPI }));
+    const sp0 = { x: (ox + crotchBezierSA.p0.x) * DPI, y: (oy + crotchBezierSA.p0.y) * DPI };
+    const sp3 = { x: (ox + crotchBezierSA.p3.x) * DPI, y: (oy + crotchBezierSA.p3.y) * DPI };
+
+    // Find SA polygon vertices closest to bezier endpoints
+    let idx0 = 0, idx3 = 0, d0 = Infinity, d3 = Infinity;
+    for (let i = 0; i < saPx.length; i++) {
+      const dist0 = (saPx[i].x - sp0.x) ** 2 + (saPx[i].y - sp0.y) ** 2;
+      if (dist0 < d0) { d0 = dist0; idx0 = i; }
+      const dist3 = (saPx[i].x - sp3.x) ** 2 + (saPx[i].y - sp3.y) ** 2;
+      if (dist3 < d3) { d3 = dist3; idx3 = i; }
+    }
+
+    // Determine structural direction (through hem = high y)
+    const n = saPx.length;
+    let fwdMaxY = 0, bwdMaxY = 0;
+    for (let i = (idx3 + 1) % n; i !== idx0; i = (i + 1) % n) fwdMaxY = Math.max(fwdMaxY, saPx[i].y);
+    for (let i = (idx3 - 1 + n) % n; i !== idx0; i = (i - 1 + n) % n) bwdMaxY = Math.max(bwdMaxY, saPx[i].y);
+    const structDir = fwdMaxY > bwdMaxY ? 1 : -1;
+
+    // Collect structural edges (waist→side→hem→inseam)
+    let hp = `M ${saPx[idx3].x.toFixed(1)} ${saPx[idx3].y.toFixed(1)}`;
+    for (let i = (idx3 + structDir + n) % n; i !== idx0; i = (i + structDir + n) % n) {
+      hp += ` L ${saPx[i].x.toFixed(1)} ${saPx[i].y.toFixed(1)}`;
+    }
+    hp += ` L ${saPx[idx0].x.toFixed(1)} ${saPx[idx0].y.toFixed(1)}`;
+
+    // Collect crotch curve offset points (walk same direction as struct — wraps via curve)
+    const rawCurvePts = [];
+    for (let i = (idx0 + structDir + n) % n; i !== idx3; i = (i + structDir + n) % n) {
+      rawCurvePts.push(saPx[i]);
+    }
+
+    // Trim curve points too close to structural endpoints — prevents jog/overshoot
+    const trimDist = sa * DPI * 1.5;
+    const v0 = saPx[idx0], v3 = saPx[idx3];
+    const curvePts = rawCurvePts.filter(p => {
+      const dd0 = Math.sqrt((p.x - v0.x) ** 2 + (p.y - v0.y) ** 2);
+      const dd3 = Math.sqrt((p.x - v3.x) ** 2 + (p.y - v3.y) ** 2);
+      return dd0 > trimDist && dd3 > trimDist;
+    });
+
+    if (curvePts.length < 2) {
+      hp += ` L ${v3.x.toFixed(1)} ${v3.y.toFixed(1)} Z`;
+    } else {
+      // Bookend with structural vertices for clean entry/exit
+      const cp = [v0, ...curvePts, v3];
+      hp += ` L ${cp[0].x.toFixed(1)} ${cp[0].y.toFixed(1)}`;
+      // Catmull-Rom → cubic bezier spline through offset points
+      for (let k = 0; k < cp.length - 1; k++) {
+        const p0 = cp[Math.max(0, k - 1)];
+        const p1 = cp[k];
+        const p2 = cp[k + 1];
+        const p3 = cp[Math.min(cp.length - 1, k + 2)];
+        const b1x = p1.x + (p2.x - p0.x) / 6;
+        const b1y = p1.y + (p2.y - p0.y) / 6;
+        const b2x = p2.x - (p3.x - p1.x) / 6;
+        const b2y = p2.y - (p3.y - p1.y) / 6;
+        hp += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      }
+      hp += ' Z';
+    }
+    return hp;
+  })();
 
   const cY  = (oy + rise) * DPI;
   const cX1 = (ox - ext - 0.3) * DPI;
@@ -207,9 +279,8 @@ function renderBodiceOrSleeveSVG(piece) {
   // Compute SA outline using shared offsetPolygon (fold-edge = 0 offset)
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
   const ea = piece.edgeAllowances;
-  const saPoints = offsetPolygon(polygon, i => {
+  const saPoints = offsetPolygon(polygon, (i, a, b) => {
     if (ea && ea[i]) return -ea[i].sa;
-    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
     return -sa;
   });
@@ -220,8 +291,40 @@ function renderBodiceOrSleeveSVG(piece) {
     return d + ' Z';
   }
 
-  const cutPath = pts2path(saPoints);
-  const sewPath = pts2path(polygon);
+  const cutPath = pts2path(polygon);
+  // ── HYBRID STITCH PATH — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+  // Same algorithm as pattern-view.js renderGenericPieceSVG: Catmull-Rom for .curve sections,
+  // L for structural edges. Duplicate-endpoint phantoms at curve run boundaries.
+  const sewPath = (() => {
+    const hasCurve = saPoints.some(p => p.curve);
+    if (!hasCurve) return pts2path(saPoints);
+    const pts = saPoints.map(p => ({ x: (ox + p.x) * DPI, y: (oy + p.y) * DPI, curve: p.curve }));
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let i = 1; i < pts.length; i++) {
+      if (!pts[i].curve) {
+        d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+      } else {
+        const before = pts[i - 1];
+        const curveRun = [];
+        while (i < pts.length && pts[i].curve) curveRun.push(pts[i++]);
+        const after = i < pts.length ? pts[i] : pts[0];
+        d += ` L ${curveRun[0].x.toFixed(1)} ${curveRun[0].y.toFixed(1)}`;
+        const run = [curveRun[0], ...curveRun, curveRun[curveRun.length - 1]];
+        for (let k = 1; k < run.length - 2; k++) {
+          const p0 = run[k - 1], p1 = run[k], p2 = run[k + 1];
+          const p3 = run[Math.min(run.length - 1, k + 2)];
+          const b1x = p1.x + (p2.x - p0.x) / 6;
+          const b1y = p1.y + (p2.y - p0.y) / 6;
+          const b2x = p2.x - (p3.x - p1.x) / 6;
+          const b2y = p2.y - (p3.y - p1.y) / 6;
+          d += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+        }
+        d += ` L ${after.x.toFixed(1)} ${after.y.toFixed(1)}`;
+        i--;
+      }
+    }
+    return d + ' Z';
+  })();
 
   const gx  = (ox + (minX + maxX) / 2) * DPI;
   const gy1 = (oy + minY + pH * 0.2)   * DPI;

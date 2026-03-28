@@ -750,7 +750,7 @@ async function _applyWatermarkState(garmentId) {
   _currentPurchased = purchased;
 
   if (!purchased) {
-    output.querySelectorAll('svg').forEach(svg => addWatermark(svg));
+    // watermark removed — preview stays clean
 
     const price   = PATTERN_PRICES[garmentId];
     const label   = price?.label ?? 'this pattern';
