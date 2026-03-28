@@ -37,7 +37,12 @@ import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
 import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
-import { getSession } from '../lib/auth.js';
+import { getSession, signIn } from '../lib/auth.js';
+
+// ── Beta mode ─────────────────────────────────────────────────────────────────
+// When true: everyone gets free downloads via email gate. No purchase required.
+// Set to false to enable paid downloads.
+const BETA_MODE = true;
 
 // ── URL sync ──────────────────────────────────────────────────────────────────
 // Read ?garment= from the URL on load so direct links pre-select correctly
@@ -694,13 +699,27 @@ async function _applyWatermarkState(garmentId) {
   const output = document.getElementById('output');
   if (!output) return;
 
-  // Remove any existing watermark/banner first
   removeWatermarks(output);
   document.getElementById('wm-purchase-banner')?.remove();
 
-  const user      = getCurrentUser();
-  let   purchased = false;
-  let   freeCredits = 0;
+  // ── BETA: free downloads for everyone via email gate ──────────────────────
+  if (BETA_MODE) {
+    _currentPurchased = true; // allow download to proceed without purchase check
+    const banner = document.createElement('div');
+    banner.id = 'wm-purchase-banner';
+    banner.className = 'wm-banner';
+    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF — Free during beta</button>`;
+    output.parentNode.insertBefore(banner, output);
+    document.getElementById('wm-beta-dl-btn').addEventListener('click', () => {
+      showEmailGate(() => handleDownloadPDF(document.getElementById('wm-beta-dl-btn')));
+    });
+    return;
+  }
+
+  // ── PAID MODE ─────────────────────────────────────────────────────────────
+  const user = getCurrentUser();
+  let purchased = false;
+  let freeCredits = 0;
   if (user) {
     const [purchaseRes, creditsRes] = await Promise.all([
       hasPurchased(user.id, garmentId),
@@ -712,7 +731,6 @@ async function _applyWatermarkState(garmentId) {
   _currentPurchased = purchased;
 
   if (!purchased) {
-    // Apply watermark to every SVG in the output
     output.querySelectorAll('svg').forEach(svg => addWatermark(svg));
 
     const price   = PATTERN_PRICES[garmentId];
@@ -722,8 +740,17 @@ async function _applyWatermarkState(garmentId) {
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
 
-    if (user && freeCredits > 0) {
-      // Free credit available
+    if (!user) {
+      // Not logged in: frictionless account creation → free credit → download
+      banner.innerHTML = `
+        <span class="wm-banner-text">Your first pattern is <strong>free</strong> — no credit card needed.</span>
+        <button class="wm-banner-btn" id="wm-signup-btn">Create Free Account &amp; Download</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-signup-btn').addEventListener('click', () => {
+        _showFreeSignupModal(garmentId);
+      });
+    } else if (freeCredits > 0) {
+      // Logged in with free credit
       banner.innerHTML = `
         <span class="wm-banner-text">You have <strong>1 free pattern download</strong>. Use it on ${label}?</span>
         <button class="wm-banner-btn wm-free-btn" id="wm-free-btn">Download Free (1 credit)</button>`;
@@ -742,11 +769,10 @@ async function _applyWatermarkState(garmentId) {
         _currentPurchased = true;
         removeWatermarks(output);
         banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used — your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
-        // Trigger the actual download
         handleDownloadPDF(btn);
       });
     } else {
-      // Normal buy flow — show A0 upsell checkbox alongside Buy Now
+      // Logged in, no free credits: full purchase bar with A0 upsell
       banner.innerHTML = `
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
@@ -761,6 +787,103 @@ async function _applyWatermarkState(garmentId) {
       });
     }
   }
+}
+
+// ── Frictionless signup modal ─────────────────────────────────────────────────
+function _showFreeSignupModal(garmentId) {
+  let dlg = document.getElementById('free-signup-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'free-signup-dlg';
+    dlg.innerHTML = `
+      <div class="email-gate-card">
+        <div class="email-gate-logo">People's Patterns</div>
+        <p class="email-gate-body">Create a free account to download — your first pattern is free, no credit card needed.</p>
+        <form id="free-signup-form" class="email-gate-form">
+          <input type="email" id="free-signup-email" placeholder="you@example.com" required autocomplete="email">
+          <input type="password" id="free-signup-pw" placeholder="Choose a password (8+ characters)" required autocomplete="new-password" minlength="8">
+          <button type="submit" class="email-gate-submit" id="free-signup-submit">Create Account &amp; Download</button>
+          <p id="free-signup-err" class="free-signup-err" hidden></p>
+        </form>
+        <button type="button" class="email-gate-cancel" id="free-signup-cancel">Maybe later</button>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  const form      = dlg.querySelector('#free-signup-form');
+  const cancelBtn = dlg.querySelector('#free-signup-cancel');
+  const errEl     = dlg.querySelector('#free-signup-err');
+
+  cancelBtn.onclick = () => dlg.close();
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const email    = dlg.querySelector('#free-signup-email').value.trim();
+    const password = dlg.querySelector('#free-signup-pw').value;
+    const submitBtn = dlg.querySelector('#free-signup-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account…';
+    errEl.hidden = true;
+
+    // Server creates the user with free_credits=1, bypassing email confirmation
+    const res = await fetch('/api/signup-free', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      errEl.textContent = json.error || 'Could not create account.';
+      errEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account & Download';
+      return;
+    }
+
+    // Sign in on the client
+    const { data, error: signInErr } = await signIn(email, password);
+    if (signInErr || !data?.session) {
+      errEl.textContent = 'Account created! Check your email to confirm, then sign in to download.';
+      errEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account & Download';
+      return;
+    }
+
+    dlg.close();
+
+    // Use the free credit and trigger download
+    const { session } = data;
+    const creditRes = await fetch('/api/use-free-credit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ garmentId, profileId: _activeProfileId }),
+    });
+    const creditJson = await creditRes.json();
+    if (!creditRes.ok) {
+      alert('Account created! ' + (creditJson.error || 'Sign in to download your free pattern.'));
+      return;
+    }
+
+    _currentPurchased = true;
+    const output = document.getElementById('output');
+    if (output) removeWatermarks(output);
+    const banner = document.getElementById('wm-purchase-banner');
+    if (banner) {
+      const price = PATTERN_PRICES[garmentId];
+      const label = price?.label ?? 'this pattern';
+      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used — your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+    }
+
+    // Trigger download
+    const dummyBtn = document.createElement('button');
+    dummyBtn.textContent = 'Downloading…';
+    handleDownloadPDF(dummyBtn);
+  };
+
+  dlg.querySelector('#free-signup-email').value = '';
+  dlg.querySelector('#free-signup-pw').value = '';
+  dlg.showModal();
 }
 
 // ═══ RECOMMENDATIONS ═══
