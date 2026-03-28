@@ -34,7 +34,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession } from '../lib/auth.js';
@@ -677,9 +677,14 @@ async function _applyWatermarkState(garmentId) {
 
   const user      = getCurrentUser();
   let   purchased = false;
+  let   freeCredits = 0;
   if (user) {
-    const { data } = await hasPurchased(user.id, garmentId);
-    purchased = !!data;
+    const [purchaseRes, creditsRes] = await Promise.all([
+      hasPurchased(user.id, garmentId),
+      getFreeCredits(user.id),
+    ]);
+    purchased   = !!purchaseRes.data;
+    freeCredits = creditsRes.credits ?? 0;
   }
   _currentPurchased = purchased;
 
@@ -687,20 +692,46 @@ async function _applyWatermarkState(garmentId) {
     // Apply watermark to every SVG in the output
     output.querySelectorAll('svg').forEach(svg => addWatermark(svg));
 
-    // Insert purchase banner above output
     const price   = PATTERN_PRICES[garmentId];
     const label   = price?.label ?? 'this pattern';
     const dollars = price ? `$${(price.cents / 100).toFixed(2)}` : '';
     const banner  = document.createElement('div');
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
-    banner.innerHTML = `
-      <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
-      <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
-    output.parentNode.insertBefore(banner, output);
-    document.getElementById('wm-buy-btn').addEventListener('click', () => {
-      _triggerBuyPattern(garmentId);
-    });
+
+    if (user && freeCredits > 0) {
+      // Free credit available
+      banner.innerHTML = `
+        <span class="wm-banner-text">You have <strong>1 free pattern download</strong>. Use it on ${label}?</span>
+        <button class="wm-banner-btn wm-free-btn" id="wm-free-btn">Download Free (1 credit)</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-free-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('wm-free-btn');
+        btn.disabled = true; btn.textContent = 'Applying…';
+        const { session } = await getSession();
+        const res  = await fetch('/api/use-free-credit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ garmentId, profileId: _activeProfileId }),
+        });
+        const json = await res.json();
+        if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
+        _currentPurchased = true;
+        removeWatermarks(output);
+        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used — your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        // Trigger the actual download
+        handleDownloadPDF(btn);
+      });
+    } else {
+      // Normal buy flow
+      banner.innerHTML = `
+        <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
+        <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-buy-btn').addEventListener('click', () => {
+        _triggerBuyPattern(garmentId);
+      });
+    }
   }
 }
 

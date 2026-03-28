@@ -19,8 +19,8 @@ create policy "Users can update own profile"
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer as $$
 begin
-  insert into public.profiles (id, email)
-  values (new.id, new.email);
+  insert into public.profiles (id, email, free_credits)
+  values (new.id, new.email, 1);
   return new;
 end;
 $$;
@@ -55,6 +55,8 @@ create table if not exists purchases (
 );
 
 -- ── Migrations: run these once on existing installs ───────────────────────────
+--   alter table profiles add column if not exists free_credits integer default 0;
+--   update profiles set free_credits = 1 where free_credits = 0; -- grant existing users one credit
 --   alter table measurement_profiles
 --     add column if not exists last_used_at timestamptz;
 --   alter table purchases

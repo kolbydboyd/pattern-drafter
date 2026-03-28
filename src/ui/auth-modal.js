@@ -176,8 +176,8 @@ function _wireForm() {
       if (error) { _renderBody('signup', error.message); return; }
       document.getElementById('auth-modal-body').innerHTML = `
         <p class="auth-success" style="text-align:center;margin-top:16px">
-          Account created! Check your email to confirm your address,<br>
-          then sign in below.
+          Account created! You have <strong>1 free pattern download</strong> waiting.<br>
+          Check your email to confirm your address, then sign in below.
         </p>`;
       setTimeout(() => { _modalState = 'login'; _renderBody('login'); }, 2500);
     } else {

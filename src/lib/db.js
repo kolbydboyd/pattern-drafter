@@ -1,6 +1,17 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 import { supabase } from './supabase.js';
 
+// ── Free credits ──────────────────────────────────────────────────────────────
+
+export async function getFreeCredits(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('free_credits')
+    .eq('id', userId)
+    .single();
+  return { credits: data?.free_credits ?? 0, error };
+}
+
 // ── Measurement Profiles ──────────────────────────────────────────────────────
 
 export async function getMeasurementProfiles(userId) {
