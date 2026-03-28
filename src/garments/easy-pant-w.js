@@ -8,7 +8,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches,
+  fmtInches, insetCrotchBezier,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -129,7 +129,7 @@ export default {
 
     function buildPanel(type, isBack, width, ext) {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-      const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+      const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
       const kneeW   = m.calf  ? m.calf  / 2 + 0.5 : width * shape.knee;
       const hemW    = m.ankle ? m.ankle / 2 + 0.5 : width * shape.hem;
@@ -146,12 +146,12 @@ export default {
       poly.push({ x: ihX,   y: H     });
       poly.push({ x: ikX,   y: kneeY });
       poly.push({ x: -ext,  y: rise  });
-      for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+      for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-      const saPoly = offsetPolygon(poly, i => {
-        const a = poly[i], b = poly[(i + 1) % poly.length];
-        return (a.y > H - 0.5 && b.y > H - 0.5) ? -hem : -sa;
+      const saPoly = offsetPolygon(poly, (i, a, b) => {
+        if (Math.abs(a.y - H) < 0.5 && Math.abs(b.y - H) < 0.5) return -hem;
+        return -sa;
       });
 
       const effSeatDepth = m.seatDepth || 7;
@@ -178,7 +178,10 @@ export default {
           { text: 'SIDE SEAM', x: width + 0.3, y: H * 0.35,  rotation: 90  },
           { text: 'CENTER',    x: -0.5,         y: rise * 0.3, rotation: -90 },
         ],
-        notches, crotchBezier: ccp, type: 'panel', opts,
+        notches, crotchBezier: ccp,
+        // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+        // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+        crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
       };
     }
 
@@ -201,8 +204,8 @@ export default {
     }
 
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side' && opts.pockets !== 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -219,7 +222,7 @@ export default {
   materials(m, opts) {
     const isKnit = opts.waistband === 'yoga';
     const notions = [
-      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic — waist − 2″ for snug fit' },
+      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic - waist − 2″ for snug fit' },
     ];
 
     return buildMaterialsSpec({
@@ -229,11 +232,11 @@ export default {
       needle: isKnit ? 'ballpoint-80' : 'universal-80',
       stitches: isKnit ? ['stretch', 'overlock', 'zigzag-med'] : ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Great beginner project — only 5 seams total before the waistband and hem',
+        'Great beginner project - only 5 seams total before the waistband and hem',
         'Use universal 80/12 for wovens (rayon, linen, lawn); ballpoint 80/12 for knit ponte or jersey',
-        isKnit ? 'For knit fabric: use stretch stitch or serger for ALL seams — straight stitch will pop when stretched' : 'Drapey wovens: stay-stitch waist and hip curves before assembling to prevent bias stretch',
+        isKnit ? 'For knit fabric: use stretch stitch or serger for ALL seams - straight stitch will pop when stretched' : 'Drapey wovens: stay-stitch waist and hip curves before assembling to prevent bias stretch',
         'Elastic waist: cut elastic at waist measurement minus 2″ for a comfortable snug fit that doesn\'t dig in',
-        'Pre-wash rayon and viscose — they can shrink 3–5% and the dye may bleed in the first wash',
+        'Pre-wash rayon and viscose - they can shrink 3–5% and the dye may bleed in the first wash',
       ],
     });
   },
@@ -247,11 +250,11 @@ export default {
     }
     steps.push({ step: n++, title: 'Sew center front and back seams', detail: 'Join front panels at CF {RST}. Join back panels at CB {RST}. {clip} crotch curves. {press} open or {serge}.' });
     steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'side' ? 'Sew front to back above and below pocket opening. Sew around pocket bag to join halves. {press} open.' : 'Sew front to back at both side seams {RST}. {press} open.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. {clip} crotch curve. {press} toward back. {serge} or zigzag.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. {clip} crotch curve. {press} toward back. {serge} or {zigzag}.' });
     steps.push({
       step: n++, title: 'Attach waistband and thread elastic',
       detail: opts.waistband === 'elastic'
-        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, zigzag. Close gap. {topstitch} close to fold.'
+        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, {zigzag}. Close gap. {topstitch} close to fold.'
         : 'Fold yoga band in half lengthwise {WST}. Divide into quarters, pin to waist. Stretch band slightly to match waist. Sew with stretch stitch. Fold band down to outside of pant for a fold-over yoga waist.',
     });
     steps.push({

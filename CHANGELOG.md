@@ -4,6 +4,52 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.8.0] — 2026-03-28
+
+### Drafting math audit — corrected formulas to standard block rules
+- **Neck width** changed from `neck / 6` to `neck / 5` (Aldrich standard). Affects all 11 upper-body garments. Widens neck opening ~0.5" per side, fixing tight crew necks.
+- **Shoulder slope** changed from hardcoded 1.75" drop to proportional `shoulderWidth × tan(13°)`. New `shoulderDropFromWidth()` function in `upper-body.js`. Prevents too-steep shoulders on narrow frames.
+- **Sleeve cap height** changed from hardcoded 5.0–5.5" to `armholeDepth × 0.60` (0.55 for oversized). Proportional cap produces correct ease across body sizes.
+- **Armhole depth** now accepts optional `waistToArmpit` measurement for direct measurement instead of `chest / 4` approximation. New optional measurement added to `measurements.js`.
+
+### Bug fix — waistband length used hip instead of waist
+- Structured waistbands (jeans, chinos, pleated trousers/shorts) were using `m.hip` instead of `m.waist`, producing waistbands 6–10" too long
+- Elastic/pull-on waistbands (sweatpants, swim trunks) correctly keep `m.hip` since garment must pass over hips
+- Garments with both options (skirts, womenswear trousers, cargo shorts) now use conditional: `m.waist` for structured, `m.hip` for elastic
+
+### Small-piece bin-packing on letter/A4 paper
+- Pockets, waistbands, belt loops, neckbands, and fly shields now bin-pack onto shared pages instead of each getting a full page
+- Compact renderer with 0.3" margins (vs 1.5" for tiled pieces) makes small pieces packable
+- Waistbands and neckbands print at half length with "FOLD" indicator and full dimensions noted
+- Saves ~5 pages per jeans pattern, ~2–3 per shirt
+
+### Tile map improvements
+- Portrait pieces show as tall cells, landscape pieces as wide cells — visual matches print orientation
+- Orientation label now spells out "portrait" / "landscape" instead of abbreviation "L"
+- Bin-packed small pieces shown as a single grouped entry with bullet list of piece names
+
+### Print layout additions
+- Per-piece 1" × 1" scale reference box on the first tile of every piece
+- Outseam and inseam seam-length dimension labels on jeans panels
+
+### Engine additions
+- `shoulderDropFromWidth(width, slopeDeg)` — proportional shoulder drop from seam width and angle
+- `validateCrossSeam(frontCurve, backCurve, rise)` — warns if crotch curve arc length is outside expected range
+- `bezierToSvgC(cp)` — SVG cubic bezier path fragment from control points (prep for future smooth curve rendering)
+
+### Known issues resolved (all KIs closed)
+- **KI-011** Bust dart intake now scales with chest measurement: `(chest - 30) × 0.11 + 0.75`, clamped 0.75–3.0". No longer fixed at 1.5" for all cup sizes.
+- **KI-006** Wrap dress skirt panels now have per-edge `edgeAllowances` with proper hem vs SA distinction and `isCutOnFold` for back panels.
+- **KI-003** Slant pocket facing/bag instructions now say "1 + 1 mirror — flip fabric for second" across all 9 garments with slant pockets.
+- **KI-004** Crotch extension dimension label centered below dim line instead of clipped in left margin at small ext values.
+- **KI-009** Confirmed not a bug — `'tops'` is a UI display label, `'upper'` is the measurement category; never compared.
+- **KI-013** Scale verification square now uses `data-scale-check` attribute instead of fragile CSS class. API files updated to match.
+- **KI-014** Print colors replaced with B&W-safe grays: gold → #555, green → #444, warm gray → #999.
+- **KI-015** `armholeCurve()` now clamps chestDepth to min 0.5" with warning when shoulder width exceeds chest panel.
+- **KI-002** Confirmed mitigated by existing 2.5× miter cap + sanitizePoly.
+
+---
+
 ## [0.7.0] — 2026-03-27
 
 ### Per-edge seam allowances

@@ -77,6 +77,19 @@ export function monotoneCrotchCurve(pts) {
 }
 
 /**
+ * Render a cubic bezier as an SVG C command string (without the initial M).
+ * Use with M x,y at the p0 position, then append this for the curve.
+ *
+ * @param {{ p0, p1, p2, p3 }} cp - Bezier control points
+ * @param {number} [precision=2] - Decimal precision
+ * @returns {string} SVG path fragment, e.g. "C 1.00 2.00, 3.00 4.00, 5.00 6.00"
+ */
+export function bezierToSvgC(cp, precision = 2) {
+  const f = v => v.toFixed(precision);
+  return `C ${f(cp.p1.x)} ${f(cp.p1.y)}, ${f(cp.p2.x)} ${f(cp.p2.y)}, ${f(cp.p3.x)} ${f(cp.p3.y)}`;
+}
+
+/**
  * Arc length of a polyline (array of {x, y} points).
  * Sum of Euclidean distances between consecutive points.
  */
@@ -102,7 +115,7 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
   const p0 = { x: ox, y: oy + cbRaise };
   const p3 = { x: ox - ext, y: oy + rise };
   // p1.x stays on the center seam (ox); curve sweeps horizontally only below p2
-  let p1 = { x: ox, y: oy + rise * (isBack ? 0.5 : 0.6) };
+  let p1 = { x: ox, y: oy + rise * (isBack ? 0.35 : 0.45) };
   const p2 = { x: ox - ext * (isBack ? 0.55 : 0.35), y: oy + rise * (isBack ? 0.88 : 0.93) };
 
   // Monotonicity check: x values must only decrease from p0 to p3
@@ -119,6 +132,34 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
   }
 
   return { p0, p1, p2, p3 };
+}
+
+export function insetCrotchBezier(ccp, sa) {
+  const { p0, p1, p2, p3 } = ccp;
+  const ip0 = { x: p0.x + sa, y: p0.y };
+  const ip3 = { x: p3.x, y: p3.y - sa };
+  const ip1 = { x: p1.x + sa * 0.7, y: p1.y - sa * 0.3 };
+  const ip2 = { x: p2.x + sa * 0.3, y: p2.y - sa * 0.7 };
+  return { p0: ip0, p1: ip1, p2: ip2, p3: ip3 };
+}
+
+/**
+ * Validate that front + back cross-seam arc lengths are reasonable for the
+ * given rise. Logs a warning if the total deviates more than 30% from the
+ * expected range (2 × rise). Does not block pattern generation.
+ *
+ * @param {{ p0, p1, p2, p3 }} frontCurve - Front crotch bezier control points
+ * @param {{ p0, p1, p2, p3 }} backCurve  - Back crotch bezier control points
+ * @param {number} rise - Rise measurement (in)
+ */
+export function validateCrossSeam(frontCurve, backCurve, rise) {
+  const frontLen = arcLength(sampleBezier(frontCurve.p0, frontCurve.p1, frontCurve.p2, frontCurve.p3, 32));
+  const backLen  = arcLength(sampleBezier(backCurve.p0, backCurve.p1, backCurve.p2, backCurve.p3, 32));
+  const total    = frontLen + backLen;
+  const expected = rise * 2;
+  if (total < expected * 0.7 || total > expected * 1.3) {
+    console.warn(`[geometry] Cross-seam length ${total.toFixed(1)}″ is outside expected range (${(expected * 0.7).toFixed(1)}–${(expected * 1.3).toFixed(1)}″ for ${rise.toFixed(1)}″ rise). Check measurements.`);
+  }
 }
 
 /**
@@ -167,22 +208,41 @@ export function sanitizePoly(pts) {
     if (len1 < 0.01 || len2 < 0.01) continue; // degenerate edge — skip
     // Cross product of unit vectors = sin of angle between them
     const cross = Math.abs(dx1 * dy2 - dy1 * dx2) / (len1 * len2);
-    if (cross > sinTol) {
-      filtered.push(curr); // non-collinear — keep
+    if (cross > sinTol || curr.curve) {
+      filtered.push(curr); // non-collinear or tagged curve point — keep
     }
   }
   if (filtered.length < 3) return deduped; // fallback — don't collapse to nothing
 
+  // Step 2b — drop curve points too close to structural (non-curve) vertices.
+  // These create tiny edges at junctions (e.g. crotch curve → waist) that cause
+  // offset miter artifacts even with capping.  0.3″ threshold is visually invisible.
+  const trimmed = [];
+  for (let i = 0; i < filtered.length; i++) {
+    if (filtered[i].curve) {
+      const pIdx = (i - 1 + filtered.length) % filtered.length;
+      const nIdx = (i + 1) % filtered.length;
+      const prevPt = filtered[pIdx];
+      const nextPt = filtered[nIdx];
+      if ((!prevPt.curve && dist(filtered[i], prevPt) < 1.25) ||
+          (!nextPt.curve && dist(filtered[i], nextPt) < 1.25)) {
+        continue; // skip — too close to structural vertex
+      }
+    }
+    trimmed.push(filtered[i]);
+  }
+  const final = trimmed.length >= 3 ? trimmed : filtered;
+
   // Step 3 — ensure clockwise winding (negative signed area)
   let area2 = 0;
-  for (let i = 0; i < filtered.length; i++) {
-    const j = (i + 1) % filtered.length;
-    area2 += filtered[i].x * filtered[j].y;
-    area2 -= filtered[j].x * filtered[i].y;
+  for (let i = 0; i < final.length; i++) {
+    const j = (i + 1) % final.length;
+    area2 += final[i].x * final[j].y;
+    area2 -= final[j].x * final[i].y;
   }
-  if (area2 > 0) filtered.reverse(); // was CCW → flip to CW
+  if (area2 > 0) final.reverse(); // was CCW → flip to CW
 
-  return filtered;
+  return final;
 }
 
 /**
@@ -194,8 +254,9 @@ export function sanitizePoly(pts) {
  * blend.
  *
  * @param {Array}    poly          - array of {x, y} points (clockwise winding)
- * @param {Function} edgeOffsetFn  - (edgeIndex) => offset distance
+ * @param {Function} edgeOffsetFn  - (edgeIndex, startPt, endPt) => offset distance
  *                                   Edge i goes from poly[i] to poly[(i+1)%n]
+ *                                   startPt/endPt are the sanitized vertices (use for geometry-based matching)
  * @returns {Array} offset polygon (may have more points than input at step corners)
  */
 export function offsetPolygon(poly, edgeOffsetFn) {
@@ -211,12 +272,32 @@ export function offsetPolygon(poly, edgeOffsetFn) {
 
     const eInIdx  = (i - 1 + n) % n; // incoming edge: prev → curr
     const eOutIdx = i;                // outgoing edge: curr → next
-    const oIn  = edgeOffsetFn(eInIdx);
-    const oOut = edgeOffsetFn(eOutIdx);
+    const oIn  = edgeOffsetFn(eInIdx, prev, curr);
+    const oOut = edgeOffsetFn(eOutIdx, curr, next);
 
     // Perpendicular normals (for CW winding, inward is left of travel direction)
     const nIn  = norm({ x: -(curr.y - prev.y), y: curr.x - prev.x });
     const nOut = norm({ x: -(next.y - curr.y), y: next.x - curr.x });
+
+    // Edge lengths — very short edges produce degenerate miters
+    const lenIn  = Math.sqrt((curr.x - prev.x) ** 2 + (curr.y - prev.y) ** 2);
+    const lenOut = Math.sqrt((next.x - curr.x) ** 2 + (next.y - curr.y) ** 2);
+    const minEdge = Math.min(lenIn, lenOut);
+    const maxOff  = Math.max(Math.abs(oIn), Math.abs(oOut));
+
+    // If either adjacent edge is shorter than the offset, the miter math is
+    // unreliable (the intersection point flies far from the vertex).  Use a
+    // simple average-normal offset instead — smooth and stable.
+    // Propagate .curve tag to offset points for downstream renderers
+    const tag = curr.curve ? { curve: true } : {};
+
+    if (minEdge < maxOff && curr.curve) {
+      const nx = (nIn.x + nOut.x) / 2, ny = (nIn.y + nOut.y) / 2;
+      const nl = Math.sqrt(nx * nx + ny * ny) || 1;
+      const avgOff = (oIn + oOut) / 2;
+      result.push({ x: curr.x + nx / nl * avgOff, y: curr.y + ny / nl * avgOff, ...tag });
+      continue;
+    }
 
     // Anchor points on each inset edge (one per adjacent edge)
     const p1 = { x: curr.x + nIn.x  * oIn,  y: curr.y + nIn.y  * oIn  };
@@ -231,10 +312,10 @@ export function offsetPolygon(poly, edgeOffsetFn) {
     // for different offsets (e.g. SA vs hem allowance at the bottom corners).
     const denom = d1.x * d2.y - d1.y * d2.x;
 
-    if (Math.abs(denom) < 1e-9) {
+    if (Math.abs(denom) < 0.01) {
       // Parallel / anti-parallel edges — perpendicular offset only, no miter
-      result.push(p1);
-      if (Math.abs(oIn - oOut) >= 1e-9) result.push(p2);
+      result.push({ ...p1, ...tag });
+      if (Math.abs(oIn - oOut) >= 1e-9) result.push({ ...p2, ...tag });
     } else {
       const dp = { x: p2.x - p1.x, y: p2.y - p1.y };
       const t  = (dp.x * d2.y - dp.y * d2.x) / denom;
@@ -242,13 +323,17 @@ export function offsetPolygon(poly, edgeOffsetFn) {
       const iy = p1.y + t * d1.y;
 
       // Cap miter distance: at most 2.5× the larger offset, to prevent spikes
-      const maxDist = Math.max(Math.abs(oIn), Math.abs(oOut)) * 2.5;
+      const maxDist = maxOff * 2.5;
       const distSq  = (ix - curr.x) ** 2 + (iy - curr.y) ** 2;
 
       if (distSq <= maxDist * maxDist) {
-        result.push({ x: ix, y: iy });
+        result.push({ x: ix, y: iy, ...tag });
+      } else if (curr.curve) {
+        // Curve point: cap the miter distance instead of creating a step
+        const scale = maxDist / Math.sqrt(distSq);
+        result.push({ x: curr.x + (ix - curr.x) * scale, y: curr.y + (iy - curr.y) * scale, ...tag });
       } else {
-        // Too far from corner — fall back to two-point step
+        // Structural corner: two-point step for clean SA transitions (e.g. hem)
         result.push(p1);
         result.push(p2);
       }

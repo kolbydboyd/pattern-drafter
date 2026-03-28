@@ -56,9 +56,9 @@ export function renderAuthModal() {
 }
 
 const BENEFITS = [
-  'Measurement profiles — enter once, use forever',
-  'Purchase history — re-download any time',
-  'Fit history — track what works for your body',
+  'Measurement profiles - enter once, use forever',
+  'Purchase history - re-download any time',
+  'Fit history - track what works for your body',
   'New pattern notifications',
 ];
 
@@ -151,7 +151,7 @@ function _wireForm() {
     if (error) { _renderBody('login', error.message); return; }
     _renderBody('login');
     document.getElementById('auth-modal-body').insertAdjacentHTML('afterbegin',
-      `<p class="auth-success">Password reset email sent — check your inbox.</p>`);
+      `<p class="auth-success">Password reset email sent - check your inbox.</p>`);
   });
 
   document.getElementById('auth-form')?.addEventListener('submit', async e => {

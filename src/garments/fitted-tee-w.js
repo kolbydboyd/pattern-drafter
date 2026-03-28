@@ -6,7 +6,7 @@
  */
 
 import {
-  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
+  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -116,19 +116,20 @@ export default {
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    const backChestDepth = chestDepth;
     const neckDepths   = NECK_DEPTHS[opts.neckline] ?? NECK_DEPTHS.scoop;
     const lengthAdj    = opts.length === 'cropped' ? -2 : opts.length === 'tunic' ? 5 : 1;
     const torsoLen     = m.torsoLength + lengthAdj;
     const slvLen       = SLEEVE_LENGTHS[opts.sleeve] ?? 7;
     const shoulderPtY  = slopeDrop;
 
-    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    function sc(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true })); }
     function pp(poly) { let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`; for (let i=1;i<poly.length;i++) d+=` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`; return d+' Z'; }
     function bb(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return { width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) }; }
 
@@ -141,9 +142,12 @@ export default {
 
     function buildBody(isBack, neckPts, armPts, neckDepth, sideX) {
       const poly = [];
-      [...neckPts].reverse().forEach(p => poly.push({ x: neckW - p.x, y: p.y }));
-      for (let i=1;i<shoulderPts.length;i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
-      for (let i=1;i<armPts.length;i++) poly.push({ x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
+      [...neckPts].reverse().forEach(p => poly.push({ ...p, x: neckW - p.x }));
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete poly[0].curve;  // fold-neckline junction
+      delete poly[neckPts.length - 1].curve;  // shoulder-neck junction
+      for (let i=1;i<shoulderPts.length;i++) poly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
+      for (let i=1;i<armPts.length;i++) poly.push({ ...armPts[i], x: shoulderPtX + armPts[i].x, y: shoulderPtY + armPts[i].y });
       if (opts.hemStyle === 'shirttail' && !isBack) {
         poly.push({ x: sideX, y: torsoLen });
         poly.push({ x: neckW * 0.5, y: torsoLen + 1.0 });
@@ -164,7 +168,7 @@ export default {
     if (opts.bustDart === 'yes') {
       const bustLevel = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = 1.5;
+      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({
@@ -178,14 +182,17 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLen * 0.45);
     const sleeveEase = easeVal * 0.2;
     const slvWidth   = m.bicep / 2 + sleeveEase;
-    const capHeight  = opts.sleeve === 'cap' ? 0 : 5.0;
+    const capHeight  = opts.sleeve === 'cap' ? 0 : armholeDepth * 0.60;
     let sleevePoly;
     if (opts.sleeve === 'cap') {
       sleevePoly = [{ x:0, y:0 }, { x:slvWidth*2, y:0 }, { x:slvWidth*2, y:slvLen }, { x:0, y:slvLen }];
     } else {
       const capCp  = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-      const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16);
-      sleevePoly = capPts.map(p => ({ x: p.x, y: p.y + capHeight }));
+      const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16).map(p => ({ ...p, curve: true }));
+      sleevePoly = capPts.map(p => ({ ...p, y: p.y + capHeight }));
+      // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete sleevePoly[0].curve;
+      delete sleevePoly[capPts.length - 1].curve;
       sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvLen });
       sleevePoly.push({ x: 0, y: capHeight + slvLen });
     }
@@ -287,11 +294,11 @@ export default {
       needle: 'ballpoint-75',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Ballpoint 75/11 or 80/12 — prevents snags on fine jersey',
-        'Stretch stitch or serger for all seams — no straight stitch',
+        'Ballpoint 75/11 or 80/12 - prevents snags on fine jersey',
+        'Stretch stitch or serger for all seams - no straight stitch',
         'Neckband at 80% of neckline opening: slightly snugger than unisex tee for a clean, flat finish',
-        opts.bustDart === 'yes' ? 'Bust dart on knit: fold RS together, sew from side seam toward bust apex — knit does not ravel so no need to {clip}' : 'Knit stretches to accommodate shape — bust darts optional on fitted styles',
-        'Twin needle hem from RS — creates two parallel rows of {topstitch}; or use coverstitch machine',
+        opts.bustDart === 'yes' ? 'Bust dart on knit: fold RS together, sew from side seam toward bust apex - knit does not ravel so no need to {clip}' : 'Knit stretches to accommodate shape - bust darts optional on fitted styles',
+        'Twin needle hem from RS - creates two parallel rows of {topstitch}; or use coverstitch machine',
         'Pre-wash jersey: cotton knits shrink 3–5%',
       ].filter(Boolean),
     });
@@ -314,7 +321,7 @@ export default {
     if (opts.hemStyle === 'banded') {
       steps.push({ step: n++, title: 'Attach hem band', detail: 'Fold hem band in half {WST}. Divide into quarters, pin to body hem. Stretch to fit. Stretch stitch or {serge}.' });
     } else {
-      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' — {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
+      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' - {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
     }
     steps.push({ step: n++, title: 'Finish', detail: '{press} lightly. Neckband should lie flat and not gap.' });
     return steps;

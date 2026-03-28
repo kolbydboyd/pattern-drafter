@@ -7,8 +7,8 @@
  */
 
 import {
-  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle
+  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -132,7 +132,7 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.hip + ease.total + sa * 2;
+    const wbLen = m.waist + ease.total + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
@@ -146,8 +146,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -176,12 +176,12 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
-        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look — use a {topstitch} needle for heavier thread',
+        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look - use a {topstitch} needle for heavier thread',
         'Fell seams on inseam and outseam: after sewing, {press} seam to one side, fold raw edge under, {topstitch} from RS two rows visible',
         'Pre-wash denim once (hot wash, dry on high) to pre-shrink before cutting',
-        'Use a denim needle (100/16) and heavy polyester thread 30wt — lighter thread will break under tension',
+        'Use a denim needle (100/16) and heavy polyester thread 30wt - lighter thread will break under tension',
         'Copper rivet all high-stress points: bottom of front pocket openings, coin pocket sides, crotch junction',
-        '{press} denim with a damp cloth — dry pressing may leave shine marks on dark denim',
+        '{press} denim with a damp cloth - dry pressing may leave shine marks on dark denim',
       ],
     });
   },
@@ -196,7 +196,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Prepare slant + coin pockets',
-      detail: 'Sew facing to front slash {RST}. {clip}, turn, {press}. {understitch}. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, {press}). {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} pocket and coin pocket to panel edges.',
+      detail: 'Sew facing to front slash {RST}. {clip} curve, turn, {press}. {understitch}. Attach pocket bag. Construct coin pocket: sew outer to lining {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} pocket and coin pocket to panel edges.',
     });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
@@ -235,7 +235,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Knee sits 55% down the inseam from the crotch
   const kneeY      = rise + inseam * 0.55;
@@ -264,23 +264,25 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: inseamHemX,   y: height  });   // hem at inseam
   poly.push({ x: inseamKneeX,  y: kneeY   });   // knee on inseam
   poly.push({ x: -ext,         y: rise    });   // crotch extension point
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  // Per-edge seam allowances
-  const crotchEdgeCount = curvePts.length - 2; // 15 crotch curve edges
-  const edgeAllowances = poly.map((_, i) => {
-    if (i === 0) return { sa, label: 'Waist' };
-    if (i >= 1 && i <= 3) return { sa, label: 'Side seam' };
-    if (i === 4) return { sa: hem, label: 'Hem' };
-    if (i >= 5 && i <= 6) return { sa, label: 'Inseam' };
-    if (i >= 7 && i < 7 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
-    return { sa, label: 'Center' };
+  // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
-  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
-
   const effSeatDepth = seatDepth || 7;
+
+  // Compute seam lengths for cross-reference labels
+  const outseamLen = dist({ x: sideWaistX, y: 0 }, { x: hipWidth, y: hipLineY })
+    + dist({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY })
+    + dist({ x: sideKneeX, y: kneeY }, { x: sideHemX, y: height });
+  const inseamLen = dist({ x: inseamHemX, y: height }, { x: inseamKneeX, y: kneeY })
+    + dist({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise });
+  const crotchLen = arcLength(curvePts);
+
   const dims = [
     { label: fmtInches(waistWidth) + ' waist', x1: 0, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
     { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
@@ -290,6 +292,8 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     { label: fmtInches(inseam) + ' inseam',    x: hipWidth + 1.2, y1: rise,   y2: height,             type: 'v' },
     { label: fmtInches(ext)    + ' ext',       x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,   type: 'h', color: '#c44' },
     { label: fmtInches(effSeatDepth) + ' seat', x: -ext - 1.2, y1: 0, y2: effSeatDepth,        type: 'v', color: '#b8963e' },
+    { label: fmtInches(outseamLen) + ' outseam', x: hipWidth + 2.8, y1: 0, y2: height, type: 'v', color: '#b8963e' },
+    { label: fmtInches(inseamLen) + ' inseam seam', x: -ext - 2.8, y1: rise, y2: height, type: 'v', color: '#b8963e' },
   ];
 
   // Waist darts for back panel
@@ -316,7 +320,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
-    notches, edgeAllowances, crotchBezier: ccp,
+    notches, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa),
     labels: [
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },

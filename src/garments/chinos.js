@@ -3,12 +3,12 @@
  * Chinos — clean tailored trousers with serger-finished seams.
  * 31 inch default inseam, 10 inch rise. Same leg shapes as straight-jeans.
  * Slant front pockets, welt back pockets ×2 with button, zip fly.
- * No fell seams — {serge} or zigzag edge finish throughout.
+ * No fell seams — {serge} or {zigzag} edge finish throughout.
  */
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES
+  fmtInches, easeDistribution, LEG_SHAPES, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -140,7 +140,7 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.hip + ease.total + sa * 2;
+    const wbLen = m.waist + ease.total + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
@@ -154,8 +154,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining or drill · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining or drill · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -188,9 +188,9 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Clean-finish ALL seams — {serge} or zigzag edge every seam allowance before or after sewing. No fell seams.',
+        'Clean-finish ALL seams - {serge} or {zigzag} edge every seam allowance before or after sewing. No fell seams.',
         'Stitch seams at 2.5mm; {topstitch} at 3.0mm for a cleaner, less casual look than jeans',
-        '{press} every seam immediately after sewing — chinos require crisp pressing to lie flat',
+        '{press} every seam immediately after sewing - chinos require crisp pressing to lie flat',
         'Pre-wash fabric once at the temperature you plan to wash the finished garment',
         'Bar tack all pocket corners and the crotch junction',
       ],
@@ -251,7 +251,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const kneeY       = rise + inseam * 0.55;
   const kneeW       = calf  ? calf  / 2 + 0.5 : hipWidth * shape.knee;
@@ -275,12 +275,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: inseamHemX,   y: height  });
   poly.push({ x: inseamKneeX,  y: kneeY   });
   poly.push({ x: -ext,         y: rise    });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const effSeatDepth = seatDepth || 7;
@@ -322,6 +322,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, darts, crotchBezier: ccp, type: 'panel', opts,
+    notches, darts, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }

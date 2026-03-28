@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -156,9 +156,10 @@ export default {
       opts, seatDepth: m.seatDepth,
     }));
 
-    // ── WAISTBAND ──
+    // ── WAISTBAND — elastic/drawstring uses hip (pull-on); zip/button uses waist ──
     const flyOverlap = (opts.fly === 'none') ? 0 : 2;
-    const wbLength = m.hip + ease.total + flyOverlap + sa * 2;
+    const wbBase = (opts.fly === 'none') ? m.hip : m.waist;
+    const wbLength = wbBase + ease.total + flyOverlap + sa * 2;
     const wbWidth = 4; // 2" finished
     pieces.push({
       id: 'waistband',
@@ -171,15 +172,15 @@ export default {
 
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match to front slash', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag', name: 'Slant Pocket Bag', instruction: 'Cut 2 · Lining fabric OK', dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash', dimensions: { width: 2, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag', name: 'Slant Pocket Bag', instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK', dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket' });
     }
     if (opts.cargo === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 1″ box pleat center', dimensions: { width: 7, height: 8 }, type: 'pocket' });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining)', dimensions: { width: 7.5, height: 3 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 7″ wide × 8″ tall cut · 1″ box pleat at center (fold 1″ under each side = 2″ consumed) · Finished pocket 5″ wide, expands to 7″', dimensions: { width: 7, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket' });
     }
     if (opts.backPocket !== 'none') {
       const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
@@ -205,7 +206,7 @@ export default {
     ];
 
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ — adjust at fitting` });
+      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ - adjust at fitting` });
       notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
     }
     if (opts.fly === 'zip') {
@@ -226,11 +227,11 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Pre-wash linen (hot wash, tumble dry) — shrinks 3–5%',
+        'Pre-wash linen (hot wash, tumble dry) - shrinks 3–5%',
         'Interface waistband with 2 layers BEFORE cutting',
         'Sew nylon webbing into waistband for holster-clip support',
         'Bar tack all pocket corners and crotch junction',
-        'Finish raw edges with serger or zigzag',
+        'Finish raw edges with serger or {zigzag}',
       ],
     });
   },
@@ -249,7 +250,7 @@ export default {
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Fold and {press} box pleat. Fold top edge under 1″, {topstitch}. {press} side/bottom SA under. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snaps.' });
+        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat - finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',
@@ -262,14 +263,14 @@ export default {
     steps.push({ step: n++, title: 'Sew center back seam',
       detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: 'Join front to back at side seams {RST}. {press} open. Attach cargo pockets to outer side seam at mid-thigh if applicable.' });
+      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargo === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom at ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''}` });
     steps.push({ step: n++, title: 'Sew inseam',
-      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small zigzag at crotch curve for durability. {clip} curve, {press}.' });
+      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}.' });
 
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, zigzag. Close gap. Double {topstitch} top and bottom of waistband.' });
+        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.' });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });
@@ -296,7 +297,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   // Crotch curve
   const ccp = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Main polygon
   const poly = [];
@@ -316,7 +317,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   // Crotch curve back to waist (reverse order)
   for (let i = curvePts.length - 2; i >= 1; i--) {
-    poly.push(curvePts[i]);
+    poly.push({ ...curvePts[i], curve: true });
   }
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
@@ -327,12 +328,16 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     if (i === 1) return { sa, label: 'Side seam' };
     if (i === 2) return { sa: hem, label: 'Hem' };
     if (i === 3) return { sa, label: 'Inseam' };
-    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa: 0.375, label: 'Crotch' };
+    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa, label: 'Crotch' };
     return { sa, label: 'Center' };
   });
 
-  // SA offset
-  const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
+  // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    // Hem edge: both endpoints at y ≈ height
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
+  });
 
   // Build dimension annotations
   const dims = [
@@ -363,6 +368,11 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     width, height, rise, inseam, ext, cbRaise, sa, hem,
     isBack,
     notches, edgeAllowances, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    // The stitch line uses Catmull-Rom → cubic bezier through offsetPolygon
+    // points for uniform SA + smooth rendering. See geometry.js + pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa),
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90 },
       { text: 'CENTER', x: -0.5, y: rise * 0.3, rotation: -90 },

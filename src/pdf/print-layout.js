@@ -113,7 +113,8 @@ function polyPath(pts, ox, oy) {
  */
 function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction, darts = [], notches = [] } = piece;
+          sa, hem, name, instruction, darts = [], notches = [],
+          crotchBezierSA } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
@@ -126,8 +127,79 @@ function renderPanelSVG(piece) {
   const ox = mL;
   const oy = mT;
 
-  const cutPath = polyPath(saPolygon, ox, oy);
-  const sewPath = polyPath(polygon,   ox, oy);
+  const cutPath = polyPath(polygon, ox, oy);
+
+  // LOCKED — hybrid crotch curve stitch line, ported from pattern-view.js.
+  // Uses Catmull-Rom → cubic bezier through offsetPolygon points for uniform SA
+  // offset + smooth rendering. Do not modify without also updating pattern-view.js.
+  const sewPath = (() => {
+    if (!crotchBezierSA) return polyPath(saPolygon, ox, oy);
+
+    // Convert saPolygon + bezier endpoints to px coordinates
+    const saPx = saPolygon.map(p => ({ x: (ox + p.x) * DPI, y: (oy + p.y) * DPI }));
+    const sp0 = { x: (ox + crotchBezierSA.p0.x) * DPI, y: (oy + crotchBezierSA.p0.y) * DPI };
+    const sp3 = { x: (ox + crotchBezierSA.p3.x) * DPI, y: (oy + crotchBezierSA.p3.y) * DPI };
+
+    // Find SA polygon vertices closest to bezier endpoints
+    let idx0 = 0, idx3 = 0, d0 = Infinity, d3 = Infinity;
+    for (let i = 0; i < saPx.length; i++) {
+      const dist0 = (saPx[i].x - sp0.x) ** 2 + (saPx[i].y - sp0.y) ** 2;
+      if (dist0 < d0) { d0 = dist0; idx0 = i; }
+      const dist3 = (saPx[i].x - sp3.x) ** 2 + (saPx[i].y - sp3.y) ** 2;
+      if (dist3 < d3) { d3 = dist3; idx3 = i; }
+    }
+
+    // Determine structural direction (through hem = high y)
+    const n = saPx.length;
+    let fwdMaxY = 0, bwdMaxY = 0;
+    for (let i = (idx3 + 1) % n; i !== idx0; i = (i + 1) % n) fwdMaxY = Math.max(fwdMaxY, saPx[i].y);
+    for (let i = (idx3 - 1 + n) % n; i !== idx0; i = (i - 1 + n) % n) bwdMaxY = Math.max(bwdMaxY, saPx[i].y);
+    const structDir = fwdMaxY > bwdMaxY ? 1 : -1;
+
+    // Collect structural edges (waist→side→hem→inseam)
+    let hp = `M ${saPx[idx3].x.toFixed(1)} ${saPx[idx3].y.toFixed(1)}`;
+    for (let i = (idx3 + structDir + n) % n; i !== idx0; i = (i + structDir + n) % n) {
+      hp += ` L ${saPx[i].x.toFixed(1)} ${saPx[i].y.toFixed(1)}`;
+    }
+    hp += ` L ${saPx[idx0].x.toFixed(1)} ${saPx[idx0].y.toFixed(1)}`;
+
+    // Collect crotch curve offset points (walk same direction as struct — wraps via curve)
+    const rawCurvePts = [];
+    for (let i = (idx0 + structDir + n) % n; i !== idx3; i = (i + structDir + n) % n) {
+      rawCurvePts.push(saPx[i]);
+    }
+
+    // Trim curve points too close to structural endpoints — prevents jog/overshoot
+    const trimDist = sa * DPI * 1.5;
+    const v0 = saPx[idx0], v3 = saPx[idx3];
+    const curvePts = rawCurvePts.filter(p => {
+      const dd0 = Math.sqrt((p.x - v0.x) ** 2 + (p.y - v0.y) ** 2);
+      const dd3 = Math.sqrt((p.x - v3.x) ** 2 + (p.y - v3.y) ** 2);
+      return dd0 > trimDist && dd3 > trimDist;
+    });
+
+    if (curvePts.length < 2) {
+      hp += ` L ${v3.x.toFixed(1)} ${v3.y.toFixed(1)} Z`;
+    } else {
+      // Bookend with structural vertices for clean entry/exit
+      const cp = [v0, ...curvePts, v3];
+      hp += ` L ${cp[0].x.toFixed(1)} ${cp[0].y.toFixed(1)}`;
+      // Catmull-Rom → cubic bezier spline through offset points
+      for (let k = 0; k < cp.length - 1; k++) {
+        const p0 = cp[Math.max(0, k - 1)];
+        const p1 = cp[k];
+        const p2 = cp[k + 1];
+        const p3 = cp[Math.min(cp.length - 1, k + 2)];
+        const b1x = p1.x + (p2.x - p0.x) / 6;
+        const b1y = p1.y + (p2.y - p0.y) / 6;
+        const b2x = p2.x - (p3.x - p1.x) / 6;
+        const b2y = p2.y - (p3.y - p1.y) / 6;
+        hp += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      }
+      hp += ' Z';
+    }
+    return hp;
+  })();
 
   const cY  = (oy + rise) * DPI;
   const cX1 = (ox - ext - 0.3) * DPI;
@@ -151,7 +223,7 @@ function renderPanelSVG(piece) {
       <path d="${cutPath}" stroke="#000" stroke-width="1.5" fill="none"/>
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cX1}" y1="${cY}" x2="${cX2}" y2="${cY}"
-        stroke="#d0ccc4" stroke-width="0.8" stroke-dasharray="12,7"/>
+        stroke="#999" stroke-width="0.8" stroke-dasharray="12,7"/>
       <line x1="${gx}" y1="${gy1 + 7}" x2="${gx}" y2="${gy2 - 7}"
         stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="18,9"/>
       <polygon points="${gx},${gy1} ${gx - 4},${gy1 + 7} ${gx + 4},${gy1 + 7}"
@@ -172,13 +244,13 @@ function renderPanelSVG(piece) {
         const dy1 = oy * DPI;
         const dy2 = (oy + d.length) * DPI;
         const halfW = (d.intake / 2) * DPI;
-        return `<line x1="${dx - halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
+        return `<line x1="${dx - halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
       }).join('\n')}
       ${renderNotchesPrint(saPolygon, notches, ox, oy)}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
-        font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a">
+        font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
       </text>
     </svg>`,
@@ -207,9 +279,8 @@ function renderBodiceOrSleeveSVG(piece) {
   // Compute SA outline using shared offsetPolygon (fold-edge = 0 offset)
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
   const ea = piece.edgeAllowances;
-  const saPoints = offsetPolygon(polygon, i => {
+  const saPoints = offsetPolygon(polygon, (i, a, b) => {
     if (ea && ea[i]) return -ea[i].sa;
-    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
     return -sa;
   });
@@ -220,8 +291,40 @@ function renderBodiceOrSleeveSVG(piece) {
     return d + ' Z';
   }
 
-  const cutPath = pts2path(saPoints);
-  const sewPath = pts2path(polygon);
+  const cutPath = pts2path(polygon);
+  // ── HYBRID STITCH PATH — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+  // Same algorithm as pattern-view.js renderGenericPieceSVG: Catmull-Rom for .curve sections,
+  // L for structural edges. Duplicate-endpoint phantoms at curve run boundaries.
+  const sewPath = (() => {
+    const hasCurve = saPoints.some(p => p.curve);
+    if (!hasCurve) return pts2path(saPoints);
+    const pts = saPoints.map(p => ({ x: (ox + p.x) * DPI, y: (oy + p.y) * DPI, curve: p.curve }));
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let i = 1; i < pts.length; i++) {
+      if (!pts[i].curve) {
+        d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+      } else {
+        const before = pts[i - 1];
+        const curveRun = [];
+        while (i < pts.length && pts[i].curve) curveRun.push(pts[i++]);
+        const after = i < pts.length ? pts[i] : pts[0];
+        d += ` L ${curveRun[0].x.toFixed(1)} ${curveRun[0].y.toFixed(1)}`;
+        const run = [curveRun[0], ...curveRun, curveRun[curveRun.length - 1]];
+        for (let k = 1; k < run.length - 2; k++) {
+          const p0 = run[k - 1], p1 = run[k], p2 = run[k + 1];
+          const p3 = run[Math.min(run.length - 1, k + 2)];
+          const b1x = p1.x + (p2.x - p0.x) / 6;
+          const b1y = p1.y + (p2.y - p0.y) / 6;
+          const b2x = p2.x - (p3.x - p1.x) / 6;
+          const b2y = p2.y - (p3.y - p1.y) / 6;
+          d += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+        }
+        d += ` L ${after.x.toFixed(1)} ${after.y.toFixed(1)}`;
+        i--;
+      }
+    }
+    return d + ' Z';
+  })();
 
   const gx  = (ox + (minX + maxX) / 2) * DPI;
   const gy1 = (oy + minY + pH * 0.2)   * DPI;
@@ -247,17 +350,17 @@ function renderBodiceOrSleeveSVG(piece) {
       <path d="${sewPath}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       ${cutOnFold ? `
       <line x1="${(ox + minX) * DPI}" y1="${gy1}" x2="${(ox + minX) * DPI}" y2="${gy2}"
-        stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
+        stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
       ${(() => { const fx = (ox + minX) * DPI, aw = 5, ah = 3;
         const count = Math.max(2, Math.min(5, Math.floor((gy2 - gy1) / 30)));
         const inset = (gy2 - gy1) * 0.15;
         let arrows = '';
         for (let i = 0; i < count; i++) {
           const ay = gy1 + inset + (gy2 - gy1 - 2 * inset) * i / (count - 1);
-          arrows += '<polygon points="' + (fx + 10 - aw) + ',' + ay + ' ' + (fx + 10) + ',' + (ay - ah) + ' ' + (fx + 10) + ',' + (ay + ah) + '" fill="#b8963e"/>';
+          arrows += '<polygon points="' + (fx + 10 - aw) + ',' + ay + ' ' + (fx + 10) + ',' + (ay - ah) + ' ' + (fx + 10) + ',' + (ay + ah) + '" fill="#555"/>';
         }
         const my = (gy1 + gy2) / 2;
-        arrows += '<text x="' + (fx + 6) + '" y="' + my + '" font-family="IBM Plex Mono,monospace" font-size="9" fill="#b8963e" text-anchor="middle" letter-spacing="2" transform="rotate(-90,' + (fx + 6) + ',' + my + ')">PLACE ON FOLD</text>';
+        arrows += '<text x="' + (fx + 6) + '" y="' + my + '" font-family="IBM Plex Mono,monospace" font-size="9" fill="#555" text-anchor="middle" letter-spacing="2" transform="rotate(-90,' + (fx + 6) + ',' + my + ')">PLACE ON FOLD</text>';
         return arrows;
       })()}
       ` : `
@@ -279,12 +382,12 @@ function renderBodiceOrSleeveSVG(piece) {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
         const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
         const lx = (ox + d.sideX) * DPI, ly = (oy + d.lowerY) * DPI;
-        return `<line x1="${ux.toFixed(1)}" y1="${uy.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <text x="${(ax - 10).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
+        return `<line x1="${ux.toFixed(1)}" y1="${uy.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
+        <text x="${(ax - 10).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
       }).join('\n')}
       <text x="${titleX}" y="${noteY}"
-        font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a"
+        font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>
     </svg>`,
   };
@@ -294,20 +397,42 @@ function renderBodiceOrSleeveSVG(piece) {
  * Render a rectangle piece at 1:1.
  * Returns { svg, wIn, hIn }.
  */
-function renderRectSVG(piece) {
+function renderRectSVG(piece, { compact = false, fold = false } = {}) {
   const { name, dimensions, sa } = piece;
-  const W = dimensions.length;
+  const fullW = dimensions.length;
   const H = dimensions.width;
+  // If fold is true, print half the length with a fold line on the left edge
+  const W = fold ? fullW / 2 : fullW;
 
-  const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
-  const wIn = mL + W + mR;
-  const hIn = mT + H + mB;
+  const M = compact ? 0.3 : MARGIN;
+  const wIn = M + W + M;
+  const hIn = M + H + M;
 
-  const rx = mL * DPI, ry = mT * DPI;
+  const rx = M * DPI, ry = M * DPI;
   const rW = W * DPI,  rH = H * DPI;
   const saOff = (sa || 0.625) * DPI;
-  const cx = (mL + W / 2) * DPI;
-  const cy = (mT + H / 2) * DPI;
+  const cx = (M + W / 2) * DPI;
+  const cy = (M + H / 2) * DPI;
+
+  const foldLabel = fold ? `${fmtInches(fullW)} full (place on fold)` : `${fmtInches(W)}`;
+  const dimLabel = `${foldLabel} \xd7 ${fmtInches(H)}`;
+
+  // Fold-line indicator on the left edge
+  let foldSvg = '';
+  if (fold) {
+    const fx = rx;
+    const fy1 = ry + rH * 0.1, fy2 = ry + rH * 0.9;
+    const fmy = (fy1 + fy2) / 2;
+    foldSvg = `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+    // Small fold arrows
+    const aw = 4, ah = 3;
+    const inset = (fy2 - fy1) * 0.15;
+    for (let i = 0; i < 3; i++) {
+      const ay = fy1 + inset + (fy2 - fy1 - 2 * inset) * i / 2;
+      foldSvg += `<polygon points="${fx + 8 - aw},${ay} ${fx + 8},${ay - ah} ${fx + 8},${ay + ah}" fill="#555"/>`;
+    }
+    foldSvg += `<text x="${fx + 5}" y="${fmy}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90,${fx + 5},${fmy})">FOLD</text>`;
+  }
 
   return {
     wIn,
@@ -321,15 +446,16 @@ function renderRectSVG(piece) {
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
         stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
       <line x1="${cx}" y1="${ry}" x2="${cx}" y2="${ry + rH}"
-        stroke="#d0ccc4" stroke-width="0.6" stroke-dasharray="8,6"/>
+        stroke="#999" stroke-width="0.6" stroke-dasharray="8,6"/>
       <line x1="${rx}" y1="${cy}" x2="${rx + rW}" y2="${cy}"
-        stroke="#d0ccc4" stroke-width="0.6" stroke-dasharray="8,6"/>
-      <text x="${cx}" y="${(mT - 0.12) * DPI}"
-        font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
+        stroke="#999" stroke-width="0.6" stroke-dasharray="8,6"/>
+      ${foldSvg}
+      <text x="${cx}" y="${(M - 0.08) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
       <text x="${cx}" y="${cy}"
-        font-family="'IBM Plex Mono',monospace" font-size="12"
-        fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
+        fill="#888" text-anchor="middle">${dimLabel}</text>
     </svg>`,
   };
 }
@@ -338,19 +464,19 @@ function renderRectSVG(piece) {
  * Render a pocket piece at 1:1.
  * Returns { svg, wIn, hIn }.
  */
-function renderPocketSVG(piece) {
+function renderPocketSVG(piece, { compact = false } = {}) {
   const { name, dimensions } = piece;
   // Pocket bags use { width, height }; strip pieces (collar, facing, tie) use { length, width }
   const W = dimensions.length ?? dimensions.width;
   const H = dimensions.height  ?? dimensions.width;
 
-  const mL = MARGIN, mT = MARGIN, mR = MARGIN, mB = MARGIN;
-  const wIn = mL + W + mR;
-  const hIn = mT + H + mB;
+  const M = compact ? 0.3 : MARGIN;
+  const wIn = M + W + M;
+  const hIn = M + H + M;
 
-  const rx = mL * DPI, ry = mT * DPI;
+  const rx = M * DPI, ry = M * DPI;
   const rW = W * DPI,  rH = H * DPI;
-  const cx = (mL + W / 2) * DPI;
+  const cx = (M + W / 2) * DPI;
 
   return {
     wIn,
@@ -360,11 +486,11 @@ function renderPocketSVG(piece) {
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
         stroke="#2c2a26" stroke-width="2" fill="none"/>
-      <text x="${cx}" y="${(mT - 0.12) * DPI}"
-        font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
+      <text x="${cx}" y="${(M - 0.08) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
-      <text x="${cx}" y="${(mT + H / 2) * DPI}"
-        font-family="'IBM Plex Mono',monospace" font-size="12"
+      <text x="${cx}" y="${(M + H / 2) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
     </svg>`,
   };
@@ -523,6 +649,24 @@ function renderPiece(piece) {
   return null;
 }
 
+/**
+ * Render a small piece compactly for bin-packing onto shared pages.
+ * - Rectangles (waistbands): fold in half along the length, print half with fold line
+ * - Pockets: render with tight 0.3″ margins instead of 1.5″
+ * Returns null for piece types that shouldn't be bin-packed (panels, bodice, sleeve).
+ */
+function renderPieceCompact(piece) {
+  if (piece.type === 'rectangle') {
+    // Waistbands and neckbands are symmetric — fold in half to save paper
+    const isWaistband = piece.id === 'waistband' || piece.id === 'neckband';
+    return renderRectSVG(piece, { compact: true, fold: isWaistband });
+  }
+  if (piece.type === 'pocket') {
+    return renderPocketSVG(piece, { compact: true });
+  }
+  return null;
+}
+
 // ── Tile page builder ──────────────────────────────────────────────────────
 
 function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
@@ -594,6 +738,14 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
         ${overlapSvgs}
         ${chSVG}
         ${ruler}
+        ${(col === 0 && row === 0) ? `<svg xmlns="http://www.w3.org/2000/svg"
+          style="position:absolute;bottom:${SM + 0.15}in;right:${SM + 0.15}in;width:1.4in;height:1.4in;
+                 pointer-events:none;z-index:12;overflow:visible">
+          <rect x="4" y="4" width="${DPI}" height="${DPI}" fill="none" stroke="#000" stroke-width="1"/>
+          <line x1="4" y1="${4 + DPI / 2}" x2="${4 + DPI}" y2="${4 + DPI / 2}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
+          <line x1="${4 + DPI / 2}" y1="4" x2="${4 + DPI / 2}" y2="${4 + DPI}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
+          <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
+        </svg>` : ''}
         <div class="tile-footer">
           <span class="tf-name">${piece.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
           <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
@@ -665,14 +817,16 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
 // ── Tile map (page 2 overview) ─────────────────────────────────────────────
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
-  const CELL_W = 44, CELL_H = 18, GAP = 5, PAD = 10;
+  const GAP = 5, PAD = 10;
   const SVG_W = 460;
   const COL_GAP = 40;
 
-  // Escape XML special chars so piece names never bleed into surrounding markup
+  // Landscape cells are wider than tall; portrait cells are taller than wide
+  const P_CELL_W = 36, P_CELL_H = 22;  // portrait
+  const L_CELL_W = 46, L_CELL_H = 16;  // landscape
+
   const xmlEsc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-  // Resolve piece dimensions (returns null to skip)
   function pieceDims(piece) {
     if (piece.type === 'panel') {
       const sa = piece.sa || 0.5;
@@ -692,51 +846,87 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
     return null;
   }
 
-  // Filter pieces that have renderable dimensions
-  const valid = pieces.filter(p => pieceDims(p) !== null);
-  const n = valid.length;
+  // Classify pieces into tiled (large) and bin-packed (small)
+  const tiledEntries = [];
+  const smallNames = [];
+  for (const piece of pieces) {
+    const dims = pieceDims(piece);
+    if (!dims) continue;
+    const compactRendered = renderPieceCompact(piece);
+    if (compactRendered) {
+      const layout = computeTileLayout(compactRendered.wIn, compactRendered.hIn, piece, PW, PH, OV);
+      if (layout.cols === 1 && layout.rows === 1) {
+        smallNames.push(piece.name);
+        continue;
+      }
+    }
+    tiledEntries.push({ piece, dims });
+  }
 
-  // Column count: 1 for ≤3 pieces, 2 for 4-6, 3 for 7+
+  // Build display list: tiled pieces + one "Small Pieces" group
+  const displayList = tiledEntries.map(({ piece, dims }) => {
+    const layout = computeTileLayout(dims.wIn, dims.hIn, piece, PW, PH, OV);
+    return { name: piece.name, landscape: layout.landscape, cols: layout.cols, rows: layout.rows };
+  });
+  if (smallNames.length > 0) {
+    displayList.push({ name: 'Small Pieces', landscape: false, cols: 1, rows: 1, smallNames });
+  }
+
+  const n = displayList.length;
   const numCols = n >= 7 ? 3 : n >= 4 ? 2 : 1;
   const perCol = Math.ceil(n / numCols);
-  const colW = (SVG_W - PAD * 2 - COL_GAP * (numCols - 1)) / numCols;
 
   let items = '';
   let maxH = 0;
 
   for (let ci = 0; ci < numCols; ci++) {
-    const col = valid.slice(ci * perCol, (ci + 1) * perCol);
-    const xOff = PAD + ci * (colW + COL_GAP);
+    const col = displayList.slice(ci * perCol, (ci + 1) * perCol);
+    const xOff = PAD + ci * ((SVG_W - PAD * 2) / numCols + (ci > 0 ? 0 : 0));
+    const colXOff = PAD + ci * ((SVG_W - PAD * 2 - COL_GAP * (numCols - 1)) / numCols + COL_GAP);
     let y = PAD;
 
-    for (const piece of col) {
-      const { wIn, hIn } = pieceDims(piece);
-      const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
-      const { landscape, cols, rows } = layout;
+    for (const entry of col) {
+      const { name, landscape, cols, rows, smallNames: sn } = entry;
       const total = rows * cols;
-      const orientNote = landscape ? ' \xb7 L' : '';
-      const countLabel = `${rows}\xd7${cols} = ${total} page${total !== 1 ? 's' : ''}${orientNote}`;
+      const cellW = landscape ? L_CELL_W : P_CELL_W;
+      const cellH = landscape ? L_CELL_H : P_CELL_H;
+      const orientLabel = landscape ? 'landscape' : 'portrait';
+      const countLabel = sn
+        ? `${sn.length} pieces \xb7 bin-packed`
+        : `${rows}\xd7${cols} = ${total} pg \xb7 ${orientLabel}`;
 
-      // Piece name — each on its own element, explicitly terminated, XML-escaped
-      items += `\n<text x="${xOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(piece.name)}</text>`;
-      // Count label — separate element at different x
-      items += `\n<text x="${xOff + cols * (CELL_W + GAP) + 8}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">${countLabel}</text>`;
+      items += `\n<text x="${colXOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(name)}</text>`;
+      items += `\n<text x="${colXOff + cols * (cellW + GAP) + 8}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">${countLabel}</text>`;
 
       y += 18;
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const cx = xOff + c * (CELL_W + GAP);
-          const cy = y + r * (CELL_H + GAP);
-          const fill = landscape
-            ? ((r + c) % 2 === 0 ? '#e8f0f8' : '#dce8f4')
-            : ((r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd');
-          items += `\n<rect x="${cx}" y="${cy}" width="${CELL_W}" height="${CELL_H}" rx="2" fill="${fill}" stroke="#bbb" stroke-width="0.7"/>`;
-          items += `\n<text x="${cx + CELL_W / 2}" y="${cy + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">${r + 1}-${c + 1}</text>`;
+      if (sn) {
+        // Small pieces group — show a single cell with piece count
+        const bx = colXOff, by = y;
+        items += `\n<rect x="${bx}" y="${by}" width="${cellW * 2}" height="${cellH}" rx="2" fill="#f0ead6" stroke="#555" stroke-width="0.7"/>`;
+        items += `\n<text x="${bx + cellW}" y="${by + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle">${sn.length} pcs</text>`;
+        y += cellH + GAP;
+        // List piece names below in small text
+        for (const sName of sn) {
+          items += `\n<text x="${colXOff + 6}" y="${y + 8}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#999">\u2022 ${xmlEsc(sName)}</text>`;
+          y += 11;
         }
+      } else {
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const cx = colXOff + c * (cellW + GAP);
+            const cy = y + r * (cellH + GAP);
+            const fill = landscape
+              ? ((r + c) % 2 === 0 ? '#e8f0f8' : '#dce8f4')
+              : ((r + c) % 2 === 0 ? '#f0eeea' : '#e8e4dd');
+            items += `\n<rect x="${cx}" y="${cy}" width="${cellW}" height="${cellH}" rx="2" fill="${fill}" stroke="#bbb" stroke-width="0.7"/>`;
+            items += `\n<text x="${cx + cellW / 2}" y="${cy + (cellH / 2 + 4)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666" text-anchor="middle">${r + 1}-${c + 1}</text>`;
+          }
+        }
+        y += rows * (cellH + GAP);
       }
 
-      y += rows * (CELL_H + GAP) + 14;
+      y += 14;
     }
 
     maxH = Math.max(maxH, y);
@@ -825,7 +1015,18 @@ function buildScalePage(pieces, PW, PH, OV) {
       <h3 class="sect-head">Print Accuracy \u2014 Measure before cutting any fabric</h3>
       <p class="note">If either square is wrong, check that your printer scale is set to 100%.</p>
       <div class="sq-row">
-        ${scaleSVG(sq2px, 'Must measure exactly 2 \xd7 2 inches')}
+        <div class="sq-item">
+          <svg xmlns="http://www.w3.org/2000/svg" width="${sq2px}" height="${sq2px}"
+              viewBox="0 0 ${sq2px} ${sq2px}" style="display:block">
+            <rect x="1" y="1" width="${sq2px - 2}" height="${sq2px - 2}"
+              fill="none" stroke="#2c2a26" stroke-width="1.5" data-scale-check="2in"/>
+            <line x1="${sq2px / 2}" y1="1" x2="${sq2px / 2}" y2="${sq2px - 1}"
+              stroke="#ccc" stroke-width="0.7"/>
+            <line x1="1" y1="${sq2px / 2}" x2="${sq2px - 1}" y2="${sq2px / 2}"
+              stroke="#ccc" stroke-width="0.7"/>
+          </svg>
+          <div class="sq-label">Must measure exactly 2 \xd7 2 inches</div>
+        </div>
         ${scaleSVG(sq5px, 'Must measure exactly 5 \xd7 5 cm')}
       </div>
     </div>
@@ -1190,7 +1391,22 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
     tilePages = largePieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('')
               + buildNestedSmallPages(smallQueue, PW, PH);
   } else {
-    tilePages = pieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('');
+    // Separate pieces into large (multi-tile) and small (single-tile, bin-packable)
+    const largePieces = [], smallQueue = [];
+    for (const p of pieces) {
+      // Try compact render first for small pieces (pockets, rectangles)
+      const compactRendered = renderPieceCompact(p);
+      if (compactRendered) {
+        const layout = computeTileLayout(compactRendered.wIn, compactRendered.hIn, p, PW, PH, OV);
+        if (layout.cols === 1 && layout.rows === 1) {
+          smallQueue.push({ rendered: compactRendered, piece: p });
+          continue;
+        }
+      }
+      largePieces.push(p);
+    }
+    tilePages = largePieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('')
+              + buildNestedSmallPages(smallQueue, PW, PH);
   }
 
   return `<!DOCTYPE html>

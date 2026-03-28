@@ -9,7 +9,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution,
+  fmtInches, easeDistribution, insetCrotchBezier,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -163,7 +163,8 @@ export default {
     }));
 
     // ── WAISTBAND ────────────────────────────────────────────────────────────
-    const wbCirc = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+    // Structured/contoured sits at waist; elastic must pass over hips
+    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease.total + pleatExtra * 2 + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       // 1.5″ finished = 3″ cut
@@ -207,8 +208,8 @@ export default {
 
     // ── FRONT POCKETS ────────────────────────────────────────────────────────
     if (opts.pockets === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface or self-fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric',           dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface or self-fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric',           dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     } else if (opts.pockets === 'welt') {
@@ -240,8 +241,8 @@ export default {
       notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic for waistband casing' });
     }
     if (opts.waistband === 'wide') {
-      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham — optional facing for wide waistband interior' });
-      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 — waistband closure' });
+      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham - optional facing for wide waistband interior' });
+      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 - waistband closure' });
     }
 
     return buildMaterialsSpec({
@@ -251,15 +252,15 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'blindhem'],
       notes: [
-        'Drapey fabrics hang better on wide legs — avoid stiff canvas or structured wovens that will tent at the hip',
+        'Drapey fabrics hang better on wide legs - avoid stiff canvas or structured wovens that will tent at the hip',
         'Use a universal 80/12 needle for lighter fabrics (rayon, lawn); step up to 90/14 for wool or linen',
-        'Stay-stitch the waist seam (⅝″ from edge) BEFORE attaching waistband — drapey fabrics stretch on the bias at the waist',
-        '{press} pleats with steam from the WS — use a {press} cloth on rayon and wool to prevent shine',
+        'Stay-stitch the waist seam (⅝″ from edge) BEFORE attaching waistband - drapey fabrics stretch on the bias at the waist',
+        '{press} pleats with steam from the WS - use a {press} cloth on rayon and wool to prevent shine',
         'Grade seam allowances at the waistband to reduce bulk: trim each layer to a different width before folding over',
         'For an invisible hem: fold up hem allowance, {press}, and hand-sew with a catch stitch or use a blind hem foot at the shortest stitch length',
-        'Pre-wash rayon and tencel before cutting — both can shrink 3–5% and they are not dry-cleanable',
+        'Pre-wash rayon and tencel before cutting - both can shrink 3–5% and they are not dry-cleanable',
         'Linen note: wash in hot water twice to preshrink fully. {press} damp with high steam.',
-        'Trouser break: fit the hem while wearing the shoes you plan to wear — mark break at the top of the shoe, approximately ½–¾″ of fabric resting forward on the shoe.',
+        'Trouser break: fit the hem while wearing the shoes you plan to wear - mark break at the top of the shoe, approximately ½–¾″ of fabric resting forward on the shoe.',
       ],
     });
   },
@@ -301,14 +302,14 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. {baste} across waist at ⅜″. {press} pleat from WS using steam and a {press} cloth — {press} only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT {press} the full leg length.`,
+        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. {baste} across waist at ⅜″. {press} pleat from WS using steam and a {press} cloth - {press} only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT {press} the full leg length.`,
       });
     }
 
     // Stay-stitch
     steps.push({
       step: n++, title: 'Stay-stitch waist',
-      detail: 'Before attaching waistband, stay-stitch ⅝″ from the waist edge all the way around — front panels, back panels. Sew directionally (side seam toward CF; side seam toward CB). This prevents the waist from stretching while you handle the trouser.',
+      detail: 'Before attaching waistband, stay-stitch ⅝″ from the waist edge all the way around - front panels, back panels. Sew directionally (side seam toward CF; side seam toward CB). This prevents the waist from stretching while you handle the trouser.',
     });
 
     // Fly or CF seam
@@ -332,22 +333,22 @@ export default {
     if (opts.waistband === 'structured') {
       steps.push({
         step: n++, title: 'Construct structured waistband',
-        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Turn, {press}. Sew to trouser waist {RST}. Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
+        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends - right side with 1″ extension for button overlap. Trim SA to 3mm at short ends, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sew to trouser waist {RST}. Fold over to inside, {slipstitch} or {edgestitch}. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
       });
     } else if (opts.waistband === 'elastic') {
       steps.push({
         step: n++, title: 'Construct elastic waistband casing',
-        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, zigzag. Close gap. {topstitch} close to folded edge.',
+        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, {zigzag}. Close gap. {topstitch} close to folded edge.',
       });
     } else {
       steps.push({
         step: n++, title: 'Construct wide/petersham waistband',
-        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, {clip} curves. Fold waistband over, {press}. Grade SA in layers to reduce bulk. {topstitch} or slipstitch inner edge. Install hook-and-eye at closure.',
+        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, {clip} curves. Fold waistband over, {press}. Grade SA in layers to reduce bulk. {topstitch} or {slipstitch} inner edge. Install hook-and-eye at closure.',
       });
     }
 
     steps.push({
-      step: n++, title: 'Hem — fit first',
+      step: n++, title: 'Hem - fit first',
       detail: `Try on trousers with your intended shoes. Mark the trouser break (hem rests at top of shoe with ½–¾″ draping forward). For straight hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand sew with catch stitch or blind hem stitch for an invisible finish. For wide cuff: fold up ${fmtInches(parseFloat(opts.hem))} to outside, {press} crisp fold, {topstitch} or hand stitch.`,
     });
 
@@ -365,7 +366,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Waist-to-hip shaping: all taper on side seam, center seam stays at x=0
   const sideWaistX = waistWidth;
@@ -377,12 +378,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: hipWidth,     y: height  });
   poly.push({ x: -ext,         y: height  });
   poly.push({ x: -ext,         y: rise    });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -426,6 +427,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, pleats, darts, crotchBezier: ccp, type: 'panel', opts,
+    notches, pleats, darts, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }

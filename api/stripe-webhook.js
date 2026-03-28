@@ -123,5 +123,37 @@ export default async function handler(req, res) {
     }).catch(err => console.error('PDF generation trigger failed:', err));
   }
 
+  // ── checkout.session.expired — cart abandon email ─────────────────────────
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    const email   = session.customer_details?.email || session.metadata?.email;
+    const garmentId = session.metadata?.garmentId;
+
+    if (email && garmentId) {
+      // Check we haven't already sent this user a cart abandon for this garment
+      const { count } = await supabase
+        .from('email_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('email', email)
+        .eq('template', 'CART_ABANDON')
+        .eq('garment_id', garmentId);
+
+      if ((count ?? 0) === 0) {
+        sendEmail('CART_ABANDON', email, {
+          garmentName: garmentId.replace(/-/g, ' '),
+          checkoutUrl: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://peoplespatterns.com'}/?step=1&garment=${garmentId}`,
+        })
+          .then(() => supabase.from('email_log').insert({
+            user_id:    session.metadata?.userId || null,
+            email,
+            template:   'CART_ABANDON',
+            garment_id: garmentId,
+            metadata:   { stripe_session: session.id },
+          }))
+          .catch(err => console.error('Cart abandon email failed:', err));
+      }
+    }
+  }
+
   res.status(200).json({ received: true });
 }

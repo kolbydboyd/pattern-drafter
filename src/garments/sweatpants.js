@@ -8,7 +8,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, LEG_SHAPES
+  fmtInches, LEG_SHAPES, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -34,8 +34,8 @@ export default {
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight — twin needle hem',  reference: 'classic, relaxed'    },
-        { value: 'jogger',   label: 'Jogger — tapered + rib cuff', reference: 'streetwear, tapered' },
+        { value: 'straight', label: 'Straight - twin needle hem',   reference: 'classic, relaxed'    },
+        { value: 'jogger',   label: 'Jogger - tapered + rib cuff',  reference: 'streetwear, tapered' },
       ],
       default: 'straight',
     },
@@ -153,8 +153,8 @@ export default {
       });
     }
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -188,11 +188,11 @@ export default {
     const isJogger = opts.legStyle === 'jogger';
 
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.85)}″ — back half of waistband` },
-      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ — front tie + tails` },
+      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.85)}″ - back half of waistband` },
+      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ - front tie + tails` },
     ];
     if (isJogger) {
-      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs — high recovery stretch' });
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs - high recovery stretch' });
     }
 
     return buildMaterialsSpec({
@@ -202,11 +202,11 @@ export default {
       needle: 'ballpoint-90',
       stitches: ['stretch', 'overlock', 'zigzag-med', 'coverstitch'],
       notes: [
-        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry — prevents skipped stitches',
-        'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
-        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery — no hem needed' : 'twin needle creates two parallel rows of {topstitch} visible from RS; or use coverstitch if available'}`,
-        'Pre-wash fleece/terry before cutting — knits can shrink 3–5% in first wash',
-        'Do not {press} fleece with high heat — use low steam or finger {press} seams open',
+        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry - prevents skipped stitches',
+        'Use stretch stitch or serger for ALL seams - a straight stitch will pop when stretched',
+        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery - no hem needed' : 'twin needle creates two parallel rows of {topstitch} visible from RS; or use coverstitch if available'}`,
+        'Pre-wash fleece/terry before cutting - knits can shrink 3–5% in first wash',
+        'Do not {press} fleece with high heat - use low steam or finger {press} seams open',
         'Elastic runs through back half of waistband only. Drawstring ties at front only.',
       ],
     });
@@ -236,7 +236,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
+      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing - length = half the waist minus a little ease. Overlap elastic ends 1″, {zigzag}. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
     });
 
     if (isJogger) {
@@ -247,7 +247,7 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Hem',
-        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, {press}. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, {topstitch} with zigzag or stretch stitch.`,
+        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, {press}. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, {topstitch} with {zigzag} or stretch stitch.`,
       });
     }
 
@@ -262,7 +262,7 @@ export default {
 
 function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const kneeY       = rise + inseam * 0.55;
   const kneeW       = calf  ? calf  / 2 + 0.5 : width * shape.knee;
@@ -282,12 +282,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: inseamHemX,  y: height });
   poly.push({ x: inseamKneeX, y: kneeY  });
   poly.push({ x: -ext,        y: rise   });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -317,6 +317,9 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, crotchBezier: ccp, type: 'panel', opts,
+    notches, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }

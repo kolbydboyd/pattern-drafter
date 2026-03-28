@@ -8,7 +8,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution
+  fmtInches, easeDistribution, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -133,7 +133,7 @@ export default {
     }));
 
     // ── CURTAIN WAISTBAND (2″ finished) ──
-    const wbLen = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+    const wbLen = m.waist + ease.total + pleatExtra * 2 + sa * 2;
     const wbW   = 4;  // 2″ finished = 4″ cut (doubled + SA)
     pieces.push({
       id: 'waistband',
@@ -158,8 +158,8 @@ export default {
     // ── POCKETS ──
     pieces.push({ id: 'welt-back',  name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface or match fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric', dimensions: { width: 7, height: 12 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface or match fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric', dimensions: { width: 7, height: 12 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -177,7 +177,7 @@ export default {
       { ref: 'interfacing-heavy', quantity: '0.25 yard (waistband outer layer only)' },
       { name: 'Metal zipper',    quantity: `${Math.ceil((m.rise || 12) * 0.6)}″`, notes: 'Concealed or metal coil' },
       { name: 'Waistband button', quantity: '1', notes: '¾″ shank button, quality metal' },
-      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 — waistband + French bearer' },
+      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 - waistband + French bearer' },
     ];
 
     return buildMaterialsSpec({
@@ -188,11 +188,11 @@ export default {
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
         '{press} with steam on a wool setting. Always use a {press} cloth to prevent shine on wool and rayon.',
-        'Interface ALL waistband layers for structure — use heavy interfacing on the outer layer',
+        'Interface ALL waistband layers for structure - use heavy interfacing on the outer layer',
         'The French bearer is the inner hook extension at CF that keeps the waistband flat under the trouser front. Cut from matching fabric, interface, fold and {press}.',
-        'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting — dry clean before cutting if needed.',
-        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/zigzag.',
-        'Hem note: dress trousers should have a slight BREAK at the shoe — hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
+        'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting - dry clean before cutting if needed.',
+        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/{zigzag}.',
+        'Hem note: dress trousers should have a slight BREAK at the shoe - hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
         'Bar tack all pocket openings and crotch junction.',
       ],
     });
@@ -229,21 +229,21 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct curtain waistband',
-      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
+      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends - note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or {slipstitch} inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
     });
     steps.push({
       step: n++, title: 'Construct and attach French bearer',
-      detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew edges, turn, {press}. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
+      detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew short ends and long open edge, leaving a 2″ gap for turning. Trim SA to 3mm, {clip} corners diagonally. Turn RS out through gap, push corners with {point turner}. {press}. {slipstitch} gap closed. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
       detail: 'Fold, {press}, {topstitch} loop strips. Attach at CB, side seams, flanking CF. Bar tack top and bottom.',
     });
     steps.push({
-      step: n++, title: 'Hem — fit first',
-      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand slipstitch or blind hem stitch for an invisible finish on dress trousers.`,
+      step: n++, title: 'Hem - fit first',
+      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand {slipstitch} or blind hem stitch for an invisible finish on dress trousers.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases — align side seam to inseam and {press} fold from waist to hem.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases - align side seam to inseam and {press} fold from waist to hem.' });
 
     return steps;
   },
@@ -254,7 +254,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   // Waist-to-hip shaping: all taper on side seam, center seam stays at x=0
   const sideWaistX = waistWidth;
@@ -266,12 +266,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: hipWidth,     y: height  });   // hem at side seam
   poly.push({ x: -ext,         y: height  });
   poly.push({ x: -ext,         y: rise    });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -315,6 +315,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, pleats, darts, crotchBezier: ccp, type: 'panel', opts,
+    notches, pleats, darts, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }

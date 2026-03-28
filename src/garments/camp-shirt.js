@@ -8,7 +8,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve,
+  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -105,18 +105,19 @@ export default {
     const halfShoulder  = m.shoulder / 2;
     const neckW         = neckWidthFromCircumference(m.neck);
     const shoulderW     = halfShoulder - neckW;
-    const slopeDrop     = 1.75;
+    const slopeDrop     = shoulderDropFromWidth(shoulderW);
     const shoulderPtX   = neckW + shoulderW;
     const armholeY      = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    const backChestDepth = chestDepth;
     const torsoLen      = m.torsoLength;
     const slvLength     = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
 
     // Neckline curves
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
     function sampleCurve(cp, steps = 12) {
-      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
+      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true }));
     }
 
     function polyToPathStr(poly) {
@@ -146,15 +147,18 @@ export default {
     // CF low point → shoulder-neck junction (reverse neck curve, shifted to x-axis)
     const neckFrontRev = [...frontNeckPts].reverse();
     for (const p of neckFrontRev) {
-      frontPoly.push({ x: neckW - p.x, y: p.y });
+      frontPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
     // Shoulder-neck → shoulder point
     for (let i = 1; i < shoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      frontPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     // Shoulder point → underarm (front armhole)
     for (let i = 1; i < frontArmPts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     }
     // Underarm → hem
     const sideX = shoulderPtX + chestDepth;
@@ -169,13 +173,16 @@ export default {
 
     const neckBackRev = [...backNeckPts].reverse();
     for (const p of neckBackRev) {
-      backPoly.push({ x: neckW - p.x, y: p.y });
+      backPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < shoulderPts.length; i++) {
-      backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
     for (let i = 1; i < backArmPts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     }
     const backSideX = shoulderPtX + backChestDepth;
     backPoly.push({ x: backSideX, y: torsoLen });
@@ -374,7 +381,7 @@ export default {
     const isLong   = opts.sleeveStyle === 'long';
 
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) — +1 spare` },
+      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) - +1 spare` },
       { ref: 'interfacing-light', quantity: '0.5 yard (collar + placket facings)' },
     ];
 
@@ -385,11 +392,11 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-1.8', 'zigzag-small'],
       notes: [
-        'Pre-wash fabric before cutting — linen can shrink 5–8%, rayon 3–5%',
-        'French seams optional: sew WS together at 3mm, trim, fold, sew RS together at 6mm — clean interior, no serger needed',
-        `Button spacing: divide placket length by ${btnCount - 1} — place top button 1″ from neckline, bottom button 1″ from hem`,
-        'Interface collar (outer layer only) with woven or sew-in interfacing — fusible can show through light fabrics',
-        'Sew buttonholes before attaching buttons — test buttonhole size on a scrap first',
+        'Pre-wash fabric before cutting - linen can shrink 5–8%, rayon 3–5%',
+        'French seams optional: sew WS together at 3mm, trim, fold, sew RS together at 6mm - clean interior, no serger needed',
+        `Button spacing: divide placket length by ${btnCount - 1} - place top button 1″ from neckline, bottom button 1″ from hem`,
+        'Interface collar (outer layer only) with woven or sew-in interfacing - fusible can show through light fabrics',
+        'Sew buttonholes before attaching buttons - test buttonhole size on a scrap first',
         isLong ? 'Long sleeve: roll up and hold with a button tab or hem at desired length before finishing' : '',
       ].filter(Boolean),
     });
@@ -403,7 +410,7 @@ export default {
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
-        detail: '{serge} or zigzag top edge. Fold top under ½″, {topstitch}. {press} remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. {topstitch} on 3 sides. Bar tack top corners.',
+        detail: '{serge} or {zigzag} top edge. Fold top under ½″, {topstitch}. {press} remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. {topstitch} on 3 sides. Bar tack top corners.',
       });
     }
 
@@ -414,7 +421,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare front plackets',
-      detail: `{press} center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, {press}. Sew facing to placket edge {RST}, {press}, fold under, slipstitch or {topstitch} to WS.`,
+      detail: `{press} center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, {press}. Sew facing to placket edge {RST}, {press}, fold under, {slipstitch} or {topstitch} to WS.`,
     });
 
     steps.push({
@@ -424,12 +431,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. {clip} curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. Slipstitch or edgestitch.',
+      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. {clip} curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. {slipstitch} or {edgestitch}.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with zigzag or French seam. {press} toward sleeve.',
+      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit - no ease needed for short sleeves. Sew. Finish seam with {zigzag} or French seam. {press} toward sleeve.',
     });
 
     steps.push({

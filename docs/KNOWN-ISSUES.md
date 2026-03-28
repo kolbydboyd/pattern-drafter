@@ -192,16 +192,18 @@ The post-render scale check queries `document.querySelector('.scale-check-square
 | ID | Description | Severity | Status |
 |---|---|---|---|
 | KI-001 | SA outline uses centroid scaling — inaccurate on bodice/sleeve | medium | ✅ fixed |
-| KI-002 | SA corner spikes at acute angles | low | open |
-| KI-003 | Slant pocket indicator doesn't annotate mirror direction | low | open |
-| KI-004 | Ext label clips at small crotch extension values | low | open |
+| KI-002 | SA corner spikes at acute angles | low | ✅ mitigated (2.5× miter cap + sanitizePoly) |
+| KI-003 | Slant pocket indicator doesn't annotate mirror direction | low | ✅ fixed (v0.8.0) |
+| KI-004 | Ext label clips at small crotch extension values | low | ✅ fixed (v0.8.0) |
 | KI-005 | Wrap dress front fold annotation incorrect | medium | ✅ fixed |
-| KI-006 | Wrap dress skirt panels use bodice SA scaling | low | open |
+| KI-006 | Wrap dress skirt panels use bodice SA scaling | low | ✅ fixed (v0.8.0) |
 | KI-007 | Five garments missing measurementDefaults | low | ✅ fixed |
 | KI-008 | tee.js used `ease` option key instead of `fit` | low | ✅ fixed |
-| KI-009 | Category `'tops'` vs `'upper'` inconsistency | low | open |
-| KI-010 | edgeAllowances dropped after sanitizePoly | low | mitigated |
-| KI-011 | Bust dart intake fixed at 1.5" | low | open |
+| KI-009 | Category `'tops'` vs `'upper'` inconsistency | low | ✅ not a bug |
+| KI-010 | edgeAllowances dropped after sanitizePoly | low | ✅ mitigated |
+| KI-011 | Bust dart intake fixed at 1.5" | low | ✅ fixed (v0.8.0) |
 | KI-012 | No PDF fallback renderer | medium | accepted |
-| KI-013 | Scale check depends on CSS class name | low | open |
+| KI-013 | Scale check depends on CSS class name | low | ✅ fixed (v0.8.0) |
+| KI-014 | Print colors too faint for B&W | medium | ✅ fixed (v0.8.0) |
+| KI-015 | Negative chestDepth when shoulder > chest panel | high | ✅ fixed (v0.8.0) |
 | — | console.log left in slant pocket renderer | — | ✅ removed |

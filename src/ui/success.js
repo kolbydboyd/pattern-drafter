@@ -4,6 +4,7 @@ import { getSession } from '../lib/auth.js';
 import { trackEvent, identifyUser } from '../analytics.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import GARMENTS from '../garments/index.js';
+import { PATTERN_PRICES } from '../lib/pricing.js';
 
 const params     = new URLSearchParams(location.search);
 const sessionId  = params.get('session_id');
@@ -37,7 +38,7 @@ async function init() {
   }
 
   elName.textContent   = info.garmentName;
-  elAmount.textContent = info.amountCents ? `— $${(info.amountCents / 100).toFixed(2)}` : '';
+  elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
   elState.hidden = false;
 
   trackEvent('purchase_completed', {
@@ -77,12 +78,19 @@ async function init() {
     if (recs[0]) {
       const g0 = GARMENTS[recs[0]];
       const upsellName = g0?.name ?? recs[0].replace(/-/g, ' ');
-      document.getElementById('success-upsell-text').textContent =
-        `Add ${upsellName} — same measurements, instant generation.`;
+      const upsellPrice = PATTERN_PRICES[recs[0]];
+      const fullPrice = upsellPrice ? (upsellPrice.cents / 100).toFixed(0) : '';
+      const discountPrice = upsellPrice ? (upsellPrice.cents * 0.75 / 100).toFixed(2) : '';
+      const priceNote = fullPrice
+        ? ` <span class="success-upsell-price"><s>$${fullPrice}</s> $${discountPrice}</span>`
+        : '';
+      document.getElementById('success-upsell-text').innerHTML =
+        `Add ${upsellName} - same measurements, 25% off.${priceNote}`;
       const upsellWrap = document.getElementById('success-upsell');
       upsellWrap.hidden = false;
       document.getElementById('success-upsell-btn').addEventListener('click', () => {
-        window.location.href = `/patterns/${recs[0]}`;
+        // Pass capsule discount flag via URL parameter
+        window.location.href = `/patterns/${recs[0]}?capsule=1&from=${info.garmentId}`;
       });
     }
   }

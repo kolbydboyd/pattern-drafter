@@ -27,7 +27,7 @@ async function generatePDF(html) {
   // Scale verification: check the 2x2" calibration square
   try {
     const box = await page.evaluate(() => {
-      const rect = document.querySelector('.scale-check-square');
+      const rect = document.querySelector('[data-scale-check]');
       if (!rect) return null;
       const r = rect.getBoundingClientRect();
       return { w: r.width, h: r.height };

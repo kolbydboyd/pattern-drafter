@@ -179,7 +179,8 @@ function foldIndicatorSVG(fx, fy1, fy2) {
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, crotchBezier, opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, opts,
+          crotchBezierSA } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -199,34 +200,6 @@ export function renderPanelSVG(piece) {
     return d + ' Z';
   }
 
-  // Build a stitch-line path that replaces the sampled crotch-curve polyline with a
-  // single smooth cubic bezier C command using the original control points.
-  // All other edges (straight seams, hem, inseam) remain as L segments.
-  // The bezier is traced in the reverse direction (p3 → p0) to match polygon winding.
-  function crotchPath(pts) {
-    if (!crotchBezier) return polyPath(pts);
-    const { p0, p1, p2, p3 } = crotchBezier;
-    // Find the polygon vertex that is the crotch extension tip (matches p3 in inch coords)
-    let p3Idx = -1;
-    for (let i = 0; i < polygon.length; i++) {
-      if (Math.abs(polygon[i].x - p3.x) < 0.02 && Math.abs(polygon[i].y - p3.y) < 0.02) {
-        p3Idx = i; break;
-      }
-    }
-    if (p3Idx === -1) return polyPath(pts); // fallback if not found
-    // Convert bezier control points to SVG coords
-    const sp0 = { x: ox + sc(p0.x), y: oy + sc(p0.y) };
-    const sp1 = { x: ox + sc(p1.x), y: oy + sc(p1.y) };
-    const sp2 = { x: ox + sc(p2.x), y: oy + sc(p2.y) };
-    // Walk straight edges to crotch tip with L, then emit C to waist center, then close
-    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-    for (let i = 1; i <= p3Idx; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
-    // Time-reversed cubic bezier: from p3 (current position) through p2, p1, to p0
-    d += ` C ${sp2.x.toFixed(1)},${sp2.y.toFixed(1)} ${sp1.x.toFixed(1)},${sp1.y.toFixed(1)} ${sp0.x.toFixed(1)},${sp0.y.toFixed(1)}`;
-    // Z closes from p0 back to polygon[0]; for back panels with cbRaise this draws the CB straight seam
-    return d + ' Z';
-  }
-
   // Dimensions
   let dimsSVG = '';
   for (const d of dimensions) {
@@ -238,12 +211,13 @@ export function renderPanelSVG(piece) {
       const lineY = isHemDim ? oy + sc(height + hem + 0.5) : oy + sc(d.y1);
       const textY = isHemDim ? lineY + 14 : lineY - 4;
       if (d.color === '#c44') {
-        // Crotch-ext: label in left margin, right-aligned toward pattern
-        const labelX = x1 - sc(0.5);
+        // Crotch-ext: label below dim line, centered between endpoints
+        // (was placed in left margin which clips when ext < 0.5")
+        const labelX = (x1 + x2) / 2;
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${labelX}" y="${lineY+8}" font-family="IBM Plex Mono" font-size="12" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+        <text x="${labelX}" y="${lineY+14}" font-family="IBM Plex Mono" font-size="10" fill="${col}" text-anchor="middle" font-weight="500">${d.label}</text>`;
       } else if (d.color === '#b8963e' && !isHemDim) {
         // Knee/width accent dim: label to the right of the dim line to avoid grain line
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
@@ -393,8 +367,73 @@ export function renderPanelSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
-    <path d="${crotchPath(svgPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <path d="${polyPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    <path d="${polyPath(svgPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    ${/* LOCKED — crotch curve hybrid stitch line rendering is finalized.
+       Do not modify the Catmull-Rom spline, trim threshold, point collection,
+       or hybrid path construction below. See also: geometry.js offsetPolygon,
+       sanitizePoly, insetCrotchBezier. */ ''}
+    ${(() => {
+      if (!crotchBezierSA) return `<path d="${polyPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
+      const s = crotchBezierSA;
+      const sp0 = toSVG(s.p0), sp3 = toSVG(s.p3);
+      // Find SA polygon vertices closest to bezier endpoints
+      let idx0 = 0, idx3 = 0, d0 = Infinity, d3 = Infinity;
+      for (let i = 0; i < svgSA.length; i++) {
+        const dist0 = (svgSA[i].x - sp0.x) ** 2 + (svgSA[i].y - sp0.y) ** 2;
+        if (dist0 < d0) { d0 = dist0; idx0 = i; }
+        const dist3 = (svgSA[i].x - sp3.x) ** 2 + (svgSA[i].y - sp3.y) ** 2;
+        if (dist3 < d3) { d3 = dist3; idx3 = i; }
+      }
+      // Determine structural direction (through hem = high y)
+      const n = svgSA.length;
+      let fwdMaxY = 0, bwdMaxY = 0;
+      for (let i = (idx3 + 1) % n; i !== idx0; i = (i + 1) % n) fwdMaxY = Math.max(fwdMaxY, svgSA[i].y);
+      for (let i = (idx3 - 1 + n) % n; i !== idx0; i = (i - 1 + n) % n) bwdMaxY = Math.max(bwdMaxY, svgSA[i].y);
+      const structDir = fwdMaxY > bwdMaxY ? 1 : -1;
+      const curveDir = -structDir;
+      // Collect structural edges (waist→side→hem→inseam)
+      let structPath = `M ${svgSA[idx3].x.toFixed(1)} ${svgSA[idx3].y.toFixed(1)}`;
+      for (let i = (idx3 + structDir + n) % n; i !== idx0; i = (i + structDir + n) % n) {
+        structPath += ` L ${svgSA[i].x.toFixed(1)} ${svgSA[i].y.toFixed(1)}`;
+      }
+      structPath += ` L ${svgSA[idx0].x.toFixed(1)} ${svgSA[idx0].y.toFixed(1)}`;
+      // Collect crotch curve offset points — walk SAME direction as struct (wraps the other way)
+      const rawCurvePts = [];
+      for (let i = (idx0 + structDir + n) % n; i !== idx3; i = (i + structDir + n) % n) {
+        rawCurvePts.push(svgSA[i]);
+      }
+      // Trim curve points too close to the structural endpoints — these cause jog/overshoot
+      const trimDist = sc(sa) * 1.5; // 1.5× SA in SVG units
+      const v0 = svgSA[idx0], v3 = svgSA[idx3];
+      const curvePts = rawCurvePts.filter(p => {
+        const d0 = Math.sqrt((p.x - v0.x) ** 2 + (p.y - v0.y) ** 2);
+        const d3 = Math.sqrt((p.x - v3.x) ** 2 + (p.y - v3.y) ** 2);
+        return d0 > trimDist && d3 > trimDist;
+      });
+      // Build path: structural edges + Catmull-Rom spline for crotch curve
+      let hp = structPath;
+      // Line to first curve point (or straight to idx3 if no curve points survived trim)
+      if (curvePts.length < 2) {
+        hp += ` L ${v3.x.toFixed(1)} ${v3.y.toFixed(1)} Z`;
+      } else {
+        // Bookend with structural vertices for clean entry/exit
+        const cp = [v0, ...curvePts, v3];
+        hp += ` L ${cp[0].x.toFixed(1)} ${cp[0].y.toFixed(1)}`;
+        for (let k = 0; k < cp.length - 1; k++) {
+          const p0 = cp[Math.max(0, k - 1)];
+          const p1 = cp[k];
+          const p2 = cp[k + 1];
+          const p3 = cp[Math.min(cp.length - 1, k + 2)];
+          const b1x = p1.x + (p2.x - p0.x) / 6;
+          const b1y = p1.y + (p2.y - p0.y) / 6;
+          const b2x = p2.x - (p3.x - p1.x) / 6;
+          const b2y = p2.y - (p3.y - p1.y) / 6;
+          hp += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+        }
+        hp += ' Z';
+      }
+      return `<path d="${hp}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
+    })()}
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
@@ -434,9 +473,8 @@ export function renderGenericPieceSVG(piece) {
   }
 
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
-  const saPoly = offsetPolygon(polygon, i => {
+  const saPoly = offsetPolygon(polygon, (i, a, b) => {
     if (edgeAllowances && edgeAllowances[i]) return -edgeAllowances[i].sa;
-    const a = polygon[i], b = polygon[(i + 1) % polygon.length];
     // Fold edge: both endpoints at x = minX — no SA, the fold is not a seam
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
     return -sa;
@@ -498,12 +536,56 @@ export function renderGenericPieceSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#gp${piece.id})"/>
-    <path d="${polyPath(saPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <path d="${polyPath(polygon)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    <path d="${polyPath(polygon)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <path d="${(() => {
+      // ── HYBRID STITCH PATH — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      // Catmull-Rom spline for .curve-tagged sections, SVG L commands for structural edges.
+      // Uses duplicate-endpoint phantoms at curve run boundaries to prevent wild tangent vectors.
+      // Junction points between curves and structural edges must be un-tagged (.curve deleted)
+      // in the garment module so this renderer produces clean L transitions at those junctions.
+      const pts = saPoly.map(toSVG);
+      // Check if any points are curve-tagged
+      const hasCurve = saPoly.some(p => p.curve);
+      if (!hasCurve) return polyPath(saPoly);
+      // Copy curve tags to SVG-mapped points
+      for (let i = 0; i < pts.length; i++) if (saPoly[i].curve) pts[i].curve = true;
+      let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+      for (let i = 1; i < pts.length; i++) {
+        if (!pts[i].curve) {
+          d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+        } else {
+          // Collect contiguous curve run with structural bookends
+          const before = pts[i - 1]; // structural bookend before
+          const curveRun = [];
+          while (i < pts.length && pts[i].curve) curveRun.push(pts[i++]);
+          const after = i < pts.length ? pts[i] : pts[0]; // structural bookend after
+          // L to first curve point (straight side-seam → curve junction)
+          d += ` L ${curveRun[0].x.toFixed(1)} ${curveRun[0].y.toFixed(1)}`;
+          // Catmull-Rom only between curve points; duplicate endpoints as phantoms
+          // (prevents distant structural bookends from creating wild tangent vectors)
+          const run = [curveRun[0], ...curveRun, curveRun[curveRun.length - 1]];
+          for (let k = 1; k < run.length - 2; k++) {
+            const p0 = run[k - 1];
+            const p1 = run[k];
+            const p2 = run[k + 1];
+            const p3 = run[Math.min(run.length - 1, k + 2)];
+            const b1x = p1.x + (p2.x - p0.x) / 6;
+            const b1y = p1.y + (p2.y - p0.y) / 6;
+            const b2x = p2.x - (p3.x - p1.x) / 6;
+            const b2y = p2.y - (p3.y - p1.y) / 6;
+            d += ` C ${b1x.toFixed(1)} ${b1y.toFixed(1)}, ${b2x.toFixed(1)} ${b2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+          }
+          // L from last curve point to structural bookend (curve → side-seam)
+          d += ` L ${after.x.toFixed(1)} ${after.y.toFixed(1)}`;
+          i--; // re-visit last structural point for next segment
+        }
+      }
+      return d + ' Z';
+    })()}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(saPoly, notches, ox, oy)}
+    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>

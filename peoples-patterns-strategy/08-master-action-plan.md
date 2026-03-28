@@ -57,14 +57,14 @@ Your positioning: **"The easiest way for home sewists to make clothes that actua
 
 ### Critical (launch blockers)
 
-- [ ] **Make repo private on GitHub** — your entire business logic is publicly visible
-- [ ] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
+- [X] **Make repo private on GitHub** — your entire business logic is publicly visible
+- [X] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
 - [ ] **Sew muslins for 6 launch patterns** — cargo shorts, straight jeans/pants, tee, camp shirt, a-line skirt, slip skirt
 - [ ] **Photograph sewn samples** — multiple angles, fit details, on body
 - [ ] **Fix any fit issues found during muslin testing** — this is the whole point
 - [ ] **Test the full purchase flow end-to-end** — checkout, webhook, PDF generation, download, re-download
 - [ ] **Test print layout at 1:1 scale** — verify scale square, verify tiles assemble correctly, verify no clipping
-- [ ] **Update pricing in Stripe** — new 3-tier structure ($9/$14/$19), bundles, membership tiers
+- [X] **Update pricing in Stripe** — new 3-tier structure ($9/$14/$19), bundles, membership tiers
 
 ### Important (should do before public promotion)
 

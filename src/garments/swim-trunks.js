@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -41,7 +41,7 @@ export default {
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes — front & back mesh panels', reference: 'athletic, brief-style' },
+        { value: 'yes', label: 'Yes - front & back mesh panels',  reference: 'athletic, brief-style' },
         { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
@@ -146,7 +146,7 @@ export default {
       pieces.push({
         id: 'pocket-bag',
         name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Athletic mesh — allows water drainage · {serge} all edges',
+        instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
         dimensions: { width: 6.5, height: 7 },
         type: 'pocket',
       });
@@ -157,8 +157,8 @@ export default {
 
   materials(m, opts) {
     const notions = [
-      { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ — flat nylon or polyester cord` },
-      { ref: 'grommets',   quantity: '2 — CF drawstring exits, ½″ inner dia, rust-proof' },
+      { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ - flat nylon or polyester cord` },
+      { ref: 'grommets',   quantity: '2 - CF drawstring exits, ½″ inner dia, rust-proof' },
     ];
     if (opts.liner === 'yes') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
@@ -171,13 +171,13 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'zigzag-small', 'straight-3'],
       notes: [
-        'Use polyester thread ONLY — cotton thread rots with repeated chlorine and salt water exposure',
+        'Use polyester thread ONLY - cotton thread rots with repeated chlorine and salt water exposure',
         'Rinse trunks in fresh cold water after every wear (pool or ocean) to extend fabric life',
-        'Color guidance — hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
-        'Use rust-proof grommets (brass or stainless) — standard steel grommets will stain the fabric',
+        'Color guidance - hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
+        'Use rust-proof grommets (brass or stainless) - standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
-        '{serge} or zigzag all seams — do not leave raw edges on mesh; they will fray in water',
-        'Do not {press} nylon with high heat — use a damp pressing cloth on low if needed',
+        '{serge} or {zigzag} all seams - do not leave raw edges on mesh; they will fray in water',
+        'Do not {press} nylon with high heat - use a damp pressing cloth on low if needed',
       ],
     });
   },
@@ -224,9 +224,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with zigzag (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) - do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should zigzag slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams - stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },
@@ -237,7 +237,7 @@ export default {
 
 function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
   poly.push({ x: 0,     y: 0       });
@@ -245,12 +245,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });
   poly.push({ x: -ext,  y: rise   });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -274,6 +274,9 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     dimensions: dims,
     width, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
     notches, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa),
     labels: [
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },

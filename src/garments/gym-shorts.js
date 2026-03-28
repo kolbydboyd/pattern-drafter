@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -148,7 +148,7 @@ export default {
     const wbWidth      = 3.5;   // 1.75″ finished (doubled)
     pieces.push({
       id: 'waistband-front',
-      name: 'Waistband — Front',
+      name: 'Waistband - Front',
       instruction: `Cut 1 · Interface · ${fmtInches(wbWidth / 2)} finished · Grommet/buttonhole placement at CF`,
       dimensions: { length: wbFrontLen, width: wbWidth },
       type: 'rectangle',
@@ -159,7 +159,7 @@ export default {
     const wbBackLen = (m.waist / 2 + ease.back) + sa * 2;
     pieces.push({
       id: 'waistband-back',
-      name: 'Waistband — Back',
+      name: 'Waistband - Back',
       instruction: `Cut 1 · Casing for 1″ elastic · ${fmtInches(wbWidth / 2)} finished`,
       dimensions: { length: wbBackLen, width: wbWidth },
       type: 'rectangle',
@@ -185,7 +185,7 @@ export default {
       pieces.push({
         id: 'liner',
         name: 'Brief Liner',
-        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed — {serge} raw edges',
+        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed - {serge} raw edges',
         dimensions: { width: linerW, height: linerH },
         type: 'pocket',
       });
@@ -199,13 +199,13 @@ export default {
    */
   materials(m, opts) {
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist / 2 + 2)}″ — back waistband casing` },
-      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ — front tie + tails` },
-      { ref: 'interfacing-med', quantity: '0.25 yard — front waistband only' },
+      { ref: 'elastic-1',    quantity: `${Math.round(m.waist / 2 + 2)}″ - back waistband casing` },
+      { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ - front tie + tails` },
+      { ref: 'interfacing-med', quantity: '0.25 yard - front waistband only' },
     ];
 
     if (opts.grommets === 'grommets') {
-      notions.push({ ref: 'grommets', quantity: '2 — CF drawstring exits, ½″ inner dia' });
+      notions.push({ ref: 'grommets', quantity: '2 - CF drawstring exits, ½″ inner dia' });
     }
 
     if (opts.liner === 'mesh') {
@@ -219,12 +219,12 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'zigzag-med', 'straight-3', 'zigzag-small'],
       notes: [
-        'Color guidance — hides sweat best: black, navy, dark charcoal, dark olive. Avoid light gray and light blue.',
-        'Pre-wash fabric before cutting — supplex and nylon-taslan resist shrinkage but relax slightly',
-        'Use a stretch stitch or narrow zigzag for all seams — straight stitch will pop on stretch fabric',
+        'Color guidance - hides sweat best: black, navy, dark charcoal, dark olive. Avoid light gray and light blue.',
+        'Pre-wash fabric before cutting - supplex and nylon-taslan resist shrinkage but relax slightly',
+        'Use a stretch stitch or narrow {zigzag} for all seams - straight stitch will pop on stretch fabric',
         'Interface front waistband only; back casing does not need interfacing',
         'Use a ballpoint needle to avoid skipped stitches on knit/stretch weaves',
-        '{press} seams with a damp cloth and low heat — high heat damages synthetic fibers',
+        '{press} seams with a damp cloth and low heat - high heat damages synthetic fibers',
       ],
     });
   },
@@ -241,7 +241,7 @@ export default {
       steps.push({
         step: n++,
         title: 'Prepare side-seam pocket bags',
-        detail: '{serge} or zigzag all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. {press} bags toward panels. {understitch} if desired.',
+        detail: '{serge} or {zigzag} all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. {press} bags toward panels. {understitch} if desired.',
       });
     }
 
@@ -287,12 +287,12 @@ export default {
     steps.push({
       step: n++,
       title: 'Construct back waistband',
-      detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, zigzag to join. Close gap. Double {topstitch} top and bottom edges of casing.',
+      detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, {zigzag} to join. Close gap. Double {topstitch} top and bottom edges of casing.',
     });
     steps.push({
       step: n++,
       title: 'Join waistband halves',
-      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. Slipstitch or {topstitch} closed on each side.',
+      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. {slipstitch} or {topstitch} closed on each side.',
     });
     steps.push({
       step: n++,
@@ -304,7 +304,7 @@ export default {
     steps.push({
       step: n++,
       title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with zigzag (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch - do not use straight stitch on stretch hems.`,
     });
     steps.push({
       step: n++,
@@ -323,7 +323,7 @@ export default {
 
 function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
 
@@ -334,13 +334,13 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: -ext,  y: rise   });
 
   for (let i = curvePts.length - 2; i >= 1; i--) {
-    poly.push(curvePts[i]);
+    poly.push({ ...curvePts[i], curve: true });
   }
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -373,7 +373,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
     ],
-    crotchBezier: ccp, type: 'panel',
+    crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel',
     opts,
   };
 }

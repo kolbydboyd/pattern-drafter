@@ -7,7 +7,7 @@
  */
 
 import {
-  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
+  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -108,12 +108,12 @@ export default {
 
     // ── Shoulder geometry (standard block rules) ─────────────────────────────
     // A = (0, 0): top-left, fold / shoulder baseline
-    // B = (neckW, 0): shoulder-neck junction on baseline  — neckW = neck/6
-    // Shoulder point = (halfShoulder, slopeDrop): drops 1.75" over shoulder width
+    // B = (neckW, 0): shoulder-neck junction on baseline  — neckW = neck/5
+    // Shoulder point = (halfShoulder, slopeDrop): drops proportionally over shoulder width
     const halfShoulder = m.shoulder / 2;
-    const slopeDrop    = 1.75;
-    const neckW        = neckWidthFromCircumference(m.neck);   // neck / 6
-    const shoulderW    = halfShoulder - neckW;                 // seam length B → shoulder pt
+    const neckW        = neckWidthFromCircumference(m.neck);
+    const shoulderW    = halfShoulder - neckW;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = halfShoulder;                         // = neckW + shoulderW
 
     // ── Armhole geometry ─────────────────────────────────────────────────────
@@ -124,11 +124,13 @@ export default {
     const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    // crossBack influences armhole curve shape, not endpoint.
+    const backChestDepth = chestDepth;
 
     // ── Neckline ─────────────────────────────────────────────────────────────
-    // Back neckline depth (A→G): neckW / 3 ≈ neck/18 — very shallow, < 1"
-    // Front neckline depth: neck/6 + 0.5 (crew), or fixed depth for other styles
+    // Back neckline depth (A→G): neckW / 3 ≈ neck/15 — very shallow, ~1"
+    // Front neckline depth: neckW + 0.5 (crew), or fixed depth for other styles
     const neckKey       = opts.neckline;
     const neckDepthBack = neckW / 3;
     const neckDepthFront = neckKey === 'crew'
@@ -146,9 +148,14 @@ export default {
       return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
     }
 
-    // Build a flat polygon from curve control points
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // Tag ALL bezier samples as .curve so sanitizePoly preserves them and
+    // offsetPolygon uses average-normal fallback for short edges. The .curve
+    // tag also triggers Catmull-Rom rendering in pattern-view.js / print-layout.js.
+    // Junction points (fold-neckline, shoulder-neck, underarm) must have .curve
+    // DELETED after polygon construction so the renderer uses L transitions there.
     function curveToPoints(cp, steps = 12) {
-      return sampleCurve(cp, steps);
+      return sampleCurve(cp, steps).map(p => ({ ...p, curve: true }));
     }
 
     // Translate an array of {x,y} points
@@ -175,15 +182,20 @@ export default {
     // necklineCurve local: p0=(0,0)=shoulder-neck, p3=(neckW,depth)=CF low.
     // Reverse and transform: x_global = neckW - x_local, y_global = y_local
     for (const p of [...frontNeckPts].reverse()) {
-      frontPoly.push({ x: neckW - p.x, y: p.y });
+      frontPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // Untag fold-junction neckline endpoint so offset reaches the fold line
+    delete frontPoly[0].curve;
+    // Untag shoulder-neck junction to prevent Catmull-Rom loop at direction change
+    delete frontPoly[frontNeckPts.length - 1].curve;
     // B → shoulder point
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      frontPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     // Shoulder point → underarm notch (armhole C-curve down the right side)
     for (let i = 1; i < frontArmholePts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmholePts[i].x, y: shoulderPtY + frontArmholePts[i].y });
+      frontPoly.push({ ...frontArmholePts[i], x: shoulderPtX + frontArmholePts[i].x, y: shoulderPtY + frontArmholePts[i].y });
     }
     // Underarm notch → hem (side seam, straight down)
     frontPoly.push({ x: panelW, y: torsoLen });
@@ -204,13 +216,16 @@ export default {
     const backPoly = [];
 
     for (const p of [...backNeckPts].reverse()) {
-      backPoly.push({ x: neckW - p.x, y: p.y });
+      backPoly.push({ ...p, x: neckW - p.x });
     }
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;
+    delete backPoly[backNeckPts.length - 1].curve;
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      backPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     for (let i = 1; i < backArmholePts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmholePts[i].x, y: shoulderPtY + backArmholePts[i].y });
+      backPoly.push({ ...backArmholePts[i], x: shoulderPtX + backArmholePts[i].x, y: shoulderPtY + backArmholePts[i].y });
     }
     backPoly.push({ x: panelW, y: torsoLen });
     if (opts.hemStyle === 'shirttail') {
@@ -224,16 +239,19 @@ export default {
     // Full flat width at underarm = bicep + 2" ease (standard block rule)
     // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
     const slvFullWidth = m.bicep + 2;
-    const capHeight    = opts.fit === 'fitted' ? 5.5 : opts.fit === 'oversized' ? 5.0 : 5.5;
+    const capHeight    = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
-    const capPts       = curveToPoints(capCp, 16);
+    const capPts       = curveToPoints(capCp, 32);
     // capPts: (0,0) = back underarm → (slvFullWidth, 0) = front underarm
     // Crown is at y < 0; shift all y by +capHeight so crown sits at y=0
 
     const sleevePoly = [];
     for (const p of capPts) {
-      sleevePoly.push({ x: p.x, y: p.y + capHeight });
+      sleevePoly.push({ ...p, y: p.y + capHeight });
     }
+    // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete sleevePoly[0].curve;
+    delete sleevePoly[capPts.length - 1].curve;
     sleevePoly.push({ x: slvFullWidth, y: capHeight + slvLength });
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
     // Back underarm up (already first point via close)
@@ -455,7 +473,7 @@ export default {
   materials(m, opts) {
     const isLong = opts.sleeveStyle === 'long' || opts.sleeveStyle === 'three_quarter';
     const notions = [
-      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband — high recovery stretch' },
+      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband - high recovery stretch' },
     ];
     if (isLong) {
       notions.push({ name: 'Rib knit (extra)', quantity: '0.5 yard', notes: 'For sleeve cuffs if desired' });
@@ -468,13 +486,13 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Use a ballpoint (jersey) needle 80/12 — prevents skipped stitches and snags on knit fabric',
-        'Use a stretch stitch or serger for ALL seams — a standard straight stitch will pop when stretched',
+        'Use a ballpoint (jersey) needle 80/12 - prevents skipped stitches and snags on knit fabric',
+        'Use a stretch stitch or serger for ALL seams - a standard straight stitch will pop when stretched',
         'Twin needle for hem (RS shows two parallel rows) or fold under and coverstitch',
-        'Pre-wash jersey before cutting — cotton knits shrink 3–5% in first wash',
+        'Pre-wash jersey before cutting - cotton knits shrink 3–5% in first wash',
         'Neckband cut at 85% of neck opening so it lies flat without gaping',
-        'Stretch neckband gently as you sew to match opening — do not stretch the bodice edge',
-        opts.fit === 'fitted' ? 'Slim fit: ease is minimal — use 4-way stretch fabric only' : '',
+        'Stretch neckband gently as you sew to match opening - do not stretch the bodice edge',
+        opts.fit === 'fitted' ? 'Slim fit: ease is minimal - use 4-way stretch fabric only' : '',
       ].filter(Boolean),
     });
   },
@@ -514,7 +532,7 @@ export default {
     if (isLong) {
       steps.push({
         step: n++, title: 'Hem sleeves',
-        detail: 'Fold up ¾″, {press}. Twin needle from RS or fold under raw edge and zigzag. Or attach rib cuffs at 80% of opening width.',
+        detail: 'Fold up ¾″, {press}. Twin needle from RS or fold under raw edge and {zigzag}. Or attach rib cuffs at 80% of opening width.',
       });
     } else {
       steps.push({
@@ -525,12 +543,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and zigzag stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' - clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on — neckband should sit flat and not gap.',
+      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on - neckband should sit flat and not gap.',
     });
 
     return steps;

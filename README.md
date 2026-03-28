@@ -90,7 +90,7 @@ src/
     account-dashboard.js # My Patterns, wishlist, profile management
     styles.css
   pdf/
-    print-layout.js      # Tiled print-ready HTML output (Letter, 96 dpi, registration marks)
+    print-layout.js      # Tiled print-ready HTML (Letter/A4/A0, 96 dpi, registration marks, bin-packed small pieces)
   lib/
     supabase.js          # Supabase client init + auth helpers
     db.js                # DB queries (purchases, wishlists, downloads)
@@ -218,18 +218,22 @@ See `docs/MODULE-STATUS.md` for a full interface audit and known issues per modu
 
 | Module | Purpose |
 |---|---|
-| `geometry.js` | Bezier curves, polygon offsetting, arc length, SVG path output, leg shapes, ease values |
-| `upper-body.js` | Armhole, shoulder, neckline, sleeve cap curves from standard drafting rules |
-| `measurements.js` | Measurement schema (13 fields), labels, instructions, validation, garment categories |
+| `geometry.js` | Bezier curves, polygon offsetting, arc length, SVG path output, leg shapes, ease values, cross-seam validation |
+| `upper-body.js` | Armhole, shoulder slope (proportional), neckline, sleeve cap curves, ease distribution |
+| `measurements.js` | Measurement schema (13+ fields), labels, instructions, validation, garment categories |
 | `materials.js` | Fabric, thread, needle, stitch, notions database used by all garment modules |
 
 Standard drafting rules used:
-- Neck width = neck circumference / 6
-- Armhole level (scye depth) = chest / 4 + style tolerance
+- Neck width = neck circumference / 5 (Aldrich block standard)
+- Armhole level (scye depth) = chest / 4 + style tolerance, or waistToArmpit if provided
+- Shoulder slope = proportional to shoulder width at 13° (industry average)
 - Back neck depth = neck width / 3
-- Sleeve cap height 5 to 6.5 inches depending on garment type
+- Sleeve cap height = 60% of armhole depth (proportional, not fixed)
 - Sleeve cap ease validated against armhole arc length (1-2" expected)
 - Chest ease: front 55%, back 45%
+- Lower-body ease: front 40%, back 60%
+- Waistband length: waist measurement for structured closures, hip for elastic/pull-on
+- Cross-seam arc length validated against rise measurement
 
 ## Development with Claude Code
 

@@ -55,7 +55,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes — full lining' },
+        { value: 'yes', label: 'Yes - full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -136,7 +136,7 @@ export default {
 
       return {
         id, name,
-        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
+        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
         width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
         dims,
@@ -148,8 +148,8 @@ export default {
       buildPanel('Back Panel',  'skirt-back'),
     ];
 
-    // Waistband
-    const wbCirc = m.hip + ease + sa * 2;
+    // Waistband — structured/petersham sits at waist; elastic must pass over hips
+    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease + sa * 2 : m.waist + ease + sa * 2;
     if (opts.waistband === 'petersham') {
       pieces.push({ id: 'waistband', name: 'Petersham Ribbon', instruction: `1.5″ petersham ribbon · ${fmtInches(wbCirc)} long · hook-and-bar at CB`, dimensions: { length: wbCirc, width: 1.5 }, type: 'rectangle', sa });
     } else if (opts.waistband === 'structured') {
@@ -197,12 +197,12 @@ export default {
       needle: 'universal-70',
       stitches: ['straight-2', 'zigzag-small'],
       notes: [
-        'Cut with grain running vertically — bias cut will cause wavy hem and excess stretch',
+        'Cut with grain running vertically - bias cut will cause wavy hem and excess stretch',
         'Stay-stitch waist edge at ½″ immediately after cutting to prevent bias stretch',
-        'Sew darts from waist toward apex — {press} toward CB on back, CF on front',
-        opts.hem === 'handrolled' ? 'Hand-rolled hem: machine stitch 2mm from edge, trim close, roll between fingers, slipstitch. Best on silk and chiffon.' : '{press} hem up twice, slipstitch or edgestitch close to fold',
-        opts.lining === 'yes' ? 'Attach lining at waistband and zip tape — leave hem free (let lining float 1″ shorter than skirt)' : 'French seams work well at the side seams for a clean interior finish on fine fabrics',
-        'Hang skirt 24 hours before marking final hem — bias-cut or drapy wovens will drop at the hemline',
+        'Sew darts from waist toward apex - {press} toward CB on back, CF on front',
+        opts.hem === 'handrolled' ? 'Hand-rolled hem: machine stitch 2mm from edge, trim close, roll between fingers, {slipstitch}. Best on silk and chiffon.' : '{press} hem up twice, {slipstitch} or {edgestitch} close to fold',
+        opts.lining === 'yes' ? 'Attach lining at waistband and zip tape - leave hem free (let lining float 1″ shorter than skirt)' : 'French seams work well at the side seams for a clean interior finish on fine fabrics',
+        'Hang skirt 24 hours before marking final hem - bias-cut or drapy wovens will drop at the hemline',
       ].filter(Boolean),
     });
   },
@@ -218,25 +218,25 @@ export default {
       steps.push({ step: n++, title: 'Install invisible zipper', detail: '{press} zip coils flat. Sew right side of zip to right CB seam allowance. Sew left side to left CB seam allowance. Attach zip foot. Close remaining CB seam below zip stop.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams — sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams - sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams as for shell. Leave CB open for zipper. {press}.' });
     }
 
     if (opts.waistband === 'petersham') {
-      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge {RST}, easing any fullness. {press} up. Slipstitch folded edge to WS. Attach hook and bar at CB.' });
+      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge {RST}, easing any fullness. {press} up. {slipstitch} folded edge to WS. Attach hook and bar at CB.' });
     } else if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, slipstitch or edgestitch other edge to WS.' });
+      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, {slipstitch} or {edgestitch} other edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
-      steps.push({ step: n++, title: 'Attach lining to waist', detail: 'Fold under top edge of lining 5/8″. Slipstitch folded edge to WS of waistband seam allowance. Tack lining to zip tape at CB.' });
+      steps.push({ step: n++, title: 'Attach lining to waist', detail: 'Fold under top edge of lining 5/8″. {slipstitch} folded edge to WS of waistband seam allowance. Tack lining to zip tape at CB.' });
     }
 
-    steps.push({ step: n++, title: 'Hang and hem', detail: `Hang skirt 24 hours on a hanger before marking hem. ${opts.hem === 'handrolled' ? 'Trim hem allowance to ¼″. Roll edge between fingers and slipstitch.' : opts.hem === 'horsehair' ? '{baste} horsehair braid inside hem fold. Edgestitch close to fold. The braid creates a slight flare.' : 'Fold up hem twice, {press}, slipstitch or edgestitch close to inner fold.'}` });
+    steps.push({ step: n++, title: 'Hang and hem', detail: `Hang skirt 24 hours on a hanger before marking hem. ${opts.hem === 'handrolled' ? 'Trim hem allowance to ¼″. Roll edge between fingers and {slipstitch}.' : opts.hem === 'horsehair' ? '{baste} horsehair braid inside hem fold. {edgestitch} close to fold. The braid creates a slight flare.' : 'Fold up hem twice, {press}, {slipstitch} or {edgestitch} close to inner fold.'}` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check darts lie flat and waistband is even.' });
 
     return steps;

@@ -13,7 +13,7 @@ const BODY_BLOCKS = {
     'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
   ],
   'upper-body': [
-    'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket',
+    'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
     'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
   ],
   'combined': [

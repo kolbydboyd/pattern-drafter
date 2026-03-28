@@ -9,7 +9,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -55,8 +55,8 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'standard', label: 'Standard — 1½″ finished, interfaced',         reference: 'classic, interfaced'    },
-        { value: 'curtain',  label: 'Curtain — 1½″ finished, button + hook-and-eye', reference: 'Savile Row, high-waisted' },
+        { value: 'standard', label: 'Standard - 1½″ finished, interfaced',          reference: 'classic, interfaced'    },
+        { value: 'curtain',  label: 'Curtain - 1½″ finished, button + hook-and-eye',  reference: 'Savile Row, high-waisted' },
       ],
       default: 'standard',
     },
@@ -141,7 +141,7 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+    const wbLen = m.waist + ease.total + pleatExtra * 2 + sa * 2;
     const wbW   = opts.waistband === 'curtain' ? 3 : 3;  // both 1.5″ finished = 3″ cut
     pieces.push({
       id: 'waistband',
@@ -163,8 +163,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -191,12 +191,12 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Pre-wash linen (hot wash, tumble dry) — shrinks 3–5%',
+        'Pre-wash linen (hot wash, tumble dry) - shrinks 3–5%',
         `Pleat construction: mark pleat fold lines on WS. Fold pleat toward side seam, pin. {baste} across waist edge ⅜″ from top. {press} pleat from WS with steam.`,
         'Interface both waistband layers for a stiff, structured finish',
         'Welt back pockets: {understitch} welts, bar tack ends. Bound buttonhole or sew-through button on welt.',
         'Bar tack all pocket openings and crotch junction',
-        '{press} every seam — structured shorts require crisp pressing throughout',
+        '{press} every seam - structured shorts require crisp pressing throughout',
       ],
     });
   },
@@ -220,7 +220,7 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam — {press} down 3–4″, then release to drape naturally.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam - {press} down 3–4″, then release to drape naturally.`,
       });
     }
 
@@ -239,7 +239,7 @@ export default {
       step: n++, title: 'Construct waistband',
       detail: opts.waistband === 'curtain'
         ? 'Interface waistband. Fold and {press}. Sew to shorts waist {RST}. Fold, {topstitch}. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
-        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, slipstitch inside. {topstitch}. Install waistband button and work buttonhole.',
+        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, {slipstitch} inside. {topstitch}. Install waistband button and work buttonhole.',
     });
 
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} close to inner fold. {press} from RS.` });
@@ -254,7 +254,7 @@ export default {
 
 function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
   poly.push({ x: 0,     y: 0       });
@@ -262,12 +262,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });
   poly.push({ x: -ext,  y: rise   });
-  for (let i = curvePts.length - 2; i >= 1; i--) poly.push(curvePts[i]);
+  for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
-  const saPoly = offsetPolygon(poly, i => {
-    const a = poly[i], b = poly[(i + 1) % poly.length];
-    return (a.y > height - 0.5 && b.y > height - 0.5) ? -hem : -sa;
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
   });
 
   const dims = [
@@ -298,6 +298,9 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
       { text: 'SIDE SEAM', x: width + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,         y: rise   * 0.3,  rotation: -90 },
     ],
-    pleats, crotchBezier: ccp, type: 'panel', opts,
+    pleats, crotchBezier: ccp,
+    // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
+    // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
+    crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }

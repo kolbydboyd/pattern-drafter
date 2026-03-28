@@ -10,12 +10,79 @@
  */
 
 // ── Affiliate configuration ───────────────────────────────────────────────────
-const AFFILIATE_TAG = 'peoplespatter-20'; // replace with live Amazon Associates tag
+// Amazon Associates — general fallback for all product types
+const AMAZON_TAG = 'peoplespatter-20';
 
-/** Build an Amazon search affiliate URL from a human-readable product name */
+// FlexOffers — Wawak (pro sewing notions) and Fabric.com (fabric)
+// Set these once your FlexOffers applications are approved
+const FLEXOFFERS_WAWAK_ID  = ''; // FlexOffers advertiser ID for Wawak
+const FLEXOFFERS_FABRIC_ID = ''; // FlexOffers advertiser ID for Fabric.com
+
+// Awin — Mood Fabrics (fashion/designer fabrics)
+// Set this once your Mood Fabrics application is approved in Awin
+const AWIN_MOOD_ID = ''; // Awin publisher link ID for Mood Fabrics
+
+// Sailrite — heavy-duty sewing supplies (denim needles, heavy thread, snaps, grommets, canvas)
+// Set this once your Sailrite affiliate application is approved
+const SAILRITE_AFF_ID = ''; // Sailrite affiliate/partner ID
+
+/**
+ * Affiliate network URL builders.
+ * Each returns a search/product URL with the appropriate tracking tag.
+ * Falls back to Amazon if the specialty network isn't configured yet.
+ */
+const AFFILIATE = {
+  /** Amazon product search — general fallback */
+  amazon(name, suffix = '') {
+    const q = encodeURIComponent((name + (suffix ? ' ' + suffix : '')).replace(/\s+/g, ' ').trim());
+    return `https://www.amazon.com/s?k=${q}&tag=${AMAZON_TAG}`;
+  },
+
+  /** Wawak — pro sewing notions (interfacing, zippers, buttons, elastic, snaps) */
+  wawak(name) {
+    if (!FLEXOFFERS_WAWAK_ID) return AFFILIATE.amazon(name, 'sewing');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.wawak.com/search/?q=${q}&foid=${FLEXOFFERS_WAWAK_ID}`;
+  },
+
+  /** Fabric.com — fabric by the yard */
+  fabricDotCom(name) {
+    if (!FLEXOFFERS_FABRIC_ID) return AFFILIATE.amazon(name, 'fabric by the yard');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.fabric.com/find?SearchText=${q}&foid=${FLEXOFFERS_FABRIC_ID}`;
+  },
+
+  /** Mood Fabrics — designer/fashion fabrics */
+  mood(name) {
+    if (!AWIN_MOOD_ID) return AFFILIATE.amazon(name, 'fabric by the yard');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.moodfabrics.com/catalogsearch/result/?q=${q}&awid=${AWIN_MOOD_ID}`;
+  },
+
+  /** Sailrite — heavy-duty sewing supplies (canvas, denim, snaps, grommets, heavy thread) */
+  sailrite(name) {
+    if (!SAILRITE_AFF_ID) return AFFILIATE.amazon(name, 'sewing');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.sailrite.com/search?q=${q}&aid=${SAILRITE_AFF_ID}`;
+  },
+};
+
+/** Build an affiliate URL — routes to the best network for the product type */
 function _affiliateUrl(name, suffix = '') {
-  const q = encodeURIComponent((name + (suffix ? ' ' + suffix : '')).replace(/\s+/g, ' ').trim());
-  return `https://www.amazon.com/s?k=${q}&tag=${AFFILIATE_TAG}`;
+  return AFFILIATE.amazon(name, suffix);
+}
+
+/** Build an affiliate URL specifically for notions — prefers Wawak when available */
+function _notionAffiliateUrl(name) {
+  return AFFILIATE.wawak(name);
+}
+
+/** Build an affiliate URL for fabric — prefers Fabric.com or Mood when available */
+function _fabricAffiliateUrl(name) {
+  // Mood for high-end fabrics, Fabric.com for everyday, Amazon as fallback
+  if (AWIN_MOOD_ID) return AFFILIATE.mood(name);
+  if (FLEXOFFERS_FABRIC_ID) return AFFILIATE.fabricDotCom(name);
+  return AFFILIATE.amazon(name, 'fabric by the yard');
 }
 
 /**
@@ -38,7 +105,7 @@ export const FABRIC_TYPES = {
   'denim-light':      { name: 'Lightweight denim', weight: '6–8 oz/yd²', stretch: false, category: 'woven', notes: 'Softer drape than standard denim' },
 
   // ── Mid-weight wovens ─────────────────────────────────────────────────────
-  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot — shrinks 3–5%' },
+  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot - shrinks 3–5%' },
   'linen-light':      { name: 'Lightweight linen', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Breathable; press flat for crisp seams' },
   'chambray':         { name: 'Chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
   'cotton-chambray':  { name: 'Cotton chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
@@ -62,12 +129,12 @@ export const FABRIC_TYPES = {
 
   // ── Knit ──────────────────────────────────────────────────────────────────
   'jersey':           { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit' },
-  'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — cotton knits shrink 3–5%' },
+  'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - cotton knits shrink 3–5%' },
   'rayon-jersey':     { name: 'Rayon jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Drapey, fluid; pre-wash gently' },
   'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
   'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
   'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
-  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — knits shrink 3–5%' },
+  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - knits shrink 3–5%' },
   'jersey-modal':     { name: 'Modal jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft with excellent drape' },
   'jersey-bamboo':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Soft and eco-friendly; wash cold' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
@@ -141,11 +208,11 @@ export const STITCH_TYPES = {
  * @type {Object.<string, { name: string, notes: string }>}
  */
 export const STANDARD_NOTIONS = {
-  'elastic-1.5':       { name: '1.5″ woven elastic', notes: 'Woven, not braided — holds shape better' },
+  'elastic-1.5':       { name: '1.5″ woven elastic', notes: 'Woven, not braided - holds shape better' },
   'elastic-1':         { name: '1″ woven elastic', notes: 'For lighter garments' },
   'elastic-0.75':      { name: '¾″ elastic', notes: 'For casings, waist gathering' },
   'drawstring':        { name: '½–¾″ flat drawstring cord', notes: 'Woven cotton or nylon' },
-  'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar — for lightweight wovens and facings' },
+  'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar - for lightweight wovens and facings' },
   'interfacing-med':    { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-medium': { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-heavy':  { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },
@@ -185,7 +252,7 @@ export const STANDARD_NOTIONS = {
 export function buildMaterialsSpec(config) {
   function enrichFabric(f) {
     if (!f?.name) return f;
-    return f.affiliateUrl ? f : { ...f, affiliateUrl: _affiliateUrl(f.name, 'fabric by the yard') };
+    return f.affiliateUrl ? f : { ...f, affiliateUrl: _fabricAffiliateUrl(f.name) };
   }
   function enrichThread(t) {
     if (!t?.name) return t;
@@ -194,6 +261,10 @@ export function buildMaterialsSpec(config) {
   function enrichNeedle(n) {
     if (!n?.name) return n;
     return n.affiliateUrl ? n : { ...n, affiliateUrl: _affiliateUrl(n.name, 'sewing machine needle') };
+  }
+  function enrichNotion(n) {
+    if (!n?.name) return n;
+    return n.affiliateUrl ? n : { ...n, affiliateUrl: _notionAffiliateUrl(n.name) };
   }
 
   const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
@@ -204,11 +275,13 @@ export function buildMaterialsSpec(config) {
       enrichFabric(typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f)
     ),
     notions: config.notions.map(n =>
-      typeof n === 'string'
-        ? { ...STANDARD_NOTIONS[n] }
-        : typeof n.ref === 'string'
-          ? { ...STANDARD_NOTIONS[n.ref], quantity: n.quantity }
-          : n
+      enrichNotion(
+        typeof n === 'string'
+          ? { ...STANDARD_NOTIONS[n] }
+          : typeof n.ref === 'string'
+            ? { ...STANDARD_NOTIONS[n.ref], quantity: n.quantity }
+            : n
+      )
     ),
     thread: enrichThread(rawThread),
     needle: enrichNeedle(rawNeedle),

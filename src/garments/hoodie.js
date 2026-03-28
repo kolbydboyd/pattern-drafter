@@ -8,7 +8,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve,
+  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -35,7 +35,7 @@ export default {
     frontStyle: {
       type: 'select', label: 'Front opening',
       values: [
-        { value: 'pullover', label: 'Pullover — no zip'       },
+        { value: 'pullover', label: 'Pullover - no zip'        },
         { value: 'fullzip',  label: 'Full zip (split front)'  },
       ],
       default: 'pullover',
@@ -80,18 +80,23 @@ export default {
     const halfShoulder = m.shoulder / 2;
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = halfShoulder - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    // crossBack influences armhole curve shape, not endpoint.
+    const backChestDepth = chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
     const isFullZip    = opts.frontStyle === 'fullzip';
 
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    // .curve tags enable Catmull-Rom rendering in pattern-view.js / print-layout.js.
+    // Junction points must have .curve DELETED after polygon construction.
     function sampleCurve(cp, steps = 12) {
-      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps);
+      return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true }));
     }
     function polyToPathStr(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -117,12 +122,15 @@ export default {
 
     const frontPoly = [];
     const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckFrontRev) frontPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      frontPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      frontPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     for (let i = 1; i < frontArmPts.length; i++) {
-      frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+      frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     }
     const sideX = shoulderPtX + chestDepth;
     frontPoly.push({ x: sideX, y: torsoLen });
@@ -136,12 +144,15 @@ export default {
 
     const backPoly = [];
     const neckBackRev = [...backNeckPts].reverse();
-    for (const p of neckBackRev) backPoly.push({ x: neckW - p.x, y: p.y });
+    for (const p of neckBackRev) backPoly.push({ ...p, x: neckW - p.x });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
     for (let i = 1; i < frontShoulderPts.length; i++) {
-      backPoly.push({ x: neckW + frontShoulderPts[i].x, y: frontShoulderPts[i].y });
+      backPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
     }
     for (let i = 1; i < backArmPts.length; i++) {
-      backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+      backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     }
     const backSideX = shoulderPtX + backChestDepth;
     backPoly.push({ x: backSideX, y: torsoLen });
@@ -151,11 +162,14 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.25;
     const slvWidth   = m.bicep / 2 + sleeveEase;
-    const capHeight  = 5.5;
+    const capHeight  = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp      = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-    const capPts     = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16);
+    const capPts     = sampleCurve(capCp, 16);
     const sleevePoly = [];
-    for (const p of capPts) sleevePoly.push({ x: p.x, y: p.y + capHeight });
+    for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capHeight });
+    // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete sleevePoly[0].curve;
+    delete sleevePoly[capPts.length - 1].curve;
     sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvLength });
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
 
@@ -340,13 +354,13 @@ export default {
     const hoodH       = headCircEst / 2 + 2;
 
     const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs — high recovery 2×2 rib' },
+      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs - high recovery 2×2 rib' },
       { name: 'Flat cord drawstring', quantity: '54″', notes: 'Cotton or poly flat cord, ¼″–⅜″ wide, with aglets' },
       { name: 'Grommets or eyelets', quantity: '2', notes: '¼″ grommets at CF hood opening for cord exits' },
     ];
 
     if (isFullZip) {
-      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper — runs hem to neckline only (not through hood)' });
+      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper - runs hem to neckline only (not through hood)' });
       notions.push({ ref: 'interfacing-light', quantity: '0.5 yard (zipper tape extensions)' });
     }
 
@@ -361,7 +375,7 @@ export default {
         'Use stretch stitch or serger for all body seams',
         'Hood casing: fold face opening under ¾″ twice, {topstitch} to create drawstring channel',
         'Install grommets at CF of hood casing before joining hood to body',
-        'Pre-wash fleece before cutting — knits can shrink 3–5%',
+        'Pre-wash fleece before cutting - knits can shrink 3–5%',
         isFullZip ? 'Full zip: sew zipper tape extensions first, then {baste} zipper in place, {topstitch} from RS' : '',
         isLined ? 'Lined hood: sew outer and lining with RS together around face opening, turn, {press}, then treat as one layer for attaching to body' : '',
       ].filter(Boolean),
@@ -410,7 +424,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach hood to body',
-      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. {clip} curve. {serge} or zigzag SA together. {press} down.',
+      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. {clip} curve. {serge} or {zigzag} SA together. {press} down.',
     });
 
     steps.push({
@@ -435,7 +449,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} lightly with low steam. Try on — hood should sit comfortably without pulling neckline down.',
+      detail: '{press} lightly with low steam. Try on - hood should sit comfortably without pulling neckline down.',
     });
 
     return steps;

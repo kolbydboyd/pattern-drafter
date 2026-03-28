@@ -165,15 +165,15 @@ ${rule()}
 
 Made-to-measure patterns, starting at $7.
 
-1. Enter your measurements once — takes 3 minutes.
-2. Choose your garment — 23 patterns drafted to your body.
-3. Print and sew — tiles to standard printer paper.
+1. Enter your measurements once - takes 3 minutes.
+2. Choose your garment - 23 patterns drafted to your body.
+3. Print and sew - tiles to standard printer paper.
 
 Start here: ${SITE_URL}
 
 How to measure yourself: ${SITE_URL}/how-to-measure
 
-—
+ -
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -268,7 +268,7 @@ ${measureCard}
 ${rule()}
 
 <p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.6;">
-  Questions about your pattern? Reply to this email — we read every one.
+  Questions about your pattern? Reply to this email - we read every one.
 </p>`;
 
   const plain = `Hi${name ? ` ${name}` : ''},
@@ -285,13 +285,13 @@ ${displayMeasurements.length > 0 ? 'Drafted to your measurements:\n' + displayMe
 
 Questions? Reply to this email.
 
-—
+ -
 People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
     html: shell({
-      preheader: `Your ${garmentName} pattern has been drafted to your exact measurements — download now.`,
+      preheader: `Your ${garmentName} pattern has been drafted to your exact measurements - download now.`,
       subject,
       body,
       footerExtra: 'Order confirmation · peoplespatterns.com',
@@ -357,7 +357,7 @@ Your feedback directly improves the pattern for everyone with similar measuremen
 Share your fit feedback (takes 2 minutes):
 ${feedbackUrl}
 
-—
+ -
 You purchased ${garmentName}${dateStr ? ` on ${dateStr}` : ''}.
 People's Patterns · ${SITE_URL}
 Unsubscribe: ${SITE_URL}/unsubscribe`;
@@ -365,7 +365,7 @@ Unsubscribe: ${SITE_URL}/unsubscribe`;
   return {
     subject,
     html: shell({
-      preheader: `Your ${garmentName} feedback helps improve the pattern for everyone — takes 2 minutes.`,
+      preheader: `Your ${garmentName} feedback helps improve the pattern for everyone - takes 2 minutes.`,
       subject,
       body,
       footerExtra: `You purchased ${garmentName}${dateStr ? ` on ${dateStr}` : ''} · <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
@@ -433,7 +433,7 @@ People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
-    html: shell({ preheader: `Your custom ${garmentName} pattern is still waiting — ready to download.`, subject, body }),
+    html: shell({ preheader: `Your custom ${garmentName} pattern is still waiting - ready to download.`, subject, body }),
     plain,
   };
 }
@@ -494,7 +494,7 @@ People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
-    html: shell({ preheader: `Your ${garmentName} pattern is saved and waiting — complete checkout when ready.`, subject, body }),
+    html: shell({ preheader: `Your ${garmentName} pattern is saved and waiting - complete checkout when ready.`, subject, body }),
     plain,
   };
 }
@@ -578,7 +578,7 @@ export function postPurchaseSewHelpEmail({
 
   const tips = [
     'Press every seam as you go (iron down, lift, don\'t slide)',
-    'Match your notch marks — they\'re there so pieces align correctly',
+    'Match your notch marks - they\'re there so pieces align correctly',
     'Check the materials guide for the right needle and stitch settings',
   ];
 
@@ -619,7 +619,7 @@ ${rule()}
   If something doesn't fit right on the muslin, reply to this email and tell me what happened.
   I'll help you figure out the adjustment.
 </p>
-<p style="margin:12px 0 0;font-family:${SANS};font-size:13px;color:#777773;">— Kol, People's Patterns</p>`;
+<p style="margin:12px 0 0;font-family:${SANS};font-size:13px;color:#777773;"> - Kol, People's Patterns</p>`;
 
   const plain = `${greeting}
 
@@ -637,12 +637,12 @@ The construction steps are numbered in order. Don't skip ahead.
 
 If something doesn't fit right, reply and tell me what happened. I'll help.
 
-— Kol, People's Patterns
+ - Kol, People's Patterns
 ${SITE_URL}`;
 
   return {
     subject,
-    html: shell({ preheader: `Sewing tips for your ${garmentName} — muslin advice and construction notes.`, subject, body }),
+    html: shell({ preheader: `Sewing tips for your ${garmentName} - muslin advice and construction notes.`, subject, body }),
     plain,
   };
 }
@@ -689,7 +689,7 @@ ${rule()}
 
 <p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.6;">
   Building a wardrobe from one measurement profile is where People's Patterns really shines.
-  Every garment fits the same body — yours.
+  Every garment fits the same body - yours.
 </p>`;
 
   const plain = `${greeting}
@@ -697,7 +697,7 @@ ${rule()}
 Your measurement profile is saved and ready for your next pattern.
 
 Based on your ${garmentName}, these patterns use the same body block:
-${recommendations.slice(0, 3).map(r => `- ${r.name}${r.description ? ': ' + r.description : ''} — ${r.url || SITE_URL}`).join('\n')}
+${recommendations.slice(0, 3).map(r => `- ${r.name}${r.description ? ': ' + r.description : ''} - ${r.url || SITE_URL}`).join('\n')}
 
 Browse all patterns: ${SITE_URL}
 
@@ -705,7 +705,7 @@ People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
-    html: shell({ preheader: `Your measurements are saved — your next pattern takes 2 clicks.`, subject, body }),
+    html: shell({ preheader: `Your measurements are saved - your next pattern takes 2 clicks.`, subject, body }),
     plain,
   };
 }
@@ -722,7 +722,7 @@ export function monthlyNewsletterEmail({
   teaser = '',
 } = {}) {
   const subject = month && highlight
-    ? `${month} at People's Patterns — ${highlight}`
+    ? `${month} at People's Patterns - ${highlight}`
     : "What's new at People's Patterns";
 
   const sections = [];
@@ -816,7 +816,7 @@ ${btn('Reset Password →', resetUrl)}
 ${rule()}
 
 <p style="margin:0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.6;">
-  If you didn't request this, ignore this email — your password won't change.
+  If you didn't request this, ignore this email - your password won't change.
 </p>`;
 
   const plain = `Password reset requested for your People's Patterns account.
@@ -826,13 +826,13 @@ ${resetUrl}
 
 If you didn't request this, ignore this email. Your password won't change.
 
-—
+ -
 People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
     html: shell({
-      preheader: 'Click to reset your password — this link expires in 1 hour.',
+      preheader: 'Click to reset your password - this link expires in 1 hour.',
       subject,
       body,
       footerExtra: 'peoplespatterns.com',

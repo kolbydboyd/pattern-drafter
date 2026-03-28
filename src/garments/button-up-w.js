@@ -6,7 +6,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve,
+  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -131,18 +131,20 @@ export default {
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
-    const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
+    // Back armhole must also end at panelW for vertical side seam.
+    const backChestDepth = chestDepth;
     const lengthExtra  = opts.length === 'tunic' ? 8 : opts.length === 'cropped' ? 0 : 4;
     const torsoLen     = m.torsoLength + lengthExtra;
     const slvLen       = SLEEVE_LENGTHS[opts.sleeve] ?? m.sleeveLength ?? 9;
     const shoulderPtY  = slopeDrop;
 
-    function sampleCurve(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps); }
+    // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    function sampleCurve(cp, steps = 12) { return sampleBezier(cp.p0, cp.p1, cp.p2, cp.p3, steps).map(p => ({ ...p, curve: true })); }
     function polyPath(poly) { let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`; for (let i=1;i<poly.length;i++) d+=` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`; return d+' Z'; }
     function bbox(poly) { const xs=poly.map(p=>p.x),ys=poly.map(p=>p.y); return {minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)}; }
 
@@ -154,9 +156,12 @@ export default {
 
     // Front panel polygon
     const frontPoly = [];
-    [...frontNeckPts].reverse().forEach(p => frontPoly.push({ x: neckW - p.x, y: p.y }));
-    for (let i=1;i<shoulderPts.length;i++) frontPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
-    for (let i=1;i<frontArmPts.length;i++) frontPoly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
+    [...frontNeckPts].reverse().forEach(p => frontPoly.push({ ...p, x: neckW - p.x }));
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete frontPoly[0].curve;  // fold-neckline junction
+    delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
+    for (let i=1;i<shoulderPts.length;i++) frontPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
+    for (let i=1;i<frontArmPts.length;i++) frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     frontPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
@@ -167,7 +172,7 @@ export default {
     if (opts.bustDart === 'yes') {
       const bustLevel = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = 1.5;
+      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({
@@ -180,9 +185,12 @@ export default {
     // Back panel polygon
     const yokeH = opts.backDetail === 'yoke' ? 3.5 : 0;
     const backPoly = [];
-    [...backNeckPts].reverse().forEach(p => backPoly.push({ x: neckW - p.x, y: p.y }));
-    for (let i=1;i<shoulderPts.length;i++) backPoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
-    for (let i=1;i<backArmPts.length;i++) backPoly.push({ x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+    [...backNeckPts].reverse().forEach(p => backPoly.push({ ...p, x: neckW - p.x }));
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete backPoly[0].curve;  // fold-neckline junction
+    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
+    for (let i=1;i<shoulderPts.length;i++) backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
+    for (let i=1;i<backArmPts.length;i++) backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     backPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
@@ -283,7 +291,7 @@ export default {
   materials(m, opts) {
     const btnCount = parseInt(opts.buttons) || 7;
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons — +1 spare, +2 per cuff if applicable' },
+      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons - +1 spare, +2 per cuff if applicable' },
       { ref: 'interfacing-light', quantity: '0.75 yard (collar + stand + facings + cuffs)' },
     ];
     return buildMaterialsSpec({
@@ -293,10 +301,10 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-1.8', 'zigzag-small'],
       notes: [
-        'Buttons on LEFT front (womenswear) — buttonholes on right placket, buttons on left',
+        'Buttons on LEFT front (womenswear) - buttonholes on right placket, buttons on left',
         'French seams recommended for lightweight fabrics: sew at 3mm WS together, trim, fold RST, sew at 6mm',
-        'Interface collar (outer only) with woven sew-in interfacing for lightweight fabrics — fusible can show through',
-        opts.bustDart === 'yes' ? 'Bust dart: mark on RS with tailor\'s chalk. Fold RS together at dart legs. Sew from side seam to point — taper to nothing at apex. {press} down.' : '',
+        'Interface collar (outer only) with woven sew-in interfacing for lightweight fabrics - fusible can show through',
+        opts.bustDart === 'yes' ? 'Bust dart: mark on RS with tailor\'s chalk. Fold RS together at dart legs. Sew from side seam to point - taper to nothing at apex. {press} down.' : '',
         'Horizontal buttonholes on collar stand and cuffs; vertical buttonholes on placket',
       ].filter(Boolean),
     });
@@ -311,19 +319,19 @@ export default {
       steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold each front panel RS together along dart legs. Sew from side seam to point, tapering to nothing at apex. Secure thread. {press} dart downward.' });
     }
     if (opts.backDetail === 'yoke') {
-      steps.push({ step: n++, title: 'Attach back yoke', detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. Edgestitch from RS.' });
+      steps.push({ step: n++, title: 'Attach back yoke', detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.' });
     }
     if (opts.backDetail === 'pleat') {
       steps.push({ step: n++, title: 'Form back pleat', detail: 'Fold 1″ pleat each side of CB crease toward center back. {baste} at neckline. {press} folds for first 3″.' });
     }
-    steps.push({ step: n++, title: 'Prepare collar', detail: 'Interface outer collar and stand. Sew outer to undercollar {RST} on outer 3 sides. Trim, turn, {press}. If using stand: sew collar to stand, then stand to neckline in two steps.' });
+    steps.push({ step: n++, title: 'Prepare collar', detail: 'Interface outer collar and stand. Sew outer to undercollar {RST} on outer 3 sides. Trim SA to 3mm, {clip} corners diagonally. Turn RS out, use a {point turner} to push corners out cleanly. {press}. If using stand: sew collar to stand, then stand to neckline in two steps.' });
     steps.push({ step: n++, title: 'Prepare front plackets', detail: `Interface facing strips. {press} ${fmtInches(PLACKET_W)} fold at CF. Sew facing to placket edge, {press}, {topstitch}.` });
     steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. French seam or {serge}. {press} toward back.' });
-    steps.push({ step: n++, title: 'Attach collar', detail: 'Pin collar/stand to neckline. Sew outer to neckline through bodice. Fold inner SA under, slipstitch or edgestitch from RS.' });
+    steps.push({ step: n++, title: 'Attach collar', detail: 'Pin collar/stand to neckline. Sew outer to neckline through bodice. Fold inner SA under, {slipstitch} or {edgestitch} from RS.' });
     steps.push({ step: n++, title: 'Set sleeves', detail: 'Mark sleeve center. Match to shoulder seam. Pin and ease into armhole {RST}. Sew. French seam or {serge}. {press} toward sleeve.' });
     steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Continuous seam from shirt hem through underarm to sleeve hem {RST}. French seam or {serge}. {press} toward back.' });
     if (opts.sleeve === 'long' && opts.cuff !== 'none') {
-      steps.push({ step: n++, title: 'Attach cuffs', detail: `Interface outer cuff. Sew outer to sleeve opening {RST} easing fullness. Fold cuff SA under. Slipstitch or edgestitch. Make buttonhole${opts.cuff === 'french' ? 's for cufflinks' : ''}. Attach button.` });
+      steps.push({ step: n++, title: 'Attach cuffs', detail: `Interface outer cuff. Sew outer to sleeve opening {RST} easing fullness. Fold cuff SA under. {slipstitch} or {edgestitch}. Make buttonhole${opts.cuff === 'french' ? 's for cufflinks' : ''}. Attach button.` });
     }
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch}. For curved hem (hip length): {clip} SA before folding.` });
     steps.push({ step: n++, title: 'Buttonholes and buttons', detail: `Mark ${btnCount} buttonhole positions on RIGHT placket (horizontal). Sew buttonholes. Cut open. Sew buttons to LEFT placket at matching positions.` });

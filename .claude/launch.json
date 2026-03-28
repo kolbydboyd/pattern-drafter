@@ -9,7 +9,7 @@
       "autoPort": true
     },
     {
-      "name": "Vite Preview Server",
+      "name": "Vite Preview (production build)",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview"],
       "port": 4173

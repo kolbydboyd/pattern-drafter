@@ -5,3 +5,10 @@ dist/
 .env
 .env.local
 .env.*.local
+
+# External reference codebases
+freesewing-develop/
+
+# Internal assets — not for repo
+brand-kit/
+strategy/
