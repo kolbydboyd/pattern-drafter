@@ -42,7 +42,7 @@ import { getSession, signIn } from '../lib/auth.js';
 // ── Beta mode ─────────────────────────────────────────────────────────────────
 // When true: everyone gets free downloads via email gate. No purchase required.
 // Set to false to enable paid downloads.
-const BETA_MODE = true;
+const BETA_MODE = false;
 
 // ── URL sync ──────────────────────────────────────────────────────────────────
 // Read ?garment= from the URL on load so direct links pre-select correctly
