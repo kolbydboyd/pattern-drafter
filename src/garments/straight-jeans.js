@@ -7,7 +7,7 @@
  */
 
 import {
-  crotchCurvePoints, sampleBezier, monotoneCrotchCurve, offsetPolygon, polyToPath,
+  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -235,7 +235,7 @@ export default {
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-  const curvePts = monotoneCrotchCurve(sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32));
+  const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
 
   // Knee sits 55% down the inseam from the crotch
   const kneeY      = rise + inseam * 0.55;

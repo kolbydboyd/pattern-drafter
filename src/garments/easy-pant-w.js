@@ -7,7 +7,7 @@
  */
 
 import {
-  edgeAngle, crotchCurvePoints, sampleBezier, monotoneCrotchCurve, offsetPolygon, polyToPath,
+  edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -129,7 +129,7 @@ export default {
 
     function buildPanel(type, isBack, width, ext) {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
-      const curvePts = monotoneCrotchCurve(sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32));
+      const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 32);
 
       const kneeW   = m.calf  ? m.calf  / 2 + 0.5 : width * shape.knee;
       const hemW    = m.ankle ? m.ankle / 2 + 0.5 : width * shape.hem;
