@@ -59,11 +59,30 @@ export function chestEaseDistribution(ease) {
  *
  * @param {number} chest - Chest circumference in inches
  * @param {string} [style='standard'] - 'fitted' | 'standard' | 'oversized'
+ * @param {number|null} [waistToArmpit=null] - Optional direct measurement (in)
  * @returns {number} Y position of underarm from pattern top (in)
  */
-export function armholeDepthFromChest(chest, style = 'standard') {
+export function armholeDepthFromChest(chest, style = 'standard', waistToArmpit = null) {
   const tolerance = { fitted: 0, standard: 0.5, oversized: 1.5 };
+  if (waistToArmpit) {
+    return waistToArmpit + (tolerance[style] ?? 0.5);
+  }
   return chest / 4 + (tolerance[style] ?? 0.5);
+}
+
+/**
+ * Shoulder drop from shoulder seam width using standard slope angle.
+ *
+ * Replaces the old hardcoded 1.75″ drop, which was too steep for narrow
+ * shoulders and too shallow for wide ones. The industry average shoulder
+ * slope is approximately 13° (Aldrich, Bunka).
+ *
+ * @param {number} shoulderWidth - Shoulder seam length, neck to shoulder point (in)
+ * @param {number} [slopeDeg=13] - Shoulder slope angle in degrees
+ * @returns {number} Vertical drop in inches
+ */
+export function shoulderDropFromWidth(shoulderWidth, slopeDeg = 13) {
+  return shoulderWidth * Math.tan(slopeDeg * Math.PI / 180);
 }
 
 // ── Core curve functions ───────────────────────────────────────────────────
@@ -98,6 +117,10 @@ export function armholeDepthFromChest(chest, style = 'standard') {
  * @returns {{ p0, p1, p2, p3 }}   Cubic bezier control points
  */
 export function armholeCurve(shoulderWidth, chestDepth, armholeDepth, isBack) {
+  if (chestDepth < 0.5) {
+    console.warn(`[upper-body] chestDepth is ${chestDepth.toFixed(2)}″ — shoulder width exceeds chest panel. Clamping to 0.5″. Increase ease or check measurements.`);
+    chestDepth = 0.5;
+  }
   const p0 = { x: 0,          y: 0            }; // shoulder point
   const p3 = { x: chestDepth, y: armholeDepth }; // underarm notch
 
@@ -324,7 +347,7 @@ export function sleeveCapEase(bicep, capHeight, sleeveWidth, armholeCircumferenc
 /**
  * Half back-neck width from neck circumference — shoulder-neck junction to CB/CF.
  *
- * Standard block drafting rule: back neck width = neck / 6.
+ * Standard block drafting rule: back neck width = neck / 5.
  * This is the distance from the fold (CB or CF) to point B on the shoulder
  * baseline. The front neckline uses the same width; its extra depth comes
  * from the neckline curve, not a wider opening.
@@ -333,5 +356,5 @@ export function sleeveCapEase(bicep, capHeight, sleeveWidth, armholeCircumferenc
  * @returns {number} neckWidth to pass to necklineCurve() and shoulderSlope()
  */
 export function neckWidthFromCircumference(neckCircumference) {
-  return neckCircumference / 6;
+  return neckCircumference / 5;
 }

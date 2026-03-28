@@ -7,7 +7,7 @@
  */
 
 import {
-  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
+  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -108,12 +108,12 @@ export default {
 
     // ── Shoulder geometry (standard block rules) ─────────────────────────────
     // A = (0, 0): top-left, fold / shoulder baseline
-    // B = (neckW, 0): shoulder-neck junction on baseline  — neckW = neck/6
-    // Shoulder point = (halfShoulder, slopeDrop): drops 1.75" over shoulder width
+    // B = (neckW, 0): shoulder-neck junction on baseline  — neckW = neck/5
+    // Shoulder point = (halfShoulder, slopeDrop): drops proportionally over shoulder width
     const halfShoulder = m.shoulder / 2;
-    const slopeDrop    = 1.75;
-    const neckW        = neckWidthFromCircumference(m.neck);   // neck / 6
-    const shoulderW    = halfShoulder - neckW;                 // seam length B → shoulder pt
+    const neckW        = neckWidthFromCircumference(m.neck);
+    const shoulderW    = halfShoulder - neckW;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = halfShoulder;                         // = neckW + shoulderW
 
     // ── Armhole geometry ─────────────────────────────────────────────────────
@@ -127,8 +127,8 @@ export default {
     const backChestDepth = m.crossBack ? Math.max(0.5, m.crossBack / 2 - shoulderPtX) : chestDepth;
 
     // ── Neckline ─────────────────────────────────────────────────────────────
-    // Back neckline depth (A→G): neckW / 3 ≈ neck/18 — very shallow, < 1"
-    // Front neckline depth: neck/6 + 0.5 (crew), or fixed depth for other styles
+    // Back neckline depth (A→G): neckW / 3 ≈ neck/15 — very shallow, ~1"
+    // Front neckline depth: neckW + 0.5 (crew), or fixed depth for other styles
     const neckKey       = opts.neckline;
     const neckDepthBack = neckW / 3;
     const neckDepthFront = neckKey === 'crew'
@@ -224,7 +224,7 @@ export default {
     // Full flat width at underarm = bicep + 2" ease (standard block rule)
     // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
     const slvFullWidth = m.bicep + 2;
-    const capHeight    = opts.fit === 'fitted' ? 5.5 : opts.fit === 'oversized' ? 5.0 : 5.5;
+    const capHeight    = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capPts       = curveToPoints(capCp, 16);
     // capPts: (0,0) = back underarm → (slvFullWidth, 0) = front underarm

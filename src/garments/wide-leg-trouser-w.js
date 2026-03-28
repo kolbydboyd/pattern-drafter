@@ -163,7 +163,8 @@ export default {
     }));
 
     // ── WAISTBAND ────────────────────────────────────────────────────────────
-    const wbCirc = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+    // Structured/contoured sits at waist; elastic must pass over hips
+    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease.total + pleatExtra * 2 + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       // 1.5″ finished = 3″ cut
@@ -207,8 +208,8 @@ export default {
 
     // ── FRONT POCKETS ────────────────────────────────────────────────────────
     if (opts.pockets === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Interface or self-fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric',           dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface or self-fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric',           dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     } else if (opts.pockets === 'welt') {

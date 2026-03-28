@@ -148,8 +148,8 @@ export default {
       buildPanel('Back Panel',  'skirt-back'),
     ];
 
-    // Waistband
-    const wbCirc = m.hip + ease + sa * 2;
+    // Waistband — structured/petersham sits at waist; elastic must pass over hips
+    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease + sa * 2 : m.waist + ease + sa * 2;
     if (opts.waistband === 'petersham') {
       pieces.push({ id: 'waistband', name: 'Petersham Ribbon', instruction: `1.5″ petersham ribbon · ${fmtInches(wbCirc)} long · hook-and-bar at CB`, dimensions: { length: wbCirc, width: 1.5 }, type: 'rectangle', sa });
     } else if (opts.waistband === 'structured') {

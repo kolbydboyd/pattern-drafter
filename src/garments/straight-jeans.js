@@ -7,7 +7,7 @@
  */
 
 import {
-  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
+  crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -132,7 +132,7 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.hip + ease.total + sa * 2;
+    const wbLen = m.waist + ease.total + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
@@ -146,8 +146,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -281,6 +281,15 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const saPoly = offsetPolygon(poly, i => -edgeAllowances[i].sa);
 
   const effSeatDepth = seatDepth || 7;
+
+  // Compute seam lengths for cross-reference labels
+  const outseamLen = dist({ x: sideWaistX, y: 0 }, { x: hipWidth, y: hipLineY })
+    + dist({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY })
+    + dist({ x: sideKneeX, y: kneeY }, { x: sideHemX, y: height });
+  const inseamLen = dist({ x: inseamHemX, y: height }, { x: inseamKneeX, y: kneeY })
+    + dist({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise });
+  const crotchLen = arcLength(curvePts);
+
   const dims = [
     { label: fmtInches(waistWidth) + ' waist', x1: 0, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
     { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
@@ -290,6 +299,8 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     { label: fmtInches(inseam) + ' inseam',    x: hipWidth + 1.2, y1: rise,   y2: height,             type: 'v' },
     { label: fmtInches(ext)    + ' ext',       x1: -ext, y1: rise + 0.4, x2: 0, y2: rise + 0.4,   type: 'h', color: '#c44' },
     { label: fmtInches(effSeatDepth) + ' seat', x: -ext - 1.2, y1: 0, y2: effSeatDepth,        type: 'v', color: '#b8963e' },
+    { label: fmtInches(outseamLen) + ' outseam', x: hipWidth + 2.8, y1: 0, y2: height, type: 'v', color: '#b8963e' },
+    { label: fmtInches(inseamLen) + ' inseam seam', x: -ext - 2.8, y1: rise, y2: height, type: 'v', color: '#b8963e' },
   ];
 
   // Waist darts for back panel

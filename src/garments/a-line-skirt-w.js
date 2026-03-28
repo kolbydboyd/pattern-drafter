@@ -158,8 +158,8 @@ export default {
       buildPanel('skirt-back',  'Back Panel',  true),
     ];
 
-    // Waistband
-    const wbCirc = m.hip + ease + sa * 2;
+    // Waistband — structured sits at waist; elastic must pass over hips
+    const wbCirc = (opts.waistband === 'structured') ? m.waist + ease + sa * 2 : m.hip + ease + sa * 2;
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband', instruction: `Cut 2 (self + interfacing) · ${fmtInches(wbCirc)} long × 3.5″ cut (1.5″ finished + SA) · Interface fully`, dimensions: { length: wbCirc, width: 3.5 }, type: 'rectangle', sa });
     } else {
