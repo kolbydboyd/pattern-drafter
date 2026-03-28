@@ -8,7 +8,7 @@ html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace}
 body:has(.pg){display:flex;flex-direction:column}
 /* Standalone pages with #pattern-page-root or #learn-root need normal scroll */
-body:has(#pattern-page-root),body:has(#learn-root){height:auto;overflow-y:auto}
+body:has(#pattern-page-root),body:has(#learn-root),body.pg-scrollable{height:auto;overflow-y:auto}
 
 .hdr{background:var(--dark);color:var(--hdr-text);padding:18px 32px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hdr h1{font-family:'Fraunces',serif;font-size:1rem;font-weight:300;letter-spacing:-1px;cursor:pointer;user-select:none}
@@ -623,7 +623,7 @@ details.adv-meas summary:hover{color:var(--text)}
 
 /* ── Pattern detail page ── */
 .pat-pg-root{min-height:calc(100vh - 64px - 56px);display:flex;flex-direction:column}
-.pat-pg-wrap{max-width:900px;margin:0 auto;padding:32px 20px 64px;flex:1}
+.pat-pg-wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px;flex:1;width:100%}
 .pat-pg-breadcrumb{font-size:.72rem;color:var(--mid);margin-bottom:24px;display:flex;gap:6px;align-items:center}
 .pat-pg-breadcrumb a{color:var(--mid);text-decoration:none}.pat-pg-breadcrumb a:hover{color:var(--text)}
 .pat-pg-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:48px;align-items:start}
@@ -665,7 +665,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .pat-pg-404-sub{font-size:.9rem;color:var(--mid);margin-bottom:28px}
 .pat-pg-404-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .pat-pg-listing-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:300;color:var(--text);margin-bottom:28px}
-.pat-pg-listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.pat-pg-listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
 .pat-pg-listing-card{display:block;padding:14px 16px;border:1px solid var(--bdr);border-radius:6px;background:var(--card);text-decoration:none;transition:border-color .15s}
 .pat-pg-listing-card:hover{border-color:var(--gold)}
 .pat-pg-listing-name{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:8px}
