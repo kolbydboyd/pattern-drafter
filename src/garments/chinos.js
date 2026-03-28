@@ -3,7 +3,7 @@
  * Chinos — clean tailored trousers with serger-finished seams.
  * 31 inch default inseam, 10 inch rise. Same leg shapes as straight-jeans.
  * Slant front pockets, welt back pockets ×2 with button, zip fly.
- * No fell seams — serge or zigzag edge finish throughout.
+ * No fell seams — {serge} or zigzag edge finish throughout.
  */
 
 import {
@@ -119,7 +119,7 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: 'Cut 2 (mirror L & R) · Serge all raw edges after each seam',
+      instruction: 'Cut 2 (mirror L & R) · {serge} all raw edges after each seam',
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, opts,
@@ -150,19 +150,19 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · Serge edge before attaching', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge before attaching', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining or drill · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining or drill · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
 
     if (opts.backPocket !== 'none') {
-      pieces.push({ id: 'welt-back', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · Serge bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'welt-back', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · {serge} bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
     }
 
     // ── BELT LOOPS ──
@@ -188,9 +188,9 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Clean-finish ALL seams — serge or zigzag edge every seam allowance before or after sewing. No fell seams.',
-        'Stitch seams at 2.5mm; topstitch at 3.0mm for a cleaner, less casual look than jeans',
-        'Press every seam immediately after sewing — chinos require crisp pressing to lie flat',
+        'Clean-finish ALL seams — {serge} or zigzag edge every seam allowance before or after sewing. No fell seams.',
+        'Stitch seams at 2.5mm; {topstitch} at 3.0mm for a cleaner, less casual look than jeans',
+        '{press} every seam immediately after sewing — chinos require crisp pressing to lie flat',
         'Pre-wash fabric once at the temperature you plan to wash the finished garment',
         'Bar tack all pocket corners and the crotch junction',
       ],
@@ -204,43 +204,43 @@ export default {
     if (opts.backPocket !== 'none') {
       steps.push({
         step: n++, title: 'Prepare back welt pockets',
-        detail: `Serge pocket bag edges. Mark welt positions on back panels. Sew bound welts {RST}, slash, turn, press. Attach bag halves. Whipstitch bag sides. Bar tack ends.${opts.backPocket === 'welt-button' ? ' Work buttonhole on upper welt, attach button.' : ''}`,
+        detail: `{serge} pocket bag edges. Mark welt positions on back panels. Sew bound welts {RST}, slash, turn, {press}. Attach bag halves. Whipstitch bag sides. Bar tack ends.${opts.backPocket === 'welt-button' ? ' Work buttonhole on upper welt, attach button.' : ''}`,
       });
     }
 
     steps.push({
       step: n++, title: 'Prepare slant pockets',
-      detail: 'Serge pocket bag and facing edges. Sew facing to front panel slash line {RST}. Clip, turn, press. Understitch facing. Attach bag to facing. Baste bag to panel at side and waist.',
+      detail: '{serge} pocket bag and facing edges. Sew facing to front panel slash line {RST}. {clip}, turn, {press}. {understitch} facing. Attach bag to facing. {baste} bag to panel at side and waist.',
     });
     steps.push({
       step: n++, title: 'Install zip fly',
-      detail: 'Serge fly shield edges. Staystitch CF seam allowances. Sew front panels at CF from crotch to bottom of fly opening. Clip curve. Sew zipper to right CF. Sew fly shield to left CF. Topstitch fly curve from RS at 3.0mm.',
+      detail: '{serge} fly shield edges. {staystitch} CF seam allowances. Sew front panels at CF from crotch to bottom of fly opening. {clip} curve. Sew zipper to right CF. Sew fly shield to left CF. {topstitch} fly curve from RS at 3.0mm.',
     });
     steps.push({
       step: n++, title: 'Sew center back seam',
-      detail: 'Join back panels at CB {RST}. Clip curve. Serge seam allowances together. Press toward one side.',
+      detail: 'Join back panels at CB {RST}. {clip} curve. {serge} seam allowances together. {press} toward one side.',
     });
     steps.push({
       step: n++, title: 'Sew side seams',
-      detail: 'Join front to back at side seams {RST}. Press open. Serge each seam allowance separately. Topstitch at 3.0mm if desired.',
+      detail: 'Join front to back at side seams {RST}. {press} open. {serge} each seam allowance separately. {topstitch} at 3.0mm if desired.',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
-      detail: 'Continuous seam from hem to hem. Clip crotch curve. Serge seam allowances together. Press toward back.',
+      detail: 'Continuous seam from hem to hem. {clip} crotch curve. {serge} seam allowances together. {press} toward back.',
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface waistband. Sew to trousers waist {RST}. Fold over. Topstitch top and bottom edges at 3.0mm. Waistband button and buttonhole at CF overlap.',
+      detail: 'Interface waistband. Sew to trousers waist {RST}. Fold over. {topstitch} top and bottom edges at 3.0mm. Waistband button and buttonhole at CF overlap.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
-      detail: 'Press loop strips. Topstitch edges. Cut to height. Place at CB, side seams, flanking CF. Fold and topstitch ends. Bar tack through all layers.',
+      detail: '{press} loop strips. {topstitch} edges. Cut to height. Place at CB, side seams, flanking CF. Fold and {topstitch} ends. Bar tack through all layers.',
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Serge or turn under raw hem edge. Fold hem up ${fmtInches(parseFloat(opts.hem))}. Press. Topstitch at 3.0mm or hand-slip stitch for a cleaner finish.`,
+      detail: `{serge} or turn under raw hem edge. Fold hem up ${fmtInches(parseFloat(opts.hem))}. {press}. {topstitch} at 3.0mm or hand-slip stitch for a cleaner finish.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Press entire garment with steam. Bar tack all stress points. Check all seam allowances are neatly serged.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam. Bar tack all stress points. Check all seam allowances are neatly serged.' });
 
     return steps;
   },

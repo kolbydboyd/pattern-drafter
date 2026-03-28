@@ -147,14 +147,14 @@ export default {
       pieces.push({
         id: 'pocket-bag',
         name: 'Side Slash Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Same fabric or lining · Serge all edges',
+        instruction: 'Cut 4 (2 per side) · Same fabric or lining · {serge} all edges',
         dimensions: { width: 8, height: 9 },
         type: 'pocket',
       });
     }
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · Serge before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · Serge all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -204,9 +204,9 @@ export default {
       notes: [
         'Use a ballpoint (jersey) needle 90/14 for fleece and french terry — prevents skipped stitches',
         'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
-        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery — no hem needed' : 'twin needle creates two parallel rows of topstitch visible from RS; or use coverstitch if available'}`,
+        `Hem finish: ${isJogger ? 'ribbed cuffs gathered to 80% of hem opening provide natural stretch recovery — no hem needed' : 'twin needle creates two parallel rows of {topstitch} visible from RS; or use coverstitch if available'}`,
         'Pre-wash fleece/terry before cutting — knits can shrink 3–5% in first wash',
-        'Do not press fleece with high heat — use low steam or finger press seams open',
+        'Do not {press} fleece with high heat — use low steam or finger {press} seams open',
         'Elastic runs through back half of waistband only. Drawstring ties at front only.',
       ],
     });
@@ -220,38 +220,38 @@ export default {
     if (opts.pocket === 'slash') {
       steps.push({
         step: n++, title: 'Prepare slash pockets',
-        detail: 'Serge all pocket bag edges. Mark pocket opening on front and back panels at mid-hip height. Sew pocket bag to front and back panels along opening seam {RST}. Press bags away from opening. Understitch if desired. Baste bags to panel at side seam edges.',
+        detail: '{serge} all pocket bag edges. Mark pocket opening on front and back panels at mid-hip height. Sew pocket bag to front and back panels along opening seam {RST}. {press} bags away from opening. {understitch} if desired. {baste} bags to panel at side seam edges.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join front panels at CF {RST}. Stretch stitch from waist to crotch. Clip curve. Press or serge.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join back panels at CB {RST}. Stretch stitch. Clip. Press.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join front panels at CF {RST}. Stretch stitch from waist to crotch. {clip} curve. {press} or {serge}.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'slash'
-        ? 'Sew above and below pocket opening with stretch stitch. Sew around bag to join both halves. Trim corners. Press open.'
-        : 'Join front to back at side seams {RST}. Stretch stitch. Press open or serge together.',
+        ? 'Sew above and below pocket opening with stretch stitch. Sew around bag to join both halves. Trim corners. {press} open.'
+        : 'Join front to back at side seams {RST}. Stretch stitch. {press} open or {serge} together.',
     });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. Clip curve. Press toward back.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
 
     steps.push({
       step: n++, title: 'Construct waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, press. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. Topstitch all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
+      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
     });
 
     if (isJogger) {
       steps.push({
         step: n++, title: 'Attach rib cuffs',
-        detail: 'Fold each rib cuff in half widthwise {WST}. Divide hem opening and cuff into quarters, pin at quarters. Sew cuff to hem opening {RST}, stretching cuff to match opening. Use stretch stitch or serger. Fold seam allowance up into leg, topstitch from RS if desired.',
+        detail: 'Fold each rib cuff in half widthwise {WST}. Divide hem opening and cuff into quarters, pin at quarters. Sew cuff to hem opening {RST}, stretching cuff to match opening. Use stretch stitch or serger. Fold seam allowance up into leg, {topstitch} from RS if desired.',
       });
     } else {
       steps.push({
         step: n++, title: 'Hem',
-        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, press. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, topstitch with zigzag or stretch stitch.`,
+        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, {press}. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, {topstitch} with zigzag or stretch stitch.`,
       });
     }
 
-    steps.push({ step: n++, title: 'Finish', detail: 'Thread drawstring with safety pin. Knot or heat-seal cord ends. Try on and adjust elastic tension. Press lightly with damp cloth on low heat.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Thread drawstring with safety pin. Knot or heat-seal cord ends. Try on and adjust elastic tension. {press} lightly with damp cloth on low heat.' });
 
     return steps;
   },

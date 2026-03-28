@@ -487,50 +487,50 @@ export default {
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
-        detail: 'Serge top edge. Fold top under ½″, topstitch. Press remaining edges under ½″. Position on left chest 2.5″ below neckline, 1.5″ from CF. Topstitch on 3 sides close to edge. Bar tack top corners.',
+        detail: '{serge} top edge. Fold top under ½″, {topstitch}. {press} remaining edges under ½″. Position on left chest 2.5″ below neckline, 1.5″ from CF. {topstitch} on 3 sides close to edge. Bar tack top corners.',
       });
     }
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front to back at shoulders {RST}. Stretch stitch or serge. Press toward back.',
+      detail: 'Join front to back at shoulders {RST}. Stretch stitch or {serge}. {press} toward back.',
     });
 
     steps.push({
       step: n++, title: 'Attach neckband',
-      detail: `Fold neckband in half lengthwise {WST}, press. Divide neckband and neck opening into quarters, pin at quarters. Sew neckband to neck opening {RST}, stretching band to fit opening. Serge or stretch stitch. Press SA toward bodice. Topstitch from RS if desired.`,
+      detail: `Fold neckband in half lengthwise {WST}, {press}. Divide neckband and neck opening into quarters, pin at quarters. Sew neckband to neck opening {RST}, stretching band to fit opening. {serge} or stretch stitch. {press} SA toward bodice. {topstitch} from RS if desired.`,
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Divide sleeve cap and armhole opening into quarters, pin at quarters. Sew sleeve into armhole {RST}, easing cap to fit. Stretch stitch. Serge SA together. Press toward sleeve.',
+      detail: 'Divide sleeve cap and armhole opening into quarters, pin at quarters. Sew sleeve into armhole {RST}, easing cap to fit. Stretch stitch. {serge} SA together. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams and sleeve seams',
-      detail: 'Pin front to back at side seams and sleeve seams in one continuous seam from hem to sleeve hem. Stretch stitch or serge. Press toward back.',
+      detail: 'Pin front to back at side seams and sleeve seams in one continuous seam from hem to sleeve hem. Stretch stitch or {serge}. {press} toward back.',
     });
 
     if (isLong) {
       steps.push({
         step: n++, title: 'Hem sleeves',
-        detail: 'Fold up ¾″, press. Twin needle from RS or fold under raw edge and zigzag. Or attach rib cuffs at 80% of opening width.',
+        detail: 'Fold up ¾″, {press}. Twin needle from RS or fold under raw edge and zigzag. Or attach rib cuffs at 80% of opening width.',
       });
     } else {
       steps.push({
         step: n++, title: 'Hem sleeves',
-        detail: 'Fold up ¾″, press. Twin needle from RS in one pass.',
+        detail: 'Fold up ¾″, {press}. Twin needle from RS in one pass.',
       });
     }
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, press${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and zigzag stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and zigzag stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: 'Press with damp cloth on cotton/steam setting (check fabric care). Try on — neckband should sit flat and not gap.',
+      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on — neckband should sit flat and not gap.',
     });
 
     return steps;

@@ -185,7 +185,7 @@ export default {
       pieces.push({
         id: 'liner',
         name: 'Brief Liner',
-        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed — serge raw edges',
+        instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed — {serge} raw edges',
         dimensions: { width: linerW, height: linerH },
         type: 'pocket',
       });
@@ -224,7 +224,7 @@ export default {
         'Use a stretch stitch or narrow zigzag for all seams — straight stitch will pop on stretch fabric',
         'Interface front waistband only; back casing does not need interfacing',
         'Use a ballpoint needle to avoid skipped stitches on knit/stretch weaves',
-        'Press seams with a damp cloth and low heat — high heat damages synthetic fibers',
+        '{press} seams with a damp cloth and low heat — high heat damages synthetic fibers',
       ],
     });
   },
@@ -241,7 +241,7 @@ export default {
       steps.push({
         step: n++,
         title: 'Prepare side-seam pocket bags',
-        detail: 'Serge or zigzag all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. Press bags toward panels. Understitch if desired.',
+        detail: '{serge} or zigzag all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. {press} bags toward panels. {understitch} if desired.',
       });
     }
 
@@ -250,7 +250,7 @@ export default {
       steps.push({
         step: n++,
         title: 'Attach brief liner',
-        detail: 'Serge all liner edges. Align liner WS to WS of front panels at waist and crotch. Baste ¼″ from waist and crotch edges. Treat as one layer going forward.',
+        detail: '{serge} all liner edges. Align liner WS to WS of front panels at waist and crotch. {baste} ¼″ from waist and crotch edges. Treat as one layer going forward.',
       });
     }
 
@@ -258,41 +258,41 @@ export default {
     steps.push({
       step: n++,
       title: 'Sew center front seam',
-      detail: 'Join two front panels at center seam {RST}. Use stretch stitch from waist to crotch curve. Clip curve every ½″. Press seam open or to one side.',
+      detail: 'Join two front panels at center seam {RST}. Use stretch stitch from waist to crotch curve. {clip} curve every ½″. {press} seam open or to one side.',
     });
     steps.push({
       step: n++,
       title: 'Sew center back seam',
-      detail: 'Join two back panels at center seam {RST}. Stretch stitch. Clip crotch curve. Press.',
+      detail: 'Join two back panels at center seam {RST}. Stretch stitch. {clip} crotch curve. {press}.',
     });
     steps.push({
       step: n++,
       title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
-        ? 'Pin front to back at side seams {RST}. Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bag, joining both bags together. Clip corners. Press side seams open.'
-        : 'Join front to back at side seams {RST} with stretch stitch. Press open.',
+        ? 'Pin front to back at side seams {RST}. Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bag, joining both bags together. {clip} corners. {press} side seams open.'
+        : 'Join front to back at side seams {RST} with stretch stitch. {press} open.',
     });
     steps.push({
       step: n++,
       title: 'Sew inseam',
-      detail: 'Continuous stretch stitch from hem to hem through crotch junction. Clip curve. Press toward back.',
+      detail: 'Continuous stretch stitch from hem to hem through crotch junction. {clip} curve. {press} toward back.',
     });
 
     // Waistband
     steps.push({
       step: n++,
       title: 'Construct front waistband',
-      detail: `Fuse interfacing to front waistband. Install ${opts.grommets === 'grommets' ? 'grommets ¾″ from each CF end' : 'worked buttonholes ¾″ from each CF end'} for drawstring exits. Fold in half lengthwise {WST}, press. Pin to shorts front waist {RST}, sew. Fold over to inside, pin covering seam. Topstitch through all layers with straight stitch.`,
+      detail: `Fuse interfacing to front waistband. Install ${opts.grommets === 'grommets' ? 'grommets ¾″ from each CF end' : 'worked buttonholes ¾″ from each CF end'} for drawstring exits. Fold in half lengthwise {WST}, {press}. Pin to shorts front waist {RST}, sew. Fold over to inside, pin covering seam. {topstitch} through all layers with straight stitch.`,
     });
     steps.push({
       step: n++,
       title: 'Construct back waistband',
-      detail: 'Fold back waistband in half lengthwise {WST}, press. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, zigzag to join. Close gap. Double topstitch top and bottom edges of casing.',
+      detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, zigzag to join. Close gap. Double {topstitch} top and bottom edges of casing.',
     });
     steps.push({
       step: n++,
       title: 'Join waistband halves',
-      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. Slipstitch or topstitch closed on each side.',
+      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. Slipstitch or {topstitch} closed on each side.',
     });
     steps.push({
       step: n++,
@@ -304,12 +304,12 @@ export default {
     steps.push({
       step: n++,
       title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and serge raw edge). Press with damp cloth, low heat. Topstitch with zigzag (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with zigzag (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
     });
     steps.push({
       step: n++,
       title: 'Finish',
-      detail: 'Press entire garment with damp cloth, low heat. Try on and adjust elastic tension and drawstring length. Tie a temporary overhand knot in the drawstring during wear testing.',
+      detail: '{press} entire garment with damp cloth, low heat. Try on and adjust elastic tension and drawstring length. Tie a temporary overhand knot in the drawstring during wear testing.',
     });
 
     return steps;
