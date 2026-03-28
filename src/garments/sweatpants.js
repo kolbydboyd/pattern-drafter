@@ -17,6 +17,7 @@ export default {
   name: 'Sweatpants',
   category: 'lower',
   difficulty: 'intermediate',
+  priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30 },
 

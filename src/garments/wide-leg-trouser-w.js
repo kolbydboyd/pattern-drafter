@@ -20,6 +20,7 @@ export default {
   name: 'Wide-Leg Trouser (W)',
   category: 'lower',
   difficulty: 'intermediate',
+  priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30, rise: 11 },
 

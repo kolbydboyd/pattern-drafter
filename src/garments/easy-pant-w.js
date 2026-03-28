@@ -17,6 +17,7 @@ export default {
   name: 'Easy Pant (W)',
   category: 'lower',
   difficulty: 'beginner',
+  priceTier: 'simple',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 29, rise: 10 },
 

@@ -21,6 +21,7 @@ export default {
   name: 'Shirt Dress (W)',
   category: 'upper',
   difficulty: 'advanced',
+  priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
   measurementDefaults: { torsoLength: 16, skirtLength: 26 },
 

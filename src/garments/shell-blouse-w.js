@@ -24,6 +24,7 @@ export default {
   name: 'Shell Blouse (W)',
   category: 'upper',
   difficulty: 'intermediate',
+  priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
   measurementDefaults: {},
 

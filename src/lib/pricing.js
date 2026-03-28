@@ -1,46 +1,156 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-export const PATTERN_PRICES = {
-  // Beginner — $7
-  'gym-shorts':         { cents: 700,  label: 'Gym Shorts',          priceId: 'price_1TFO3JEcctnfQkkL16G6tSHa', tier: 'beginner' },
-  'swim-trunks':        { cents: 700,  label: 'Swim Trunks',         priceId: 'price_1TFO3JEcctnfQkkL16G6tSHa', tier: 'beginner' },
-  'slip-skirt-w':       { cents: 700,  label: 'Slip Skirt',          priceId: 'price_1TFO3JEcctnfQkkL16G6tSHa', tier: 'beginner' },
 
-  // Intermediate — $8
-  'tee':                { cents: 800,  label: 'T-Shirt',             priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'cargo-shorts':       { cents: 800,  label: 'Cargo Shorts',        priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'pleated-shorts':     { cents: 800,  label: 'Pleated Shorts',      priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'crewneck':           { cents: 800,  label: 'Crewneck Sweatshirt', priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'hoodie':             { cents: 800,  label: 'Hoodie',              priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'fitted-tee-w':       { cents: 800,  label: 'Fitted Tee',          priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'a-line-skirt-w':     { cents: 800,  label: 'A-Line Skirt',        priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'easy-pant-w':        { cents: 800,  label: 'Easy Pant',           priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-  'shell-blouse-w':     { cents: 800,  label: 'Shell Blouse',        priceId: 'price_1TFO3aEcctnfQkkLLD48Qw5Z', tier: 'intermediate' },
-
-  // Advanced — $10
-  'straight-jeans':     { cents: 1000, label: 'Straight Jeans',      priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'chinos':             { cents: 1000, label: 'Chinos',              priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'pleated-trousers':   { cents: 1000, label: 'Pleated Trousers',    priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'sweatpants':         { cents: 1000, label: 'Sweatpants',          priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'camp-shirt':         { cents: 1000, label: 'Camp Shirt',          priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'crop-jacket':        { cents: 1000, label: 'Crop Jacket',         priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'wide-leg-trouser-w': { cents: 1000, label: 'Wide-Leg Trouser',    priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'straight-trouser-w': { cents: 1000, label: 'Straight Trouser',    priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'button-up-w':        { cents: 1000, label: 'Button-Up Shirt',     priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'shirt-dress-w':      { cents: 1000, label: 'Shirt Dress',         priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
-  'wrap-dress-w':       { cents: 1000, label: 'Wrap Dress',          priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
+// ── Tier definitions ──────────────────────────────────────────────────────────
+export const TIER_PRICES = {
+  simple: {
+    cents:   900,
+    label:   'Simple',
+    priceId: 'price_simple_900_placeholder',  // replace with live Stripe price ID
+    description: 'Beginner-friendly builds — elastic waists, minimal shaping',
+    examples: ['Gym Shorts', 'T-Shirt', 'Slip Skirt', 'Easy Pant'],
+  },
+  core: {
+    cents:   1400,
+    label:   'Core',
+    priceId: 'price_core_1400_placeholder',
+    description: 'Everyday wardrobe staples — standard closures, moderate shaping',
+    examples: ['Cargo Shorts', 'Straight Jeans', 'Camp Shirt', 'A-Line Skirt'],
+  },
+  tailored: {
+    cents:   1900,
+    label:   'Tailored',
+    priceId: 'price_tailored_1900_placeholder',
+    description: 'Detailed construction — pleats, darts, linings, precision fit',
+    examples: ['Pleated Trousers', 'Hoodie', 'Button-Up Shirt', 'Wrap Dress'],
+  },
 };
 
-// A0 / copy-shop single-sheet add-on
+// ── Garment → tier mapping ────────────────────────────────────────────────────
+const GARMENT_TIERS = {
+  // simple — $9
+  'gym-shorts':     'simple',
+  'swim-trunks':    'simple',
+  'tee':            'simple',
+  'fitted-tee-w':   'simple',
+  'slip-skirt-w':   'simple',
+  'easy-pant-w':    'simple',
+  // core — $14
+  'cargo-shorts':       'core',
+  'straight-jeans':     'core',
+  'chinos':             'core',
+  'sweatpants':         'core',
+  'camp-shirt':         'core',
+  'crewneck':           'core',
+  'a-line-skirt-w':     'core',
+  'straight-trouser-w': 'core',
+  'wide-leg-trouser-w': 'core',
+  'shell-blouse-w':     'core',
+  // tailored — $19
+  'pleated-shorts':   'tailored',
+  'pleated-trousers': 'tailored',
+  'hoodie':           'tailored',
+  'crop-jacket':      'tailored',
+  'button-up-w':      'tailored',
+  'shirt-dress-w':    'tailored',
+  'wrap-dress-w':     'tailored',
+};
+
+// Garment display labels (used in checkout, emails, UI)
+const GARMENT_LABELS = {
+  'gym-shorts':         'Gym Shorts',
+  'swim-trunks':        'Swim Trunks',
+  'tee':                'T-Shirt',
+  'fitted-tee-w':       'Fitted Tee',
+  'slip-skirt-w':       'Slip Skirt',
+  'easy-pant-w':        'Easy Pant',
+  'cargo-shorts':       'Cargo Shorts',
+  'straight-jeans':     'Straight Jeans',
+  'chinos':             'Chinos',
+  'sweatpants':         'Sweatpants',
+  'camp-shirt':         'Camp Shirt',
+  'crewneck':           'Crewneck Sweatshirt',
+  'a-line-skirt-w':     'A-Line Skirt',
+  'straight-trouser-w': 'Straight Trouser',
+  'wide-leg-trouser-w': 'Wide-Leg Trouser',
+  'shell-blouse-w':     'Shell Blouse',
+  'pleated-shorts':     'Pleated Shorts',
+  'pleated-trousers':   'Pleated Trousers',
+  'hoodie':             'Hoodie',
+  'crop-jacket':        'Crop Jacket',
+  'button-up-w':        'Button-Up Shirt',
+  'shirt-dress-w':      'Shirt Dress',
+  'wrap-dress-w':       'Wrap Dress',
+};
+
+// ── Per-garment lookup (backward-compatible with existing consumers) ──────────
+// PATTERN_PRICES[garmentId] → { cents, priceId, label, tier }
+export const PATTERN_PRICES = Object.fromEntries(
+  Object.entries(GARMENT_TIERS).map(([id, tier]) => {
+    const t = TIER_PRICES[tier];
+    return [id, { cents: t.cents, priceId: t.priceId, label: GARMENT_LABELS[id] ?? id, tier }];
+  })
+);
+
+// ── Bundle pricing ────────────────────────────────────────────────────────────
+export const BUNDLES = {
+  capsule3: {
+    cents:   2900,
+    label:   '3-Pattern Capsule',
+    priceId: 'price_bundle_capsule3_placeholder',
+    patternCount: 3,
+    description: 'Any 3 patterns — mix tiers, same measurements',
+  },
+  wardrobe5: {
+    cents:   4900,
+    label:   '5-Pattern Wardrobe',
+    priceId: 'price_bundle_wardrobe5_placeholder',
+    patternCount: 5,
+    description: 'Any 5 patterns — build a complete capsule wardrobe',
+  },
+};
+
+// ── Membership / subscription pricing ────────────────────────────────────────
+export const SUBSCRIPTION_PRICES = {
+  club_monthly: {
+    cents:       1200,
+    label:       'Club Monthly',
+    priceId:     'price_club_monthly_placeholder',
+    billingCycle: 'month',
+    credits:     1,
+    description: '1 pattern credit / month · Download any pattern, any tier',
+  },
+  club_annual: {
+    cents:       12000,
+    label:       'Club Annual',
+    priceId:     'price_club_annual_placeholder',
+    billingCycle: 'year',
+    credits:     12,
+    description: '12 credits / year · Best value for regular sewists',
+  },
+  wardrobe_monthly: {
+    cents:       2400,
+    label:       'Wardrobe Monthly',
+    priceId:     'price_wardrobe_monthly_placeholder',
+    billingCycle: 'month',
+    credits:     3,
+    description: '3 pattern credits / month · Build a wardrobe fast',
+  },
+  wardrobe_annual: {
+    cents:       24000,
+    label:       'Wardrobe Annual',
+    priceId:     'price_wardrobe_annual_placeholder',
+    billingCycle: 'year',
+    credits:     36,
+    description: '36 credits / year · Unlimited wardrobe potential',
+  },
+};
+
+// ── Legacy alias (used by existing cron-emails.js, stripe-webhook.js) ─────────
+export const SUBSCRIPTION_PRICE = SUBSCRIPTION_PRICES.club_monthly;
+
+// ── A0 / copy shop add-on ─────────────────────────────────────────────────────
 export const A0_UPSELL = {
   cents:   400,
   label:   'A0 / Copy Shop file',
-  priceId: 'price_a0_upsell_placeholder', // replace with live Stripe price ID
-};
-
-export const SUBSCRIPTION_PRICE = {
-  monthly: {
-    cents:   1300,
-    label:   'Monthly Membership',
-    priceId: 'price_1TFO48EcctnfQkkLxbDSrnDe',
-  },
+  priceId: 'price_a0_upsell_placeholder',
 };

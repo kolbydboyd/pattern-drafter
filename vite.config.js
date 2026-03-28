@@ -19,6 +19,7 @@ export default defineConfig({
         success:   resolve(__dirname, 'success.html'),
         patterns:  resolve(__dirname, 'patterns.html'),
         learn:     resolve(__dirname, 'learn.html'),
+        pricing:   resolve(__dirname, 'pricing.html'),
       },
     },
   },

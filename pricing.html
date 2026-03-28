@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing — People's Patterns</title>
+<meta name="description" content="People's Patterns pricing. Custom-fit sewing patterns starting at $9. Three tiers: Simple, Core, Tailored. Bundle packs and monthly memberships available.">
+<link rel="canonical" href="https://peoplespatterns.com/pricing">
+<meta name="robots" content="index, follow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/src/ui/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="pg">
+
+<header class="hdr">
+  <h1 onclick="location.href='/'">People's Patterns</h1>
+  <nav class="hdr-nav">
+    <a href="/" class="hdr-link">Generator</a>
+    <a href="/patterns" class="hdr-link">Patterns</a>
+    <a href="/learn" class="hdr-link">Learn</a>
+    <a href="/faq" class="hdr-link">FAQ</a>
+  </nav>
+  <div class="hdr-social">
+    <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+      <svg class="dark-mode-toggle__icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="12" r="5"/>
+        <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </g>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="pg-content pricing-pg">
+
+  <section class="pricing-hero">
+    <h1 class="pricing-title">Simple, transparent pricing</h1>
+    <p class="pricing-sub">Every pattern is custom-drafted to your measurements. No subscriptions required to get started.</p>
+  </section>
+
+  <!-- Per-pattern tiers -->
+  <section class="pricing-section">
+    <h2 class="pricing-section-title">Per-Pattern Prices</h2>
+    <p class="pricing-section-note">Buy one pattern at a time. Your purchase includes unlimited re-downloads, all paper formats, and construction instructions.</p>
+    <div class="pricing-tiers">
+
+      <div class="pricing-tier">
+        <div class="pricing-tier-label">Simple</div>
+        <div class="pricing-tier-price">$9</div>
+        <p class="pricing-tier-desc">Beginner-friendly builds with elastic waists and minimal shaping. Great first makes.</p>
+        <ul class="pricing-tier-examples">
+          <li>Gym Shorts</li>
+          <li>Swim Trunks</li>
+          <li>T-Shirt</li>
+          <li>Fitted Tee</li>
+          <li>Slip Skirt</li>
+          <li>Easy Pant</li>
+        </ul>
+        <a href="/?step=1" class="btn-pricing">Get Started</a>
+      </div>
+
+      <div class="pricing-tier pricing-tier-featured">
+        <div class="pricing-tier-badge">Most popular</div>
+        <div class="pricing-tier-label">Core</div>
+        <div class="pricing-tier-price">$14</div>
+        <p class="pricing-tier-desc">Everyday wardrobe staples with standard closures and moderate shaping.</p>
+        <ul class="pricing-tier-examples">
+          <li>Cargo Shorts</li>
+          <li>Straight Jeans</li>
+          <li>Chinos</li>
+          <li>Camp Shirt</li>
+          <li>A-Line Skirt</li>
+          <li>Shell Blouse + more</li>
+        </ul>
+        <a href="/?step=1" class="btn-pricing">Get Started</a>
+      </div>
+
+      <div class="pricing-tier">
+        <div class="pricing-tier-label">Tailored</div>
+        <div class="pricing-tier-price">$19</div>
+        <p class="pricing-tier-desc">Detailed construction with pleats, darts, linings, and precision-fit shaping.</p>
+        <ul class="pricing-tier-examples">
+          <li>Pleated Trousers</li>
+          <li>Hoodie</li>
+          <li>Button-Up Shirt</li>
+          <li>Wrap Dress</li>
+          <li>Shirt Dress</li>
+          <li>Crop Jacket</li>
+        </ul>
+        <a href="/?step=1" class="btn-pricing">Get Started</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Bundles -->
+  <section class="pricing-section">
+    <h2 class="pricing-section-title">Bundle Packs</h2>
+    <p class="pricing-section-note">Buy multiple patterns together and save. Same measurements work across all patterns in a bundle.</p>
+    <div class="pricing-bundles">
+
+      <div class="pricing-bundle">
+        <div class="pricing-bundle-name">3-Pattern Capsule</div>
+        <div class="pricing-bundle-price">$29</div>
+        <p class="pricing-bundle-desc">Any 3 patterns — mix tiers. Build a capsule: bottoms, top, and layer.</p>
+        <a href="/?step=1" class="btn-pricing-sm">Choose patterns</a>
+      </div>
+
+      <div class="pricing-bundle">
+        <div class="pricing-bundle-name">5-Pattern Wardrobe</div>
+        <div class="pricing-bundle-price">$49</div>
+        <p class="pricing-bundle-desc">Any 5 patterns — build a complete coordinated wardrobe from one measurement session.</p>
+        <a href="/?step=1" class="btn-pricing-sm">Choose patterns</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Memberships -->
+  <section class="pricing-section">
+    <h2 class="pricing-section-title">Monthly Memberships</h2>
+    <p class="pricing-section-note">Credits roll over. Download any pattern any time — credits never expire while your membership is active.</p>
+    <div class="pricing-memberships">
+
+      <div class="pricing-membership">
+        <div class="pricing-membership-name">Club</div>
+        <div class="pricing-membership-price">$12 <span class="pricing-per">/ month</span></div>
+        <div class="pricing-membership-annual">or $120 / year (2 months free)</div>
+        <ul class="pricing-membership-perks">
+          <li>1 pattern credit per month</li>
+          <li>Download any tier</li>
+          <li>Credits roll over</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="/?step=1" class="btn-pricing-sm">Start free</a>
+      </div>
+
+      <div class="pricing-membership pricing-membership-featured">
+        <div class="pricing-membership-badge">Best value</div>
+        <div class="pricing-membership-name">Wardrobe</div>
+        <div class="pricing-membership-price">$24 <span class="pricing-per">/ month</span></div>
+        <div class="pricing-membership-annual">or $240 / year (2 months free)</div>
+        <ul class="pricing-membership-perks">
+          <li>3 pattern credits per month</li>
+          <li>Download any tier</li>
+          <li>Credits roll over</li>
+          <li>Priority support</li>
+          <li>Early access to new patterns</li>
+        </ul>
+        <a href="/?step=1" class="btn-pricing-sm">Start free</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- What's included -->
+  <section class="pricing-section pricing-includes">
+    <h2 class="pricing-section-title">Every pattern includes</h2>
+    <ul class="pricing-includes-list">
+      <li>Print-ready tiled PDF — US Letter, A4, and Tabloid</li>
+      <li>Full materials list with yardage estimates</li>
+      <li>Thread, needle, and stitch guide</li>
+      <li>Step-by-step construction instructions</li>
+      <li>Scale verification page</li>
+      <li>Unlimited re-downloads from your account</li>
+    </ul>
+  </section>
+
+</main>
+
+<script type="module" src="/src/ui/page.js"></script>
+</body>
+</html>

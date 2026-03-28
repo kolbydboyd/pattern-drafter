@@ -23,6 +23,7 @@ export default {
   name: 'Button-Up Shirt (W)',
   category: 'upper',
   difficulty: 'advanced',
+  priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
 
