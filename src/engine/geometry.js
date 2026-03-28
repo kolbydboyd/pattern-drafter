@@ -102,7 +102,7 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
   const p0 = { x: ox, y: oy + cbRaise };
   const p3 = { x: ox - ext, y: oy + rise };
   // p1.x stays on the center seam (ox); curve sweeps horizontally only below p2
-  let p1 = { x: ox, y: oy + rise * (isBack ? 0.5 : 0.6) };
+  let p1 = { x: ox, y: oy + rise * (isBack ? 0.35 : 0.45) };
   const p2 = { x: ox - ext * (isBack ? 0.55 : 0.35), y: oy + rise * (isBack ? 0.88 : 0.93) };
 
   // Monotonicity check: x values must only decrease from p0 to p3
@@ -272,7 +272,7 @@ export function offsetPolygon(poly, edgeOffsetFn) {
     // for different offsets (e.g. SA vs hem allowance at the bottom corners).
     const denom = d1.x * d2.y - d1.y * d2.x;
 
-    if (Math.abs(denom) < 1e-9) {
+    if (Math.abs(denom) < 0.01) {
       // Parallel / anti-parallel edges — perpendicular offset only, no miter
       result.push(p1);
       if (Math.abs(oIn - oOut) >= 1e-9) result.push(p2);
