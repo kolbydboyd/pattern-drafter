@@ -297,12 +297,45 @@ Fun patterns that drive social engagement and seasonal sales.
 
 ## Phase 5 — The Data Play
 
+### Reality Check
+At ~15% feedback-per-purchase conversion (industry sew-rate × return-to-submit rate),
+50k reviews requires ~330k purchases (~$4.6M revenue). This is a compounding asset,
+not an early-stage strategy. Milestones:
+- **5,000 reviews** → correction factors per garment module (useful for us)
+- **50,000 reviews** → licensable dataset (useful to others, 5+ year horizon)
+
 ### Fit Feedback Collection
 - [x] Post-sew feedback form in account dashboard
+- [x] Measurements snapshot frozen on every purchase (migration 001)
+- [x] Measurements snapshot attached to every fit review
+- [x] Multiple reviews per purchase (muslin + final garment)
+- [x] Implicit fit signals: measurement deltas logged on re-generation
 - [ ] Aggregate by measurement + size range
 - [ ] Feed corrections back into geometry
       (each module gets a correction factor
       based on real-world fit reports)
+
+### Increase Feedback Volume
+- [ ] **Incentivized reviews**: submit fit feedback → earn discount or credit on next pattern
+      ("Review your pattern, get 50% off your next one")
+- [ ] **Signed-token feedback URL**: email deep link goes straight to form, no login required
+- [ ] **Second email nudge** at 21 days if first (14-day) nudge got no response
+- [ ] **Photo-first feedback**: let users submit a photo with one tap, add structured data later
+- [ ] **Public fit gallery**: opt-in make photos visible on pattern pages (social proof)
+- [ ] **Aggregated fit scores on pattern pages**: "87% rated waist fit as perfect"
+      (creates reason to both read AND submit reviews)
+
+### Seed Data Through Partnerships
+- [ ] **Pattern tester program**: recruit 50–100 testers, require structured review
+- [ ] **Sewing influencer program**: free patterns to sewists with 5k–50k followers, require review
+- [ ] **Sewing class partnerships**: free patterns for classes in exchange for group feedback
+- [ ] **PatternReview.com**: get patterns reviewed on PR (593k members, reviews are the culture)
+
+### Passive Data Signals (no user action required)
+- [x] Re-generation measurement deltas (table: `measurement_deltas`)
+- [ ] Track measurement profile edits with before/after diffs
+- [ ] Multiple re-download patterns as "still adjusting" signal
+- [ ] PostHog behavioral signals: time on measurement page, garments previewed, etc.
 
 ### What This Becomes
 - Most detailed real-body fit dataset for
@@ -310,8 +343,106 @@ Fun patterns that drive social engagement and seasonal sales.
 - Licensable to:
   Fabric companies, clothing brands, pattern
   companies, academic textile research
-- Timeline: meaningful data at ~5,000 fit reports
-  Licensable asset at ~50,000 fit reports
+- Timeline: meaningful data at ~5,000 fit reports (achievable at ~$460k revenue)
+  Licensable asset at ~50,000 fit reports (5+ year compounding horizon)
+
+### Publication Path
+The dataset becomes publishable and licensable at different stages:
+
+**Year 1–2: Whitepaper (self-published)**
+- "Body Measurement vs. Fit Outcome: Findings from N Made-to-Measure Sewing Patterns"
+- Self-published PDF on peoplespatterns.com (email-gated for B2B leads)
+- Use to pitch licensing conversations with fabric companies and apparel brands
+- No peer review needed — this is a marketing + credibility asset
+
+**Year 2–3: Industry report (the money version)**
+- "The State of Fit in Home Sewing, 20XX"
+- Sell directly ($500–2,000/copy to apparel companies) or use as licensing lead magnet
+- Comparable: Alvanon's fit analytics reports
+
+**Year 3+: Academic paper (the credibility version)**
+- Target journals: *International Journal of Fashion Design, Technology and Education*,
+  *Clothing and Textiles Research Journal*, *Ergonomics*, or *Applied Ergonomics*
+- Partner with a co-author from a textile/apparel program for academic legitimacy
+  (FIT, NC State Wilson College of Textiles, Drexel, Cornell Human Ecology)
+  They get data access + publication credit, we get academic credibility
+- Working title: "Systematic Analysis of Fit Discrepancies in Custom-Drafted
+  Garment Patterns Across Diverse Body Morphologies"
+- Peer review takes 6–18 months; the citation lives forever
+
+**Year 3+: Conference presentations**
+- ITAA (International Textile and Apparel Association) annual conference
+- This is where the apparel industry people who'd license the data gather
+
+### Licensing Comparables
+- **Alvanon** (fit mannequins + body data): charges $50k–200k/year for fit analytics
+- **SizeStream** (3D body scanning): licenses scan data to apparel companies
+- **ASTM body measurement standards**: basis for all US sizing — from 2004, notoriously outdated
+- Our edge: fit *outcomes* linked to measurements — not just "here are body measurements"
+  but "here's what happened when we made clothes from them." Nobody has that at scale.
+- Realistic year 3–4 target: $25k–50k/year per licensing client, 3–5 clients
+
+---
+
+## Path to Full-Time
+
+### The Target
+$60k/year = full-time People's Patterns. The mix:
+- 100 subscribers at $18/mo avg (Club + Wardrobe mix) = $21,600/year
+- 200 single pattern sales/month at $14 avg = $33,600/year
+- Etsy graded patterns (passive) at $500/month = $6,000/year
+- **Total: ~$61k/year**
+
+That's 100 subscribers + 200 sales/month + Etsy trickle. Not easy, not fantasy.
+Indie pattern companies (Friday Pattern Co, Helen's Closet, Megan Nielsen) all
+got there as solo founders.
+
+### Sequencing (don't do everything at once)
+
+**Phase A: Pre-launch (now → launch day)**
+Only jobs: sew 6 muslins, photograph them, wire DNS, test purchase flow.
+Nothing else. No social media strategy. No videos. No blog. No new modules.
+Ship the thing.
+
+**Phase B: First 90 days post-launch**
+Only jobs: post content (TikTok/Instagram short-form video — sewing + fit results),
+respond to every customer personally, fix bugs. No new patterns. No subscriptions.
+No Etsy. Learn what resonates.
+
+**Phase C: Months 4–6**
+Add 1 new pattern per week (easy ones: circle skirt, pencil skirt, tank top, tote bag).
+Start Etsy graded pattern listings. By now you know what's selling and what content works.
+
+**Phase D: Months 7–12**
+Launch subscriptions. Build referral program. Start tester program.
+Target: 50–100 sales/month. If not there, the problem is marketing, not product.
+
+**Phase E: Year 2**
+Subscriber flywheel or not. If 50+ subscribers and growing, you're on track.
+Go full-time when you can cover 6 months of expenses in savings + the business
+is covering monthly costs.
+
+### What actually makes money (do these)
+1. Sewn sample photos → trust → conversion
+2. Short-form video → discovery → traffic
+3. Product being good → retention → word of mouth
+4. Every customer interaction → testimonials → social proof
+
+### What feels productive but doesn't make money yet (defer these)
+1. New garment modules (until you have traffic to sell them to)
+2. Infrastructure improvements (until you have users who need them)
+3. Data play features (until you have volume)
+4. Code polish, refactoring, new output formats
+
+### Burnout prevention
+- One job per phase. Not seven jobs simultaneously.
+- The code is done enough. The infrastructure is done enough.
+  The bottleneck is now content and trust, not software.
+- Every hour writing code instead of sewing and posting is an hour
+  that doesn't move the needle toward full-time.
+- Set a weekly content cadence you can sustain for 2 years, not one you can
+  sustain for 2 weeks. 2 posts/week > 14 posts/week for 1 month then silence.
+- Revenue milestones, not feature milestones, determine what to build next.
 
 ---
 
