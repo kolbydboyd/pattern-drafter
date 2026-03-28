@@ -121,45 +121,13 @@ export function crotchCurvePoints(ox, oy, rise, ext, isBack, cbRaise = 0) {
   return { p0, p1, p2, p3 };
 }
 
-/**
- * Offset crotch bezier control points outward by seam allowance.
- * Approximates the SA cut-line curve by shifting each control point
- * along the curve's outward normal at that parameter (t=0, 0.33, 0.67, 1).
- *
- * @param {{ p0, p1, p2, p3 }} ccp - original bezier control points
- * @param {number} sa - seam allowance in inches
- * @returns {{ p0, p1, p2, p3 }} offset control points
- */
 export function insetCrotchBezier(ccp, sa) {
   const { p0, p1, p2, p3 } = ccp;
-
-  // Tangent of cubic bezier at parameter t: B'(t) = 3(1-t)²(p1-p0) + 6(1-t)t(p2-p1) + 3t²(p3-p2)
-  function tangent(t) {
-    const m = 1 - t;
-    return {
-      x: 3*m*m*(p1.x-p0.x) + 6*m*t*(p2.x-p1.x) + 3*t*t*(p3.x-p2.x),
-      y: 3*m*m*(p1.y-p0.y) + 6*m*t*(p2.y-p1.y) + 3*t*t*(p3.y-p2.y),
-    };
-  }
-
-  // Outward normal: rotate tangent 90° clockwise (matches CW polygon winding)
-  function outwardNormal(t) {
-    const tan = tangent(t);
-    return norm({ x: tan.y, y: -tan.x });
-  }
-
-  // Offset each control point along the outward normal at its approximate t
-  const n0 = outwardNormal(0);
-  const n1 = outwardNormal(0.33);
-  const n2 = outwardNormal(0.67);
-  const n3 = outwardNormal(1);
-
-  return {
-    p0: { x: p0.x + n0.x * sa, y: p0.y + n0.y * sa },
-    p1: { x: p1.x + n1.x * sa, y: p1.y + n1.y * sa },
-    p2: { x: p2.x + n2.x * sa, y: p2.y + n2.y * sa },
-    p3: { x: p3.x + n3.x * sa, y: p3.y + n3.y * sa },
-  };
+  const ip0 = { x: p0.x + sa, y: p0.y };
+  const ip3 = { x: p3.x, y: p3.y - sa };
+  const ip1 = { x: p1.x + sa * 0.7, y: p1.y - sa * 0.3 };
+  const ip2 = { x: p2.x + sa * 0.3, y: p2.y - sa * 0.7 };
+  return { p0: ip0, p1: ip1, p2: ip2, p3: ip3 };
 }
 
 /**
