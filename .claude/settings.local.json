@@ -54,7 +54,14 @@
       "Bash(cd:*)",
       "Bash(ls *.html)",
       "Bash(grep -l \"difficulty:\" src/garments/*.js)",
-      "Bash(grep -n \"SUBSCRIPTION_PRICE\\\\b\" src/ui/app.js api/*.js)"
+      "Bash(grep -n \"SUBSCRIPTION_PRICE\\\\b\" src/ui/app.js api/*.js)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(grep -E \"\\\\.html$\")",
+      "Bash(grep -v \"//.*return\")",
+      "Bash(grep -n \"sampleBezier.*32\\)\\)\" src/garments/*.js)",
+      "Bash(gh run:*)",
+      "Bash(npx vercel:*)",
+      "Bash(\"C:\\\\Users\\\\black\\\\OneDrive\\\\Desktop\\\\pattern-drafter\\\\src\\\\ui\\\\app.js\")"
     ]
   }
 }

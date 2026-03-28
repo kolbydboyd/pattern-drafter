@@ -5,21 +5,21 @@ export const TIER_PRICES = {
   simple: {
     cents:   900,
     label:   'Simple',
-    priceId: 'price_simple_900_placeholder',  // replace with live Stripe price ID
+    priceId: 'price_1TFlLvEcctnfQkkLPYNfYdUP',  // replace with live Stripe price ID
     description: 'Beginner-friendly builds — elastic waists, minimal shaping',
     examples: ['Gym Shorts', 'T-Shirt', 'Slip Skirt', 'Easy Pant'],
   },
   core: {
     cents:   1400,
     label:   'Core',
-    priceId: 'price_core_1400_placeholder',
+    priceId: 'price_1TFlMEEcctnfQkkLrWGrSnx3',
     description: 'Everyday wardrobe staples — standard closures, moderate shaping',
     examples: ['Cargo Shorts', 'Straight Jeans', 'Camp Shirt', 'A-Line Skirt'],
   },
   tailored: {
     cents:   1900,
     label:   'Tailored',
-    priceId: 'price_tailored_1900_placeholder',
+    priceId: 'price_1TFlMTEcctnfQkkLjaWAjH7D',
     description: 'Detailed construction — pleats, darts, linings, precision fit',
     examples: ['Pleated Trousers', 'Hoodie', 'Button-Up Shirt', 'Wrap Dress'],
   },
@@ -96,14 +96,14 @@ export const BUNDLES = {
   capsule3: {
     cents:   2900,
     label:   '3-Pattern Capsule',
-    priceId: 'price_bundle_capsule3_placeholder',
+    priceId: 'price_1TFlRNEcctnfQkkL9vDPJQh0',
     patternCount: 3,
     description: 'Any 3 patterns — mix tiers, same measurements',
   },
   wardrobe5: {
     cents:   4900,
     label:   '5-Pattern Wardrobe',
-    priceId: 'price_bundle_wardrobe5_placeholder',
+    priceId: 'price_1TFlSEEcctnfQkkLQRVMAUXS',
     patternCount: 5,
     description: 'Any 5 patterns — build a complete capsule wardrobe',
   },
@@ -114,7 +114,7 @@ export const SUBSCRIPTION_PRICES = {
   club_monthly: {
     cents:       1200,
     label:       'Club Monthly',
-    priceId:     'price_club_monthly_placeholder',
+    priceId:     'price_1TFlTIEcctnfQkkLji6mmeGO',
     billingCycle: 'month',
     credits:     1,
     description: '1 pattern credit / month · Download any pattern, any tier',
@@ -122,7 +122,7 @@ export const SUBSCRIPTION_PRICES = {
   club_annual: {
     cents:       12000,
     label:       'Club Annual',
-    priceId:     'price_club_annual_placeholder',
+    priceId:     'price_1TFlTdEcctnfQkkLNIME3K4j',
     billingCycle: 'year',
     credits:     12,
     description: '12 credits / year · Best value for regular sewists',
@@ -130,7 +130,7 @@ export const SUBSCRIPTION_PRICES = {
   wardrobe_monthly: {
     cents:       2400,
     label:       'Wardrobe Monthly',
-    priceId:     'price_wardrobe_monthly_placeholder',
+    priceId:     'price_1TFlVLEcctnfQkkLmY6WwC0R',
     billingCycle: 'month',
     credits:     3,
     description: '3 pattern credits / month · Build a wardrobe fast',
@@ -138,7 +138,7 @@ export const SUBSCRIPTION_PRICES = {
   wardrobe_annual: {
     cents:       24000,
     label:       'Wardrobe Annual',
-    priceId:     'price_wardrobe_annual_placeholder',
+    priceId:     'price_1TFlWAEcctnfQkkLcCPYTqnS',
     billingCycle: 'year',
     credits:     36,
     description: '36 credits / year · Unlimited wardrobe potential',
@@ -152,5 +152,5 @@ export const SUBSCRIPTION_PRICE = SUBSCRIPTION_PRICES.club_monthly;
 export const A0_UPSELL = {
   cents:   400,
   label:   'A0 / Copy Shop file',
-  priceId: 'price_a0_upsell_placeholder',
+  priceId: 'price_1TFlPOEcctnfQkkLwH6SU14A',
 };

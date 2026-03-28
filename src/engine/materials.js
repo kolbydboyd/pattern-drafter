@@ -10,7 +10,7 @@
  */
 
 // ── Affiliate configuration ───────────────────────────────────────────────────
-const AFFILIATE_TAG = 'patternsaff-20'; // replace with live Amazon Associates tag
+const AFFILIATE_TAG = 'peoplespatter-20'; // replace with live Amazon Associates tag
 
 /** Build an Amazon search affiliate URL from a human-readable product name */
 function _affiliateUrl(name, suffix = '') {
