@@ -150,6 +150,7 @@ root.innerHTML = `
         Generate This Pattern
       </a>
       <p class="pat-pg-generate-note">Enter your measurements and customize. Preview before you buy.</p>
+      <p class="pat-pg-sewists-count" id="pat-pg-sewists-count"></p>
     </div>
   </div>
 
@@ -186,6 +187,18 @@ root.innerHTML = `
   </section>` : ''}
 
 </div>`;
+
+// ── Per-garment sewist count ──────────────────────────────────────────────────
+(function loadGarmentCount() {
+  const el = document.getElementById('pat-pg-sewists-count');
+  if (!el) return;
+  fetch(`/api/pattern-count?garment_id=${encodeURIComponent(garmentId)}`)
+    .then(r => r.json())
+    .then(({ count }) => {
+      if (count && count > 0) el.textContent = `${count.toLocaleString()} sewists have generated this pattern.`;
+    })
+    .catch(() => {});
+})();
 
 // ── Pattern listing (no garment ID given) ─────────────────────────────────────
 function renderPatternListing() {
