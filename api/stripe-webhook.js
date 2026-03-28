@@ -3,6 +3,7 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
+import { SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
 
 // Use service role key here (server-side only, never in browser)
 const supabase = createClient(
@@ -42,118 +43,341 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: `Webhook error: ${err.message}` });
   }
 
+  // ── checkout.session.completed ──────────────────────────────────────────────
   if (event.type === 'checkout.session.completed') {
-    const session  = event.data.object;
-    const { userId, garmentId, profileId, measurements, opts, a0_addon } = session.metadata;
+    const session = event.data.object;
+    const checkoutMode = session.metadata?.checkoutMode || 'pattern';
 
-    // Record purchase in Supabase — snapshot measurements + opts so re-downloads
-    // never depend solely on the profile still existing / being unchanged.
-    const { error } = await supabase.from('purchases').insert({
-      user_id:               userId || null,
-      garment_id:            garmentId,
-      profile_id:            profileId || null,
-      stripe_payment_intent: session.payment_intent,
-      amount_cents:          session.amount_total,
-      a0_addon:              a0_addon === 'true',
-      measurements:          measurements ? JSON.parse(measurements) : null,
-      opts:                  opts        ? JSON.parse(opts)         : null,
-    });
-    if (error) console.error('Failed to insert purchase:', error);
-
-    // Record order
-    await supabase.from('orders').insert({
-      user_id:        userId || null,
-      stripe_session: session.id,
-      status:         'completed',
-      items:          [{ garment_id: garmentId }],
-      total_cents:    session.amount_total,
-    });
-
-    // Send post-purchase email: welcome on first purchase, next-pattern rec for repeat buyers
-    if (userId) {
-      const { count: prevPurchases } = await supabase
-        .from('purchases')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .neq('stripe_payment_intent', session.payment_intent); // exclude the one we just inserted
-
-      const userRecord = await supabase.auth.admin.getUserById(userId);
-      const email = userRecord?.data?.user?.email;
-      if (email) {
-        const isFirst = (prevPurchases ?? 0) === 0;
-        const emailType = isFirst ? 'WELCOME' : 'NEXT_PATTERN_RECOMMENDATION';
-        const emailData = isFirst
-          ? {}
-          : { garmentName: garmentId.replace(/-/g, ' '), recommendations: [] };
-        sendEmail(emailType, email, emailData)
-          .then(result => supabase.from('email_log').insert({
-            user_id:    userId,
-            email,
-            template:   emailType,
-            garment_id: garmentId,
-            metadata:   { stripe_session: session.id },
-          }))
-          .catch(err => console.error('Post-purchase email failed:', err));
-      }
-
-      // Mark pattern_session as purchased (if one exists)
-      supabase.from('pattern_sessions')
-        .update({ purchased: true })
-        .eq('user_id', userId)
-        .eq('garment_id', garmentId)
-        .eq('purchased', false)
-        .then(() => {})
-        .catch(() => {});
+    if (checkoutMode === 'pattern') {
+      await handlePatternPurchase(session, stripe);
+    } else if (checkoutMode === 'bundle') {
+      await handleBundlePurchase(session, stripe);
+    } else if (checkoutMode === 'subscription') {
+      await handleSubscriptionCreated(session, stripe);
     }
-
-    // Trigger PDF generation (async, fire-and-forget via internal fetch)
-    const origin = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000';
-    fetch(`${origin}/api/generate-pattern`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        garmentId,
-        userId,
-        measurements: JSON.parse(measurements || '{}'),
-        opts:         JSON.parse(opts || '{}'),
-        sessionId:    session.id,
-      }),
-    }).catch(err => console.error('PDF generation trigger failed:', err));
   }
 
-  // ── checkout.session.expired — cart abandon email ─────────────────────────
+  // ── checkout.session.expired — cart abandon email ──────────────────────────
   if (event.type === 'checkout.session.expired') {
-    const session = event.data.object;
-    const email   = session.customer_details?.email || session.metadata?.email;
-    const garmentId = session.metadata?.garmentId;
+    await handleCartAbandon(event.data.object);
+  }
 
-    if (email && garmentId) {
-      // Check we haven't already sent this user a cart abandon for this garment
-      const { count } = await supabase
-        .from('email_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('email', email)
-        .eq('template', 'CART_ABANDON')
-        .eq('garment_id', garmentId);
+  // ── Subscription lifecycle events ──────────────────────────────────────────
+  if (event.type === 'invoice.paid') {
+    await handleInvoicePaid(event.data.object, stripe);
+  }
 
-      if ((count ?? 0) === 0) {
-        sendEmail('CART_ABANDON', email, {
-          garmentName: garmentId.replace(/-/g, ' '),
-          checkoutUrl: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://peoplespatterns.com'}/?step=1&garment=${garmentId}`,
-        })
-          .then(() => supabase.from('email_log').insert({
-            user_id:    session.metadata?.userId || null,
-            email,
-            template:   'CART_ABANDON',
-            garment_id: garmentId,
-            metadata:   { stripe_session: session.id },
-          }))
-          .catch(err => console.error('Cart abandon email failed:', err));
-      }
-    }
+  if (event.type === 'customer.subscription.updated') {
+    await handleSubscriptionUpdated(event.data.object);
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    await handleSubscriptionCanceled(event.data.object);
   }
 
   res.status(200).json({ received: true });
+}
+
+// ── Single pattern purchase ──────────────────────────────────────────────────
+
+async function handlePatternPurchase(session, stripe) {
+  const { userId, garmentId, profileId, measurements, opts, a0_addon } = session.metadata;
+
+  const { error } = await supabase.from('purchases').insert({
+    user_id:               userId || null,
+    garment_id:            garmentId,
+    profile_id:            profileId || null,
+    stripe_payment_intent: session.payment_intent,
+    amount_cents:          session.amount_total,
+    a0_addon:              a0_addon === 'true',
+    measurements:          measurements ? JSON.parse(measurements) : null,
+    opts:                  opts        ? JSON.parse(opts)         : null,
+  });
+  if (error) console.error('Failed to insert purchase:', error);
+
+  await supabase.from('orders').insert({
+    user_id:        userId || null,
+    stripe_session: session.id,
+    status:         'completed',
+    items:          [{ garment_id: garmentId }],
+    total_cents:    session.amount_total,
+  });
+
+  await sendPostPurchaseEmail(userId, garmentId, session);
+  await markSessionPurchased(userId, garmentId);
+  await triggerPdf(garmentId, userId, measurements, opts, session.id);
+}
+
+// ── Bundle purchase ──────────────────────────────────────────────────────────
+
+async function handleBundlePurchase(session, stripe) {
+  const { userId, bundleId, garmentIds, patternCount } = session.metadata;
+  const parsedGarmentIds = garmentIds ? JSON.parse(garmentIds) : [];
+  const creditCount = parseInt(patternCount, 10) || 0;
+
+  await supabase.from('orders').insert({
+    user_id:        userId || null,
+    stripe_session: session.id,
+    status:         'completed',
+    items:          [{ bundle_id: bundleId, garment_ids: parsedGarmentIds }],
+    total_cents:    session.amount_total,
+  });
+
+  // If the user pre-selected garments, record them as purchases now.
+  // Otherwise, add bundle credits so they can redeem later.
+  if (parsedGarmentIds.length > 0) {
+    for (const garmentId of parsedGarmentIds) {
+      await supabase.from('purchases').insert({
+        user_id:               userId || null,
+        garment_id:            garmentId,
+        stripe_payment_intent: session.payment_intent,
+        amount_cents:          0, // paid via bundle
+        bundle_id:             bundleId,
+      });
+    }
+  }
+
+  // Always grant credits equal to the bundle size minus pre-selected patterns.
+  // This way if they selected 2 of 3, they get 1 credit to pick later.
+  const remainingCredits = creditCount - parsedGarmentIds.length;
+  if (remainingCredits > 0 && userId) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('bundle_credits')
+      .eq('id', userId)
+      .single();
+    await supabase.from('profiles')
+      .update({ bundle_credits: (profile?.bundle_credits ?? 0) + remainingCredits })
+      .eq('id', userId);
+  }
+
+  // Send welcome/confirmation email
+  if (userId) {
+    const email = await getUserEmail(userId);
+    if (email) {
+      sendEmail('BUNDLE_PURCHASED', email, {
+        bundleId,
+        patternCount: creditCount,
+        selectedCount: parsedGarmentIds.length,
+      }).catch(err => console.error('Bundle email failed:', err));
+    }
+  }
+}
+
+// ── Subscription created (initial checkout) ──────────────────────────────────
+
+async function handleSubscriptionCreated(session, stripe) {
+  const { userId, planId } = session.metadata;
+  if (!userId) return;
+
+  const subscriptionId = session.subscription;
+  const plan = SUBSCRIPTION_PRICES[planId];
+
+  // Store subscription info in profiles
+  await supabase.from('profiles').update({
+    stripe_customer_id:   session.customer,
+    stripe_subscription_id: subscriptionId,
+    subscription_plan:    planId,
+    subscription_status:  'active',
+    subscription_credits: plan?.credits ?? 0,
+  }).eq('id', userId);
+
+  // Record in subscriptions table for history
+  await supabase.from('subscriptions').insert({
+    user_id:              userId,
+    stripe_subscription_id: subscriptionId,
+    stripe_customer_id:   session.customer,
+    plan_id:              planId,
+    status:               'active',
+    credits_per_period:   plan?.credits ?? 0,
+    current_credits:      plan?.credits ?? 0,
+  });
+
+  await supabase.from('orders').insert({
+    user_id:        userId,
+    stripe_session: session.id,
+    status:         'completed',
+    items:          [{ subscription: planId }],
+    total_cents:    session.amount_total,
+  });
+
+  const email = await getUserEmail(userId);
+  if (email) {
+    sendEmail('SUBSCRIPTION_WELCOME', email, { planId, credits: plan?.credits ?? 0 })
+      .catch(err => console.error('Subscription welcome email failed:', err));
+  }
+}
+
+// ── Invoice paid (subscription renewal) ──────────────────────────────────────
+
+async function handleInvoicePaid(invoice, stripe) {
+  // Only process subscription renewals (not the first invoice which is handled above)
+  if (!invoice.subscription || invoice.billing_reason === 'subscription_create') return;
+
+  const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+  const userId = subscription.metadata?.userId;
+  const planId = subscription.metadata?.planId;
+  if (!userId) return;
+
+  const plan = SUBSCRIPTION_PRICES[planId];
+  const creditsToAdd = plan?.credits ?? 0;
+
+  // Add credits for the new billing period
+  const { data: sub } = await supabase
+    .from('subscriptions')
+    .select('current_credits')
+    .eq('stripe_subscription_id', invoice.subscription)
+    .single();
+
+  // Credits roll over — add new credits to existing balance
+  await supabase.from('subscriptions')
+    .update({ current_credits: (sub?.current_credits ?? 0) + creditsToAdd })
+    .eq('stripe_subscription_id', invoice.subscription);
+
+  await supabase.from('profiles')
+    .update({ subscription_credits: (sub?.current_credits ?? 0) + creditsToAdd })
+    .eq('id', userId);
+
+  const email = await getUserEmail(userId);
+  if (email) {
+    sendEmail('SUBSCRIPTION_RENEWED', email, {
+      planId,
+      newCredits: creditsToAdd,
+      totalCredits: (sub?.current_credits ?? 0) + creditsToAdd,
+    }).catch(err => console.error('Renewal email failed:', err));
+  }
+}
+
+// ── Subscription updated (plan change, pause, etc.) ──────────────────────────
+
+async function handleSubscriptionUpdated(subscription) {
+  const userId = subscription.metadata?.userId;
+  if (!userId) return;
+
+  const status = subscription.status; // active, past_due, paused, etc.
+
+  await supabase.from('subscriptions')
+    .update({ status })
+    .eq('stripe_subscription_id', subscription.id);
+
+  await supabase.from('profiles')
+    .update({ subscription_status: status })
+    .eq('id', userId);
+}
+
+// ── Subscription canceled ────────────────────────────────────────────────────
+
+async function handleSubscriptionCanceled(subscription) {
+  const userId = subscription.metadata?.userId;
+  if (!userId) return;
+
+  await supabase.from('subscriptions')
+    .update({ status: 'canceled', canceled_at: new Date().toISOString() })
+    .eq('stripe_subscription_id', subscription.id);
+
+  // Keep remaining credits available but mark subscription as canceled
+  await supabase.from('profiles').update({
+    subscription_status: 'canceled',
+    subscription_plan:   null,
+    stripe_subscription_id: null,
+  }).eq('id', userId);
+
+  const email = await getUserEmail(userId);
+  if (email) {
+    sendEmail('SUBSCRIPTION_CANCELED', email, {})
+      .catch(err => console.error('Cancellation email failed:', err));
+  }
+}
+
+// ── Cart abandon ─────────────────────────────────────────────────────────────
+
+async function handleCartAbandon(session) {
+  const email     = session.customer_details?.email || session.metadata?.email;
+  const garmentId = session.metadata?.garmentId;
+
+  if (email && garmentId) {
+    const { count } = await supabase
+      .from('email_log')
+      .select('id', { count: 'exact', head: true })
+      .eq('email', email)
+      .eq('template', 'CART_ABANDON')
+      .eq('garment_id', garmentId);
+
+    if ((count ?? 0) === 0) {
+      sendEmail('CART_ABANDON', email, {
+        garmentName: garmentId.replace(/-/g, ' '),
+        checkoutUrl: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://peoplespatterns.com'}/?step=1&garment=${garmentId}`,
+      })
+        .then(() => supabase.from('email_log').insert({
+          user_id:    session.metadata?.userId || null,
+          email,
+          template:   'CART_ABANDON',
+          garment_id: garmentId,
+          metadata:   { stripe_session: session.id },
+        }))
+        .catch(err => console.error('Cart abandon email failed:', err));
+    }
+  }
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+async function getUserEmail(userId) {
+  const { data } = await supabase.auth.admin.getUserById(userId);
+  return data?.user?.email ?? null;
+}
+
+async function sendPostPurchaseEmail(userId, garmentId, session) {
+  if (!userId) return;
+  const { count: prevPurchases } = await supabase
+    .from('purchases')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .neq('stripe_payment_intent', session.payment_intent);
+
+  const email = await getUserEmail(userId);
+  if (!email) return;
+
+  const isFirst = (prevPurchases ?? 0) === 0;
+  const emailType = isFirst ? 'WELCOME' : 'NEXT_PATTERN_RECOMMENDATION';
+  const emailData = isFirst
+    ? {}
+    : { garmentName: garmentId.replace(/-/g, ' '), recommendations: [] };
+  sendEmail(emailType, email, emailData)
+    .then(() => supabase.from('email_log').insert({
+      user_id:    userId,
+      email,
+      template:   emailType,
+      garment_id: garmentId,
+      metadata:   { stripe_session: session.id },
+    }))
+    .catch(err => console.error('Post-purchase email failed:', err));
+}
+
+async function markSessionPurchased(userId, garmentId) {
+  if (!userId) return;
+  supabase.from('pattern_sessions')
+    .update({ purchased: true })
+    .eq('user_id', userId)
+    .eq('garment_id', garmentId)
+    .eq('purchased', false)
+    .then(() => {})
+    .catch(() => {});
+}
+
+async function triggerPdf(garmentId, userId, measurements, opts, sessionId) {
+  const origin = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
+  fetch(`${origin}/api/generate-pattern`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      garmentId,
+      userId,
+      measurements: JSON.parse(measurements || '{}'),
+      opts:         JSON.parse(opts || '{}'),
+      sessionId,
+    }),
+  }).catch(err => console.error('PDF generation trigger failed:', err));
 }

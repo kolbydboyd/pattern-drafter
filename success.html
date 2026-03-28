@@ -53,6 +53,7 @@
   <main class="pg-body">
     <div class="pg-wrap">
 
+      <!-- Single pattern success -->
       <div id="success-state" hidden>
         <div class="success-check">&#10003;</div>
         <h1 class="pg-title">Your <span id="success-garment-name"></span> pattern is ready!</h1>
@@ -81,6 +82,35 @@
         </div>
 
         <p class="success-note">Saved in My Patterns. Re-download any time from your account.</p>
+      </div>
+
+      <!-- Bundle success -->
+      <div id="success-bundle" hidden>
+        <div class="success-check">&#10003;</div>
+        <h1 class="pg-title"><span id="success-bundle-name"></span> purchased!</h1>
+        <p class="success-subtitle">
+          <span id="success-bundle-amount"></span>
+          &mdash; <span id="success-bundle-credits"></span> pattern credits added to your account.
+        </p>
+        <div class="success-actions">
+          <a href="/?step=1" class="success-dl-btn">Choose your patterns</a>
+          <a href="/" class="success-secondary-link">My Patterns</a>
+        </div>
+        <p class="success-note">Use your credits on any pattern, any tier. They never expire.</p>
+      </div>
+
+      <!-- Subscription success -->
+      <div id="success-subscription" hidden>
+        <div class="success-check">&#10003;</div>
+        <h1 class="pg-title">Welcome to <span id="success-plan-name"></span>!</h1>
+        <p class="success-subtitle">
+          <span id="success-sub-credits"></span> pattern credits are ready in your account.
+        </p>
+        <div class="success-actions">
+          <a href="/?step=1" class="success-dl-btn">Generate your first pattern</a>
+          <a href="/" class="success-secondary-link">My Patterns</a>
+        </div>
+        <p class="success-note">Credits roll over each month. Manage your plan any time from Account Settings.</p>
       </div>
 
       <div id="success-error" class="success-error-msg" hidden></div>

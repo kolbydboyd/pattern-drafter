@@ -12,6 +12,10 @@ import {
   postPurchaseSewHelpEmail,
   nextPatternRecommendationEmail,
   monthlyNewsletterEmail,
+  bundlePurchasedEmail,
+  subscriptionWelcomeEmail,
+  subscriptionRenewedEmail,
+  subscriptionCanceledEmail,
 } from '../src/lib/email-templates.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -50,6 +54,18 @@ export async function sendEmail(type, to, data = {}) {
       break;
     case 'MONTHLY_NEWSLETTER':
       tmpl = monthlyNewsletterEmail(data);
+      break;
+    case 'BUNDLE_PURCHASED':
+      tmpl = bundlePurchasedEmail(data);
+      break;
+    case 'SUBSCRIPTION_WELCOME':
+      tmpl = subscriptionWelcomeEmail(data);
+      break;
+    case 'SUBSCRIPTION_RENEWED':
+      tmpl = subscriptionRenewedEmail(data);
+      break;
+    case 'SUBSCRIPTION_CANCELED':
+      tmpl = subscriptionCanceledEmail(data);
       break;
     default:
       throw new Error(`Unknown email type: ${type}`);

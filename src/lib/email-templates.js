@@ -840,3 +840,282 @@ People's Patterns · ${SITE_URL}`;
     plain,
   };
 }
+
+// ─── Bundle Purchased ─────────────────────────────────────────────────────────
+
+export function bundlePurchasedEmail({ bundleId = '', patternCount = 0, selectedCount = 0 } = {}) {
+  const bundleName = bundleId === 'capsule3' ? '3-Pattern Capsule' : '5-Pattern Wardrobe';
+  const remaining  = patternCount - selectedCount;
+  const subject    = `Your ${bundleName} is ready`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${bundleName} — purchased.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  ${patternCount} pattern credits have been added to your account.${remaining > 0 ? ` ${remaining} ready to use whenever you are.` : ''}
+</p>
+
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">
+  How it works:
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding:0 0 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Pick any pattern, any tier</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Your credits work on everything — Simple, Core, or Tailored.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Enter measurements, generate</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Same measurements across all patterns. Measure once, sew everything.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 8px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">3.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Credits never expire</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Use them today or next year. No pressure, no deadline.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+${btn('Choose Your Patterns →', SITE_URL + '/?step=1')}`;
+
+  const plain = `Your ${bundleName} is ready
+
+${patternCount} pattern credits have been added to your account.
+
+1. Pick any pattern, any tier — credits work on everything.
+2. Enter measurements, generate — same measurements across all patterns.
+3. Credits never expire — use them whenever you're ready.
+
+Choose your patterns: ${SITE_URL}/?step=1
+
+—
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: `${patternCount} pattern credits added to your account. Start choosing.`,
+      subject,
+      body,
+      footerExtra: `You're receiving this because you purchased a bundle at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Subscription Welcome ─────────────────────────────────────────────────────
+
+export function subscriptionWelcomeEmail({ planId = '', credits = 0 } = {}) {
+  const planName = {
+    club_monthly: 'Club', club_annual: 'Club Annual',
+    wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
+  }[planId] || 'Membership';
+  const subject = `Welcome to ${planName} — ${credits} credits ready`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  You're in.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  ${planName} membership is active. ${credits} pattern credit${credits !== 1 ? 's' : ''} are waiting in your account.
+</p>
+
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">
+  What you get:
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
+  <tr>
+    <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;${credits} pattern credit${credits !== 1 ? 's' : ''} each billing period
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Any pattern, any tier — no restrictions
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Unused credits roll over every month
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Cancel or change your plan any time
+    </td>
+  </tr>
+</table>
+
+${btn('Generate Your First Pattern →', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Manage your subscription from <a href="${SITE_URL}/?account=subscription" style="color:${GOLD};text-decoration:none;font-weight:600;">Account Settings</a>.
+</p>`;
+
+  const plain = `Welcome to ${planName}
+
+Your membership is active. ${credits} pattern credits are waiting in your account.
+
+What you get:
+- ${credits} credits each billing period
+- Any pattern, any tier
+- Unused credits roll over
+- Cancel or change your plan any time
+
+Generate your first pattern: ${SITE_URL}/?step=1
+
+Manage your subscription: ${SITE_URL}/?account=subscription
+
+—
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: `${planName} is active — ${credits} credits ready to use.`,
+      subject,
+      body,
+      footerExtra: `You're receiving this because you subscribed at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Subscription Renewed ─────────────────────────────────────────────────────
+
+export function subscriptionRenewedEmail({ planId = '', newCredits = 0, totalCredits = 0 } = {}) {
+  const planName = {
+    club_monthly: 'Club', club_annual: 'Club Annual',
+    wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
+  }[planId] || 'Membership';
+  const subject = `${newCredits} new credits added — ${totalCredits} total`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Credits refilled.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Your ${planName} membership renewed. ${newCredits} new credit${newCredits !== 1 ? 's' : ''} added — you now have <strong style="color:${NEAR_BLACK};">${totalCredits} total</strong>.
+</p>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Unused credits from last month rolled over automatically. No credits wasted.
+</p>
+
+${btn('Use a Credit →', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Manage your plan from <a href="${SITE_URL}/?account=subscription" style="color:${GOLD};text-decoration:none;font-weight:600;">Account Settings</a>.
+</p>`;
+
+  const plain = `Credits refilled
+
+Your ${planName} membership renewed. ${newCredits} new credits added — you now have ${totalCredits} total.
+
+Unused credits from last month rolled over automatically.
+
+Use a credit: ${SITE_URL}/?step=1
+
+Manage your plan: ${SITE_URL}/?account=subscription
+
+—
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: `${newCredits} new credits added. ${totalCredits} total available.`,
+      subject,
+      body,
+      footerExtra: `You're receiving this because you subscribe to People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Subscription Canceled ────────────────────────────────────────────────────
+
+export function subscriptionCanceledEmail() {
+  const subject = 'Your subscription has been canceled';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Subscription canceled.
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Your membership won't renew. Any remaining credits are still in your account — they're yours to use whenever you're ready.
+</p>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  All patterns you've downloaded are permanently saved in My Patterns. Nothing goes away.
+</p>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  If you change your mind, you can resubscribe any time from your account. Your measurement profiles and pattern history stay right where you left them.
+</p>
+
+${btn('Use Remaining Credits →', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Individual patterns are always available at <a href="${SITE_URL}/pricing" style="color:${GOLD};text-decoration:none;font-weight:600;">$9–19 each</a>.
+</p>`;
+
+  const plain = `Subscription canceled
+
+Your membership won't renew. Any remaining credits are still in your account — use them whenever you're ready.
+
+All patterns you've downloaded are permanently saved in My Patterns.
+
+If you change your mind, resubscribe any time from your account. Your profiles and history stay put.
+
+Use remaining credits: ${SITE_URL}/?step=1
+
+Individual patterns always available: ${SITE_URL}/pricing
+
+—
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Your subscription has been canceled. Remaining credits are still available.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you had a subscription at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
