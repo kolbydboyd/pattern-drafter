@@ -9,6 +9,15 @@
  * meaningful two-way or four-way stretch relevant to pattern ease calculations.
  */
 
+// ── Affiliate configuration ───────────────────────────────────────────────────
+const AFFILIATE_TAG = 'patternsaff-20'; // replace with live Amazon Associates tag
+
+/** Build an Amazon search affiliate URL from a human-readable product name */
+function _affiliateUrl(name, suffix = '') {
+  const q = encodeURIComponent((name + (suffix ? ' ' + suffix : '')).replace(/\s+/g, ' ').trim());
+  return `https://www.amazon.com/s?k=${q}&tag=${AFFILIATE_TAG}`;
+}
+
 /**
  * Fabric type definitions keyed by machine-readable ID.
  * Each entry describes a fabric's display name, weight range, stretch
@@ -174,9 +183,25 @@ export const STANDARD_NOTIONS = {
  * }}
  */
 export function buildMaterialsSpec(config) {
+  function enrichFabric(f) {
+    if (!f?.name) return f;
+    return f.affiliateUrl ? f : { ...f, affiliateUrl: _affiliateUrl(f.name, 'fabric by the yard') };
+  }
+  function enrichThread(t) {
+    if (!t?.name) return t;
+    return t.affiliateUrl ? t : { ...t, affiliateUrl: _affiliateUrl(t.name, 'thread sewing') };
+  }
+  function enrichNeedle(n) {
+    if (!n?.name) return n;
+    return n.affiliateUrl ? n : { ...n, affiliateUrl: _affiliateUrl(n.name, 'sewing machine needle') };
+  }
+
+  const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
+  const rawNeedle = typeof config.needle === 'string' ? NEEDLE_TYPES[config.needle] : config.needle;
+
   return {
     fabrics: config.fabrics.map(f =>
-      typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f
+      enrichFabric(typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f)
     ),
     notions: config.notions.map(n =>
       typeof n === 'string'
@@ -185,8 +210,8 @@ export function buildMaterialsSpec(config) {
           ? { ...STANDARD_NOTIONS[n.ref], quantity: n.quantity }
           : n
     ),
-    thread: typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread,
-    needle: typeof config.needle === 'string' ? NEEDLE_TYPES[config.needle] : config.needle,
+    thread: enrichThread(rawThread),
+    needle: enrichNeedle(rawNeedle),
     stitches: config.stitches.map(s =>
       typeof s === 'string' ? STITCH_TYPES[s] : s
     ),

@@ -82,6 +82,9 @@ details.adv-meas summary:hover{color:var(--text)}
 .mat-row .qty{color:var(--accent);font-weight:500}
 .mat-row .note{color:var(--light);font-style:italic}
 .mat-stitch{display:inline-block;background:var(--stitch-bg);padding:1px 5px;border-radius:2px;font-size:.72rem;margin:1px 2px 1px 0}
+.mat-aff-link{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.mat-aff-link:hover{opacity:.8}
+.mat-affiliate-note{font-size:.65rem;color:var(--light);font-style:italic;margin-top:6px}
 
 .instr-step{font-size:.83rem;line-height:1.5;margin-bottom:5px;padding-left:16px;position:relative}
 .instr-step .num{position:absolute;left:0;color:var(--accent);font-weight:600}

@@ -402,7 +402,10 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Fabric Options</h5>`;
   for (const f of mat.fabrics) {
     if (!f?.name) continue;
-    html += `<div class="mat-row">${f.name} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
+    const fName = f.affiliateUrl
+      ? `<a href="${f.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${f.name}</a>`
+      : f.name;
+    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -413,9 +416,18 @@ function renderMaterials(mat, yardage45, yardage60) {
   }
   html += `</div>`;
 
+  const threadName = mat.thread?.name ?? 'Polyester all-purpose';
+  const threadLink = mat.thread?.affiliateUrl
+    ? `<a href="${mat.thread.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${threadName}</a>`
+    : threadName;
+  const needleName = mat.needle?.name ?? String(mat.needle ?? 'Universal');
+  const needleLink = mat.needle?.affiliateUrl
+    ? `<a href="${mat.needle.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${needleName}</a>`
+    : needleName;
+
   html += `<div class="mat-section"><h5>Thread & Needle</h5>
-    <div class="mat-row">Thread: ${mat.thread?.name ?? 'Polyester all-purpose'} (${mat.thread?.weight ?? '40wt'}) <span class="note">${mat.thread?.notes ?? ''}</span></div>
-    <div class="mat-row">Needle: ${mat.needle?.name ?? String(mat.needle ?? 'Universal')} <span class="note">${mat.needle?.use ?? ''}</span></div>
+    <div class="mat-row">Thread: ${threadLink} (${mat.thread?.weight ?? '40wt'}) <span class="note">${mat.thread?.notes ?? ''}</span></div>
+    <div class="mat-row">Needle: ${needleLink} <span class="note">${mat.needle?.use ?? ''}</span></div>
   </div>`;
 
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
@@ -430,6 +442,8 @@ function renderMaterials(mat, yardage45, yardage60) {
     for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
     html += `</div>`;
   }
+
+  html += `<p class="mat-affiliate-note">Links may earn us a small commission at no cost to you.</p>`;
 
   if (yardage45 !== undefined) {
     html += `<div class="mat-section mat-yardage">
