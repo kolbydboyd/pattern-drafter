@@ -727,7 +727,7 @@ async function _applyWatermarkState(garmentId) {
     const banner = document.createElement('div');
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
-    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF — Free during beta</button>`;
+    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF - Free during beta</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-beta-dl-btn').addEventListener('click', () => {
       showEmailGate(() => handleDownloadPDF(document.getElementById('wm-beta-dl-btn')));
@@ -762,7 +762,7 @@ async function _applyWatermarkState(garmentId) {
     if (!user) {
       // Not logged in: frictionless account creation → free credit → download
       banner.innerHTML = `
-        <span class="wm-banner-text">Your first pattern is <strong>free</strong> — no credit card needed.</span>
+        <span class="wm-banner-text">Your first pattern is <strong>free</strong> - no credit card needed.</span>
         <button class="wm-banner-btn" id="wm-signup-btn">Create Free Account &amp; Download</button>`;
       output.parentNode.insertBefore(banner, output);
       document.getElementById('wm-signup-btn').addEventListener('click', () => {
@@ -788,7 +788,7 @@ async function _applyWatermarkState(garmentId) {
         if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
         _currentPurchased = true;
         removeWatermarks(output);
-        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used — your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
         handleDownloadPDF(btn);
       });
     } else {
@@ -797,7 +797,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> — one sheet, no taping
+          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> - one sheet, no taping
         </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -818,7 +818,7 @@ function _showFreeSignupModal(garmentId) {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body">Create a free account to download — your first pattern is free, no credit card needed.</p>
+        <p class="email-gate-body">Create a free account to download - your first pattern is free, no credit card needed.</p>
         <form id="free-signup-form" class="email-gate-form">
           <input type="email" id="free-signup-email" placeholder="you@example.com" required autocomplete="email">
           <input type="password" id="free-signup-pw" placeholder="Choose a password (8+ characters)" required autocomplete="new-password" minlength="8">
@@ -893,7 +893,7 @@ function _showFreeSignupModal(garmentId) {
     if (banner) {
       const price = PATTERN_PRICES[garmentId];
       const label = price?.label ?? 'this pattern';
-      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used — your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
     }
 
     // Trigger download
@@ -1099,7 +1099,7 @@ async function handleDownloadPDF(btn) {
       }, 800);
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 / copy-shop file is also downloading — one sheet, no taping required.';
+      notice.textContent = 'Your A0 / copy-shop file is also downloading - one sheet, no taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {

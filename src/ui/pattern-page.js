@@ -189,7 +189,7 @@ root.innerHTML = `
   ${fitCheckRows ? `
   <section class="pat-pg-section">
     <h2 class="pat-pg-section-title">Fit Check</h2>
-    <p class="pat-pg-fit-note">Every dimension is drafted directly from your measurements — no grading, no size charts.</p>
+    <p class="pat-pg-fit-note">Every dimension is drafted directly from your measurements - no grading, no size charts.</p>
     <table class="pat-pg-fit-table">
       <thead><tr><th>What we draft</th><th>Source</th></tr></thead>
       <tbody>${fitCheckRows}</tbody>

@@ -105,7 +105,7 @@ export const FABRIC_TYPES = {
   'denim-light':      { name: 'Lightweight denim', weight: '6–8 oz/yd²', stretch: false, category: 'woven', notes: 'Softer drape than standard denim' },
 
   // ── Mid-weight wovens ─────────────────────────────────────────────────────
-  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot — shrinks 3–5%' },
+  'linen':            { name: 'Linen or linen-cotton', weight: '5–7 oz/yd²', stretch: false, category: 'woven', notes: 'Pre-wash hot - shrinks 3–5%' },
   'linen-light':      { name: 'Lightweight linen', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Breathable; press flat for crisp seams' },
   'chambray':         { name: 'Chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
   'cotton-chambray':  { name: 'Cotton chambray', weight: '4–6 oz/yd²', stretch: false, category: 'woven' },
@@ -129,12 +129,12 @@ export const FABRIC_TYPES = {
 
   // ── Knit ──────────────────────────────────────────────────────────────────
   'jersey':           { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit' },
-  'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — cotton knits shrink 3–5%' },
+  'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - cotton knits shrink 3–5%' },
   'rayon-jersey':     { name: 'Rayon jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Drapey, fluid; pre-wash gently' },
   'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
   'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
   'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
-  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash — knits shrink 3–5%' },
+  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - knits shrink 3–5%' },
   'jersey-modal':     { name: 'Modal jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft with excellent drape' },
   'jersey-bamboo':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Soft and eco-friendly; wash cold' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
@@ -208,11 +208,11 @@ export const STITCH_TYPES = {
  * @type {Object.<string, { name: string, notes: string }>}
  */
 export const STANDARD_NOTIONS = {
-  'elastic-1.5':       { name: '1.5″ woven elastic', notes: 'Woven, not braided — holds shape better' },
+  'elastic-1.5':       { name: '1.5″ woven elastic', notes: 'Woven, not braided - holds shape better' },
   'elastic-1':         { name: '1″ woven elastic', notes: 'For lighter garments' },
   'elastic-0.75':      { name: '¾″ elastic', notes: 'For casings, waist gathering' },
   'drawstring':        { name: '½–¾″ flat drawstring cord', notes: 'Woven cotton or nylon' },
-  'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar — for lightweight wovens and facings' },
+  'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar - for lightweight wovens and facings' },
   'interfacing-med':    { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-medium': { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-heavy':  { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },

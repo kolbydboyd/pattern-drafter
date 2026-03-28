@@ -42,8 +42,8 @@ export default {
     length: {
       type: 'select', label: 'Length',
       values: [
-        { value: 'crop', label: 'Cropped — at waist (classic trucker)' },
-        { value: 'hip',  label: 'Hip — +4″ below waist' },
+        { value: 'crop', label: 'Cropped - at waist (classic trucker)' },
+        { value: 'hip',  label: 'Hip - +4″ below waist' },
       ],
       default: 'crop',
     },
@@ -536,7 +536,7 @@ export default {
       pieces.push({
         id: 'chest-pocket',
         name: 'Chest Flap Pocket',
-        instruction: `Cut 4 (2 pocket bags + 2 flaps — mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} pocket · ${fmtInches(pocketW)} × ${fmtInches(flapH)} flap · Position on front panel just below yoke seam`,
+        instruction: `Cut 4 (2 pocket bags + 2 flaps - mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} pocket · ${fmtInches(pocketW)} × ${fmtInches(flapH)} flap · Position on front panel just below yoke seam`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
       });
@@ -567,12 +567,12 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare — ⅞″ tack or shank` });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare - ⅞″ tack or shank` });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket — size 24 heavy duty` });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket - size 24 heavy duty` });
     }
 
-    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points — traditional denim detail' });
+    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points - traditional denim detail' });
 
     return buildMaterialsSpec({
       fabrics: ['denim-12oz', 'bull-denim', 'raw-selvedge-denim'],
@@ -583,15 +583,15 @@ export default {
       notes: [
         '{topstitch} all seams at 3.5mm with contrasting gold thread for classic denim look',
         '{flat-fell} seams on yoke, shoulder, and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
-        'Pre-wash denim to preshrink and soften — raw denim can shrink 3–5% on first wash',
+        'Pre-wash denim to preshrink and soften - raw denim can shrink 3–5% on first wash',
         'Interface collar with 2 layers of medium woven interfacing for structure',
-        'Under collar is cut 2% smaller than upper collar — seam rolls to underside when pressed',
+        'Under collar is cut 2% smaller than upper collar - seam rolls to underside when pressed',
         opts.sleeveStyle === 'two-piece'
           ? 'Two-part sleeve: sew front seam first, then back seam. Ease top sleeve cap into armhole'
-          : 'One-piece sleeve: low flat cap makes flat-felling the armhole seam straightforward — topstitch from the outside',
+          : 'One-piece sleeve: low flat cap makes flat-felling the armhole seam straightforward - topstitch from the outside',
         opts.cuff === 'tab' ? 'Button tab cuff: sew cuff facing to outer cuff {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn, {press}. Sew to sleeve opening. Add button and buttonhole at tab overlap' : '',
         'Bar tack all pocket corners, waistband tab ends, and cuff tab corners',
-        'For raw selvedge: do NOT pre-wash — wear and fade naturally, expect 5% shrinkage',
+        'For raw selvedge: do NOT pre-wash - wear and fade naturally, expect 5% shrinkage',
       ].filter(Boolean),
     });
   },
@@ -615,7 +615,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare collar pieces',
-      detail: 'Interface upper collar with 1 layer, under collar with 2 layers of medium interfacing. Sew upper to under collar {RST} along outer (fall) edge and both CF ends. Trim SA to 3mm, {clip} corners diagonally at collar points. Turn RS out, use a {point turner} to push collar tips out cleanly. {press}. {topstitch} outer edge at 3.5mm. Leave neckline edge raw — will be sewn into neckline seam.',
+      detail: 'Interface upper collar with 1 layer, under collar with 2 layers of medium interfacing. Sew upper to under collar {RST} along outer (fall) edge and both CF ends. Trim SA to 3mm, {clip} corners diagonally at collar points. Turn RS out, use a {point turner} to push collar tips out cleanly. {press}. {topstitch} outer edge at 3.5mm. Leave neckline edge raw - will be sewn into neckline seam.',
     });
 
     steps.push({
@@ -630,7 +630,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew back yoke to back panel (flat-fell)',
-      detail: `Sew back yoke to back panel at yoke seam {RST}. {press} SA toward yoke. Trim panel SA to 3mm. Fold yoke SA over, {topstitch} at 3.5mm. ${opts.yokeStyle === 'pointed' ? 'Carefully match pointed V — pin from center out.' : 'Keep seam straight and level.'}`,
+      detail: `Sew back yoke to back panel at yoke seam {RST}. {press} SA toward yoke. Trim panel SA to 3mm. Fold yoke SA over, {topstitch} at 3.5mm. ${opts.yokeStyle === 'pointed' ? 'Carefully match pointed V - pin from center out.' : 'Keep seam straight and level.'}`,
     });
 
     steps.push({
@@ -655,7 +655,7 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Set sleeves into armholes (flat-fell)',
-        detail: 'Pin sleeve cap to armhole {RST}, matching center cap notch to shoulder seam and quarter notches to pitch points. The low cap has minimal ease — distribute evenly. Sew. Apply flat-fell finish: {press} SA toward body, trim sleeve SA to 3mm, fold body SA over, {topstitch} at 3.5mm from RS. Add second row of {topstitch} close to fold for classic double-needle look.',
+        detail: 'Pin sleeve cap to armhole {RST}, matching center cap notch to shoulder seam and quarter notches to pitch points. The low cap has minimal ease - distribute evenly. Sew. Apply flat-fell finish: {press} SA toward body, trim sleeve SA to 3mm, fold body SA over, {topstitch} at 3.5mm from RS. Add second row of {topstitch} close to fold for classic double-needle look.',
       });
     }
 
@@ -682,12 +682,12 @@ export default {
       step: n++, title: opts.closure === 'button' ? 'Buttonholes and buttons' : 'Install snaps',
       detail: opts.closure === 'button'
         ? `Mark ${btnCount} buttonhole positions on right placket (vertical buttonholes): first at neckline, last at waistband, evenly spaced. Test on denim scrap. Sew buttonholes. Cut open. Sew shank buttons to left placket. Add buttons to cuff tabs and pocket flaps.`
-        : `Mark ${btnCount} snap positions on placket: first at neckline, last at waistband, evenly spaced. Install male halves on right placket, female on left. Use snap setter with backing plate — denim requires firm pressure. Add snaps to cuff tabs and pocket flaps.`,
+        : `Mark ${btnCount} snap positions on placket: first at neckline, last at waistband, evenly spaced. Install male halves on right placket, female on left. Use snap setter with backing plate - denim requires firm pressure. Add snaps to cuff tabs and pocket flaps.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check — all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
+      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check - all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
     });
 
     return steps;

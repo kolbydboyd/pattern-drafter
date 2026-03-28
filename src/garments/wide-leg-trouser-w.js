@@ -240,8 +240,8 @@ export default {
       notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic for waistband casing' });
     }
     if (opts.waistband === 'wide') {
-      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham — optional facing for wide waistband interior' });
-      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 — waistband closure' });
+      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham - optional facing for wide waistband interior' });
+      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 - waistband closure' });
     }
 
     return buildMaterialsSpec({
@@ -251,15 +251,15 @@ export default {
       needle: 'universal-80',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'blindhem'],
       notes: [
-        'Drapey fabrics hang better on wide legs — avoid stiff canvas or structured wovens that will tent at the hip',
+        'Drapey fabrics hang better on wide legs - avoid stiff canvas or structured wovens that will tent at the hip',
         'Use a universal 80/12 needle for lighter fabrics (rayon, lawn); step up to 90/14 for wool or linen',
-        'Stay-stitch the waist seam (⅝″ from edge) BEFORE attaching waistband — drapey fabrics stretch on the bias at the waist',
-        '{press} pleats with steam from the WS — use a {press} cloth on rayon and wool to prevent shine',
+        'Stay-stitch the waist seam (⅝″ from edge) BEFORE attaching waistband - drapey fabrics stretch on the bias at the waist',
+        '{press} pleats with steam from the WS - use a {press} cloth on rayon and wool to prevent shine',
         'Grade seam allowances at the waistband to reduce bulk: trim each layer to a different width before folding over',
         'For an invisible hem: fold up hem allowance, {press}, and hand-sew with a catch stitch or use a blind hem foot at the shortest stitch length',
-        'Pre-wash rayon and tencel before cutting — both can shrink 3–5% and they are not dry-cleanable',
+        'Pre-wash rayon and tencel before cutting - both can shrink 3–5% and they are not dry-cleanable',
         'Linen note: wash in hot water twice to preshrink fully. {press} damp with high steam.',
-        'Trouser break: fit the hem while wearing the shoes you plan to wear — mark break at the top of the shoe, approximately ½–¾″ of fabric resting forward on the shoe.',
+        'Trouser break: fit the hem while wearing the shoes you plan to wear - mark break at the top of the shoe, approximately ½–¾″ of fabric resting forward on the shoe.',
       ],
     });
   },
@@ -301,14 +301,14 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. {baste} across waist at ⅜″. {press} pleat from WS using steam and a {press} cloth — {press} only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT {press} the full leg length.`,
+        detail: `On RS, mark pleat fold line${numPleats === 2 ? 's' : ''} from waist down ${fmtInches(rise)}. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist only. {baste} across waist at ⅜″. {press} pleat from WS using steam and a {press} cloth - {press} only the first 5–6″ below the waist. Below the hip the pleat should drape freely. Do NOT {press} the full leg length.`,
       });
     }
 
     // Stay-stitch
     steps.push({
       step: n++, title: 'Stay-stitch waist',
-      detail: 'Before attaching waistband, stay-stitch ⅝″ from the waist edge all the way around — front panels, back panels. Sew directionally (side seam toward CF; side seam toward CB). This prevents the waist from stretching while you handle the trouser.',
+      detail: 'Before attaching waistband, stay-stitch ⅝″ from the waist edge all the way around - front panels, back panels. Sew directionally (side seam toward CF; side seam toward CB). This prevents the waist from stretching while you handle the trouser.',
     });
 
     // Fly or CF seam
@@ -332,7 +332,7 @@ export default {
     if (opts.waistband === 'structured') {
       steps.push({
         step: n++, title: 'Construct structured waistband',
-        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Trim SA to 3mm at short ends, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sew to trouser waist {RST}. Fold over to inside, {slipstitch} or {edgestitch}. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
+        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends - right side with 1″ extension for button overlap. Trim SA to 3mm at short ends, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sew to trouser waist {RST}. Fold over to inside, {slipstitch} or {edgestitch}. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
       });
     } else if (opts.waistband === 'elastic') {
       steps.push({
@@ -347,7 +347,7 @@ export default {
     }
 
     steps.push({
-      step: n++, title: 'Hem — fit first',
+      step: n++, title: 'Hem - fit first',
       detail: `Try on trousers with your intended shoes. Mark the trouser break (hem rests at top of shoe with ½–¾″ draping forward). For straight hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand sew with catch stitch or blind hem stitch for an invisible finish. For wide cuff: fold up ${fmtInches(parseFloat(opts.hem))} to outside, {press} crisp fold, {topstitch} or hand stitch.`,
     });
 

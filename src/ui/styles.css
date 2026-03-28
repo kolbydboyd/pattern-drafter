@@ -644,7 +644,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .pat-pg-section-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;color:var(--text);margin-bottom:16px}
 .pat-pg-options-list,.pat-pg-included-list{list-style:none;display:flex;flex-direction:column;gap:8px}
 .pat-pg-options-list li,.pat-pg-included-list li{font-size:.85rem;color:var(--text);line-height:1.5;padding-left:16px;position:relative}
-.pat-pg-options-list li::before{content:'—';position:absolute;left:0;color:var(--gold)}
+.pat-pg-options-list li::before{content:'-';position:absolute;left:0;color:var(--gold)}
 .pat-pg-included-list li::before{content:'✓';position:absolute;left:0;color:var(--gold)}
 .pat-pg-section-placeholder p{font-size:.85rem;color:var(--mid);line-height:1.6}
 .pat-pg-section-placeholder a{color:var(--gold);text-decoration:none}.pat-pg-section-placeholder a:hover{text-decoration:underline}

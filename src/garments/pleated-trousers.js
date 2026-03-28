@@ -177,7 +177,7 @@ export default {
       { ref: 'interfacing-heavy', quantity: '0.25 yard (waistband outer layer only)' },
       { name: 'Metal zipper',    quantity: `${Math.ceil((m.rise || 12) * 0.6)}″`, notes: 'Concealed or metal coil' },
       { name: 'Waistband button', quantity: '1', notes: '¾″ shank button, quality metal' },
-      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 — waistband + French bearer' },
+      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 - waistband + French bearer' },
     ];
 
     return buildMaterialsSpec({
@@ -188,11 +188,11 @@ export default {
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
         '{press} with steam on a wool setting. Always use a {press} cloth to prevent shine on wool and rayon.',
-        'Interface ALL waistband layers for structure — use heavy interfacing on the outer layer',
+        'Interface ALL waistband layers for structure - use heavy interfacing on the outer layer',
         'The French bearer is the inner hook extension at CF that keeps the waistband flat under the trouser front. Cut from matching fabric, interface, fold and {press}.',
-        'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting — dry clean before cutting if needed.',
+        'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting - dry clean before cutting if needed.',
         'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/{zigzag}.',
-        'Hem note: dress trousers should have a slight BREAK at the shoe — hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
+        'Hem note: dress trousers should have a slight BREAK at the shoe - hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
         'Bar tack all pocket openings and crotch junction.',
       ],
     });
@@ -229,7 +229,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct curtain waistband',
-      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or {slipstitch} inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
+      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends - note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or {slipstitch} inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
     });
     steps.push({
       step: n++, title: 'Construct and attach French bearer',
@@ -240,10 +240,10 @@ export default {
       detail: 'Fold, {press}, {topstitch} loop strips. Attach at CB, side seams, flanking CF. Bar tack top and bottom.',
     });
     steps.push({
-      step: n++, title: 'Hem — fit first',
+      step: n++, title: 'Hem - fit first',
       detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand {slipstitch} or blind hem stitch for an invisible finish on dress trousers.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases — align side seam to inseam and {press} fold from waist to hem.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases - align side seam to inseam and {press} fold from waist to hem.' });
 
     return steps;
   },

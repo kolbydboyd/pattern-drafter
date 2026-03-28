@@ -55,7 +55,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes — full lining' },
+        { value: 'yes', label: 'Yes - full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -136,7 +136,7 @@ export default {
 
       return {
         id, name,
-        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip — add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
+        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
         width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
         dims,
@@ -197,12 +197,12 @@ export default {
       needle: 'universal-70',
       stitches: ['straight-2', 'zigzag-small'],
       notes: [
-        'Cut with grain running vertically — bias cut will cause wavy hem and excess stretch',
+        'Cut with grain running vertically - bias cut will cause wavy hem and excess stretch',
         'Stay-stitch waist edge at ½″ immediately after cutting to prevent bias stretch',
-        'Sew darts from waist toward apex — {press} toward CB on back, CF on front',
+        'Sew darts from waist toward apex - {press} toward CB on back, CF on front',
         opts.hem === 'handrolled' ? 'Hand-rolled hem: machine stitch 2mm from edge, trim close, roll between fingers, {slipstitch}. Best on silk and chiffon.' : '{press} hem up twice, {slipstitch} or {edgestitch} close to fold',
-        opts.lining === 'yes' ? 'Attach lining at waistband and zip tape — leave hem free (let lining float 1″ shorter than skirt)' : 'French seams work well at the side seams for a clean interior finish on fine fabrics',
-        'Hang skirt 24 hours before marking final hem — bias-cut or drapy wovens will drop at the hemline',
+        opts.lining === 'yes' ? 'Attach lining at waistband and zip tape - leave hem free (let lining float 1″ shorter than skirt)' : 'French seams work well at the side seams for a clean interior finish on fine fabrics',
+        'Hang skirt 24 hours before marking final hem - bias-cut or drapy wovens will drop at the hemline',
       ].filter(Boolean),
     });
   },
@@ -218,7 +218,7 @@ export default {
       steps.push({ step: n++, title: 'Install invisible zipper', detail: '{press} zip coils flat. Sew right side of zip to right CB seam allowance. Sew left side to left CB seam allowance. Attach zip foot. Close remaining CB seam below zip stop.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams — sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams - sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams as for shell. Leave CB open for zipper. {press}.' });

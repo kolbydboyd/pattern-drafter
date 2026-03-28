@@ -30,8 +30,8 @@ export default {
     length: {
       type: 'select', label: 'Jacket length',
       values: [
-        { value: 'crop', label: 'Crop — at waist (torso length)' },
-        { value: 'hip',  label: 'Hip — +4″ below waist'          },
+        { value: 'crop', label: 'Crop - at waist (torso length)' },
+        { value: 'hip',  label: 'Hip - +4″ below waist'          },
       ],
       default: 'crop',
     },
@@ -239,7 +239,7 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: 'Cut 2 (mirror L & R) · Straight grain along length · No ease in cap — set flat',
+        instruction: 'Cut 2 (mirror L & R) · Straight grain along length · No ease in cap - set flat',
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),
@@ -300,9 +300,9 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter — +1 spare' });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter - +1 spare' });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps — size 24 or 20' });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps - size 24 or 20' });
     }
 
     return buildMaterialsSpec({
@@ -312,13 +312,13 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-3', 'straight-3.5', 'bartack'],
       notes: [
-        '{topstitch} all seams at 3.5mm — use contrasting or matching thread as desired',
+        '{topstitch} all seams at 3.5mm - use contrasting or matching thread as desired',
         '{flat-fell} seams on shoulder and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
-        'Pre-wash canvas to preshrink — canvas can shrink 5–8% in first wash',
+        'Pre-wash canvas to preshrink - canvas can shrink 5–8% in first wash',
         'Interface collar with 2 layers of medium woven interfacing for structure',
-        'Bar tack all four corners of each pocket — canvas is heavy and will stress pocket attachment',
-        opts.closure === 'snap' ? 'Install snaps with a snap setter tool — do not sew snap buttons by hand on canvas' : '',
-        'Waxed cotton: do not pre-wash — wipe clean only, re-wax annually',
+        'Bar tack all four corners of each pocket - canvas is heavy and will stress pocket attachment',
+        opts.closure === 'snap' ? 'Install snaps with a snap setter tool - do not sew snap buttons by hand on canvas' : '',
+        'Waxed cotton: do not pre-wash - wipe clean only, re-wax annually',
       ].filter(Boolean),
     });
   },
@@ -342,7 +342,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely — use a {point turner}. {topstitch} 3.5mm from edge if desired.`,
+      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely - use a {point turner}. {topstitch} 3.5mm from edge if desired.`,
     });
 
     steps.push({
@@ -379,7 +379,7 @@ export default {
       step: n++, title: opts.closure === 'button' ? 'Buttonholes and buttons' : 'Install snaps',
       detail: opts.closure === 'button'
         ? `Mark ${btnCount} buttonholes on right placket (vertical buttonholes for jacket): first 1.5″ from neckline, last 2″ from hem, evenly spaced. Test on scrap canvas. Sew buttonholes. Cut open. Sew buttons to left placket.`
-        : `Mark ${btnCount} snap positions. Install male halves on right placket, female halves on left placket. Use snap setter tool and backing plate — canvas requires firm pressure.`,
+        : `Mark ${btnCount} snap positions. Install male halves on right placket, female halves on left placket. Use snap setter tool and backing plate - canvas requires firm pressure.`,
     });
 
     steps.push({

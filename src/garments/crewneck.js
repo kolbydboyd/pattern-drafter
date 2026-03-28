@@ -331,7 +331,7 @@ export default {
   materials(m, opts) {
     const isRaglan = opts.sleeveType === 'raglan';
     const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For neckband, waistband, and cuffs — high recovery 2×2 or 1×1 rib' },
+      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For neckband, waistband, and cuffs - high recovery 2×2 or 1×1 rib' },
     ];
 
     return buildMaterialsSpec({
@@ -341,12 +341,12 @@ export default {
       needle: 'ballpoint-90',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry — prevents skipped stitches',
-        'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
-        'Stretch rib trim as you sew to match body opening — do not stretch the body edge',
-        'Pre-wash fleece/terry before cutting — knits can shrink 3–5% in first wash',
-        'Do not {press} fleece with high heat — use low steam or finger {press} seams open',
-        isRaglan ? 'Raglan: sew four seams only (2 front, 2 back) — no shoulder seam or armhole setting required' : 'Ease sleeve cap evenly — divide cap and armhole into quarters and pin at quarters before sewing',
+        'Use a ballpoint (jersey) needle 90/14 for fleece and french terry - prevents skipped stitches',
+        'Use stretch stitch or serger for ALL seams - a straight stitch will pop when stretched',
+        'Stretch rib trim as you sew to match body opening - do not stretch the body edge',
+        'Pre-wash fleece/terry before cutting - knits can shrink 3–5% in first wash',
+        'Do not {press} fleece with high heat - use low steam or finger {press} seams open',
+        isRaglan ? 'Raglan: sew four seams only (2 front, 2 back) - no shoulder seam or armhole setting required' : 'Ease sleeve cap evenly - divide cap and armhole into quarters and pin at quarters before sewing',
         opts.kangaroo === 'kangaroo' ? 'Kangaroo pocket: sew to front body BEFORE sewing shoulder seams for easiest access' : '',
       ].filter(Boolean),
     });

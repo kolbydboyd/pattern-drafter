@@ -188,9 +188,9 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Clean-finish ALL seams — {serge} or {zigzag} edge every seam allowance before or after sewing. No fell seams.',
+        'Clean-finish ALL seams - {serge} or {zigzag} edge every seam allowance before or after sewing. No fell seams.',
         'Stitch seams at 2.5mm; {topstitch} at 3.0mm for a cleaner, less casual look than jeans',
-        '{press} every seam immediately after sewing — chinos require crisp pressing to lie flat',
+        '{press} every seam immediately after sewing - chinos require crisp pressing to lie flat',
         'Pre-wash fabric once at the temperature you plan to wash the finished garment',
         'Bar tack all pocket corners and the crotch junction',
       ],

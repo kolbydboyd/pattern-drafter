@@ -41,7 +41,7 @@ export default {
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes — front & back mesh panels', reference: 'athletic, brief-style' },
+        { value: 'yes', label: 'Yes - front & back mesh panels',  reference: 'athletic, brief-style' },
         { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
@@ -146,7 +146,7 @@ export default {
       pieces.push({
         id: 'pocket-bag',
         name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Athletic mesh — allows water drainage · {serge} all edges',
+        instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
         dimensions: { width: 6.5, height: 7 },
         type: 'pocket',
       });
@@ -157,8 +157,8 @@ export default {
 
   materials(m, opts) {
     const notions = [
-      { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ — flat nylon or polyester cord` },
-      { ref: 'grommets',   quantity: '2 — CF drawstring exits, ½″ inner dia, rust-proof' },
+      { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ - flat nylon or polyester cord` },
+      { ref: 'grommets',   quantity: '2 - CF drawstring exits, ½″ inner dia, rust-proof' },
     ];
     if (opts.liner === 'yes') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
@@ -171,13 +171,13 @@ export default {
       needle: 'ballpoint-80',
       stitches: ['stretch', 'zigzag-small', 'straight-3'],
       notes: [
-        'Use polyester thread ONLY — cotton thread rots with repeated chlorine and salt water exposure',
+        'Use polyester thread ONLY - cotton thread rots with repeated chlorine and salt water exposure',
         'Rinse trunks in fresh cold water after every wear (pool or ocean) to extend fabric life',
-        'Color guidance — hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
-        'Use rust-proof grommets (brass or stainless) — standard steel grommets will stain the fabric',
+        'Color guidance - hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
+        'Use rust-proof grommets (brass or stainless) - standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
-        '{serge} or {zigzag} all seams — do not leave raw edges on mesh; they will fray in water',
-        'Do not {press} nylon with high heat — use a damp pressing cloth on low if needed',
+        '{serge} or {zigzag} all seams - do not leave raw edges on mesh; they will fray in water',
+        'Do not {press} nylon with high heat - use a damp pressing cloth on low if needed',
       ],
     });
   },
@@ -224,9 +224,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) - do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams - stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },

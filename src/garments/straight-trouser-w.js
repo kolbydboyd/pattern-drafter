@@ -160,7 +160,7 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop — inseam reduced 2″' : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop - inseam reduced 2″' : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam, kneeY, kneeFactor,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
@@ -228,10 +228,10 @@ export default {
       notes: [
         'Use universal 80/12 for cotton twill; 90/14 for wool suiting; ballpoint 90/14 for ponte/stretch',
         'Stay-stitch waist ⅝″ from edge before attaching waistband to prevent stretching',
-        '{press} pleats with steam from WS — {press} cloth on wool and twill to prevent shine',
+        '{press} pleats with steam from WS - {press} cloth on wool and twill to prevent shine',
         'Grade seam allowances at waistband seam before turning to reduce bulk',
         opts.crease === 'crease' ? 'Front crease: fold each front leg so the inseam aligns with the side seam, {press} a sharp crease from waist to hem. Use a {press} cloth and heavy steam. Re-{press} after washing.' : '',
-        opts.hemStyle === 'crop' ? 'Crop length: inseam is 2″ shorter than measurement for ankle-grazing fit. Fit before hemming.' : 'Trouser break: fit while wearing intended shoes — mark hem at top of shoe with ½–¾″ break.',
+        opts.hemStyle === 'crop' ? 'Crop length: inseam is 2″ shorter than measurement for ankle-grazing fit. Fit before hemming.' : 'Trouser break: fit while wearing intended shoes - mark hem at top of shoe with ½–¾″ break.',
       ].filter(Boolean),
     });
   },
@@ -253,7 +253,7 @@ export default {
     if (numPleats > 0) {
       steps.push({ step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`, detail: `Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. {baste} at waist. {press} first 5–6″ with steam and {press} cloth. Below hip, allow to drape freely.` });
     }
-    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally — prevents stretching while handling.' });
+    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally - prevents stretching while handling.' });
     if (hasFly) {
       steps.push({ step: n++, title: 'Install invisible zip fly', detail: 'Sew CF seam below fly opening only. Install invisible zipper to right CF opening. Attach fly shield to left CF behind zipper. {topstitch} fly curve from RS at 1″.' });
     } else {
@@ -270,7 +270,7 @@ export default {
     if (opts.crease === 'crease') {
       steps.push({ step: n++, title: '{press} front creases', detail: 'Fold each front leg so the inseam lies exactly on top of the side seam. {press} a sharp crease from waist to hem using heavy steam and a {press} cloth. The crease should run straight down the center of each leg.' });
     }
-    steps.push({ step: n++, title: 'Hem — fit first', detail: `Try on with intended shoes. Mark hem at break point. Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand sew with blind hem stitch for an invisible finish.` });
+    steps.push({ step: n++, title: 'Hem - fit first', detail: `Try on with intended shoes. Mark hem at break point. Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand sew with blind hem stitch for an invisible finish.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment. Bar tack all pocket openings and crotch junction.' });
 
     return steps;

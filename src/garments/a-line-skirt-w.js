@@ -62,7 +62,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes — full lining' },
+        { value: 'yes', label: 'Yes - full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -113,7 +113,7 @@ export default {
 
       const dartNote = dartW > 0
         ? `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`
-        : 'No darts needed — waist and hip measurements are close';
+        : 'No darts needed - waist and hip measurements are close';
 
       // Hip level ~ 7″ below waist; interpolate side seam x at that y
       const hipY = 7;
@@ -182,8 +182,8 @@ export default {
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE — trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE — trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
     }
 
     return pieces;
@@ -209,10 +209,10 @@ export default {
       stitches: ['straight-2.5', 'zigzag-small'],
       notes: [
         'Stay-stitch waist and hip curves at ½″ before assembling to prevent bias stretch',
-        '{press} darts toward CB on back panel, toward CF on front — creates a smooth hip curve',
-        opts.pockets === 'yes' ? '{baste} pocket bags to side seam SAs before sewing side seams — they should sit at hip height (approx 7–8″ below waist)' : '',
-        'Hang finished skirt 24 hours before marking the final hem — A-line skirts drop slightly at the sides, especially in lighter fabrics',
-        opts.hem === 'faced' ? '{understitch} hem facing before pressing to WS — prevents it from rolling to the outside when wearing' : '{clip} hem SA every ½–1″ on curved sections to allow it to lie flat',
+        '{press} darts toward CB on back panel, toward CF on front - creates a smooth hip curve',
+        opts.pockets === 'yes' ? '{baste} pocket bags to side seam SAs before sewing side seams - they should sit at hip height (approx 7–8″ below waist)' : '',
+        'Hang finished skirt 24 hours before marking the final hem - A-line skirts drop slightly at the sides, especially in lighter fabrics',
+        opts.hem === 'faced' ? '{understitch} hem facing before pressing to WS - prevents it from rolling to the outside when wearing' : '{clip} hem SA every ½–1″ on curved sections to allow it to lie flat',
         'For structured waistband: stitch in the ditch from RS to secure WS edge invisibly',
       ].filter(Boolean),
     });
@@ -252,7 +252,7 @@ export default {
     if (opts.hem === 'faced') {
       steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. {slipstitch} facing edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
+      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem - mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
     }
 
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });
