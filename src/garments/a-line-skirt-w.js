@@ -240,19 +240,19 @@ export default {
     }
 
     if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. {press} up. Fold over, {press} under ⅝″ on inner edge. Edgestitch or slipstitch inner edge to WS.' });
+      steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. {press} up. Fold over, {press} under ⅝″ on inner edge. {edgestitch} or {slipstitch} inner edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
-      steps.push({ step: n++, title: 'Attach lining at waist', detail: 'Fold under top edge of lining ⅝″. Slipstitch to WS of waistband seam. Tack side seams together. Let hem float free.' });
+      steps.push({ step: n++, title: 'Attach lining at waist', detail: 'Fold under top edge of lining ⅝″. {slipstitch} to WS of waistband seam. Tack side seams together. Let hem float free.' });
     }
 
     if (opts.hem === 'faced') {
-      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. Slipstitch facing edge to WS.' });
+      steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. {slipstitch} facing edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, slipstitch or edgestitch.' });
+      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem — mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
     }
 
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });

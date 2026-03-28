@@ -410,7 +410,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach hood to body',
-      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. {clip} curve. {serge} or zigzag SA together. {press} down.',
+      detail: 'Match CF of hood to CF of neckline (or CF zipper edge). Pin hood to neckline {RST}. Sew. {clip} curve. {serge} or {zigzag} SA together. {press} down.',
     });
 
     steps.push({

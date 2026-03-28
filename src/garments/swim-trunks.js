@@ -176,7 +176,7 @@ export default {
         'Color guidance — hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
         'Use rust-proof grommets (brass or stainless) — standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
-        '{serge} or zigzag all seams — do not leave raw edges on mesh; they will fray in water',
+        '{serge} or {zigzag} all seams — do not leave raw edges on mesh; they will fray in water',
         'Do not {press} nylon with high heat — use a damp pressing cloth on low if needed',
       ],
     });
@@ -224,9 +224,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with zigzag (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) — do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should zigzag slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams — stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },

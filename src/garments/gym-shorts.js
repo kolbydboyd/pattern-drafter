@@ -221,7 +221,7 @@ export default {
       notes: [
         'Color guidance — hides sweat best: black, navy, dark charcoal, dark olive. Avoid light gray and light blue.',
         'Pre-wash fabric before cutting — supplex and nylon-taslan resist shrinkage but relax slightly',
-        'Use a stretch stitch or narrow zigzag for all seams — straight stitch will pop on stretch fabric',
+        'Use a stretch stitch or narrow {zigzag} for all seams — straight stitch will pop on stretch fabric',
         'Interface front waistband only; back casing does not need interfacing',
         'Use a ballpoint needle to avoid skipped stitches on knit/stretch weaves',
         '{press} seams with a damp cloth and low heat — high heat damages synthetic fibers',
@@ -241,7 +241,7 @@ export default {
       steps.push({
         step: n++,
         title: 'Prepare side-seam pocket bags',
-        detail: '{serge} or zigzag all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. {press} bags toward panels. {understitch} if desired.',
+        detail: '{serge} or {zigzag} all pocket bag edges. With RST, pin one bag to front panel side seam and one to back panel side seam at pocket opening. Sew bag to panel along opening edge only. {press} bags toward panels. {understitch} if desired.',
       });
     }
 
@@ -287,12 +287,12 @@ export default {
     steps.push({
       step: n++,
       title: 'Construct back waistband',
-      detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, zigzag to join. Close gap. Double {topstitch} top and bottom edges of casing.',
+      detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to shorts back waist {RST}, sew. Fold over, leave a 2″ gap in the topstitching. Thread 1″ elastic through casing with a {bodkin}. Overlap ends 1″, {zigzag} to join. Close gap. Double {topstitch} top and bottom edges of casing.',
     });
     steps.push({
       step: n++,
       title: 'Join waistband halves',
-      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. Slipstitch or {topstitch} closed on each side.',
+      detail: 'Fold short ends of front and back waistband under ⅜″. Pin side seams of waistband together, aligning with garment side seams. {slipstitch} or {topstitch} closed on each side.',
     });
     steps.push({
       step: n++,
@@ -304,7 +304,7 @@ export default {
     steps.push({
       step: n++,
       title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with zigzag (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch — do not use straight stitch on stretch hems.`,
     });
     steps.push({
       step: n++,

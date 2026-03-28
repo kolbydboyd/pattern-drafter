@@ -332,17 +332,17 @@ export default {
     if (opts.waistband === 'structured') {
       steps.push({
         step: n++, title: 'Construct structured waistband',
-        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Turn, {press}. Sew to trouser waist {RST}. Fold over to inside, slipstitch or edgestitch. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
+        detail: 'Fuse interfacing to outer waistband. Fold lengthwise {RST}. Sew short ends — right side with 1″ extension for button overlap. Trim SA to 3mm at short ends, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sew to trouser waist {RST}. Fold over to inside, {slipstitch} or {edgestitch}. Grade all seam allowances at waistband seam before folding: trim each layer to a different width (⅜″, ¼″, ⅛″) to reduce bulk. Install button at CF overlap. Attach hook-and-eye on inside of overlap.',
       });
     } else if (opts.waistband === 'elastic') {
       steps.push({
         step: n++, title: 'Construct elastic waistband casing',
-        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, zigzag. Close gap. {topstitch} close to folded edge.',
+        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, {zigzag}. Close gap. {topstitch} close to folded edge.',
       });
     } else {
       steps.push({
         step: n++, title: 'Construct wide/petersham waistband',
-        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, {clip} curves. Fold waistband over, {press}. Grade SA in layers to reduce bulk. {topstitch} or slipstitch inner edge. Install hook-and-eye at closure.',
+        detail: 'Interface outer waistband. If using petersham, sew to inner edge. Curved/contoured waistband: sew the waistband outer to trouser waist {RST}, {clip} curves. Fold waistband over, {press}. Grade SA in layers to reduce bulk. {topstitch} or {slipstitch} inner edge. Install hook-and-eye at closure.',
       });
     }
 

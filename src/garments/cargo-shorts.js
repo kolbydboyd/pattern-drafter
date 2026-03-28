@@ -178,8 +178,8 @@ export default {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket' });
     }
     if (opts.cargo === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 1″ box pleat center', dimensions: { width: 7, height: 8 }, type: 'pocket' });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining)', dimensions: { width: 7.5, height: 3 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 7″ wide × 8″ tall cut · 1″ box pleat at center (fold 1″ under each side = 2″ consumed) · Finished pocket 5″ wide, expands to 7″', dimensions: { width: 7, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket' });
     }
     if (opts.backPocket !== 'none') {
       const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
@@ -230,7 +230,7 @@ export default {
         'Interface waistband with 2 layers BEFORE cutting',
         'Sew nylon webbing into waistband for holster-clip support',
         'Bar tack all pocket corners and crotch junction',
-        'Finish raw edges with serger or zigzag',
+        'Finish raw edges with serger or {zigzag}',
       ],
     });
   },
@@ -249,7 +249,7 @@ export default {
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Fold and {press} box pleat. Fold top edge under 1″, {topstitch}. {press} side/bottom SA under. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snaps.' });
+        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat — finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',
@@ -262,14 +262,14 @@ export default {
     steps.push({ step: n++, title: 'Sew center back seam',
       detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: 'Join front to back at side seams {RST}. {press} open. Attach cargo pockets to outer side seam at mid-thigh if applicable.' });
+      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargo === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom at ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''}` });
     steps.push({ step: n++, title: 'Sew inseam',
-      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small zigzag at crotch curve for durability. {clip} curve, {press}.' });
+      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}.' });
 
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, zigzag. Close gap. Double {topstitch} top and bottom of waistband.' });
+        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.' });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });

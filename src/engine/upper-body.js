@@ -335,3 +335,357 @@ export function sleeveCapEase(bicep, capHeight, sleeveWidth, armholeCircumferenc
 export function neckWidthFromCircumference(neckCircumference) {
   return neckCircumference / 6;
 }
+
+// ── Two-part sleeve ──────────────────────────────────────────────────────
+
+/**
+ * Two-part sleeve — top sleeve (outer arm) + under sleeve (inner arm).
+ *
+ * Used for tailored jackets, blazers, overcoats, and denim jackets where a
+ * single-piece sleeve cannot achieve the correct arm hang. The top sleeve
+ * carries the full cap crown; the under sleeve has a much flatter, lower cap.
+ *
+ * The two pieces share the back seam (along the outer elbow) and the front
+ * seam (along the inner forearm). When sewn together these form a cylinder
+ * with a pre-shaped elbow bend.
+ *
+ * The function iterates to match the combined cap seam length to the
+ * bodice armhole circumference + ease. Up to 25 iterations, adjusting
+ * sleeve width by ±1–2% per step until the cap is within 0.25″ of target.
+ *
+ * Local frame (both pieces)
+ *   x+  toward front of sleeve (same as sleeveCapCurve)
+ *   y+  downward (cap crown is negative y, wrist is positive y)
+ *   Origin: top of top-sleeve cap crown at (topSleeveWidth/2, 0)
+ *
+ * @param {Object} params
+ * @param {number} params.bicep             - Bicep circumference (in)
+ * @param {number} params.sleeveLength      - Shoulder to wrist (in)
+ * @param {number} params.armToElbow        - Shoulder to elbow (in), or 0 for auto
+ * @param {number} params.wrist             - Wrist circumference (in)
+ * @param {number} params.armholeArc        - Total bodice armhole arc length (in)
+ * @param {number} params.capEaseTarget     - Desired cap ease (in), typically 1–2
+ * @param {number} [params.sleeveBend=10]   - Elbow bend angle in degrees (0–20)
+ * @param {number} [params.bicepEase=0.15]  - Fraction of bicep added as ease
+ * @param {number} [params.cuffEase=0.40]   - Fraction of wrist added as ease
+ * @param {number} [params.capHeightRatio=0.45] - Cap height as fraction of eased bicep
+ * @returns {{
+ *   topSleeve: Array<{x:number, y:number}>,
+ *   underSleeve: Array<{x:number, y:number}>,
+ *   capHeight: number,
+ *   topSleeveWidth: number,
+ *   underSleeveWidth: number,
+ *   elbowY: number,
+ *   capArc: number,
+ *   iterations: number,
+ * }}
+ */
+export function twoPartSleeve({
+  bicep, sleeveLength, armToElbow, wrist,
+  armholeArc, capEaseTarget = 1.5,
+  sleeveBend = 10, bicepEase = 0.15, cuffEase = 0.40,
+  capHeightRatio = 0.45,
+}) {
+  const elbowY    = armToElbow || sleeveLength * 0.55;
+  const wristCirc = wrist * (1 + cuffEase);
+  const target    = armholeArc + capEaseTarget;
+
+  // Helper: cubic bezier sample as polyline
+  function sample(p0, p1, p2, p3, n = 24) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n, m = 1 - t;
+      pts.push({
+        x: m*m*m*p0.x + 3*m*m*t*p1.x + 3*m*t*t*p2.x + t*t*t*p3.x,
+        y: m*m*m*p0.y + 3*m*m*t*p1.y + 3*m*t*t*p2.y + t*t*t*p3.y,
+      });
+    }
+    return pts;
+  }
+
+  // Helper: polyline arc length
+  function plen(pts) {
+    let l = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i].x - pts[i-1].x, dy = pts[i].y - pts[i-1].y;
+      l += Math.sqrt(dx*dx + dy*dy);
+    }
+    return l;
+  }
+
+  let tweak = 1;
+  let runs  = 0;
+  let topPoly, underPoly, capArc, capH, tsW, usW;
+
+  do {
+    const easedQB = (bicep / 4) * (1 + bicepEase) * tweak;
+    const fullW   = easedQB * 4; // full sleeve width at bicep
+    capH = fullW * capHeightRatio * 0.5;
+
+    // Top sleeve is ~60% of the width, under sleeve ~40%
+    tsW = fullW * 0.60;
+    usW = fullW * 0.40;
+    const factor = fullW / 4;
+
+    // ── Key landmarks ──────────────────────────────────────────────────
+    const crownY  = 0;
+    const armY    = capH;                   // underarm level
+    const wristY  = capH + sleeveLength;
+
+    // Back pitch point: on the outer (back) edge of the cap, ~1/3 down
+    const backPitchPt = { x: tsW, y: armY / 3 };
+
+    // Front pitch point: on the inner (front) side, ~60% down
+    const frontPitchPt = { x: 0, y: armY * 0.6 };
+
+    // Crown (top of cap)
+    const crown = { x: tsW * 0.5, y: crownY };
+
+    // ── Top sleeve cap (3 bezier segments: back→crown→front→tsLeftEdge)
+    // Segment 1: backPitch → crown
+    const tsCap1 = sample(
+      backPitchPt,
+      { x: backPitchPt.x, y: crownY + capH * 0.05 },
+      { x: crown.x + factor * 0.6, y: crownY },
+      crown
+    );
+    // Segment 2: crown → frontPitch
+    const tsCap2 = sample(
+      crown,
+      { x: crown.x - factor * 0.6, y: crownY },
+      { x: frontPitchPt.x + factor * 0.28, y: frontPitchPt.y - capH * 0.15 },
+      frontPitchPt
+    );
+    // Segment 3: frontPitch → tsLeftEdge (underarm front)
+    const tsLeftEdge = { x: -factor * 0.25, y: armY };
+    const tsCap3 = sample(
+      frontPitchPt,
+      { x: frontPitchPt.x - factor * 0.1, y: frontPitchPt.y + (armY - frontPitchPt.y) * 0.66 },
+      { x: tsLeftEdge.x + factor * 0.3, y: armY },
+      tsLeftEdge
+    );
+    const tsCapPts = [...tsCap1, ...tsCap2.slice(1), ...tsCap3.slice(1)];
+
+    // ── Under sleeve cap (single flatter curve: usTip → usLeftEdge)
+    const usTip     = { x: backPitchPt.x - factor * 0.25, y: backPitchPt.y };
+    const usLeftEdge = { x: factor * 0.25, y: armY };
+    const usCapPts = sample(
+      usTip,
+      { x: usTip.x - factor * 0.3, y: usTip.y + (armY - usTip.y) * 0.4 },
+      { x: usLeftEdge.x + factor * 0.4, y: armY - capH * 0.05 },
+      usLeftEdge
+    );
+
+    capArc = plen(tsCapPts) + plen(usCapPts);
+
+    // ── Build full polygons ──────────────────────────────────────────
+    // Elbow bend: rotate wrist points slightly toward front
+    const bendRad    = (sleeveBend * Math.PI) / 180;
+    const elbowRight = { x: tsW + factor / 9, y: elbowY + capH };
+    const tsRightEdge = { x: tsW + factor / 9, y: armY };
+
+    // Wrist points — apply elbow bend rotation around elbow
+    const topWristW   = wristCirc / 2 + factor / 5;
+    const underWristW = wristCirc / 2 - factor / 5;
+    const tsWristRight = {
+      x: elbowRight.x + Math.sin(bendRad) * (wristY - elbowY - capH),
+      y: wristY,
+    };
+    const tsWristLeft = { x: tsWristRight.x - topWristW, y: wristY };
+
+    const usWristRight = { x: tsWristRight.x, y: wristY };
+    const usWristLeft  = { x: usWristRight.x - underWristW, y: wristY };
+
+    // Elbow points
+    const tsElbowLeft = { x: tsLeftEdge.x - factor / 9, y: elbowY + capH };
+    const usElbowLeft = { x: usLeftEdge.x + factor / 2.4, y: elbowY + capH };
+
+    // Top sleeve polygon: cap → right edge down → wrist → left edge up
+    topPoly = [
+      ...tsCapPts,
+      tsLeftEdge,
+      tsElbowLeft,
+      tsWristLeft,
+      tsWristRight,
+      elbowRight,
+      tsRightEdge,
+      backPitchPt,
+    ];
+
+    // Under sleeve polygon: cap → left edge down → wrist → right edge up
+    underPoly = [
+      ...usCapPts,
+      usLeftEdge,
+      usElbowLeft,
+      usWristLeft,
+      usWristRight,
+      elbowRight,
+      tsRightEdge,
+      usTip,
+    ];
+
+    runs++;
+    const delta = capArc - target;
+    if (delta > 0) tweak *= 0.99;
+    else tweak *= 1.02;
+  } while (Math.abs(capArc - target) > 0.25 && runs < 25);
+
+  return {
+    topSleeve: topPoly,
+    underSleeve: underPoly,
+    capHeight: capH,
+    topSleeveWidth: tsW,
+    underSleeveWidth: usW,
+    elbowY: elbowY + capH,
+    capArc,
+    iterations: runs,
+  };
+}
+
+// ── Yoke split ───────────────────────────────────────────────────────────
+
+/**
+ * Find the point where a horizontal yoke line crosses the armhole curve.
+ *
+ * The yoke seam runs horizontally from CF/CB to the armhole at a given
+ * depth below the shoulder. This function samples the armhole bezier and
+ * returns the x-coordinate where the curve crosses yokeY, allowing the
+ * caller to split the bodice into yoke + lower panel.
+ *
+ * @param {{ p0, p1, p2, p3 }} armholeBezier - From armholeCurve()
+ * @param {number} yokeY      - Y-coordinate of the yoke seam (relative to armhole p0)
+ * @param {number} [steps=32] - Sampling resolution
+ * @returns {{ x: number, y: number } | null} Intersection point, or null if none found
+ */
+export function yokeSplit(armholeBezier, yokeY, steps = 32) {
+  const { p0, p1, p2, p3 } = armholeBezier;
+  let prev = p0;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps, m = 1 - t;
+    const curr = {
+      x: m*m*m*p0.x + 3*m*m*t*p1.x + 3*m*t*t*p2.x + t*t*t*p3.x,
+      y: m*m*m*p0.y + 3*m*m*t*p1.y + 3*m*t*t*p2.y + t*t*t*p3.y,
+    };
+    if ((prev.y <= yokeY && curr.y >= yokeY) || (prev.y >= yokeY && curr.y <= yokeY)) {
+      // Linear interpolation between prev and curr
+      const frac = (yokeY - prev.y) / (curr.y - prev.y);
+      return {
+        x: prev.x + frac * (curr.x - prev.x),
+        y: yokeY,
+      };
+    }
+    prev = curr;
+  }
+  return null;
+}
+
+// ── Collar system ────────────────────────────────────────────────────────
+
+/**
+ * Collar stand + fall curve points for tailored collars.
+ *
+ * Generates the outlines for a two-piece collar (upper collar + under collar)
+ * used on denim jackets, blazers, and structured coats. The collar is drafted
+ * as a flat rectangle that is then shaped with a curved outer (fall) edge.
+ *
+ * The under collar is cut ~2% smaller so that when the collar is turned and
+ * pressed, the seam rolls to the underside and stays invisible from the front.
+ *
+ * Both pieces are cut on fold at CB. The returned polygons represent one half
+ * (CB fold to CF point).
+ *
+ * Collar anatomy
+ *   Stand     — the portion that rises vertically from the neckline seam
+ *   Roll line — where the collar folds over (top of the stand)
+ *   Fall      — the portion that laps down over the stand
+ *   Gorge     — the notch point where the collar meets the lapel (if applicable)
+ *
+ * @param {Object} params
+ * @param {number} params.neckArc          - Half neckline arc (CB to CF shoulder), in inches
+ * @param {number} params.collarWidth      - Total collar width from neckline to outer edge (in), typically 2.5–3.5
+ * @param {string} [params.style='point']  - 'point' | 'band' | 'rounded'
+ * @param {number} [params.standHeight=1.25] - Height of the stand portion (in)
+ * @param {number} [params.underShrink=0.02] - How much smaller the under collar is (fraction)
+ * @returns {{
+ *   upperCollar: Array<{x:number, y:number}>,
+ *   underCollar: Array<{x:number, y:number}>,
+ *   standLength: number,
+ *   rollLine: Array<{x:number, y:number}>,
+ * }}
+ */
+export function collarCurve({
+  neckArc,
+  collarWidth = 3,
+  style = 'point',
+  standHeight = 1.25,
+  underShrink = 0.02,
+}) {
+  // Full collar length along the neckline seam (half — CB to CF)
+  const collarLen = neckArc;
+  const fallHeight = collarWidth - standHeight;
+
+  // The outer edge (fall edge) has a gentle wave — it curves outward
+  // slightly at the back and sweeps inward toward CF. This shaping
+  // is what makes the collar lie flat when turned.
+  const waveDepth = collarWidth * 0.08; // how much the outer edge bows outward at back
+
+  // ── Upper collar polygon ───────────────────────────────────────────
+  // Points run clockwise: CB top → CF top → CF bottom → CB bottom (fold)
+  const cbTop    = { x: 0, y: 0 };                          // CB fold, outer edge
+  const cbBottom = { x: 0, y: collarWidth };                 // CB fold, neckline edge
+
+  // The outer (fall) edge curves gently — approximate with 5 points
+  const outerEdge = [];
+  for (let i = 0; i <= 4; i++) {
+    const frac = i / 4;
+    const x = collarLen * frac;
+    // Sine wave: peaks at 25% along the length (back quarter), fades to zero at CF
+    const wave = waveDepth * Math.sin(Math.PI * (1 - frac) * 0.8);
+    outerEdge.push({ x, y: -wave });
+  }
+
+  // CF point shape depends on style
+  let cfTopX = collarLen;
+  let cfTopY = outerEdge[outerEdge.length - 1].y;
+  let cfBottomX = collarLen;
+  let cfBottomY = collarWidth;
+
+  if (style === 'point') {
+    // Point collar: the tip extends ~0.75″ beyond the neckline at CF
+    cfTopX += 0.75;
+    cfTopY += standHeight * 0.3;
+  } else if (style === 'rounded') {
+    // Rounded: the tip is at the same x but the corner is softened
+    cfTopX += 0.25;
+  }
+  // 'band' style: no extension, straight rectangle
+
+  const upperCollar = [
+    cbTop,
+    ...outerEdge.slice(1, -1), // intermediate outer edge points (skip first/last)
+    { x: cfTopX, y: cfTopY },  // CF tip
+    { x: cfBottomX, y: cfBottomY }, // CF neckline edge
+    cbBottom,                   // CB fold neckline edge
+  ];
+
+  // ── Under collar polygon ───────────────────────────────────────────
+  // Shrunk by underShrink fraction so the seam rolls underneath
+  const shrink = 1 + underShrink;
+  const underCollar = upperCollar.map(p => ({
+    x: p.x / shrink,
+    y: p.y / shrink,
+  }));
+
+  // ── Roll line (straight line at stand height) ──────────────────────
+  const rollLine = [
+    { x: 0, y: standHeight },
+    { x: collarLen, y: standHeight },
+  ];
+
+  return {
+    upperCollar,
+    underCollar,
+    standLength: collarLen,
+    rollLine,
+  };
+}

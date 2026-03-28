@@ -75,7 +75,7 @@ const GARMENT_CATEGORIES = [
   { id:'tops',      label:'Tops',      desc:'Tees, shirts, hoodies & blouses', ids:['tee','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
   { id:'skirts',    label:'Skirts',    desc:'Slip & A-line skirts',            ids:['slip-skirt-w','a-line-skirt-w'] },
   { id:'dresses',   label:'Dresses',   desc:'Shirt dress & wrap dress',        ids:['shirt-dress-w','wrap-dress-w'] },
-  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket'] },
+  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket','denim-jacket'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
@@ -430,7 +430,10 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Notions</h5>`;
   for (const n of mat.notions) {
     if (!n?.name) continue;
-    html += `<div class="mat-row">${n.name}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    const nName = n.affiliateUrl
+      ? `<a href="${n.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${n.name}</a>`
+      : n.name;
+    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
   }
   html += `</div>`;
 

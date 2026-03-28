@@ -191,7 +191,7 @@ export default {
         'Interface ALL waistband layers for structure — use heavy interfacing on the outer layer',
         'The French bearer is the inner hook extension at CF that keeps the waistband flat under the trouser front. Cut from matching fabric, interface, fold and {press}.',
         'Pre-wash linen (hot) before cutting. Do not pre-wash wool suiting — dry clean before cutting if needed.',
-        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/zigzag.',
+        'Fell seams optional on outseam and inseam for a tailored finish (see jeans); otherwise {serge}/{zigzag}.',
         'Hem note: dress trousers should have a slight BREAK at the shoe — hem at the top of the shoe, allowing ½–¾″ of fabric to rest on the shoe. Fit before hemming.',
         'Bar tack all pocket openings and crotch junction.',
       ],
@@ -229,11 +229,11 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct curtain waistband',
-      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or slipstitch inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
+      detail: 'Apply heavy interfacing to outer waistband, medium to inner. Fold lengthwise, {press}. Sew short ends — note CF right side has a 1½″ extension for overlap. Sew to trousers waist {RST}. Fold over. {topstitch} or {slipstitch} inside. Install button at CF overlap. Attach hook-and-eye inside overlap.',
     });
     steps.push({
       step: n++, title: 'Construct and attach French bearer',
-      detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew edges, turn, {press}. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
+      detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew short ends and long open edge, leaving a 2″ gap for turning. Trim SA to 3mm, {clip} corners diagonally. Turn RS out through gap, push corners with {point turner}. {press}. {slipstitch} gap closed. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
     });
     steps.push({
       step: n++, title: 'Attach belt loops',
@@ -241,7 +241,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem — fit first',
-      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand slipstitch or blind hem stitch for an invisible finish on dress trousers.`,
+      detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand {slipstitch} or blind hem stitch for an invisible finish on dress trousers.`,
     });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases — align side seam to inseam and {press} fold from waist to hem.' });
 

@@ -964,7 +964,7 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
 const WARDROBE_CATEGORIES = [
   { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
   { key: 'pants',     label: 'Pants',     icon: '👖', garments: ['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
-  { key: 'tops',      label: 'Tops',      icon: '👕', garments: ['tee','camp-shirt','crewneck','hoodie','crop-jacket','button-up-w','shell-blouse-w','fitted-tee-w'] },
+  { key: 'tops',      label: 'Tops',      icon: '👕', garments: ['tee','camp-shirt','crewneck','hoodie','crop-jacket','denim-jacket','button-up-w','shell-blouse-w','fitted-tee-w'] },
   { key: 'skirts',    label: 'Skirts',    icon: '🌂', garments: ['slip-skirt-w','a-line-skirt-w'] },
   { key: 'dresses',   label: 'Dresses',   icon: '👗', garments: ['shirt-dress-w','wrap-dress-w'] },
 ];
