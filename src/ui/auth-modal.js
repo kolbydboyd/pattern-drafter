@@ -1,5 +1,6 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 import { signUp, signIn, signOut, getUser, onAuthStateChange, resetPassword } from '../lib/auth.js';
+import { trackEvent, identifyUser } from '../analytics.js';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let _modalState    = 'login';   // 'login' | 'signup'
@@ -174,6 +175,7 @@ function _wireForm() {
       }
       const { error } = await signUp(email, pass);
       if (error) { _renderBody('signup', error.message); return; }
+      trackEvent('account_created');
       document.getElementById('auth-modal-body').innerHTML = `
         <p class="auth-success" style="text-align:center;margin-top:16px">
           Account created! You have <strong>1 free pattern download</strong> waiting.<br>
@@ -183,6 +185,7 @@ function _wireForm() {
     } else {
       const { data, error } = await signIn(email, pass);
       if (error) { _renderBody('login', error.message); return; }
+      if (data.user) identifyUser(data.user.id, { email: data.user.email });
       closeAuthModal();
       const action = _pendingAction;
       _pendingAction = null;
