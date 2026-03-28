@@ -30,6 +30,13 @@ export const PATTERN_PRICES = {
   'wrap-dress-w':       { cents: 1000, label: 'Wrap Dress',          priceId: 'price_1TFO3qEcctnfQkkL4lJij7al', tier: 'advanced' },
 };
 
+// A0 / copy-shop single-sheet add-on
+export const A0_UPSELL = {
+  cents:   400,
+  label:   'A0 / Copy Shop file',
+  priceId: 'price_a0_upsell_placeholder', // replace with live Stripe price ID
+};
+
 export const SUBSCRIPTION_PRICE = {
   monthly: {
     cents:   1300,

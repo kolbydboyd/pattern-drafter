@@ -723,13 +723,18 @@ async function _applyWatermarkState(garmentId) {
         handleDownloadPDF(btn);
       });
     } else {
-      // Normal buy flow
+      // Normal buy flow — show A0 upsell checkbox alongside Buy Now
       banner.innerHTML = `
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
+        <label class="wm-a0-label" id="wm-a0-label">
+          <input type="checkbox" id="wm-a0-check">
+          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> — one sheet, no taping
+        </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
       document.getElementById('wm-buy-btn').addEventListener('click', () => {
-        _triggerBuyPattern(garmentId);
+        const addA0 = document.getElementById('wm-a0-check')?.checked ?? false;
+        _triggerBuyPattern(garmentId, addA0);
       });
     }
   }
@@ -845,15 +850,15 @@ function showEmailGate(onSuccess) {
 }
 
 // ── Purchase gate helpers ─────────────────────────────────────────────────────
-function _triggerBuyPattern(garmentId) {
+function _triggerBuyPattern(garmentId, addA0 = false) {
   const user = getCurrentUser();
   if (!user) {
-    openAuthModal('download', () => _triggerBuyPattern(garmentId));
+    openAuthModal('download', () => _triggerBuyPattern(garmentId, addA0));
     return;
   }
   import('../lib/checkout.js').then(mod => {
     const { m: mVals, opts } = readInputs();
-    return mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id, _activeProfileId);
+    return mod.buyPattern(garmentId ?? currentGarment, mVals, opts, user.id, _activeProfileId, addA0);
   }).catch(err => {
     console.error('Checkout error:', err);
     alert('Could not start checkout: ' + err.message);
@@ -907,12 +912,28 @@ async function handleDownloadPDF(btn) {
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
       return;
     }
+    // Trigger tiled letter PDF download
     const a  = document.createElement('a');
     a.href   = json.downloadUrl;
     a.download = `${currentGarment}-pattern.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();
+    // If A0 addon was purchased, trigger A0 download and show a notice
+    if (json.a0DownloadUrl) {
+      setTimeout(() => {
+        const a0  = document.createElement('a');
+        a0.href   = json.a0DownloadUrl;
+        a0.download = `${currentGarment}-pattern-a0.pdf`;
+        document.body.appendChild(a0);
+        a0.click();
+        a0.remove();
+      }, 800);
+      const notice = document.createElement('p');
+      notice.className = 'a0-download-notice';
+      notice.textContent = 'Your A0 / copy-shop file is also downloading — one sheet, no taping required.';
+      btn.parentNode?.insertBefore(notice, btn.nextSibling);
+    }
   } catch (err) {
     alert('Download failed. Please try again.');
   } finally {
@@ -1311,6 +1332,17 @@ document.getElementById('land-email-btn')?.addEventListener('click', async () =>
 
 // Get Started
 document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
+
+// Pattern generation counter — fetch once and display
+(function loadPatternCount() {
+  const el = document.getElementById('land-pattern-count');
+  if (!el) return;
+  fetch('/api/pattern-count').then(r => r.json()).then(({ count }) => {
+    if (count && count > 0) {
+      el.textContent = `${count.toLocaleString()} custom patterns generated`;
+    }
+  }).catch(() => {});
+})();
 
 // Stepper back-navigation via event delegation
 document.getElementById('stepper')?.addEventListener('click', e => {

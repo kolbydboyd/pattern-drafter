@@ -1,9 +1,9 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-export async function buyPattern(garmentId, measurements, opts, userId, profileId) {
+export async function buyPattern(garmentId, measurements, opts, userId, profileId, addA0 = false) {
   const res = await fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ garmentId, userId, measurements, opts, profileId: profileId ?? null }),
+    body: JSON.stringify({ garmentId, userId, measurements, opts, profileId: profileId ?? null, addA0 }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session  = event.data.object;
-    const { userId, garmentId, profileId, measurements, opts } = session.metadata;
+    const { userId, garmentId, profileId, measurements, opts, a0_addon } = session.metadata;
 
     // Record purchase in Supabase
     const { error } = await supabase.from('purchases').insert({
@@ -53,6 +53,7 @@ export default async function handler(req, res) {
       profile_id:            profileId || null,
       stripe_payment_intent: session.payment_intent,
       amount_cents:          session.amount_total,
+      a0_addon:              a0_addon === 'true',
     });
     if (error) console.error('Failed to insert purchase:', error);
 

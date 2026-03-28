@@ -73,6 +73,8 @@ create table if not exists purchases (
 --     add column if not exists notes text default null;
 --   alter table purchases
 --     add column if not exists downloaded_at timestamptz[] default '{}';
+--   alter table purchases
+--     add column if not exists a0_addon boolean default false;
 --
 -- ── Auto-delete trashed patterns older than 30 days (run once in Supabase) ────
 -- Requires pg_cron extension enabled in Supabase Dashboard → Extensions

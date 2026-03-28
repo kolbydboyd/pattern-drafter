@@ -146,17 +146,20 @@ export default async function handler(req, res) {
     // Stripe verification above is the authoritative gate; DB row is best-effort here.
     const { data: existingPurchase } = await supabase
       .from('purchases')
-      .select('id, stripe_payment_intent, downloaded_at')
+      .select('id, stripe_payment_intent, downloaded_at, a0_addon')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
 
-    purchase = existingPurchase ?? null;
+    // If webhook hasn't inserted the row yet, fall back to session metadata for a0_addon
+    purchase = existingPurchase
+      ? existingPurchase
+      : (stripeSession.metadata?.a0_addon === 'true' ? { a0_addon: true } : null);
   } else {
     // Re-download from account dashboard — purchase record must exist.
     const { data: existingPurchase, error: purchaseErr } = await supabase
       .from('purchases')
-      .select('id, stripe_payment_intent, downloaded_at')
+      .select('id, stripe_payment_intent, downloaded_at, a0_addon')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
@@ -248,10 +251,17 @@ export default async function handler(req, res) {
     measurements, opts, 'letter'
   );
 
-  // 7. Render to PDF
-  let pdfBuffer;
+  const needsA0 = purchase?.a0_addon === true;
+  const htmlA0  = needsA0
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0')
+    : null;
+
+  // 7. Render to PDF (letter + optional A0 in parallel)
+  let pdfBuffer, pdfA0Buffer;
   try {
-    pdfBuffer = await generatePDF(html);
+    const renders = [generatePDF(html)];
+    if (htmlA0) renders.push(generatePDF(htmlA0));
+    [pdfBuffer, pdfA0Buffer] = await Promise.all(renders);
   } catch (err) {
     console.error('PDF generation failed:', err);
     return res.status(500).json({ error: 'PDF generation failed' });
@@ -260,24 +270,34 @@ export default async function handler(req, res) {
   // 5. Upload to Supabase Storage
   const timestamp = Date.now();
   const path      = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
+  const pathA0    = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
 
-  const { error: uploadErr } = await supabase.storage
-    .from('patterns')
-    .upload(path, pdfBuffer, { contentType: 'application/pdf', upsert: true });
+  const uploads = [
+    supabase.storage.from('patterns').upload(path, pdfBuffer, { contentType: 'application/pdf', upsert: true }),
+  ];
+  if (pdfA0Buffer) {
+    uploads.push(supabase.storage.from('patterns').upload(pathA0, pdfA0Buffer, { contentType: 'application/pdf', upsert: true }));
+  }
+  const uploadResults = await Promise.all(uploads);
+  const uploadErr = uploadResults.find(r => r.error)?.error;
 
   if (uploadErr) {
     console.error('Storage upload failed:', uploadErr);
     return res.status(500).json({ error: 'Storage upload failed' });
   }
 
-  // 6. Generate signed URL valid for 48 hours
-  const { data: signed, error: signErr } = await supabase.storage
-    .from('patterns')
-    .createSignedUrl(path, 60 * 60 * 48);
+  // 6. Generate signed URLs valid for 48 hours
+  const signedUrls = await Promise.all([
+    supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48),
+    ...(pdfA0Buffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)] : []),
+  ]);
 
+  const { data: signed, error: signErr } = signedUrls[0];
   if (signErr) {
     return res.status(500).json({ error: 'Could not generate download URL' });
   }
+
+  const a0Signed = signedUrls[1]?.data ?? null;
 
   // 7. Increment download_count
   if (userId) {
@@ -292,11 +312,14 @@ export default async function handler(req, res) {
     const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
     sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
       garmentName,
-      downloadUrl: signed.signedUrl,
+      downloadUrl:    signed.signedUrl,
+      a0DownloadUrl:  a0Signed?.signedUrl ?? null,
       measurements,
       expiresHours: 48,
     }).catch(err => console.error('Purchase confirmation email failed:', err));
   }
 
-  res.status(200).json({ downloadUrl: signed.signedUrl });
+  const response = { downloadUrl: signed.signedUrl };
+  if (a0Signed) response.a0DownloadUrl = a0Signed.signedUrl;
+  res.status(200).json(response);
 }

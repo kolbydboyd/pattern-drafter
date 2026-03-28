@@ -47,7 +47,11 @@
       "Bash(ls src/garments/*.js)",
       "Bash(grep -v \"//.*—\")",
       "Bash(node scripts/gen-illustrations.mjs)",
-      "Bash(powershell -Command \"Expand-Archive -Path files.zip -DestinationPath files-unzipped -Force\")"
+      "Bash(powershell -Command \"Expand-Archive -Path files.zip -DestinationPath files-unzipped -Force\")",
+      "Bash(grep -r \"sendEmail\\\\|PURCHASE_CONFIRMATION\" /c/Users/black/OneDrive/Desktop/pattern-drafter --include=*.js --include=*.jsx --exclude-dir=node_modules --exclude-dir=dist)",
+      "Bash(ls *.md)",
+      "Bash(node scripts/generate-sitemap.js)",
+      "Bash(cd:*)"
     ]
   }
 }

@@ -459,7 +459,16 @@ async function _renderPatterns(main, user, tab = 'active') {
       const a = document.createElement('a');
       a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
-      _showToast('Download started');
+      if (json.a0DownloadUrl) {
+        setTimeout(() => {
+          const a0 = document.createElement('a');
+          a0.href = json.a0DownloadUrl; a0.download = `${garmentId}-pattern-a0.pdf`;
+          document.body.appendChild(a0); a0.click(); a0.remove();
+        }, 800);
+        _showToast('Letter PDF + A0 copy-shop file downloading');
+      } else {
+        _showToast('Download started');
+      }
     } catch { _showToast('Download failed. Try again.'); }
     finally { if (labelEl) { labelEl.textContent = originalLabel; } }
   }
