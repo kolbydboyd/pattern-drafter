@@ -316,7 +316,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
-    notches, edgeAllowances,
+    notches, edgeAllowances, crotchBezier: ccp,
     labels: [
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },

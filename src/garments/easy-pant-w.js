@@ -178,7 +178,7 @@ export default {
           { text: 'SIDE SEAM', x: width + 0.3, y: H * 0.35,  rotation: 90  },
           { text: 'CENTER',    x: -0.5,         y: rise * 0.3, rotation: -90 },
         ],
-        notches, type: 'panel', opts,
+        notches, crotchBezier: ccp, type: 'panel', opts,
       };
     }
 

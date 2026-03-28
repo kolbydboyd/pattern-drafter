@@ -350,6 +350,6 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, pleats, darts, type: 'panel', opts,
+    notches, pleats, darts, crotchBezier: ccp, type: 'panel', opts,
   };
 }

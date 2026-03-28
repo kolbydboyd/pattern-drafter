@@ -60,14 +60,18 @@ export function sampleBezier(p0, p1, p2, p3, steps = 16) {
  */
 export function monotoneCrotchCurve(pts) {
   if (!pts || pts.length < 2) return pts;
+  // Clamp every point so x never increases and y never decreases.
+  // This keeps the full sample count intact (no points are dropped) so that
+  // offsetPolygon, SA miter math, and notch snapping all have a dense polygon.
+  // The visual curve is rendered as a bezier C command using the original control
+  // points, so the "shelf" artifact of clamping is invisible in the SVG output.
   const out = [{ x: pts[0].x, y: pts[0].y }];
   for (let i = 1; i < pts.length; i++) {
-    const prev = out[out.length - 1];
-    // Skip any point where x reverses (goes right) — these cause step artifacts.
-    // Clamp y only (never decreases), keep x as-is since we've already skipped reversals.
-    if (pts[i].x > prev.x + 0.001) continue;
-    const ny = Math.max(pts[i].y, prev.y);
-    out.push({ x: pts[i].x, y: ny });
+    const prev = out[i - 1];
+    out.push({
+      x: Math.min(pts[i].x, prev.x),
+      y: Math.max(pts[i].y, prev.y),
+    });
   }
   return out;
 }
