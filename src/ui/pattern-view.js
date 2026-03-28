@@ -372,7 +372,7 @@ export function renderPanelSVG(piece) {
   }
 
   // Notch marks: base snapped to SA cut line, apex pointing outward
-  const notchSVG = renderNotchesSVG(saPolygon, notches, ox, oy);
+  const notchSVG = renderNotchesSVG(polygon, notches, ox, oy);
 
   // Reference lines
   const cLineY = oy + sc(rise);
@@ -393,8 +393,8 @@ export function renderPanelSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
-    <path d="${polyPath(svgSA)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <path d="${crotchPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    <path d="${polyPath(svgPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <path d="${crotchPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
