@@ -8,7 +8,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve,
+  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -105,7 +105,7 @@ export default {
     const halfShoulder  = m.shoulder / 2;
     const neckW         = neckWidthFromCircumference(m.neck);
     const shoulderW     = halfShoulder - neckW;
-    const slopeDrop     = 1.75;
+    const slopeDrop     = shoulderDropFromWidth(shoulderW);
     const shoulderPtX   = neckW + shoulderW;
     const armholeY      = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth  = armholeY - slopeDrop;

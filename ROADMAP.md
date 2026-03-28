@@ -231,15 +231,25 @@ Validation = code + muslin + fit confirmed
 ## Technical Debt & Improvements
 
 ### Open Known Issues
-- [ ] KI-002 SA corner spikes at acute angles
-- [ ] KI-003 Slant pocket mirror annotation
-- [ ] KI-004 Ext label clips at small values
-- [ ] KI-006 Wrap dress skirt SA scaling
-- [ ] KI-009 Category 'tops' vs 'upper' inconsistency
-- [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated)
+- [x] KI-002 SA corner spikes at acute angles
+      (mitigated: 2.5× miter cap + sanitizePoly dedup/collinear removal)
+- [x] KI-003 Slant pocket mirror annotation (v0.8.0)
+- [x] KI-004 Ext label clips at small values (v0.8.0)
+- [x] KI-006 Wrap dress skirt SA scaling (v0.8.0)
+- [x] KI-009 Category 'tops' vs 'upper' inconsistency
+      Not a bug: 'tops' is a UI display label, 'upper' is measurement category.
+- [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated by design)
 - [ ] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
 - [x] KI-012 Dual PDF renderer removed (accepted risk)
-- [ ] KI-013 Scale check depends on CSS class name
+- [x] KI-013 Scale check depends on CSS class name
+      Fixed: uses `data-scale-check` attribute on the 2" square rect
+      instead of a CSS class. API files query `[data-scale-check]`.
+- [x] KI-014 Print colors too faint for B&W printers
+      Fixed in print-layout.js: gold #b8963e → #555, green #4a8a5a → #444,
+      warm gray #d0ccc4 → #999. Screen renderer keeps original colors.
+- [x] KI-015 Negative chestDepth when shoulder wider than chest panel
+      Fixed: `armholeCurve()` in upper-body.js clamps chestDepth
+      to min 0.5″ with console warning.
 
 ### UI Improvements
 - [ ] Profile name input (replace prompt() with
@@ -248,17 +258,181 @@ Validation = code + muslin + fit confirmed
 - [ ] Mobile-friendly measurement input
 - [ ] React/Tailwind migration (low priority until scale)
 
+### Test Avatars — Internal QA measurement profiles
+Run every garment module against diverse body types to catch edge
+cases (negative chestDepth, extreme crotch curves, tiny/huge SA,
+zero-width panels). Stored as a local test fixture file
+(`tests/avatars.js`) — not Supabase. Each avatar is a named
+measurement set that exercises a specific range.
+
+**Women's avatars:**
+- [ ] W-XS: 30 chest, 14 shoulder, 24 waist, 33 hip, 8 rise (petite)
+- [ ] W-STD: 36 chest, 16 shoulder, 28 waist, 38 hip, 10 rise (US 8)
+- [ ] W-CURVY: 42 chest, 16 shoulder, 32 waist, 46 hip, 11 rise (hip-waist diff > 12")
+- [ ] W-PLUS: 48 chest, 18 shoulder, 40 waist, 52 hip, 12 rise (US 20+)
+- [ ] W-TALL: 36 chest, 17 shoulder, 28 waist, 38 hip, 11 rise, 34 inseam
+- [ ] W-PETITE-FULL: 40 chest, 14.5 shoulder, 34 waist, 44 hip, 9 rise (short + full)
+
+**Men's avatars:**
+- [ ] M-SLIM: 34 chest, 17 shoulder, 28 waist, 34 hip, 10 rise (runner build)
+- [ ] M-STD: 40 chest, 18 shoulder, 34 waist, 40 hip, 10.5 rise (US M)
+- [ ] M-BROAD: 44 chest, 21 shoulder, 34 waist, 40 hip, 10.5 rise
+      (swimmer — triggers KI-015 shoulder > chest panel)
+- [ ] M-HEAVY: 50 chest, 19 shoulder, 44 waist, 48 hip, 12 rise (US 2XL+)
+- [ ] M-TALL: 42 chest, 19 shoulder, 34 waist, 40 hip, 11 rise, 34 inseam
+- [ ] M-SHORT: 38 chest, 17 shoulder, 32 waist, 38 hip, 9 rise, 26 inseam
+
+**Edge-case avatars:**
+- [ ] EDGE-NARROW-SHOULDER: 40 chest, 14 shoulder (shoulder << chest/2)
+- [ ] EDGE-WIDE-SHOULDER: 34 chest, 20 shoulder (triggers negative chestDepth)
+- [ ] EDGE-BIG-DROP: 36 chest, 24 waist, 44 hip (waist-hip diff > 20")
+- [ ] EDGE-NO-DROP: 40 chest, 38 waist, 40 hip (cylindrical torso)
+- [ ] EDGE-LONG-RISE: 34 waist, 38 hip, 14 rise (very long rise)
+- [ ] EDGE-SHORT-RISE: 34 waist, 38 hip, 7.5 rise (low rise extreme)
+
+**Test runner:**
+- [ ] Script `tests/run-avatars.js`: loop all avatars × all garments,
+      call `pieces()`, check no NaN in any polygon coordinate, no
+      negative widths, no zero-length edges, SA polygon doesn't
+      self-intersect. Log pass/fail per combination.
+- [ ] CI integration: `npm test` runs avatar suite
+
 ### Output Formats
 - [ ] Projector file export
 - [ ] A0 single-sheet export
 - [ ] DXF for plotters
 
 ### Pattern Quality
-- [ ] Notch marks on all pieces (partial — on launch patterns)
-- [ ] Dart manipulation tools (partial — bust darts done)
-- [ ] Contoured waistband geometry
+- [x] Per-edge seam allowances (6 launch modules)
+- [x] Grainline arrows and fold indicators on all pieces
+- [x] Bust dart geometry (4 womenswear tops)
+- [x] Polygon sanitizer (dedup, collinear removal, CW winding)
+- [x] Single PDF renderer with scale verification
+- [x] Proportional shoulder slope (was hardcoded 1.75″)
+- [x] Neck width corrected to neck/5 (was neck/6)
+- [x] Sleeve cap height proportional to armhole depth
+- [x] Waistband fold-in-half on print layout
+- [x] Small-piece bin-packing on letter/A4
+- [x] Per-piece 1″ scale box on print tiles
+- [x] Cross-seam validation warning
+- [x] Bust dart intake scales with chest (KI-011)
+- [ ] Notch marks on all pieces
+      (most requested feature from experienced sewists)
+- [ ] Dart manipulation tools (partial: bust darts done)
+- [ ] Bezier SVG curves for smooth neckline/armhole rendering
 - [ ] Piece nesting / layout optimizer
-- [ ] Scale bust dart intake with cup size (KI-011)
+- [x] B&W-safe print colors — gold/green/warm-gray replaced with dark grays (KI-014)
+- [ ] Contoured waistband geometry (see v2 plan below)
+
+---
+
+## v2 Plan: Contoured (Curved) Waistband Geometry
+
+### What it is
+A waistband pattern piece shaped as a ring sector (arc) instead of a
+flat rectangle. The inner edge matches the waist circumference; the outer
+edge is slightly longer because it sits on the hip curve below. When sewn,
+the band curves naturally around the body instead of buckling or gapping.
+
+### Why it matters
+- Flat waistbands on flared garments (A-line skirts, circle skirts,
+  wide-leg trousers) ride up or gap at the top edge
+- A curved waistband eliminates the need to "ease in" the top edge
+- More professional finish — commercial RTW uses curved waistbands
+  on nearly all womenswear skirts and trousers
+
+### Which garments get it
+| Garment | Priority | Notes |
+|---|---|---|
+| a-line-skirt-w | high | Flared skirt = most visible improvement |
+| wide-leg-trouser-w | high | Already lists "contoured" option but fakes it |
+| straight-trouser-w | medium | Already lists "contoured" option |
+| slip-skirt-w | medium | Bias cut benefits from curved band |
+| circle skirt (future) | high | Mandatory — flat waistband is wrong on a circle skirt |
+
+NOT needed: jeans, chinos, cargo shorts, sweatpants, swim trunks,
+pleated shorts/trousers (flat waistband is standard for menswear and
+casual garments with belt loops).
+
+### Implementation plan
+
+**Step 1 — New engine function: `curvedWaistband()`**
+
+File: `src/engine/geometry.js`
+
+Input:
+- `waistCirc` — inner edge circumference (waist measurement + ease)
+- `bandWidth` — finished waistband width (e.g. 1.5″)
+- `hipCirc` — outer edge circumference (hip measurement + ease)
+  or derive from `waist-to-hip drop` and body curvature
+
+Output: A ring-sector polygon with:
+- Inner arc (waist edge) — radius R = waistCirc / (2π × curveFraction)
+- Outer arc (hip edge) — radius R + bandWidth
+- Straight ends at CF or CB (for closure/overlap)
+- The arc angle θ = waistCirc / R (in radians)
+
+The key math (standard drafting):
+```
+curveDiff = (hipCirc - waistCirc) over the bandWidth height
+R_inner = waistCirc / θ
+θ = curveDiff / bandWidth  (in radians)
+R_outer = R_inner + bandWidth
+```
+
+The inner arc is sampled as a bezier (standard circle-arc approximation:
+`cp = (4/3) × tan(θ/4) × R`). The outer arc is the same angle at
+R + bandWidth.
+
+For small curve amounts (< 1″ difference between waist and hip over
+the band height), a flat waistband is close enough — the function
+should return a flat rectangle as a degenerate case.
+
+**Step 2 — New piece type: `curvedWaistband`**
+
+The ring-sector piece needs its own renderer in `print-layout.js` and
+`pattern-view.js` because it's not a rectangle or a polygon with
+straight edges — it has two arcs and two straight ends.
+
+Renderer draws:
+- Inner arc (stitch line, dashed)
+- Outer arc + SA offset (cut line, solid)
+- Straight ends with SA
+- Grainline along the straight CF/CB end
+- "PLACE ON FOLD" or "Cut 1" annotation
+- Dimensions: inner arc length, outer arc length, band width
+
+**Step 3 — Wire into garment modules**
+
+For each target garment:
+1. Add `hip` to required measurements (most already have it)
+2. In the `pieces()` function, replace the flat `type: 'rectangle'`
+   waistband with a call to `curvedWaistband()`
+3. Output the new piece with `type: 'curvedWaistband'`
+4. Keep flat waistband as a user option ("Flat" vs "Contoured")
+
+**Step 4 — Update print layout**
+
+- Add `renderCurvedWaistbandSVG()` to print-layout.js
+- Register in `renderPiece()` dispatch
+- The compact renderer for bin-packing should handle curved bands too
+  (fold in half along the arc midpoint — same paper savings)
+
+### Dependencies
+- Bezier circle-arc approximation (already have `sampleBezier()`)
+- `offsetPolygon()` works on sampled arcs (already handles curves)
+- No new measurements needed (waist + hip already collected)
+
+### Effort estimate
+- Engine function: ~50 lines
+- SVG renderer (pattern-view + print-layout): ~80 lines each
+- Garment module changes: ~10 lines per garment (5 garments)
+- Testing: 1 muslin per garment type (skirt + trouser)
+
+### Not in scope for v2
+- Multi-piece contoured waistbands (princess-seamed waistbands)
+- Petersham ribbon template (off-the-roll, not pattern-drafted)
+- Waistband with built-in elastic channel curvature
 
 ---
 

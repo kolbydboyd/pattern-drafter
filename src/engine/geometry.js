@@ -77,6 +77,19 @@ export function monotoneCrotchCurve(pts) {
 }
 
 /**
+ * Render a cubic bezier as an SVG C command string (without the initial M).
+ * Use with M x,y at the p0 position, then append this for the curve.
+ *
+ * @param {{ p0, p1, p2, p3 }} cp - Bezier control points
+ * @param {number} [precision=2] - Decimal precision
+ * @returns {string} SVG path fragment, e.g. "C 1.00 2.00, 3.00 4.00, 5.00 6.00"
+ */
+export function bezierToSvgC(cp, precision = 2) {
+  const f = v => v.toFixed(precision);
+  return `C ${f(cp.p1.x)} ${f(cp.p1.y)}, ${f(cp.p2.x)} ${f(cp.p2.y)}, ${f(cp.p3.x)} ${f(cp.p3.y)}`;
+}
+
+/**
  * Arc length of a polyline (array of {x, y} points).
  * Sum of Euclidean distances between consecutive points.
  */
@@ -128,6 +141,25 @@ export function insetCrotchBezier(ccp, sa) {
   const ip1 = { x: p1.x + sa * 0.7, y: p1.y - sa * 0.3 };
   const ip2 = { x: p2.x + sa * 0.3, y: p2.y - sa * 0.7 };
   return { p0: ip0, p1: ip1, p2: ip2, p3: ip3 };
+}
+
+/**
+ * Validate that front + back cross-seam arc lengths are reasonable for the
+ * given rise. Logs a warning if the total deviates more than 30% from the
+ * expected range (2 × rise). Does not block pattern generation.
+ *
+ * @param {{ p0, p1, p2, p3 }} frontCurve - Front crotch bezier control points
+ * @param {{ p0, p1, p2, p3 }} backCurve  - Back crotch bezier control points
+ * @param {number} rise - Rise measurement (in)
+ */
+export function validateCrossSeam(frontCurve, backCurve, rise) {
+  const frontLen = arcLength(sampleBezier(frontCurve.p0, frontCurve.p1, frontCurve.p2, frontCurve.p3, 32));
+  const backLen  = arcLength(sampleBezier(backCurve.p0, backCurve.p1, backCurve.p2, backCurve.p3, 32));
+  const total    = frontLen + backLen;
+  const expected = rise * 2;
+  if (total < expected * 0.7 || total > expected * 1.3) {
+    console.warn(`[geometry] Cross-seam length ${total.toFixed(1)}″ is outside expected range (${(expected * 0.7).toFixed(1)}–${(expected * 1.3).toFixed(1)}″ for ${rise.toFixed(1)}″ rise). Check measurements.`);
+  }
 }
 
 /**

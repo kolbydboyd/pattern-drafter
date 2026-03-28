@@ -6,7 +6,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve,
+  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
@@ -99,7 +99,7 @@ export default {
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
@@ -220,6 +220,14 @@ export default {
         { x: panelW / 2, y: 0, angle: -90 },
         { x: panelW, y: hipLevel, angle: 0 },
       ];
+      // Per-edge SA: waist → side seam → hem → fold/side
+      const skirtEA = poly.map((_, i) => {
+        if (i === poly.length - 1) return { sa: isBack ? 0 : sa, label: isBack ? 'Fold' : 'Side seam' };
+        if (i === 0) return { sa, label: 'Waist' };
+        if (i === 1) return { sa, label: 'Side seam' };
+        if (i === 2) return { sa: hem, label: 'Hem' };
+        return { sa, label: 'Seam' };
+      });
       return {
         id, name,
         instruction: `Cut 1${isBack ? ' on fold (CB)' : ' — left and right fronts are mirror images'}${gatherNote}`,
@@ -227,6 +235,8 @@ export default {
         width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
         notches: skirtNotches,
+        edgeAllowances: skirtEA,
+        isCutOnFold: isBack,
       };
     }
 

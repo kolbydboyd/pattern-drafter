@@ -141,7 +141,7 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+    const wbLen = m.waist + ease.total + pleatExtra * 2 + sa * 2;
     const wbW   = opts.waistband === 'curtain' ? 3 : 3;  // both 1.5″ finished = 3″ cut
     pieces.push({
       id: 'waistband',
@@ -163,8 +163,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });

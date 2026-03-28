@@ -145,6 +145,14 @@ export const MEASUREMENTS = {
   },
 
   // ── Optional — Upper Body ──
+  waistToArmpit: {
+    id: 'waistToArmpit',
+    label: 'Waist to armpit',
+    instruction: 'From natural waist straight up to the crease of your armpit, arm relaxed at side.',
+    category: 'upper',
+    optional: true,
+    min: 5, max: 14, step: 0.25, default: 8,
+  },
   crossBack: {
     id: 'crossBack',
     label: 'Cross-back width',

@@ -8,7 +8,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve,
+  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -80,7 +80,7 @@ export default {
     const halfShoulder = m.shoulder / 2;
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = halfShoulder - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
     const armholeDepth = armholeY - slopeDrop;
@@ -151,7 +151,7 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.25;
     const slvWidth   = m.bicep / 2 + sleeveEase;
-    const capHeight  = 5.5;
+    const capHeight  = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp      = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
     const capPts     = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16);
     const sleevePoly = [];

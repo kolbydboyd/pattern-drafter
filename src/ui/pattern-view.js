@@ -240,12 +240,13 @@ export function renderPanelSVG(piece) {
       const lineY = isHemDim ? oy + sc(height + hem + 0.5) : oy + sc(d.y1);
       const textY = isHemDim ? lineY + 14 : lineY - 4;
       if (d.color === '#c44') {
-        // Crotch-ext: label in left margin, right-aligned toward pattern
-        const labelX = x1 - sc(0.5);
+        // Crotch-ext: label below dim line, centered between endpoints
+        // (was placed in left margin which clips when ext < 0.5")
+        const labelX = (x1 + x2) / 2;
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${labelX}" y="${lineY+8}" font-family="IBM Plex Mono" font-size="12" fill="${col}" text-anchor="end" font-weight="500">${d.label}</text>`;
+        <text x="${labelX}" y="${lineY+14}" font-family="IBM Plex Mono" font-size="10" fill="${col}" text-anchor="middle" font-weight="500">${d.label}</text>`;
       } else if (d.color === '#b8963e' && !isHemDim) {
         // Knee/width accent dim: label to the right of the dim line to avoid grain line
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>

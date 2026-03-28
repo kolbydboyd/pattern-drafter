@@ -7,7 +7,7 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve,
+  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
@@ -122,7 +122,7 @@ export default {
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
@@ -173,7 +173,7 @@ export default {
     if (opts.bustDart === 'yes') {
       const bustLevel = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = 1.5;
+      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({

@@ -6,7 +6,7 @@
  */
 
 import {
-  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve,
+  armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
@@ -116,7 +116,7 @@ export default {
 
     const neckW        = neckWidthFromCircumference(m.neck);
     const shoulderW    = m.shoulder / 2 - neckW;
-    const slopeDrop    = 1.75;
+    const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
     const armholeDepth = armholeY - slopeDrop;
@@ -164,7 +164,7 @@ export default {
     if (opts.bustDart === 'yes') {
       const bustLevel = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = 1.5;
+      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({
@@ -178,7 +178,7 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLen * 0.45);
     const sleeveEase = easeVal * 0.2;
     const slvWidth   = m.bicep / 2 + sleeveEase;
-    const capHeight  = opts.sleeve === 'cap' ? 0 : 5.0;
+    const capHeight  = opts.sleeve === 'cap' ? 0 : armholeDepth * 0.60;
     let sleevePoly;
     if (opts.sleeve === 'cap') {
       sleevePoly = [{ x:0, y:0 }, { x:slvWidth*2, y:0 }, { x:slvWidth*2, y:slvLen }, { x:0, y:slvLen }];
