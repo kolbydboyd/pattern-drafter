@@ -553,12 +553,14 @@ function _generate() {
   const { m, opts } = readInputs();
 
   const pieces       = g.pieces(m, opts);
-  // Sanitize all piece polygons to prevent zero-length edges and winding bugs
+  // Sanitize polygons — skip panel pieces: their polygons are already clean and
+  // sanitizePoly reverses their winding (CW-in-screen → CCW-in-screen), which
+  // breaks crotchPath's vertex traversal and the SA polygon coordinate mapping.
   for (const p of pieces) {
+    if (p.type === 'panel') continue;
     if (p.polygon) {
       const orig = p.polygon;
       p.polygon = sanitizePoly(orig);
-      // If sanitization changed point count, drop edgeAllowances (renderer falls back to defaults)
       if (p.edgeAllowances && p.polygon.length !== orig.length) p.edgeAllowances = null;
     }
     if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);

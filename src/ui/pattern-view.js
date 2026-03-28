@@ -191,25 +191,7 @@ export function renderPanelSVG(piece) {
   function toSVG(pt) { return { x: ox + sc(pt.x), y: oy + sc(pt.y) }; }
   const svgPoly = polygon.map(toSVG);
 
-  // Force the top edge of the SA outline to be perfectly horizontal.
-  // Polygon waist points are at the start (indices 0..N, y ≤ cbRaise).
-  // Use polygon indices to locate the matching SA points and snap their y to
-  // min(polygon.y) − sa. saPoly indices match polygon indices for the waist
-  // region because step-corners only appear at the hem (later in the array).
-  const waistTopY = Math.min(...polygon.map(p => p.y)) - sa;
-  const saCopy = saPolygon.map(p => ({ ...p }));
-  for (let i = 0; i < polygon.length; i++) {
-    if (polygon[i].y > 0.01) break;
-    if (Math.abs(polygon[i].x) < 0.01) {
-      saCopy[i] = { x: -sa, y: waistTopY };            // left (center) corner — right angle
-    } else if (Math.abs(polygon[i].x - width) < 0.01) {
-      saCopy[i] = { x: width + sa, y: waistTopY };     // right (side) corner — right angle
-    } else {
-      saCopy[i] = { ...saCopy[i], y: waistTopY };      // mid-back point — keep x, snap y
-    }
-  }
-
-  const svgSA = saCopy.map(toSVG);
+  const svgSA = saPolygon.map(toSVG);
 
   function polyPath(pts) {
     let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
