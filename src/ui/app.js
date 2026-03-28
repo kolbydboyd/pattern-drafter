@@ -508,9 +508,33 @@ function expandJargon(steps) {
 
 // ═══ RENDER INSTRUCTIONS ═══
 function renderInstructions(steps) {
+  // Section headers inserted before the first step that matches each trigger.
+  const SECTIONS = [
+    { key: 'pocket',    label: 'POCKET PREPARATION', trigger: t => /pocket|facing|welt|fly shield/i.test(t) },
+    { key: 'assembly',  label: 'ASSEMBLY',            trigger: t => /sew\s.*(seam|front|back|side|inseam|shoulder|sleeve|panel)|attach.*sleeve|join.*panel|construct.*body/i.test(t) },
+    { key: 'waistband', label: 'WAISTBAND',           trigger: t => /waistband|casing|curtain waist/i.test(t) },
+    { key: 'finishing', label: 'FINISHING',           trigger: t => /^hem$|^finish$|press.*garment|bar tack|set rivet|blind hem/i.test(t) },
+  ];
+  const emitted = new Set();
   let html = '';
+
   for (const s of steps) {
-    html += `<div class="instr-step"><span class="num">${s.step}.</span> <span class="ttl">${s.title}</span> <span class="dtl">${s.detail}</span></div>`;
+    // Check if this step triggers a new section header (each section fires at most once)
+    for (const sec of SECTIONS) {
+      if (!emitted.has(sec.key) && sec.trigger(s.title)) {
+        emitted.add(sec.key);
+        html += `<div class="instr-section-hdr">${sec.label}</div>`;
+        break;
+      }
+    }
+
+    // Split long detail text at sentence boundaries for readability
+    const rawDetail = s.detail || '';
+    const detail = rawDetail.length > 200
+      ? rawDetail.replace(/\.\s+/g, '.<br>').trim()
+      : rawDetail;
+
+    html += `<div class="instr-step"><span class="num">${s.step}.</span><span class="instr-body"><span class="ttl">${s.title}.</span> <span class="dtl">${detail}</span></span></div>`;
   }
   return html;
 }
