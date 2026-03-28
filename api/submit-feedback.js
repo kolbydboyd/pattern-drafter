@@ -45,19 +45,32 @@ export default async function handler(req, res) {
 
   const resolvedProfileId = profileId || purchase.profile_id || null;
 
-  // Upsert — one feedback record per purchase
+  // Fetch the measurements snapshot from the purchase (frozen at generation time)
+  const { data: purchaseFull } = await supabase
+    .from('purchases')
+    .select('measurements')
+    .eq('id', purchaseId)
+    .single();
+
+  const { sewStage = 'final' } = req.body ?? {};
+  const VALID_STAGES = new Set(['muslin', 'final']);
+  const cleanStage = VALID_STAGES.has(sewStage) ? sewStage : 'final';
+
+  // Insert — multiple reviews allowed per purchase (muslin + final)
   const { error: insertErr } = await supabase
     .from('fit_feedback')
-    .upsert({
-      user_id:           user.id,
-      purchase_id:       purchaseId,
-      garment_id:        garmentId,
-      profile_id:        resolvedProfileId,
-      overall_fit:       overallFit,
-      specific_feedback: cleanSpecific,
-      notes:             notes.trim().slice(0, 1000),
-      created_at:        new Date().toISOString(),
-    }, { onConflict: 'user_id,purchase_id' });
+    .insert({
+      user_id:                user.id,
+      purchase_id:            purchaseId,
+      garment_id:             garmentId,
+      profile_id:             resolvedProfileId,
+      overall_fit:            overallFit,
+      specific_feedback:      cleanSpecific,
+      notes:                  notes.trim().slice(0, 1000),
+      sew_stage:              cleanStage,
+      measurements_snapshot:  purchaseFull?.measurements ?? null,
+      created_at:             new Date().toISOString(),
+    });
 
   if (insertErr) {
     console.error('submit-feedback insert error:', insertErr.message);
