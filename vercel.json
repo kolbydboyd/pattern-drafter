@@ -30,6 +30,7 @@
     { "source": "/success", "destination": "/success.html" },
     { "source": "/patterns", "destination": "/patterns.html" },
     { "source": "/patterns/:garment", "destination": "/patterns.html" },
+    { "source": "/about", "destination": "/about.html" },
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" }
   ],

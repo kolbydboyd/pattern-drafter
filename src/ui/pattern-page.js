@@ -94,6 +94,27 @@ const optionItems = garment.options
     }).join('')
   : '';
 
+// ── Fit check table ───────────────────────────────────────────────────────────
+const MEAS_LABELS = {
+  waist:    ['Waist circumference',  'waist measurement + ease'],
+  hip:      ['Hip circumference',    'hip measurement + ease'],
+  chest:    ['Chest circumference',  'chest measurement + ease'],
+  bust:     ['Bust circumference',   'bust measurement + ease'],
+  rise:     ['Crotch rise',          'rise measurement'],
+  inseam:   ['Inseam length',        'inseam measurement'],
+  thigh:    ['Thigh circumference',  'thigh measurement + ease'],
+  knee:     ['Knee circumference',   'knee measurement + ease'],
+  shoulder: ['Shoulder width',       'shoulder measurement'],
+  sleeve:   ['Sleeve length',        'sleeve measurement'],
+  neck:     ['Neck circumference',   'neck measurement + ease'],
+  height:   ['Body height',          'height measurement'],
+};
+
+const fitCheckRows = (garment.measurements || [])
+  .filter(k => MEAS_LABELS[k])
+  .map(k => `<tr><td>${MEAS_LABELS[k][0]}</td><td>From your ${MEAS_LABELS[k][1]}</td></tr>`)
+  .join('');
+
 // ── Included items ────────────────────────────────────────────────────────────
 const includedItems = [
   'Print-ready tiled PDF (US Letter and A4)',
@@ -165,6 +186,16 @@ root.innerHTML = `
     <ul class="pat-pg-included-list">${includedItems}</ul>
   </section>
 
+  ${fitCheckRows ? `
+  <section class="pat-pg-section">
+    <h2 class="pat-pg-section-title">Fit Check</h2>
+    <p class="pat-pg-fit-note">Every dimension is drafted directly from your measurements — no grading, no size charts.</p>
+    <table class="pat-pg-fit-table">
+      <thead><tr><th>What we draft</th><th>Source</th></tr></thead>
+      <tbody>${fitCheckRows}</tbody>
+    </table>
+  </section>` : ''}
+
   <section class="pat-pg-section pat-pg-section-placeholder">
     <h2 class="pat-pg-section-title">Sewn Samples</h2>
     <div class="pat-pg-photos-placeholder">
@@ -203,20 +234,48 @@ root.innerHTML = `
 // ── Pattern listing (no garment ID given) ─────────────────────────────────────
 function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
-  const cards = Object.values(GARMENTS).map(g => {
-    const p = PATTERN_PRICES[g.id];
-    return `
-      <a href="/patterns/${g.id}" class="pat-pg-listing-card">
-        <div class="pat-pg-listing-name">${g.name}</div>
-        <div class="pat-pg-listing-meta">
-          <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
-          ${p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
-        </div>
-      </a>`;
-  }).join('');
+  const allGarments = Object.values(GARMENTS);
+
+  function isWomenswear(g) { return g.id.endsWith('-w'); }
+
+  function buildCards(list) {
+    return list.map(g => {
+      const p = PATTERN_PRICES[g.id];
+      return `
+        <a href="/patterns/${g.id}" class="pat-pg-listing-card">
+          <div class="pat-pg-listing-name">${g.name}</div>
+          <div class="pat-pg-listing-meta">
+            <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
+            ${p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
+          </div>
+        </a>`;
+    }).join('');
+  }
+
   root.innerHTML = `
     <div class="pat-pg-wrap">
       <h1 class="pat-pg-listing-title">All Patterns</h1>
-      <div class="pat-pg-listing-grid">${cards}</div>
+      <div class="filter-tabs" role="tablist">
+        <button class="filter-tab filter-tab-active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button class="filter-tab" data-filter="menswear" role="tab" aria-selected="false">Menswear</button>
+        <button class="filter-tab" data-filter="womenswear" role="tab" aria-selected="false">Womenswear</button>
+      </div>
+      <div class="pat-pg-listing-grid" id="pat-listing-grid">${buildCards(allGarments)}</div>
     </div>`;
+
+  root.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.remove('filter-tab-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('filter-tab-active');
+      btn.setAttribute('aria-selected', 'true');
+      const filter = btn.dataset.filter;
+      const filtered = filter === 'all' ? allGarments
+        : filter === 'womenswear' ? allGarments.filter(isWomenswear)
+        : allGarments.filter(g => !isWomenswear(g));
+      document.getElementById('pat-listing-grid').innerHTML = buildCards(filtered);
+    });
+  });
 }
