@@ -109,6 +109,8 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
     const { sa: saVal, label } = edgeAllowances[i];
     let j = i;
     while (j < n && edgeAllowances[j].label === label) j++;
+    // Skip center seam and crotch edges — redundant with the bottom SA note
+    if (label === 'Center' || label === 'Crotch') { i = j; continue; }
     // Skip fold edges and zero-length groups
     if (saVal > 0) {
       // Find the midpoint of the middle edge in this group
@@ -135,13 +137,13 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
 /**
  * Render a grainline arrow: dashed vertical line with solid arrowheads at both ends.
  */
-function grainlineSVG(gx, gy1, gy2) {
+function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2) {
   const ah = 5;  // arrowhead height
   const aw = 3;  // arrowhead half-width
   return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
     <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
-    <text x="${gx}" y="${(gy1 + gy2) / 2 - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">GRAIN</text>`;
+    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">GRAIN</text>`;
 }
 
 /**
@@ -280,7 +282,7 @@ export function renderPanelSVG(piece) {
     // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
     pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
-      <text x="${bagL + 2}" y="${bagB + 9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
+      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
   }
   if (!isBack && opts?.frontPocket === 'side') {
     // Two tick marks on the side seam showing the pocket opening span.
@@ -365,6 +367,7 @@ export function renderPanelSVG(piece) {
   // Reference lines
   const cLineY = oy + sc(rise);
   const gx = ox + sc(width * .42), gy1 = oy + sc(1.8), gy2 = oy + sc(height - 1.8);
+  const grainLabelY = oy + sc(height * 0.45);
 
   const legY = svgH - 28;
   const legendSVG = `
@@ -383,7 +386,7 @@ export function renderPanelSVG(piece) {
     <path d="${polyPath(svgSA)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
     <path d="${polyPath(svgPoly)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
-    ${grainlineSVG(gx, gy1, gy2)}
+    ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>

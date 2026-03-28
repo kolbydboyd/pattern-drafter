@@ -50,6 +50,28 @@ export function sampleBezier(p0, p1, p2, p3, steps = 16) {
 }
 
 /**
+ * Post-process a sampled crotch curve to enforce monotonic movement:
+ * x must only decrease (move left) and y must only increase (move down).
+ * Clamps each point to the previous point's x/y if a reversal is detected.
+ * This eliminates horizontal steps produced by bezier overshoots.
+ *
+ * @param {Array<{x: number, y: number}>} pts - sampled curve points
+ * @returns {Array<{x: number, y: number}>} monotone curve points
+ */
+export function monotoneCrotchCurve(pts) {
+  if (!pts || pts.length < 2) return pts;
+  const out = [{ x: pts[0].x, y: pts[0].y }];
+  for (let i = 1; i < pts.length; i++) {
+    const prev = out[i - 1];
+    out.push({
+      x: Math.min(pts[i].x, prev.x),  // x can only decrease (move left)
+      y: Math.max(pts[i].y, prev.y),  // y can only increase (move down)
+    });
+  }
+  return out;
+}
+
+/**
  * Arc length of a polyline (array of {x, y} points).
  * Sum of Euclidean distances between consecutive points.
  */
