@@ -180,31 +180,118 @@ measure → generate → print → tile → cut → sew → finished
 ### New Modules (one validated per week post-launch)
 Validation = code + muslin + fit confirmed
 
-| Garment | Type | Priority |
-|---|---|---|
-| Tote bag | bag | high |
-| Crossbody bag | bag | high |
-| Sundress | dress | high |
-| Knit dress | dress | high |
-| Duffle bag | bag | medium |
-| Daypack | bag | medium |
-| Circle skirt | skirt | medium |
-| Quarter-zip | upper | medium |
-| Boxers / underwear | lower | medium |
-| Kids sizing | all | medium |
-| Blazer | jacket | medium |
-| Bias-cut skirt | skirt | low |
-| Trench coat | jacket | low |
+#### Tier 1 — High demand, beginner-friendly, fast to build
+These use existing engine geometry with minimal new math.
 
-### MYOG Push (Month 3)
-- [ ] Tote, crossbody, stuff sack
-- [ ] Duffle, daypack, simple backpack
-- [ ] Post in r/myog after first bag modules
+| Garment | Type | Difficulty | Engine needs | FreeSewing ref |
+|---|---|---|---|---|
+| Circle skirt | skirt | beginner | ring-sector math (reuse curved waistband v2) | sandy |
+| Pencil skirt | skirt | beginner | straight panels + back vent/kick pleat | penelope |
+| Tank top / A-shirt | upper | beginner | sleeveless bodice, wide straps | aaron |
+| Boxer briefs | underwear | beginner | small panels, elastic waist, knit | bruce |
+| Leggings | lower | beginner | knit stretch panels, elastic waist | lily, lumina |
+| Apron | accessory | beginner | flat rectangle + ties, no fitting | albert |
+| Bow tie | accessory | beginner | flat pattern, no fitting | benjamin |
+| Flat cap | accessory | beginner | crown + brim panels | florent |
+
+#### Tier 2 — Strong demand, intermediate, some new geometry
+These require moderate new engine functions or garment-specific logic.
+
+| Garment | Type | Difficulty | Engine needs | FreeSewing ref |
+|---|---|---|---|---|
+| Sundress | dress | intermediate | bodice + gathered/A-line skirt, straps | sophie (slip dress) |
+| Knit dress | dress | intermediate | stretch bodice + straight/A-line skirt | onyx (one-piece) |
+| Draped top | upper | intermediate | drape cowl neckline geometry | diana |
+| Overalls | full body | intermediate | bib front, suspender straps, trouser base | opal |
+| Romper | full body | intermediate | bodice + shorts, single garment | otis |
+| Wrap pants | lower | intermediate | overlap panels, tie waist | waralee |
+| Cycling shorts | lower | intermediate | high-stretch panels, chamois pad | cornelius |
+| Classic button-up shirt (M) | upper | intermediate | collar stand, yoke, sleeve placket | simon |
+| Waistcoat / vest | upper | intermediate | front panels + back, welt pockets | wahid |
+| Quarter-zip pullover | upper | intermediate | half-placket, stand collar | - |
+| Swimshirt / rash guard | upper | intermediate | knit, raglan or set-in, UPF fabric | shelly |
+| Bikini top | swimwear | intermediate | cups, ties/bands, stretch | bee |
+
+#### Tier 3 — Aspirational, advanced/expert, significant new engine work
+These need new geometry (collars, tailoring, structure) or complex piece counts.
+
+| Garment | Type | Difficulty | Engine needs | FreeSewing ref |
+|---|---|---|---|---|
+| Denim trucker jacket | jacket | expert | already built (v0.8.0) | - |
+| Blazer / sport coat | jacket | expert | lapel/gorge line, welt pockets, canvas | jaeger |
+| Coat (overcoat) | jacket | expert | extended blazer block, lining, deep hem | carlita/carlton |
+| Trench coat | jacket | expert | storm flap, gun flap, belt, epaulettes | - |
+| Corset | structure | expert | boning channels, busk, lacing | cathrin |
+| Tailored shirt (W) | upper | advanced | princess seams, collar variations | simone |
+| Puffy pants | lower | advanced | volume, gathering, elastic | percy |
+
+#### Tier 4 — Niche / novelty / seasonal
+Fun patterns that drive social engagement and seasonal sales.
+
+| Garment | Type | Difficulty | Notes |
+|---|---|---|---|
+| Tote bag | bag | beginner | MYOG gateway pattern, huge Etsy demand |
+| Crossbody bag | bag | beginner | adjustable strap, zipper |
+| Messenger bag | bag | intermediate | flap, buckle, laptop sleeve | magde |
+| Duffle bag | bag | intermediate | cylinder geometry, handles, zipper |
+| Daypack / backpack | bag | advanced | structured panels, straps, padding |
+| Face mask | accessory | beginner | flat or contoured, elastic/ties | florence |
+| Deerstalker hat | accessory | intermediate | 4 panels + ear flaps | holmes |
+| Handbag | bag | intermediate | structured sides, handles, lining | hortensia |
+| Tie (necktie) | accessory | beginner | bias-cut, slip stitch lining | trayvon |
+| Halloween costume base | costume | intermediate | seasonal, October launch |
+| Holiday party dress | dress | intermediate | seasonal, November launch |
+| Plush toy (octopus) | novelty | beginner | social media magnet, kid-friendly | octoplushy |
+
+### Sewing skills / engine capabilities needed for expansion
+
+| Skill / capability | Unlocks | Priority |
+|---|---|---|
+| Stretch/knit block | Leggings, bikini, swimshirt, boxer briefs, knit dress | high |
+| Ring-sector math | Circle skirt, curved waistband (v2 plan exists) | high |
+| Collar drafting (spread, notch lapel) | Blazer, coat, tailored shirt | medium |
+| Two-part sleeve (already built) | Denim jacket (done), blazer, coat | done |
+| Yoke split (already built) | Denim jacket (done), western shirts | done |
+| Gathering/ease distribution | Sundress, puffy pants, dirndl | medium |
+| Boning/channel layout | Corset, structured bodice | low |
+| Cylinder geometry | Duffle bag, bucket hat | low |
+| Bias grain calculation | Necktie, bias-cut skirt | low |
+| Lining pieces (auto-generate) | Blazer, coat, lined skirt, handbag | medium |
+
+### Build order recommendation
+
+**Month 1 post-launch** (beginner patterns, fast catalog growth):
+1. Circle skirt — uses curved waistband v2 engine
+2. Pencil skirt — straight panels, minimal new geometry
+3. Boxer briefs — introduces knit/stretch block
+4. Tank top — sleeveless variant of existing bodice
+5. Tote bag — MYOG gateway, Etsy listing
+
+**Month 2** (intermediate, fills catalog gaps):
+6. Leggings — stretch block (from boxers)
+7. Classic button-up shirt (M) — collar stand + yoke
+8. Sundress — bodice + gathered skirt
+9. Overalls — trouser block + bib
+10. Crossbody bag — second MYOG pattern
+
+**Month 3** (advanced, flagship patterns):
+11. Blazer — biggest single unlock for the catalog
+12. Waistcoat — shares block with blazer
+13. Knit dress — stretch bodice + skirt
+14. Messenger bag — structured MYOG
+
+**Month 4+** (niche, seasonal, novelty):
+15-20. Costume base, holiday dress, plush toy, hat, tie, etc.
+
+### MYOG Push (Month 2-3)
+- [ ] Tote, crossbody — list on r/myog immediately
+- [ ] Duffle, daypack — post after bag modules proven
+- [ ] Technical backpack — long-term, high complexity
 
 ### Seasonal
-- [ ] Halloween costumes — target October
+- [ ] Halloween costume base — target October launch
 - [ ] Holiday party dress — target November
-- [ ] Swimwear expansion — target June
+- [ ] Swimwear (bikini, rash guard) — target June
 
 ---
 
