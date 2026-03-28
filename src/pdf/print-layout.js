@@ -29,6 +29,75 @@ const MARGIN = 1.5; // generous padding around each piece — prevents SA miter 
 
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
+/**
+ * Snap each notch to the nearest point on saPolyInches and render filled
+ * triangles pointing outward along the edge normal.  Ported from pattern-view.js
+ * renderNotchesSVG — the key difference from the old approach is closest-point
+ * projection onto the SA polygon instead of using raw n.x / n.y coordinates.
+ *
+ * Triangle: height 0.20 in, base width 0.15 in (half-base 0.075 in).
+ */
+function renderNotchesPrint(saPolyInches, notches, ox, oy) {
+  if (!notches || !notches.length) return '';
+  const n    = saPolyInches.length;
+  const TRI_H  = 0.20;
+  const TRI_HW = 0.075;
+
+  // Centroid for outward-normal selection
+  let cx = 0, cy = 0;
+  for (const p of saPolyInches) { cx += p.x; cy += p.y; }
+  cx /= n; cy /= n;
+
+  let svg = '';
+  for (const notch of notches) {
+    let bestDist = Infinity;
+    let bestPx = 0, bestPy = 0;
+    let bestNx = 0, bestNy = -1;
+
+    for (let i = 0; i < n; i++) {
+      const a   = saPolyInches[i];
+      const b   = saPolyInches[(i + 1) % n];
+      const edx = b.x - a.x, edy = b.y - a.y;
+      const lenSq = edx * edx + edy * edy;
+      if (lenSq < 1e-10) continue;
+
+      // Project notch onto edge, clamp t to [0,1]
+      let t = ((notch.x - a.x) * edx + (notch.y - a.y) * edy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      const cpx = a.x + t * edx, cpy = a.y + t * edy;
+      const d   = Math.sqrt((notch.x - cpx) ** 2 + (notch.y - cpy) ** 2);
+
+      if (d < bestDist) {
+        bestDist = d;
+        bestPx = cpx; bestPy = cpy;
+
+        const len  = Math.sqrt(lenSq);
+        const edux = edx / len, eduy = edy / len;
+        // Two candidate perpendiculars
+        const nx1 = eduy, ny1 = -edux;
+        const nx2 = -eduy, ny2 = edux;
+        // Pick the one pointing away from centroid
+        const toCx = cpx - cx, toCy = cpy - cy;
+        if (nx1 * toCx + ny1 * toCy >= 0) { bestNx = nx1; bestNy = ny1; }
+        else                               { bestNx = nx2; bestNy = ny2; }
+      }
+    }
+
+    // Convert to SVG pixels (already at 1:1 print scale)
+    const bpx = (ox + bestPx) * DPI;
+    const bpy = (oy + bestPy) * DPI;
+    const apexX = bpx + TRI_H  * DPI * bestNx;
+    const apexY = bpy + TRI_H  * DPI * bestNy;
+    const b1x   = bpx + TRI_HW * DPI * (-bestNy);
+    const b1y   = bpy + TRI_HW * DPI * bestNx;
+    const b2x   = bpx + TRI_HW * DPI * bestNy;
+    const b2y   = bpy + TRI_HW * DPI * (-bestNx);
+
+    svg += `<polygon points="${b1x.toFixed(1)},${b1y.toFixed(1)} ${apexX.toFixed(1)},${apexY.toFixed(1)} ${b2x.toFixed(1)},${b2y.toFixed(1)}" fill="#2c2a26"/>`;
+  }
+  return svg;
+}
+
 /** Convert an array of {x,y} inch points to an SVG path string, offset by (ox, oy) inches */
 function polyPath(pts, ox, oy) {
   let d = `M ${(ox + pts[0].x) * DPI} ${(oy + pts[0].y) * DPI}`;
@@ -107,15 +176,7 @@ function renderPanelSVG(piece) {
         <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
         <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#b8963e" text-anchor="middle">dart</text>`;
       }).join('\n')}
-      ${notches.map(n => {
-        const nx = (ox + n.x) * DPI, ny = (oy + n.y) * DPI;
-        const rad = (n.angle || 0) * Math.PI / 180;
-        const h = 0.25 * DPI, w = 0.1 * DPI;
-        const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
-        const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
-        const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
-        return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
-      }).join('\n')}
+      ${renderNotchesPrint(saPolygon, notches, ox, oy)}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#4a8a5a">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
@@ -213,15 +274,7 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
-      ${notches.map(n => {
-        const nx = (ox + n.x) * DPI, ny = (oy + n.y) * DPI;
-        const rad = (n.angle || 0) * Math.PI / 180;
-        const h = 0.25 * DPI, w = 0.1 * DPI;
-        const tx = nx + Math.cos(rad) * h, ty = ny + Math.sin(rad) * h;
-        const bx1 = nx + Math.cos(rad + Math.PI/2) * w, by1 = ny + Math.sin(rad + Math.PI/2) * w;
-        const bx2 = nx + Math.cos(rad - Math.PI/2) * w, by2 = ny + Math.sin(rad - Math.PI/2) * w;
-        return `<polygon points="${bx1.toFixed(1)},${by1.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)} ${bx2.toFixed(1)},${by2.toFixed(1)}" fill="#2c2a26"/>`;
-      }).join('\n')}
+      ${renderNotchesPrint(saPoints, notches, ox, oy)}
       ${(piece.bustDarts || []).map(d => {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
         const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
