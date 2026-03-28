@@ -4,7 +4,7 @@ import {
   getMeasurementProfiles, saveMeasurementProfile,
   updateMeasurementProfile, updateProfileLastUsed,
   archiveMeasurementProfile, deleteMeasurementProfile,
-  getPurchases, getPatterns,
+  getPurchases, getPatterns, getFitFeedback,
   trashPattern, restorePattern, archivePattern,
   permanentlyDeletePattern, renamePattern, addPatternNote,
   getDaysUntilDeletion,
@@ -294,8 +294,13 @@ function _showModal({ title, body, buttons }) {
 }
 
 async function _renderPatterns(main, user, tab = 'active') {
-  const { data, error } = await getPatterns(user.id, tab);
+  const [{ data, error }, { data: feedbackData }] = await Promise.all([
+    getPatterns(user.id, tab),
+    getFitFeedback(user.id),
+  ]);
   if (error) { main.innerHTML = `<p class="acct-error">${error.message}</p>`; return; }
+  // Build a Set of purchase IDs that already have feedback
+  const feedbackSet = new Set((feedbackData || []).map(f => f.purchase_id));
 
   const fmt = d => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
@@ -337,7 +342,7 @@ async function _renderPatterns(main, user, tab = 'active') {
       const urgent  = days <= 7;
       const name    = p.display_name || p.garment_id.replace(/-/g, ' ');
       const meas    = p.measurement_profiles?.measurements ?? {};
-      html += _patCardHtml(p, name, meas, fmt, tab, days, urgent);
+      html += _patCardHtml(p, name, meas, fmt, tab, days, urgent, feedbackSet);
     }
     html += `</div>`;
   } else {
@@ -363,7 +368,7 @@ async function _renderPatterns(main, user, tab = 'active') {
         <div class="pat-card-list">`;
       for (const p of group.purchases) {
         const name = p.display_name || p.garment_id.replace(/-/g, ' ');
-        html += _patCardHtml(p, name, group.measurements, fmt, tab, null, false);
+        html += _patCardHtml(p, name, group.measurements, fmt, tab, null, false, feedbackSet);
       }
       html += `</div></details>`;
     }
@@ -531,10 +536,18 @@ async function _renderPatterns(main, user, tab = 'active') {
       _showTrashModal(user, purchaseId, garmentName, () => _renderPatterns(main, user, tab));
     });
   });
+
+  // Fit feedback
+  main.querySelectorAll('.pat-feedback-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { purchaseId, garmentId, garmentName } = btn.dataset;
+      _showFeedbackModal(user, purchaseId, garmentId, garmentName, () => _renderPatterns(main, user, tab));
+    });
+  });
 }
 
 // ── Pattern card HTML helper ──────────────────────────────────────────────────
-function _patCardHtml(p, name, measurements, fmt, tab, days, urgent) {
+function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet = new Set()) {
   const meas     = measurements ?? {};
   const measKeys = ['chest', 'waist', 'hip', 'inseam', 'rise', 'length'];
   const measParts = measKeys
@@ -577,9 +590,16 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent) {
          <button class="pat-menu-item pat-menu-activate" data-purchase-id="${p.id}">Move to Active</button>
          <button class="pat-menu-item pat-menu-trash pat-menu-item-danger" data-purchase-id="${p.id}" data-garment-name="${name}">Move to Trash</button>`;
 
+    const hasFeedback = feedbackSet.has(p.id);
+    const fbBtn = tab === 'active'
+      ? hasFeedback
+        ? `<button class="acct-btn-xs pat-feedback-btn pat-feedback-done" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">Fit: submitted ✓</button>`
+        : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
+      : '';
     actionHtml = `
       ${hasMeas ? `<button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Download</button>
       <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>` : ''}
+      ${fbBtn}
       <div class="pat-overflow-wrap">
         <button class="pat-overflow-btn" aria-label="More options">⋯</button>
         <div class="pat-overflow-menu">${menuItems}</div>
@@ -689,6 +709,104 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
   delBtn.addEventListener('click', async () => {
     await permanentlyDeletePattern(purchaseId, user.id);
     close(); _showToast('Pattern deleted'); onSuccess();
+  });
+}
+
+// ── Fit Feedback modal ────────────────────────────────────────────────────────
+function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
+  const OVERALL_OPTS = [
+    { value: 'perfect',          label: 'Perfect — no changes needed' },
+    { value: 'good',             label: 'Good — minor tweaks only' },
+    { value: 'needs_adjustment', label: 'Needs adjustment — a few areas off' },
+    { value: 'poor',             label: 'Poor — significant fitting issues' },
+  ];
+  const AREA_OPTS = [
+    { key: 'chest_fit',  label: 'Chest'    },
+    { key: 'waist_fit',  label: 'Waist'    },
+    { key: 'hip_fit',    label: 'Hip'      },
+    { key: 'length',     label: 'Length'   },
+    { key: 'shoulder',   label: 'Shoulder' },
+    { key: 'armhole',    label: 'Armhole'  },
+    { key: 'thigh_fit',  label: 'Thigh'    },
+  ];
+  const AREA_VALS = ['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a'];
+
+  const overallSelect = `<select class="acct-input" id="fb-overall">
+    <option value="">Select overall fit…</option>
+    ${OVERALL_OPTS.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
+  </select>`;
+
+  const areaRows = AREA_OPTS.map(area => `
+    <div class="acct-edit-row">
+      <label class="acct-edit-lbl" style="width:72px">${area.label}</label>
+      <select class="acct-input fb-area-select" data-key="${area.key}">
+        <option value="">—</option>
+        ${AREA_VALS.map(v => `<option value="${v}">${v.replace(/_/g, ' ')}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
+  const { overlay, close } = _showModal({
+    title: `How did your ${garmentName} fit?`,
+    body: `
+      <div style="margin-bottom:14px">
+        <label class="acct-edit-lbl" style="width:auto;display:block;margin-bottom:6px;font-size:.78rem;color:var(--mid)">Overall fit</label>
+        ${overallSelect}
+      </div>
+      <div style="margin-bottom:14px">
+        <p style="font-size:.75rem;color:var(--mid);margin:0 0 8px">Specific areas <span style="opacity:.6">(optional)</span></p>
+        ${areaRows}
+      </div>
+      <div>
+        <label class="acct-edit-lbl" style="width:auto;display:block;margin-bottom:6px;font-size:.78rem;color:var(--mid)">Notes <span style="opacity:.6">(optional)</span></label>
+        <textarea class="acct-input" id="fb-notes" rows="3" maxlength="1000"
+          placeholder="Fabric used, alterations made, what you'd change next time…"
+          style="resize:vertical;min-height:60px"></textarea>
+      </div>`,
+    buttons: `<button class="acct-btn-sm" id="fb-submit-btn">Submit Feedback</button>
+              <button class="acct-btn-sm acct-btn-ghost" id="fb-cancel-btn">Cancel</button>`,
+  });
+
+  overlay.querySelector('#fb-cancel-btn').addEventListener('click', close);
+  overlay.querySelector('#fb-submit-btn').addEventListener('click', async () => {
+    const overallFit = overlay.querySelector('#fb-overall').value;
+    if (!overallFit) { overlay.querySelector('#fb-overall').focus(); return; }
+
+    const specificFeedback = {};
+    overlay.querySelectorAll('.fb-area-select').forEach(sel => {
+      if (sel.value) specificFeedback[sel.dataset.key] = sel.value;
+    });
+    const notes = overlay.querySelector('#fb-notes').value.trim();
+
+    const submitBtn = overlay.querySelector('#fb-submit-btn');
+    submitBtn.disabled = true; submitBtn.textContent = 'Saving…';
+
+    const { session } = await (await import('../lib/auth.js')).getSession();
+    const res = await fetch('/api/submit-feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({ purchaseId, garmentId, overallFit, specificFeedback, notes }),
+    });
+    const json = await res.json();
+
+    if (!res.ok) {
+      submitBtn.disabled = false; submitBtn.textContent = 'Submit Feedback';
+      _showToast('Error: ' + (json.error ?? 'Could not save feedback'));
+      return;
+    }
+
+    // Replace modal content with thank-you
+    overlay.querySelector('.pat-modal').innerHTML = `
+      <h3 class="pat-modal-title">Thank you!</h3>
+      <div class="pat-modal-body">
+        <p class="pat-modal-text">Your fit feedback for <strong>${garmentName}</strong> has been saved. It helps us improve the pattern math for everyone.</p>
+      </div>
+      <div class="pat-modal-btns">
+        <button class="pat-modal-cancel" id="fb-done-btn">Done</button>
+      </div>`;
+    overlay.querySelector('#fb-done-btn').addEventListener('click', () => { close(); onSuccess(); });
   });
 }
 

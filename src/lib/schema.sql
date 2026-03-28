@@ -182,6 +182,27 @@ alter table email_log enable row level security;
 -- Migration: run once on existing installs
 --   (table is new, no migration needed)
 
+-- ── fit_feedback ──────────────────────────────────────────────────────────────
+-- Structured sewing fit feedback submitted after a pattern is sewn.
+create table if not exists fit_feedback (
+  id               uuid default gen_random_uuid() primary key,
+  user_id          uuid references profiles(id) on delete cascade not null,
+  purchase_id      uuid references purchases(id) on delete cascade not null,
+  garment_id       text not null,
+  profile_id       uuid references measurement_profiles(id) on delete set null,
+  overall_fit      text check (overall_fit in ('perfect','good','needs_adjustment','poor')) not null,
+  specific_feedback jsonb,
+  notes            text,
+  photo_url        text,
+  created_at       timestamptz default now(),
+  unique (user_id, purchase_id)
+);
+alter table fit_feedback enable row level security;
+create policy "Users can CRUD own fit feedback"
+  on fit_feedback for all using (auth.uid() = user_id);
+-- Migration: run once on existing installs
+--   (table is new, no migration needed)
+
 -- ── Supabase Storage ──────────────────────────────────────────────────────────
 -- Create a private 'patterns' bucket in the Supabase Dashboard:
 --   Storage → New bucket → Name: "patterns" → Public: OFF

@@ -93,6 +93,14 @@ export async function getPatterns(userId, status = 'active') {
   return { data, error };
 }
 
+export async function getFitFeedback(userId) {
+  const { data, error } = await supabase
+    .from('fit_feedback')
+    .select('purchase_id, overall_fit, specific_feedback, notes, created_at')
+    .eq('user_id', userId);
+  return { data, error };
+}
+
 export async function trashPattern(purchaseId, userId) {
   const { error } = await supabase
     .from('purchases')
