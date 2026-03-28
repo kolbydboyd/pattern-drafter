@@ -1,6 +1,7 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Success page — runs after Stripe checkout redirect
 import { getSession } from '../lib/auth.js';
+import { trackEvent, identifyUser } from '../analytics.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import GARMENTS from '../garments/index.js';
 
@@ -38,6 +39,14 @@ async function init() {
   elName.textContent   = info.garmentName;
   elAmount.textContent = info.amountCents ? `— $${(info.amountCents / 100).toFixed(2)}` : '';
   elState.hidden = false;
+
+  trackEvent('purchase_completed', {
+    garment_id:     info.garmentId,
+    amount:         info.amountCents ? info.amountCents / 100 : undefined,
+    payment_method: 'stripe',
+  });
+  const { session } = await getSession().catch(() => ({}));
+  if (session?.user) identifyUser(session.user.id, { email: session.user.email });
 
   // Measurements used
   const MEAS_LABELS = { chest:'Chest', waist:'Waist', hip:'Hip', inseam:'Inseam', rise:'Rise', height:'Height', length:'Length' };

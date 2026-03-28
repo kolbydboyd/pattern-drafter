@@ -4,6 +4,8 @@
  * All imports are static/top-level. No dynamic imports needed.
  */
 
+import '../analytics.js';
+import { trackEvent, initSiteTracking, initHeroABTest } from '../analytics.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, easeDistribution, sanitizePoly } from '../engine/geometry.js';
 import cargoShorts      from '../garments/cargo-shorts.js';
@@ -309,6 +311,7 @@ function buildInputs() {
     _syncGarmentUrl(currentGarment);
     buildInputs();
     generate();
+    trackEvent('garment_selected', { garment_id: currentGarment, category: GARMENTS[currentGarment]?.category });
   });
   document.getElementById('how-to-measure-btn').addEventListener('click', () => {
     const container = document.getElementById('mt-guide-container');
@@ -1080,6 +1083,7 @@ async function handleDownloadPDF(btn) {
     document.body.appendChild(a);
     a.click();
     a.remove();
+    trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
     // If A0 addon was purchased, trigger A0 download and show a notice
     if (json.a0DownloadUrl) {
       setTimeout(() => {
@@ -1372,6 +1376,7 @@ function buildMeasureStep() {
   document.getElementById('wiz-s2-back').addEventListener('click', () => goToStep(1));
   document.getElementById('wiz-s2-next').addEventListener('click', () => {
     stepsCompleted = Math.max(stepsCompleted, 2);
+    trackEvent('measurements_entered', { garment_id: currentGarment });
     goToStep(3);
   });
 }
@@ -1422,6 +1427,8 @@ function buildOptionsStep() {
   document.getElementById('wiz-s3-back').addEventListener('click', () => goToStep(2));
   document.getElementById('wiz-s3-next').addEventListener('click', () => {
     stepsCompleted = Math.max(stepsCompleted, 3);
+    const { opts } = readInputs();
+    trackEvent('pattern_generated', { garment_id: currentGarment, options: opts });
     goToStep(4);
   });
 }
@@ -1635,3 +1642,7 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
     });
   }
 })();
+
+// Analytics — site-wide tracking + hero A/B test
+initSiteTracking();
+initHeroABTest();
