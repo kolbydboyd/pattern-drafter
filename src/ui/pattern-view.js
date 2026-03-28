@@ -179,7 +179,7 @@ function foldIndicatorSVG(fx, fy1, fy2) {
  */
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
-          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, crotchBezier, opts } = piece;
+          polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, crotchBezier, crotchBezierSA, opts } = piece;
 
   const mL = 3, mT = 3, mR = 5, mB = 6;
   const svgW = sc(mL + width + mR);
@@ -199,17 +199,19 @@ export function renderPanelSVG(piece) {
     return d + ' Z';
   }
 
-  // Build a stitch-line path that replaces the sampled crotch-curve polyline with a
-  // single smooth cubic bezier C command using the original control points.
+  // Build a path that replaces the sampled crotch-curve polyline with a
+  // single smooth cubic bezier C command using the provided control points.
   // All other edges (straight seams, hem, inseam) remain as L segments.
   // The bezier is traced in the reverse direction (p3 → p0) to match polygon winding.
-  function crotchPath(pts) {
-    if (!crotchBezier) return polyPath(pts);
-    const { p0, p1, p2, p3 } = crotchBezier;
+  // Args: pts = SVG-scaled polygon, sourcePoly = unscaled polygon to search for p3,
+  //        ctrlPts = bezier {p0,p1,p2,p3} to use for the curve segment.
+  function crotchPath(pts, sourcePoly, ctrlPts) {
+    if (!ctrlPts) return polyPath(pts);
+    const { p0, p1, p2, p3 } = ctrlPts;
     // Find the polygon vertex that is the crotch extension tip (matches p3 in inch coords)
     let p3Idx = -1;
-    for (let i = 0; i < polygon.length; i++) {
-      if (Math.abs(polygon[i].x - p3.x) < 0.02 && Math.abs(polygon[i].y - p3.y) < 0.02) {
+    for (let i = 0; i < sourcePoly.length; i++) {
+      if (Math.abs(sourcePoly[i].x - p3.x) < 0.02 && Math.abs(sourcePoly[i].y - p3.y) < 0.02) {
         p3Idx = i; break;
       }
     }
@@ -393,8 +395,8 @@ export function renderPanelSVG(piece) {
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="g${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#g${piece.id})"/>
-    <path d="${crotchPath(svgPoly)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <path d="${polyPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    <path d="${crotchPath(svgPoly, polygon, crotchBezier)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <path d="${crotchPath(svgSA, saPolygon, crotchBezierSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
     ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}

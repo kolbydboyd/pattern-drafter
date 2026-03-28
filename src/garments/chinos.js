@@ -8,7 +8,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES
+  fmtInches, easeDistribution, LEG_SHAPES, insetCrotchBezier
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -322,6 +322,6 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    notches, darts, crotchBezier: ccp, type: 'panel', opts,
+    notches, darts, crotchBezier: ccp, crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
   };
 }
