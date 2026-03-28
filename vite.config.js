@@ -20,6 +20,7 @@ export default defineConfig({
         patterns:  resolve(__dirname, 'patterns.html'),
         learn:     resolve(__dirname, 'learn.html'),
         pricing:   resolve(__dirname, 'pricing.html'),
+        about:     resolve(__dirname, 'about.html'),
       },
     },
   },
