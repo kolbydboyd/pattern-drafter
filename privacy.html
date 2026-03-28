@@ -100,7 +100,15 @@
 
       <div class="pg-section">
         <h2 class="pg-h2">4. Body measurement data</h2>
-        <p class="pg-p">Your measurements are stored securely in your account and are never shared, sold, or used for any purpose other than generating your patterns and improving fit accuracy. You can delete your measurement profiles at any time from your account settings.</p>
+        <p class="pg-p">Your body measurements are the most sensitive data we handle. Here is exactly what happens with them:</p>
+        <ul class="pg-ul">
+          <li>Stored securely in your account database (Supabase) with row-level security - only you can access your own measurements</li>
+          <li>Used to generate your pattern pieces - this happens on our servers, not in any third-party service</li>
+          <li>Never sent to Stripe, PostHog, Resend, or any other third-party service</li>
+          <li>Never sold, shared, or made available to any person or company outside People's Patterns</li>
+          <li>Deletable at any time from your account settings - deletion is permanent and immediate</li>
+        </ul>
+        <p class="pg-p">When you make a purchase, only your garment choice and payment amount are sent to Stripe. Your measurements stay in our database.</p>
       </div>
 
       <div class="pg-section">
@@ -124,11 +132,12 @@
         <h2 class="pg-h2">7. Third-party services</h2>
         <ul class="pg-ul">
           <li><strong>Supabase</strong>: stores your account data and measurement profiles (supabase.com)</li>
-          <li><strong>Stripe</strong>: processes payments. We never see your card number. (stripe.com)</li>
-          <li><strong>Resend</strong>: sends transactional emails (resend.com)</li>
+          <li><strong>Stripe</strong>: processes payments. We never see your card number. Your body measurements are never sent to Stripe - only your garment choice and order total. (stripe.com)</li>
+          <li><strong>PostHog</strong>: anonymous product analytics - tracks which pages you visit and which buttons you click. Does not receive your body measurements or personal information. (posthog.com)</li>
+          <li><strong>Resend</strong>: sends transactional emails such as purchase confirmations and fit feedback reminders. Receives your email address only. (resend.com)</li>
           <li><strong>Vercel</strong>: hosts the application (vercel.com)</li>
         </ul>
-        <p class="pg-p">Each service has its own privacy policy.</p>
+        <p class="pg-p">Each service has its own privacy policy. We have specifically designed our data flow so that your body measurements never leave our own database (Supabase). Payment processors, analytics tools, and email services receive only the minimum data needed to perform their function.</p>
       </div>
 
       <div class="pg-section">
