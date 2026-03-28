@@ -9,6 +9,7 @@ import {
   permanentlyDeletePattern, renamePattern, addPatternNote,
   getDaysUntilDeletion,
   getWishlist, removeFromWishlist,
+  getSubscription, getTotalCredits,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -46,6 +47,7 @@ export function openAccountDashboard(section = 'measurements') {
               <button class="acct-nav-item" data-section="patterns">My Patterns</button>
               <button class="acct-nav-item" data-section="projects">My Projects</button>
               <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
+              <button class="acct-nav-item" data-section="subscription">Subscription</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
               <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
               <button class="acct-nav-item" data-section="settings">Account Settings</button>
@@ -93,6 +95,7 @@ async function _showSection(section) {
     case 'patterns':     await _renderPatterns(main, user); break;
     case 'projects':     await _renderProjects(main, user); break;
     case 'wishlist':     await _renderWishlist(main, user); break;
+    case 'subscription': await _renderSubscription(main, user); break;
     case 'orders':       await _renderOrders(main, user); break;
     case 'giftcards':    await _renderGiftCards(main, user); break;
     case 'settings':     await _renderSettings(main, user); break;
@@ -1042,6 +1045,135 @@ async function _renderWishlist(main, user) {
       _showSection('wishlist');
     });
   });
+}
+
+// ── Subscription Management ──────────────────────────────────────────────────
+
+const PLAN_LABELS = {
+  club_monthly:     'Club Monthly',
+  club_annual:      'Club Annual',
+  wardrobe_monthly: 'Wardrobe Monthly',
+  wardrobe_annual:  'Wardrobe Annual',
+};
+
+async function _renderSubscription(main, user) {
+  const [subRes, creditsRes] = await Promise.all([
+    getSubscription(user.id),
+    getTotalCredits(user.id),
+  ]);
+
+  const sub = subRes.data;
+  const hasActiveSub = sub?.subscription_status === 'active';
+
+  let html = `<h2 class="acct-section-title">Subscription & Credits</h2>`;
+
+  // Credits summary
+  const totalCredits = creditsRes.credits ?? 0;
+  html += `<div class="acct-credits-summary" style="background:var(--card-bg,#f8f7f3);border:1px solid var(--border,#e5e1d8);border-radius:6px;padding:16px;margin-bottom:20px">
+    <div style="font-size:1.3rem;font-weight:600;margin-bottom:4px">${totalCredits} credit${totalCredits !== 1 ? 's' : ''} available</div>
+    <div style="font-size:.82rem;color:var(--muted,#8a857d)">`;
+  if (creditsRes.free > 0)         html += `${creditsRes.free} free &middot; `;
+  if (creditsRes.subscription > 0) html += `${creditsRes.subscription} subscription &middot; `;
+  if (creditsRes.bundle > 0)       html += `${creditsRes.bundle} bundle &middot; `;
+  html = html.replace(/ &middot; $/, '');
+  html += `</div></div>`;
+
+  // Active subscription
+  if (hasActiveSub) {
+    const planLabel = PLAN_LABELS[sub.subscription_plan] || sub.subscription_plan || 'Unknown plan';
+    html += `<div class="acct-sub-card" style="background:var(--card-bg,#f8f7f3);border:1px solid var(--border,#e5e1d8);border-radius:6px;padding:16px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-weight:600">${planLabel}</span>
+        <span style="font-size:.78rem;padding:2px 8px;border-radius:3px;background:#4a8a5a;color:#fff">Active</span>
+      </div>
+      <p style="font-size:.85rem;color:var(--muted,#8a857d);margin:0 0 12px">
+        ${sub.subscription_credits ?? 0} subscription credits remaining this period. Credits roll over.
+      </p>
+      <button class="acct-btn-link" id="acct-manage-sub">Manage subscription</button>
+    </div>`;
+  } else {
+    // No active subscription
+    const canceledNote = sub?.subscription_status === 'canceled'
+      ? `<p style="font-size:.85rem;color:var(--muted,#8a857d);margin-bottom:12px">Your previous subscription was canceled. Remaining credits are still available.</p>`
+      : '';
+    html += `<div style="background:var(--card-bg,#f8f7f3);border:1px solid var(--border,#e5e1d8);border-radius:6px;padding:16px;margin-bottom:20px">
+      ${canceledNote}
+      <p style="font-size:.9rem;margin:0 0 12px">Subscribe for monthly pattern credits at the best per-pattern price.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="acct-btn" id="acct-sub-club">Club — $12/mo (1 credit)</button>
+        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe — $24/mo (3 credits)</button>
+      </div>
+    </div>`;
+  }
+
+  // Bundle credits option
+  html += `<div style="background:var(--card-bg,#f8f7f3);border:1px solid var(--border,#e5e1d8);border-radius:6px;padding:16px">
+    <p style="font-size:.9rem;font-weight:600;margin:0 0 8px">Buy a bundle</p>
+    <p style="font-size:.85rem;color:var(--muted,#8a857d);margin:0 0 12px">Credits never expire. Use on any pattern, any tier.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule — $29</button>
+      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe — $49</button>
+    </div>
+  </div>`;
+
+  main.innerHTML = html;
+
+  // ── Event handlers ─────────────────────────────────────────────────────────
+
+  // Manage subscription via Stripe Customer Portal
+  const manageBtn = document.getElementById('acct-manage-sub');
+  if (manageBtn) {
+    manageBtn.addEventListener('click', async () => {
+      manageBtn.disabled = true;
+      manageBtn.textContent = 'Opening...';
+      try {
+        const r = await fetch('/api/create-portal-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        });
+        const { url } = await r.json();
+        if (url) window.location.href = url;
+        else throw new Error('No portal URL');
+      } catch {
+        manageBtn.disabled = false;
+        manageBtn.textContent = 'Manage subscription';
+        _showToast('Could not open subscription management. Try again.');
+      }
+    });
+  }
+
+  // Subscribe buttons
+  const clubBtn = document.getElementById('acct-sub-club');
+  if (clubBtn) {
+    clubBtn.addEventListener('click', async () => {
+      const { buySubscription } = await import('../lib/checkout.js');
+      buySubscription('club_monthly', user.id).catch(() => _showToast('Checkout failed'));
+    });
+  }
+  const wardrobeBtn = document.getElementById('acct-sub-wardrobe');
+  if (wardrobeBtn) {
+    wardrobeBtn.addEventListener('click', async () => {
+      const { buySubscription } = await import('../lib/checkout.js');
+      buySubscription('wardrobe_monthly', user.id).catch(() => _showToast('Checkout failed'));
+    });
+  }
+
+  // Bundle buttons
+  const bundle3 = document.getElementById('acct-bundle-3');
+  if (bundle3) {
+    bundle3.addEventListener('click', async () => {
+      const { buyBundle } = await import('../lib/checkout.js');
+      buyBundle('capsule3', user.id).catch(() => _showToast('Checkout failed'));
+    });
+  }
+  const bundle5 = document.getElementById('acct-bundle-5');
+  if (bundle5) {
+    bundle5.addEventListener('click', async () => {
+      const { buyBundle } = await import('../lib/checkout.js');
+      buyBundle('wardrobe5', user.id).catch(() => _showToast('Checkout failed'));
+    });
+  }
 }
 
 // ── 4. Orders ─────────────────────────────────────────────────────────────────

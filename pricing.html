@@ -133,14 +133,14 @@
         <div class="pricing-bundle-name">3-Pattern Capsule</div>
         <div class="pricing-bundle-price">$29</div>
         <p class="pricing-bundle-desc">Any 3 patterns — mix tiers. Build a capsule: bottoms, top, and layer.</p>
-        <a href="/?step=1" class="btn-pricing-sm">Choose patterns</a>
+        <button class="btn-pricing-sm" data-bundle="capsule3">Buy 3-Pattern Capsule</button>
       </div>
 
       <div class="pricing-bundle">
         <div class="pricing-bundle-name">5-Pattern Wardrobe</div>
         <div class="pricing-bundle-price">$49</div>
         <p class="pricing-bundle-desc">Any 5 patterns — build a complete coordinated wardrobe from one measurement session.</p>
-        <a href="/?step=1" class="btn-pricing-sm">Choose patterns</a>
+        <button class="btn-pricing-sm" data-bundle="wardrobe5">Buy 5-Pattern Wardrobe</button>
       </div>
 
     </div>
@@ -162,7 +162,8 @@
           <li>Credits roll over</li>
           <li>Priority support</li>
         </ul>
-        <a href="/?step=1" class="btn-pricing-sm">Start free</a>
+        <button class="btn-pricing-sm" data-plan="club_monthly">Subscribe Monthly</button>
+        <button class="btn-pricing-sm btn-pricing-alt" data-plan="club_annual">Subscribe Annually</button>
       </div>
 
       <div class="pricing-membership pricing-membership-featured">
@@ -177,7 +178,8 @@
           <li>Priority support</li>
           <li>Early access to new patterns</li>
         </ul>
-        <a href="/?step=1" class="btn-pricing-sm">Start free</a>
+        <button class="btn-pricing-sm" data-plan="wardrobe_monthly">Subscribe Monthly</button>
+        <button class="btn-pricing-sm btn-pricing-alt" data-plan="wardrobe_annual">Subscribe Annually</button>
       </div>
 
     </div>
@@ -199,5 +201,6 @@
 </main>
 
 <script type="module" src="/src/ui/page.js"></script>
+<script type="module" src="/src/ui/pricing.js"></script>
 </body>
 </html>

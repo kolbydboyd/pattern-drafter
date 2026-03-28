@@ -9,13 +9,6 @@ import { PATTERN_PRICES } from '../lib/pricing.js';
 const params     = new URLSearchParams(location.search);
 const sessionId  = params.get('session_id');
 
-const elState    = document.getElementById('success-state');
-const elError    = document.getElementById('success-error');
-const elName     = document.getElementById('success-garment-name');
-const elAmount   = document.getElementById('success-amount');
-const elDlBtn    = document.getElementById('success-download-btn');
-const elPatsLink = document.getElementById('success-patterns-link');
-
 async function init() {
   if (!sessionId) {
     showError('No session found. If you completed a purchase, check My Patterns in your account.');
@@ -37,6 +30,28 @@ async function init() {
     return;
   }
 
+  const { session } = await getSession().catch(() => ({}));
+  if (session?.user) identifyUser(session.user.id, { email: session.user.email });
+
+  const checkoutMode = info.checkoutMode || 'pattern';
+
+  if (checkoutMode === 'pattern') {
+    initPatternSuccess(info);
+  } else if (checkoutMode === 'bundle') {
+    initBundleSuccess(info);
+  } else if (checkoutMode === 'subscription') {
+    initSubscriptionSuccess(info);
+  }
+}
+
+// ── Single pattern success ───────────────────────────────────────────────────
+
+function initPatternSuccess(info) {
+  const elState  = document.getElementById('success-state');
+  const elName   = document.getElementById('success-garment-name');
+  const elAmount = document.getElementById('success-amount');
+  const elDlBtn  = document.getElementById('success-download-btn');
+
   elName.textContent   = info.garmentName;
   elAmount.textContent = info.amountCents ? `— $${(info.amountCents / 100).toFixed(2)}` : '';
   elState.hidden = false;
@@ -46,8 +61,6 @@ async function init() {
     amount:         info.amountCents ? info.amountCents / 100 : undefined,
     payment_method: 'stripe',
   });
-  const { session } = await getSession().catch(() => ({}));
-  if (session?.user) identifyUser(session.user.id, { email: session.user.email });
 
   // Measurements used
   const MEAS_LABELS = { chest:'Chest', waist:'Waist', hip:'Hip', inseam:'Inseam', rise:'Rise', height:'Height', length:'Length' };
@@ -89,7 +102,6 @@ async function init() {
       const upsellWrap = document.getElementById('success-upsell');
       upsellWrap.hidden = false;
       document.getElementById('success-upsell-btn').addEventListener('click', () => {
-        // Pass capsule discount flag via URL parameter
         window.location.href = `/patterns/${recs[0]}?capsule=1&from=${info.garmentId}`;
       });
     }
@@ -132,9 +144,44 @@ async function init() {
   });
 }
 
+// ── Bundle success ───────────────────────────────────────────────────────────
+
+function initBundleSuccess(info) {
+  const el = document.getElementById('success-bundle');
+  document.getElementById('success-bundle-name').textContent = info.bundleName;
+  document.getElementById('success-bundle-amount').textContent =
+    info.amountCents ? `$${(info.amountCents / 100).toFixed(2)}` : '';
+  document.getElementById('success-bundle-credits').textContent = info.patternCount;
+  el.hidden = false;
+
+  trackEvent('bundle_purchased', {
+    bundle_id:     info.bundleId,
+    pattern_count: info.patternCount,
+    amount:        info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
+// ── Subscription success ─────────────────────────────────────────────────────
+
+function initSubscriptionSuccess(info) {
+  const el = document.getElementById('success-subscription');
+  document.getElementById('success-plan-name').textContent = info.planName;
+  document.getElementById('success-sub-credits').textContent = info.credits;
+  el.hidden = false;
+
+  trackEvent('subscription_started', {
+    plan_id: info.planId,
+    credits: info.credits,
+    amount:  info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
+// ── Error ────────────────────────────────────────────────────────────────────
+
 function showError(msg) {
-  elError.textContent = msg;
-  elError.hidden      = false;
+  const el = document.getElementById('success-error');
+  el.textContent = msg;
+  el.hidden      = false;
 }
 
 init();

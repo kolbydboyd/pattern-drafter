@@ -183,6 +183,42 @@ export async function hasPurchased(userId, garmentId) {
   return { data: !!data, error };
 }
 
+// ── Subscription & Credits ────────────────────────────────────────────────────
+
+export async function getSubscription(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('subscription_plan, subscription_status, subscription_credits, bundle_credits, stripe_subscription_id')
+    .eq('id', userId)
+    .single();
+  return { data, error };
+}
+
+export async function getSubscriptionHistory(userId) {
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  return { data, error };
+}
+
+export async function getTotalCredits(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('free_credits, subscription_credits, bundle_credits')
+    .eq('id', userId)
+    .single();
+  if (error) return { credits: 0, error };
+  return {
+    credits: (data?.free_credits ?? 0) + (data?.subscription_credits ?? 0) + (data?.bundle_credits ?? 0),
+    free: data?.free_credits ?? 0,
+    subscription: data?.subscription_credits ?? 0,
+    bundle: data?.bundle_credits ?? 0,
+    error: null,
+  };
+}
+
 // ── Wishlist ──────────────────────────────────────────────────────────────────
 
 export async function getWishlist(userId) {

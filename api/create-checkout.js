@@ -1,43 +1,110 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Vercel serverless function — creates a Stripe Checkout session
+// Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, A0_UPSELL } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { garmentId, userId, measurements, opts, profileId, addA0 = false } = req.body;
-
-  const price = PATTERN_PRICES[garmentId];
-  if (!price) {
-    return res.status(400).json({ error: `Unknown garment: ${garmentId}` });
-  }
-
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || 'https://peoplespatterns.com';
+  const { mode = 'pattern' } = req.body;
 
-  const lineItems = [{ price: price.priceId, quantity: 1 }];
-  if (addA0 && A0_UPSELL.priceId) {
-    lineItems.push({ price: A0_UPSELL.priceId, quantity: 1 });
+  // ── Single pattern checkout ────────────────────────────────────────────────
+  if (mode === 'pattern') {
+    const { garmentId, userId, measurements, opts, profileId, addA0 = false } = req.body;
+
+    const price = PATTERN_PRICES[garmentId];
+    if (!price) {
+      return res.status(400).json({ error: `Unknown garment: ${garmentId}` });
+    }
+
+    const lineItems = [{ price: price.priceId, quantity: 1 }];
+    if (addA0 && A0_UPSELL.priceId) {
+      lineItems.push({ price: A0_UPSELL.priceId, quantity: 1 });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: lineItems,
+      allow_promotion_codes: true,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/?garment=${garmentId}`,
+      metadata: {
+        checkoutMode: 'pattern',
+        userId:       userId ?? '',
+        garmentId,
+        profileId:    profileId ?? '',
+        measurements: JSON.stringify(measurements ?? {}),
+        opts:         JSON.stringify(opts ?? {}),
+        a0_addon:     addA0 ? 'true' : 'false',
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
   }
 
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: lineItems,
-    allow_promotion_codes: true,
-    success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url:  `${origin}/?garment=${garmentId}`,
-    metadata: {
-      userId:       userId ?? '',
-      garmentId,
-      profileId:    profileId ?? '',
-      measurements: JSON.stringify(measurements ?? {}),
-      opts:         JSON.stringify(opts ?? {}),
-      a0_addon:     addA0 ? 'true' : 'false',
-    },
-  });
+  // ── Bundle checkout ────────────────────────────────────────────────────────
+  if (mode === 'bundle') {
+    const { bundleId, userId, garmentIds = [] } = req.body;
 
-  res.status(200).json({ url: session.url });
+    const bundle = BUNDLES[bundleId];
+    if (!bundle) {
+      return res.status(400).json({ error: `Unknown bundle: ${bundleId}` });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: bundle.priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/pricing`,
+      metadata: {
+        checkoutMode: 'bundle',
+        userId:       userId ?? '',
+        bundleId,
+        garmentIds:   JSON.stringify(garmentIds),
+        patternCount: String(bundle.patternCount),
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
+  // ── Subscription checkout ──────────────────────────────────────────────────
+  if (mode === 'subscription') {
+    const { planId, userId } = req.body;
+
+    const plan = SUBSCRIPTION_PRICES[planId];
+    if (!plan) {
+      return res.status(400).json({ error: `Unknown plan: ${planId}` });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{ price: plan.priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/pricing`,
+      metadata: {
+        checkoutMode: 'subscription',
+        userId:       userId ?? '',
+        planId,
+      },
+      subscription_data: {
+        metadata: {
+          userId:   userId ?? '',
+          planId,
+          credits:  String(plan.credits),
+        },
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
+  return res.status(400).json({ error: `Unknown checkout mode: ${mode}` });
 }
