@@ -306,8 +306,15 @@ async function _renderPatterns(main, user, tab = 'active') {
 
   const fmt = d => new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
+  // Wardrobe progress (active tab only)
+  const allPurchasedIds = tab === 'active'
+    ? (data || []).map(p => p.garment_id)
+    : [];
+  const wardrobeHtml = tab === 'active' ? _wardrobeProgressHtml(allPurchasedIds) : '';
+
   // Tab bar
   let html = `<h2 class="acct-section-title">My Patterns</h2>
+    ${wardrobeHtml}
     <div class="pat-tabs">
       <button class="pat-tab${tab === 'active'   ? ' pat-tab-active' : ''}" data-tab="active">Active</button>
       <button class="pat-tab${tab === 'archived' ? ' pat-tab-active' : ''}" data-tab="archived">Archived</button>
@@ -887,6 +894,57 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
       </div>`;
     overlay.querySelector('#fb-done-btn').addEventListener('click', () => { close(); onSuccess(); });
   });
+}
+
+// ── Wardrobe progress (shown at the top of My Patterns) ──────────────────────
+const WARDROBE_CATEGORIES = [
+  { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { key: 'pants',     label: 'Pants',     icon: '👖', garments: ['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
+  { key: 'tops',      label: 'Tops',      icon: '👕', garments: ['tee','camp-shirt','crewneck','hoodie','crop-jacket','button-up-w','shell-blouse-w','fitted-tee-w'] },
+  { key: 'skirts',    label: 'Skirts',    icon: '🌂', garments: ['slip-skirt-w','a-line-skirt-w'] },
+  { key: 'dresses',   label: 'Dresses',   icon: '👗', garments: ['shirt-dress-w','wrap-dress-w'] },
+];
+
+const MILESTONES = [
+  { count: 1,  msg: '1st pattern — welcome to custom fit!' },
+  { count: 3,  msg: '3 patterns — building a wardrobe' },
+  { count: 5,  msg: '5 patterns — capsule complete' },
+  { count: 10, msg: '10 patterns — true custom wardrobe' },
+];
+
+function _wardrobeProgressHtml(purchasedGarmentIds) {
+  const purchased = new Set(purchasedGarmentIds);
+  const total     = purchased.size;
+  if (!total) return '';
+
+  // Milestone
+  let milestone = null;
+  for (const m of MILESTONES) {
+    if (total >= m.count) milestone = m.msg;
+  }
+
+  // Category grid
+  const catCells = WARDROBE_CATEGORIES.map(cat => {
+    const owned = cat.garments.filter(g => purchased.has(g)).length;
+    const hasCat = owned > 0;
+    return `<div class="wrd-cat${hasCat ? ' wrd-cat-owned' : ''}">
+      <span class="wrd-cat-icon">${cat.icon}</span>
+      <span class="wrd-cat-label">${cat.label}</span>
+      ${hasCat ? `<span class="wrd-cat-count">${owned}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  // Next suggested category
+  const nextCat = WARDROBE_CATEGORIES.find(c => !c.garments.some(g => purchased.has(g)));
+  const nextHint = nextCat
+    ? `<p class="wrd-next">Complete your wardrobe: try a <strong>${nextCat.label.toLowerCase()}</strong> next.</p>`
+    : '<p class="wrd-next">You\'ve covered every category — impressive wardrobe!</p>';
+
+  return `<div class="wrd-wrap">
+    ${milestone ? `<div class="wrd-milestone">${milestone}</div>` : ''}
+    <div class="wrd-grid">${catCells}</div>
+    ${nextHint}
+  </div>`;
 }
 
 // ── 3. Wishlist ───────────────────────────────────────────────────────────────

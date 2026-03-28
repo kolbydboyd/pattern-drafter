@@ -532,6 +532,15 @@ details.adv-meas summary:hover{color:var(--text)}
 .regen-meas-val{font-size:.67rem;color:var(--text);font-weight:600}
 
 /* ── Watermark purchase banner ── */
+.wrd-wrap{background:var(--ibg);border:1px solid var(--bdr);border-radius:6px;padding:14px 16px;margin-bottom:20px}
+.wrd-milestone{font-size:.72rem;color:var(--gold);font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;margin-bottom:12px}
+.wrd-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.wrd-cat{display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:8px 12px;min-width:64px;opacity:.45}
+.wrd-cat-owned{opacity:1;border-color:rgba(201,169,110,.4);background:rgba(201,169,110,.07)}
+.wrd-cat-icon{font-size:1.2rem}
+.wrd-cat-label{font-size:.62rem;color:var(--mid);font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+.wrd-cat-count{font-size:.62rem;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:700}
+.wrd-next{font-size:.72rem;color:var(--mid);margin:0}
 .recs-section{margin-top:28px;padding-top:20px;border-top:1px solid var(--bdr)}
 .recs-title{font-family:'Fraunces',serif;font-size:1rem;font-weight:400;color:var(--text);margin:0 0 14px}
 .recs-grid{display:flex;gap:10px;flex-wrap:wrap}
