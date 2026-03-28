@@ -759,10 +759,11 @@ async function _applyWatermarkState(garmentId) {
         const btn = document.getElementById('wm-free-btn');
         btn.disabled = true; btn.textContent = 'Applying…';
         const { session } = await getSession();
+        const { m: _fcM, opts: _fcOpts } = readInputs();
         const res  = await fetch('/api/use-free-credit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({ garmentId, profileId: _activeProfileId }),
+          body: JSON.stringify({ garmentId, profileId: _activeProfileId, measurements: _fcM, opts: _fcOpts }),
         });
         const json = await res.json();
         if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
@@ -854,10 +855,11 @@ function _showFreeSignupModal(garmentId) {
 
     // Use the free credit and trigger download
     const { session } = data;
+    const { m: _scM, opts: _scOpts } = readInputs();
     const creditRes = await fetch('/api/use-free-credit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ garmentId, profileId: _activeProfileId }),
+      body: JSON.stringify({ garmentId, profileId: _activeProfileId, measurements: _scM, opts: _scOpts }),
     });
     const creditJson = await creditRes.json();
     if (!creditRes.ok) {
@@ -1313,6 +1315,28 @@ function buildMeasureStep() {
   </div></div>`;
 
   el.innerHTML = html;
+
+  // Sync Supabase profiles into localStorage so the dropdown reflects any
+  // profiles saved from the account dashboard.
+  const _wizUser = getCurrentUser();
+  if (_wizUser) {
+    getMeasurementProfiles(_wizUser.id).then(({ data: remoteProfiles }) => {
+      if (!remoteProfiles?.length) return;
+      const local = loadProfiles();
+      const localNames = new Set(local.map(p => p.name));
+      let added = false;
+      for (const rp of remoteProfiles) {
+        if (!localNames.has(rp.name) && rp.measurements) {
+          local.push({ name: rp.name, measurements: rp.measurements });
+          added = true;
+        }
+      }
+      if (added) {
+        localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+        refreshProfileDropdown();
+      }
+    }).catch(() => {});
+  }
 
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);

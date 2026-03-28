@@ -46,7 +46,8 @@ export default async function handler(req, res) {
     const session  = event.data.object;
     const { userId, garmentId, profileId, measurements, opts, a0_addon } = session.metadata;
 
-    // Record purchase in Supabase
+    // Record purchase in Supabase — snapshot measurements + opts so re-downloads
+    // never depend solely on the profile still existing / being unchanged.
     const { error } = await supabase.from('purchases').insert({
       user_id:               userId || null,
       garment_id:            garmentId,
@@ -54,6 +55,8 @@ export default async function handler(req, res) {
       stripe_payment_intent: session.payment_intent,
       amount_cents:          session.amount_total,
       a0_addon:              a0_addon === 'true',
+      measurements:          measurements ? JSON.parse(measurements) : null,
+      opts:                  opts        ? JSON.parse(opts)         : null,
     });
     if (error) console.error('Failed to insert purchase:', error);
 

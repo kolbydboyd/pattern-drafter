@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
   if (authErr || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { garmentId, profileId = null } = req.body ?? {};
+  const { garmentId, profileId = null, measurements = null, opts = null } = req.body ?? {};
   if (!garmentId) return res.status(400).json({ error: 'garmentId required' });
 
   // Read and deduct atomically using a Postgres function would be ideal;
@@ -38,15 +38,18 @@ export default async function handler(req, res) {
 
   if (deductErr) return res.status(500).json({ error: 'Could not deduct credit' });
 
-  // Record as a $0 purchase so the pattern is permanently accessible
+  // Record as a $0 purchase so the pattern is permanently accessible.
+  // Snapshot measurements + opts so re-downloads don't depend on profile still existing.
   const { data: purchase, error: purchaseErr } = await supabase
     .from('purchases')
     .insert({
-      user_id:     user.id,
-      garment_id:  garmentId,
-      profile_id:  profileId,
+      user_id:      user.id,
+      garment_id:   garmentId,
+      profile_id:   profileId,
       amount_cents: 0,
-      status:      'active',
+      status:       'active',
+      measurements: measurements || null,
+      opts:         opts         || null,
     })
     .select()
     .single();
