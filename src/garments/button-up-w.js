@@ -311,19 +311,19 @@ export default {
       steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold each front panel RS together along dart legs. Sew from side seam to point, tapering to nothing at apex. Secure thread. {press} dart downward.' });
     }
     if (opts.backDetail === 'yoke') {
-      steps.push({ step: n++, title: 'Attach back yoke', detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. Edgestitch from RS.' });
+      steps.push({ step: n++, title: 'Attach back yoke', detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.' });
     }
     if (opts.backDetail === 'pleat') {
       steps.push({ step: n++, title: 'Form back pleat', detail: 'Fold 1″ pleat each side of CB crease toward center back. {baste} at neckline. {press} folds for first 3″.' });
     }
-    steps.push({ step: n++, title: 'Prepare collar', detail: 'Interface outer collar and stand. Sew outer to undercollar {RST} on outer 3 sides. Trim, turn, {press}. If using stand: sew collar to stand, then stand to neckline in two steps.' });
+    steps.push({ step: n++, title: 'Prepare collar', detail: 'Interface outer collar and stand. Sew outer to undercollar {RST} on outer 3 sides. Trim SA to 3mm, {clip} corners diagonally. Turn RS out, use a {point turner} to push corners out cleanly. {press}. If using stand: sew collar to stand, then stand to neckline in two steps.' });
     steps.push({ step: n++, title: 'Prepare front plackets', detail: `Interface facing strips. {press} ${fmtInches(PLACKET_W)} fold at CF. Sew facing to placket edge, {press}, {topstitch}.` });
     steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. French seam or {serge}. {press} toward back.' });
-    steps.push({ step: n++, title: 'Attach collar', detail: 'Pin collar/stand to neckline. Sew outer to neckline through bodice. Fold inner SA under, slipstitch or edgestitch from RS.' });
+    steps.push({ step: n++, title: 'Attach collar', detail: 'Pin collar/stand to neckline. Sew outer to neckline through bodice. Fold inner SA under, {slipstitch} or {edgestitch} from RS.' });
     steps.push({ step: n++, title: 'Set sleeves', detail: 'Mark sleeve center. Match to shoulder seam. Pin and ease into armhole {RST}. Sew. French seam or {serge}. {press} toward sleeve.' });
     steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Continuous seam from shirt hem through underarm to sleeve hem {RST}. French seam or {serge}. {press} toward back.' });
     if (opts.sleeve === 'long' && opts.cuff !== 'none') {
-      steps.push({ step: n++, title: 'Attach cuffs', detail: `Interface outer cuff. Sew outer to sleeve opening {RST} easing fullness. Fold cuff SA under. Slipstitch or edgestitch. Make buttonhole${opts.cuff === 'french' ? 's for cufflinks' : ''}. Attach button.` });
+      steps.push({ step: n++, title: 'Attach cuffs', detail: `Interface outer cuff. Sew outer to sleeve opening {RST} easing fullness. Fold cuff SA under. {slipstitch} or {edgestitch}. Make buttonhole${opts.cuff === 'french' ? 's for cufflinks' : ''}. Attach button.` });
     }
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch}. For curved hem (hip length): {clip} SA before folding.` });
     steps.push({ step: n++, title: 'Buttonholes and buttons', detail: `Mark ${btnCount} buttonhole positions on RIGHT placket (horizontal). Sew buttonholes. Cut open. Sew buttons to LEFT placket at matching positions.` });

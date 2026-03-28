@@ -514,7 +514,7 @@ export default {
     if (isLong) {
       steps.push({
         step: n++, title: 'Hem sleeves',
-        detail: 'Fold up ¾″, {press}. Twin needle from RS or fold under raw edge and zigzag. Or attach rib cuffs at 80% of opening width.',
+        detail: 'Fold up ¾″, {press}. Twin needle from RS or fold under raw edge and {zigzag}. Or attach rib cuffs at 80% of opening width.',
       });
     } else {
       steps.push({
@@ -525,7 +525,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and zigzag stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' — clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
     });
 
     steps.push({

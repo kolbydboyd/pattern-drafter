@@ -200,7 +200,7 @@ export default {
         'Cut with grain running vertically — bias cut will cause wavy hem and excess stretch',
         'Stay-stitch waist edge at ½″ immediately after cutting to prevent bias stretch',
         'Sew darts from waist toward apex — {press} toward CB on back, CF on front',
-        opts.hem === 'handrolled' ? 'Hand-rolled hem: machine stitch 2mm from edge, trim close, roll between fingers, slipstitch. Best on silk and chiffon.' : '{press} hem up twice, slipstitch or edgestitch close to fold',
+        opts.hem === 'handrolled' ? 'Hand-rolled hem: machine stitch 2mm from edge, trim close, roll between fingers, {slipstitch}. Best on silk and chiffon.' : '{press} hem up twice, {slipstitch} or {edgestitch} close to fold',
         opts.lining === 'yes' ? 'Attach lining at waistband and zip tape — leave hem free (let lining float 1″ shorter than skirt)' : 'French seams work well at the side seams for a clean interior finish on fine fabrics',
         'Hang skirt 24 hours before marking final hem — bias-cut or drapy wovens will drop at the hemline',
       ].filter(Boolean),
@@ -225,18 +225,18 @@ export default {
     }
 
     if (opts.waistband === 'petersham') {
-      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge {RST}, easing any fullness. {press} up. Slipstitch folded edge to WS. Attach hook and bar at CB.' });
+      steps.push({ step: n++, title: 'Attach petersham', detail: 'Sew petersham ribbon to waist edge {RST}, easing any fullness. {press} up. {slipstitch} folded edge to WS. Attach hook and bar at CB.' });
     } else if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, slipstitch or edgestitch other edge to WS.' });
+      steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, {slipstitch} or {edgestitch} other edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, zigzag. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
-      steps.push({ step: n++, title: 'Attach lining to waist', detail: 'Fold under top edge of lining 5/8″. Slipstitch folded edge to WS of waistband seam allowance. Tack lining to zip tape at CB.' });
+      steps.push({ step: n++, title: 'Attach lining to waist', detail: 'Fold under top edge of lining 5/8″. {slipstitch} folded edge to WS of waistband seam allowance. Tack lining to zip tape at CB.' });
     }
 
-    steps.push({ step: n++, title: 'Hang and hem', detail: `Hang skirt 24 hours on a hanger before marking hem. ${opts.hem === 'handrolled' ? 'Trim hem allowance to ¼″. Roll edge between fingers and slipstitch.' : opts.hem === 'horsehair' ? '{baste} horsehair braid inside hem fold. Edgestitch close to fold. The braid creates a slight flare.' : 'Fold up hem twice, {press}, slipstitch or edgestitch close to inner fold.'}` });
+    steps.push({ step: n++, title: 'Hang and hem', detail: `Hang skirt 24 hours on a hanger before marking hem. ${opts.hem === 'handrolled' ? 'Trim hem allowance to ¼″. Roll edge between fingers and {slipstitch}.' : opts.hem === 'horsehair' ? '{baste} horsehair braid inside hem fold. {edgestitch} close to fold. The braid creates a slight flare.' : 'Fold up hem twice, {press}, {slipstitch} or {edgestitch} close to inner fold.'}` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check darts lie flat and waistband is even.' });
 
     return steps;

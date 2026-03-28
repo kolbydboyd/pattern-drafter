@@ -247,11 +247,11 @@ export default {
     }
     steps.push({ step: n++, title: 'Sew center front and back seams', detail: 'Join front panels at CF {RST}. Join back panels at CB {RST}. {clip} crotch curves. {press} open or {serge}.' });
     steps.push({ step: n++, title: 'Sew side seams', detail: opts.pockets === 'side' ? 'Sew front to back above and below pocket opening. Sew around pocket bag to join halves. {press} open.' : 'Sew front to back at both side seams {RST}. {press} open.' });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. {clip} crotch curve. {press} toward back. {serge} or zigzag.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Sew one continuous seam from front hem through crotch to back hem. {clip} crotch curve. {press} toward back. {serge} or {zigzag}.' });
     steps.push({
       step: n++, title: 'Attach waistband and thread elastic',
       detail: opts.waistband === 'elastic'
-        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, zigzag. Close gap. {topstitch} close to fold.'
+        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, {zigzag}. Close gap. {topstitch} close to fold.'
         : 'Fold yoga band in half lengthwise {WST}. Divide into quarters, pin to waist. Stretch band slightly to match waist. Sew with stretch stitch. Fold band down to outside of pant for a fold-over yoga waist.',
     });
     steps.push({

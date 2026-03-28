@@ -313,7 +313,7 @@ export default {
       stitches: ['straight-3', 'straight-3.5', 'bartack'],
       notes: [
         '{topstitch} all seams at 3.5mm — use contrasting or matching thread as desired',
-        'Flat-fell seams on shoulder and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
+        '{flat-fell} seams on shoulder and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
         'Pre-wash canvas to preshrink — canvas can shrink 5–8% in first wash',
         'Interface collar with 2 layers of medium woven interfacing for structure',
         'Bar tack all four corners of each pocket — canvas is heavy and will stress pocket attachment',
@@ -342,7 +342,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely — use a point turner. {topstitch} 3.5mm from edge if desired.`,
+      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely — use a {point turner}. {topstitch} 3.5mm from edge if desired.`,
     });
 
     steps.push({

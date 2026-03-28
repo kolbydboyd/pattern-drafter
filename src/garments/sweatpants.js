@@ -236,7 +236,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Construct waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, zigzag. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
+      detail: 'Fold waistband in half lengthwise {WST}, {press}. Fold CF ends under ½″. Sew buttonholes or install grommets at CF for drawstring exits. Pin to sweatpants waist {RST}, stretching to fit. Stretch stitch. Fold to inside. {topstitch} all the way around leaving a 3″ gap. Insert elastic into back half of casing — length = half the waist minus a little ease. Overlap elastic ends 1″, {zigzag}. Close gap in casing. Thread drawstring through front half. Knot or heat-seal ends.',
     });
 
     if (isJogger) {
@@ -247,7 +247,7 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Hem',
-        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, {press}. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, {topstitch} with zigzag or stretch stitch.`,
+        detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once, {press}. For twin needle: sew from RS using a twin needle (2.5mm apart) in one pass. For regular: fold under raw edge, {topstitch} with {zigzag} or stretch stitch.`,
       });
     }
 

@@ -360,7 +360,7 @@ export default {
     if (opts.kangaroo === 'kangaroo') {
       steps.push({
         step: n++, title: 'Attach kangaroo pocket',
-        detail: 'Round the two bottom corners of pocket (2″ radius). {serge} or zigzag all edges. Fold top edge under ½″, {topstitch}. Position centered on front body at waist level. {topstitch} sides and bottom close to edge. Bar tack top corners.',
+        detail: 'Round the two bottom corners of pocket (2″ radius). {serge} or {zigzag} all edges. Fold top edge under ½″, {topstitch}. Position centered on front body at waist level. {topstitch} sides and bottom close to edge. Bar tack top corners.',
       });
     }
 

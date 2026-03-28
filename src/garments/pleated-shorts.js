@@ -239,7 +239,7 @@ export default {
       step: n++, title: 'Construct waistband',
       detail: opts.waistband === 'curtain'
         ? 'Interface waistband. Fold and {press}. Sew to shorts waist {RST}. Fold, {topstitch}. Install button at CF overlap. Attach hook-and-eye inside the curtain extension for a second closure point.'
-        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, slipstitch inside. {topstitch}. Install waistband button and work buttonhole.',
+        : 'Interface both layers of waistband. Sew short ends. Turn. Sew to shorts waist {RST}. Fold over, {slipstitch} inside. {topstitch}. Install waistband button and work buttonhole.',
     });
 
     steps.push({ step: n++, title: 'Hem', detail: `Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} close to inner fold. {press} from RS.` });

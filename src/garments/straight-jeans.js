@@ -196,7 +196,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Prepare slant + coin pockets',
-      detail: 'Sew facing to front slash {RST}. {clip}, turn, {press}. {understitch}. Attach pocket bag. Construct coin pocket (outer + lining, RST 3 sides, turn, {press}). {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} pocket and coin pocket to panel edges.',
+      detail: 'Sew facing to front slash {RST}. {clip} curve, turn, {press}. {understitch}. Attach pocket bag. Construct coin pocket: sew outer to lining {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} pocket and coin pocket to panel edges.',
     });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',

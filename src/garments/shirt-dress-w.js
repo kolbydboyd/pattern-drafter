@@ -387,7 +387,7 @@ export default {
         'Womenswear convention: buttons attach on LEFT front, buttonholes on RIGHT front (as worn)',
         opts.skirtShape === 'gathered' ? 'Gather skirt waist: two rows of long basting stitch, draw up bobbin threads evenly, pin to bodice waist, stitch' : 'Stay-stitch skirt waist edge before attaching to bodice to prevent stretching',
         opts.bustDart === 'yes' ? 'Bust dart: fold RS together, sew side seam to apex, {press} downward' : '',
-        opts.belt !== 'none' ? 'Belt loops: fold strip in thirds lengthwise, edgestitch both long edges, cut to 2″ sections' : '',
+        opts.belt !== 'none' ? 'Belt loops: fold strip in thirds lengthwise, {edgestitch} both long edges, cut to 2″ sections' : '',
         'French seams for side seams give a clean interior — worth doing on lighter fabrics',
       ].filter(Boolean),
     });
@@ -403,17 +403,17 @@ export default {
     steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front bodice pieces to back bodice at shoulders {RST}. {press} toward back.' });
 
     if (opts.collar === 'point') {
-      steps.push({ step: n++, title: 'Attach collar', detail: 'Sew stand pieces together at ends {RST}, turn. Sew collar leaf pieces RS together around outer edge, turn, {press}. Sandwich leaf between stand layers. {topstitch} all edges. Sew finished collar to neckline {RST} starting at CF. {press}. Edgestitch.' });
+      steps.push({ step: n++, title: 'Attach collar', detail: 'Sew stand pieces together at ends {RST}, trim corners diagonally, turn. Sew collar leaf pieces RS together around outer edge, trim SA to 3mm, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sandwich leaf between stand layers. {topstitch} all edges. Sew finished collar to neckline {RST} starting at CF. {press}. {edgestitch}.' });
     } else if (opts.collar === 'camp') {
-      steps.push({ step: n++, title: 'Attach revere collar', detail: 'Interface collar. Sew outer and inner pieces RS together at long edges and ends. Turn, {press}. Sew to neckline {RST}. Fold collar back to create lapel at CF. {understitch} inner edge. {topstitch}.' });
+      steps.push({ step: n++, title: 'Attach revere collar', detail: 'Interface collar. Sew outer and inner pieces RS together at long edges and ends. Trim SA to 3mm, {clip} corners diagonally. Turn RS out, push corners with {point turner}. {press}. Sew to neckline {RST}. Fold collar back to create lapel at CF. {understitch} inner edge. {topstitch}.' });
     } else {
-      steps.push({ step: n++, title: 'Attach band collar', detail: 'Interface. Sew collar band pieces RS together at ends and one long edge. Turn. Sew to neckline {RST}. Fold over SA, {topstitch} or slipstitch inner edge.' });
+      steps.push({ step: n++, title: 'Attach band collar', detail: 'Interface. Sew collar band pieces RS together at ends and one long edge. Trim SA to 3mm, {clip} corners. Turn RS out. {press}. Sew to neckline {RST}. Fold over SA, {topstitch} or {slipstitch} inner edge.' });
     }
 
     steps.push({ step: n++, title: 'Finish front placket and facing', detail: 'Interface facing. Attach facing to CF edges of both front panels. Fold back, {press}, {understitch}. Mark button/buttonhole positions evenly spaced. Make buttonholes on right front. Sew buttons to left front.' });
 
     if (opts.sleeve !== 'sleeveless') {
-      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap center to shoulder seam. Sew sleeve to armhole {RST}. {press} SA toward sleeve. {serge} or zigzag SA.' });
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap center to shoulder seam. Sew sleeve to armhole {RST}. {press} SA toward sleeve. {serge} or {zigzag} SA.' });
       steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Sew front to back continuously from bodice hem through underarm to sleeve hem. {press} open.' });
     } else {
       steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join facing pieces at shoulder and side. Interface. Sew to armhole {RST}. {clip}, {understitch}, {press} to WS.' });
@@ -426,7 +426,7 @@ export default {
       steps.push({ step: n++, title: 'Attach belt loops', detail: 'Fold strips into belt loops. Sew to side seams and slightly toward CB at waist seam level. Fold under top and bottom raw ends before attaching.' });
     }
 
-    steps.push({ step: n++, title: 'Hem', detail: 'Hang dress 24 hours. Mark hem level. Fold up twice, {press}, {topstitch} or slipstitch.' });
+    steps.push({ step: n++, title: 'Hem', detail: 'Hang dress 24 hours. Mark hem level. Fold up twice, {press}, {topstitch} or {slipstitch}.' });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire dress. Check collar lies flat. Check buttonhole placement aligns with buttons.' });
 
     return steps;

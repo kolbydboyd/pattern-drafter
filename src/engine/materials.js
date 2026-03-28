@@ -10,12 +10,79 @@
  */
 
 // ── Affiliate configuration ───────────────────────────────────────────────────
-const AFFILIATE_TAG = 'peoplespatter-20'; // replace with live Amazon Associates tag
+// Amazon Associates — general fallback for all product types
+const AMAZON_TAG = 'peoplespatter-20';
 
-/** Build an Amazon search affiliate URL from a human-readable product name */
+// FlexOffers — Wawak (pro sewing notions) and Fabric.com (fabric)
+// Set these once your FlexOffers applications are approved
+const FLEXOFFERS_WAWAK_ID  = ''; // FlexOffers advertiser ID for Wawak
+const FLEXOFFERS_FABRIC_ID = ''; // FlexOffers advertiser ID for Fabric.com
+
+// Awin — Mood Fabrics (fashion/designer fabrics)
+// Set this once your Mood Fabrics application is approved in Awin
+const AWIN_MOOD_ID = ''; // Awin publisher link ID for Mood Fabrics
+
+// Sailrite — heavy-duty sewing supplies (denim needles, heavy thread, snaps, grommets, canvas)
+// Set this once your Sailrite affiliate application is approved
+const SAILRITE_AFF_ID = ''; // Sailrite affiliate/partner ID
+
+/**
+ * Affiliate network URL builders.
+ * Each returns a search/product URL with the appropriate tracking tag.
+ * Falls back to Amazon if the specialty network isn't configured yet.
+ */
+const AFFILIATE = {
+  /** Amazon product search — general fallback */
+  amazon(name, suffix = '') {
+    const q = encodeURIComponent((name + (suffix ? ' ' + suffix : '')).replace(/\s+/g, ' ').trim());
+    return `https://www.amazon.com/s?k=${q}&tag=${AMAZON_TAG}`;
+  },
+
+  /** Wawak — pro sewing notions (interfacing, zippers, buttons, elastic, snaps) */
+  wawak(name) {
+    if (!FLEXOFFERS_WAWAK_ID) return AFFILIATE.amazon(name, 'sewing');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.wawak.com/search/?q=${q}&foid=${FLEXOFFERS_WAWAK_ID}`;
+  },
+
+  /** Fabric.com — fabric by the yard */
+  fabricDotCom(name) {
+    if (!FLEXOFFERS_FABRIC_ID) return AFFILIATE.amazon(name, 'fabric by the yard');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.fabric.com/find?SearchText=${q}&foid=${FLEXOFFERS_FABRIC_ID}`;
+  },
+
+  /** Mood Fabrics — designer/fashion fabrics */
+  mood(name) {
+    if (!AWIN_MOOD_ID) return AFFILIATE.amazon(name, 'fabric by the yard');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.moodfabrics.com/catalogsearch/result/?q=${q}&awid=${AWIN_MOOD_ID}`;
+  },
+
+  /** Sailrite — heavy-duty sewing supplies (canvas, denim, snaps, grommets, heavy thread) */
+  sailrite(name) {
+    if (!SAILRITE_AFF_ID) return AFFILIATE.amazon(name, 'sewing');
+    const q = encodeURIComponent(name.replace(/\s+/g, ' ').trim());
+    return `https://www.sailrite.com/search?q=${q}&aid=${SAILRITE_AFF_ID}`;
+  },
+};
+
+/** Build an affiliate URL — routes to the best network for the product type */
 function _affiliateUrl(name, suffix = '') {
-  const q = encodeURIComponent((name + (suffix ? ' ' + suffix : '')).replace(/\s+/g, ' ').trim());
-  return `https://www.amazon.com/s?k=${q}&tag=${AFFILIATE_TAG}`;
+  return AFFILIATE.amazon(name, suffix);
+}
+
+/** Build an affiliate URL specifically for notions — prefers Wawak when available */
+function _notionAffiliateUrl(name) {
+  return AFFILIATE.wawak(name);
+}
+
+/** Build an affiliate URL for fabric — prefers Fabric.com or Mood when available */
+function _fabricAffiliateUrl(name) {
+  // Mood for high-end fabrics, Fabric.com for everyday, Amazon as fallback
+  if (AWIN_MOOD_ID) return AFFILIATE.mood(name);
+  if (FLEXOFFERS_FABRIC_ID) return AFFILIATE.fabricDotCom(name);
+  return AFFILIATE.amazon(name, 'fabric by the yard');
 }
 
 /**
@@ -185,7 +252,7 @@ export const STANDARD_NOTIONS = {
 export function buildMaterialsSpec(config) {
   function enrichFabric(f) {
     if (!f?.name) return f;
-    return f.affiliateUrl ? f : { ...f, affiliateUrl: _affiliateUrl(f.name, 'fabric by the yard') };
+    return f.affiliateUrl ? f : { ...f, affiliateUrl: _fabricAffiliateUrl(f.name) };
   }
   function enrichThread(t) {
     if (!t?.name) return t;
@@ -194,6 +261,10 @@ export function buildMaterialsSpec(config) {
   function enrichNeedle(n) {
     if (!n?.name) return n;
     return n.affiliateUrl ? n : { ...n, affiliateUrl: _affiliateUrl(n.name, 'sewing machine needle') };
+  }
+  function enrichNotion(n) {
+    if (!n?.name) return n;
+    return n.affiliateUrl ? n : { ...n, affiliateUrl: _notionAffiliateUrl(n.name) };
   }
 
   const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
@@ -204,11 +275,13 @@ export function buildMaterialsSpec(config) {
       enrichFabric(typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f)
     ),
     notions: config.notions.map(n =>
-      typeof n === 'string'
-        ? { ...STANDARD_NOTIONS[n] }
-        : typeof n.ref === 'string'
-          ? { ...STANDARD_NOTIONS[n.ref], quantity: n.quantity }
-          : n
+      enrichNotion(
+        typeof n === 'string'
+          ? { ...STANDARD_NOTIONS[n] }
+          : typeof n.ref === 'string'
+            ? { ...STANDARD_NOTIONS[n.ref], quantity: n.quantity }
+            : n
+      )
     ),
     thread: enrichThread(rawThread),
     needle: enrichNeedle(rawNeedle),

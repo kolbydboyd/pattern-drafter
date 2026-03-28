@@ -281,11 +281,11 @@ export default {
     if (opts.bustDart === 'yes') {
       steps.push({ step: n++, title: 'Sew bust darts', detail: 'Fold front RS together along dart legs. Sew from side to apex tapering to nothing. {press} downward.' });
     }
-    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. {serge} or zigzag. {press} toward back.' });
+    steps.push({ step: n++, title: 'Sew shoulder seams', detail: 'Join front to back at shoulders {RST}. {serge} or {zigzag}. {press} toward back.' });
     if (opts.closure === 'zip') {
       steps.push({ step: n++, title: 'Install center back zipper', detail: 'Sew CB seam below zipper stop only. Install invisible zipper from neckline down. Close remaining seam. {press}.' });
     }
-    steps.push({ step: n++, title: 'Attach neckline facing', detail: 'Sew front and back neckline facing pieces at shoulders. Interface. Sew facing to neckline {RST}. {clip} curve every ½″. {understitch}. {press} to inside. Slipstitch to shoulder seams.' });
+    steps.push({ step: n++, title: 'Attach neckline facing', detail: 'Sew front and back neckline facing pieces at shoulders. Interface. Sew facing to neckline {RST}. {clip} curve every ½″. {understitch}. {press} to inside. {slipstitch} to shoulder seams.' });
     if (opts.sleeves === 'sleeveless') {
       steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join front and back armhole facing pieces at shoulder and underarm. Sew to armhole {RST}. {clip} curves. {understitch}. {press} to inside.' });
     } else if (opts.sleeves !== 'flutter') {

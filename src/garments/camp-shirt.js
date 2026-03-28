@@ -403,7 +403,7 @@ export default {
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
-        detail: '{serge} or zigzag top edge. Fold top under ½″, {topstitch}. {press} remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. {topstitch} on 3 sides. Bar tack top corners.',
+        detail: '{serge} or {zigzag} top edge. Fold top under ½″, {topstitch}. {press} remaining three edges under ⅝″. Position on left front panel 2.5″ below shoulder seam. {topstitch} on 3 sides. Bar tack top corners.',
       });
     }
 
@@ -414,7 +414,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare front plackets',
-      detail: `{press} center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, {press}. Sew facing to placket edge {RST}, {press}, fold under, slipstitch or {topstitch} to WS.`,
+      detail: `{press} center front fold line ${fmtInches(PLACKET_W)} from CF edge. Fuse interfacing to placket facing strips. Fold placket extension to WS along fold line, {press}. Sew facing to placket edge {RST}, {press}, fold under, {slipstitch} or {topstitch} to WS.`,
     });
 
     steps.push({
@@ -424,12 +424,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. {clip} curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. Slipstitch or edgestitch.',
+      detail: 'Pin outer collar to neckline {RST}, matching CF and CB marks. Sew collar to neckline through outer collar and bodice only. {clip} curve. Fold undercollar seam allowance under, pin to cover neckline seam on WS. {slipstitch} or {edgestitch}.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with zigzag or French seam. {press} toward sleeve.',
+      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit — no ease needed for short sleeves. Sew. Finish seam with {zigzag} or French seam. {press} toward sleeve.',
     });
 
     steps.push({

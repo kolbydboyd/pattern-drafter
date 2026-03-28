@@ -344,7 +344,7 @@ export default {
     steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. {clip} at V point — nearly to stitching. {understitch}. {press} facing to WS. Tack at shoulder seams.' });
 
     if (opts.sleeve !== 'sleeveless') {
-      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. {press} SA toward sleeve. {serge} or zigzag.' });
+      steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. {press} SA toward sleeve. {serge} or {zigzag}.' });
       steps.push({ step: n++, title: 'Sew side and sleeve seams', detail: 'Sew front to back continuously from bodice hem through underarm to sleeve hem. Leave a small opening at inner side seam for hidden tie to pass through. {press} open.' });
     } else {
       steps.push({ step: n++, title: 'Attach armhole facings', detail: 'Join facing pieces, interface. Sew to armhole {RST}. {clip}, {understitch}, {press} to WS.' });
@@ -353,7 +353,7 @@ export default {
 
     steps.push({ step: n++, title: 'Attach skirt to bodice', detail: `Join skirt panels at side seams. ${opts.skirtShape === 'flowy' ? 'Gather skirt waist to match bodice width. ' : ''}Sew skirt to bodice at waist {RST}. {press} SA upward.` });
     steps.push({ step: n++, title: 'Make and attach ties', detail: 'Fold tie strips in half lengthwise {RST}, sew long edge and one short end. Trim corners, turn with a tube turner, {press}. Attach inner ties at inner side seam (pass through opening to tie at back) and outer ties at outer side seam (tie at front or back).' });
-    steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang dress 24 hours. Mark hem level from floor. Fold up twice, {press}, {topstitch} or slipstitch. For drapey fabrics: hand hem with slipstitch.' });
+    steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang dress 24 hours. Mark hem level from floor. Fold up twice, {press}, {topstitch} or {slipstitch}. For drapey fabrics: hand hem with {slipstitch}.' });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire dress with a pressing cloth. Check neckline facing lies flat. Try on and adjust tie length if needed.' });
 
     return steps;

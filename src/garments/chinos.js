@@ -3,7 +3,7 @@
  * Chinos — clean tailored trousers with serger-finished seams.
  * 31 inch default inseam, 10 inch rise. Same leg shapes as straight-jeans.
  * Slant front pockets, welt back pockets ×2 with button, zip fly.
- * No fell seams — {serge} or zigzag edge finish throughout.
+ * No fell seams — {serge} or {zigzag} edge finish throughout.
  */
 
 import {
@@ -188,7 +188,7 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Clean-finish ALL seams — {serge} or zigzag edge every seam allowance before or after sewing. No fell seams.',
+        'Clean-finish ALL seams — {serge} or {zigzag} edge every seam allowance before or after sewing. No fell seams.',
         'Stitch seams at 2.5mm; {topstitch} at 3.0mm for a cleaner, less casual look than jeans',
         '{press} every seam immediately after sewing — chinos require crisp pressing to lie flat',
         'Pre-wash fabric once at the temperature you plan to wash the finished garment',
