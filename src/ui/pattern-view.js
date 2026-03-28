@@ -203,15 +203,16 @@ export function renderPanelSVG(piece) {
   // single smooth cubic bezier C command using the provided control points.
   // All other edges (straight seams, hem, inseam) remain as L segments.
   // The bezier is traced in the reverse direction (p3 → p0) to match polygon winding.
-  // Args: pts = SVG-scaled polygon, sourcePoly = unscaled polygon to search for p3,
-  //        ctrlPts = bezier {p0,p1,p2,p3} to use for the curve segment.
+  //
+  // sourcePoly: inch-coord polygon used to locate p3Idx (pass polygon for cut line, saPolygon for stitch line)
+  // ctrlPts: bezier control points in inches (crotchBezier for cut, crotchBezierSA for stitch)
   function crotchPath(pts, sourcePoly, ctrlPts) {
     if (!ctrlPts) return polyPath(pts);
     const { p0, p1, p2, p3 } = ctrlPts;
-    // Find the polygon vertex that is the crotch extension tip (matches p3 in inch coords)
+    // Find the vertex in sourcePoly that matches p3 (crotch extension tip)
     let p3Idx = -1;
     for (let i = 0; i < sourcePoly.length; i++) {
-      if (Math.abs(sourcePoly[i].x - p3.x) < 0.02 && Math.abs(sourcePoly[i].y - p3.y) < 0.02) {
+      if (Math.abs(sourcePoly[i].x - p3.x) < 0.05 && Math.abs(sourcePoly[i].y - p3.y) < 0.05) {
         p3Idx = i; break;
       }
     }
@@ -225,7 +226,7 @@ export function renderPanelSVG(piece) {
     for (let i = 1; i <= p3Idx; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
     // Time-reversed cubic bezier: from p3 (current position) through p2, p1, to p0
     d += ` C ${sp2.x.toFixed(1)},${sp2.y.toFixed(1)} ${sp1.x.toFixed(1)},${sp1.y.toFixed(1)} ${sp0.x.toFixed(1)},${sp0.y.toFixed(1)}`;
-    // Z closes from p0 back to polygon[0]; for back panels with cbRaise this draws the CB straight seam
+    // Z closes from p0 back to pts[0]
     return d + ' Z';
   }
 
