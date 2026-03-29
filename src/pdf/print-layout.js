@@ -807,8 +807,16 @@ function rulerStrip(tPW, SM) {
 function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   const TX_p = PW - 2 * SM - OV, TY_p = PH - 2 * SM - OV;
   const TX_l = PH - 2 * SM - OV, TY_l = PW - 2 * SM - OV;
-  const pages_p = Math.ceil(wIn / TX_p) * Math.ceil(hIn / TY_p);
-  const pages_l = Math.ceil(wIn / TX_l) * Math.ceil(hIn / TY_l);
+
+  // Tile count: each tile's clip area is TX+OV wide, so the first tile covers OV
+  // more than subsequent strides.  Also trim trailing MARGIN padding (no drawn
+  // content there) so we don't generate tiles that only show empty margin.
+  function tileCnt(span, stride) {
+    const content = Math.max(stride, span - MARGIN);   // trim trailing margin
+    return Math.max(1, Math.ceil((content - OV) / stride));
+  }
+  const pages_p = tileCnt(wIn, TX_p) * tileCnt(hIn, TY_p);
+  const pages_l = tileCnt(wIn, TX_l) * tileCnt(hIn, TY_l);
   // Panel pieces (pants, shorts) are always taller than wide — force portrait so
   // tiles cover more of the long dimension per row and assembly is intuitive.
   const landscape = piece.type !== 'panel' && pages_l < pages_p;
@@ -831,8 +839,8 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   }
 
   const effectiveW = wIn + shiftX;
-  const cols = Math.ceil(effectiveW / TX);
-  const rows = Math.ceil(hIn / TY);
+  const cols = tileCnt(effectiveW, TX);
+  const rows = tileCnt(hIn, TY);
   return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW };
 }
 
