@@ -397,12 +397,22 @@ function renderBodiceOrSleeveSVG(piece) {
  * Render a rectangle piece at 1:1.
  * Returns { svg, wIn, hIn }.
  */
-function renderRectSVG(piece, { compact = false, fold = false } = {}) {
-  const { name, dimensions, sa } = piece;
-  const fullW = dimensions.length;
-  const H = dimensions.width;
-  // If fold is true, print half the length with a fold line on the left edge
-  const W = fold ? fullW / 2 : fullW;
+function renderRectSVG(piece, { compact = false, fold } = {}) {
+  const { name, dimensions, sa, instruction = '' } = piece;
+  const fullLen = dimensions.length;
+  const fullWid = dimensions.width;
+
+  // Auto-detect fold eligibility when not explicitly specified —
+  // garment authors mark foldable pieces with "on fold" in instruction text
+  if (fold === undefined) {
+    fold = /on fold/i.test(instruction);
+  }
+  const halfLen = fold ? fullLen / 2 : fullLen;
+
+  // Rotate so the long dimension runs vertically (portrait) to reduce paper
+  const rotated = halfLen > fullWid;
+  const W = rotated ? fullWid : halfLen;
+  const H = rotated ? halfLen : fullWid;
 
   const M = compact ? 0.3 : MARGIN;
   const wIn = M + W + M;
@@ -414,17 +424,30 @@ function renderRectSVG(piece, { compact = false, fold = false } = {}) {
   const cx = (M + W / 2) * DPI;
   const cy = (M + H / 2) * DPI;
 
-  const foldLabel = fold ? `${fmtInches(fullW)} full (place on fold)` : `${fmtInches(W)}`;
-  const dimLabel = `${foldLabel} \xd7 ${fmtInches(H)}`;
+  const foldLabel = fold ? `${fmtInches(fullLen)} full (place on fold)` : `${fmtInches(fullLen)}`;
+  const dimLabel = `${foldLabel} \xd7 ${fmtInches(fullWid)}`;
 
-  // Fold-line indicator on the left edge
+  // Fold-line indicator — on top edge when rotated, left edge otherwise
   let foldSvg = '';
-  if (fold) {
+  if (fold && rotated) {
+    // Horizontal fold line along the top edge
+    const fy = ry;
+    const fx1 = rx + rW * 0.1, fx2 = rx + rW * 0.9;
+    const fmx = (fx1 + fx2) / 2;
+    foldSvg = `<line x1="${fx1}" y1="${fy}" x2="${fx2}" y2="${fy}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+    const aw = 3, ah = 4;
+    const inset = (fx2 - fx1) * 0.15;
+    for (let i = 0; i < 3; i++) {
+      const ax = fx1 + inset + (fx2 - fx1 - 2 * inset) * i / 2;
+      foldSvg += `<polygon points="${ax},${fy + 8 - aw} ${ax - ah},${fy + 8} ${ax + ah},${fy + 8}" fill="#555"/>`;
+    }
+    foldSvg += `<text x="${fmx}" y="${fy + 5}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle" letter-spacing="1.5" dominant-baseline="middle">FOLD</text>`;
+  } else if (fold) {
+    // Vertical fold line on the left edge (original orientation)
     const fx = rx;
     const fy1 = ry + rH * 0.1, fy2 = ry + rH * 0.9;
     const fmy = (fy1 + fy2) / 2;
     foldSvg = `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
-    // Small fold arrows
     const aw = 4, ah = 3;
     const inset = (fy2 - fy1) * 0.15;
     for (let i = 0; i < 3; i++) {
@@ -837,7 +860,14 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
       return { wIn: MARGIN + (Math.max(...xs) - Math.min(...xs)) + MARGIN, hIn: MARGIN + (Math.max(...ys) - Math.min(...ys)) + MARGIN };
     }
     if (piece.type === 'rectangle') {
-      return { wIn: MARGIN + piece.dimensions.length + MARGIN, hIn: MARGIN + piece.dimensions.width + MARGIN };
+      const fullLen = piece.dimensions.length;
+      const fullWid = piece.dimensions.width;
+      const isFold = /on fold/i.test(piece.instruction || '');
+      const halfLen = isFold ? fullLen / 2 : fullLen;
+      const isRotated = halfLen > fullWid;
+      const W = isRotated ? fullWid : halfLen;
+      const H = isRotated ? halfLen : fullWid;
+      return { wIn: MARGIN + W + MARGIN, hIn: MARGIN + H + MARGIN };
     }
     if (piece.dimensions) {
       const d = piece.dimensions;
