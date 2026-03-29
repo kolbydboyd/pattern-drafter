@@ -276,7 +276,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const inseamHemX  = -ext   + hemInward;
 
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
+  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
   poly.push({ x: width,       y: 0      });
   poly.push({ x: sideKneeX,   y: kneeY  });
   poly.push({ x: sideHemX,    y: height });

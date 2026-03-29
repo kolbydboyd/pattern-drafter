@@ -140,7 +140,7 @@ export default {
       const ikX     = -ext + kIn,   ihX  = -ext + hIn;
 
       const poly = [];
-            poly.push({ x: 0,     y: 0       });
+            poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
       poly.push({ x: width, y: 0     });
       poly.push({ x: skX,   y: kneeY });
       poly.push({ x: shkX,  y: H     });

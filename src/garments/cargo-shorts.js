@@ -304,7 +304,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const poly = [];
 
   // Waist: CB to Side
-    poly.push({ x: 0, y: 0 }); // waist at center seam
+    poly.push({ x: 0, y: isBack ? -cbRaise : 0 }); // waist at center seam (raised on back)
   poly.push({ x: width, y: 0 }); // waist at side seam
 
   // Side seam down (straight for shorts)
