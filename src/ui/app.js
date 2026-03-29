@@ -1558,7 +1558,10 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
 (function loadPatternCount() {
   const el = document.getElementById('land-pattern-count');
   if (!el) return;
-  fetch('/api/pattern-count').then(r => r.json()).then(({ count }) => {
+  fetch('/api/pattern-count').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }).then(({ count }) => {
     if (count && count > 0) {
       el.textContent = `${count.toLocaleString()} custom patterns generated`;
     }
