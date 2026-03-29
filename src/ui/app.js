@@ -189,8 +189,11 @@ function applyProfile(name) {
   const profile = loadProfiles().find(p => p.name === name);
   if (!profile) return;
   _setActiveProfile(profile.id ?? null, name);
+  const g = GARMENTS[currentGarment];
+  const garmentDefaults = g?.measurementDefaults ?? {};
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
+    if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }

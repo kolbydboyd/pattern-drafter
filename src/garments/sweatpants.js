@@ -104,7 +104,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
     const isJogger = opts.legStyle === 'jogger';
 
     // For jogger: taper to ~55% of panel width at hem (similar to slim shape)

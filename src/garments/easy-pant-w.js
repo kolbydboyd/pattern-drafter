@@ -113,7 +113,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 29);
+    const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 29);
 
     let frontW = m.hip / 4 + easeFront;
     let backW  = m.hip / 4 + easeBack;

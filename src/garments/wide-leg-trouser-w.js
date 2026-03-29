@@ -126,7 +126,7 @@ export default {
     const baseRise  = m.rise || 11;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const inseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;

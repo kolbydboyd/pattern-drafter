@@ -97,7 +97,7 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
+    const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
     let frontHipW   = m.hip / 4 + ease.front;
