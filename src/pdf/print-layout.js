@@ -13,6 +13,7 @@
 
 import { fmtInches, offsetPolygon } from '../engine/geometry.js';
 import { MEASUREMENTS } from '../engine/measurements.js';
+import { GLOSSARY } from '../engine/glossary.js';
 
 // ── Paper size registry ────────────────────────────────────────────────────
 const PAPER_SIZES = {
@@ -1316,21 +1317,50 @@ function buildMaterialsPage(materials) {
   </div>`;
 }
 
+/** Replace {term} markers with bold text for print */
+function expandGlossaryPrint(text) {
+  if (!text) return text;
+  return text.replace(/\{([^}]+)\}/g, (_, term) => {
+    if (GLOSSARY[term]) return `<b class="gl">${term}</b>`;
+    return term;
+  });
+}
+
+/** Collect glossary terms actually used in the instructions */
+function usedGlossaryTerms(instructions) {
+  const text = (instructions || []).map(s => s.detail || '').join(' ');
+  const used = [];
+  for (const [term, def] of Object.entries(GLOSSARY)) {
+    if (text.includes(`{${term}}`)) used.push({ term, def });
+  }
+  return used;
+}
+
 function buildInstructionsPage(instructions) {
   const stepsHtml = (instructions || []).map(s =>
     `<div class="step">
       <div class="step-n">${s.step}</div>
       <div class="step-b">
         <div class="step-t">${s.title}</div>
-        <div class="step-d">${s.detail}</div>
+        <div class="step-d">${expandGlossaryPrint(s.detail)}</div>
       </div>
     </div>`
   ).join('');
+
+  const terms = usedGlossaryTerms(instructions);
+  const glossaryHtml = terms.length ? `
+    <div class="print-glossary">
+      <h3 class="sect-head">Glossary</h3>
+      <div class="gl-grid">${terms.map(t =>
+        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
+      ).join('')}</div>
+    </div>` : '';
 
   return `<div class="page instr-page">
     <h2 class="page-head">Construction Order</h2>
     <p class="note" style="margin-bottom:0.2in">Read all steps before starting. Press every seam.</p>
     <div class="steps">${stepsHtml}</div>
+    ${glossaryHtml}
   </div>`;
 }
 
@@ -1364,7 +1394,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
     `<div class="lf-step">
       <div class="lf-step-n">${s.step}</div>
       <div><div class="lf-step-t">${s.title}</div>
-      <div class="lf-step-d">${s.detail}</div></div>
+      <div class="lf-step-d">${expandGlossaryPrint(s.detail)}</div></div>
     </div>`
   ).join('');
 
@@ -1502,6 +1532,11 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .step-b { flex:1; }
 .step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
 .step-d { font-size:9pt; color:#555; line-height:1.55; }
+b.gl { font-weight:600; color:#2c2a26; }
+.print-glossary { margin-top:0.3in; border-top:0.5px solid #e0e0e0; padding-top:0.15in; }
+.gl-grid { columns:2; column-gap:0.4in; font-size:8pt; line-height:1.6; }
+.gl-entry { break-inside:avoid; margin-bottom:0.04in; }
+.gl-def { color:#888; }
 
 /* ── Tiles ── */
 .tile-page { background:#fff; }
