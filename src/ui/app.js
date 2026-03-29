@@ -458,6 +458,22 @@ function renderMaterials(mat, yardage45, yardage60) {
   }
   html += `</div>`;
 
+  if (mat.machineSettings?.length) {
+    html += `<div class="mat-section"><h5>Machine Settings</h5>`;
+    for (const ms of mat.machineSettings) {
+      html += `<div class="mat-row"><strong>${ms.label}</strong></div>`;
+      html += `<div class="mat-row">Tension: ${ms.tension} · ${ms.stitch}</div>`;
+      html += `<div class="mat-row"><span class="note">${ms.notes}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (mat.troubleshooting?.length) {
+    html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${t}</div>`;
+    html += `</div>`;
+  }
+
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
     for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
