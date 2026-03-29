@@ -113,7 +113,7 @@ function polyPath(pts, ox, oy) {
  */
 function renderPanelSVG(piece) {
   const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction, darts = [], notches = [],
+          sa, hem, name, instruction = '', darts = [], notches = [],
           crotchBezierSA } = piece;
 
   const mL = ext + MARGIN;
@@ -407,6 +407,8 @@ function renderBodiceOrSleeveSVG(piece) {
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>
       ${(() => {
         // Info block at bottom-left inside the piece outline (visible after cutting)
+        // Skip for very small pieces where text wouldn't fit
+        if (pW < 3 || pH < 3) return '';
         const infoX = (ox + minX + sa + 0.3) * DPI;
         const infoY = (oy + maxY - 1.4) * DPI;
         const lh = 11;
@@ -512,7 +514,7 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${dimLabel}</text>
-      ${instruction ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
+      ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
         fill="#999" text-anchor="middle">${instruction}</text>` : ''}
     </svg>`,
@@ -551,7 +553,7 @@ function renderPocketSVG(piece, { compact = false } = {}) {
       <text x="${cx}" y="${(M + H / 2) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
-      ${piece.instruction ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
+      ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
         fill="#999" text-anchor="middle">${piece.instruction}</text>` : ''}
     </svg>`,
