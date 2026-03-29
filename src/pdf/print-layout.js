@@ -30,22 +30,22 @@ const MARGIN = 1.5; // generous padding around each piece — prevents SA miter 
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
 /**
- * Snap each notch to the nearest point on saPolyInches and render filled
- * triangles pointing outward along the edge normal.  Ported from pattern-view.js
- * renderNotchesSVG — the key difference from the old approach is closest-point
- * projection onto the SA polygon instead of using raw n.x / n.y coordinates.
+ * Snap each notch to the nearest point on cutPolyInches (the outer cut line)
+ * and render filled triangles pointing INWARD along the edge normal.
+ * Professional patterns place notches on the cut edge so they can be snipped
+ * into the seam allowance; the inward direction shows which side is "in."
  *
  * Triangle: height 0.20 in, base width 0.15 in (half-base 0.075 in).
  */
-function renderNotchesPrint(saPolyInches, notches, ox, oy) {
+function renderNotchesPrint(cutPolyInches, notches, ox, oy) {
   if (!notches || !notches.length) return '';
-  const n    = saPolyInches.length;
+  const n    = cutPolyInches.length;
   const TRI_H  = 0.20;
   const TRI_HW = 0.075;
 
-  // Centroid for outward-normal selection
+  // Centroid for inward-normal selection
   let cx = 0, cy = 0;
-  for (const p of saPolyInches) { cx += p.x; cy += p.y; }
+  for (const p of cutPolyInches) { cx += p.x; cy += p.y; }
   cx /= n; cy /= n;
 
   let svg = '';
@@ -55,8 +55,8 @@ function renderNotchesPrint(saPolyInches, notches, ox, oy) {
     let bestNx = 0, bestNy = -1;
 
     for (let i = 0; i < n; i++) {
-      const a   = saPolyInches[i];
-      const b   = saPolyInches[(i + 1) % n];
+      const a   = cutPolyInches[i];
+      const b   = cutPolyInches[(i + 1) % n];
       const edx = b.x - a.x, edy = b.y - a.y;
       const lenSq = edx * edx + edy * edy;
       if (lenSq < 1e-10) continue;
@@ -76,8 +76,8 @@ function renderNotchesPrint(saPolyInches, notches, ox, oy) {
         // Two candidate perpendiculars
         const nx1 = eduy, ny1 = -edux;
         const nx2 = -eduy, ny2 = edux;
-        // Pick the one pointing away from centroid
-        const toCx = cpx - cx, toCy = cpy - cy;
+        // Pick the one pointing TOWARD centroid (inward)
+        const toCx = cx - cpx, toCy = cy - cpy;
         if (nx1 * toCx + ny1 * toCy >= 0) { bestNx = nx1; bestNy = ny1; }
         else                               { bestNx = nx2; bestNy = ny2; }
       }
@@ -107,14 +107,145 @@ function polyPath(pts, ox, oy) {
   return d + ' Z';
 }
 
+/** Drill mark (crosshair) for pocket corners — industry standard fabric transfer mark */
+function drillMark(x, y, size = 4) {
+  return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}" stroke="#8a4a4a" stroke-width="0.6"/>
+    <line x1="${x}" y1="${y - size}" x2="${x}" y2="${y + size}" stroke="#8a4a4a" stroke-width="0.6"/>`;
+}
+
+/** Pocket placement colour constants (matches pattern-view.js) */
+const PKT_COL = '#8a4a4a';
+const PKT_FILL = 'rgba(138,74,74,.03)';
+const PKT_DASH = '2,3';
+
+/**
+ * Render pocket placement indicators on a panel piece.
+ * Mirrors the logic from pattern-view.js but at 1:1 print scale (DPI px).
+ * Returns SVG string (empty if no pockets selected).
+ */
+function renderPocketPlacement(piece, ox, oy) {
+  const { width, height, rise, inseam, polygon, isBack, opts } = piece;
+  if (!opts) return '';
+
+  const p = (inches) => inches * DPI; // convert inches to px
+  let svg = '';
+
+  // ── Slant pocket (front only) ──
+  if (!isBack && opts.frontPocket === 'slant') {
+    const sx1 = (ox + width - 3.5) * DPI, sy1 = oy * DPI;
+    const sx2 = (ox + width) * DPI,       sy2 = (oy + 6) * DPI;
+    const bagL = (ox + width - 7) * DPI,  bagB = (oy + 9.5) * DPI;
+    // Bag outline
+    svg += `<path d="M ${sx1} ${sy1} L ${bagL} ${sy1} L ${bagL} ${bagB} Q ${sx2} ${bagB} ${sx2} ${sy2} Z"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    // Slash opening (solid)
+    svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
+      stroke="${PKT_COL}" stroke-width="1"/>`;
+    // Drill marks at key corners
+    svg += drillMark(sx1, sy1);
+    svg += drillMark(sx2, sy2);
+    svg += drillMark(bagL, sy1);
+    svg += drillMark(bagL, bagB);
+    // Label
+    svg += `<text x="${bagL + 3}" y="${(oy + rise * 0.85) * DPI}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
+  }
+
+  // ── Side-seam pocket (front only) ──
+  if (!isBack && opts.frontPocket === 'side') {
+    const pTop = 2, pBot = 8.5;
+    // Interpolate side seam X at given Y (polygon edges 1-4)
+    function sideSeamXatY(ty) {
+      for (let i = 1; i <= 4; i++) {
+        const a = polygon[i], b = polygon[i + 1];
+        if (!a || !b) break;
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= ty && ty <= yMax) {
+          return a.x + (ty - a.y) / (b.y - a.y) * (b.x - a.x);
+        }
+      }
+      return width;
+    }
+    const txTop = (ox + sideSeamXatY(pTop)) * DPI, tyTop = (oy + pTop) * DPI;
+    const txBot = (ox + sideSeamXatY(pBot)) * DPI, tyBot = (oy + pBot) * DPI;
+    const tickLen = p(0.35);
+    // Top & bottom tick marks
+    svg += `<line x1="${txTop - tickLen}" y1="${tyTop}" x2="${txTop}" y2="${tyTop}" stroke="${PKT_COL}" stroke-width="1.2"/>`;
+    svg += `<line x1="${txBot - tickLen}" y1="${tyBot}" x2="${txBot}" y2="${tyBot}" stroke="${PKT_COL}" stroke-width="1.2"/>`;
+    // Dashed bracket
+    svg += `<line x1="${txTop}" y1="${tyTop}" x2="${txBot}" y2="${tyBot}" stroke="${PKT_COL}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+    // Drill marks at opening ends
+    svg += drillMark(txTop, tyTop);
+    svg += drillMark(txBot, tyBot);
+    // Label
+    const labelX = (ox + sideSeamXatY(pTop) + (piece.sa || 0.5) + 0.3) * DPI;
+    const labelMidY = (tyTop + tyBot) / 2;
+    svg += `<text x="${labelX}" y="${labelMidY}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}"
+      text-anchor="middle" transform="rotate(90,${labelX},${labelMidY})">pocket opening</text>`;
+  }
+
+  // ── Cargo pocket (front only) ──
+  if (opts.cargo === 'cargo') {
+    const cpX = (ox + width) * DPI;
+    const cpY = (oy + rise + Math.min(inseam * 0.2, 2)) * DPI;
+    const cpW = p(3.5), cpH = p(4);
+    svg += `<rect x="${cpX - cpW}" y="${cpY}" width="${cpW}" height="${cpH}" rx="${p(0.15)}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += drillMark(cpX - cpW, cpY);
+    svg += drillMark(cpX, cpY);
+    svg += drillMark(cpX - cpW, cpY + cpH);
+    svg += drillMark(cpX, cpY + cpH);
+    svg += `<text x="${cpX - cpW + 3}" y="${cpY + cpH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">cargo</text>`;
+  }
+
+  // ── Back patch pocket ──
+  if (isBack && opts.backPocket && opts.backPocket !== 'none') {
+    const bpX = (ox + width * 0.35) * DPI, bpY = (oy + 1.8) * DPI;
+    const bpW = p(3), bpH = p(3.5);
+    svg += `<rect x="${bpX}" y="${bpY}" width="${bpW}" height="${bpH}" rx="${p(0.2)}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += drillMark(bpX, bpY);
+    svg += drillMark(bpX + bpW, bpY);
+    svg += drillMark(bpX, bpY + bpH);
+    svg += drillMark(bpX + bpW, bpY + bpH);
+    svg += `<text x="${bpX + 3}" y="${bpY + bpH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">patch pocket</text>`;
+  }
+
+  // ── Back welt pocket (jeans, pleated shorts/trousers) ──
+  if (isBack && (opts.backPockets === 'welt1' || opts.backPockets === 'welt2')) {
+    const weltW = 5, weltH = 0.5;
+    const weltX = (ox + width * 0.5 - weltW / 2) * DPI;
+    const weltY = (oy + 2.5) * DPI;
+    const wW = p(weltW), wH = p(weltH);
+    svg += `<rect x="${weltX}" y="${weltY}" width="${wW}" height="${wH}"
+      stroke="${PKT_COL}" stroke-width="0.8" fill="${PKT_FILL}"/>`;
+    svg += drillMark(weltX, weltY + wH / 2);
+    svg += drillMark(weltX + wW, weltY + wH / 2);
+    svg += `<text x="${weltX + 3}" y="${weltY + wH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">welt pocket</text>`;
+    // Second welt pocket if welt2, offset 2.5" below first
+    if (opts.backPockets === 'welt2') {
+      const w2Y = weltY + p(2.5);
+      svg += `<rect x="${weltX}" y="${w2Y}" width="${wW}" height="${wH}"
+        stroke="${PKT_COL}" stroke-width="0.8" fill="${PKT_FILL}"/>`;
+      svg += drillMark(weltX, w2Y + wH / 2);
+      svg += drillMark(weltX + wW, w2Y + wH / 2);
+    }
+  }
+
+  return svg;
+}
+
 /**
  * Render a panel piece (front/back) as a full-size SVG string.
  * Returns { svg, wIn, hIn } — dimensions in inches.
  */
 function renderPanelSVG(piece) {
-  const { polygon, saPolygon, width, height, rise, ext,
+  const { polygon, saPolygon, width, height, rise, ext, inseam,
           sa, hem, name, instruction = '', darts = [], notches = [],
-          crotchBezierSA } = piece;
+          crotchBezierSA, isBack, opts } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
@@ -248,7 +379,7 @@ function renderPanelSVG(piece) {
         <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
         <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
       }).join('\n')}
-      ${renderNotchesPrint(saPolygon, notches, ox, oy)}
+      ${renderNotchesPrint(polygon, notches, ox, oy)}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
@@ -269,6 +400,7 @@ function renderPanelSVG(piece) {
             fill="#999">${line}</text>`
         ).join('\n');
       })()}
+      ${renderPocketPlacement(piece, ox, oy)}
     </svg>`,
   };
 }
@@ -393,7 +525,7 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
-      ${renderNotchesPrint(saPoints, notches, ox, oy)}
+      ${renderNotchesPrint(polygon, notches, ox, oy)}
       ${(piece.bustDarts || []).map(d => {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
         const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
