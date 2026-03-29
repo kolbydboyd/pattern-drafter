@@ -188,12 +188,13 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-email-btn:hover{filter:brightness(.88)}
 .land-footer{flex-shrink:0;border-top:1px solid var(--bdr);padding:10px 24px 18px;display:flex;align-items:center;justify-content:space-between;font-size:.58rem;flex-wrap:wrap;gap:8px}
 .land-footer-copy{color:var(--mid);letter-spacing:.5px;flex:1}
-.land-footer-legal{display:flex;gap:12px}
+.land-footer-legal{display:flex;gap:12px;flex-wrap:wrap}
 .land-footer-links{display:flex;gap:16px}
 .land-footer-link{color:var(--mid);text-decoration:none;letter-spacing:.5px}
 .land-footer-link:hover{color:var(--gold)}
 .land-footer .social-icons{flex:1;justify-content:flex-end}
 .land-footer .social-icon{color:var(--mid)}
+@media(max-width:600px){.land-footer{flex-direction:column;align-items:flex-start;gap:8px}.land-footer-copy{flex:none}.land-footer-legal{flex:none;flex-wrap:wrap}.land-footer .social-icons{flex:none;width:100%}}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 .wiz-footer{margin-top:auto}
 /* Header nav links (pricing, patterns, learn pages) */
