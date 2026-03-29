@@ -26,9 +26,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -109,8 +109,23 @@ export default {
     const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
-    const frontHipW   = m.hip / 4 + ease.front;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[chinos] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[chinos] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;

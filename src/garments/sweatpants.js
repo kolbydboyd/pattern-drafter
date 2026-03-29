@@ -26,9 +26,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack'  },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'       },
-        { value: 'wide',    label: 'Wide (+6″)',      reference: 'Margiela, deconstructed' },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack'  },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'       },
+        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed' },
       ],
       default: 'relaxed',
     },
@@ -110,8 +110,23 @@ export default {
     // For jogger: taper to ~55% of panel width at hem (similar to slim shape)
     const shape = isJogger ? { knee: 0.82, hem: 0.58 } : { knee: 1.0, hem: 1.0 };
 
-    const frontW = m.hip / 4 + easeFront;
-    const backW  = m.hip / 4 + easeBack;
+    let frontW = m.hip / 4 + easeFront;
+    let backW  = m.hip / 4 + easeBack;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[sweatpants] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[sweatpants] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];

@@ -25,9 +25,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -114,8 +114,23 @@ export default {
     const backExt = parseFloat(opts.backExt);
     const cbRaise = parseFloat(opts.cbRaise);
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front;
+    let backW = m.hip / 4 + ease.back;
+
+    // Thigh ease check — widen panels if thigh circumference is tight
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[cargo-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033) \u2014 widened panels by ${perPanel.toFixed(2)}\u2033 each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[cargo-shorts] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}\u2033 (recommend \u2265 2\u2033)`);
+      }
+    }
+
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;

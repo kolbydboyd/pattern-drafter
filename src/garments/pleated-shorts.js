@@ -30,8 +30,8 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -121,8 +121,23 @@ export default {
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 11);
 
-    const frontW = m.hip / 4 + ease.front + pleatExtra;
-    const backW  = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front + pleatExtra;
+    let backW  = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[pleated-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[pleated-shorts] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];

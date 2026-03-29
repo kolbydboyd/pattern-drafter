@@ -24,9 +24,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -92,8 +92,23 @@ export default {
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 5);
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW  = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front;
+    let backW  = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[swim-trunks] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[swim-trunks] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];

@@ -40,9 +40,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+3″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)', reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)', reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -127,7 +127,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal = opts.ease === 'slim' ? 2 : opts.ease === 'relaxed' ? 4 : 3;
+    const easeVal = opts.ease === 'slim' ? 2.5 : opts.ease === 'relaxed' ? 6 : 4;
     const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
@@ -146,8 +146,23 @@ export default {
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[straight-trouser-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[straight-trouser-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;

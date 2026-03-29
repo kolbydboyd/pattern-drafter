@@ -405,10 +405,11 @@ export const LEG_SHAPES = {
  * @type {Object.<string, number>}
  */
 export const EASE_VALUES = {
-  slim: 1.5,
-  regular: 2.5,
-  relaxed: 4,
-  wide: 6,
+  // Minimum 4 inches ease at hip for woven fabrics. Slim fit only appropriate for stretch fabrics.
+  slim: 2.5,
+  regular: 4,
+  relaxed: 6,
+  wide: 8,
 };
 
 /**

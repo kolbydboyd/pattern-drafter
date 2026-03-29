@@ -41,9 +41,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+3″)',    reference: 'classic, off-the-rack'  },
-        { value: 'wide',    label: 'Wide (+5″)',      reference: 'Margiela, deconstructed' },
-        { value: 'xwide',   label: 'Extra wide (+7″)', reference: 'avant-garde, oversized'  },
+        { value: 'regular', label: 'Regular (+4\u2033)',    reference: 'classic, off-the-rack'  },
+        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed' },
+        { value: 'xwide',   label: 'Extra wide (+10\u2033)', reference: 'avant-garde, oversized'  },
       ],
       default: 'wide',
     },
@@ -113,7 +113,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
+    const easeVal = opts.ease === 'xwide' ? 10 : opts.ease === 'wide' ? 8 : 4;
     const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
@@ -131,8 +131,23 @@ export default {
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[wide-leg-trouser-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[wide-leg-trouser-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
@@ -226,7 +241,7 @@ export default {
   },
 
   materials(m, opts) {
-    const easeVal   = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
+    const easeVal   = opts.ease === 'xwide' ? 10 : opts.ease === 'wide' ? 8 : 4;
     const rise      = m.rise || 11;
     const notions   = [
       { ref: 'interfacing-light', quantity: '0.5 yard (waistband + pocket facings)' },

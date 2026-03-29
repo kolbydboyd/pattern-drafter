@@ -115,8 +115,23 @@ export default {
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
     const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 29);
 
-    const frontW = m.hip / 4 + easeFront;
-    const backW  = m.hip / 4 + easeBack;
+    let frontW = m.hip / 4 + easeFront;
+    let backW  = m.hip / 4 + easeBack;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[easy-pant-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[easy-pant-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     // Leg shape taper at hem
