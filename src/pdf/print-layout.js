@@ -805,7 +805,7 @@ function rulerStrip(tPW, SM) {
 
 // ── Tile layout helper (orientation + seam avoidance) ─────────────────────
 
-function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
+function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   const TX_p = PW - 2 * SM - OV, TY_p = PH - 2 * SM - OV;
   const TX_l = PH - 2 * SM - OV, TY_l = PW - 2 * SM - OV;
 
@@ -840,9 +840,34 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   }
 
   const effectiveW = wIn + shiftX;
-  const cols = tileCnt(effectiveW, TX);
-  const rows = tileCnt(hIn, TY);
-  return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW };
+  let cols = tileCnt(effectiveW, TX);
+  let rows = tileCnt(hIn, TY);
+
+  // Margin-trim optimization: if the actual drawn content (SA polygon) fits in
+  // one fewer column/row, reduce the tile count and shift content to fit.
+  // This prevents wasteful sliver tiles caused by generous MARGIN padding.
+  let marginTrimX = 0, marginTrimY = 0;
+  if (renderMargin !== undefined) {
+    const sa_val = piece.sa || 0.625;
+    if (cols > 1) {
+      const contentW = effectiveW - 2 * renderMargin + sa_val;
+      const reducedCoverage = (cols - 1) * TX + OV;
+      if (contentW <= reducedCoverage) {
+        cols--;
+        marginTrimX = Math.max(0, renderMargin - sa_val);
+      }
+    }
+    if (rows > 1) {
+      const contentH = hIn - 2 * renderMargin + sa_val;
+      const reducedCoverage = (rows - 1) * TY + OV;
+      if (contentH <= reducedCoverage) {
+        rows--;
+        marginTrimY = Math.max(0, renderMargin - sa_val);
+      }
+    }
+  }
+
+  return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW, marginTrimX, marginTrimY };
 }
 
 // ── Piece renderer dispatch ────────────────────────────────────────────────
@@ -883,8 +908,8 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
   const { svg, wIn, hIn } = rendered;
 
   // Fix 3: choose orientation, Fix 2: seam avoidance
-  const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
-  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW } = layout;
+  const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV, MARGIN);
+  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW, marginTrimX, marginTrimY } = layout;
 
   let pages = '';
 
@@ -898,8 +923,9 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
       if (visW < 0.1 || visH < 0.1) continue;
 
       // Compute base tile offsets (negative = scroll piece into view)
-      let offsetX = -(col * TX * DPI) + shiftX * DPI;
-      let offsetY = -(row * TY * DPI);
+      // marginTrimX/Y shift content to reclaim padding space and avoid sliver tiles
+      let offsetX = -(col * TX * DPI) + shiftX * DPI - marginTrimX * DPI;
+      let offsetY = -(row * TY * DPI) - marginTrimY * DPI;
 
       // Center small pieces that fit on a single tile (looks more professional)
       if (cols === 1 && rows === 1) {
@@ -1086,7 +1112,7 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
 
   // Build display list: tiled pieces + one "Small Pieces" group
   const displayList = tiledEntries.map(({ piece, dims }) => {
-    const layout = computeTileLayout(dims.wIn, dims.hIn, piece, PW, PH, OV);
+    const layout = computeTileLayout(dims.wIn, dims.hIn, piece, PW, PH, OV, MARGIN);
     return { name: piece.name, landscape: layout.landscape, cols: layout.cols, rows: layout.rows };
   });
   if (smallNames.length > 0) {
