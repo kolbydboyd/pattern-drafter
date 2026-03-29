@@ -194,7 +194,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-footer-link:hover{color:var(--gold)}
 .land-footer .social-icons{flex:1;justify-content:flex-end}
 .land-footer .social-icon{color:var(--mid)}
-@media(max-width:600px){.land-footer{flex-direction:column;align-items:flex-start;gap:8px}.land-footer-copy{flex:none}.land-footer-legal{flex:none;flex-wrap:wrap}.land-footer .social-icons{flex:none;width:100%}}
+@media(max-width:600px){.land-footer{flex-direction:column;align-items:center;text-align:center;gap:8px}.land-footer-copy{flex:none}.land-footer-legal{flex:none;flex-wrap:wrap;justify-content:center}.land-footer .social-icons{flex:none;width:100%;justify-content:center}}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 .wiz-footer{margin-top:auto}
 /* Header nav links (pricing, patterns, learn pages) */
