@@ -5,7 +5,7 @@ Made-to-measure sewing patterns. Input your measurements, choose your garment ty
 **[peoplespatterns.com](https://peoplespatterns.com) · [@peoplespatterns](https://instagram.com/peoplespatterns)**
 
 > This repository is **private and proprietary**.
-> See [License](#license) below.
+See [License](#license) below.
 
 ## Quick Start
 
