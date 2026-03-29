@@ -219,14 +219,29 @@ create table if not exists fit_feedback (
   specific_feedback jsonb,
   notes            text,
   photo_url        text,
-  created_at       timestamptz default now(),
-  unique (user_id, purchase_id)
+  sew_stage        text default 'final' check (sew_stage in ('muslin', 'final')),
+  measurements_snapshot jsonb,
+  created_at       timestamptz default now()
 );
 alter table fit_feedback enable row level security;
 create policy "Users can CRUD own fit feedback"
   on fit_feedback for all using (auth.uid() = user_id);
--- Migration: run once on existing installs
---   (table is new, no migration needed)
+-- ── measurement_deltas ──────────────────────────────────────────────────────
+-- Implicit fit signal: logged when a user re-generates a pattern with
+-- different measurements. The delta reveals what didn't fit.
+create table if not exists measurement_deltas (
+  id               uuid default gen_random_uuid() primary key,
+  user_id          uuid references profiles(id) on delete cascade not null,
+  garment_id       text not null,
+  old_purchase_id  uuid references purchases(id) on delete set null,
+  new_purchase_id  uuid references purchases(id) on delete set null,
+  profile_id       uuid references measurement_profiles(id) on delete set null,
+  deltas           jsonb not null,
+  created_at       timestamptz default now()
+);
+alter table measurement_deltas enable row level security;
+create policy "Users can read own measurement deltas"
+  on measurement_deltas for select using (auth.uid() = user_id);
 
 -- ── Supabase Storage ──────────────────────────────────────────────────────────
 -- Create a private 'patterns' bucket in the Supabase Dashboard:

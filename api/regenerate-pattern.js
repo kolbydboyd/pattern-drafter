@@ -72,7 +72,14 @@ export default async function handler(req, res) {
     .update({ status: 'archived' })
     .eq('id', purchaseId);
 
-  // 3. Create new purchase record (free re-gen)
+  // 2b. Capture the old measurements for delta logging
+  const { data: oldPurchase } = await supabase
+    .from('purchases')
+    .select('measurements')
+    .eq('id', purchaseId)
+    .single();
+
+  // 3. Create new purchase record (free re-gen) with measurements snapshot
   const { data: newPurchase, error: insertErr } = await supabase
     .from('purchases')
     .insert({
@@ -82,6 +89,8 @@ export default async function handler(req, res) {
       amount_cents: 0,
       status:     'active',
       last_generated_at: new Date().toISOString(),
+      measurements: measurements ?? null,
+      opts:         opts ?? null,
     })
     .select()
     .single();
@@ -90,6 +99,30 @@ export default async function handler(req, res) {
     // Roll back archive if insert failed
     await supabase.from('purchases').update({ status: existing.status }).eq('id', purchaseId);
     return res.status(500).json({ error: 'Could not create new purchase record' });
+  }
+
+  // 3b. Log measurement delta (implicit fit signal — if measurements changed,
+  //     the old pattern didn't fit perfectly). Fire-and-forget.
+  const oldMeas = oldPurchase?.measurements;
+  if (oldMeas && measurements) {
+    const deltas = {};
+    for (const key of Object.keys(measurements)) {
+      const oldVal = parseFloat(oldMeas[key]);
+      const newVal = parseFloat(measurements[key]);
+      if (!isNaN(oldVal) && !isNaN(newVal) && oldVal !== newVal) {
+        deltas[key] = { old: oldVal, new: newVal, diff: +(newVal - oldVal).toFixed(2) };
+      }
+    }
+    if (Object.keys(deltas).length > 0) {
+      supabase.from('measurement_deltas').insert({
+        user_id:         userId,
+        garment_id:      garmentId,
+        old_purchase_id: purchaseId,
+        new_purchase_id: newPurchase.id,
+        profile_id:      existing.profile_id ?? null,
+        deltas,
+      }).then(() => {}).catch(err => console.error('Delta log failed:', err.message));
+    }
   }
 
   // 4. Load garment module

@@ -1,5 +1,4 @@
 {
-  "cleanUrls": true,
   "trailingSlash": false,
   "functions": {
     "api/generate-pattern.js": {
@@ -32,7 +31,8 @@
     { "source": "/patterns/:garment", "destination": "/patterns.html" },
     { "source": "/about", "destination": "/about.html" },
     { "source": "/learn", "destination": "/learn.html" },
-    { "source": "/learn/:slug", "destination": "/learn.html" }
+    { "source": "/learn/:slug", "destination": "/learn.html" },
+    { "source": "/pricing", "destination": "/pricing.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
