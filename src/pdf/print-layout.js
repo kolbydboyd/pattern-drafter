@@ -253,6 +253,22 @@ function renderPanelSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
       </text>
+      ${(() => {
+        // Info block at bottom-left inside the piece outline (visible after cutting)
+        const infoX = (ox + 0.3) * DPI;
+        const infoY = (oy + height - hem - 1.6) * DPI;
+        const lh = 11; // line height in px
+        const lines = [
+          `${name} \xd7 2 (mirror)`,
+          instruction,
+          `${fmtInches(sa)} SA all seams \xb7 ${fmtInches(hem)} hem`,
+        ].filter(Boolean);
+        return lines.map((line, i) =>
+          `<text x="${infoX}" y="${infoY + i * lh}"
+            font-family="'IBM Plex Mono',monospace" font-size="8"
+            fill="#999">${line}</text>`
+        ).join('\n');
+      })()}
     </svg>`,
   };
 }
@@ -389,6 +405,23 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>
+      ${(() => {
+        // Info block at bottom-left inside the piece outline (visible after cutting)
+        const infoX = (ox + minX + sa + 0.3) * DPI;
+        const infoY = (oy + maxY - 1.4) * DPI;
+        const lh = 11;
+        const instruction = piece.instruction || '';
+        const lines = [
+          pieceLabel,
+          instruction,
+          `${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem`,
+        ].filter(Boolean);
+        return lines.map((line, i) =>
+          `<text x="${infoX}" y="${infoY + i * lh}"
+            font-family="'IBM Plex Mono',monospace" font-size="8"
+            fill="#999">${line}</text>`
+        ).join('\n');
+      })()}
     </svg>`,
   };
 }
@@ -479,6 +512,9 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${dimLabel}</text>
+      ${instruction ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
+        fill="#999" text-anchor="middle">${instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -515,6 +551,9 @@ function renderPocketSVG(piece, { compact = false } = {}) {
       <text x="${cx}" y="${(M + H / 2) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
+      ${piece.instruction ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
+        fill="#999" text-anchor="middle">${piece.instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -559,10 +598,11 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
     const dashX = cx + px(OV * 0.45);
     shapes += `<line x1="${dashX}" y1="${yS}" x2="${dashX}" y2="${yE}"
       stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
-    // ✂ scissors icon at top of cut line
+    // ✂ scissors icon pointing downward along vertical cut line
     shapes += `<text x="${cx}" y="${yS + 16}"
       font-family="serif" font-size="13" fill="#000"
-      text-anchor="middle">\u2702</text>`;
+      text-anchor="middle"
+      transform="rotate(270,${cx},${yS + 16})">\u2702</text>`;
     // "cut here" label rotated along line
     shapes += `<text
       font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
@@ -580,10 +620,11 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
     const dashY = cy + px(OV * 0.45);
     shapes += `<line x1="${xS}" y1="${dashY}" x2="${xE}" y2="${dashY}"
       stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
-    // ✂ scissors icon at left of cut line
+    // ✂ scissors icon pointing rightward along horizontal cut line
     shapes += `<text x="${xS + 16}" y="${cy - 3}"
       font-family="serif" font-size="13" fill="#000"
-      text-anchor="middle">\u2702</text>`;
+      text-anchor="middle"
+      transform="rotate(180,${xS + 16},${cy - 3})">\u2702</text>`;
     // "cut here" label
     shapes += `<text x="${midX}" y="${cy - 4}"
       font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
