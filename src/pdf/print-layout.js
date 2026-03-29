@@ -881,6 +881,13 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
+      // Skip tiles with negligible visible content (< 0.1″ in either dimension)
+      const tileL = col * TX, tileR = tileL + (tPW - 2 * SM);
+      const tileT = row * TY, tileB = tileT + (tPH - 2 * SM);
+      const visW = Math.max(0, Math.min(effectiveW, tileR) - Math.max(0, tileL));
+      const visH = Math.max(0, Math.min(hIn, tileB) - Math.max(0, tileT));
+      if (visW < 0.1 || visH < 0.1) continue;
+
       // Compute base tile offsets (negative = scroll piece into view)
       let offsetX = -(col * TX * DPI) + shiftX * DPI;
       let offsetY = -(row * TY * DPI);
