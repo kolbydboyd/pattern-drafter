@@ -128,5 +128,47 @@ export default async function handler(req, res) {
     return res.status(200).json({ url: session.url });
   }
 
+  // ── A0 copy-shop upgrade (post-purchase) ──────────────────────────────────
+  if (mode === 'a0_upgrade') {
+    const { purchaseId, userId } = req.body;
+    if (!purchaseId || !userId) {
+      return res.status(400).json({ error: 'Missing purchaseId or userId' });
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+
+    const { data: purchase, error: purchaseErr } = await supabase
+      .from('purchases')
+      .select('id, a0_addon')
+      .eq('id', purchaseId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (purchaseErr || !purchase) {
+      return res.status(400).json({ error: 'Purchase not found' });
+    }
+    if (purchase.a0_addon) {
+      return res.status(400).json({ error: 'A0 + projector file already included in this purchase' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: A0_UPSELL.priceId, quantity: 1 }],
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/account`,
+      metadata: {
+        checkoutMode: 'a0_upgrade',
+        userId:       userId ?? '',
+        purchaseId,
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
   return res.status(400).json({ error: `Unknown checkout mode: ${mode}` });
 }

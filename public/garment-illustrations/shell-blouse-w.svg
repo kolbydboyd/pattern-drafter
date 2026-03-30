@@ -1,7 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M64,44 Q80,36 96,44"/>
-  <path d="M62,44 L54,48 L52,170 Q66,178 80,178 Q94,178 108,170 L106,48 L98,44"/>
-  <path d="M68,80 L72,100"/>
-  <path d="M92,80 L88,100"/>
+  <!-- jewel neckline -->
+  <path d="M64,44 Q80,38 96,44"/>
+  <!-- body with slight waist shaping -->
+  <path d="M62,44 L54,50 Q50,80 54,110 Q58,130 52,168 Q66,176 80,176 Q94,176 108,168 Q102,130 106,110 Q110,80 106,50 L98,44"/>
+  <!-- curved hemline -->
+  <path d="M52,168 Q80,178 108,168"/>
+  <!-- princess seam lines (curved vertical) -->
+  <path d="M68,50 Q66,80 68,110 Q70,140 66,168" stroke-dasharray="4 3"/>
+  <path d="M92,50 Q94,80 92,110 Q90,140 94,168" stroke-dasharray="4 3"/>
+  <!-- small shoulder seam darts -->
+  <line x1="62" y1="44" x2="58" y2="52"/>
+  <line x1="98" y1="44" x2="102" y2="52"/>
 </svg>

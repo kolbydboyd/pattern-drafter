@@ -270,10 +270,42 @@ export function buildMaterialsSpec(config) {
   const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
   const rawNeedle = typeof config.needle === 'string' ? NEEDLE_TYPES[config.needle] : config.needle;
 
+  // Determine fabric categories used by this garment
+  const fabricEntries = config.fabrics.map(f =>
+    typeof f === 'string' ? FABRIC_TYPES[f] : f
+  ).filter(Boolean);
+  const hasWoven = fabricEntries.some(f => f.category === 'woven');
+  const hasKnit  = fabricEntries.some(f => f.category === 'knit');
+
+  const machineSettings = [];
+  if (hasWoven) {
+    machineSettings.push({
+      label: 'Woven fabrics (cotton twill, gabardine, muslin, linen)',
+      tension: '4–4.5',
+      stitch: 'Straight stitch, length 2.5mm',
+      notes: 'Backstitch 3–4 stitches at start and end of every seam',
+    });
+  }
+  if (hasKnit) {
+    machineSettings.push({
+      label: 'Knit fabrics (cotton jersey, rayon jersey)',
+      tension: '3.5–4',
+      stitch: 'Stretch stitch or narrow zigzag (width 0.5, length 2.5)',
+      notes: 'Reduce presser foot pressure if available',
+    });
+  }
+
+  const troubleshooting = [
+    'Loops on the back of fabric = top tension too loose, increase by 0.5',
+    'Loops on the front of fabric = bobbin tension issue, re-seat bobbin',
+    'Thread breaking = re-thread from scratch with presser foot UP',
+    'Skipped stitches = change needle, ensure correct needle type for fabric',
+    'Fabric not feeding = check feed dogs are up, clean lint under needle plate',
+    'Puckering = reduce tension by 0.5 and/or reduce presser foot pressure',
+  ];
+
   return {
-    fabrics: config.fabrics.map(f =>
-      enrichFabric(typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f)
-    ),
+    fabrics: fabricEntries.map(f => enrichFabric({ ...f })),
     notions: config.notions.map(n =>
       enrichNotion(
         typeof n === 'string'
@@ -289,5 +321,7 @@ export function buildMaterialsSpec(config) {
       typeof s === 'string' ? STITCH_TYPES[s] : s
     ),
     notes: config.notes || [],
+    machineSettings,
+    troubleshooting,
   };
 }

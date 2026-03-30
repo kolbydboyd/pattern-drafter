@@ -9,6 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketFacing,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -39,9 +40,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+3″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)', reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)', reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -126,7 +127,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal = opts.ease === 'slim' ? 2 : opts.ease === 'relaxed' ? 4 : 3;
+    const easeVal = opts.ease === 'slim' ? 2.5 : opts.ease === 'relaxed' ? 6 : 4;
     const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
@@ -139,14 +140,29 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const baseInseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const baseInseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
     const inseam = baseInseam - (opts.hemStyle === 'crop' ? 2 : 0);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[straight-trouser-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[straight-trouser-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
@@ -160,7 +176,7 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop - inseam reduced 2″' : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop (inseam reduced 2″)' : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam, kneeY, kneeFactor,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
@@ -194,8 +210,8 @@ export default {
       pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
     }
     if (opts.pockets === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     }
@@ -254,7 +270,7 @@ export default {
     if (numPleats > 0) {
       steps.push({ step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`, detail: `Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. {baste} at waist. {press} first 5–6″ with steam and {press} cloth. Below hip, allow to drape freely.` });
     }
-    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally - prevents stretching while handling.' });
+    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally to prevent stretching while handling.' });
     if (hasFly) {
       steps.push({ step: n++, title: 'Install invisible zip fly', detail: 'Sew CF seam below fly opening only. Install invisible zipper to right CF opening. Attach fly shield to left CF behind zipper. {topstitch} fly curve from RS at 1″.' });
     } else {
@@ -293,7 +309,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: 0       });   // waist at center seam
+  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: sideKneeX,    y: kneeY   });

@@ -7,7 +7,8 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketFacing
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -24,9 +25,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -62,6 +63,14 @@ export default {
         { value: 'none', label: 'None (elastic/drawstring)' },
         { value: 'zip', label: 'Zip fly' },
         { value: 'button', label: 'Button fly' },
+      ],
+      default: 'none',
+    },
+    internalBelt: {
+      type: 'select', label: 'Internal belt',
+      values: [
+        { value: 'none', label: 'None' },
+        { value: 'webbing', label: 'Nylon webbing (holster/EDC support)' },
       ],
       default: 'none',
     },
@@ -113,13 +122,28 @@ export default {
     const backExt = parseFloat(opts.backExt);
     const cbRaise = parseFloat(opts.cbRaise);
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front;
+    let backW = m.hip / 4 + ease.back;
+
+    // Thigh ease check — widen panels if thigh circumference is tight
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[cargo-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033): widened panels by ${perPanel.toFixed(2)}\u2033 each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[cargo-shorts] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}\u2033 (recommend \u2265 2\u2033)`);
+      }
+    }
+
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 10);
+    const inseam    = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 10);
     const H = rise + inseam;
 
     const pieces = [];
@@ -172,8 +196,8 @@ export default {
 
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag', name: 'Slant Pocket Bag', instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK', dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket' });
@@ -206,8 +230,10 @@ export default {
     ];
 
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ - adjust at fitting` });
-      notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
+      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ (adjust at fitting)` });
+      if (opts.internalBelt === 'webbing') {
+        notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
+      }
     }
     if (opts.fly === 'zip') {
       notions.push({ name: 'Zipper', quantity: `${m.rise}″`, notes: 'Metal or nylon coil' });
@@ -227,9 +253,9 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Pre-wash linen (hot wash, tumble dry) - shrinks 3–5%',
+        'Pre-wash linen (hot wash, tumble dry); shrinks 3–5%',
         'Interface waistband with 2 layers BEFORE cutting',
-        'Sew nylon webbing into waistband for holster-clip support',
+        ...(opts.internalBelt === 'webbing' ? ['Sew nylon webbing into waistband for holster-clip support'] : []),
         'Bar tack all pocket corners and crotch junction',
         'Finish raw edges with serger or {zigzag}',
       ],
@@ -250,7 +276,7 @@ export default {
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat - finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
+        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat. Finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',
@@ -270,7 +296,7 @@ export default {
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.' });
+        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.` });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });
@@ -303,7 +329,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const poly = [];
 
   // Waist: CB to Side
-    poly.push({ x: 0, y: 0 }); // waist at center seam
+    poly.push({ x: 0, y: isBack ? -cbRaise : 0 }); // waist at center seam (raised on back)
   poly.push({ x: width, y: 0 }); // waist at side seam
 
   // Side seam down (straight for shorts)

@@ -346,7 +346,7 @@ export default {
   materials(m, opts) {
     const isRaglan = opts.sleeveType === 'raglan';
     const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For neckband, waistband, and cuffs - high recovery 2×2 or 1×1 rib' },
+      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For neckband, waistband, and cuffs (high recovery 2×2 or 1×1 rib)' },
     ];
 
     return buildMaterialsSpec({

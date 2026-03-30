@@ -255,28 +255,36 @@ export default async function handler(req, res) {
   const htmlA0  = needsA0
     ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0')
     : null;
+  const htmlProjector = needsA0
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector')
+    : null;
 
-  // 7. Render to PDF (letter + optional A0 in parallel)
-  let pdfBuffer, pdfA0Buffer;
+  // 7. Render to PDF (letter + optional A0 + projector in parallel)
+  let pdfBuffer, pdfA0Buffer, pdfProjectorBuffer;
   try {
     const renders = [generatePDF(html)];
-    if (htmlA0) renders.push(generatePDF(htmlA0));
-    [pdfBuffer, pdfA0Buffer] = await Promise.all(renders);
+    if (htmlA0)        renders.push(generatePDF(htmlA0));
+    if (htmlProjector) renders.push(generatePDF(htmlProjector));
+    [pdfBuffer, pdfA0Buffer, pdfProjectorBuffer] = await Promise.all(renders);
   } catch (err) {
     console.error('PDF generation failed:', err);
     return res.status(500).json({ error: 'PDF generation failed' });
   }
 
   // 5. Upload to Supabase Storage
-  const timestamp = Date.now();
-  const path      = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
-  const pathA0    = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
+  const timestamp     = Date.now();
+  const path          = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
+  const pathA0        = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
+  const pathProjector = `${userId || 'anon'}/${garmentId}/${timestamp}-projector.pdf`;
 
   const uploads = [
     supabase.storage.from('patterns').upload(path, pdfBuffer, { contentType: 'application/pdf', upsert: true }),
   ];
   if (pdfA0Buffer) {
     uploads.push(supabase.storage.from('patterns').upload(pathA0, pdfA0Buffer, { contentType: 'application/pdf', upsert: true }));
+  }
+  if (pdfProjectorBuffer) {
+    uploads.push(supabase.storage.from('patterns').upload(pathProjector, pdfProjectorBuffer, { contentType: 'application/pdf', upsert: true }));
   }
   const uploadResults = await Promise.all(uploads);
   const uploadErr = uploadResults.find(r => r.error)?.error;
@@ -289,7 +297,8 @@ export default async function handler(req, res) {
   // 6. Generate signed URLs valid for 48 hours
   const signedUrls = await Promise.all([
     supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48),
-    ...(pdfA0Buffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)] : []),
+    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)]        : []),
+    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48)] : []),
   ]);
 
   const { data: signed, error: signErr } = signedUrls[0];
@@ -297,7 +306,10 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Could not generate download URL' });
   }
 
-  const a0Signed = signedUrls[1]?.data ?? null;
+  // Signed URL indices shift based on which add-ons are present
+  let urlIdx = 1;
+  const a0Signed        = pdfA0Buffer        ? (signedUrls[urlIdx++]?.data ?? null) : null;
+  const projectorSigned = pdfProjectorBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
 
   // 7. Increment download_count
   if (userId) {
@@ -312,14 +324,16 @@ export default async function handler(req, res) {
     const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
     sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
       garmentName,
-      downloadUrl:    signed.signedUrl,
-      a0DownloadUrl:  a0Signed?.signedUrl ?? null,
+      downloadUrl:           signed.signedUrl,
+      a0DownloadUrl:         a0Signed?.signedUrl ?? null,
+      projectorDownloadUrl:  projectorSigned?.signedUrl ?? null,
       measurements,
       expiresHours: 48,
     }).catch(err => console.error('Purchase confirmation email failed:', err));
   }
 
   const response = { downloadUrl: signed.signedUrl };
-  if (a0Signed) response.a0DownloadUrl = a0Signed.signedUrl;
+  if (a0Signed)        response.a0DownloadUrl        = a0Signed.signedUrl;
+  if (projectorSigned) response.projectorDownloadUrl = projectorSigned.signedUrl;
   res.status(200).json(response);
 }

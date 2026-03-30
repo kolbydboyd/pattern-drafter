@@ -24,9 +24,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -41,7 +41,7 @@ export default {
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes - front & back mesh panels',  reference: 'athletic, brief-style' },
+        { value: 'yes', label: 'Yes, front & back mesh panels',  reference: 'athletic, brief-style' },
         { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
@@ -90,10 +90,25 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 5);
+    const inseam    = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 5);
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW  = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front;
+    let backW  = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[swim-trunks] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[swim-trunks] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];
@@ -224,9 +239,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) - do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams - stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },
@@ -240,7 +255,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
+  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });

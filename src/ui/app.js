@@ -36,7 +36,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
@@ -57,6 +57,7 @@ function _syncGarmentUrl(id) {
 }
 
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
+let _currentHasA0     = false; // whether current pattern purchase includes A0 addon
 let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
 let _activeProfileName = null; // display name, shown in step 2 label
 
@@ -70,12 +71,13 @@ let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
-  { id:'shorts',    label:'Shorts',    desc:'Casual, sport & tailored shorts', ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
-  { id:'tops',      label:'Tops',      desc:'Tees, shirts, hoodies & blouses', ids:['tee','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
-  { id:'skirts',    label:'Skirts',    desc:'Slip & A-line skirts',            ids:['slip-skirt-w','a-line-skirt-w'] },
-  { id:'dresses',   label:'Dresses',   desc:'Shirt dress & wrap dress',        ids:['shirt-dress-w','wrap-dress-w'] },
-  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket','denim-jacket'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
+  { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
+  { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
+  { id:'dresses',     label:'Dresses',     desc:'Shirt dress & wrap dress',               ids:['shirt-dress-w','wrap-dress-w'] },
+  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties & more',                ids:['apron','bow-tie'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
@@ -104,6 +106,37 @@ function _showSaveFeedback(anchor) {
   // trigger fade-out then remove
   requestAnimationFrame(() => requestAnimationFrame(() => { msg.style.opacity = '0'; }));
   setTimeout(() => msg.remove(), 1400);
+}
+
+function _showDuplicateProfilePrompt(name) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dup-profile-overlay';
+    overlay.innerHTML = `
+      <div class="dup-profile-dialog">
+        <p>A profile named <strong>"${name}"</strong> already exists.</p>
+        <p>Would you like to overwrite it or choose a different name?</p>
+        <div class="dup-profile-btns">
+          <button class="btn-xs" id="dup-overwrite">Overwrite</button>
+          <button class="btn-xs" id="dup-rename">Change Name</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#dup-overwrite').addEventListener('click', () => { overlay.remove(); resolve('overwrite'); });
+    overlay.querySelector('#dup-rename').addEventListener('click', () => { overlay.remove(); resolve('rename'); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); resolve('cancel'); } });
+  });
+}
+
+function _computeMeasDeltas(oldMeas, newMeas) {
+  const deltas = {};
+  const allKeys = new Set([...Object.keys(oldMeas), ...Object.keys(newMeas)]);
+  for (const k of allKeys) {
+    const o = oldMeas[k] ?? null;
+    const n = newMeas[k] ?? null;
+    if (o !== n) deltas[k] = { old: o, new: n };
+  }
+  return Object.keys(deltas).length ? deltas : null;
 }
 
 // Update active profile state + step 2 stepper label
@@ -151,7 +184,42 @@ async function saveCurrentProfile() {
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
 
-  // Save to Supabase first to get the UUID
+  // Check for existing profile with same name
+  const existing = loadProfiles().find(p => p.name === name);
+  if (existing) {
+    const action = await _showDuplicateProfilePrompt(name);
+    if (action === 'rename') { nameInput.focus(); nameInput.select(); return; }
+    if (action !== 'overwrite') return;
+
+    // Overwrite existing profile
+    const user = getCurrentUser();
+    const btn  = document.getElementById('save-profile-btn');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    if (existing.id) {
+      // Log measurement delta before overwriting
+      const oldMeas = { ...existing }; delete oldMeas.id; delete oldMeas.name;
+      const deltas = _computeMeasDeltas(oldMeas, m);
+      if (deltas) logMeasurementDelta(user.id, existing.id, deltas);
+
+      const { error } = await updateMeasurementProfile(existing.id, m);
+      if (error) console.error('Supabase update failed:', error.message);
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+
+    const profiles = loadProfiles().filter(p => p.name !== name);
+    profiles.push({ id: existing.id, name, ...m });
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    refreshProfileDropdown();
+    _setActiveProfile(existing.id, name);
+    nameInput.value = '';
+    _showSaveFeedback(btn?.closest('.profile-row') || btn?.parentElement);
+    return;
+  }
+
+  // Save new profile to Supabase
   const user = getCurrentUser();
   const btn  = document.getElementById('save-profile-btn');
   const orig = btn?.textContent;
@@ -189,8 +257,11 @@ function applyProfile(name) {
   const profile = loadProfiles().find(p => p.name === name);
   if (!profile) return;
   _setActiveProfile(profile.id ?? null, name);
+  const g = GARMENTS[currentGarment];
+  const garmentDefaults = g?.measurementDefaults ?? {};
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
+    if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
@@ -423,7 +494,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const fName = f.affiliateUrl
       ? `<a href="${f.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${f.name}</a>`
       : f.name;
-    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
+    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${expandGlossary(f.notes)}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -433,7 +504,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const nName = n.affiliateUrl
       ? `<a href="${n.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${n.name}</a>`
       : n.name;
-    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${expandGlossary(n.notes)})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -454,13 +525,29 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
     if (!s?.name) continue;
-    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
+    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${expandGlossary(s.use)}</span>`;
   }
   html += `</div>`;
 
+  if (mat.machineSettings?.length) {
+    html += `<div class="mat-section"><h5>Machine Settings</h5>`;
+    for (const ms of mat.machineSettings) {
+      html += `<div class="mat-row"><strong>${ms.label}</strong></div>`;
+      html += `<div class="mat-row">Tension: ${ms.tension} · ${ms.stitch}</div>`;
+      html += `<div class="mat-row"><span class="note">${ms.notes}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (mat.troubleshooting?.length) {
+    html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${expandGlossary(t)}</div>`;
+    html += `</div>`;
+  }
+
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
-    for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
+    for (const n of mat.notes) html += `<div class="mat-row">• ${expandGlossary(n)}</div>`;
     html += `</div>`;
   }
 
@@ -667,7 +754,7 @@ function _generate() {
     { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0/Plotter  33.1 x 46.8 in (single sheet)' },
+    { id: 'a0',      label: 'A0 / Copy Shop / Projector  33.1 x 46.8 in (+$4)' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
@@ -727,7 +814,7 @@ async function _applyWatermarkState(garmentId) {
     const banner = document.createElement('div');
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
-    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF - Free during beta</button>`;
+    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF (free during beta)</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-beta-dl-btn').addEventListener('click', () => {
       showEmailGate(() => handleDownloadPDF(document.getElementById('wm-beta-dl-btn')));
@@ -745,6 +832,7 @@ async function _applyWatermarkState(garmentId) {
       getFreeCredits(user.id),
     ]);
     purchased   = !!purchaseRes.data;
+    _currentHasA0 = !!purchaseRes.data?.a0_addon;
     freeCredits = creditsRes.credits ?? 0;
   }
   _currentPurchased = purchased;
@@ -762,7 +850,7 @@ async function _applyWatermarkState(garmentId) {
     if (!user) {
       // Not logged in: frictionless account creation → free credit → download
       banner.innerHTML = `
-        <span class="wm-banner-text">Your first pattern is <strong>free</strong> - no credit card needed.</span>
+        <span class="wm-banner-text">Your first pattern is <strong>free</strong>. No credit card needed.</span>
         <button class="wm-banner-btn" id="wm-signup-btn">Create Free Account &amp; Download</button>`;
       output.parentNode.insertBefore(banner, output);
       document.getElementById('wm-signup-btn').addEventListener('click', () => {
@@ -788,7 +876,7 @@ async function _applyWatermarkState(garmentId) {
         if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
         _currentPurchased = true;
         removeWatermarks(output);
-        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
         handleDownloadPDF(btn);
       });
     } else {
@@ -797,7 +885,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> - one sheet, no taping
+          Add A0 / Projector / Copy Shop files <span class="wm-a0-price">(+$4)</span> · no taping
         </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -818,7 +906,7 @@ function _showFreeSignupModal(garmentId) {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body">Create a free account to download - your first pattern is free, no credit card needed.</p>
+        <p class="email-gate-body">Create a free account to download. Your first pattern is free, no credit card needed.</p>
         <form id="free-signup-form" class="email-gate-form">
           <input type="email" id="free-signup-email" placeholder="you@example.com" required autocomplete="email">
           <input type="password" id="free-signup-pw" placeholder="Choose a password (8+ characters)" required autocomplete="new-password" minlength="8">
@@ -893,7 +981,7 @@ function _showFreeSignupModal(garmentId) {
     if (banner) {
       const price = PATTERN_PRICES[garmentId];
       const label = price?.label ?? 'this pattern';
-      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
     }
 
     // Trigger download
@@ -1032,6 +1120,69 @@ function _triggerBuyPattern(garmentId, addA0 = false) {
   });
 }
 
+function _promptA0Upgrade() {
+  let dlg = document.getElementById('a0-upgrade-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'a0-upgrade-dlg';
+    dlg.innerHTML = `
+      <div class="email-gate-card">
+        <div class="email-gate-logo">People's Patterns</div>
+        <p class="email-gate-body"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
+        <ul class="a0-upgrade-list">
+          <li><strong>A0 PDF</strong> — single-sheet print at any copy shop</li>
+          <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
+        </ul>
+        <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
+        <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
+        <p class="a0-upgrade-err" id="a0-upgrade-err" hidden></p>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  const buyBtn = dlg.querySelector('#a0-upgrade-buy');
+  const cancelBtn = dlg.querySelector('#a0-upgrade-cancel');
+  const errEl = dlg.querySelector('#a0-upgrade-err');
+  errEl.hidden = true;
+  buyBtn.disabled = false;
+  buyBtn.textContent = 'Add for $4';
+
+  buyBtn.onclick = async () => {
+    buyBtn.disabled = true;
+    buyBtn.textContent = 'Redirecting\u2026';
+    errEl.hidden = true;
+    try {
+      const user = getCurrentUser();
+      const { supabase } = await import('../lib/supabase.js');
+      const { data: purchase } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('garment_id', currentGarment)
+        .limit(1)
+        .maybeSingle();
+      if (!purchase) throw new Error('Purchase not found. Try from My Patterns.');
+      const { session } = await getSession();
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: purchase.id, userId: user.id }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Checkout failed');
+      window.location.href = json.url;
+    } catch (err) {
+      errEl.textContent = err.message || 'Something went wrong. Try again.';
+      errEl.hidden = false;
+      buyBtn.disabled = false;
+      buyBtn.textContent = 'Add for $4';
+    }
+  };
+
+  cancelBtn.onclick = () => dlg.close();
+  dlg.showModal();
+}
+
 function handlePrint(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handlePrint(btn));
@@ -1039,6 +1190,10 @@ function handlePrint(btn) {
   }
   if (!_currentPurchased) {
     _triggerBuyPattern(currentGarment);
+    return;
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
   printPattern();
@@ -1051,6 +1206,10 @@ async function handleDownloadPDF(btn) {
   }
   if (!_currentPurchased) {
     _triggerBuyPattern(currentGarment);
+    return;
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
 
@@ -1087,7 +1246,7 @@ async function handleDownloadPDF(btn) {
     a.click();
     a.remove();
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
-    // If A0 addon was purchased, trigger A0 download and show a notice
+    // If A0 addon was purchased, trigger A0 + projector downloads and show a notice
     if (json.a0DownloadUrl) {
       setTimeout(() => {
         const a0  = document.createElement('a');
@@ -1097,9 +1256,19 @@ async function handleDownloadPDF(btn) {
         a0.click();
         a0.remove();
       }, 800);
+      if (json.projectorDownloadUrl) {
+        setTimeout(() => {
+          const pj  = document.createElement('a');
+          pj.href   = json.projectorDownloadUrl;
+          pj.download = `${currentGarment}-pattern-projector.pdf`;
+          document.body.appendChild(pj);
+          pj.click();
+          pj.remove();
+        }, 1600);
+      }
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 / copy-shop file is also downloading - one sheet, no taping required.';
+      notice.textContent = 'Your A0 + projector files are also downloading. No taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
@@ -1542,7 +1711,10 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
 (function loadPatternCount() {
   const el = document.getElementById('land-pattern-count');
   if (!el) return;
-  fetch('/api/pattern-count').then(r => r.json()).then(({ count }) => {
+  fetch('/api/pattern-count').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }).then(({ count }) => {
     if (count && count > 0) {
       el.textContent = `${count.toLocaleString()} custom patterns generated`;
     }

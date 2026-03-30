@@ -28,12 +28,18 @@ export const TIER_PRICES = {
 // ── Garment → tier mapping ────────────────────────────────────────────────────
 const GARMENT_TIERS = {
   // simple — $9
-  'gym-shorts':     'simple',
-  'swim-trunks':    'simple',
-  'tee':            'simple',
-  'fitted-tee-w':   'simple',
-  'slip-skirt-w':   'simple',
-  'easy-pant-w':    'simple',
+  'gym-shorts':       'simple',
+  'swim-trunks':      'simple',
+  'tee':              'simple',
+  'fitted-tee-w':     'simple',
+  'slip-skirt-w':     'simple',
+  'easy-pant-w':      'simple',
+  'apron':            'simple',
+  'bow-tie':          'simple',
+  'tank-top':         'simple',
+  'circle-skirt-w':   'simple',
+  'pencil-skirt-w':   'simple',
+  'leggings':         'simple',
   // core — $14
   'cargo-shorts':       'core',
   'straight-jeans':     'core',
@@ -82,6 +88,12 @@ const GARMENT_LABELS = {
   'button-up-w':        'Button-Up Shirt',
   'shirt-dress-w':      'Shirt Dress',
   'wrap-dress-w':       'Wrap Dress',
+  'apron':              'Apron',
+  'bow-tie':            'Bow Tie',
+  'tank-top':           'Tank Top',
+  'circle-skirt-w':     'Circle Skirt',
+  'pencil-skirt-w':     'Pencil Skirt',
+  'leggings':           'Leggings',
 };
 
 // ── Per-garment lookup (backward-compatible with existing consumers) ──────────
@@ -153,6 +165,6 @@ export const SUBSCRIPTION_PRICE = SUBSCRIPTION_PRICES.club_monthly;
 // ── A0 / copy shop add-on ─────────────────────────────────────────────────────
 export const A0_UPSELL = {
   cents:   400,
-  label:   'A0 / Copy Shop file',
+  label:   'A0 / Projector / Copy Shop files',
   priceId: 'price_1TFlPOEcctnfQkkLwH6SU14A',
 };

@@ -62,7 +62,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes - full lining' },
+        { value: 'yes', label: 'Yes, full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -252,7 +252,7 @@ export default {
     if (opts.hem === 'faced') {
       steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. {slipstitch} facing edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem - mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
+      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem. Mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
     }
 
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });

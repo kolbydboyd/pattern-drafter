@@ -130,6 +130,9 @@ const relatedCards = related.map(g => {
   const p = PATTERN_PRICES[g.id];
   return `
     <a href="/patterns/${g.id}" class="pat-pg-related-card">
+      <div class="pat-pg-listing-img">
+        <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+      </div>
       <div class="pat-pg-related-name">${g.name}</div>
       <div class="pat-pg-related-meta">
         <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
@@ -153,6 +156,7 @@ root.innerHTML = `
   <div class="pat-pg-hero">
     <div class="pat-pg-photo-wrap">
       <div class="pat-pg-photo-placeholder">
+        <img src="/garment-illustrations/${garmentId}.svg" alt="${garment.name} illustration" class="pat-pg-hero-illustration" width="160" height="200">
         <span class="pat-pg-photo-coming">Photos coming soon</span>
       </div>
     </div>
@@ -243,6 +247,9 @@ function renderPatternListing() {
       const p = PATTERN_PRICES[g.id];
       return `
         <a href="/patterns/${g.id}" class="pat-pg-listing-card">
+          <div class="pat-pg-listing-img">
+            <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+          </div>
           <div class="pat-pg-listing-name">${g.name}</div>
           <div class="pat-pg-listing-meta">
             <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>

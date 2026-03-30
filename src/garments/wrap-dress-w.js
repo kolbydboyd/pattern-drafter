@@ -237,7 +237,7 @@ export default {
       });
       return {
         id, name,
-        instruction: `Cut 1${isBack ? ' on fold (CB)' : ' - left and right fronts are mirror images'}${gatherNote}`,
+        instruction: `Cut 1${isBack ? ' on fold (CB)' : '. Left and right fronts are mirror images'}${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
         width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
@@ -249,7 +249,7 @@ export default {
 
     const pieces = [
       {
-        id: 'bodice-front', name: 'Front Bodice (cut 2 - mirror)',
+        id: 'bodice-front', name: 'Front Bodice (cut 2, mirror)',
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(wrapExt)} wrap extension past CF · V-neck descends to bust level · Facing sewn along V-neckline edge`,
         type: 'bodice', polygon: frontBodicePoly, path: pp(frontBodicePoly),
         isCutOnFold: false,
@@ -265,7 +265,7 @@ export default {
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
         notches: backNotches,
       },
-      buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2 - mirror)', false),
+      buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2, mirror)', false),
       buildSkirtPanel('skirt-back',  'Skirt Back Panel', true),
     ];
 
@@ -332,12 +332,12 @@ export default {
         ? ['stretch', 'overlock', 'zigzag-med']
         : ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Cut front panels as mirror images - lay fabric doubled for one cut',
+        'Cut front panels as mirror images. Lay fabric doubled for one cut',
         'Stay-stitch V-neckline curves and waist seam immediately after cutting to prevent bias stretch',
         opts.skirtShape === 'flowy' ? 'Gather skirt waist: two rows of basting at ⅜″ and ¼″, draw up to match bodice width, distribute fullness evenly' : 'A-line skirt: {press} side seams open for a clean silhouette',
-        'Ties: attach inner tie to bodice facing, outer tie to side seam - the inner tie passes through a small opening at the side seam to tie at the back',
-        isKnit ? 'Use a stretch stitch or serger for all seams - straight stitch will pop when fabric stretches' : 'French seams at side seams are worth the effort on fine drapey fabrics',
-        'Hang dress 24 hours before hemming - drapey wovens and bias cuts will drop',
+        'Ties: attach inner tie to bodice facing, outer tie to side seam. The inner tie passes through a small opening at the side seam to tie at the back',
+        isKnit ? 'Use a stretch stitch or serger for all seams; straight stitch will pop when fabric stretches' : 'French seams at side seams are worth the effort on fine drapey fabrics',
+        'Hang dress 24 hours before hemming. Drapey wovens and bias cuts will drop',
       ].filter(Boolean),
     });
   },
@@ -348,7 +348,7 @@ export default {
 
     steps.push({ step: n++, title: 'Stay-stitch and prepare', detail: 'Stay-stitch V-neckline at ½″ on both front panels. Stay-stitch waist edges. For wovens: {press}-mark CF fold line on front panels.' });
     steps.push({ step: n++, title: 'Sew bodice shoulder seams', detail: 'Join front to back at shoulders {RST}. {press} toward back.' });
-    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. {clip} at V point - nearly to stitching. {understitch}. {press} facing to WS. Tack at shoulder seams.' });
+    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. {clip} at V point, nearly to stitching. {understitch}. {press} facing to WS. Tack at shoulder seams.' });
 
     if (opts.sleeve !== 'sleeveless') {
       steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. {press} SA toward sleeve. {serge} or {zigzag}.' });

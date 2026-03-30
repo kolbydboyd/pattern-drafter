@@ -8,7 +8,8 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
-  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketFacing
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -25,9 +26,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -96,14 +97,28 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31);
+    const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
-    const frontHipW   = m.hip / 4 + ease.front;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front;
+    let backHipW    = m.hip / 4 + ease.back;
     const frontWaistW = m.waist / 4 + ease.front;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
+
+    // Thigh ease check — widen panels if thigh circumference is tight
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[straight-jeans] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033): widened panels by ${perPanel.toFixed(2)}\u2033 each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[straight-jeans] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}\u2033 (recommend \u2265 2\u2033)`);
+      }
+    }
     const H           = rise + inseam;
 
     const pieces = [];
@@ -146,8 +161,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Denim or twill', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining (muslin or drill)', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6.5, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Denim or twill' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -176,12 +191,12 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
-        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look - use a {topstitch} needle for heavier thread',
+        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look. Use a {topstitch} needle for heavier thread',
         'Fell seams on inseam and outseam: after sewing, {press} seam to one side, fold raw edge under, {topstitch} from RS two rows visible',
         'Pre-wash denim once (hot wash, dry on high) to pre-shrink before cutting',
-        'Use a denim needle (100/16) and heavy polyester thread 30wt - lighter thread will break under tension',
+        'Use a denim needle (100/16) and heavy polyester thread 30wt; lighter thread will break under tension',
         'Copper rivet all high-stress points: bottom of front pocket openings, coin pocket sides, crotch junction',
-        '{press} denim with a damp cloth - dry pressing may leave shine marks on dark denim',
+        '{press} denim with a damp cloth. Dry pressing may leave shine marks on dark denim',
       ],
     });
   },
@@ -256,7 +271,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: 0       });   // waist at center seam
+  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: sideKneeX,    y: kneeY   });   // knee on side seam

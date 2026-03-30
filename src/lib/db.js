@@ -9,7 +9,8 @@ export async function getFreeCredits(userId) {
     .select('free_credits')
     .eq('id', userId)
     .single();
-  return { credits: data?.free_credits ?? 0, error };
+  if (error) return { credits: 0, error };
+  return { credits: data?.free_credits ?? 0, error: null };
 }
 
 // ── Measurement Profiles ──────────────────────────────────────────────────────
@@ -79,6 +80,13 @@ export async function deleteMeasurementProfile(id) {
     .from('measurement_profiles')
     .delete()
     .eq('id', id);
+  return { error };
+}
+
+export async function logMeasurementDelta(userId, profileId, deltas) {
+  const { error } = await supabase
+    .from('measurement_deltas')
+    .insert({ user_id: userId, profile_id: profileId, deltas });
   return { error };
 }
 
@@ -175,12 +183,12 @@ export function getDaysUntilDeletion(trashedAt) {
 export async function hasPurchased(userId, garmentId) {
   const { data, error } = await supabase
     .from('purchases')
-    .select('id')
+    .select('id, a0_addon')
     .eq('user_id', userId)
     .eq('garment_id', garmentId)
     .limit(1)
     .maybeSingle();
-  return { data: !!data, error };
+  return { data: data ? { purchased: true, a0_addon: !!data.a0_addon } : null, error };
 }
 
 // ── Subscription & Credits ────────────────────────────────────────────────────

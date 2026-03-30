@@ -9,7 +9,8 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketFacing
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -29,8 +30,8 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -55,8 +56,8 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'standard', label: 'Standard - 1½″ finished, interfaced',          reference: 'classic, interfaced'    },
-        { value: 'curtain',  label: 'Curtain - 1½″ finished, button + hook-and-eye',  reference: 'Savile Row, high-waisted' },
+        { value: 'standard', label: 'Standard, 1½″ finished, interfaced',          reference: 'classic, interfaced'    },
+        { value: 'curtain',  label: 'Curtain, 1½″ finished, button + hook-and-eye',  reference: 'Savile Row, high-waisted' },
       ],
       default: 'standard',
     },
@@ -118,10 +119,25 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 11);
+    const inseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 11);
 
-    const frontW = m.hip / 4 + ease.front + pleatExtra;
-    const backW  = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front + pleatExtra;
+    let backW  = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[pleated-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[pleated-shorts] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];
@@ -163,8 +179,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash line' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
@@ -220,7 +236,7 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam - {press} down 3–4″, then release to drape naturally.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam. {press} down 3–4″, then release to drape naturally.`,
       });
     }
 
@@ -257,7 +273,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
+  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist at center seam (raised on back)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });
