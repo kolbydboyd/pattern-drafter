@@ -1285,7 +1285,7 @@ function buildScalePage(pieces, PW, PH, OV) {
   </div>`;
 }
 
-function buildMaterialsPage(materials) {
+function buildMaterialsPage(materials, instructions) {
   const fabricRows = (materials.fabrics || []).map(f =>
     `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
   ).join('');
@@ -1311,6 +1311,15 @@ function buildMaterialsPage(materials) {
   const needleHtml = materials.needle
     ? `<tr><td>Needle</td><td>${materials.needle.name || ''} \u2014 ${materials.needle.use || ''}</td></tr>`
     : '';
+
+  const terms = usedGlossaryTerms(instructions);
+  const glossaryHtml = terms.length ? `
+    <div class="print-glossary">
+      <h3 class="sect-head">Glossary</h3>
+      <div class="gl-grid">${terms.map(t =>
+        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
+      ).join('')}</div>
+    </div>` : '';
 
   return `<div class="page mat-page">
     <h2 class="page-head">Materials &amp; Stitch Guide</h2>
@@ -1340,6 +1349,7 @@ function buildMaterialsPage(materials) {
         </table>
       </div>
     </div>
+    ${glossaryHtml}
   </div>`;
 }
 
@@ -1373,20 +1383,10 @@ function buildInstructionsPage(instructions) {
     </div>`
   ).join('');
 
-  const terms = usedGlossaryTerms(instructions);
-  const glossaryHtml = terms.length ? `
-    <div class="print-glossary">
-      <h3 class="sect-head">Glossary</h3>
-      <div class="gl-grid">${terms.map(t =>
-        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
-      ).join('')}</div>
-    </div>` : '';
-
   return `<div class="page instr-page">
     <h2 class="page-head">Construction Order</h2>
     <p class="note" style="margin-bottom:0.2in">Read all steps before starting. Press every seam.</p>
     <div class="steps">${stepsHtml}</div>
-    ${glossaryHtml}
   </div>`;
 }
 
@@ -1651,7 +1651,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
     ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
-    + buildMaterialsPage(materials)
+    + buildMaterialsPage(materials, instructions)
     + buildInstructionsPage(instructions);
 
   // ── Pattern piece pages ─────────────────────────────────────────────────
