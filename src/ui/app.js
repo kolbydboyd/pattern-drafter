@@ -754,7 +754,7 @@ function _generate() {
     { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0/Plotter  33.1 x 46.8 in (single sheet)' },
+    { id: 'a0',      label: 'A0 / Copy Shop / Projector  33.1 x 46.8 in (+$4)' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
@@ -1128,14 +1128,14 @@ function _promptA0Upgrade() {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body" style="margin-bottom:8px"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
-        <ul style="font-size:.75rem;color:var(--text);line-height:1.6;margin:0 0 12px 16px;padding:0">
+        <p class="email-gate-body"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
+        <ul class="a0-upgrade-list">
           <li><strong>A0 PDF</strong> — single-sheet print at any copy shop</li>
           <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
         </ul>
         <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
         <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
-        <p id="a0-upgrade-err" style="color:var(--accent);font-size:.7rem;margin-top:8px" hidden></p>
+        <p class="a0-upgrade-err" id="a0-upgrade-err" hidden></p>
       </div>`;
     document.body.appendChild(dlg);
   }
