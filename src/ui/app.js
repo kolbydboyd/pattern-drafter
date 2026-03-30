@@ -1160,14 +1160,15 @@ function _promptA0Upgrade() {
   dlg.showModal();
 }
 
-function handlePrint(btn) {
+async function handlePrint(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handlePrint(btn));
     return;
   }
   if (!_currentPurchased) {
-    _triggerBuyPattern(currentGarment);
-    return;
+    // Refresh purchase/credit state — user may have just signed up with a free credit
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
   }
   if (selectedPaperSize === 'a0' && !_currentHasA0) {
     _promptA0Upgrade();
@@ -1182,8 +1183,9 @@ async function handleDownloadPDF(btn) {
     return;
   }
   if (!_currentPurchased) {
-    _triggerBuyPattern(currentGarment);
-    return;
+    // Refresh purchase/credit state — user may have just signed up with a free credit
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
   }
   if (selectedPaperSize === 'a0' && !_currentHasA0) {
     _promptA0Upgrade();

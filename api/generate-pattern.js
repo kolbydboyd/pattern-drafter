@@ -146,7 +146,7 @@ export default async function handler(req, res) {
     // Stripe verification above is the authoritative gate; DB row is best-effort here.
     const { data: existingPurchase } = await supabase
       .from('purchases')
-      .select('id, stripe_payment_intent, downloaded_at, a0_addon')
+      .select('id, stripe_payment_intent, downloaded_at, a0_addon, amount_cents')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
@@ -159,7 +159,7 @@ export default async function handler(req, res) {
     // Re-download from account dashboard — purchase record must exist.
     const { data: existingPurchase, error: purchaseErr } = await supabase
       .from('purchases')
-      .select('id, stripe_payment_intent, downloaded_at, a0_addon')
+      .select('id, stripe_payment_intent, downloaded_at, a0_addon, amount_cents')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
       .maybeSingle();
@@ -320,7 +320,9 @@ export default async function handler(req, res) {
   }
 
   // 8. Send purchase confirmation email (only on first post-purchase generation)
-  if (sessionId && authUser?.email) {
+  const isFreeCreditFirstGen = !sessionId && purchase?.amount_cents === 0
+    && (purchase.downloaded_at || []).length === 0;
+  if (authUser?.email && (sessionId || isFreeCreditFirstGen)) {
     const garmentName = garment.name ?? garmentId.replace(/-/g, ' ');
     sendEmail('PURCHASE_CONFIRMATION', authUser.email, {
       garmentName,
