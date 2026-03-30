@@ -66,6 +66,14 @@ export default {
       ],
       default: 'none',
     },
+    internalBelt: {
+      type: 'select', label: 'Internal belt',
+      values: [
+        { value: 'none', label: 'None' },
+        { value: 'webbing', label: 'Nylon webbing (holster/EDC support)' },
+      ],
+      default: 'none',
+    },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3 },
     backExt: { type: 'number', label: 'Back crotch ext', default: 2.5, step: 0.25, min: 1, max: 4 },
     sa: {
@@ -223,7 +231,9 @@ export default {
 
     if (opts.fly === 'none') {
       notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ - adjust at fitting` });
-      notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
+      if (opts.internalBelt === 'webbing') {
+        notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
+      }
     }
     if (opts.fly === 'zip') {
       notions.push({ name: 'Zipper', quantity: `${m.rise}″`, notes: 'Metal or nylon coil' });
@@ -245,7 +255,7 @@ export default {
       notes: [
         'Pre-wash linen (hot wash, tumble dry) - shrinks 3–5%',
         'Interface waistband with 2 layers BEFORE cutting',
-        'Sew nylon webbing into waistband for holster-clip support',
+        ...(opts.internalBelt === 'webbing' ? ['Sew nylon webbing into waistband for holster-clip support'] : []),
         'Bar tack all pocket corners and crotch junction',
         'Finish raw edges with serger or {zigzag}',
       ],
@@ -286,7 +296,7 @@ export default {
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing (2 layers). Sew webbing centered on outer half. Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.' });
+        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.` });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });
