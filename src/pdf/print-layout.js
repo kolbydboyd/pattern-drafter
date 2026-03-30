@@ -1399,6 +1399,145 @@ function buildInstructionsPage(instructions) {
   </div>`;
 }
 
+// ── Tabloid combined preamble (11×17, two pages) ──────────────────────────
+
+/**
+ * For tabloid paper, collapse the 4 preamble pages into 2:
+ *   Page 1 — Cover, scale verification, tile assembly map
+ *   Page 2 — Materials, stitch guide, construction steps
+ */
+function buildTabloidPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV) {
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const measRows = garment.measurements.map(id => {
+    const def = MEASUREMENTS[id];
+    return `<tr><td>${def ? def.label : id}</td><td>${fmtInches(measurements[id])}</td></tr>`;
+  }).join('');
+  const optRows = Object.entries(opts).map(([k, v]) => {
+    const label = k.replace(/([A-Z])/g, ' $1').trim();
+    return `<tr><td>${label}</td><td>${v}</td></tr>`;
+  }).join('');
+  const fabricRows = (materials.fabrics || []).map(f =>
+    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
+  ).join('');
+  const notionRows = (materials.notions || []).map(n =>
+    `<tr><td>${n.name}</td><td>${n.quantity || ''}</td><td>${n.notes || ''}</td></tr>`
+  ).join('');
+  const stitchRows = (materials.stitches || []).map(s =>
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || '\u2014') : '\u2014'}</td><td>${s.use || ''}</td></tr>`
+  ).join('');
+  const stepsHtml = (instructions || []).map(s =>
+    `<div class="step">
+      <div class="step-n">${s.step}</div>
+      <div class="step-b">
+        <div class="step-t">${s.title}</div>
+        <div class="step-d">${s.detail}</div>
+      </div>
+    </div>`
+  ).join('');
+  const threadHtml = materials.thread
+    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} \u2014 ${materials.thread.notes || ''}</td></tr>`
+    : '';
+  const needleHtml = materials.needle
+    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} \u2014 ${materials.needle.use || ''}</td></tr>`
+    : '';
+  const notesHtml = materials.notes?.length
+    ? `<div class="mat-notes">
+        <h3 class="sect-head" style="margin-top:0.18in">Important Notes</h3>
+        <ul>${materials.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+       </div>`
+    : '';
+
+  const sq2px = px(2), sq5px = (5 / 2.54) * DPI;
+  function scaleSVG(size, label) {
+    return `<div class="sq-item">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"
+          viewBox="0 0 ${size} ${size}" style="display:block">
+        <rect x="1" y="1" width="${size - 2}" height="${size - 2}"
+          fill="none" stroke="#2c2a26" stroke-width="1.5"/>
+        <line x1="${size / 2}" y1="1" x2="${size / 2}" y2="${size - 1}"
+          stroke="#ccc" stroke-width="0.7"/>
+        <line x1="1" y1="${size / 2}" x2="${size - 1}" y2="${size / 2}"
+          stroke="#ccc" stroke-width="0.7"/>
+      </svg>
+      <div style="font-size:9pt;color:#555;margin-top:6px;text-align:center">${label}</div>
+    </div>`;
+  }
+
+  // ── Page 1: Cover & Scale ──
+  const page1 = `<div class="page tb-preamble" style="width:${PW}in;height:${PH}in">
+    <div class="tb-header">
+      <div class="tb-brand">People\u2019s Patterns</div>
+      <div class="tb-title">${garment.name}</div>
+      <div class="tb-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
+    </div>
+    <div class="tb-body">
+      <div class="tb-col">
+        <h3 class="sect-head">Body Measurements</h3>
+        <table class="ptable"><tbody>${measRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.24in">Pattern Options</h3>
+        <table class="ptable"><tbody>${optRows}</tbody></table>
+        <h3 class="sect-head" style="margin-top:0.24in">How to Assemble</h3>
+        <ol class="tb-howto">
+          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
+          <li>Verify the 2\xd72 in and 5\xd75 cm squares at right measure exactly right</li>
+          <li>Assemble tiles in the order shown in the map at right</li>
+          <li>Cut along the \u2702 scissors line at each overlap edge</li>
+          <li>Align \u2295 crosshairs \u2014 matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement</li>
+          <li>Tape from the back; check the 1\u2033 ruler strip before taping</li>
+        </ol>
+      </div>
+      <div class="tb-col">
+        <h3 class="sect-head">Scale Verification \u2014 Measure before cutting fabric</h3>
+        <div class="sq-row" style="justify-content:flex-start;gap:0.5in;margin:0.1in 0 0.24in">
+          ${scaleSVG(sq2px, 'Must be exactly 2 \xd7 2 in')}
+          ${scaleSVG(sq5px, 'Must be exactly 5 \xd7 5 cm')}
+        </div>
+        <h3 class="sect-head">Tile Assembly Map</h3>
+        <p class="note" style="margin-bottom:0.1in">Each cell = one printed sheet. Label = row-col. Assemble left-to-right, top-to-bottom.</p>
+        ${buildTileMapSVG(pieces, PW, PH, OV)}
+      </div>
+    </div>
+    <div class="tb-foot">Drafted ${date} \xb7 People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</div>
+  </div>`;
+
+  // ── Page 2: Materials & Construction ──
+  const page2 = `<div class="page tb-preamble" style="width:${PW}in;height:${PH}in">
+    <h2 class="tb-page-head">Materials &amp; Construction Order</h2>
+    <div class="tb-body">
+      <div class="tb-col">
+        <h3 class="sect-head">Fabric Options</h3>
+        <table class="ptable">
+          <thead><tr><th>Fabric</th><th>Weight</th><th>Notes</th></tr></thead>
+          <tbody>${fabricRows}</tbody>
+        </table>
+        <h3 class="sect-head" style="margin-top:0.2in">Notions</h3>
+        <table class="ptable">
+          <thead><tr><th>Item</th><th>Qty</th><th>Notes</th></tr></thead>
+          <tbody>${notionRows}</tbody>
+        </table>
+        <h3 class="sect-head" style="margin-top:0.2in">Thread &amp; Needle</h3>
+        <table class="ptable">
+          <tbody>${threadHtml}${needleHtml}</tbody>
+        </table>
+        ${notesHtml}
+      </div>
+      <div class="tb-col">
+        <h3 class="sect-head">Stitch Settings</h3>
+        <table class="ptable">
+          <thead><tr><th>Stitch</th><th>Length</th><th>Width</th><th>Use</th></tr></thead>
+          <tbody>${stitchRows}</tbody>
+        </table>
+        <h3 class="sect-head" style="margin-top:0.24in">Construction Order</h3>
+        <p class="note" style="margin-bottom:0.12in">Read all steps before starting. Press every seam.</p>
+        <div class="steps">${stepsHtml}</div>
+      </div>
+    </div>
+  </div>`;
+
+  return page1 + page2;
+}
+
 // ── Large-format combined preamble (A0/plotter) ────────────────────────────
 
 /**
@@ -1627,6 +1766,19 @@ b.gl { font-weight:600; color:#2c2a26; }
 .lf-step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
 .lf-step-d { font-size:9pt; color:#555; line-height:1.5; }
 
+/* ── Tabloid preamble (11×17 two-page layout) ── */
+.tb-preamble   { padding:0.6in 0.65in 0.4in; }
+.tb-header     { border-bottom:2px solid #2c2a26; padding-bottom:0.16in; margin-bottom:0.24in; }
+.tb-brand      { font-family:'Fraunces',serif; font-size:11pt; font-weight:300; color:#aaa; letter-spacing:0.04em; }
+.tb-title      { font-size:30pt; font-weight:700; color:#2c2a26; margin-top:0.06in; }
+.tb-sub        { font-size:9.5pt; color:#999; margin-top:0.04in; }
+.tb-body       { display:flex; gap:0.5in; }
+.tb-col        { flex:1; min-width:0; }
+.tb-howto      { padding-left:1.2em; font-size:9pt; line-height:1.85; color:#444; }
+.tb-howto strong { color:#c44; }
+.tb-page-head  { font-size:14pt; font-weight:700; color:#2c2a26; border-bottom:1.5px solid #2c2a26; padding-bottom:0.08in; margin-bottom:0.2in; }
+.tb-foot       { position:absolute; bottom:0.35in; left:0.65in; font-size:8pt; color:#bbb; }
+
 @media print {
   body { background:#fff; }
   .page { margin:0; box-shadow:none; }
@@ -1654,10 +1806,13 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
   const PH  = size.h;
   const OV  = 0.75; // tile overlap in inches
   const isLargeFormat = PW >= 30; // A0/plotter — collapse preamble + nest small pieces
+  const isTabloid = !isLargeFormat && PW >= 10 && PH >= 16; // tabloid (11×17) — 2-page preamble
 
   // ── Preamble pages ──────────────────────────────────────────────────────
   const preamblePages = isLargeFormat
     ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
+    : isTabloid
+    ? buildTabloidPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
     + buildMaterialsPage(materials, instructions)
