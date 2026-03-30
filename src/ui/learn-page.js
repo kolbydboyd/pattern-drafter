@@ -1,7 +1,10 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Learn / blog page — handles /learn and /learn/[slug]
 
+import { inject } from '@vercel/analytics';
 import { ARTICLES } from '../content/articles.js';
+
+inject();
 
 const SITE_URL = 'https://peoplespatterns.com';
 const CATEGORY_LABELS = {
