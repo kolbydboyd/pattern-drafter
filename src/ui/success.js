@@ -1,6 +1,5 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Success page — runs after Stripe checkout redirect
-import './auth-modal.js';
 import { getSession } from '../lib/auth.js';
 import { trackEvent, identifyUser } from '../analytics.js';
 import { getRecommendations } from '../engine/recommendations.js';
