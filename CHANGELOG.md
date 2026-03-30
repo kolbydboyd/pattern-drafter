@@ -17,7 +17,7 @@ All notable changes are documented here, newest first.
 
 ### Infrastructure
 - Added GitHub Actions CI workflow — runs `npm run build` on every push to main and PR
-- Added Sentry browser error monitoring (`@sentry/browser`) — catches unhandled JS errors in production; set `VITE_SENTRY_DSN` to activate
+- Added Sentry browser error monitoring (`@sentry/browser`) — catches unhandled JS errors in production
 - Added per-IP rate limiting to 5 API endpoints: `join-list` (5/min), `signup-free` (5/min), `create-checkout` (10/min), `use-free-credit` (5/min), `submit-feedback` (10/min)
 
 ### README
