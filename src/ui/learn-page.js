@@ -3,6 +3,7 @@
 
 import { inject } from '@vercel/analytics';
 import '../analytics.js';
+import './auth-modal.js';
 import { ARTICLES } from '../content/articles.js';
 import GARMENTS from '../garments/index.js';
 
