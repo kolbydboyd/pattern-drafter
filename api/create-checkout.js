@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  try {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || 'https://peoplespatterns.com';
   const { mode = 'pattern' } = req.body;
@@ -171,4 +172,9 @@ export default async function handler(req, res) {
   }
 
   return res.status(400).json({ error: `Unknown checkout mode: ${mode}` });
+
+  } catch (err) {
+    console.error('Checkout handler error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 }
