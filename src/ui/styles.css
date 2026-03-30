@@ -424,7 +424,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .acct-btn-danger:hover{background:var(--accent);color:#fff}
 /* ── Static pages (FAQ / Terms / Privacy) ────────────────────────────────── */
 .pg{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-.pg-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:32px 24px}
+.pg-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:48px 24px}
 .pg-wrap{max-width:720px;margin:0 auto;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:40px 48px 52px}
 .pg-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:8px;letter-spacing:-.5px}
 .pg-effective{font-size:.6rem;color:var(--mid);letter-spacing:.8px;text-transform:uppercase;margin-bottom:48px}
@@ -639,7 +639,7 @@ details.adv-meas summary:hover{color:var(--text)}
 
 /* ── Pattern detail page ── */
 .pat-pg-root{min-height:calc(100vh - 64px - 56px);display:flex;flex-direction:column}
-.pat-pg-wrap{max-width:1080px;margin:0 auto;padding:32px 20px 64px;flex:1;width:100%}
+.pat-pg-wrap{max-width:1080px;margin:0 auto;padding:48px 20px 64px;flex:1;width:100%}
 .pat-pg-breadcrumb{font-size:.72rem;color:var(--mid);margin-bottom:24px;display:flex;gap:6px;align-items:center}
 .pat-pg-breadcrumb a{color:var(--mid);text-decoration:none}.pat-pg-breadcrumb a:hover{color:var(--text)}
 .pat-pg-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:48px;align-items:start}
@@ -681,7 +681,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .pat-pg-404-heading{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:300;color:var(--text);margin:16px 0 8px}
 .pat-pg-404-sub{font-size:.9rem;color:var(--mid);margin-bottom:28px}
 .pat-pg-404-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.pat-pg-listing-title{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:300;color:var(--text);margin-bottom:28px}
+.pat-pg-listing-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:28px}
 .pat-pg-listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
 .pat-pg-listing-card{display:block;padding:14px 16px;border:1px solid var(--bdr);border-radius:6px;background:var(--card);text-decoration:none;transition:border-color .15s}
 .pat-pg-listing-card:hover{border-color:var(--gold)}
@@ -707,9 +707,9 @@ details.adv-meas summary:hover{color:var(--text)}
 
 /* ── Learn / blog pages ── */
 .learn-root{min-height:calc(100vh - 64px - 56px);display:flex;flex-direction:column}
-.learn-wrap{max-width:800px;margin:0 auto;padding:32px 20px 64px;flex:1}
+.learn-wrap{max-width:800px;margin:0 auto;padding:48px 20px 64px;flex:1}
 .learn-article-wrap{max-width:720px}
-.learn-index-title{font-family:'Fraunces',serif;font-size:2rem;font-weight:300;color:var(--text);margin-bottom:8px}
+.learn-index-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:8px}
 .learn-index-sub{font-size:.9rem;color:var(--mid);margin-bottom:36px}
 .learn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:48px}
 .learn-card{display:flex;flex-direction:column;gap:8px;padding:20px;border:1px solid var(--bdr);border-radius:8px;background:var(--card);text-decoration:none;transition:border-color .15s}
@@ -748,9 +748,9 @@ details.adv-meas summary:hover{color:var(--text)}
 .faq-a p{font-size:.85rem;color:var(--mid);line-height:1.7;padding-bottom:16px}
 
 /* ── Pricing page ── */
-.about-pg{flex:1;overflow-y:auto;padding:32px 20px}
+.about-pg{flex:1;overflow-y:auto;padding:48px 20px}
 .about-pg>*{max-width:720px;margin-left:auto;margin-right:auto}
-.about-hero{text-align:center;padding:48px 0 40px}
+.about-hero{text-align:center;padding:0 0 40px}
 .about-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:14px;line-height:1.25}
 .about-sub{font-size:.93rem;color:var(--mid);line-height:1.7;max-width:560px;margin:0 auto}
 .about-section{margin-bottom:48px}
@@ -761,7 +761,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .about-cta{text-align:center;padding:40px 20px;background:var(--card);border-radius:8px;border:1px solid var(--bdr);margin-bottom:48px}
 .about-cta-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;color:var(--text);margin-bottom:8px}
 .about-cta-sub{font-size:.85rem;color:var(--mid);margin-bottom:20px}
-.pricing-pg{flex:1;overflow-y:auto;padding:32px 20px}
+.pricing-pg{flex:1;overflow-y:auto;padding:48px 20px}
 .pricing-hero{max-width:700px;margin:0 auto 48px;text-align:center}
 .pricing-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:10px}
 .pricing-sub{font-size:.88rem;color:var(--mid);line-height:1.6}
