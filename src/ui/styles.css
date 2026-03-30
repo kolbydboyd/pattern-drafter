@@ -440,7 +440,8 @@ details.adv-meas summary:hover{color:var(--text)}
 .pg-404-content{text-align:center;padding:48px 24px}
 .pg-404-num{font-family:'Fraunces',serif;font-size:clamp(6rem,20vw,12rem);font-weight:300;color:var(--gold);line-height:1;letter-spacing:-4px;margin-bottom:16px}
 .pg-404-title{font-family:'Fraunces',serif;font-size:clamp(1.4rem,4vw,2rem);font-weight:300;color:var(--text);margin-bottom:12px;letter-spacing:-.5px}
-.pg-404-desc{font-size:.78rem;color:var(--mid);margin-bottom:40px}
+.pg-404-desc{font-size:.78rem;color:var(--mid);margin-bottom:16px}
+.pg-404-fact{font-size:.72rem;color:var(--mid);font-style:italic;max-width:440px;line-height:1.6;margin:0 auto 40px}
 .pg-404-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 .pg-404-btn-primary{background:var(--gold);color:#fff;padding:12px 32px;border-radius:3px;text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:.67rem;font-weight:600;letter-spacing:.5px;transition:opacity .15s}
 .pg-404-btn-primary:hover{opacity:.85}

@@ -52,6 +52,7 @@
     <div class="pg-404-num">404</div>
     <h1 class="pg-404-title">Pattern not found.</h1>
     <p class="pg-404-desc">This page doesn't exist or may have been moved.</p>
+    <p class="pg-404-fact" id="sewing-fact"></p>
     <div class="pg-404-btns">
       <a href="/" class="pg-404-btn-primary">Go Home</a>
       <a href="/?step=1" class="pg-404-btn-secondary">Browse Patterns</a>
@@ -67,6 +68,32 @@
   </footer>
 </div>
 
+<script>
+(function(){
+  var facts = [
+    "The oldest known sewing needle, made of bone, is over 60,000 years old. It was found in Sibudu Cave, South Africa.",
+    "Elias Howe patented the lockstitch sewing machine in 1846. At 250 stitches per minute, it could outstitch five fast hand sewers.",
+    "Isaac Singer didn't invent the sewing machine. He improved it, then built the first major American multinational company selling them.",
+    "The first commercial sewing patterns in graded sizes were sold by Ebenezer Butterick in 1863. Before that, every pattern was one-size.",
+    "Wild flax fibers from 34,000-year-old thread were found in the Republic of Georgia. Some appeared to have been dyed pink and turquoise.",
+    "Sewing patterns weren't printed with instructions on the tissue paper itself until McCall's introduced the practice in 1919.",
+    "Women's buttons are on the left side because buttoned garments were originally for the wealthy, who were dressed by right-handed servants.",
+    "The phrase \u201Cthe whole nine yards\u201D may refer to the nine yards of fabric needed for a three-piece suit.",
+    "A bronze thimble was found in the ruins of Pompeii, preserved since the eruption of Vesuvius in AD 79.",
+    "In 1856, Howe and Singer ended their patent war by forming the first patent pool in American industrial history.",
+    "By the early 1900s, over 4,000 different types of sewing machines had been patented.",
+    "The first widely mass-produced thimble was made in 1695 by Dutch metalworker John Lofting in England. His mill could produce two million per year.",
+    "Steel sewing needles were first manufactured in Europe in Nuremberg, Germany, around 1370.",
+    "The Delineator, launched by Butterick in 1873 to promote their patterns, became one of America's most popular women's magazines.",
+    "Ancient sewing \u201Cthread\u201D was made from animal sinew, catgut, and even veins.",
+    "The invention of the eyed needle, allowing thread to be pulled through fabric, is considered one of humanity's most important cognitive leaps.",
+    "James McCall, a Scottish tailor, founded the McCall Pattern Company in New York City in 1870.",
+    "People who collect thimbles are called digitabulists."
+  ];
+  var el = document.getElementById('sewing-fact');
+  if (el) el.textContent = facts[Math.floor(Math.random() * facts.length)];
+})();
+</script>
 <script type="module" src="/src/ui/page.js"></script>
 </body>
 </html>
