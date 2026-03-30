@@ -493,7 +493,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const fName = f.affiliateUrl
       ? `<a href="${f.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${f.name}</a>`
       : f.name;
-    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
+    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${expandGlossary(f.notes)}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -503,7 +503,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const nName = n.affiliateUrl
       ? `<a href="${n.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${n.name}</a>`
       : n.name;
-    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${expandGlossary(n.notes)})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -524,7 +524,7 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
     if (!s?.name) continue;
-    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
+    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${expandGlossary(s.use)}</span>`;
   }
   html += `</div>`;
 
@@ -540,13 +540,13 @@ function renderMaterials(mat, yardage45, yardage60) {
 
   if (mat.troubleshooting?.length) {
     html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
-    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${t}</div>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${expandGlossary(t)}</div>`;
     html += `</div>`;
   }
 
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
-    for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
+    for (const n of mat.notes) html += `<div class="mat-row">• ${expandGlossary(n)}</div>`;
     html += `</div>`;
   }
 
