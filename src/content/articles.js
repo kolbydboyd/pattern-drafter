@@ -139,7 +139,7 @@ export const ARTICLES = [
 <h2>Step 3: Print All Pattern Pages</h2>
 <p>Once scale is verified, print all the remaining pages in the PDF. A few tips:</p>
 <ul>
-  <li>Double-sided printing is fine if your printer supports it. The pattern content is only on one side, so printing on both sides just saves paper without affecting anything.</li>
+  <li>Print single-sided only. You will be taping tiles together and cutting through the paper, so ink on the back side creates confusion and makes alignment harder.</li>
   <li>You do not need to print on heavy paper. Standard 20 lb copy paper works perfectly.</li>
   <li>If your printer occasionally jams or smudges, consider printing an extra copy of any pages that are hard to reprint later.</li>
 </ul>
