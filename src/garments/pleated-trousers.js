@@ -174,7 +174,7 @@ export default {
     // ── POCKETS ──
     pieces.push({ id: 'welt-back',  name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) \xb7 Interface or match fabric' }));
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface or match fabric' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
     }
     if (opts.frontPocket === 'side') {

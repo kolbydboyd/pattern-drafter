@@ -868,10 +868,10 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
 // ── Fit Feedback modal ────────────────────────────────────────────────────────
 function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
   const OVERALL_OPTS = [
-    { value: 'perfect',          label: 'Perfect - no changes needed' },
-    { value: 'good',             label: 'Good - minor tweaks only' },
-    { value: 'needs_adjustment', label: 'Needs adjustment - a few areas off' },
-    { value: 'poor',             label: 'Poor - significant fitting issues' },
+    { value: 'perfect',          label: 'Perfect, no changes needed' },
+    { value: 'good',             label: 'Good, minor tweaks only' },
+    { value: 'needs_adjustment', label: 'Needs adjustment, a few areas off' },
+    { value: 'poor',             label: 'Poor, significant fitting issues' },
   ];
   const AREA_OPTS = [
     { key: 'chest_fit',  label: 'Chest'    },
@@ -1100,8 +1100,8 @@ async function _renderSubscription(main, user) {
       ${canceledNote}
       <p style="font-size:.9rem;margin:0 0 12px">Subscribe for monthly pattern credits at the best per-pattern price.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="acct-btn" id="acct-sub-club">Club — $12/mo (1 credit)</button>
-        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe — $24/mo (3 credits)</button>
+        <button class="acct-btn" id="acct-sub-club">Club · $12/mo (1 credit)</button>
+        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe · $24/mo (3 credits)</button>
       </div>
     </div>`;
   }
@@ -1111,8 +1111,8 @@ async function _renderSubscription(main, user) {
     <p style="font-size:.9rem;font-weight:600;margin:0 0 8px">Buy a bundle</p>
     <p style="font-size:.85rem;color:var(--muted,#8a857d);margin:0 0 12px">Credits never expire. Use on any pattern, any tier.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule — $29</button>
-      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe — $49</button>
+      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule · $29</button>
+      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe · $49</button>
     </div>
   </div>`;
 

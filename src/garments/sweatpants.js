@@ -169,7 +169,7 @@ export default {
       });
     }
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 6.5, sa, instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) \xb7 Match fabric or lining \xb7 {serge} before attaching' }));
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6.5, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match fabric or lining \xb7 {serge} before attaching' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {

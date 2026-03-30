@@ -25,7 +25,7 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
         { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
         { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
@@ -196,7 +196,7 @@ export default {
 
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) \xb7 Match to front slash' }));
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {

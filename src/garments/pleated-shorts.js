@@ -179,7 +179,7 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) \xb7 Match to front slash line' }));
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash line' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {

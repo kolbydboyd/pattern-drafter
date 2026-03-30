@@ -40,7 +40,7 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2.5\u2033) \u2014 stretch fabric only',    reference: 'fitted, tailored'    },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only',    reference: 'fitted, tailored'    },
         { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
         { value: 'relaxed', label: 'Relaxed (+6\u2033)', reference: 'skater, workwear'      },
       ],
@@ -210,7 +210,7 @@ export default {
       pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
     }
     if (opts.pockets === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) \xb7 Interface' }));
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });

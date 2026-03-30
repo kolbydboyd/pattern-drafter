@@ -987,7 +987,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
           <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
         </svg>` : ''}
         <div class="tile-footer">
-          <span class="tf-name">${piece.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
+          <span class="tf-name">${piece.name} · tile ${tileId} of ${gridLabel} pages</span>
           <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
           <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1}${orientTag} \xb7 \xbe\u2033 overlap</span>
         </div>
@@ -1040,7 +1040,7 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
                    width:${wIn * DPI}px;height:${hIn * DPI}px">${svg}</div>`
     ).join('');
     const names = items.map(i => i.piece.name).join(' \xb7 ');
-    const sheetLabel = pages.length > 1 ? ` \u2014 sheet ${pi + 1} of ${pages.length}` : '';
+    const sheetLabel = pages.length > 1 ? ` · sheet ${pi + 1} of ${pages.length}` : '';
     return `<div class="page tile-page" style="width:${PW}in;height:${PH}in">
       <div class="tile-clip" style="width:${availW}in;height:${availH}in">
         ${divs}
@@ -1203,7 +1203,7 @@ function buildCoverPage(garment, measurements, opts) {
     <div class="cover-body">
       <div class="cover-brand">People\u2019s Patterns</div>
       <div class="cover-title">${garment.name}</div>
-      <div class="cover-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit</div>
+      <div class="cover-sub">Sewing Pattern \xb7 Print at 100% \xb7 Do not scale to fit</div>
       <div class="cover-cols">
         <div class="cover-col">
           <h3 class="sect-head">Body Measurements</h3>
@@ -1223,11 +1223,11 @@ function buildCoverPage(garment, measurements, opts) {
       <div class="cover-how">
         <h3 class="sect-head">How to Assemble</h3>
         <ol>
-          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
-          <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right</li>
-          <li>Assemble in the order shown on the tile map (page 2)</li>
-          <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile \u2014 this removes the shaded overlap strip</li>
-          <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile \u2014 matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement</li>
+          <li>Print at <strong>100% scale</strong>. Never select \u201cfit to page\u201d or \u201cshrink to margins.\u201d</li>
+          <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right.</li>
+          <li>Assemble in the order shown on the tile map (page 2).</li>
+          <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile to remove the shaded overlap strip.</li>
+          <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile. Matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement.</li>
           <li>Tape from the back. Check the 1\u2033 ruler strip to confirm scale before taping</li>
         </ol>
       </div>
@@ -1259,7 +1259,7 @@ function buildScalePage(pieces, PW, PH, OV) {
     <h2 class="page-head">Scale Verification &amp; Tile Map</h2>
     <p class="print-note">Print at 100% scale. Do not select fit-to-page or shrink-to-fit. If your printer has a borderless printing option, you may enable it but it is not required.</p>
     <div class="scale-sect">
-      <h3 class="sect-head">Print Accuracy \u2014 Measure before cutting any fabric</h3>
+      <h3 class="sect-head">Print Accuracy: Measure before cutting any fabric</h3>
       <p class="note">If either square is wrong, check that your printer scale is set to 100%.</p>
       <div class="sq-row">
         <div class="sq-item">
@@ -1295,7 +1295,7 @@ function buildMaterialsPage(materials, instructions) {
   ).join('');
 
   const stitchRows = (materials.stitches || []).map(s =>
-    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || '\u2014') : '\u2014'}</td><td>${s.use || ''}</td></tr>`
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || 'n/a') : 'n/a'}</td><td>${s.use || ''}</td></tr>`
   ).join('');
 
   const notesHtml = materials.notes?.length
@@ -1306,10 +1306,10 @@ function buildMaterialsPage(materials, instructions) {
     : '';
 
   const threadHtml = materials.thread
-    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} \u2014 ${materials.thread.notes || ''}</td></tr>`
+    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} · ${materials.thread.notes || ''}</td></tr>`
     : '';
   const needleHtml = materials.needle
-    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} \u2014 ${materials.needle.use || ''}</td></tr>`
+    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${materials.needle.use || ''}</td></tr>`
     : '';
 
   const terms = usedGlossaryTerms(instructions);
@@ -1444,7 +1444,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
     <div class="lf-header">
       <div class="lf-brand">People\u2019s Patterns</div>
       <div class="lf-garment-title">${garment.name}</div>
-      <div class="lf-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
+      <div class="lf-sub">Sewing Pattern \xb7 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
     </div>
     <div class="lf-body">
       <div class="lf-col">
@@ -1454,14 +1454,14 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
         <table class="ptable"><tbody>${optRows}</tbody></table>
         <h3 class="sect-head" style="margin-top:0.28in">How to Assemble</h3>
         <ol class="lf-howto">
-          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
-          <li>Verify the 2\xd72 in and 5\xd75 cm squares below measure exactly right</li>
-          <li>Assemble tiles in the order shown in the map at right</li>
-          <li>Cut along the \u2702 scissors line at each overlap edge</li>
-          <li>Align \u2295 crosshairs \u2014 matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement</li>
+          <li>Print at <strong>100% scale</strong>. Never select \u201cfit to page\u201d or \u201cshrink to margins.\u201d</li>
+          <li>Verify the 2\xd72 in and 5\xd75 cm squares below measure exactly right.</li>
+          <li>Assemble tiles in the order shown in the map at right.</li>
+          <li>Cut along the \u2702 scissors line at each overlap edge.</li>
+          <li>Align \u2295 crosshairs. Matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement.</li>
           <li>Tape from the back; check the 1\u2033 ruler strip before taping</li>
         </ol>
-        <h3 class="sect-head" style="margin-top:0.28in">Scale Verification \u2014 Measure before cutting fabric</h3>
+        <h3 class="sect-head" style="margin-top:0.28in">Scale Verification: Measure before cutting fabric</h3>
         <div class="sq-row" style="justify-content:flex-start;gap:0.5in;margin:0.1in 0 0">
           ${scaleSVG(sq2px, 'Must be exactly 2 \xd7 2 in')}
           ${scaleSVG(sq5px, 'Must be exactly 5 \xd7 5 cm')}
@@ -1694,7 +1694,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>${garment.name} \u2014 Printable Pattern (${size.label})</title>
+<title>${garment.name} | Printable Pattern (${size.label})</title>
 <style>${buildCSS(PW, PH)}</style>
 </head>
 <body>
