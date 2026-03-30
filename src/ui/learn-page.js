@@ -2,6 +2,7 @@
 // Learn / blog page — handles /learn and /learn/[slug]
 
 import { inject } from '@vercel/analytics';
+import '../analytics.js';
 import { ARTICLES } from '../content/articles.js';
 
 inject();
