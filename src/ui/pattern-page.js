@@ -1,8 +1,11 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Pattern detail page — handles /patterns/[garment-id]
 
+import { inject } from '@vercel/analytics';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+
+inject();
 
 const SITE_URL = 'https://peoplespatterns.com';
 

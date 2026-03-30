@@ -1,6 +1,9 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Minimal JS for static pages (FAQ, Terms, Privacy) — theme toggle only.
 
+import { inject } from '@vercel/analytics';
+inject();
+
 function getSavedTheme() {
   try { return localStorage.getItem('theme'); } catch { return null; }
 }
