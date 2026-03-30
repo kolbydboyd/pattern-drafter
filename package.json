@@ -21,7 +21,6 @@
     "posthog-js": "^1.364.1",
     "puppeteer-core": "^24.40.0",
     "resend": "^6.9.4",
-    "stripe": "^21.0.1",
-    "tmux": "^1.0.0"
+    "stripe": "^21.0.1"
   }
 }

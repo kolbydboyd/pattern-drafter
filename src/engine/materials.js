@@ -128,15 +128,11 @@ export const FABRIC_TYPES = {
   'nylon-taslan':     { name: 'Nylon taslan', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Water resistant, for swim/gym' },
 
   // ── Knit ──────────────────────────────────────────────────────────────────
-  'jersey':           { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit' },
   'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - cotton knits shrink 3–5%' },
   'rayon-jersey':     { name: 'Rayon jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Drapey, fluid; pre-wash gently' },
   'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
   'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
   'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
-  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - knits shrink 3–5%' },
-  'jersey-modal':     { name: 'Modal jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft with excellent drape' },
-  'jersey-bamboo':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Soft and eco-friendly; wash cold' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
   'fleece':           { name: 'Cotton or poly fleece', weight: '10–14 oz/yd²', stretch: true, category: 'knit' },
   'sweatshirt-fleece':{ name: 'Sweatshirt fleece', weight: '10–12 oz/yd²', stretch: true, category: 'knit' },
@@ -214,7 +210,6 @@ export const STANDARD_NOTIONS = {
   'drawstring':        { name: '½–¾″ flat drawstring cord', notes: 'Woven cotton or nylon' },
   'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar - for lightweight wovens and facings' },
   'interfacing-med':    { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
-  'interfacing-medium': { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-heavy':  { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },
   'webbing-1.5':       { name: '1.5″ nylon webbing', notes: 'Stiff, for internal belt/holster support' },
   'zipper':            { name: 'Zipper', notes: 'Length = rise measurement' },

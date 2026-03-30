@@ -182,8 +182,8 @@ export default {
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 } });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 } });
     }
 
     return pieces;
