@@ -27,6 +27,12 @@ import slipSkirtW        from './slip-skirt-w.js';
 import aLineSkirtW       from './a-line-skirt-w.js';
 import shirtDressW       from './shirt-dress-w.js';
 import wrapDressW        from './wrap-dress-w.js';
+import apron             from './apron.js';
+import bowTie            from './bow-tie.js';
+import tankTop           from './tank-top.js';
+import circleSkirtW      from './circle-skirt-w.js';
+import pencilSkirtW      from './pencil-skirt-w.js';
+import leggings          from './leggings.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -53,6 +59,12 @@ const GARMENTS = {
   'a-line-skirt-w':       aLineSkirtW,
   'shirt-dress-w':        shirtDressW,
   'wrap-dress-w':         wrapDressW,
+  'apron':                apron,
+  'bow-tie':              bowTie,
+  'tank-top':             tankTop,
+  'circle-skirt-w':       circleSkirtW,
+  'pencil-skirt-w':       pencilSkirtW,
+  'leggings':             leggings,
 };
 
 export default GARMENTS;
