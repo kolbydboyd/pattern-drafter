@@ -1,6 +1,9 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 
-const SITE_URL   = 'https://peoplespatterns.com';
+import GARMENTS from '../garments/index.js';
+
+const SITE_URL       = 'https://peoplespatterns.com';
+const GARMENT_COUNT  = Object.keys(GARMENTS).length;
 const GOLD       = '#c9a96e';
 const NEAR_BLACK = '#2c2a26';
 const BG         = '#f5f3ef';
@@ -132,7 +135,7 @@ export function welcomeEmail({ name = '' } = {}) {
           <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
           <td>
             <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Choose your garment</p>
-            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">23 patterns and growing. Every one drafted to your body, not a size chart.</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">${GARMENT_COUNT} patterns and growing. Every one drafted to your body, not a size chart.</p>
           </td>
         </tr>
       </table>
@@ -166,7 +169,7 @@ ${rule()}
 Made-to-measure patterns, starting at $7.
 
 1. Enter your measurements once - takes 3 minutes.
-2. Choose your garment - 23 patterns drafted to your body.
+2. Choose your garment - ${GARMENT_COUNT} patterns drafted to your body.
 3. Print and sew - tiles to standard printer paper.
 
 Start here: ${SITE_URL}
