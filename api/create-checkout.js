@@ -3,8 +3,12 @@
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
 import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
+import { rateLimit } from './_rate-limit.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 10 });
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

@@ -323,7 +323,7 @@ export default {
 
     return buildMaterialsSpec({
       fabrics: isKnit
-        ? ['jersey-cotton', 'jersey-modal', 'jersey-bamboo', 'ponte']
+        ? ['cotton-jersey', 'cotton-modal', 'bamboo-jersey', 'ponte']
         : ['rayon-challis', 'crepe', 'viscose', 'cotton-lawn', 'silk-charmeuse'],
       notions,
       thread: 'poly-all',

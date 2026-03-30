@@ -2,6 +2,9 @@
 // Vercel serverless function — create a new user account with 1 free download credit.
 // Bypasses email confirmation so the user can sign in and download immediately.
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from './_rate-limit.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 5 });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -9,6 +12,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { email, password } = req.body ?? {};
