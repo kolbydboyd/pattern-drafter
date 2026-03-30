@@ -208,6 +208,8 @@ details.adv-meas summary:hover{color:var(--text)}
 .hdr-link{font-family:'IBM Plex Mono',monospace;font-size:.67rem;letter-spacing:.5px;text-transform:uppercase;color:var(--hdr-text);text-decoration:none;opacity:.7;transition:opacity .15s}
 .hdr-link:hover{opacity:1;color:var(--gold)}
 /* Frictionless signup error */
+#free-signup-dlg{padding:0;border:none;border-radius:8px;background:var(--card);max-width:420px;width:90vw;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+#free-signup-dlg::backdrop{background:rgba(0,0,0,.65)}
 .free-signup-err{font-size:.72rem;color:var(--accent);line-height:1.4;margin-top:4px}
 .email-gate-form input[type=password]{padding:8px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--ibg);font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text);outline:none}
 .email-gate-form input[type=password]:focus{border-color:var(--gold)}
