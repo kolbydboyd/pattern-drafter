@@ -77,6 +77,7 @@ manufacturer has this. It becomes a licensable asset.
 - [ ] **Fix any fit issues found during muslin testing**
 - [ ] **Test full purchase flow end-to-end** — checkout, webhook, PDF generation, download, re-download
 - [ ] **Test print layout at 1:1 scale** — verify scale square, tiles assemble, no clipping
+- [ ] **Register LLC in Texas**
 - [ ] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
 - [ ] **Set up Google Search Console** and submit sitemap
 - [ ] **Update pricing in Stripe** to match new 3-tier structure if not already done
@@ -150,6 +151,61 @@ measure → generate → print → tile → cut → sew → finished
       with 5k–50k followers
 - [ ] Referral program:
       Give a friend a free pattern, get a free pattern
+
+---
+
+## B2B Sewing Studio Partnerships (Houston Pilot)
+
+**Goal:** Get sewing schools to integrate People's Patterns into their curriculum — students
+generate custom-fit patterns from their own measurements as part of class.
+
+### Target Studios
+
+- **HTX Sewn Goods** — 9,000 sq ft textile lab, $3k 10-week courses, multiple class
+  levels, membership model coming
+- **The Little Sewing Room** (Spring, TX) — professional instructors
+  (theater/film/garment industry backgrounds), teaches pattern drafting, draping,
+  tutoring
+- **Thimble Fingers** — pattern fitting classes (Sure-Fit Designs system), supervised
+  sewing sessions, flexible self-paced format
+
+### Go-to-Market
+
+- Welcome kit with ~50–60 brochures per studio. Each brochure has a
+  sticker with a unique code giving the student free credit (e.g., 1 pattern generation).
+- Students sign up, take measurements, pick a garment, generate a pattern, and sew it in
+  class.
+
+### Pricing (TBD)
+
+- Could be per-student seat license, flat institutional subscription, or
+  revenue share bundled into tuition
+
+### Why This Matters Beyond Revenue
+
+Dozens of sewists at varied body types generating and sewing patterns in a supervised
+environment = massive structured fit feedback. Instructors present to diagnose issues
+in real-time.
+
+### Long Term
+
+Template for national replication via cold outreach to sewing schools/studios
+across the country.
+
+### Prerequisite
+
+Finished muslins as proof of concept. Walk in with a garment you made
+from your own app.
+
+---
+
+## Local Community Presence
+
+- Attend classes at Houston sewing studios (Thimble Fingers supervised sessions,
+  HTX Sewn Goods workshops) to get fitting feedback on muslins and naturally introduce
+  People's Patterns to other sewists
+- Library makerspaces (Houston Public Library TECHLink, HCPL Maker Central) for free
+  sewing machine access
 
 ---
 
@@ -457,6 +513,27 @@ At ~15% feedback-per-purchase conversion (industry sew-rate × return-to-submit 
 not an early-stage strategy. Milestones:
 - **5,000 reviews** → correction factors per garment module (useful for us)
 - **50,000 reviews** → licensable dataset (useful to others, 5+ year horizon)
+
+### Proportion-Aware Pattern Intelligence
+
+- **Phase 1 — Collect feedback:** Add optional post-sew feedback step: "Did you adjust
+  the length/fit? By how much?" Map adjustments to body proportion ratios
+  (torso-to-inseam, shoulder-to-waist, etc.)
+- **Phase 2 — Light recommendations:** Surface insights like "Sewists with similar
+  proportions to yours typically add 1 inch to the body length on this garment."
+  No automatic changes — informational only. Builds trust.
+- **Phase 3 — Auto-adjust:** Drafting engine detects proportion ratios and applies
+  statistically preferred adjustments by default, with override option.
+- **Requires:** Significant user volume. Phase 1 can ship early; Phase 2 needs hundreds of
+  data points per garment; Phase 3 needs thousands.
+- **B2B synergy:** Studio partnerships accelerate data collection — cohorts of students
+  sewing the same garments simultaneously at varied body types.
+
+### Studio Dashboard (B2B Feature)
+
+- Instructor-facing view: which patterns students generated, common fit issues by
+  measurement range, flagged patterns with frequent adjustments
+- Turns B2B relationship from one-time brochure drop into ongoing value
 
 ### Fit Feedback Collection
 - [x] Post-sew feedback form in account dashboard
@@ -853,3 +930,15 @@ See `peoples-patterns-strategy/` for detailed plans:
 6. **06-upsell-crosssell-downsell.md** — Revenue maximization per touchpoint
 7. **07-pricing-strategy.md** — 3-tier pricing, bundles, membership tiers, per-garment pricing
 8. **08-master-action-plan.md** — 30-day launch plan, revenue targets, solo founder playbook
+9. **09-video-content-ladder.md** — 13 videos across 3 funnel rungs (problem → solution → product)
+10. **10-video-script-learn-to-sew.md** — Full script for "Why You Should Learn to Sew in [YEAR]"
+11. **11-etsy-and-implementation.md** — Etsy listing strategy, unit economics, implementation plan
+12. **12-income-projections.md** — Revenue projections, channel breakdown, Brother partnership
+
+---
+
+## Deferred
+
+- **Oneshy** — revisit when paid ad spend exists
+- **Viktor** — not relevant for solopreneur Slack workflow
+- **Routine app** (personal life OS) — shelved while People's Patterns is priority
