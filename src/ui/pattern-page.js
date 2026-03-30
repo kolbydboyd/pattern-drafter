@@ -1,25 +1,14 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Pattern detail page — handles /patterns/[garment-id]
 
-import { inject } from '@vercel/analytics';
 import '../analytics.js';
-import './auth-modal.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 
-inject();
+// Shared page functionality (theme, hamburger, logo, auth, analytics inject)
+import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
-
-// ── Dark-mode (shared with other pages) ──────────────────────────────────────
-const THEME_KEY = 'pp-theme';
-const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-document.getElementById('theme-btn')?.addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
-});
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
