@@ -165,6 +165,6 @@ export const SUBSCRIPTION_PRICE = SUBSCRIPTION_PRICES.club_monthly;
 // ── A0 / copy shop add-on ─────────────────────────────────────────────────────
 export const A0_UPSELL = {
   cents:   400,
-  label:   'A0 / Copy Shop file',
+  label:   'A0 / Projector / Copy Shop files',
   priceId: 'price_1TFlPOEcctnfQkkLwH6SU14A',
 };

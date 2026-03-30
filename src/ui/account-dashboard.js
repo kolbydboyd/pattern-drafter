@@ -509,7 +509,14 @@ async function _renderPatterns(main, user, tab = 'active') {
           a0.href = json.a0DownloadUrl; a0.download = `${garmentId}-pattern-a0.pdf`;
           document.body.appendChild(a0); a0.click(); a0.remove();
         }, 800);
-        _showToast('Letter PDF + A0 copy-shop file downloading');
+        if (json.projectorDownloadUrl) {
+          setTimeout(() => {
+            const pj = document.createElement('a');
+            pj.href = json.projectorDownloadUrl; pj.download = `${garmentId}-pattern-projector.pdf`;
+            document.body.appendChild(pj); pj.click(); pj.remove();
+          }, 1600);
+        }
+        _showToast('Letter PDF + A0 + projector files downloading');
       } else {
         _showToast('Download started');
       }
