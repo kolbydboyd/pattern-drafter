@@ -1120,27 +1120,67 @@ function _triggerBuyPattern(garmentId, addA0 = false) {
   });
 }
 
-async function _promptA0Upgrade() {
-  const user = getCurrentUser();
-  if (!user) return;
-  const { supabase } = await import('../lib/supabase.js');
-  const { data: purchase } = await supabase
-    .from('purchases')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('garment_id', currentGarment)
-    .limit(1)
-    .maybeSingle();
-  if (!purchase) { alert('Could not find purchase. Try from My Patterns.'); return; }
-  const { session } = await getSession();
-  const res = await fetch('/api/create-checkout', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-    body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: purchase.id, userId: user.id }),
-  });
-  const json = await res.json();
-  if (!res.ok || json.error) { alert(json.error || 'Could not start checkout'); return; }
-  window.location.href = json.url;
+function _promptA0Upgrade() {
+  let dlg = document.getElementById('a0-upgrade-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'a0-upgrade-dlg';
+    dlg.innerHTML = `
+      <div class="email-gate-card">
+        <div class="email-gate-logo">People's Patterns</div>
+        <p class="email-gate-body" style="margin-bottom:8px"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
+        <ul style="font-size:.75rem;color:var(--text);line-height:1.6;margin:0 0 12px 16px;padding:0">
+          <li><strong>A0 PDF</strong> — single-sheet print at any copy shop</li>
+          <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
+        </ul>
+        <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
+        <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
+        <p id="a0-upgrade-err" style="color:var(--accent);font-size:.7rem;margin-top:8px" hidden></p>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  const buyBtn = dlg.querySelector('#a0-upgrade-buy');
+  const cancelBtn = dlg.querySelector('#a0-upgrade-cancel');
+  const errEl = dlg.querySelector('#a0-upgrade-err');
+  errEl.hidden = true;
+  buyBtn.disabled = false;
+  buyBtn.textContent = 'Add for $4';
+
+  buyBtn.onclick = async () => {
+    buyBtn.disabled = true;
+    buyBtn.textContent = 'Redirecting\u2026';
+    errEl.hidden = true;
+    try {
+      const user = getCurrentUser();
+      const { supabase } = await import('../lib/supabase.js');
+      const { data: purchase } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('garment_id', currentGarment)
+        .limit(1)
+        .maybeSingle();
+      if (!purchase) throw new Error('Purchase not found. Try from My Patterns.');
+      const { session } = await getSession();
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: purchase.id, userId: user.id }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Checkout failed');
+      window.location.href = json.url;
+    } catch (err) {
+      errEl.textContent = err.message || 'Something went wrong. Try again.';
+      errEl.hidden = false;
+      buyBtn.disabled = false;
+      buyBtn.textContent = 'Add for $4';
+    }
+  };
+
+  cancelBtn.onclick = () => dlg.close();
+  dlg.showModal();
 }
 
 function handlePrint(btn) {
