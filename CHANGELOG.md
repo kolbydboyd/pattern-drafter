@@ -4,6 +4,22 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.8.1] — 2026-03-29
+
+### Codebase audit — dead code removal and cleanup
+- Removed bogus `tmux` npm dependency (supply chain risk — unmaintained, unrelated package)
+- Removed 4 duplicate fabric entries from `materials.js`: bare `jersey`, `jersey-cotton`, `jersey-modal`, `jersey-bamboo` (canonical keys are `cotton-jersey`, `cotton-modal`, `bamboo-jersey`)
+- Updated `wrap-dress-w.js` to use canonical fabric keys
+- Removed `interfacing-medium` from `STANDARD_NOTIONS` (trap for misuse — `interfacing-med` is the canonical key)
+- Deleted 24 dead garment imports from `app.js` (all garments accessed via `GARMENTS` from `index.js`)
+- Removed unused `easeDistribution` import from `app.js`
+- Fixed A-line skirt lining pieces: now compute actual dimensions from panel instead of hardcoded 1×1" placeholder
+
+### README
+- Added missing `denim-jacket` to garment module table (was in code but not listed)
+
+---
+
 ## [0.8.0] — 2026-03-28
 
 ### Drafting math audit — corrected formulas to standard block rules

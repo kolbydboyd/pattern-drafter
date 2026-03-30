@@ -161,7 +161,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `pleated-trousers` | Pleated Trousers | done |
 | `sweatpants` | Sweatpants | done |
 
-### Menswear · Tops (5)
+### Menswear · Tops (6)
 | Module | Garment | Status |
 |---|---|---|
 | `tee` | T-Shirt | done |
@@ -169,6 +169,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `crewneck` | Crewneck Sweatshirt | done |
 | `hoodie` | Hoodie | done |
 | `crop-jacket` | Crop Jacket | done |
+| `denim-jacket` | Denim Jacket | done |
 
 ### Womenswear · Bottoms (5)
 | Module | Garment | Status |
