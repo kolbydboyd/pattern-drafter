@@ -4,6 +4,7 @@
 import { inject } from '@vercel/analytics';
 import '../analytics.js';
 import { ARTICLES } from '../content/articles.js';
+import GARMENTS from '../garments/index.js';
 
 inject();
 
@@ -144,7 +145,7 @@ function renderArticle(slug) {
 
       ${youtubeEmbed}
 
-      <div class="learn-article-body">${article.body}</div>
+      <div class="learn-article-body">${article.body.replace(/\{\{GARMENT_COUNT\}\}/g, Object.keys(GARMENTS).length)}</div>
 
       ${relatedHtml}
 
