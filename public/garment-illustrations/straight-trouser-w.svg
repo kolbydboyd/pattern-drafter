@@ -1,8 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
-  <rect x="57" y="35" width="6" height="8" rx="1"/>
-  <rect x="97" y="35" width="6" height="8" rx="1"/>
-  <path d="M44,50 L41,196 L77,196 L80,92 L83,196 L119,196 L116,50"/>
+  <!-- higher, wider waistband -->
+  <path d="M44,34 L116,34 L116,50 L44,50 Z"/>
+  <!-- belt loops -->
+  <rect x="56" y="31" width="5" height="10" rx="1"/>
+  <rect x="99" y="31" width="5" height="10" rx="1"/>
+  <rect x="78" y="31" width="5" height="10" rx="1"/>
+  <!-- straight parallel legs -->
+  <path d="M44,50 L42,196 L78,196 L80,92 L82,196 L118,196 L116,50"/>
   <line x1="80" y1="50" x2="80" y2="92"/>
+  <!-- slant pockets -->
+  <path d="M48,52 Q58,66 66,58"/>
+  <path d="M112,52 Q102,66 94,58"/>
+  <!-- front crease lines -->
+  <line x1="60" y1="96" x2="58" y2="196" stroke-dasharray="6 4"/>
+  <line x1="100" y1="96" x2="102" y2="196" stroke-dasharray="6 4"/>
 </svg>

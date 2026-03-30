@@ -1,7 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M44,42 L116,42 L116,58 L44,58 Z"/>
-  <path d="M52,42 Q80,46 108,42"/>
-  <path d="M44,58 L42,106 L76,106 L80,74 L84,106 L118,106 L116,58"/>
-  <line x1="80" y1="58" x2="80" y2="74"/>
+  <!-- elastic waistband (curved, no belt loops) -->
+  <path d="M44,44 L116,44"/>
+  <path d="M44,44 Q80,50 116,44"/>
+  <path d="M44,56 L116,56"/>
+  <!-- drawstring -->
+  <line x1="76" y1="44" x2="72" y2="52"/>
+  <line x1="84" y1="44" x2="88" y2="52"/>
+  <!-- legs: shortest inseam, wide opening -->
+  <path d="M44,56 L42,100 L74,100 L80,74 L86,100 L118,100 L116,56"/>
+  <line x1="80" y1="56" x2="80" y2="74"/>
+  <!-- side split/vent at hem -->
+  <line x1="42" y1="92" x2="44" y2="100"/>
+  <line x1="118" y1="92" x2="116" y2="100"/>
 </svg>

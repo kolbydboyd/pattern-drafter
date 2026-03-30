@@ -1,12 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M42,38 L118,38 L118,50 L42,50 Z"/>
-  <rect x="55" y="35" width="6" height="8" rx="1"/>
-  <rect x="99" y="35" width="6" height="8" rx="1"/>
-  <path d="M42,50 L40,124 L74,124 L80,80 L86,124 L120,124 L118,50"/>
-  <line x1="80" y1="50" x2="80" y2="80"/>
-  <rect x="44" y="76" width="22" height="26" rx="2"/>
-  <rect x="94" y="76" width="22" height="26" rx="2"/>
-  <line x1="44" y1="82" x2="66" y2="82"/>
-  <line x1="94" y1="82" x2="116" y2="82"/>
+  <!-- waistband -->
+  <path d="M40,40 L120,40 L120,52 L40,52 Z"/>
+  <!-- belt loops -->
+  <rect x="54" y="37" width="5" height="8" rx="1"/>
+  <rect x="101" y="37" width="5" height="8" rx="1"/>
+  <rect x="78" y="37" width="5" height="8" rx="1"/>
+  <!-- legs: wider, below-knee length -->
+  <path d="M40,52 L36,136 L74,136 L80,82 L86,136 L124,136 L120,52"/>
+  <line x1="80" y1="52" x2="80" y2="82"/>
+  <!-- left cargo pocket with flap -->
+  <rect x="40" y="78" width="24" height="30" rx="2"/>
+  <line x1="40" y1="84" x2="64" y2="84"/>
+  <circle cx="52" cy="81" r="1.5"/>
+  <!-- right cargo pocket with flap -->
+  <rect x="96" y="78" width="24" height="30" rx="2"/>
+  <line x1="96" y1="84" x2="120" y2="84"/>
+  <circle cx="108" cy="81" r="1.5"/>
 </svg>

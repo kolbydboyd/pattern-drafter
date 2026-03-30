@@ -1,11 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M60,48 Q60,26 80,24 Q100,26 100,48"/>
-  <path d="M58,52 L28,70 L28,132 L50,132 L50,170 L110,170 L110,132 L132,132 L132,70 L102,52"/>
-  <path d="M68,52 L74,62"/>
-  <path d="M92,52 L86,62"/>
-  <rect x="28" y="126" width="22" height="8" rx="3"/>
-  <rect x="122" y="126" width="22" height="8" rx="3"/>
-  <rect x="50" y="162" width="60" height="8" rx="3"/>
-  <path d="M62,118 L62,142 Q80,146 98,142 L98,118"/>
+  <!-- hood -->
+  <path d="M60,48 Q60,24 80,22 Q100,24 100,48"/>
+  <!-- drawstrings from hood -->
+  <line x1="72" y1="52" x2="68" y2="66"/>
+  <line x1="88" y1="52" x2="92" y2="66"/>
+  <!-- body + sleeves -->
+  <path d="M58,52 L28,70 L28,134 L50,134 L50,172 L110,172 L110,134 L132,134 L132,70 L102,52"/>
+  <!-- ribbed cuffs -->
+  <rect x="28" y="126" width="22" height="10" rx="3"/>
+  <rect x="110" y="126" width="22" height="10" rx="3"/>
+  <!-- ribbed hem band -->
+  <rect x="50" y="164" width="60" height="10" rx="3"/>
+  <!-- kangaroo pocket -->
+  <path d="M62,118 L62,144 Q80,148 98,144 L98,118"/>
+  <path d="M62,130 L80,134 L98,130"/>
 </svg>
