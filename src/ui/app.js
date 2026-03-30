@@ -883,7 +883,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> · one sheet, no taping
+          Add A0 / Projector / Copy Shop files <span class="wm-a0-price">(+$4)</span> · no taping
         </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -1173,7 +1173,7 @@ async function handleDownloadPDF(btn) {
     a.click();
     a.remove();
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
-    // If A0 addon was purchased, trigger A0 download and show a notice
+    // If A0 addon was purchased, trigger A0 + projector downloads and show a notice
     if (json.a0DownloadUrl) {
       setTimeout(() => {
         const a0  = document.createElement('a');
@@ -1183,9 +1183,19 @@ async function handleDownloadPDF(btn) {
         a0.click();
         a0.remove();
       }, 800);
+      if (json.projectorDownloadUrl) {
+        setTimeout(() => {
+          const pj  = document.createElement('a');
+          pj.href   = json.projectorDownloadUrl;
+          pj.download = `${currentGarment}-pattern-projector.pdf`;
+          document.body.appendChild(pj);
+          pj.click();
+          pj.remove();
+        }, 1600);
+      }
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 / copy-shop file is also downloading. One sheet, no taping required.';
+      notice.textContent = 'Your A0 + projector files are also downloading. No taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {

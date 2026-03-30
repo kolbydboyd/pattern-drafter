@@ -17,10 +17,11 @@ import { GLOSSARY } from '../engine/glossary.js';
 
 // ── Paper size registry ────────────────────────────────────────────────────
 const PAPER_SIZES = {
-  letter:  { w: 8.5,  h: 11,    label: 'US Letter' },
-  a4:      { w: 8.27, h: 11.69, label: 'A4'        },
-  tabloid: { w: 11,   h: 17,    label: 'Tabloid'   },
-  a0:      { w: 33.1, h: 46.8,  label: 'A0/Plotter'},
+  letter:    { w: 8.5,  h: 11,    label: 'US Letter'   },
+  a4:        { w: 8.27, h: 11.69, label: 'A4'          },
+  tabloid:   { w: 11,   h: 17,    label: 'Tabloid'     },
+  a0:        { w: 33.1, h: 46.8,  label: 'A0/Plotter'  },
+  projector: { w: 80,   h: 60,    label: 'Projector'   },
 };
 
 const DPI    = 96;  // CSS px per inch
@@ -1538,6 +1539,94 @@ function buildTabloidPreamble(garment, pieces, materials, instructions, measurem
   return page1 + page2;
 }
 
+// ── Projector layout (single-layer pieces, no tiling) ─────────────────────
+
+/**
+ * Build a projector-friendly layout: one page per piece at 1:1 scale,
+ * no tile overlaps, no crosshairs, no scissors marks. A calibration
+ * page comes first so the user can verify their projector scale.
+ */
+function buildProjectorLayout(garment, pieces, materials, instructions, measurements, opts) {
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const PAD = 1; // padding around each piece in inches
+
+  // ── Calibration page (fixed 40×30 in canvas) ──
+  const calW = 40, calH = 30;
+  const sq4  = 4 * DPI;  // 4″ calibration square
+  const sq10 = (10 / 2.54) * DPI; // 10 cm calibration square
+  const gridSpacing = DPI; // 1-inch grid
+  let gridLines = '';
+  for (let x = gridSpacing; x < calW * DPI; x += gridSpacing) {
+    gridLines += `<line x1="${x}" y1="0" x2="${x}" y2="${calH * DPI}" stroke="#e8e6e0" stroke-width="0.5"/>`;
+  }
+  for (let y = gridSpacing; y < calH * DPI; y += gridSpacing) {
+    gridLines += `<line x1="0" y1="${y}" x2="${calW * DPI}" y2="${y}" stroke="#e8e6e0" stroke-width="0.5"/>`;
+  }
+
+  const calPage = `<div class="page pj-page" style="width:${calW}in;height:${calH}in">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${calW * DPI}" height="${calH * DPI}"
+         viewBox="0 0 ${calW * DPI} ${calH * DPI}" style="position:absolute;top:0;left:0">
+      ${gridLines}
+    </svg>
+    <div class="pj-cal">
+      <div class="pj-header">
+        <div class="pj-brand">People\u2019s Patterns</div>
+        <div class="pj-title">${garment.name}</div>
+        <div class="pj-sub">Projector File \u2014 Drafted ${date}</div>
+      </div>
+      <div class="pj-cal-body">
+        <h3 class="sect-head">Projector Calibration</h3>
+        <p class="note">Place your cutting mat under the projector. Verify both squares measure correctly before cutting fabric.</p>
+        <div class="sq-row" style="justify-content:flex-start;gap:0.8in;margin:0.3in 0">
+          <div class="sq-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="${sq4}" height="${sq4}"
+                viewBox="0 0 ${sq4} ${sq4}" style="display:block">
+              <rect x="1" y="1" width="${sq4 - 2}" height="${sq4 - 2}"
+                fill="none" stroke="#2c2a26" stroke-width="2"/>
+              <line x1="${sq4 / 2}" y1="1" x2="${sq4 / 2}" y2="${sq4 - 1}" stroke="#ccc" stroke-width="0.7"/>
+              <line x1="1" y1="${sq4 / 2}" x2="${sq4 - 1}" y2="${sq4 / 2}" stroke="#ccc" stroke-width="0.7"/>
+            </svg>
+            <div style="font-size:11pt;color:#555;margin-top:8px;text-align:center">Must be exactly 4 \xd7 4 inches</div>
+          </div>
+          <div class="sq-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="${sq10}" height="${sq10}"
+                viewBox="0 0 ${sq10} ${sq10}" style="display:block">
+              <rect x="1" y="1" width="${sq10 - 2}" height="${sq10 - 2}"
+                fill="none" stroke="#2c2a26" stroke-width="2"/>
+              <line x1="${sq10 / 2}" y1="1" x2="${sq10 / 2}" y2="${sq10 - 1}" stroke="#ccc" stroke-width="0.7"/>
+              <line x1="1" y1="${sq10 / 2}" x2="${sq10 - 1}" y2="${sq10 / 2}" stroke="#ccc" stroke-width="0.7"/>
+            </svg>
+            <div style="font-size:11pt;color:#555;margin-top:8px;text-align:center">Must be exactly 10 \xd7 10 cm</div>
+          </div>
+        </div>
+        <p class="note" style="margin-top:0.2in">Advance to the next page once calibration is confirmed. Each piece is on its own page at 1:1 scale.</p>
+      </div>
+    </div>
+  </div>`;
+
+  // ── One page per piece ──
+  const piecePages = [];
+  for (const piece of pieces) {
+    const rendered = renderPiece(piece);
+    if (!rendered) continue;
+    const { svg, wIn, hIn } = rendered;
+    const pageW = wIn + 2 * PAD;
+    const pageH = hIn + 2 * PAD;
+
+    piecePages.push(`<div class="page pj-page" style="width:${pageW}in;height:${pageH}in">
+      <div style="position:absolute;left:${PAD}in;top:${PAD}in;width:${wIn}in;height:${hIn}in">
+        ${svg}
+      </div>
+      <div class="pj-piece-footer">
+        <span class="tf-name">${piece.name}${piece.cutCount ? ' \xd7 ' + piece.cutCount : ''}</span>
+        <span class="tf-brand">People\u2019s Patterns \xb7 ${garment.name}</span>
+      </div>
+    </div>`);
+  }
+
+  return calPage + piecePages.join('');
+}
+
 // ── Large-format combined preamble (A0/plotter) ────────────────────────────
 
 /**
@@ -1779,6 +1868,20 @@ b.gl { font-weight:600; color:#2c2a26; }
 .tb-page-head  { font-size:14pt; font-weight:700; color:#2c2a26; border-bottom:1.5px solid #2c2a26; padding-bottom:0.08in; margin-bottom:0.2in; }
 .tb-foot       { position:absolute; bottom:0.35in; left:0.65in; font-size:8pt; color:#bbb; }
 
+/* ── Projector layout ── */
+.pj-page       { background:#fff; position:relative; overflow:hidden; margin:0 auto 0.35in; page-break-after:always; break-after:page; }
+.pj-cal        { position:relative; padding:1in; z-index:1; }
+.pj-header     { border-bottom:2px solid #2c2a26; padding-bottom:0.18in; margin-bottom:0.3in; }
+.pj-brand      { font-family:'Fraunces',serif; font-size:13pt; font-weight:300; color:#aaa; letter-spacing:0.04em; }
+.pj-title      { font-size:34pt; font-weight:700; color:#2c2a26; margin-top:0.06in; }
+.pj-sub        { font-size:10pt; color:#999; margin-top:0.04in; }
+.pj-cal-body   { max-width:20in; }
+.pj-piece-footer {
+  position:absolute; bottom:0.3in; left:0.5in; right:0.5in;
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:9pt; z-index:20;
+}
+
 @media print {
   body { background:#fff; }
   .page { margin:0; box-shadow:none; }
@@ -1805,8 +1908,25 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
   const PW  = size.w;
   const PH  = size.h;
   const OV  = 0.75; // tile overlap in inches
-  const isLargeFormat = PW >= 30; // A0/plotter — collapse preamble + nest small pieces
-  const isTabloid = !isLargeFormat && PW >= 10 && PH >= 16; // tabloid (11×17) — 2-page preamble
+  const isProjector   = paperSize === 'projector';
+  const isLargeFormat = !isProjector && PW >= 30; // A0/plotter — collapse preamble + nest small pieces
+  const isTabloid = !isLargeFormat && !isProjector && PW >= 10 && PH >= 16; // tabloid (11×17) — 2-page preamble
+
+  // ── Projector: completely different layout (no tiling, one piece per page) ──
+  if (isProjector) {
+    const body = buildProjectorLayout(garment, pieces, materials, instructions, measurements, opts);
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${garment.name} \u2014 Projector Pattern</title>
+<style>${buildCSS(PW, PH)}</style>
+</head>
+<body>
+${body}
+</body>
+</html>`;
+  }
 
   // ── Preamble pages ──────────────────────────────────────────────────────
   const preamblePages = isLargeFormat
