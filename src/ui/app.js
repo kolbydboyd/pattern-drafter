@@ -36,7 +36,7 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
@@ -107,6 +107,37 @@ function _showSaveFeedback(anchor) {
   setTimeout(() => msg.remove(), 1400);
 }
 
+function _showDuplicateProfilePrompt(name) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dup-profile-overlay';
+    overlay.innerHTML = `
+      <div class="dup-profile-dialog">
+        <p>A profile named <strong>"${name}"</strong> already exists.</p>
+        <p>Would you like to overwrite it or choose a different name?</p>
+        <div class="dup-profile-btns">
+          <button class="btn-xs" id="dup-overwrite">Overwrite</button>
+          <button class="btn-xs" id="dup-rename">Change Name</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#dup-overwrite').addEventListener('click', () => { overlay.remove(); resolve('overwrite'); });
+    overlay.querySelector('#dup-rename').addEventListener('click', () => { overlay.remove(); resolve('rename'); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); resolve('cancel'); } });
+  });
+}
+
+function _computeMeasDeltas(oldMeas, newMeas) {
+  const deltas = {};
+  const allKeys = new Set([...Object.keys(oldMeas), ...Object.keys(newMeas)]);
+  for (const k of allKeys) {
+    const o = oldMeas[k] ?? null;
+    const n = newMeas[k] ?? null;
+    if (o !== n) deltas[k] = { old: o, new: n };
+  }
+  return Object.keys(deltas).length ? deltas : null;
+}
+
 // Update active profile state + step 2 stepper label
 function _setActiveProfile(id, name) {
   _activeProfileId   = id   ?? null;
@@ -152,7 +183,42 @@ async function saveCurrentProfile() {
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
 
-  // Save to Supabase first to get the UUID
+  // Check for existing profile with same name
+  const existing = loadProfiles().find(p => p.name === name);
+  if (existing) {
+    const action = await _showDuplicateProfilePrompt(name);
+    if (action === 'rename') { nameInput.focus(); nameInput.select(); return; }
+    if (action !== 'overwrite') return;
+
+    // Overwrite existing profile
+    const user = getCurrentUser();
+    const btn  = document.getElementById('save-profile-btn');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    if (existing.id) {
+      // Log measurement delta before overwriting
+      const oldMeas = { ...existing }; delete oldMeas.id; delete oldMeas.name;
+      const deltas = _computeMeasDeltas(oldMeas, m);
+      if (deltas) logMeasurementDelta(user.id, existing.id, deltas);
+
+      const { error } = await updateMeasurementProfile(existing.id, m);
+      if (error) console.error('Supabase update failed:', error.message);
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+
+    const profiles = loadProfiles().filter(p => p.name !== name);
+    profiles.push({ id: existing.id, name, ...m });
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    refreshProfileDropdown();
+    _setActiveProfile(existing.id, name);
+    nameInput.value = '';
+    _showSaveFeedback(btn?.closest('.profile-row') || btn?.parentElement);
+    return;
+  }
+
+  // Save new profile to Supabase
   const user = getCurrentUser();
   const btn  = document.getElementById('save-profile-btn');
   const orig = btn?.textContent;
@@ -427,7 +493,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const fName = f.affiliateUrl
       ? `<a href="${f.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${f.name}</a>`
       : f.name;
-    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
+    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${expandGlossary(f.notes)}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -437,7 +503,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const nName = n.affiliateUrl
       ? `<a href="${n.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${n.name}</a>`
       : n.name;
-    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${expandGlossary(n.notes)})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -458,7 +524,7 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
     if (!s?.name) continue;
-    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
+    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${expandGlossary(s.use)}</span>`;
   }
   html += `</div>`;
 
@@ -474,13 +540,13 @@ function renderMaterials(mat, yardage45, yardage60) {
 
   if (mat.troubleshooting?.length) {
     html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
-    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${t}</div>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${expandGlossary(t)}</div>`;
     html += `</div>`;
   }
 
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
-    for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
+    for (const n of mat.notes) html += `<div class="mat-row">• ${expandGlossary(n)}</div>`;
     html += `</div>`;
   }
 

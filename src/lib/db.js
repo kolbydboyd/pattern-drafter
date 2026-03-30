@@ -83,6 +83,13 @@ export async function deleteMeasurementProfile(id) {
   return { error };
 }
 
+export async function logMeasurementDelta(userId, profileId, deltas) {
+  const { error } = await supabase
+    .from('measurement_deltas')
+    .insert({ user_id: userId, profile_id: profileId, deltas });
+  return { error };
+}
+
 // ── Purchases ─────────────────────────────────────────────────────────────────
 
 export async function getPurchases(userId) {

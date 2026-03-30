@@ -10,6 +10,7 @@ import {
   getDaysUntilDeletion,
   getWishlist, removeFromWishlist,
   getSubscription, getTotalCredits,
+  logMeasurementDelta,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -184,6 +185,14 @@ async function _renderMeasurements(main, user) {
     const name = nameInput?.value.trim();
     if (!name) { nameInput?.focus(); return; }
 
+    // Check for duplicate name among active and archived profiles
+    const allProfiles = [...active, ...archived];
+    if (allProfiles.some(p => p.name === name)) {
+      alert(`A profile named "${name}" already exists. Please choose a different name.`);
+      nameInput.focus(); nameInput.select();
+      return;
+    }
+
     const btn = document.getElementById('acct-add-profile-btn');
     const orig = btn.textContent;
     btn.disabled = true;
@@ -255,6 +264,18 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
   overlay.querySelector('#edit-prof-save').addEventListener('click', async () => {
     const name = overlay.querySelector('#edit-profile-name').value.trim();
     if (!name) { overlay.querySelector('#edit-profile-name').focus(); return; }
+
+    // Check for duplicate name if renamed (exclude this profile)
+    if (name !== currentName) {
+      const { data: allProfiles } = await getMeasurementProfiles(user.id);
+      const dup = (allProfiles || []).find(p => p.name === name && p.id !== profileId);
+      if (dup) {
+        alert(`A profile named "${name}" already exists. Please choose a different name.`);
+        overlay.querySelector('#edit-profile-name').focus();
+        return;
+      }
+    }
+
     const newMeas = { ...currentMeas };
     overlay.querySelectorAll('.acct-edit-meas').forEach(el => {
       const v = parseFloat(el.value);
@@ -275,6 +296,21 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
     }
     saveBtn.disabled = false; saveBtn.textContent = 'Save';
     if (error) { alert('Could not save: ' + error.message); return; }
+
+    // Log measurement deltas for data tracking
+    if (measChanged) {
+      const deltas = {};
+      const allKeys = new Set([...Object.keys(currentMeas), ...Object.keys(newMeas)]);
+      for (const k of allKeys) {
+        const o = currentMeas[k] ?? null;
+        const n = newMeas[k] ?? null;
+        if (o !== n) deltas[k] = { old: o, new: n };
+      }
+      if (Object.keys(deltas).length) {
+        logMeasurementDelta(user.id, profileId, deltas);
+      }
+    }
+
     close();
 
     if (measChanged) {

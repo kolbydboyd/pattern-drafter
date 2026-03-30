@@ -1288,32 +1288,32 @@ function buildScalePage(pieces, PW, PH, OV) {
 
 function buildMaterialsPage(materials, instructions) {
   const fabricRows = (materials.fabrics || []).map(f =>
-    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
+    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${expandGlossaryPrint(f.notes || '')}</td></tr>`
   ).join('');
 
   const notionRows = (materials.notions || []).map(n =>
-    `<tr><td>${n.name}</td><td>${n.quantity || ''}</td><td>${n.notes || ''}</td></tr>`
+    `<tr><td>${n.name}</td><td>${n.quantity || ''}</td><td>${expandGlossaryPrint(n.notes || '')}</td></tr>`
   ).join('');
 
   const stitchRows = (materials.stitches || []).map(s =>
-    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || 'n/a') : 'n/a'}</td><td>${s.use || ''}</td></tr>`
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || 'n/a') : 'n/a'}</td><td>${expandGlossaryPrint(s.use || '')}</td></tr>`
   ).join('');
 
   const notesHtml = materials.notes?.length
     ? `<div class="mat-notes">
         <h3 class="sect-head" style="margin-top:1em">Important Notes</h3>
-        <ul>${materials.notes.map(n => `<li>${n}</li>`).join('')}</ul>
+        <ul>${materials.notes.map(n => `<li>${expandGlossaryPrint(n)}</li>`).join('')}</ul>
        </div>`
     : '';
 
   const threadHtml = materials.thread
-    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} · ${materials.thread.notes || ''}</td></tr>`
+    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} · ${expandGlossaryPrint(materials.thread.notes || '')}</td></tr>`
     : '';
   const needleHtml = materials.needle
-    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${materials.needle.use || ''}</td></tr>`
+    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${expandGlossaryPrint(materials.needle.use || '')}</td></tr>`
     : '';
 
-  const terms = usedGlossaryTerms(instructions);
+  const terms = usedGlossaryTerms(instructions, materials);
   const glossaryHtml = terms.length ? `
     <div class="print-glossary">
       <h3 class="sect-head">Glossary</h3>
@@ -1363,9 +1363,17 @@ function expandGlossaryPrint(text) {
   });
 }
 
-/** Collect glossary terms actually used in the instructions */
-function usedGlossaryTerms(instructions) {
-  const text = (instructions || []).map(s => s.detail || '').join(' ');
+/** Collect glossary terms actually used in instructions and materials */
+function usedGlossaryTerms(instructions, materials) {
+  let text = (instructions || []).map(s => s.detail || '').join(' ');
+  if (materials) {
+    text += ' ' + (materials.notes || []).join(' ');
+    text += ' ' + (materials.fabrics || []).map(f => f.notes || '').join(' ');
+    text += ' ' + (materials.notions || []).map(n => n.notes || '').join(' ');
+    text += ' ' + (materials.stitches || []).map(s => s.use || '').join(' ');
+    text += ' ' + (materials.thread?.notes || '');
+    text += ' ' + (materials.needle?.use || '');
+  }
   const used = [];
   for (const [term, def] of Object.entries(GLOSSARY)) {
     if (text.includes(`{${term}}`)) used.push({ term, def });
@@ -1409,13 +1417,13 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
     return `<tr><td>${label}</td><td>${v}</td></tr>`;
   }).join('');
   const fabricRows = (materials.fabrics || []).map(f =>
-    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
+    `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${expandGlossaryPrint(f.notes || '')}</td></tr>`
   ).join('');
   const notionRows = (materials.notions || []).map(n =>
     `<tr><td>${n.name}</td><td>${n.quantity || ''}</td></tr>`
   ).join('');
   const stitchRows = (materials.stitches || []).map(s =>
-    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.use || ''}</td></tr>`
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${expandGlossaryPrint(s.use || '')}</td></tr>`
   ).join('');
   const stepsHtml = (instructions || []).map(s =>
     `<div class="lf-step">
