@@ -2,6 +2,8 @@
 // Minimal JS for static pages (FAQ, Terms, Privacy) — theme toggle only.
 
 import { inject } from '@vercel/analytics';
+import '../analytics.js';
+
 inject();
 
 function getSavedTheme() {

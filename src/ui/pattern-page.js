@@ -2,6 +2,7 @@
 // Pattern detail page — handles /patterns/[garment-id]
 
 import { inject } from '@vercel/analytics';
+import '../analytics.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 
