@@ -253,11 +253,12 @@ function renderPanelSVG(piece) {
   const mR = (sa || 0.5) + MARGIN;  // SA extends `sa` past width — MARGIN ensures no clip
   const mB = MARGIN;
 
+  const cbR = piece.cbRaise || 0;
   const wIn = mL + width + mR;
-  const hIn = mT + height + mB;
+  const hIn = mT + cbR + height + mB;
 
   const ox = mL;
-  const oy = mT;
+  const oy = mT + cbR;
 
   const cutPath = polyPath(polygon, ox, oy);
 
@@ -1070,7 +1071,7 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
   function pieceDims(piece) {
     if (piece.type === 'panel') {
       const sa = piece.sa || 0.5;
-      return { wIn: (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN, hIn: MARGIN + piece.height + MARGIN };
+      return { wIn: (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN, hIn: MARGIN + (piece.cbRaise || 0) + piece.height + MARGIN };
     }
     if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const xs = piece.polygon.map(p => p.x), ys = piece.polygon.map(p => p.y);
