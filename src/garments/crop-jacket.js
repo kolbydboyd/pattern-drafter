@@ -30,8 +30,8 @@ export default {
     length: {
       type: 'select', label: 'Jacket length',
       values: [
-        { value: 'crop', label: 'Crop - at waist (torso length)' },
-        { value: 'hip',  label: 'Hip - +4″ below waist'          },
+        { value: 'crop', label: 'Crop, at waist (torso length)' },
+        { value: 'hip',  label: 'Hip, +4″ below waist'          },
       ],
       default: 'crop',
     },
@@ -308,9 +308,9 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter - +1 spare' });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter (+1 spare)' });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps - size 24 or 20' });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps (size 24 or 20)' });
     }
 
     return buildMaterialsSpec({

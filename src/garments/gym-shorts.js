@@ -163,7 +163,7 @@ export default {
     const wbWidth      = 3.5;   // 1.75″ finished (doubled)
     pieces.push({
       id: 'waistband-front',
-      name: 'Waistband - Front',
+      name: 'Waistband Front',
       instruction: `Cut 1 · Interface · ${fmtInches(wbWidth / 2)} finished · Grommet/buttonhole placement at CF`,
       dimensions: { length: wbFrontLen, width: wbWidth },
       type: 'rectangle',
@@ -174,7 +174,7 @@ export default {
     const wbBackLen = (m.waist / 2 + ease.back) + sa * 2;
     pieces.push({
       id: 'waistband-back',
-      name: 'Waistband - Back',
+      name: 'Waistband Back',
       instruction: `Cut 1 · Casing for 1″ elastic · ${fmtInches(wbWidth / 2)} finished`,
       dimensions: { length: wbBackLen, width: wbWidth },
       type: 'rectangle',

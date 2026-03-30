@@ -35,8 +35,8 @@ export default {
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight - twin needle hem',   reference: 'classic, relaxed'    },
-        { value: 'jogger',   label: 'Jogger - tapered + rib cuff',  reference: 'streetwear, tapered' },
+        { value: 'straight', label: 'Straight, twin needle hem',   reference: 'classic, relaxed'    },
+        { value: 'jogger',   label: 'Jogger, tapered + rib cuff',  reference: 'streetwear, tapered' },
       ],
       default: 'straight',
     },
@@ -208,7 +208,7 @@ export default {
       { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ - front tie + tails` },
     ];
     if (isJogger) {
-      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs - high recovery stretch' });
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs (high recovery stretch)' });
     }
 
     return buildMaterialsSpec({

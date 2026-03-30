@@ -41,7 +41,7 @@ export default {
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes - front & back mesh panels',  reference: 'athletic, brief-style' },
+        { value: 'yes', label: 'Yes, front & back mesh panels',  reference: 'athletic, brief-style' },
         { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
@@ -239,9 +239,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) - do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams - stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },

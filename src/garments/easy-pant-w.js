@@ -238,7 +238,7 @@ export default {
   materials(m, opts) {
     const isKnit = opts.waistband === 'yoga';
     const notions = [
-      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic - waist − 2″ for snug fit' },
+      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic (waist − 2″ for snug fit)' },
     ];
 
     return buildMaterialsSpec({

@@ -55,7 +55,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes - full lining' },
+        { value: 'yes', label: 'Yes, full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -136,7 +136,7 @@ export default {
 
       return {
         id, name,
-        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
+        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip. Add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
         width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
         dims,
@@ -218,7 +218,7 @@ export default {
       steps.push({ step: n++, title: 'Install invisible zipper', detail: '{press} zip coils flat. Sew right side of zip to right CB seam allowance. Sew left side to left CB seam allowance. Attach zip foot. Close remaining CB seam below zip stop.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams - sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams: sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams as for shell. Leave CB open for zipper. {press}.' });

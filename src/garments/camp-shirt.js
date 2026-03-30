@@ -381,7 +381,7 @@ export default {
     const isLong   = opts.sleeveStyle === 'long';
 
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) - +1 spare` },
+      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) +1 spare` },
       { ref: 'interfacing-light', quantity: '0.5 yard (collar + placket facings)' },
     ];
 

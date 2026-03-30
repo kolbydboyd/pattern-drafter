@@ -176,7 +176,7 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop - inseam reduced 2″' : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop (inseam reduced 2″)' : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam, kneeY, kneeFactor,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
@@ -270,7 +270,7 @@ export default {
     if (numPleats > 0) {
       steps.push({ step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`, detail: `Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. {baste} at waist. {press} first 5–6″ with steam and {press} cloth. Below hip, allow to drape freely.` });
     }
-    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally - prevents stretching while handling.' });
+    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally to prevent stretching while handling.' });
     if (hasFly) {
       steps.push({ step: n++, title: 'Install invisible zip fly', detail: 'Sew CF seam below fly opening only. Install invisible zipper to right CF opening. Attach fly shield to left CF behind zipper. {topstitch} fly curve from RS at 1″.' });
     } else {

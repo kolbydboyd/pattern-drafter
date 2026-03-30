@@ -257,8 +257,8 @@ export default {
       notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic for waistband casing' });
     }
     if (opts.waistband === 'wide') {
-      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham - optional facing for wide waistband interior' });
-      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 - waistband closure' });
+      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham (optional facing for wide waistband interior)' });
+      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 (waistband closure)' });
     }
 
     return buildMaterialsSpec({

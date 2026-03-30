@@ -114,7 +114,7 @@ export default {
         const perPanel = (minThigh - patternThigh) / 4;
         frontHipW += perPanel;
         backHipW += perPanel;
-        console.warn(`[straight-jeans] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033) \u2014 widened panels by ${perPanel.toFixed(2)}\u2033 each`);
+        console.warn(`[straight-jeans] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033): widened panels by ${perPanel.toFixed(2)}\u2033 each`);
       } else if (patternThigh - m.thigh * 2 < 2) {
         console.warn(`[straight-jeans] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}\u2033 (recommend \u2265 2\u2033)`);
       }
@@ -191,12 +191,12 @@ export default {
       needle: 'denim-100',
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
-        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look - use a {topstitch} needle for heavier thread',
+        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look. Use a {topstitch} needle for heavier thread',
         'Fell seams on inseam and outseam: after sewing, {press} seam to one side, fold raw edge under, {topstitch} from RS two rows visible',
         'Pre-wash denim once (hot wash, dry on high) to pre-shrink before cutting',
-        'Use a denim needle (100/16) and heavy polyester thread 30wt - lighter thread will break under tension',
+        'Use a denim needle (100/16) and heavy polyester thread 30wt; lighter thread will break under tension',
         'Copper rivet all high-stress points: bottom of front pocket openings, coin pocket sides, crotch junction',
-        '{press} denim with a damp cloth - dry pressing may leave shine marks on dark denim',
+        '{press} denim with a damp cloth. Dry pressing may leave shine marks on dark denim',
       ],
     });
   },

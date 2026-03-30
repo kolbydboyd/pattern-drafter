@@ -193,7 +193,7 @@ export default {
       { ref: 'interfacing-heavy', quantity: '0.25 yard (waistband outer layer only)' },
       { name: 'Metal zipper',    quantity: `${Math.ceil((m.rise || 12) * 0.6)}″`, notes: 'Concealed or metal coil' },
       { name: 'Waistband button', quantity: '1', notes: '¾″ shank button, quality metal' },
-      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 - waistband + French bearer' },
+      { name: 'Hook-and-eye',    quantity: '2 sets', notes: 'Size 3 (waistband + French bearer)' },
     ];
 
     return buildMaterialsSpec({
@@ -259,7 +259,7 @@ export default {
       step: n++, title: 'Hem - fit first',
       detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand {slipstitch} or blind hem stitch for an invisible finish on dress trousers.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases - align side seam to inseam and {press} fold from waist to hem.' });
+    steps.push({ step: n++, title: 'Finish', detail: '{press} entire garment with steam and {press} cloth. Bar tack all stress points. Steam-{press} front trouser creases. Align side seam to inseam and {press} fold from waist to hem.' });
 
     return steps;
   },

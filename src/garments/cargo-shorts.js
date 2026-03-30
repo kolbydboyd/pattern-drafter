@@ -133,7 +133,7 @@ export default {
         const perPanel = (minThigh - patternThigh) / 4;
         frontW += perPanel;
         backW += perPanel;
-        console.warn(`[cargo-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033) \u2014 widened panels by ${perPanel.toFixed(2)}\u2033 each`);
+        console.warn(`[cargo-shorts] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}\u2033): widened panels by ${perPanel.toFixed(2)}\u2033 each`);
       } else if (patternThigh - m.thigh * 2 < 2) {
         console.warn(`[cargo-shorts] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}\u2033 (recommend \u2265 2\u2033)`);
       }
@@ -230,7 +230,7 @@ export default {
     ];
 
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ - adjust at fitting` });
+      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ (adjust at fitting)` });
       if (opts.internalBelt === 'webbing') {
         notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
       }
@@ -253,7 +253,7 @@ export default {
       needle: 'universal-90',
       stitches: ['straight-2.5', 'straight-3', 'zigzag-small', 'bartack'],
       notes: [
-        'Pre-wash linen (hot wash, tumble dry) - shrinks 3–5%',
+        'Pre-wash linen (hot wash, tumble dry); shrinks 3–5%',
         'Interface waistband with 2 layers BEFORE cutting',
         ...(opts.internalBelt === 'webbing' ? ['Sew nylon webbing into waistband for holster-clip support'] : []),
         'Bar tack all pocket corners and crotch junction',
@@ -276,7 +276,7 @@ export default {
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat - finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
+        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat. Finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',

@@ -42,7 +42,7 @@ export default {
     closure: {
       type: 'select', label: 'Back closure',
       values: [
-        { value: 'pullover', label: 'Pullover - no zip'             },
+        { value: 'pullover', label: 'Pullover, no zip'             },
         { value: 'zip',      label: 'Invisible zip at center back' },
       ],
       default: 'pullover',
@@ -212,7 +212,7 @@ export default {
       },
       {
         id: 'bodice-back', name: 'Back Body',
-        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB' : ''}`,
+        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip. Add ⅝″ SA at CB' : ''}`,
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
         width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],

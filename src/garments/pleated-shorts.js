@@ -56,8 +56,8 @@ export default {
     waistband: {
       type: 'select', label: 'Waistband',
       values: [
-        { value: 'standard', label: 'Standard - 1½″ finished, interfaced',          reference: 'classic, interfaced'    },
-        { value: 'curtain',  label: 'Curtain - 1½″ finished, button + hook-and-eye',  reference: 'Savile Row, high-waisted' },
+        { value: 'standard', label: 'Standard, 1½″ finished, interfaced',          reference: 'classic, interfaced'    },
+        { value: 'curtain',  label: 'Curtain, 1½″ finished, button + hook-and-eye',  reference: 'Savile Row, high-waisted' },
       ],
       default: 'standard',
     },
@@ -236,7 +236,7 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam - {press} down 3–4″, then release to drape naturally.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS of front panel. Each pleat folds toward the side seam enclosing ${fmtInches(PLEAT_DEPTH)} of fabric. Pin across waist. {baste} ⅜″ from waist edge. {press} pleat from WS with steam. {press} down 3–4″, then release to drape naturally.`,
       });
     }
 

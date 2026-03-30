@@ -461,7 +461,7 @@ export function buildSlantPocketBag({ width = 7, height = 10.5, sa = 0.625, inst
     { x: width * 0.35, y: height + curveDepth },
     { x: 0, y: height },
     16,
-  ).map(p => ({ ...p, curve: true }));
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
   // CW polygon: top-left → top-right → bottom-right → (curve) → bottom-left → back up
   const polygon = [
