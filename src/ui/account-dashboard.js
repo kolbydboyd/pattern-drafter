@@ -545,6 +545,29 @@ async function _renderPatterns(main, user, tab = 'active') {
     });
   });
 
+  // A0 upsell button
+  main.querySelectorAll('.pat-a0-upsell-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = 'Redirecting\u2026';
+      try {
+        const { session } = await getSession();
+        const res = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: btn.dataset.purchaseId, userId: user.id }),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) { _showToast(json.error || 'Checkout failed'); btn.disabled = false; btn.textContent = 'Add A0 (+$4)'; return; }
+        window.location.href = json.url;
+      } catch {
+        _showToast('Could not start checkout. Try again.');
+        btn.disabled = false;
+        btn.textContent = 'Add A0 (+$4)';
+      }
+    });
+  });
+
   // Restore button (trash tab)
   main.querySelectorAll('.pat-restore-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -707,8 +730,12 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         ? `<button class="acct-btn-xs pat-feedback-btn pat-feedback-done" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">Fit: submitted ✓</button>`
         : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
       : '';
+    const a0Btn = !p.a0_addon
+      ? `<button class="acct-btn-xs pat-a0-upsell-btn" data-purchase-id="${p.id}">Add A0 (+$4)</button>`
+      : '';
     actionHtml = `
       <button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>
+      ${a0Btn}
       <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>
       ${fbBtn}
       <div class="pat-overflow-wrap">

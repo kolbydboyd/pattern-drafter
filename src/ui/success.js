@@ -41,6 +41,8 @@ async function init() {
     initBundleSuccess(info);
   } else if (checkoutMode === 'subscription') {
     initSubscriptionSuccess(info);
+  } else if (checkoutMode === 'a0_upgrade') {
+    initA0UpgradeSuccess(info);
   }
 }
 
@@ -173,6 +175,27 @@ function initSubscriptionSuccess(info) {
     plan_id: info.planId,
     credits: info.credits,
     amount:  info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
+// ── A0 upgrade success ──────────────────────────────────────────────────────
+
+function initA0UpgradeSuccess(info) {
+  const el = document.getElementById('success-state');
+  const elName   = document.getElementById('success-garment-name');
+  const elAmount = document.getElementById('success-amount');
+
+  elName.textContent   = 'A0 / Copy Shop Upgrade';
+  elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
+  el.hidden = false;
+
+  const dlBtn = document.getElementById('success-download-btn');
+  dlBtn.textContent = 'Go to My Patterns';
+  dlBtn.addEventListener('click', () => { window.location.href = '/account'; });
+
+  trackEvent('a0_upgrade_completed', {
+    purchase_id: info.purchaseId,
+    amount:      info.amountCents ? info.amountCents / 100 : undefined,
   });
 }
 

@@ -612,6 +612,8 @@ details.adv-meas summary:hover{color:var(--text)}
 .wm-a0-label input{accent-color:var(--gold);width:13px;height:13px;cursor:pointer}
 .wm-a0-price{color:var(--gold);font-weight:600}
 .a0-download-notice{font-size:.72rem;color:var(--sa);margin-top:6px;font-style:italic}
+.pat-a0-upsell-btn{border-color:var(--gold);color:var(--gold)}
+.pat-a0-upsell-btn:hover{background:var(--gold);color:var(--dark)}
 
 /* ── Exit-intent capture banner ── */
 #exit-intent-banner{position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--bg);border-bottom:2px solid var(--gold);box-shadow:0 2px 12px rgba(0,0,0,.18);animation:slideDown .25s ease}
