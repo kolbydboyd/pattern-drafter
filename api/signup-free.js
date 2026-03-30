@@ -3,6 +3,7 @@
 // Bypasses email confirmation so the user can sign in and download immediately.
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from './_rate-limit.js';
+import { sendEmail } from './send-email.js';
 
 const limiter = rateLimit({ windowMs: 60_000, max: 5 });
 
@@ -43,6 +44,10 @@ export default async function handler(req, res) {
     console.error('[signup-free] profile upsert error:', profileErr.message);
     // Non-fatal — account created, credit may be set by DB trigger
   }
+
+  // Send welcome email (fire-and-forget — don't block account creation)
+  sendEmail('WELCOME', email, { freeCredit: true })
+    .catch(err => console.error('[signup-free] welcome email failed:', err));
 
   return res.status(200).json({ ok: true });
 }
