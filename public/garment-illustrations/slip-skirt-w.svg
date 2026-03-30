@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <rect x="52" y="38" width="56" height="10" rx="2"/>
-  <path d="M52,48 L48,188 L112,188 L108,48"/>
-  <path d="M48,164 L48,188"/>
+  <!-- elastic waistband -->
+  <path d="M56,40 L104,40 L104,50 L56,50 Z"/>
+  <path d="M62,40 Q80,44 98,40"/>
+  <!-- bias-cut body: narrower at top, wider at hem -->
+  <path d="M56,50 Q48,100 36,186 L124,186 Q112,100 104,50"/>
+  <!-- side slit at hem -->
+  <line x1="36" y1="186" x2="42" y2="168"/>
+  <!-- subtle bias grain hint -->
+  <line x1="60" y1="80" x2="50" y2="130" stroke-dasharray="5 5"/>
+  <line x1="100" y1="80" x2="110" y2="130" stroke-dasharray="5 5"/>
 </svg>
