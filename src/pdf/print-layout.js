@@ -1143,9 +1143,9 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
         : `${rows}\xd7${cols} = ${total} pg \xb7 ${orientLabel}`;
 
       items += `\n<text x="${colXOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(name)}</text>`;
-      items += `\n<text x="${colXOff + cols * (cellW + GAP) + 8}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">${countLabel}</text>`;
+      items += `\n<text x="${colXOff}" y="${y + 23}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#999">${countLabel}</text>`;
 
-      y += 18;
+      y += 28;
 
       if (sn) {
         // Small pieces group — show a single cell with piece count
@@ -1228,7 +1228,7 @@ function buildCoverPage(garment, measurements, opts) {
           <li>Assemble in the order shown on the tile map (page 2).</li>
           <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile to remove the shaded overlap strip.</li>
           <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile. Matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement.</li>
-          <li>Tape from the back. Check the 1\u2033 ruler strip to confirm scale before taping</li>
+          <li>Tape tiles together. Check the 1\u2033 ruler strip to confirm scale before taping.</li>
         </ol>
       </div>
     </div>
@@ -1279,7 +1279,7 @@ function buildScalePage(pieces, PW, PH, OV) {
     </div>
     <div class="map-sect">
       <h3 class="sect-head">Tile Assembly Map</h3>
-      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape. \u2022 Cut along the \u2702 scissors line at each overlap edge. \u2022 Slide trimmed tile until the \u2295 crosshairs match the adjacent tile (same letter = same point). \u2022 Tape from the back.</p>
+      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape. \u2022 Cut along the \u2702 scissors line at each overlap edge. \u2022 Slide trimmed tile until the \u2295 crosshairs match the adjacent tile (same letter = same point). \u2022 Tape tiles together.</p>
       ${buildTileMapSVG(pieces, PW, PH, OV)}
     </div>
   </div>`;
@@ -1459,7 +1459,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
           <li>Assemble tiles in the order shown in the map at right.</li>
           <li>Cut along the \u2702 scissors line at each overlap edge.</li>
           <li>Align \u2295 crosshairs. Matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement.</li>
-          <li>Tape from the back; check the 1\u2033 ruler strip before taping</li>
+          <li>Tape tiles together. Check the 1\u2033 ruler strip before taping.</li>
         </ol>
         <h3 class="sect-head" style="margin-top:0.28in">Scale Verification: Measure before cutting fabric</h3>
         <div class="sq-row" style="justify-content:flex-start;gap:0.5in;margin:0.1in 0 0">
