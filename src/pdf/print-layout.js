@@ -380,7 +380,7 @@ function renderPanelSVG(piece) {
         const halfW = (d.intake / 2) * DPI;
         return `<line x1="${dx - halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
         <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
+        <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">dart</text>`;
       }).join('\n')}
       ${renderNotchesPrint(polygon, notches, ox, oy)}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
@@ -508,10 +508,10 @@ function renderBodiceOrSleeveSVG(piece) {
         let arrows = '';
         for (let i = 0; i < count; i++) {
           const ay = gy1 + inset + (gy2 - gy1 - 2 * inset) * i / (count - 1);
-          arrows += '<polygon points="' + (fx + 10 - aw) + ',' + ay + ' ' + (fx + 10) + ',' + (ay - ah) + ' ' + (fx + 10) + ',' + (ay + ah) + '" fill="#555"/>';
+          arrows += '<polygon points="' + (fx + 10 - aw) + ',' + ay + ' ' + (fx + 10) + ',' + (ay - ah) + ' ' + (fx + 10) + ',' + (ay + ah) + '" fill="#444"/>';
         }
         const my = (gy1 + gy2) / 2;
-        arrows += '<text x="' + (fx + 6) + '" y="' + my + '" font-family="IBM Plex Mono,monospace" font-size="9" fill="#555" text-anchor="middle" letter-spacing="2" transform="rotate(-90,' + (fx + 6) + ',' + my + ')">PLACE ON FOLD</text>';
+        arrows += '<text x="' + (fx + 6) + '" y="' + my + '" font-family="IBM Plex Mono,monospace" font-size="9" fill="#444" text-anchor="middle" letter-spacing="2" transform="rotate(-90,' + (fx + 6) + ',' + my + ')">PLACE ON FOLD</text>';
         return arrows;
       })()}
       ` : `
@@ -535,7 +535,7 @@ function renderBodiceOrSleeveSVG(piece) {
         const lx = (ox + d.sideX) * DPI, ly = (oy + d.lowerY) * DPI;
         return `<line x1="${ux.toFixed(1)}" y1="${uy.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
         <line x1="${lx.toFixed(1)}" y1="${ly.toFixed(1)}" x2="${ax.toFixed(1)}" y2="${ay.toFixed(1)}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
-        <text x="${(ax - 10).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
+        <text x="${(ax - 10).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">dart</text>`;
       }).join('\n')}
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444"
@@ -622,9 +622,9 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
     const inset = (fy2 - fy1) * 0.15;
     for (let i = 0; i < 3; i++) {
       const ay = fy1 + inset + (fy2 - fy1 - 2 * inset) * i / 2;
-      foldSvg += `<polygon points="${fx + 8 - aw},${ay} ${fx + 8},${ay - ah} ${fx + 8},${ay + ah}" fill="#555"/>`;
+      foldSvg += `<polygon points="${fx + 8 - aw},${ay} ${fx + 8},${ay - ah} ${fx + 8},${ay + ah}" fill="#444"/>`;
     }
-    foldSvg += `<text x="${fx + 5}" y="${fmy}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90,${fx + 5},${fmy})">FOLD</text>`;
+    foldSvg += `<text x="${fx + 5}" y="${fmy}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle" letter-spacing="1.5" transform="rotate(-90,${fx + 5},${fmy})">FOLD</text>`;
   }
 
   return {
@@ -648,10 +648,10 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
         fill="#2c2a26" text-anchor="middle">${name}</text>
       <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
-        fill="#888" text-anchor="middle">${dimLabel}</text>
+        fill="#666" text-anchor="middle">${dimLabel}</text>
       ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
-        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
-        fill="#999" text-anchor="middle">${instruction}</text>` : ''}
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
+        fill="#666" text-anchor="middle">${instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -687,10 +687,10 @@ function renderPocketSVG(piece, { compact = false } = {}) {
         fill="#2c2a26" text-anchor="middle">${name}</text>
       <text x="${cx}" y="${(M + H / 2) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
-        fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
+        fill="#666" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
       ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
-        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
-        fill="#999" text-anchor="middle">${piece.instruction}</text>` : ''}
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
+        fill="#666" text-anchor="middle">${piece.instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -700,12 +700,12 @@ function renderPocketSVG(piece, { compact = false } = {}) {
 function crosshair(x, y, size = 14, label = '', alignLabel = false) {
   const lbl = label
     ? `<text x="${x + size + 3}" y="${y - size - 2}"
-        font-family="'IBM Plex Mono',monospace" font-size="7" font-weight="700"
+        font-family="'IBM Plex Mono',monospace" font-size="8" font-weight="700"
         fill="#000">${label}</text>`
     : '';
   const aLbl = alignLabel
     ? `<text x="${x + size + 3}" y="${y + size + 10}"
-        font-family="'IBM Plex Mono',monospace" font-size="6.5"
+        font-family="'IBM Plex Mono',monospace" font-size="7.5"
         fill="#444">+ align here</text>`
     : '';
   return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}"
@@ -742,7 +742,7 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
       transform="rotate(270,${cx},${yS + 16})">\u2702</text>`;
     // "cut here" label rotated along line
     shapes += `<text
-      font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
+      font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#000"
       text-anchor="middle"
       transform="rotate(-90,${cx - 11},${midY})">cut here</text>`;
   } else {
@@ -764,7 +764,7 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
       transform="rotate(180,${xS + 16},${cy - 3})">\u2702</text>`;
     // "cut here" label
     shapes += `<text x="${midX}" y="${cy - 4}"
-      font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
+      font-family="'IBM Plex Mono',monospace" font-size="7.5" fill="#000"
       text-anchor="middle">cut here</text>`;
   }
 
@@ -794,7 +794,7 @@ function rulerStrip(tPW, SM) {
     marks += `<line x1="${x}" y1="${rY - h}" x2="${x}" y2="${rY}" stroke="#000" stroke-width="${isIn ? 0.7 : 0.4}"/>`;
     if (isIn && i > 0) {
       marks += `<text x="${x}" y="${rY - h - 2}"
-        font-family="'IBM Plex Mono',monospace" font-size="6" text-anchor="middle"
+        font-family="'IBM Plex Mono',monospace" font-size="8" text-anchor="middle"
         dominant-baseline="auto" fill="#000">${i / 4}"</text>`;
     }
   }
@@ -986,7 +986,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
           <rect x="4" y="4" width="${DPI}" height="${DPI}" fill="none" stroke="#000" stroke-width="1"/>
           <line x1="4" y1="${4 + DPI / 2}" x2="${4 + DPI}" y2="${4 + DPI / 2}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
           <line x1="${4 + DPI / 2}" y1="4" x2="${4 + DPI / 2}" y2="${4 + DPI}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
-          <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
+          <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
         </svg>` : ''}
         <div class="tile-footer">
           <span class="tf-name">${piece.name} · tile ${tileId} of ${gridLabel} pages</span>
@@ -1145,7 +1145,7 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
         : `${rows}\xd7${cols} = ${total} pg \xb7 ${orientLabel}`;
 
       items += `\n<text x="${colXOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(name)}</text>`;
-      items += `\n<text x="${colXOff}" y="${y + 23}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#999">${countLabel}</text>`;
+      items += `\n<text x="${colXOff}" y="${y + 23}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#666">${countLabel}</text>`;
 
       y += 28;
 
@@ -1153,11 +1153,11 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
         // Small pieces group — show a single cell with piece count
         const bx = colXOff, by = y;
         items += `\n<rect x="${bx}" y="${by}" width="${cellW * 2}" height="${cellH}" rx="2" fill="#f0ead6" stroke="#555" stroke-width="0.7"/>`;
-        items += `\n<text x="${bx + cellW}" y="${by + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle">${sn.length} pcs</text>`;
+        items += `\n<text x="${bx + cellW}" y="${by + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">${sn.length} pcs</text>`;
         y += cellH + GAP;
         // List piece names below in small text
         for (const sName of sn) {
-          items += `\n<text x="${colXOff + 6}" y="${y + 8}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#999">\u2022 ${xmlEsc(sName)}</text>`;
+          items += `\n<text x="${colXOff + 6}" y="${y + 8}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#666">\u2022 ${xmlEsc(sName)}</text>`;
           y += 11;
         }
       } else {
@@ -1673,7 +1673,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
         <line x1="1" y1="${size / 2}" x2="${size - 1}" y2="${size / 2}"
           stroke="#ccc" stroke-width="0.7"/>
       </svg>
-      <div style="font-size:9pt;color:#555;margin-top:6px;text-align:center">${label}</div>
+      <div style="font-size:10pt;color:#444;margin-top:6px;text-align:center">${label}</div>
     </div>`;
   }
 
@@ -1750,39 +1750,39 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .cover-body { height:100%; display:flex; flex-direction:column; gap:0.28in; }
 .cover-brand {
   font-family:'Fraunces',serif; font-size:11pt; font-weight:300;
-  color:#aaa; letter-spacing:0.04em;
+  color:#777; letter-spacing:0.04em;
 }
 .cover-title {
   font-size:34pt; font-weight:700; color:#2c2a26;
   border-bottom:2px solid #2c2a26; padding-bottom:0.18in; margin-top:-0.18in;
 }
-.cover-sub { font-size:10pt; color:#999; }
+.cover-sub { font-size:10pt; color:#666; }
 .cover-cols { display:flex; gap:0.5in; }
 .cover-col { flex:1; }
 .cover-how ol { padding-left:1.2em; font-size:9.5pt; line-height:1.9; color:#444; }
 .cover-how strong { color:#c44; }
 .cover-foot {
   position:absolute; bottom:0.35in; left:1in;
-  font-size:8pt; color:#bbb;
+  font-size:10pt; color:#666;
 }
 
 /* ── Scale page ── */
 .scale-page { padding:0.5in; }
 .print-note {
-  font-size:8.5pt; color:#444; background:#f5f3ef;
+  font-size:9.5pt; color:#444; background:#f5f3ef;
   border:0.5px solid #d0ccc4; border-radius:3px;
   padding:0.1in 0.15in; margin-bottom:0.18in; line-height:1.5;
 }
 .scale-sect { margin-bottom:0.25in; }
 .sq-row { display:flex; gap:0.6in; align-items:flex-start; justify-content:center; margin:0.12in 0 0; }
 .sq-item { text-align:center; }
-.sq-label { font-size:9pt; color:#555; margin-top:0.1in; }
+.sq-label { font-size:10pt; color:#444; margin-top:0.1in; }
 
 /* ── Materials ── */
 .mat-page { padding:0.5in; }
 .two-col { display:flex; gap:0.4in; margin-top:0.1in; }
 .two-col > div { flex:1; }
-.mat-notes ul { padding-left:1.1em; font-size:8.5pt; line-height:1.75; color:#555; }
+.mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; }
 
 /* ── Instructions ── */
 .instr-page { padding:0.5in; }
@@ -1794,12 +1794,12 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 }
 .step-b { flex:1; }
 .step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
-.step-d { font-size:9pt; color:#555; line-height:1.55; }
+.step-d { font-size:10pt; color:#444; line-height:1.55; }
 b.gl { font-weight:600; color:#2c2a26; }
 .print-glossary { margin-top:0.3in; border-top:0.5px solid #e0e0e0; padding-top:0.15in; }
-.gl-grid { columns:2; column-gap:0.4in; font-size:8pt; line-height:1.6; }
+.gl-grid { columns:2; column-gap:0.4in; font-size:9pt; line-height:1.6; }
 .gl-entry { break-inside:avoid; margin-bottom:0.04in; }
-.gl-def { color:#888; }
+.gl-def { color:#666; }
 
 /* ── Tiles ── */
 .tile-page { background:#fff; }
@@ -1817,9 +1817,9 @@ b.gl { font-weight:600; color:#2c2a26; }
   border-top:0.5px solid #ddd;
   z-index:20;
 }
-.tf-name { font-size:8pt; font-weight:700; color:#2c2a26; }
-.tf-brand { font-size:8pt; color:#888; }
-.tf-info { font-size:8pt; color:#aaa; }
+.tf-name { font-size:10pt; font-weight:700; color:#2c2a26; }
+.tf-brand { font-size:10pt; color:#666; }
+.tf-info { font-size:10pt; color:#777; }
 
 /* ── Shared ── */
 .page-head {
@@ -1828,11 +1828,11 @@ b.gl { font-weight:600; color:#2c2a26; }
   padding-bottom:0.08in; margin-bottom:0.2in;
 }
 .sect-head {
-  font-size:8pt; text-transform:uppercase; letter-spacing:0.06em;
-  color:#aaa; margin-bottom:0.09in;
+  font-size:10pt; text-transform:uppercase; letter-spacing:0.06em;
+  color:#777; margin-bottom:0.09in;
 }
-.note { font-size:9pt; color:#888; margin-bottom:0.08in; }
-.ptable { width:100%; border-collapse:collapse; font-size:8.5pt; }
+.note { font-size:10pt; color:#666; margin-bottom:0.08in; }
+.ptable { width:100%; border-collapse:collapse; font-size:9.5pt; }
 .ptable th {
   text-align:left; border-bottom:1px solid #ddd;
   padding:3px 5px; font-weight:600; color:#777;
@@ -1842,18 +1842,18 @@ b.gl { font-weight:600; color:#2c2a26; }
 /* ── Large-format preamble ── */
 .lf-preamble { padding:0.6in 0.7in 0.4in; }
 .lf-header { border-bottom:2px solid #2c2a26; padding-bottom:0.18in; margin-bottom:0.28in; }
-.lf-brand { font-family:'Fraunces',serif; font-size:11pt; font-weight:300; color:#aaa; letter-spacing:0.04em; }
+.lf-brand { font-family:'Fraunces',serif; font-size:11pt; font-weight:300; color:#777; letter-spacing:0.04em; }
 .lf-garment-title { font-size:28pt; font-weight:700; color:#2c2a26; margin-top:0.06in; }
-.lf-sub { font-size:9pt; color:#999; margin-top:0.04in; }
+.lf-sub { font-size:10pt; color:#666; margin-top:0.04in; }
 .lf-body { display:flex; gap:0.7in; }
 .lf-col { flex:1; min-width:0; }
-.lf-howto { padding-left:1.2em; font-size:9pt; line-height:1.85; color:#444; }
+.lf-howto { padding-left:1.2em; font-size:10pt; line-height:1.85; color:#444; }
 .lf-howto strong { color:#c44; }
 .lf-steps { display:flex; flex-direction:column; gap:0.13in; }
 .lf-step { display:flex; gap:0.15in; align-items:flex-start; }
 .lf-step-n { font-size:18pt; font-weight:700; color:#e0ddd8; min-width:0.38in; text-align:right; line-height:1; padding-top:0.02in; flex-shrink:0; }
 .lf-step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
-.lf-step-d { font-size:9pt; color:#555; line-height:1.5; }
+.lf-step-d { font-size:10pt; color:#444; line-height:1.5; }
 
 /* ── Tabloid preamble (11×17 two-page layout) ── */
 .tb-preamble   { padding:0.6in 0.65in 0.4in; }
