@@ -40,6 +40,7 @@ The following environment variables are required for full functionality:
 | `VITE_SUPABASE_URL` | Client | Supabase project URL (browser-side auth) |
 | `VITE_SUPABASE_ANON_KEY` | Client | Supabase anonymous key (browser-side auth) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Client | Stripe publishable key (Checkout.js redirect) |
+| `VITE_SENTRY_DSN` | Client | Sentry DSN for error monitoring (optional — omit to disable) |
 
 Server variables are set in Vercel project settings. Client variables (prefixed `VITE_`) are embedded at build time.
 

@@ -4,6 +4,7 @@
  * All imports are static/top-level. No dynamic imports needed.
  */
 
+import '../sentry.js';
 import '../analytics.js';
 import { trackEvent, initSiteTracking, initHeroABTest } from '../analytics.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
