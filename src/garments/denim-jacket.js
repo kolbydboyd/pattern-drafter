@@ -42,8 +42,8 @@ export default {
     length: {
       type: 'select', label: 'Length',
       values: [
-        { value: 'crop', label: 'Cropped - at waist (classic trucker)' },
-        { value: 'hip',  label: 'Hip - +4″ below waist' },
+        { value: 'crop', label: 'Cropped, at waist (classic trucker)' },
+        { value: 'hip',  label: 'Hip, +4″ below waist' },
       ],
       default: 'crop',
     },
@@ -567,12 +567,12 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare - ⅞″ tack or shank` });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare (⅞″ tack or shank)` });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket - size 24 heavy duty` });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket (size 24 heavy duty)` });
     }
 
-    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points - traditional denim detail' });
+    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points (traditional denim detail)' });
 
     return buildMaterialsSpec({
       fabrics: ['denim-12oz', 'bull-denim', 'raw-selvedge-denim'],
@@ -687,7 +687,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check - all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
+      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check: all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
     });
 
     return steps;

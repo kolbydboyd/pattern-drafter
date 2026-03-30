@@ -473,7 +473,7 @@ export default {
   materials(m, opts) {
     const isLong = opts.sleeveStyle === 'long' || opts.sleeveStyle === 'three_quarter';
     const notions = [
-      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband - high recovery stretch' },
+      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband (high recovery stretch)' },
     ];
     if (isLong) {
       notions.push({ name: 'Rib knit (extra)', quantity: '0.5 yard', notes: 'For sleeve cuffs if desired' });
@@ -543,12 +543,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' - clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? '. Clip curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on - neckband should sit flat and not gap.',
+      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on. Neckband should sit flat and not gap.',
     });
 
     return steps;

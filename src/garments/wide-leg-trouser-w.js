@@ -10,6 +10,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketFacing,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -40,9 +41,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+3″)',    reference: 'classic, off-the-rack'  },
-        { value: 'wide',    label: 'Wide (+5″)',      reference: 'Margiela, deconstructed' },
-        { value: 'xwide',   label: 'Extra wide (+7″)', reference: 'avant-garde, oversized'  },
+        { value: 'regular', label: 'Regular (+4\u2033)',    reference: 'classic, off-the-rack'  },
+        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed' },
+        { value: 'xwide',   label: 'Extra wide (+10\u2033)', reference: 'avant-garde, oversized'  },
       ],
       default: 'wide',
     },
@@ -112,7 +113,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
+    const easeVal = opts.ease === 'xwide' ? 10 : opts.ease === 'wide' ? 8 : 4;
     const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
@@ -125,13 +126,28 @@ export default {
     const baseRise  = m.rise || 11;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const inseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[wide-leg-trouser-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[wide-leg-trouser-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
@@ -208,8 +224,8 @@ export default {
 
     // ── FRONT POCKETS ────────────────────────────────────────────────────────
     if (opts.pockets === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface or self-fabric', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric',           dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface or self-fabric' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
     } else if (opts.pockets === 'welt') {
@@ -225,7 +241,7 @@ export default {
   },
 
   materials(m, opts) {
-    const easeVal   = opts.ease === 'xwide' ? 7 : opts.ease === 'wide' ? 5 : 3;
+    const easeVal   = opts.ease === 'xwide' ? 10 : opts.ease === 'wide' ? 8 : 4;
     const rise      = m.rise || 11;
     const notions   = [
       { ref: 'interfacing-light', quantity: '0.5 yard (waistband + pocket facings)' },
@@ -241,8 +257,8 @@ export default {
       notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic for waistband casing' });
     }
     if (opts.waistband === 'wide') {
-      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham - optional facing for wide waistband interior' });
-      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 - waistband closure' });
+      notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham (optional facing for wide waistband interior)' });
+      notions.push({ name: 'Hook-and-eye', quantity: '2 sets', notes: 'Size 3 (waistband closure)' });
     }
 
     return buildMaterialsSpec({
@@ -372,7 +388,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: 0       });   // waist at center seam
+  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: hipWidth,     y: height  });

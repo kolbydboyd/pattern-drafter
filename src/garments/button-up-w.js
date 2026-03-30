@@ -291,7 +291,7 @@ export default {
   materials(m, opts) {
     const btnCount = parseInt(opts.buttons) || 7;
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons - +1 spare, +2 per cuff if applicable' },
+      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons (+1 spare, +2 per cuff if applicable)' },
       { ref: 'interfacing-light', quantity: '0.75 yard (collar + stand + facings + cuffs)' },
     ];
     return buildMaterialsSpec({

@@ -70,12 +70,13 @@ let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
-  { id:'shorts',    label:'Shorts',    desc:'Casual, sport & tailored shorts', ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
-  { id:'tops',      label:'Tops',      desc:'Tees, shirts, hoodies & blouses', ids:['tee','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
-  { id:'skirts',    label:'Skirts',    desc:'Slip & A-line skirts',            ids:['slip-skirt-w','a-line-skirt-w'] },
-  { id:'dresses',   label:'Dresses',   desc:'Shirt dress & wrap dress',        ids:['shirt-dress-w','wrap-dress-w'] },
-  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket','denim-jacket'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
+  { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
+  { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
+  { id:'dresses',     label:'Dresses',     desc:'Shirt dress & wrap dress',               ids:['shirt-dress-w','wrap-dress-w'] },
+  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties & more',                ids:['apron','bow-tie'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
@@ -255,8 +256,11 @@ function applyProfile(name) {
   const profile = loadProfiles().find(p => p.name === name);
   if (!profile) return;
   _setActiveProfile(profile.id ?? null, name);
+  const g = GARMENTS[currentGarment];
+  const garmentDefaults = g?.measurementDefaults ?? {};
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
+    if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
@@ -523,6 +527,22 @@ function renderMaterials(mat, yardage45, yardage60) {
     html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
   }
   html += `</div>`;
+
+  if (mat.machineSettings?.length) {
+    html += `<div class="mat-section"><h5>Machine Settings</h5>`;
+    for (const ms of mat.machineSettings) {
+      html += `<div class="mat-row"><strong>${ms.label}</strong></div>`;
+      html += `<div class="mat-row">Tension: ${ms.tension} · ${ms.stitch}</div>`;
+      html += `<div class="mat-row"><span class="note">${ms.notes}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (mat.troubleshooting?.length) {
+    html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${t}</div>`;
+    html += `</div>`;
+  }
 
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
@@ -793,7 +813,7 @@ async function _applyWatermarkState(garmentId) {
     const banner = document.createElement('div');
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
-    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF - Free during beta</button>`;
+    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF (free during beta)</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-beta-dl-btn').addEventListener('click', () => {
       showEmailGate(() => handleDownloadPDF(document.getElementById('wm-beta-dl-btn')));
@@ -828,7 +848,7 @@ async function _applyWatermarkState(garmentId) {
     if (!user) {
       // Not logged in: frictionless account creation → free credit → download
       banner.innerHTML = `
-        <span class="wm-banner-text">Your first pattern is <strong>free</strong> - no credit card needed.</span>
+        <span class="wm-banner-text">Your first pattern is <strong>free</strong>. No credit card needed.</span>
         <button class="wm-banner-btn" id="wm-signup-btn">Create Free Account &amp; Download</button>`;
       output.parentNode.insertBefore(banner, output);
       document.getElementById('wm-signup-btn').addEventListener('click', () => {
@@ -854,7 +874,7 @@ async function _applyWatermarkState(garmentId) {
         if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
         _currentPurchased = true;
         removeWatermarks(output);
-        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
         handleDownloadPDF(btn);
       });
     } else {
@@ -863,7 +883,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> - one sheet, no taping
+          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> · one sheet, no taping
         </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -884,7 +904,7 @@ function _showFreeSignupModal(garmentId) {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body">Create a free account to download - your first pattern is free, no credit card needed.</p>
+        <p class="email-gate-body">Create a free account to download. Your first pattern is free, no credit card needed.</p>
         <form id="free-signup-form" class="email-gate-form">
           <input type="email" id="free-signup-email" placeholder="you@example.com" required autocomplete="email">
           <input type="password" id="free-signup-pw" placeholder="Choose a password (8+ characters)" required autocomplete="new-password" minlength="8">
@@ -959,7 +979,7 @@ function _showFreeSignupModal(garmentId) {
     if (banner) {
       const price = PATTERN_PRICES[garmentId];
       const label = price?.label ?? 'this pattern';
-      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
     }
 
     // Trigger download
@@ -1165,7 +1185,7 @@ async function handleDownloadPDF(btn) {
       }, 800);
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 / copy-shop file is also downloading - one sheet, no taping required.';
+      notice.textContent = 'Your A0 / copy-shop file is also downloading. One sheet, no taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
@@ -1608,7 +1628,10 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
 (function loadPatternCount() {
   const el = document.getElementById('land-pattern-count');
   if (!el) return;
-  fetch('/api/pattern-count').then(r => r.json()).then(({ count }) => {
+  fetch('/api/pattern-count').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }).then(({ count }) => {
     if (count && count > 0) {
       el.textContent = `${count.toLocaleString()} custom patterns generated`;
     }

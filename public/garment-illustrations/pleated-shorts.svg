@@ -1,12 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
-  <rect x="57" y="35" width="6" height="8" rx="1"/>
-  <rect x="97" y="35" width="6" height="8" rx="1"/>
-  <path d="M44,50 L42,118 L76,118 L80,78 L84,118 L118,118 L116,50"/>
-  <line x1="80" y1="50" x2="80" y2="78"/>
-  <path d="M70,52 L68,64 L72,64"/>
-  <path d="M90,52 L92,64 L88,64"/>
-  <line x1="58" y1="80" x2="56" y2="118"/>
-  <line x1="102" y1="80" x2="104" y2="118"/>
+  <!-- waistband -->
+  <path d="M42,38 L118,38 L118,52 L42,52 Z"/>
+  <!-- taller belt loops -->
+  <rect x="56" y="34" width="5" height="10" rx="1"/>
+  <rect x="99" y="34" width="5" height="10" rx="1"/>
+  <rect x="78" y="34" width="5" height="10" rx="1"/>
+  <!-- legs -->
+  <path d="M42,52 L40,124 L74,124 L80,80 L86,124 L120,124 L118,52"/>
+  <line x1="80" y1="52" x2="80" y2="80"/>
+  <!-- prominent pleat folds extending 1/3 down thigh -->
+  <line x1="66" y1="52" x2="64" y2="76"/>
+  <line x1="72" y1="52" x2="71" y2="76"/>
+  <line x1="88" y1="52" x2="89" y2="76"/>
+  <line x1="94" y1="52" x2="96" y2="76"/>
+  <!-- cuff/turn-up at hem -->
+  <line x1="40" y1="118" x2="74" y2="118"/>
+  <line x1="86" y1="118" x2="120" y2="118"/>
 </svg>

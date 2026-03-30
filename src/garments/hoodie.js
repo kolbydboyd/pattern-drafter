@@ -35,7 +35,7 @@ export default {
     frontStyle: {
       type: 'select', label: 'Front opening',
       values: [
-        { value: 'pullover', label: 'Pullover - no zip'        },
+        { value: 'pullover', label: 'Pullover, no zip'        },
         { value: 'fullzip',  label: 'Full zip (split front)'  },
       ],
       default: 'pullover',
@@ -354,13 +354,13 @@ export default {
     const hoodH       = headCircEst / 2 + 2;
 
     const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs - high recovery 2×2 rib' },
+      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs (high recovery 2×2 rib)' },
       { name: 'Flat cord drawstring', quantity: '54″', notes: 'Cotton or poly flat cord, ¼″–⅜″ wide, with aglets' },
       { name: 'Grommets or eyelets', quantity: '2', notes: '¼″ grommets at CF hood opening for cord exits' },
     ];
 
     if (isFullZip) {
-      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper - runs hem to neckline only (not through hood)' });
+      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper. Runs hem to neckline only (not through hood)' });
       notions.push({ ref: 'interfacing-light', quantity: '0.5 yard (zipper tape extensions)' });
     }
 
@@ -449,7 +449,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} lightly with low steam. Try on - hood should sit comfortably without pulling neckline down.',
+      detail: '{press} lightly with low steam. Try on. Hood should sit comfortably without pulling neckline down.',
     });
 
     return steps;

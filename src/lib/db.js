@@ -9,7 +9,8 @@ export async function getFreeCredits(userId) {
     .select('free_credits')
     .eq('id', userId)
     .single();
-  return { credits: data?.free_credits ?? 0, error };
+  if (error) return { credits: 0, error };
+  return { credits: data?.free_credits ?? 0, error: null };
 }
 
 // ── Measurement Profiles ──────────────────────────────────────────────────────

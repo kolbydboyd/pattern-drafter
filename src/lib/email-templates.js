@@ -850,7 +850,7 @@ export function bundlePurchasedEmail({ bundleId = '', patternCount = 0, selected
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
-  ${bundleName} — purchased.
+  ${bundleName}: purchased.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
   ${patternCount} pattern credits have been added to your account.${remaining > 0 ? ` ${remaining} ready to use whenever you are.` : ''}
@@ -868,7 +868,7 @@ export function bundlePurchasedEmail({ bundleId = '', patternCount = 0, selected
           <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
           <td>
             <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Pick any pattern, any tier</p>
-            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Your credits work on everything — Simple, Core, or Tailored.</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Your credits work on everything: Simple, Core, or Tailored.</p>
           </td>
         </tr>
       </table>
@@ -908,13 +908,12 @@ ${btn('Choose Your Patterns →', SITE_URL + '/?step=1')}`;
 
 ${patternCount} pattern credits have been added to your account.
 
-1. Pick any pattern, any tier — credits work on everything.
-2. Enter measurements, generate — same measurements across all patterns.
-3. Credits never expire — use them whenever you're ready.
+1. Pick any pattern, any tier. Credits work on everything.
+2. Enter measurements, generate. Same measurements across all patterns.
+3. Credits never expire. Use them whenever you're ready.
 
 Choose your patterns: ${SITE_URL}/?step=1
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -936,7 +935,7 @@ export function subscriptionWelcomeEmail({ planId = '', credits = 0 } = {}) {
     club_monthly: 'Club', club_annual: 'Club Annual',
     wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
   }[planId] || 'Membership';
-  const subject = `Welcome to ${planName} — ${credits} credits ready`;
+  const subject = `Welcome to ${planName}: ${credits} credits ready`;
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
@@ -958,7 +957,7 @@ export function subscriptionWelcomeEmail({ planId = '', credits = 0 } = {}) {
   </tr>
   <tr>
     <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
-      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Any pattern, any tier — no restrictions
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Any pattern, any tier, no restrictions
     </td>
   </tr>
   <tr>
@@ -995,13 +994,12 @@ Generate your first pattern: ${SITE_URL}/?step=1
 
 Manage your subscription: ${SITE_URL}/?account=subscription
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
     html: shell({
-      preheader: `${planName} is active — ${credits} credits ready to use.`,
+      preheader: `${planName} is active. ${credits} credits ready to use.`,
       subject,
       body,
       footerExtra: `You're receiving this because you subscribed at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
@@ -1017,14 +1015,14 @@ export function subscriptionRenewedEmail({ planId = '', newCredits = 0, totalCre
     club_monthly: 'Club', club_annual: 'Club Annual',
     wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
   }[planId] || 'Membership';
-  const subject = `${newCredits} new credits added — ${totalCredits} total`;
+  const subject = `${newCredits} new credits added (${totalCredits} total)`;
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
   Credits refilled.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
-  Your ${planName} membership renewed. ${newCredits} new credit${newCredits !== 1 ? 's' : ''} added — you now have <strong style="color:${NEAR_BLACK};">${totalCredits} total</strong>.
+  Your ${planName} membership renewed. ${newCredits} new credit${newCredits !== 1 ? 's' : ''} added. You now have <strong style="color:${NEAR_BLACK};">${totalCredits} total</strong>.
 </p>
 
 <p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
@@ -1041,7 +1039,7 @@ ${rule()}
 
   const plain = `Credits refilled
 
-Your ${planName} membership renewed. ${newCredits} new credits added — you now have ${totalCredits} total.
+Your ${planName} membership renewed. ${newCredits} new credits added. You now have ${totalCredits} total.
 
 Unused credits from last month rolled over automatically.
 
@@ -1049,7 +1047,6 @@ Use a credit: ${SITE_URL}/?step=1
 
 Manage your plan: ${SITE_URL}/?account=subscription
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -1074,7 +1071,7 @@ export function subscriptionCanceledEmail() {
   Subscription canceled.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
-  Your membership won't renew. Any remaining credits are still in your account — they're yours to use whenever you're ready.
+  Your membership won't renew. Any remaining credits are still in your account. They're yours to use whenever you're ready.
 </p>
 
 <p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
@@ -1095,7 +1092,7 @@ ${rule()}
 
   const plain = `Subscription canceled
 
-Your membership won't renew. Any remaining credits are still in your account — use them whenever you're ready.
+Your membership won't renew. Any remaining credits are still in your account. Use them whenever you're ready.
 
 All patterns you've downloaded are permanently saved in My Patterns.
 
@@ -1105,7 +1102,6 @@ Use remaining credits: ${SITE_URL}/?step=1
 
 Individual patterns always available: ${SITE_URL}/pricing
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {

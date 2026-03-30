@@ -13,6 +13,7 @@
 
 import { fmtInches, offsetPolygon } from '../engine/geometry.js';
 import { MEASUREMENTS } from '../engine/measurements.js';
+import { GLOSSARY } from '../engine/glossary.js';
 
 // ── Paper size registry ────────────────────────────────────────────────────
 const PAPER_SIZES = {
@@ -30,22 +31,22 @@ const MARGIN = 1.5; // generous padding around each piece — prevents SA miter 
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
 /**
- * Snap each notch to the nearest point on saPolyInches and render filled
- * triangles pointing outward along the edge normal.  Ported from pattern-view.js
- * renderNotchesSVG — the key difference from the old approach is closest-point
- * projection onto the SA polygon instead of using raw n.x / n.y coordinates.
+ * Snap each notch to the nearest point on cutPolyInches (the outer cut line)
+ * and render filled triangles pointing INWARD along the edge normal.
+ * Professional patterns place notches on the cut edge so they can be snipped
+ * into the seam allowance; the inward direction shows which side is "in."
  *
  * Triangle: height 0.20 in, base width 0.15 in (half-base 0.075 in).
  */
-function renderNotchesPrint(saPolyInches, notches, ox, oy) {
+function renderNotchesPrint(cutPolyInches, notches, ox, oy) {
   if (!notches || !notches.length) return '';
-  const n    = saPolyInches.length;
+  const n    = cutPolyInches.length;
   const TRI_H  = 0.20;
   const TRI_HW = 0.075;
 
-  // Centroid for outward-normal selection
+  // Centroid for inward-normal selection
   let cx = 0, cy = 0;
-  for (const p of saPolyInches) { cx += p.x; cy += p.y; }
+  for (const p of cutPolyInches) { cx += p.x; cy += p.y; }
   cx /= n; cy /= n;
 
   let svg = '';
@@ -55,8 +56,8 @@ function renderNotchesPrint(saPolyInches, notches, ox, oy) {
     let bestNx = 0, bestNy = -1;
 
     for (let i = 0; i < n; i++) {
-      const a   = saPolyInches[i];
-      const b   = saPolyInches[(i + 1) % n];
+      const a   = cutPolyInches[i];
+      const b   = cutPolyInches[(i + 1) % n];
       const edx = b.x - a.x, edy = b.y - a.y;
       const lenSq = edx * edx + edy * edy;
       if (lenSq < 1e-10) continue;
@@ -76,8 +77,8 @@ function renderNotchesPrint(saPolyInches, notches, ox, oy) {
         // Two candidate perpendiculars
         const nx1 = eduy, ny1 = -edux;
         const nx2 = -eduy, ny2 = edux;
-        // Pick the one pointing away from centroid
-        const toCx = cpx - cx, toCy = cpy - cy;
+        // Pick the one pointing TOWARD centroid (inward)
+        const toCx = cx - cpx, toCy = cy - cpy;
         if (nx1 * toCx + ny1 * toCy >= 0) { bestNx = nx1; bestNy = ny1; }
         else                               { bestNx = nx2; bestNy = ny2; }
       }
@@ -107,25 +108,157 @@ function polyPath(pts, ox, oy) {
   return d + ' Z';
 }
 
+/** Drill mark (crosshair) for pocket corners — industry standard fabric transfer mark */
+function drillMark(x, y, size = 4) {
+  return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}" stroke="#8a4a4a" stroke-width="0.6"/>
+    <line x1="${x}" y1="${y - size}" x2="${x}" y2="${y + size}" stroke="#8a4a4a" stroke-width="0.6"/>`;
+}
+
+/** Pocket placement colour constants (matches pattern-view.js) */
+const PKT_COL = '#8a4a4a';
+const PKT_FILL = 'rgba(138,74,74,.03)';
+const PKT_DASH = '2,3';
+
+/**
+ * Render pocket placement indicators on a panel piece.
+ * Mirrors the logic from pattern-view.js but at 1:1 print scale (DPI px).
+ * Returns SVG string (empty if no pockets selected).
+ */
+function renderPocketPlacement(piece, ox, oy) {
+  const { width, height, rise, inseam, polygon, isBack, opts } = piece;
+  if (!opts) return '';
+
+  const p = (inches) => inches * DPI; // convert inches to px
+  let svg = '';
+
+  // ── Slant pocket (front only) ──
+  if (!isBack && opts.frontPocket === 'slant') {
+    const sx1 = (ox + width - 3.5) * DPI, sy1 = oy * DPI;
+    const sx2 = (ox + width) * DPI,       sy2 = (oy + 6) * DPI;
+    const bagL = (ox + width - 7) * DPI,  bagB = (oy + 9.5) * DPI;
+    // Bag outline
+    svg += `<path d="M ${sx1} ${sy1} L ${bagL} ${sy1} L ${bagL} ${bagB} Q ${sx2} ${bagB} ${sx2} ${sy2} Z"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    // Slash opening (solid)
+    svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
+      stroke="${PKT_COL}" stroke-width="1"/>`;
+    // Drill marks at key corners
+    svg += drillMark(sx1, sy1);
+    svg += drillMark(sx2, sy2);
+    svg += drillMark(bagL, sy1);
+    svg += drillMark(bagL, bagB);
+    // Label
+    svg += `<text x="${bagL + 3}" y="${(oy + rise * 0.85) * DPI}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
+  }
+
+  // ── Side-seam pocket (front only) ──
+  if (!isBack && opts.frontPocket === 'side') {
+    const pTop = 2, pBot = 8.5;
+    // Interpolate side seam X at given Y (polygon edges 1-4)
+    function sideSeamXatY(ty) {
+      for (let i = 1; i <= 4; i++) {
+        const a = polygon[i], b = polygon[i + 1];
+        if (!a || !b) break;
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= ty && ty <= yMax) {
+          return a.x + (ty - a.y) / (b.y - a.y) * (b.x - a.x);
+        }
+      }
+      return width;
+    }
+    const txTop = (ox + sideSeamXatY(pTop)) * DPI, tyTop = (oy + pTop) * DPI;
+    const txBot = (ox + sideSeamXatY(pBot)) * DPI, tyBot = (oy + pBot) * DPI;
+    const tickLen = p(0.35);
+    // Top & bottom tick marks
+    svg += `<line x1="${txTop - tickLen}" y1="${tyTop}" x2="${txTop}" y2="${tyTop}" stroke="${PKT_COL}" stroke-width="1.2"/>`;
+    svg += `<line x1="${txBot - tickLen}" y1="${tyBot}" x2="${txBot}" y2="${tyBot}" stroke="${PKT_COL}" stroke-width="1.2"/>`;
+    // Dashed bracket
+    svg += `<line x1="${txTop}" y1="${tyTop}" x2="${txBot}" y2="${tyBot}" stroke="${PKT_COL}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+    // Drill marks at opening ends
+    svg += drillMark(txTop, tyTop);
+    svg += drillMark(txBot, tyBot);
+    // Label
+    const labelX = (ox + sideSeamXatY(pTop) + (piece.sa || 0.5) + 0.3) * DPI;
+    const labelMidY = (tyTop + tyBot) / 2;
+    svg += `<text x="${labelX}" y="${labelMidY}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}"
+      text-anchor="middle" transform="rotate(90,${labelX},${labelMidY})">pocket opening</text>`;
+  }
+
+  // ── Cargo pocket (front only) ──
+  if (opts.cargo === 'cargo') {
+    const cpX = (ox + width) * DPI;
+    const cpY = (oy + rise + Math.min(inseam * 0.2, 2)) * DPI;
+    const cpW = p(3.5), cpH = p(4);
+    svg += `<rect x="${cpX - cpW}" y="${cpY}" width="${cpW}" height="${cpH}" rx="${p(0.15)}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += drillMark(cpX - cpW, cpY);
+    svg += drillMark(cpX, cpY);
+    svg += drillMark(cpX - cpW, cpY + cpH);
+    svg += drillMark(cpX, cpY + cpH);
+    svg += `<text x="${cpX - cpW + 3}" y="${cpY + cpH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">cargo</text>`;
+  }
+
+  // ── Back patch pocket ──
+  if (isBack && opts.backPocket && opts.backPocket !== 'none') {
+    const bpX = (ox + width * 0.35) * DPI, bpY = (oy + 1.8) * DPI;
+    const bpW = p(3), bpH = p(3.5);
+    svg += `<rect x="${bpX}" y="${bpY}" width="${bpW}" height="${bpH}" rx="${p(0.2)}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += drillMark(bpX, bpY);
+    svg += drillMark(bpX + bpW, bpY);
+    svg += drillMark(bpX, bpY + bpH);
+    svg += drillMark(bpX + bpW, bpY + bpH);
+    svg += `<text x="${bpX + 3}" y="${bpY + bpH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">patch pocket</text>`;
+  }
+
+  // ── Back welt pocket (jeans, pleated shorts/trousers) ──
+  if (isBack && (opts.backPockets === 'welt1' || opts.backPockets === 'welt2')) {
+    const weltW = 5, weltH = 0.5;
+    const weltX = (ox + width * 0.5 - weltW / 2) * DPI;
+    const weltY = (oy + 2.5) * DPI;
+    const wW = p(weltW), wH = p(weltH);
+    svg += `<rect x="${weltX}" y="${weltY}" width="${wW}" height="${wH}"
+      stroke="${PKT_COL}" stroke-width="0.8" fill="${PKT_FILL}"/>`;
+    svg += drillMark(weltX, weltY + wH / 2);
+    svg += drillMark(weltX + wW, weltY + wH / 2);
+    svg += `<text x="${weltX + 3}" y="${weltY + wH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">welt pocket</text>`;
+    // Second welt pocket if welt2, offset 2.5" below first
+    if (opts.backPockets === 'welt2') {
+      const w2Y = weltY + p(2.5);
+      svg += `<rect x="${weltX}" y="${w2Y}" width="${wW}" height="${wH}"
+        stroke="${PKT_COL}" stroke-width="0.8" fill="${PKT_FILL}"/>`;
+      svg += drillMark(weltX, w2Y + wH / 2);
+      svg += drillMark(weltX + wW, w2Y + wH / 2);
+    }
+  }
+
+  return svg;
+}
+
 /**
  * Render a panel piece (front/back) as a full-size SVG string.
  * Returns { svg, wIn, hIn } — dimensions in inches.
  */
 function renderPanelSVG(piece) {
-  const { polygon, saPolygon, width, height, rise, ext,
-          sa, hem, name, instruction, darts = [], notches = [],
-          crotchBezierSA } = piece;
+  const { polygon, saPolygon, width, height, rise, ext, inseam,
+          sa, hem, name, instruction = '', darts = [], notches = [],
+          crotchBezierSA, isBack, opts } = piece;
 
   const mL = ext + MARGIN;
   const mT = MARGIN;
   const mR = (sa || 0.5) + MARGIN;  // SA extends `sa` past width — MARGIN ensures no clip
   const mB = MARGIN;
 
+  const cbR = piece.cbRaise || 0;
   const wIn = mL + width + mR;
-  const hIn = mT + height + mB;
+  const hIn = mT + cbR + height + mB;
 
   const ox = mL;
-  const oy = mT;
+  const oy = mT + cbR;
 
   const cutPath = polyPath(polygon, ox, oy);
 
@@ -248,11 +381,28 @@ function renderPanelSVG(piece) {
         <line x1="${dx + halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
         <text x="${dx}" y="${dy2 + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#555" text-anchor="middle">dart</text>`;
       }).join('\n')}
-      ${renderNotchesPrint(saPolygon, notches, ox, oy)}
+      ${renderNotchesPrint(polygon, notches, ox, oy)}
       <text x="${(ox - ext) * DPI}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
       </text>
+      ${(() => {
+        // Info block at bottom-left inside the piece outline (visible after cutting)
+        const infoX = (ox + 0.3) * DPI;
+        const infoY = (oy + height - hem - 1.6) * DPI;
+        const lh = 11; // line height in px
+        const lines = [
+          `${name} \xd7 2 (mirror)`,
+          instruction,
+          `${fmtInches(sa)} SA all seams \xb7 ${fmtInches(hem)} hem`,
+        ].filter(Boolean);
+        return lines.map((line, i) =>
+          `<text x="${infoX}" y="${infoY + i * lh}"
+            font-family="'IBM Plex Mono',monospace" font-size="8"
+            fill="#999">${line}</text>`
+        ).join('\n');
+      })()}
+      ${renderPocketPlacement(piece, ox, oy)}
     </svg>`,
   };
 }
@@ -377,7 +527,7 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${titleY}"
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
-      ${renderNotchesPrint(saPoints, notches, ox, oy)}
+      ${renderNotchesPrint(polygon, notches, ox, oy)}
       ${(piece.bustDarts || []).map(d => {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
         const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
@@ -389,6 +539,25 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>
+      ${(() => {
+        // Info block at bottom-left inside the piece outline (visible after cutting)
+        // Skip for very small pieces where text wouldn't fit
+        if (pW < 3 || pH < 3) return '';
+        const infoX = (ox + minX + sa + 0.3) * DPI;
+        const infoY = (oy + maxY - 1.4) * DPI;
+        const lh = 11;
+        const instruction = piece.instruction || '';
+        const lines = [
+          pieceLabel,
+          instruction,
+          `${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem`,
+        ].filter(Boolean);
+        return lines.map((line, i) =>
+          `<text x="${infoX}" y="${infoY + i * lh}"
+            font-family="'IBM Plex Mono',monospace" font-size="8"
+            fill="#999">${line}</text>`
+        ).join('\n');
+      })()}
     </svg>`,
   };
 }
@@ -397,12 +566,22 @@ function renderBodiceOrSleeveSVG(piece) {
  * Render a rectangle piece at 1:1.
  * Returns { svg, wIn, hIn }.
  */
-function renderRectSVG(piece, { compact = false, fold = false } = {}) {
-  const { name, dimensions, sa } = piece;
-  const fullW = dimensions.length;
-  const H = dimensions.width;
-  // If fold is true, print half the length with a fold line on the left edge
-  const W = fold ? fullW / 2 : fullW;
+function renderRectSVG(piece, { compact = false, fold } = {}) {
+  const { name, dimensions, sa, instruction = '' } = piece;
+  const fullLen = dimensions.length;
+  const fullWid = dimensions.width;
+
+  // Auto-detect fold eligibility when not explicitly specified —
+  // garment authors mark foldable pieces with "on fold" in instruction text
+  if (fold === undefined) {
+    fold = /on fold/i.test(instruction);
+  }
+  const halfLen = fold ? fullLen / 2 : fullLen;
+
+  // Rotate so the long dimension runs vertically (portrait) to reduce paper
+  const rotated = halfLen > fullWid;
+  const W = rotated ? fullWid : halfLen;
+  const H = rotated ? halfLen : fullWid;
 
   const M = compact ? 0.3 : MARGIN;
   const wIn = M + W + M;
@@ -414,17 +593,30 @@ function renderRectSVG(piece, { compact = false, fold = false } = {}) {
   const cx = (M + W / 2) * DPI;
   const cy = (M + H / 2) * DPI;
 
-  const foldLabel = fold ? `${fmtInches(fullW)} full (place on fold)` : `${fmtInches(W)}`;
-  const dimLabel = `${foldLabel} \xd7 ${fmtInches(H)}`;
+  const foldLabel = fold ? `${fmtInches(fullLen)} full (place on fold)` : `${fmtInches(fullLen)}`;
+  const dimLabel = `${foldLabel} \xd7 ${fmtInches(fullWid)}`;
 
-  // Fold-line indicator on the left edge
+  // Fold-line indicator — on top edge when rotated, left edge otherwise
   let foldSvg = '';
-  if (fold) {
+  if (fold && rotated) {
+    // Horizontal fold line along the top edge
+    const fy = ry;
+    const fx1 = rx + rW * 0.1, fx2 = rx + rW * 0.9;
+    const fmx = (fx1 + fx2) / 2;
+    foldSvg = `<line x1="${fx1}" y1="${fy}" x2="${fx2}" y2="${fy}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+    const aw = 3, ah = 4;
+    const inset = (fx2 - fx1) * 0.15;
+    for (let i = 0; i < 3; i++) {
+      const ax = fx1 + inset + (fx2 - fx1 - 2 * inset) * i / 2;
+      foldSvg += `<polygon points="${ax},${fy + 8 - aw} ${ax - ah},${fy + 8} ${ax + ah},${fy + 8}" fill="#555"/>`;
+    }
+    foldSvg += `<text x="${fmx}" y="${fy + 5}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle" letter-spacing="1.5" dominant-baseline="middle">FOLD</text>`;
+  } else if (fold) {
+    // Vertical fold line on the left edge (original orientation)
     const fx = rx;
     const fy1 = ry + rH * 0.1, fy2 = ry + rH * 0.9;
     const fmy = (fy1 + fy2) / 2;
     foldSvg = `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
-    // Small fold arrows
     const aw = 4, ah = 3;
     const inset = (fy2 - fy1) * 0.15;
     for (let i = 0; i < 3; i++) {
@@ -456,6 +648,9 @@ function renderRectSVG(piece, { compact = false, fold = false } = {}) {
       <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${dimLabel}</text>
+      ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
+        fill="#999" text-anchor="middle">${instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -492,6 +687,9 @@ function renderPocketSVG(piece, { compact = false } = {}) {
       <text x="${cx}" y="${(M + H / 2) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#888" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
+      ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 7 : 9}"
+        fill="#999" text-anchor="middle">${piece.instruction}</text>` : ''}
     </svg>`,
   };
 }
@@ -536,10 +734,11 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
     const dashX = cx + px(OV * 0.45);
     shapes += `<line x1="${dashX}" y1="${yS}" x2="${dashX}" y2="${yE}"
       stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
-    // ✂ scissors icon at top of cut line
+    // ✂ scissors icon pointing downward along vertical cut line
     shapes += `<text x="${cx}" y="${yS + 16}"
       font-family="serif" font-size="13" fill="#000"
-      text-anchor="middle">\u2702</text>`;
+      text-anchor="middle"
+      transform="rotate(270,${cx},${yS + 16})">\u2702</text>`;
     // "cut here" label rotated along line
     shapes += `<text
       font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
@@ -557,10 +756,11 @@ function overlapZoneSVG(direction, tPW, tPH, SM, OV) {
     const dashY = cy + px(OV * 0.45);
     shapes += `<line x1="${xS}" y1="${dashY}" x2="${xE}" y2="${dashY}"
       stroke="#555" stroke-width="0.5" stroke-dasharray="4,5" opacity="0.5"/>`;
-    // ✂ scissors icon at left of cut line
+    // ✂ scissors icon pointing rightward along horizontal cut line
     shapes += `<text x="${xS + 16}" y="${cy - 3}"
       font-family="serif" font-size="13" fill="#000"
-      text-anchor="middle">\u2702</text>`;
+      text-anchor="middle"
+      transform="rotate(180,${xS + 16},${cy - 3})">\u2702</text>`;
     // "cut here" label
     shapes += `<text x="${midX}" y="${cy - 4}"
       font-family="'IBM Plex Mono',monospace" font-size="6.5" fill="#000"
@@ -606,11 +806,19 @@ function rulerStrip(tPW, SM) {
 
 // ── Tile layout helper (orientation + seam avoidance) ─────────────────────
 
-function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
+function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   const TX_p = PW - 2 * SM - OV, TY_p = PH - 2 * SM - OV;
   const TX_l = PH - 2 * SM - OV, TY_l = PW - 2 * SM - OV;
-  const pages_p = Math.ceil(wIn / TX_p) * Math.ceil(hIn / TY_p);
-  const pages_l = Math.ceil(wIn / TX_l) * Math.ceil(hIn / TY_l);
+
+  // Tile count: each tile's clip area is TX+OV wide, so the first tile covers OV
+  // more than subsequent strides.  Also trim trailing MARGIN padding (no drawn
+  // content there) so we don't generate tiles that only show empty margin.
+  function tileCnt(span, stride) {
+    const content = Math.max(stride, span - MARGIN);   // trim trailing margin
+    return Math.max(1, Math.ceil((content - OV) / stride));
+  }
+  const pages_p = tileCnt(wIn, TX_p) * tileCnt(hIn, TY_p);
+  const pages_l = tileCnt(wIn, TX_l) * tileCnt(hIn, TY_l);
   // Panel pieces (pants, shorts) are always taller than wide — force portrait so
   // tiles cover more of the long dimension per row and assembly is intuitive.
   const landscape = piece.type !== 'panel' && pages_l < pages_p;
@@ -633,9 +841,34 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV) {
   }
 
   const effectiveW = wIn + shiftX;
-  const cols = Math.ceil(effectiveW / TX);
-  const rows = Math.ceil(hIn / TY);
-  return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW };
+  let cols = tileCnt(effectiveW, TX);
+  let rows = tileCnt(hIn, TY);
+
+  // Margin-trim optimization: if the actual drawn content (SA polygon) fits in
+  // one fewer column/row, reduce the tile count and shift content to fit.
+  // This prevents wasteful sliver tiles caused by generous MARGIN padding.
+  let marginTrimX = 0, marginTrimY = 0;
+  if (renderMargin !== undefined) {
+    const sa_val = piece.sa || 0.625;
+    if (cols > 1) {
+      const contentW = effectiveW - 2 * renderMargin + sa_val;
+      const reducedCoverage = (cols - 1) * TX + OV;
+      if (contentW <= reducedCoverage) {
+        cols--;
+        marginTrimX = Math.max(0, renderMargin - sa_val);
+      }
+    }
+    if (rows > 1) {
+      const contentH = hIn - 2 * renderMargin + sa_val;
+      const reducedCoverage = (rows - 1) * TY + OV;
+      if (contentH <= reducedCoverage) {
+        rows--;
+        marginTrimY = Math.max(0, renderMargin - sa_val);
+      }
+    }
+  }
+
+  return { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW, marginTrimX, marginTrimY };
 }
 
 // ── Piece renderer dispatch ────────────────────────────────────────────────
@@ -676,16 +909,24 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
   const { svg, wIn, hIn } = rendered;
 
   // Fix 3: choose orientation, Fix 2: seam avoidance
-  const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV);
-  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW } = layout;
+  const layout = computeTileLayout(wIn, hIn, piece, PW, PH, OV, MARGIN);
+  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW, marginTrimX, marginTrimY } = layout;
 
   let pages = '';
 
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
+      // Skip tiles with negligible visible content (< 0.1″ in either dimension)
+      const tileL = col * TX, tileR = tileL + (tPW - 2 * SM);
+      const tileT = row * TY, tileB = tileT + (tPH - 2 * SM);
+      const visW = Math.max(0, Math.min(effectiveW, tileR) - Math.max(0, tileL));
+      const visH = Math.max(0, Math.min(hIn, tileB) - Math.max(0, tileT));
+      if (visW < 0.1 || visH < 0.1) continue;
+
       // Compute base tile offsets (negative = scroll piece into view)
-      let offsetX = -(col * TX * DPI) + shiftX * DPI;
-      let offsetY = -(row * TY * DPI);
+      // marginTrimX/Y shift content to reclaim padding space and avoid sliver tiles
+      let offsetX = -(col * TX * DPI) + shiftX * DPI - marginTrimX * DPI;
+      let offsetY = -(row * TY * DPI) - marginTrimY * DPI;
 
       // Center small pieces that fit on a single tile (looks more professional)
       if (cols === 1 && rows === 1) {
@@ -747,7 +988,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
           <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
         </svg>` : ''}
         <div class="tile-footer">
-          <span class="tf-name">${piece.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
+          <span class="tf-name">${piece.name} · tile ${tileId} of ${gridLabel} pages</span>
           <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
           <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1}${orientTag} \xb7 \xbe\u2033 overlap</span>
         </div>
@@ -800,7 +1041,7 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
                    width:${wIn * DPI}px;height:${hIn * DPI}px">${svg}</div>`
     ).join('');
     const names = items.map(i => i.piece.name).join(' \xb7 ');
-    const sheetLabel = pages.length > 1 ? ` \u2014 sheet ${pi + 1} of ${pages.length}` : '';
+    const sheetLabel = pages.length > 1 ? ` · sheet ${pi + 1} of ${pages.length}` : '';
     return `<div class="page tile-page" style="width:${PW}in;height:${PH}in">
       <div class="tile-clip" style="width:${availW}in;height:${availH}in">
         ${divs}
@@ -830,14 +1071,21 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
   function pieceDims(piece) {
     if (piece.type === 'panel') {
       const sa = piece.sa || 0.5;
-      return { wIn: (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN, hIn: MARGIN + piece.height + MARGIN };
+      return { wIn: (piece.ext || 0) + MARGIN + piece.width + sa + MARGIN, hIn: MARGIN + (piece.cbRaise || 0) + piece.height + MARGIN };
     }
     if (piece.type === 'bodice' || piece.type === 'sleeve') {
       const xs = piece.polygon.map(p => p.x), ys = piece.polygon.map(p => p.y);
       return { wIn: MARGIN + (Math.max(...xs) - Math.min(...xs)) + MARGIN, hIn: MARGIN + (Math.max(...ys) - Math.min(...ys)) + MARGIN };
     }
     if (piece.type === 'rectangle') {
-      return { wIn: MARGIN + piece.dimensions.length + MARGIN, hIn: MARGIN + piece.dimensions.width + MARGIN };
+      const fullLen = piece.dimensions.length;
+      const fullWid = piece.dimensions.width;
+      const isFold = /on fold/i.test(piece.instruction || '');
+      const halfLen = isFold ? fullLen / 2 : fullLen;
+      const isRotated = halfLen > fullWid;
+      const W = isRotated ? fullWid : halfLen;
+      const H = isRotated ? halfLen : fullWid;
+      return { wIn: MARGIN + W + MARGIN, hIn: MARGIN + H + MARGIN };
     }
     if (piece.dimensions) {
       const d = piece.dimensions;
@@ -865,7 +1113,7 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
 
   // Build display list: tiled pieces + one "Small Pieces" group
   const displayList = tiledEntries.map(({ piece, dims }) => {
-    const layout = computeTileLayout(dims.wIn, dims.hIn, piece, PW, PH, OV);
+    const layout = computeTileLayout(dims.wIn, dims.hIn, piece, PW, PH, OV, MARGIN);
     return { name: piece.name, landscape: layout.landscape, cols: layout.cols, rows: layout.rows };
   });
   if (smallNames.length > 0) {
@@ -896,9 +1144,9 @@ function buildTileMapSVG(pieces, PW, PH, OV) {
         : `${rows}\xd7${cols} = ${total} pg \xb7 ${orientLabel}`;
 
       items += `\n<text x="${colXOff}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="10" font-weight="600" fill="#2c2a26">${xmlEsc(name)}</text>`;
-      items += `\n<text x="${colXOff + cols * (cellW + GAP) + 8}" y="${y + 12}" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#999">${countLabel}</text>`;
+      items += `\n<text x="${colXOff}" y="${y + 23}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#999">${countLabel}</text>`;
 
-      y += 18;
+      y += 28;
 
       if (sn) {
         // Small pieces group — show a single cell with piece count
@@ -956,7 +1204,7 @@ function buildCoverPage(garment, measurements, opts) {
     <div class="cover-body">
       <div class="cover-brand">People\u2019s Patterns</div>
       <div class="cover-title">${garment.name}</div>
-      <div class="cover-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit</div>
+      <div class="cover-sub">Sewing Pattern \xb7 Print at 100% \xb7 Do not scale to fit</div>
       <div class="cover-cols">
         <div class="cover-col">
           <h3 class="sect-head">Body Measurements</h3>
@@ -976,12 +1224,12 @@ function buildCoverPage(garment, measurements, opts) {
       <div class="cover-how">
         <h3 class="sect-head">How to Assemble</h3>
         <ol>
-          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
-          <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right</li>
-          <li>Assemble in the order shown on the tile map (page 2)</li>
-          <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile \u2014 this removes the shaded overlap strip</li>
-          <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile \u2014 matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement</li>
-          <li>Tape from the back. Check the 1\u2033 ruler strip to confirm scale before taping</li>
+          <li>Print at <strong>100% scale</strong>. Never select \u201cfit to page\u201d or \u201cshrink to margins.\u201d</li>
+          <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right.</li>
+          <li>Assemble in the order shown on the tile map (page 2).</li>
+          <li>Cut along the \u2702 scissors line at the left/top edge of each overlap tile to remove the shaded overlap strip.</li>
+          <li>Align the \u2295 crosshairs on the trimmed tile with the matching crosshairs on the adjacent tile. Matching letters (e.g.\u202fA1\u202f\u2192\u202fA1) confirm correct placement.</li>
+          <li>Tape tiles together. Check the 1\u2033 ruler strip to confirm scale before taping.</li>
         </ol>
       </div>
     </div>
@@ -1012,7 +1260,7 @@ function buildScalePage(pieces, PW, PH, OV) {
     <h2 class="page-head">Scale Verification &amp; Tile Map</h2>
     <p class="print-note">Print at 100% scale. Do not select fit-to-page or shrink-to-fit. If your printer has a borderless printing option, you may enable it but it is not required.</p>
     <div class="scale-sect">
-      <h3 class="sect-head">Print Accuracy \u2014 Measure before cutting any fabric</h3>
+      <h3 class="sect-head">Print Accuracy: Measure before cutting any fabric</h3>
       <p class="note">If either square is wrong, check that your printer scale is set to 100%.</p>
       <div class="sq-row">
         <div class="sq-item">
@@ -1032,13 +1280,13 @@ function buildScalePage(pieces, PW, PH, OV) {
     </div>
     <div class="map-sect">
       <h3 class="sect-head">Tile Assembly Map</h3>
-      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape. \u2022 Cut along the \u2702 scissors line at each overlap edge. \u2022 Slide trimmed tile until the \u2295 crosshairs match the adjacent tile (same letter = same point). \u2022 Tape from the back.</p>
+      <p class="note">Each cell = one printed page. Label = row-col (e.g.\u202f2-3\u202f= row 2, col 3). Assemble left-to-right, top-to-bottom. Blue cells = landscape. \u2022 Cut along the \u2702 scissors line at each overlap edge. \u2022 Slide trimmed tile until the \u2295 crosshairs match the adjacent tile (same letter = same point). \u2022 Tape tiles together.</p>
       ${buildTileMapSVG(pieces, PW, PH, OV)}
     </div>
   </div>`;
 }
 
-function buildMaterialsPage(materials) {
+function buildMaterialsPage(materials, instructions) {
   const fabricRows = (materials.fabrics || []).map(f =>
     `<tr><td>${f.name}</td><td>${f.weight || ''}</td><td>${f.notes || ''}</td></tr>`
   ).join('');
@@ -1048,7 +1296,7 @@ function buildMaterialsPage(materials) {
   ).join('');
 
   const stitchRows = (materials.stitches || []).map(s =>
-    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || '\u2014') : '\u2014'}</td><td>${s.use || ''}</td></tr>`
+    `<tr><td>${s.name}</td><td>${s.length || ''}</td><td>${s.width !== '0' ? (s.width || 'n/a') : 'n/a'}</td><td>${s.use || ''}</td></tr>`
   ).join('');
 
   const notesHtml = materials.notes?.length
@@ -1059,11 +1307,20 @@ function buildMaterialsPage(materials) {
     : '';
 
   const threadHtml = materials.thread
-    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} \u2014 ${materials.thread.notes || ''}</td></tr>`
+    ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} · ${materials.thread.notes || ''}</td></tr>`
     : '';
   const needleHtml = materials.needle
-    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} \u2014 ${materials.needle.use || ''}</td></tr>`
+    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${materials.needle.use || ''}</td></tr>`
     : '';
+
+  const terms = usedGlossaryTerms(instructions);
+  const glossaryHtml = terms.length ? `
+    <div class="print-glossary">
+      <h3 class="sect-head">Glossary</h3>
+      <div class="gl-grid">${terms.map(t =>
+        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
+      ).join('')}</div>
+    </div>` : '';
 
   return `<div class="page mat-page">
     <h2 class="page-head">Materials &amp; Stitch Guide</h2>
@@ -1093,7 +1350,27 @@ function buildMaterialsPage(materials) {
         </table>
       </div>
     </div>
+    ${glossaryHtml}
   </div>`;
+}
+
+/** Replace {term} markers with bold text for print */
+function expandGlossaryPrint(text) {
+  if (!text) return text;
+  return text.replace(/\{([^}]+)\}/g, (_, term) => {
+    if (GLOSSARY[term]) return `<b class="gl">${term}</b>`;
+    return term;
+  });
+}
+
+/** Collect glossary terms actually used in the instructions */
+function usedGlossaryTerms(instructions) {
+  const text = (instructions || []).map(s => s.detail || '').join(' ');
+  const used = [];
+  for (const [term, def] of Object.entries(GLOSSARY)) {
+    if (text.includes(`{${term}}`)) used.push({ term, def });
+  }
+  return used;
 }
 
 function buildInstructionsPage(instructions) {
@@ -1102,7 +1379,7 @@ function buildInstructionsPage(instructions) {
       <div class="step-n">${s.step}</div>
       <div class="step-b">
         <div class="step-t">${s.title}</div>
-        <div class="step-d">${s.detail}</div>
+        <div class="step-d">${expandGlossaryPrint(s.detail)}</div>
       </div>
     </div>`
   ).join('');
@@ -1144,7 +1421,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
     `<div class="lf-step">
       <div class="lf-step-n">${s.step}</div>
       <div><div class="lf-step-t">${s.title}</div>
-      <div class="lf-step-d">${s.detail}</div></div>
+      <div class="lf-step-d">${expandGlossaryPrint(s.detail)}</div></div>
     </div>`
   ).join('');
 
@@ -1168,7 +1445,7 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
     <div class="lf-header">
       <div class="lf-brand">People\u2019s Patterns</div>
       <div class="lf-garment-title">${garment.name}</div>
-      <div class="lf-sub">Sewing Pattern \u2014 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
+      <div class="lf-sub">Sewing Pattern \xb7 Print at 100% \xb7 Do not scale to fit \xb7 Drafted ${date}</div>
     </div>
     <div class="lf-body">
       <div class="lf-col">
@@ -1178,14 +1455,14 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
         <table class="ptable"><tbody>${optRows}</tbody></table>
         <h3 class="sect-head" style="margin-top:0.28in">How to Assemble</h3>
         <ol class="lf-howto">
-          <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
-          <li>Verify the 2\xd72 in and 5\xd75 cm squares below measure exactly right</li>
-          <li>Assemble tiles in the order shown in the map at right</li>
-          <li>Cut along the \u2702 scissors line at each overlap edge</li>
-          <li>Align \u2295 crosshairs \u2014 matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement</li>
-          <li>Tape from the back; check the 1\u2033 ruler strip before taping</li>
+          <li>Print at <strong>100% scale</strong>. Never select \u201cfit to page\u201d or \u201cshrink to margins.\u201d</li>
+          <li>Verify the 2\xd72 in and 5\xd75 cm squares below measure exactly right.</li>
+          <li>Assemble tiles in the order shown in the map at right.</li>
+          <li>Cut along the \u2702 scissors line at each overlap edge.</li>
+          <li>Align \u2295 crosshairs. Matching labels (e.g.\u202fA1\u202f\u2192\u202fA1) confirm placement.</li>
+          <li>Tape tiles together. Check the 1\u2033 ruler strip before taping.</li>
         </ol>
-        <h3 class="sect-head" style="margin-top:0.28in">Scale Verification \u2014 Measure before cutting fabric</h3>
+        <h3 class="sect-head" style="margin-top:0.28in">Scale Verification: Measure before cutting fabric</h3>
         <div class="sq-row" style="justify-content:flex-start;gap:0.5in;margin:0.1in 0 0">
           ${scaleSVG(sq2px, 'Must be exactly 2 \xd7 2 in')}
           ${scaleSVG(sq5px, 'Must be exactly 5 \xd7 5 cm')}
@@ -1282,6 +1559,11 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .step-b { flex:1; }
 .step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
 .step-d { font-size:9pt; color:#555; line-height:1.55; }
+b.gl { font-weight:600; color:#2c2a26; }
+.print-glossary { margin-top:0.3in; border-top:0.5px solid #e0e0e0; padding-top:0.15in; }
+.gl-grid { columns:2; column-gap:0.4in; font-size:8pt; line-height:1.6; }
+.gl-entry { break-inside:avoid; margin-bottom:0.04in; }
+.gl-def { color:#888; }
 
 /* ── Tiles ── */
 .tile-page { background:#fff; }
@@ -1370,7 +1652,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
     ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
-    + buildMaterialsPage(materials)
+    + buildMaterialsPage(materials, instructions)
     + buildInstructionsPage(instructions);
 
   // ── Pattern piece pages ─────────────────────────────────────────────────
@@ -1413,7 +1695,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>${garment.name} \u2014 Printable Pattern (${size.label})</title>
+<title>${garment.name} | Printable Pattern (${size.label})</title>
 <style>${buildCSS(PW, PH)}</style>
 </head>
 <body>
