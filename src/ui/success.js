@@ -185,7 +185,7 @@ function initA0UpgradeSuccess(info) {
   const elName   = document.getElementById('success-garment-name');
   const elAmount = document.getElementById('success-amount');
 
-  elName.textContent   = 'A0 / Copy Shop Upgrade';
+  elName.textContent   = 'A0 / Projector / Copy Shop Upgrade';
   elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
   el.hidden = false;
 

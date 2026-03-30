@@ -152,7 +152,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Purchase not found' });
     }
     if (purchase.a0_addon) {
-      return res.status(400).json({ error: 'A0 file already included in this purchase' });
+      return res.status(400).json({ error: 'A0 + projector file already included in this purchase' });
     }
 
     const session = await stripe.checkout.sessions.create({

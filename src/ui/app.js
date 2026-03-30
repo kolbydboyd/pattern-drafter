@@ -57,6 +57,7 @@ function _syncGarmentUrl(id) {
 }
 
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
+let _currentHasA0     = false; // whether current pattern purchase includes A0 addon
 let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
 let _activeProfileName = null; // display name, shown in step 2 label
 
@@ -831,6 +832,7 @@ async function _applyWatermarkState(garmentId) {
       getFreeCredits(user.id),
     ]);
     purchased   = !!purchaseRes.data;
+    _currentHasA0 = !!purchaseRes.data?.a0_addon;
     freeCredits = creditsRes.credits ?? 0;
   }
   _currentPurchased = purchased;
@@ -1118,6 +1120,29 @@ function _triggerBuyPattern(garmentId, addA0 = false) {
   });
 }
 
+async function _promptA0Upgrade() {
+  const user = getCurrentUser();
+  if (!user) return;
+  const { supabase } = await import('../lib/supabase.js');
+  const { data: purchase } = await supabase
+    .from('purchases')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('garment_id', currentGarment)
+    .limit(1)
+    .maybeSingle();
+  if (!purchase) { alert('Could not find purchase. Try from My Patterns.'); return; }
+  const { session } = await getSession();
+  const res = await fetch('/api/create-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+    body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: purchase.id, userId: user.id }),
+  });
+  const json = await res.json();
+  if (!res.ok || json.error) { alert(json.error || 'Could not start checkout'); return; }
+  window.location.href = json.url;
+}
+
 function handlePrint(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handlePrint(btn));
@@ -1125,6 +1150,10 @@ function handlePrint(btn) {
   }
   if (!_currentPurchased) {
     _triggerBuyPattern(currentGarment);
+    return;
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
   printPattern();
@@ -1137,6 +1166,10 @@ async function handleDownloadPDF(btn) {
   }
   if (!_currentPurchased) {
     _triggerBuyPattern(currentGarment);
+    return;
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
 

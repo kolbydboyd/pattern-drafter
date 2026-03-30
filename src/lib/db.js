@@ -183,12 +183,12 @@ export function getDaysUntilDeletion(trashedAt) {
 export async function hasPurchased(userId, garmentId) {
   const { data, error } = await supabase
     .from('purchases')
-    .select('id')
+    .select('id, a0_addon')
     .eq('user_id', userId)
     .eq('garment_id', garmentId)
     .limit(1)
     .maybeSingle();
-  return { data: !!data, error };
+  return { data: data ? { purchased: true, a0_addon: !!data.a0_addon } : null, error };
 }
 
 // ── Subscription & Credits ────────────────────────────────────────────────────

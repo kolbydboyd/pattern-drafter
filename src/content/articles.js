@@ -93,7 +93,7 @@ export const ARTICLES = [
   {
     slug:        'how-to-print-tiled-pdf-pattern',
     title:       'How to Print and Assemble a Tiled PDF Sewing Pattern at Home',
-    description: 'Complete guide to printing a tiled PDF sewing pattern on your home printer. Learn how to set print settings, verify scale, cut and align tiles, and assemble pages. Includes the A0 copy shop alternative.',
+    description: 'Complete guide to printing a tiled PDF sewing pattern on your home printer. Learn how to set print settings, verify scale, cut and align tiles, and assemble pages. Includes the A0 copy shop and projector alternative.',
     category:    'printing',
     youtubeId:   null,
     datePublished: '2026-03-28',
@@ -170,10 +170,11 @@ export const ARTICLES = [
 <p>Before cutting into your fabric, we recommend tracing the pattern pieces onto pattern paper or tracing paper. This preserves the original so you can reuse it if your measurements change or if you want to make the same garment again later.</p>
 <p>Label each piece with the garment name, piece name (front panel, back panel, waistband, etc.), and the grainline direction. People's Patterns prints grainline arrows directly on each piece to make this easy.</p>
 
-<h2>The A0 Copy Shop Alternative: No Tiling Required</h2>
-<p>If you would rather skip the cutting and taping entirely, there is a faster option. People's Patterns offers an A0 / copy shop file with pattern downloads. This is a single large-format file designed to be printed on one big sheet (about 33 x 47 inches) at a copy shop or print center.</p>
+<h2>The A0 Copy Shop + Projector Alternative: No Tiling Required</h2>
+<p>If you would rather skip the cutting and taping entirely, there is a faster option. People's Patterns offers an A0 / copy shop + projector file with pattern downloads. This is a single large-format file designed to be printed on one big sheet (about 33 x 47 inches) at a copy shop, or projected directly onto your fabric with a pattern projector.</p>
 <p>Places like FedEx Office, Staples, and most local print shops can handle A0 or wide-format printing. The typical cost is between $3 and $8 depending on your location and the shop's pricing.</p>
-<p>You walk in, hand them the file on a USB drive or send it from your phone, and walk out with a full-size pattern on a single sheet. No tiling, no taping, no alignment work. For sewists who make patterns regularly, this can be a real time saver.</p>
+<p>For copy shop printing, you walk in, hand them the file on a USB drive or send it from your phone, and walk out with a full-size pattern on a single sheet. No tiling, no taping, no alignment work.</p>
+<p>For projector sewing, open the file in your projector software (like ProjectorSewing or Calibrate), calibrate to your surface, and cut directly — no paper at all. For sewists who make patterns regularly, either option is a real time saver.</p>
 
 <h2>Common Tiled PDF Printing Mistakes and How to Fix Them</h2>
 
@@ -258,7 +259,7 @@ export const ARTICLES = [
 <p>Every pattern you download from People's Patterns includes everything you need to go from paper to finished garment:</p>
 <ul>
   <li><strong>Print-ready tiled PDF</strong> for US Letter and A4 paper</li>
-  <li><strong>A0 copy shop file</strong> for single-sheet large-format printing at any print center</li>
+  <li><strong>A0 copy shop + projector file</strong> for single-sheet large-format printing or projector sewing</li>
   <li><strong>Full materials list</strong> with recommended fabric types and yardage</li>
   <li><strong>Notions and thread guide</strong> so you know exactly what supplies to buy</li>
   <li><strong>Step-by-step construction instructions</strong> walking you through the build from start to finish</li>
