@@ -584,13 +584,14 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
   const W = rotated ? fullWid : halfLen;
   const H = rotated ? halfLen : fullWid;
 
-  const M = compact ? 0.3 : MARGIN;
+  const saVal = sa || 0.625;
+  const M = compact ? Math.max(0.3, saVal + 0.08) : MARGIN;
   const wIn = M + W + M;
   const hIn = M + H + M;
 
   const rx = M * DPI, ry = M * DPI;
   const rW = W * DPI,  rH = H * DPI;
-  const saOff = (sa || 0.625) * DPI;
+  const saOff = saVal * DPI;
   const cx = (M + W / 2) * DPI;
   const cy = (M + H / 2) * DPI;
 
@@ -673,7 +674,7 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const sa = piece.sa || 0;
   const saOff = sa * DPI;
 
-  const M = compact ? 0.3 : MARGIN;
+  const M = compact ? Math.max(0.3, sa > 0 ? sa + 0.08 : 0.3) : MARGIN;
   const wIn = M + W + M;
   const hIn = M + H + M;
 
@@ -1566,7 +1567,7 @@ function buildTabloidPreamble(garment, pieces, materials, instructions, measurem
   </div>`;
 
   // ── Page 2: Materials & Construction ──
-  const page2 = `<div class="page tb-preamble" style="width:${PW}in;height:${PH}in">
+  const page2 = `<div class="page tb-preamble" style="width:${PW}in;min-height:${PH}in;height:auto;overflow:visible">
     <h2 class="tb-page-head">Materials &amp; Construction Order</h2>
     <div class="tb-body">
       <div class="tb-col">
@@ -1842,15 +1843,16 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .sq-label { font-size:10pt; color:#444; margin-top:0.1in; }
 
 /* ── Materials ── */
-.mat-page { padding:0.5in; }
+.mat-page { padding:0.5in; height:auto !important; min-height:${PH}in; overflow:visible !important; }
 .two-col { display:flex; gap:0.4in; margin-top:0.1in; }
 .two-col > div { flex:1; }
 .mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; }
+.mat-notes li { break-inside:avoid; }
 
 /* ── Instructions ── */
-.instr-page { padding:0.5in; }
+.instr-page { padding:0.5in; height:auto !important; min-height:${PH}in; overflow:visible !important; }
 .steps { display:flex; flex-direction:column; gap:0.14in; }
-.step { display:flex; gap:0.16in; align-items:flex-start; }
+.step { display:flex; gap:0.16in; align-items:flex-start; break-inside:avoid; }
 .step-n {
   font-size:20pt; font-weight:700; color:#e0ddd8;
   min-width:0.4in; text-align:right; line-height:1; padding-top:0.02in;
@@ -1859,9 +1861,10 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .step-t { font-size:10pt; font-weight:700; color:#2c2a26; margin-bottom:0.03in; }
 .step-d { font-size:10pt; color:#444; line-height:1.55; }
 b.gl { font-weight:600; color:#2c2a26; }
-.print-glossary { margin-top:0.3in; border-top:0.5px solid #e0e0e0; padding-top:0.15in; }
+.print-glossary { margin-top:0.3in; border-top:0.5px solid #e0e0e0; padding-top:0.15in; break-inside:avoid; }
 .gl-grid { columns:2; column-gap:0.4in; font-size:9pt; line-height:1.6; }
 .gl-entry { break-inside:avoid; margin-bottom:0.04in; }
+.ptable { break-inside:avoid; }
 .gl-def { color:#666; }
 
 /* ── Tiles ── */
