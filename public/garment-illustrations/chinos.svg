@@ -1,20 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- waistband -->
   <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
-  <!-- belt loops -->
-  <rect x="57" y="35" width="5" height="8" rx="1"/>
-  <rect x="98" y="35" width="5" height="8" rx="1"/>
-  <!-- legs: slightly tapered at ankle -->
-  <path d="M44,50 L42,194 L76,194 L80,92 L84,194 L118,194 L116,50"/>
+  <rect x="57" y="35" width="6" height="8" rx="1"/>
+  <rect x="97" y="35" width="6" height="8" rx="1"/>
+  <path d="M44,50 L40,196 L76,196 L80,92 L84,196 L120,196 L116,50"/>
   <line x1="80" y1="50" x2="80" y2="92"/>
-  <!-- slant front pockets -->
-  <path d="M48,52 Q58,66 68,58"/>
-  <path d="M112,52 Q102,66 92,58"/>
-  <!-- crease lines down each leg -->
-  <line x1="59" y1="96" x2="57" y2="194" stroke-dasharray="6 4"/>
-  <line x1="101" y1="96" x2="103" y2="194" stroke-dasharray="6 4"/>
-  <!-- single welt rear pocket lines -->
-  <line x1="52" y1="74" x2="68" y2="74"/>
-  <line x1="92" y1="74" x2="108" y2="74"/>
+  <line x1="58" y1="96" x2="55" y2="196"/>
+  <line x1="102" y1="96" x2="105" y2="196"/>
 </svg>

@@ -1,23 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- collar with stand -->
-  <path d="M66,40 L74,54 L80,46 L86,54 L94,40"/>
-  <path d="M70,38 L80,30 L90,38"/>
-  <!-- body + long sleeves, fitted waist -->
-  <path d="M66,40 L40,56 L36,128 L52,128 Q50,100 54,80"/>
-  <path d="M94,40 L120,56 L124,128 L108,128 Q110,100 106,80"/>
-  <path d="M54,80 Q56,110 52,128 L52,170 L108,170 L108,128 Q104,110 106,80"/>
-  <!-- button placket -->
-  <line x1="80" y1="46" x2="80" y2="170"/>
-  <!-- buttons -->
-  <circle cx="80" cy="66" r="2"/>
-  <circle cx="80" cy="86" r="2"/>
-  <circle cx="80" cy="106" r="2"/>
-  <circle cx="80" cy="126" r="2"/>
-  <circle cx="80" cy="146" r="2"/>
-  <!-- back yoke line -->
-  <path d="M58,58 Q80,52 102,58"/>
-  <!-- sleeve cuffs -->
-  <rect x="36" y="120" width="16" height="10" rx="2"/>
-  <rect x="108" y="120" width="16" height="10" rx="2"/>
+  <path d="M68,44 L74,60 L80,52 L86,60 L92,44"/>
+  <path d="M68,44 L44,58 L38,130 L52,130 L54,170 L106,170 L108,130 L122,130 L116,58 L92,44"/>
+  <line x1="80" y1="52" x2="80" y2="170"/>
+  <circle cx="80" cy="76" r="2"/>
+  <circle cx="80" cy="96" r="2"/>
+  <circle cx="80" cy="116" r="2"/>
+  <circle cx="80" cy="136" r="2"/>
+  <rect x="38" y="122" width="14" height="10" rx="2"/>
+  <rect x="108" y="122" width="14" height="10" rx="2"/>
 </svg>

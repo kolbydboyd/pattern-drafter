@@ -1,17 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- wide waistband -->
-  <path d="M46,34 L114,34 L114,50 L46,50 Z"/>
-  <!-- belt loops -->
-  <rect x="58" y="31" width="5" height="10" rx="1"/>
-  <rect x="97" y="31" width="5" height="10" rx="1"/>
-  <rect x="78" y="31" width="5" height="10" rx="1"/>
-  <!-- dramatically wide legs -->
-  <path d="M46,50 L26,196 L76,196 L80,88 L84,196 L134,196 L114,50"/>
+  <path d="M38,38 L122,38 L122,50 L38,50 Z"/>
+  <rect x="52" y="35" width="6" height="8" rx="1"/>
+  <rect x="102" y="35" width="6" height="8" rx="1"/>
+  <path d="M38,50 L28,196 L76,196 L80,88 L84,196 L132,196 L122,50"/>
   <line x1="80" y1="50" x2="80" y2="88"/>
-  <!-- front pleat lines -->
-  <line x1="66" y1="50" x2="58" y2="88"/>
-  <line x1="72" y1="50" x2="66" y2="88"/>
-  <line x1="88" y1="50" x2="94" y2="88"/>
-  <line x1="94" y1="50" x2="102" y2="88"/>
 </svg>

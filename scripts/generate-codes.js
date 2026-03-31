@@ -22,6 +22,7 @@ const VALID_GARMENTS = [
   'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
   'apron', 'bow-tie', 'tank-top', 'circle-skirt-w', 'pencil-skirt-w',
   'leggings', 'athletic-formal-jacket', 'athletic-formal-trousers',
+  'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
 ];
 
 // Unambiguous alphanumeric chars (no 0/O, 1/l/I)
