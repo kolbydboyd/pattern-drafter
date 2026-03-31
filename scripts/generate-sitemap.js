@@ -19,6 +19,7 @@ const GARMENT_IDS = [
   'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
   'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
   'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
+  'cargo-work-pants',
 ];
 
 // ── Article slugs (must match src/content/articles.js) ───────────────────────
