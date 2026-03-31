@@ -54,6 +54,8 @@ export default async function handler(req, res) {
       await handleBundlePurchase(session, stripe);
     } else if (checkoutMode === 'subscription') {
       await handleSubscriptionCreated(session, stripe);
+    } else if (checkoutMode === 'a0_upgrade') {
+      await handleA0Upgrade(session);
     }
   }
 
@@ -130,6 +132,20 @@ async function handlePatternPurchase(session, stripe) {
     supabase.from('pending_checkouts').delete().eq('id', pendingId)
       .then(() => {}).catch(() => {});
   }
+}
+
+// ── A0 copy-shop upgrade ────────────────────────────────────────────────────
+
+async function handleA0Upgrade(session) {
+  const { purchaseId, userId } = session.metadata;
+
+  const { error } = await supabase
+    .from('purchases')
+    .update({ a0_addon: true })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+
+  if (error) console.error('Failed to update a0_addon:', error);
 }
 
 // ── Bundle purchase ──────────────────────────────────────────────────────────

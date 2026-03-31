@@ -2,6 +2,9 @@
 // Adds an email to the newsletter list and sends a welcome email via Resend
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
+import { rateLimit } from './_rate-limit.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 5 });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -9,6 +12,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
