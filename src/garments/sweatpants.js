@@ -320,10 +320,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   const effSeatDepth = seatDepth || 7;
   const notches = [
-    { x: width,        y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
-    { x: -ext,         y: rise,         angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
-    { x: sideKneeX,    y: kneeY,        angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
-    { x: inseamKneeX,  y: kneeY,        angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
+    { x: width,        y: effSeatDepth,        angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    ...(isBack ? [{ x: width, y: effSeatDepth + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) }] : []),
+    { x: -ext,         y: rise,                angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
+    ...(isBack ? [{ x: -ext, y: rise - 0.25,           angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) }] : []),
+    { x: sideKneeX,    y: kneeY,               angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    { x: inseamKneeX,  y: kneeY,               angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
   ];
 
   return {

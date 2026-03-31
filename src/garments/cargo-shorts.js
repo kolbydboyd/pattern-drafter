@@ -383,8 +383,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   // Notch marks: hip level on side seam, crotch junction
   const effSeatDepth = seatDepth || 7;
   const notches = [
-    { x: width, y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
-    { x: -ext,  y: rise,         angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+    { x: width, y: effSeatDepth,        angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
+    ...(isBack ? [{ x: width, y: effSeatDepth + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),
+    { x: -ext,  y: rise,                angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+    ...(isBack ? [{ x: -ext,  y: rise - 0.25,         angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
   ];
 
   return {

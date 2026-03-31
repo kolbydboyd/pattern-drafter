@@ -337,7 +337,8 @@ export default {
     ];
 
     const backPanelNotches = [
-      { x: backSideX, y: armholeY, angle: 0 },
+      { x: backSideX, y: armholeY,        angle: 0 },  // double notch = back
+      { x: backSideX, y: armholeY + 0.25, angle: 0 },
       { x: backSideX, y: (yokeLineY + armholeY) / 2, angle: edgeAngle({ x: backYokeX, y: yokeLineY }, { x: backSideX, y: armholeY }) },
     ];
 
@@ -463,11 +464,19 @@ export default {
           sleeveLength: slvLength,
           sleeveWidth: onePieceSlvBB.maxX - onePieceSlvBB.minX,
           sa, hem,
-          notches: [
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0, angle: -90 },
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) * 0.25, y: onePieceCapH * 0.5, angle: edgeAngle({ x: 0, y: onePieceCapH }, { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0 }) },
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) * 0.75, y: onePieceCapH * 0.5, angle: edgeAngle({ x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0 }, { x: onePieceSlvBB.maxX - onePieceSlvBB.minX, y: onePieceCapH }) },
-          ],
+          notches: (() => {
+            const slvW = onePieceSlvBB.maxX - onePieceSlvBB.minX;
+            const bDx = slvW / 2, bDy = onePieceCapH;
+            const bLen = Math.sqrt(bDx * bDx + bDy * bDy);
+            const bStepX = 0.25 * bDx / bLen, bStepY = 0.25 * bDy / bLen;
+            const backAngle = edgeAngle({ x: slvW / 2, y: 0 }, { x: slvW, y: onePieceCapH });
+            return [
+              { x: slvW / 2,           y: 0,                         angle: -90 },             // crown → shoulder
+              { x: slvW * 0.25,        y: onePieceCapH * 0.5,        angle: edgeAngle({ x: 0, y: onePieceCapH }, { x: slvW / 2, y: 0 }) },  // front (single)
+              { x: slvW * 0.75,        y: onePieceCapH * 0.5,        angle: backAngle },        // back (double)
+              { x: slvW * 0.75 + bStepX, y: onePieceCapH * 0.5 + bStepY, angle: backAngle },
+            ];
+          })(),
           dims: [
             { label: fmtInches(onePieceSlvBB.maxX - onePieceSlvBB.minX) + ' underarm width', x1: onePieceSlvBB.minX, y1: onePieceCapH + 0.4, x2: onePieceSlvBB.maxX, y2: onePieceCapH + 0.4, type: 'h' },
             { label: fmtInches(slvLength) + ' length', x: onePieceSlvBB.maxX + 1, y1: onePieceCapH, y2: onePieceCapH + slvLength, type: 'v' },

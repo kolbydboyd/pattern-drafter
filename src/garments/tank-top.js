@@ -215,6 +215,7 @@ export default {
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: effectiveShoulderPtX, y: effectiveSlopeDrop }) },
       { x: panelW, y: armholeY, angle: 0 },
+      { x: panelW, y: armholeY + 0.25, angle: 0 },  // double = back convention
     ];
 
     // Neckband

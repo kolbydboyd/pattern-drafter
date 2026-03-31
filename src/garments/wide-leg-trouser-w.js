@@ -429,10 +429,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
 
   const kneeY = rise + inseam * 0.55;
   const notches = [
-    { x: hipWidth, y: hipLineY, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: hipWidth, y: height }) },
-    { x: -ext,     y: rise,     angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },
-    { x: hipWidth, y: kneeY,    angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: hipWidth, y: height }) },
-    { x: -ext,     y: kneeY,    angle: edgeAngle({ x: -ext, y: rise }, { x: -ext, y: height }) },
+    { x: hipWidth, y: hipLineY,        angle: edgeAngle({ x: hipWidth, y: 0 }, { x: hipWidth, y: height }) },
+    ...(isBack ? [{ x: hipWidth, y: hipLineY + 0.25, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: hipWidth, y: height }) }] : []),
+    { x: -ext,     y: rise,            angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },
+    ...(isBack ? [{ x: -ext,     y: rise - 0.25,     angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
+    { x: hipWidth, y: kneeY,           angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: hipWidth, y: height }) },
+    { x: -ext,     y: kneeY,           angle: edgeAngle({ x: -ext, y: rise }, { x: -ext, y: height }) },
   ];
 
   return {

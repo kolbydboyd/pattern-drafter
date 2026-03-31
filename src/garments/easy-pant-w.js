@@ -172,10 +172,12 @@ export default {
 
       const effSeatDepth = m.seatDepth || 7;
       const notches = [
-        { x: width, y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
-        { x: -ext,  y: rise,         angle: edgeAngle({ x: ikX, y: kneeY }, { x: -ext, y: rise }) },
-        { x: skX,   y: kneeY,        angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
-        { x: ikX,   y: kneeY,        angle: edgeAngle({ x: -ext, y: rise }, { x: ikX, y: kneeY }) },
+        { x: width, y: effSeatDepth,        angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
+        ...(isBack ? [{ x: width, y: effSeatDepth + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) }] : []),
+        { x: -ext,  y: rise,                angle: edgeAngle({ x: ikX, y: kneeY }, { x: -ext, y: rise }) },
+        ...(isBack ? [{ x: -ext,  y: rise - 0.25,         angle: edgeAngle({ x: ikX, y: kneeY }, { x: -ext, y: rise }) }] : []),
+        { x: skX,   y: kneeY,               angle: edgeAngle({ x: width, y: 0 }, { x: skX, y: kneeY }) },
+        { x: ikX,   y: kneeY,               angle: edgeAngle({ x: -ext, y: rise }, { x: ikX, y: kneeY }) },
       ];
 
       return {

@@ -115,6 +115,7 @@ export default {
       const notches = [
         // Hip level on side seam (right edge, pointing outward)
         { x: hipW, y: hipY, angle: 0 },
+        ...(id === 'skirt-back' ? [{ x: hipW, y: hipY + 0.25, angle: 0 }] : []),
         // CF/CB mark at waist center
         { x: hipW / 2, y: 0, angle: -90 },
       ];
