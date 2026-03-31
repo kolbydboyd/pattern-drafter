@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- waistband -->
+  <path d="M56,40 L104,40 L104,50 L56,50 Z"/>
+  <!-- full circle skirt with dramatic flare -->
+  <path d="M56,50 Q30,100 20,186 L140,186 Q130,100 104,50"/>
+  <!-- drape/fold lines suggesting fullness -->
+  <path d="M56,60 Q50,120 36,186" stroke-dasharray="5 5"/>
+  <path d="M72,54 Q66,110 58,186" stroke-dasharray="5 5"/>
+  <path d="M104,60 Q110,120 124,186" stroke-dasharray="5 5"/>
+  <path d="M88,54 Q94,110 102,186" stroke-dasharray="5 5"/>
+  <!-- center front -->
+  <path d="M80,50 Q80,110 80,186" stroke-dasharray="5 5"/>
+</svg>

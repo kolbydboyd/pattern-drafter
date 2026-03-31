@@ -49,7 +49,7 @@ let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','baggy-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
   { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
   { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },

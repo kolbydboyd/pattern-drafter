@@ -43,6 +43,7 @@ const GARMENT_TIERS = {
   // core — $14
   'cargo-shorts':       'core',
   'straight-jeans':     'core',
+  'baggy-jeans':        'core',
   'chinos':             'core',
   'sweatpants':         'core',
   'camp-shirt':         'core',
@@ -72,6 +73,7 @@ const GARMENT_LABELS = {
   'easy-pant-w':        'Easy Pant',
   'cargo-shorts':       'Cargo Shorts',
   'straight-jeans':     'Straight Jeans',
+  'baggy-jeans':        'Baggy Jeans',
   'chinos':             'Chinos',
   'sweatpants':         'Sweatpants',
   'camp-shirt':         'Camp Shirt',

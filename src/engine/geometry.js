@@ -418,7 +418,8 @@ export const LEG_SHAPES = {
   slim:     { knee: 0.80, hem: 0.68 },
   straight: { knee: 0.90, hem: 0.85 },
   bootcut:  { knee: 0.78, hem: 0.92 },
-  wide:     { knee: 1.00, hem: 1.10 },
+  wide:       { knee: 1.00, hem: 1.10 },
+  'ultra-wide': { knee: 1.10, hem: 1.25 },
 };
 
 /**

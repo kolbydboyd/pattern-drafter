@@ -14,7 +14,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // ── Garment IDs (must match src/garments/index.js) ────────────────────────────
 const GARMENT_IDS = [
   'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts',
-  'straight-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
+  'straight-jeans', 'baggy-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
   'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket',
   'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
   'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
