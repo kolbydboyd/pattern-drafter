@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5;
@@ -210,11 +210,22 @@ export default {
     const shoulderMidY = slopeDrop / 2;
     const backSideX = shoulderPtX + backChestDepth;
 
+    // Arc-length notches: single = front, double = back; ~3.25″ from underarm
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: sideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Bust dart matchpoint notches at side seam
     if (bustDarts.length > 0) {
@@ -226,8 +237,8 @@ export default {
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
-      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     const sleeveNotches = [
