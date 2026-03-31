@@ -131,7 +131,8 @@ export default {
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem,
       isBack: false, shape, opts,
-      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
+      seatDepth: m.seatDepth,
+      // Intentionally omit calf/ankle — baggy silhouette uses shape ratios only
     }));
 
     const backDartIntake = backHipW - backWaistW;
@@ -144,7 +145,8 @@ export default {
       height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem,
       isBack: true, shape, opts,
-      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
+      seatDepth: m.seatDepth,
+      // Intentionally omit calf/ankle — baggy silhouette uses shape ratios only
     }));
 
     // ── WAISTBAND ──
