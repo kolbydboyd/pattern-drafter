@@ -25,7 +25,7 @@ export default {
   id: 'fitted-tee-w',
   name: 'Fitted Tee (W)',
   category: 'upper',
-  difficulty: 'intermediate',
+  difficulty: 'beginner',
   priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 7 },

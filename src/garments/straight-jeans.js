@@ -17,7 +17,7 @@ export default {
   id: 'straight-jeans',
   name: 'Straight Jeans',
   category: 'lower',
-  difficulty: 'advanced',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 31 },
