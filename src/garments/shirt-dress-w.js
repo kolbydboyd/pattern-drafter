@@ -319,16 +319,16 @@ export default {
     if (opts.collar === 'point') {
       const standLen = collarLen, standH = 1.25;
       const collarH  = 2.5;
-      pieces.push({ id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 (self + interfacing) · ${fmtInches(standLen)} long × ${fmtInches(standH * 2)} cut`, dimensions: { length: standLen, width: standH * 2 }, type: 'pocket' });
-      pieces.push({ id: 'collar-leaf',  name: 'Collar Leaf',  instruction: `Cut 2 (self + interfacing) · Point at CF · ${fmtInches(collarLen)} long × ${fmtInches(collarH + sa)} cut (including SA)`, dimensions: { length: collarLen, width: collarH + sa }, type: 'pocket' });
+      pieces.push({ id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 (self + interfacing) · ${fmtInches(standLen)} long × ${fmtInches(standH * 2)} cut`, dimensions: { length: standLen, width: standH * 2 }, type: 'pocket', sa });
+      pieces.push({ id: 'collar-leaf',  name: 'Collar Leaf',  instruction: `Cut 2 (self + interfacing) · Point at CF · ${fmtInches(collarLen)} long × ${fmtInches(collarH + sa)} cut (including SA)`, dimensions: { length: collarLen, width: collarH + sa }, type: 'pocket', sa });
     } else if (opts.collar === 'camp') {
-      pieces.push({ id: 'collar-revere', name: 'Camp / Revere Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 3.5″ cut · Folds back to create lapel at CF`, dimensions: { length: collarLen, width: 3.5 }, type: 'pocket' });
+      pieces.push({ id: 'collar-revere', name: 'Camp / Revere Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 3.5″ cut · Folds back to create lapel at CF`, dimensions: { length: collarLen, width: 3.5 }, type: 'pocket', sa });
     } else {
-      pieces.push({ id: 'collar-band', name: 'Mandarin Band Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 2.5″ cut (1.25″ finished)`, dimensions: { length: collarLen, width: 2.5 }, type: 'pocket' });
+      pieces.push({ id: 'collar-band', name: 'Mandarin Band Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 2.5″ cut (1.25″ finished)`, dimensions: { length: collarLen, width: 2.5 }, type: 'pocket', sa });
     }
 
     // Front facing
-    pieces.push({ id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (self + interfacing) · ${fmtInches(FACING_W)} wide × ${fmtInches(torsoLen)} long · Attach at CF edge (button/buttonhole extension)`, dimensions: { length: torsoLen, width: FACING_W }, type: 'pocket' });
+    pieces.push({ id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (self + interfacing) · ${fmtInches(FACING_W)} wide × ${fmtInches(torsoLen)} long · Attach at CF edge (button/buttonhole extension)`, dimensions: { length: torsoLen, width: FACING_W }, type: 'pocket', sa });
 
     // Sleeve
     if (opts.sleeve !== 'sleeveless') {
@@ -354,17 +354,17 @@ export default {
         notches: sleeveNotches,
       });
     } else {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     }
 
     // Belt/sash
     if (opts.belt === 'sash') {
       const sashLen = (m.waist || 28) * 3 + 20;
-      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket' });
-      pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket' });
+      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', sa });
+      pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket', sa });
     } else if (opts.belt === 'belt') {
       const beltLen = (m.waist || 28) + 10;
-      pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket' });
+      pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket', sa });
     }
 
     return pieces;

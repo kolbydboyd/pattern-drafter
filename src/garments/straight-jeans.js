@@ -157,7 +157,7 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {topstitch} curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {topstitch} curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -165,13 +165,13 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill)' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket' });
-    pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
+    pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1¾″ × ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket' });
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1¾″ × ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
 
     return pieces;
   },

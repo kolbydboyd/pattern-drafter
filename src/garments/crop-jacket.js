@@ -278,6 +278,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
         type: 'pocket',
         dimensions: { width: FACING_W, height: facingH },
+        sa,
       },
       {
         id: 'hip-pocket',
@@ -285,6 +286,7 @@ export default {
         instruction: `Cut 2 · Position at hip level ${fmtInches(opts.length === 'hip' ? 8 : 4)}″ from hem on front panels · Bar tack top corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
+        sa,
       },
     ];
 
@@ -295,6 +297,7 @@ export default {
         instruction: 'Cut 1 · Left chest, 2.5″ below neckline · Pencil slot: 1.5″ wide section at top, divided by topstitching',
         type: 'pocket',
         dimensions: { width: 5, height: 6 },
+        sa,
       });
     }
 

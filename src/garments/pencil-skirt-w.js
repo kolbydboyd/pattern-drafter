@@ -194,12 +194,12 @@ export default {
 
     if (opts.closure === 'zip') {
       const zipLen = Math.ceil(L * 0.45);
-      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · CB closure`, dimensions: { width: 1, height: zipLen }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · CB closure`, dimensions: { width: 1, height: zipLen }, type: 'pocket', sa });
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · Same as front panel · Shorten 1″ from hem`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket' });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Leave CB open for zip`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket' });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · Same as front panel · Shorten 1″ from hem`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket', sa });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Leave CB open for zip`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket', sa });
     }
 
     return pieces;

@@ -189,6 +189,7 @@ export default {
         instruction: 'Cut 4 (2 per side) · Mesh or lining fabric OK',
         dimensions: { width: 7, height: 7.5 },
         type: 'pocket',
+        sa,
       });
     }
 
@@ -203,6 +204,7 @@ export default {
         instruction: 'Cut 2 (mirror) from athletic mesh · No SA needed - {serge} raw edges',
         dimensions: { width: linerW, height: linerH },
         type: 'pocket',
+        sa,
       });
     }
 

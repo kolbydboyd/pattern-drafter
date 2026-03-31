@@ -164,6 +164,7 @@ export default {
         instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
         dimensions: { width: 6.5, height: 7 },
         type: 'pocket',
+        sa,
       });
     }
 

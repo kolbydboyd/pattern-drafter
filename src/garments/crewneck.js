@@ -337,6 +337,7 @@ export default {
         instruction: 'Cut 1 · Center on front bodice at waist level · Curve bottom corners (2″ radius) · {topstitch} sides and bottom',
         type: 'pocket',
         dimensions: { width: 10, height: 7 },
+        sa,
       });
     }
 

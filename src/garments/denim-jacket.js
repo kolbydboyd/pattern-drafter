@@ -528,6 +528,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
         type: 'pocket',
         dimensions: { width: FACING_W, height: facingH },
+        sa,
       },
     ];
 
@@ -539,6 +540,7 @@ export default {
         instruction: `Cut 4 (2 pocket bags + 2 flaps - mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} pocket · ${fmtInches(pocketW)} × ${fmtInches(flapH)} flap · Position on front panel just below yoke seam`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
+        sa,
       });
       pieces.push({
         id: 'pocket-flap',
@@ -546,6 +548,7 @@ export default {
         instruction: `Cut 4 (2 outer + 2 facing) · ${fmtInches(pocketW)} × ${fmtInches(flapH)} · Interface outer · Button snap or shank at center`,
         type: 'pocket',
         dimensions: { width: pocketW, height: flapH },
+        sa,
       });
     } else if (opts.chestPocket === 'patch') {
       pieces.push({
@@ -554,6 +557,7 @@ export default {
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} · Position on front panel just below yoke seam · {topstitch} 3 sides`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
+        sa,
       });
     }
 

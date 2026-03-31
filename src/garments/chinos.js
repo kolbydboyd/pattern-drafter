@@ -166,7 +166,7 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge before attaching', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge before attaching', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -174,15 +174,18 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining or drill \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     if (opts.backPocket !== 'none') {
-      pieces.push({ id: 'welt-back', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · {serge} bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'welt-back', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · {serge} bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
     }
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips · Fold in thirds lengthwise (¾″ finished) · Length 4″ · Fold under ends before attaching to waistband`, dimensions: { length: 4, width: 2.5 }, type: 'pocket' });
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips · Fold in thirds lengthwise (¾″ finished) · Length 4″ · Fold under ends before attaching to waistband`, dimensions: { length: 4, width: 2.5 }, type: 'pocket', sa, marks: [
+      { type: 'fold', axis: 'v', position: 0.83, label: 'fold in thirds' },
+      { type: 'fold', axis: 'v', position: 1.67, label: 'fold in thirds' },
+    ] });
 
     return pieces;
   },

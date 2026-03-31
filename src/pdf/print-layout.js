@@ -659,12 +659,19 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
 /**
  * Render a pocket piece at 1:1.
  * Returns { svg, wIn, hIn }.
+ *
+ * Supports optional `marks` array on the piece for fold/pleat/centerline indicators:
+ *   { type: 'fold',   axis: 'h'|'v', position: <inches from top/left>, label: '...' }
+ *   { type: 'pleat',  axis: 'v',     center: <inches from left>, intake: <inches each side>, label: '...' }
+ *   { type: 'centerline', axis: 'h'|'v' }
  */
 function renderPocketSVG(piece, { compact = false } = {}) {
-  const { name, dimensions } = piece;
+  const { name, dimensions, marks = [] } = piece;
   // Pocket bags use { width, height }; strip pieces (collar, facing, tie) use { length, width }
   const W = dimensions.length ?? dimensions.width;
   const H = dimensions.height  ?? dimensions.width;
+  const sa = piece.sa || 0;
+  const saOff = sa * DPI;
 
   const M = compact ? 0.3 : MARGIN;
   const wIn = M + W + M;
@@ -673,6 +680,59 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const rx = M * DPI, ry = M * DPI;
   const rW = W * DPI,  rH = H * DPI;
   const cx = (M + W / 2) * DPI;
+  const cy = (M + H / 2) * DPI;
+
+  // SA cut line (outer) + stitch line (inner dashed)
+  const saRect = sa > 0
+    ? `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
+        stroke="#000" stroke-width="1.5" fill="none"/>`
+    : '';
+  const stitchStroke = sa > 0 ? 'stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"' : 'stroke="#2c2a26" stroke-width="2"';
+
+  // Marks rendering
+  let marksSvg = '';
+  const markCol = '#4a8a5a';
+  for (const m of marks) {
+    if (m.type === 'fold') {
+      if (m.axis === 'h') {
+        // Horizontal fold line at `position` inches from top
+        const ly = ry + m.position * DPI;
+        marksSvg += `<line x1="${rx}" y1="${ly}" x2="${rx + rW}" y2="${ly}" stroke="${markCol}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+        if (m.label) marksSvg += `<text x="${rx + rW + 4}" y="${ly + 3}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="${markCol}">${m.label}</text>`;
+      } else {
+        // Vertical fold line at `position` inches from left
+        const lx = rx + m.position * DPI;
+        marksSvg += `<line x1="${lx}" y1="${ry}" x2="${lx}" y2="${ry + rH}" stroke="${markCol}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+        if (m.label) marksSvg += `<text x="${lx}" y="${ry - 4}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="${markCol}" text-anchor="middle">${m.label}</text>`;
+      }
+    } else if (m.type === 'pleat') {
+      // Two symmetric fold lines around center
+      const lx1 = rx + (m.center - m.intake) * DPI;
+      const lx2 = rx + (m.center + m.intake) * DPI;
+      const lxC = rx + m.center * DPI;
+      marksSvg += `<line x1="${lx1}" y1="${ry}" x2="${lx1}" y2="${ry + rH}" stroke="${markCol}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      marksSvg += `<line x1="${lx2}" y1="${ry}" x2="${lx2}" y2="${ry + rH}" stroke="${markCol}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      // Center reference
+      marksSvg += `<line x1="${lxC}" y1="${ry}" x2="${lxC}" y2="${ry + rH}" stroke="${markCol}" stroke-width="0.4" stroke-dasharray="2,4"/>`;
+      // Arrows showing fold direction (pointing inward toward center)
+      const arrowY = ry + rH * 0.15;
+      const aw = 4, ah = 2.5;
+      marksSvg += `<polygon points="${lx1 + aw},${arrowY} ${lx1},${arrowY - ah} ${lx1},${arrowY + ah}" fill="${markCol}"/>`;
+      marksSvg += `<polygon points="${lx2 - aw},${arrowY} ${lx2},${arrowY - ah} ${lx2},${arrowY + ah}" fill="${markCol}"/>`;
+      if (m.label) marksSvg += `<text x="${lxC}" y="${ry - 4}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="${markCol}" text-anchor="middle">${m.label}</text>`;
+    } else if (m.type === 'centerline') {
+      if (m.axis === 'h') {
+        marksSvg += `<line x1="${rx}" y1="${cy}" x2="${rx + rW}" y2="${cy}" stroke="#999" stroke-width="0.6" stroke-dasharray="8,6"/>`;
+      } else {
+        marksSvg += `<line x1="${cx}" y1="${ry}" x2="${cx}" y2="${ry + rH}" stroke="#999" stroke-width="0.6" stroke-dasharray="8,6"/>`;
+      }
+    }
+  }
+
+  // SA note at bottom
+  const saNote = sa > 0
+    ? `<text x="${cx}" y="${ry + rH + saOff + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">${fmtInches(sa)} SA included</text>`
+    : '';
 
   return {
     wIn,
@@ -680,17 +740,20 @@ function renderPocketSVG(piece, { compact = false } = {}) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
+      ${saRect}
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
-        stroke="#2c2a26" stroke-width="2" fill="none"/>
+        ${stitchStroke} fill="none"/>
+      ${marksSvg}
       <text x="${cx}" y="${(M - 0.08) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
-      <text x="${cx}" y="${(M + H / 2) * DPI}"
+      <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#666" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
-      ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${(M + H / 2) * DPI + (compact ? 12 : 16)}"
+      ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
         fill="#666" text-anchor="middle">${piece.instruction}</text>` : ''}
+      ${saNote}
     </svg>`,
   };
 }

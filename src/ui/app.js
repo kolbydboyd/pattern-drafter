@@ -674,12 +674,46 @@ function _generate() {
         </table></div>`;
     } else if (piece.type === 'pocket') {
       const pd = piece.dimensions;
+      const pW = pd.length ?? pd.width;
+      const pH = pd.height ?? pd.width;
       const pSize = pd.length != null
         ? `${fmtInches(pd.length)} × ${fmtInches(pd.width)}`
         : `${fmtInches(pd.width)} × ${fmtInches(pd.height)}`;
+      // Mini SVG preview showing SA outline + marks
+      const pSc = 12; // px per inch for pocket preview
+      const pM = 16;  // margin in px
+      const svgW = pM * 2 + pW * pSc;
+      const svgH = pM * 2 + pH * pSc;
+      const prx = pM, pry = pM, prW = pW * pSc, prH = pH * pSc;
+      const pSa = piece.sa || 0;
+      const pSaOff = pSa * pSc;
+      let pSvg = `<svg viewBox="0 0 ${svgW} ${svgH}" style="max-width:${Math.min(svgW, 280)}px;display:block;margin:8px auto">`;
+      if (pSa > 0) pSvg += `<rect x="${prx - pSaOff}" y="${pry - pSaOff}" width="${prW + pSaOff * 2}" height="${prH + pSaOff * 2}" stroke="#000" stroke-width="1.2" fill="none"/>`;
+      pSvg += `<rect x="${prx}" y="${pry}" width="${prW}" height="${prH}" stroke="${pSa > 0 ? '#666' : '#2c2a26'}" stroke-width="${pSa > 0 ? 0.6 : 1.2}" ${pSa > 0 ? 'stroke-dasharray="3,2"' : ''} fill="none"/>`;
+      const marks = piece.marks || [];
+      for (const mk of marks) {
+        const mc = '#4a8a5a';
+        if (mk.type === 'fold' && mk.axis === 'h') {
+          const ly = pry + mk.position * pSc;
+          pSvg += `<line x1="${prx}" y1="${ly}" x2="${prx + prW}" y2="${ly}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+        } else if (mk.type === 'fold' && mk.axis === 'v') {
+          const lx = prx + mk.position * pSc;
+          pSvg += `<line x1="${lx}" y1="${pry}" x2="${lx}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+        } else if (mk.type === 'pleat') {
+          const lx1 = prx + (mk.center - mk.intake) * pSc;
+          const lx2 = prx + (mk.center + mk.intake) * pSc;
+          const lxC = prx + mk.center * pSc;
+          pSvg += `<line x1="${lx1}" y1="${pry}" x2="${lx1}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+          pSvg += `<line x1="${lx2}" y1="${pry}" x2="${lx2}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+          pSvg += `<line x1="${lxC}" y1="${pry}" x2="${lxC}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.3" stroke-dasharray="2,3"/>`;
+        }
+      }
+      pSvg += '</svg>';
       piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
+        ${pSvg}
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
+          ${pSa > 0 ? `<tr><td>SA</td><td>${fmtInches(pSa)}</td></tr>` : ''}
         </table></div>`;
     }
   }

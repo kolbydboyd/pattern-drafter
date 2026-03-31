@@ -200,21 +200,26 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket', sa });
     }
     if (opts.cargo === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 7″ wide × 8″ tall cut · 1″ box pleat at center (fold 1″ under each side = 2″ consumed) · Finished pocket 5″ wide, expands to 7″', dimensions: { width: 7, height: 8 }, type: 'pocket' });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 7″ wide × 8″ tall cut · 1″ box pleat at center (fold 1″ under each side = 2″ consumed) · Finished pocket 5″ wide, expands to 7″', dimensions: { width: 7, height: 8 }, type: 'pocket', sa, marks: [
+        { type: 'pleat', axis: 'v', center: 3.5, intake: 1, label: 'box pleat 1″ ea. side' },
+        { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
+      ] });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket', sa });
     }
     if (opts.backPocket !== 'none') {
       const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
-      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (2 per back panel)' : ' (one per back panel)'}`, dimensions: { width: 6, height: 7 }, type: 'pocket' });
+      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (2 per back panel)' : ' (one per back panel)'}`, dimensions: { width: 6, height: 7 }, type: 'pocket', sa, marks: [
+        { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
+      ] });
     }
     if (opts.fly === 'zip') {
-      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 3, height: m.rise }, type: 'pocket' });
+      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 3, height: m.rise }, type: 'pocket', sa });
     }
     if (opts.fly === 'button') {
-      pieces.push({ id: 'button-placket', name: 'Button Fly Placket', instruction: 'Cut 2 (left + right)', dimensions: { width: 5, height: m.rise }, type: 'pocket' });
+      pieces.push({ id: 'button-placket', name: 'Button Fly Placket', instruction: 'Cut 2 (left + right)', dimensions: { width: 5, height: m.rise }, type: 'pocket', sa });
     }
 
     return pieces;
