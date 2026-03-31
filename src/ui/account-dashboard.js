@@ -50,7 +50,7 @@ export function openAccountDashboard(section = 'measurements') {
               <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
               <button class="acct-nav-item" data-section="subscription">Subscription</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
-              <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
+              <button class="acct-nav-item" data-section="giftcards">Gift Cards & Codes</button>
               <button class="acct-nav-item" data-section="settings">Account Settings</button>
             </nav>
             <button class="acct-close-btn" id="acct-close">✕ Close</button>
@@ -1279,25 +1279,41 @@ async function _renderOrders(main, user) {
   main.innerHTML = html;
 }
 
-// ── 5. Gift Cards ─────────────────────────────────────────────────────────────
+// ── 5. Gift Cards & Codes ─────────────────────────────────────────────────────
 async function _renderGiftCards(main, user) {
-  const { data, error } = await supabase
-    .from('gift_cards')
-    .select('*')
-    .eq('redeemed_by', user.id);
+  const [gcRes, rcRes] = await Promise.all([
+    supabase.from('gift_cards').select('*').eq('redeemed_by', user.id),
+    supabase.from('redemption_codes').select('*').eq('redeemed_by', user.id),
+  ]);
 
-  let html = `<h2 class="acct-section-title">Gift Cards</h2>`;
+  let html = `<h2 class="acct-section-title">Gift Cards & Codes</h2>`;
 
-  if (!error && data?.length) {
-    html += `<div class="acct-gc-list">`;
-    for (const gc of data) {
+  // ── Redeemed gift cards ──
+  const giftCards = gcRes.data ?? [];
+  if (giftCards.length) {
+    html += `<h3 class="acct-sub-title">Gift Cards</h3><div class="acct-gc-list">`;
+    for (const gc of giftCards) {
       html += `<div class="acct-gc-row">Code: <strong>${gc.code}</strong> · $${(gc.amount_cents / 100).toFixed(2)} · Redeemed ${new Date(gc.redeemed_at).toLocaleDateString()}</div>`;
     }
     html += `</div>`;
-  } else {
-    html += `<p class="acct-empty">No gift cards on your account.</p>`;
   }
 
+  // ── Redeemed pattern codes ──
+  const redeemCodes = rcRes.data ?? [];
+  if (redeemCodes.length) {
+    html += `<h3 class="acct-sub-title">Pattern Codes</h3><div class="acct-gc-list">`;
+    for (const rc of redeemCodes) {
+      const garmentName = rc.garment_id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div class="acct-gc-row">Code: <strong>${rc.code}</strong> · ${garmentName} · Redeemed ${new Date(rc.redeemed_at).toLocaleDateString()}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (!giftCards.length && !redeemCodes.length) {
+    html += `<p class="acct-empty">No gift cards or codes on your account.</p>`;
+  }
+
+  // ── Redeem gift card ──
   html += `<div class="acct-gc-redeem">
     <h3 class="acct-sub-title">Redeem a gift card</h3>
     <div class="acct-gc-row-input">
@@ -1307,8 +1323,20 @@ async function _renderGiftCards(main, user) {
     <p class="acct-gc-msg" id="gc-msg"></p>
   </div>`;
 
+  // ── Redeem pattern code ──
+  html += `<div class="acct-gc-redeem">
+    <h3 class="acct-sub-title">Redeem a pattern code</h3>
+    <p class="acct-empty" style="margin-bottom:8px">Have a code from an Etsy or Craftsy pattern? Enter it to get a made-to-measure version.</p>
+    <div class="acct-gc-row-input">
+      <input class="acct-input" type="text" id="rc-code-input" placeholder="PP-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:1px">
+      <button class="acct-btn-sm" id="rc-redeem-btn">Redeem</button>
+    </div>
+    <p class="acct-gc-msg" id="rc-msg"></p>
+  </div>`;
+
   main.innerHTML = html;
 
+  // ── Gift card handler ──
   document.getElementById('gc-redeem-btn')?.addEventListener('click', async () => {
     const code = document.getElementById('gc-code-input')?.value.trim().toUpperCase();
     const msg  = document.getElementById('gc-msg');
@@ -1324,6 +1352,36 @@ async function _renderGiftCards(main, user) {
     msg.textContent = `Redeemed! $${(gc.amount_cents / 100).toFixed(2)} credit added to your account.`;
     msg.className = 'acct-gc-msg acct-success';
     _showSection('giftcards');
+  });
+
+  // ── Pattern code handler ──
+  document.getElementById('rc-redeem-btn')?.addEventListener('click', async () => {
+    const code = document.getElementById('rc-code-input')?.value.trim().toUpperCase();
+    const msg  = document.getElementById('rc-msg');
+    if (!code) return;
+    msg.textContent = 'Checking…'; msg.className = 'acct-gc-msg';
+
+    try {
+      const res = await fetch('/api/validate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!data.valid) {
+        msg.textContent = 'Invalid or already redeemed code.';
+        msg.className = 'acct-gc-msg acct-error';
+        return;
+      }
+      // Store in sessionStorage and redirect to wizard
+      sessionStorage.setItem('redemptionCode', code);
+      sessionStorage.setItem('redemptionGarment', data.garmentId);
+      sessionStorage.setItem('redemptionGarmentName', data.garmentName);
+      window.location.href = `/?step=2&garment=${data.garmentId}&redeem=1`;
+    } catch {
+      msg.textContent = 'Something went wrong. Please try again.';
+      msg.className = 'acct-gc-msg acct-error';
+    }
   });
 }
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redeem Your Pattern - People's Patterns</title>
+<meta name="description" content="Redeem your code for a free made-to-measure sewing pattern. Enter your measurements, get a custom-fit PDF.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
+<link rel="stylesheet" href="/src/ui/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
+  <nav id="hdr-nav-desktop">
+    <a href="/patterns">Patterns</a>
+    <a href="/learn">Learn</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/about">About</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+    <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
+      <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
+      <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+    </svg>
+  </button>
+  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <nav id="hdr-nav-mobile">
+  <div class="hdr-nav-m-links">
+    <a class="hdr-nav-m-link" href="/">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about">About</a>
+    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+  </div>
+  <div class="hdr-nav-m-theme">
+    <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
+  </div>
+  </nav>
+</div>
+
+<div class="pg pg-redeem-page">
+  <main class="pg-body">
+    <div class="pg-wrap">
+
+      <!-- Step 1: Enter code -->
+      <div id="redeem-entry">
+        <h1 class="pg-title">Redeem Your Pattern Code</h1>
+        <p class="redeem-subtitle">Enter the code from your Etsy or Craftsy pattern download to get a free made-to-measure version.</p>
+        <div class="redeem-input-row">
+          <input type="text" id="redeem-code-input" class="redeem-code-input" placeholder="PP-XXXX-XXXX" maxlength="12" autocomplete="off" spellcheck="false" autofocus>
+          <button id="redeem-validate-btn" class="redeem-validate-btn">Redeem</button>
+        </div>
+        <p id="redeem-msg" class="redeem-msg"></p>
+      </div>
+
+      <!-- Step 2: Code valid — show garment + CTA -->
+      <div id="redeem-success" hidden>
+        <div class="success-check">&#10003;</div>
+        <h1 class="pg-title">Your code unlocks a custom-fit <span id="redeem-garment-name"></span>!</h1>
+        <p class="redeem-subtitle">You bought the standard-size pattern. Now get one cut to <em>your</em> exact measurements — free with your code.</p>
+        <div class="redeem-how-it-works">
+          <div class="redeem-step"><span class="redeem-step-num">1</span><span>Enter your measurements</span></div>
+          <div class="redeem-step"><span class="redeem-step-num">2</span><span>Create a free account</span></div>
+          <div class="redeem-step"><span class="redeem-step-num">3</span><span>Download your custom pattern</span></div>
+        </div>
+        <div class="success-actions">
+          <a id="redeem-continue-btn" class="success-dl-btn" href="#">Get My Custom Pattern</a>
+        </div>
+        <p class="redeem-note">Your code won't be used until you download. No credit card needed.</p>
+      </div>
+
+    </div>
+  </main>
+  <footer class="land-footer">
+    <span class="land-footer-copy">&copy; 2026 People's Patterns</span>
+    <span class="land-footer-legal">
+      <a class="land-footer-link" href="/patterns">Patterns</a>
+      <a class="land-footer-link" href="/learn">Learn</a>
+      <a class="land-footer-link" href="/faq">FAQ</a>
+      <a class="land-footer-link" href="/pricing">Pricing</a>
+      <a class="land-footer-link" href="/terms">Terms</a>
+      <a class="land-footer-link" href="/privacy">Privacy</a>
+    </span>
+  </footer>
+</div>
+
+<script type="module" src="/src/ui/page.js"></script>
+<script type="module" src="/src/ui/redeem.js"></script>
+</body>
+</html>

@@ -19,6 +19,12 @@
     },
     "api/join-list.js": {
       "memory": 256
+    },
+    "api/validate-code.js": {
+      "memory": 256
+    },
+    "api/redeem-code.js": {
+      "memory": 256
     }
   },
   "rewrites": [
@@ -32,7 +38,8 @@
     { "source": "/about", "destination": "/about.html" },
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" },
-    { "source": "/pricing", "destination": "/pricing.html" }
+    { "source": "/pricing", "destination": "/pricing.html" },
+    { "source": "/redeem", "destination": "/redeem.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
