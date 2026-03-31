@@ -26,8 +26,21 @@ const BETA_MODE = false;
 
 // ── URL sync ──────────────────────────────────────────────────────────────────
 // Read ?garment= from the URL on load so direct links pre-select correctly
-const _urlGarmentParam = new URLSearchParams(location.search).get('garment');
+const _urlParams        = new URLSearchParams(location.search);
+const _urlGarmentParam  = _urlParams.get('garment');
+const _urlRedeemFlag    = _urlParams.get('redeem') === '1';
 let currentGarment    = (_urlGarmentParam && GARMENTS[_urlGarmentParam]) ? _urlGarmentParam : 'cargo-shorts';
+
+// ── Redemption code state (set by /redeem page, stored in sessionStorage) ────
+let _redemptionCode       = sessionStorage.getItem('redemptionCode') || null;
+let _redemptionGarment    = sessionStorage.getItem('redemptionGarment') || null;
+let _redemptionGarmentName = sessionStorage.getItem('redemptionGarmentName') || null;
+const _isRedemptionMode   = !!(_redemptionCode && _redemptionGarment && GARMENTS[_redemptionGarment]);
+
+// If arriving from /redeem, lock to the redemption garment
+if (_isRedemptionMode) {
+  currentGarment = _redemptionGarment;
+}
 
 function _syncGarmentUrl(id) {
   window.history.replaceState(null, '', '?garment=' + encodeURIComponent(id));
@@ -834,6 +847,70 @@ async function _applyWatermarkState(garmentId) {
     return;
   }
 
+  // ── REDEMPTION CODE MODE ─────────────────────────────────────────────────
+  if (_isRedemptionMode && garmentId === _redemptionGarment) {
+    const user = getCurrentUser();
+    // Check if already purchased (code was already redeemed in a previous session)
+    if (user) {
+      const purchaseRes = await hasPurchased(user.id, garmentId);
+      if (purchaseRes.data) {
+        _currentPurchased = true;
+        _currentHasA0 = !!purchaseRes.data?.a0_addon;
+        return;
+      }
+    }
+
+    const banner = document.createElement('div');
+    banner.id = 'wm-purchase-banner';
+    banner.className = 'wm-banner';
+    const gName = _redemptionGarmentName || garmentId.replace(/-/g, ' ');
+
+    if (!user) {
+      // Not logged in: prompt signup first, then redeem on download
+      banner.innerHTML = `
+        <span class="wm-banner-text">Redeeming code for <strong>${gName}</strong>. Create a free account to download.</span>
+        <button class="wm-banner-btn" id="wm-redeem-signup-btn">Create Free Account &amp; Download</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-redeem-signup-btn').addEventListener('click', () => {
+        _showFreeSignupModal(garmentId);
+      });
+    } else {
+      // Logged in: redeem code and download
+      banner.innerHTML = `
+        <span class="wm-banner-text">Your code unlocks a custom-fit <strong>${gName}</strong>. Free with your redemption code.</span>
+        <button class="wm-banner-btn wm-free-btn" id="wm-redeem-btn">Download My Pattern</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-redeem-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('wm-redeem-btn');
+        btn.disabled = true; btn.textContent = 'Redeeming…';
+        const { session } = await getSession();
+        const { m: _rM, opts: _rOpts } = readInputs();
+        try {
+          const res = await fetch('/api/redeem-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ code: _redemptionCode, profileId: _activeProfileId, measurements: _rM, opts: _rOpts }),
+          });
+          const json = await res.json();
+          if (!res.ok) { btn.disabled = false; btn.textContent = 'Download My Pattern'; alert(json.error || 'Could not redeem code.'); return; }
+          _currentPurchased = true;
+          // Clear redemption state
+          sessionStorage.removeItem('redemptionCode');
+          sessionStorage.removeItem('redemptionGarment');
+          sessionStorage.removeItem('redemptionGarmentName');
+          _redemptionCode = null;
+          removeWatermarks(output);
+          banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Code redeemed! <strong>${gName}</strong> is now in your account.</span>`;
+          handleDownloadPDF(btn);
+        } catch {
+          btn.disabled = false; btn.textContent = 'Download My Pattern';
+          alert('Something went wrong. Please try again.');
+        }
+      });
+    }
+    return;
+  }
+
   // ── PAID MODE ─────────────────────────────────────────────────────────────
   const user = getCurrentUser();
   let purchased = false;
@@ -972,9 +1049,38 @@ function _showFreeSignupModal(garmentId) {
 
     dlg.close();
 
-    // Use the free credit and trigger download
     const { session } = data;
     const { m: _scM, opts: _scOpts } = readInputs();
+
+    // ── Redemption mode: use the code instead of free credit ──────────────
+    if (_isRedemptionMode && _redemptionCode && garmentId === _redemptionGarment) {
+      const redeemRes = await fetch('/api/redeem-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ code: _redemptionCode, profileId: _activeProfileId, measurements: _scM, opts: _scOpts }),
+      });
+      const redeemJson = await redeemRes.json();
+      if (!redeemRes.ok) {
+        alert('Account created! ' + (redeemJson.error || 'Could not redeem code. Try again from your account.'));
+        return;
+      }
+      _currentPurchased = true;
+      sessionStorage.removeItem('redemptionCode');
+      sessionStorage.removeItem('redemptionGarment');
+      sessionStorage.removeItem('redemptionGarmentName');
+      _redemptionCode = null;
+      const output = document.getElementById('output');
+      if (output) removeWatermarks(output);
+      const banner = document.getElementById('wm-purchase-banner');
+      const gName = _redemptionGarmentName || garmentId.replace(/-/g, ' ');
+      if (banner) banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Code redeemed! <strong>${gName}</strong> is now in your account.</span>`;
+      const dummyBtn = document.createElement('button');
+      dummyBtn.textContent = 'Downloading…';
+      handleDownloadPDF(dummyBtn);
+      return;
+    }
+
+    // ── Standard flow: use free credit ────────────────────────────────────
     const creditRes = await fetch('/api/use-free-credit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
@@ -1731,8 +1837,17 @@ document.getElementById('land-email-btn')?.addEventListener('click', async () =>
 // Get Started
 document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
 
-// If ?garment= was in the URL, open the wizard and pre-select it
-if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
+// If arriving from /redeem page with a redemption code, open wizard at step 2 with garment locked
+if (_isRedemptionMode && _urlRedeemFlag) {
+  const sel = document.getElementById('garment-select');
+  if (sel) { sel.value = currentGarment; sel.disabled = true; }
+  showWizard();
+  buildInputs();
+  stepsCompleted = 1; // allow access to step 2
+  goToStep(2);
+}
+// If ?garment= was in the URL (non-redemption), open the wizard and pre-select it
+else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   const sel = document.getElementById('garment-select');
   if (sel) sel.value = currentGarment;
   showWizard();

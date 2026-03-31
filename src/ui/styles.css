@@ -487,6 +487,20 @@ details.adv-meas summary:hover{color:var(--text)}
 .success-upsell-btn:hover{background:rgba(201,169,110,.25)}
 .success-note{font-size:.72rem;color:var(--mid);line-height:1.7;margin-top:20px}
 .success-error-msg{font-size:.78rem;color:var(--mid);line-height:1.8;padding:24px;background:var(--row);border-radius:4px;border-left:3px solid var(--gold)}
+.redeem-subtitle{font-family:'IBM Plex Mono',monospace;font-size:.82rem;color:var(--mid);line-height:1.7;margin-bottom:28px;max-width:520px}
+.redeem-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.redeem-code-input{font-family:'IBM Plex Mono',monospace;font-size:1rem;letter-spacing:2px;text-transform:uppercase;padding:12px 16px;border:1px solid var(--bdr);border-radius:3px;background:var(--ibg);color:var(--text);width:220px;text-align:center}
+.redeem-code-input::placeholder{letter-spacing:1px;text-transform:none;opacity:.4}
+.redeem-validate-btn{background:var(--gold);color:#fff;border:none;padding:13px 28px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:.78rem;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:opacity .15s}
+.redeem-validate-btn:hover{opacity:.85}
+.redeem-validate-btn:disabled{opacity:.5;cursor:not-allowed}
+.redeem-msg{font-family:'IBM Plex Mono',monospace;font-size:.75rem;min-height:1.4em}
+.redeem-msg.redeem-error{color:#c0392b}
+.redeem-msg.redeem-loading{color:var(--mid)}
+.redeem-how-it-works{display:flex;gap:24px;flex-wrap:wrap;margin:28px 0}
+.redeem-step{display:flex;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--text)}
+.redeem-step-num{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(201,169,110,.12);color:var(--gold);font-weight:600;font-size:.75rem;flex-shrink:0}
+.redeem-note{font-size:.72rem;color:var(--mid);line-height:1.7;margin-top:20px}
 .acct-archived{margin-top:16px;font-size:.78rem;color:var(--mid)}
 .acct-archived summary{cursor:pointer;padding:6px 0}
 .acct-gc-list{margin-bottom:20px}
