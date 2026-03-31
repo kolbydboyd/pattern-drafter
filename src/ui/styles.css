@@ -253,6 +253,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .gmt-heart:hover{color:var(--accent);background:rgba(180,60,60,.08)}
 .gmt-heart--on{color:var(--accent)}
 .gmt-heart--on svg{fill:currentColor}
+.gmt-owned-badge,.pat-pg-owned-badge{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--gold);margin-left:auto}
 
 /* Steps 2/3 — form layout */
 .wiz-form-wrap{max-width:500px;margin:0 auto;padding:28px 24px 48px}
@@ -683,7 +684,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .pat-pg-404-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .pat-pg-listing-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:28px}
 .pat-pg-listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.pat-pg-listing-card{display:block;padding:14px 16px;border:1px solid var(--bdr);border-radius:6px;background:var(--card);text-decoration:none;transition:border-color .15s}
+.pat-pg-listing-card{display:block;padding:14px 16px;border:1px solid var(--bdr);border-radius:6px;background:var(--card);text-decoration:none;transition:border-color .15s;position:relative}
 .pat-pg-listing-card:hover{border-color:var(--gold)}
 .pat-pg-listing-img{display:flex;align-items:center;justify-content:center;height:100px;padding:10px;background:var(--row);border-radius:4px;margin-bottom:10px}
 .pat-pg-listing-img img{max-height:80px;width:auto;object-fit:contain;opacity:.85}

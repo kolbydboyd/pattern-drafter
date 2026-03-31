@@ -46,6 +46,7 @@ let renderedGarment = null;
 let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
+let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 
 const GARMENT_CATEGORIES = [
   { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
@@ -1336,7 +1337,7 @@ function goToStep(n) {
   for (let i = 1; i <= 4; i++) {
     document.getElementById(`wiz-step-${i}`).style.display = i === n ? '' : 'none';
   }
-  if (n === 1) { _loadWishlist().then(renderStep1); }
+  if (n === 1) { Promise.all([_loadWishlist(), _loadPurchases()]).then(renderStep1); }
   else if (n === 4) renderStep4();
 }
 
@@ -1362,6 +1363,13 @@ async function _loadWishlist() {
   }
   const { data } = await getWishlist(user.id);
   _wishlistSet = new Set((data || []).map(r => r.garment_id));
+}
+
+async function _loadPurchases() {
+  const user = getCurrentUser();
+  if (!user) { _purchasedSet = new Set(); return; }
+  const { data } = await getPurchases(user.id);
+  _purchasedSet = new Set((data || []).map(p => p.garment_id));
 }
 
 async function _toggleWishlist(garmentId, heartBtn) {
@@ -1400,6 +1408,7 @@ function renderStep1() {
         ${cat.ids.map(id => {
           const g = GARMENTS[id];
           const wishlisted = _wishlistSet.has(id);
+          const owned = _purchasedSet.has(id);
           const price = PATTERN_PRICES[id];
           const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
           return `<button class="gmt-card" data-garment="${id}">
@@ -1410,7 +1419,7 @@ function renderStep1() {
               <div class="gmt-name">${g.name}</div>
               <div class="gmt-card-meta">
                 ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
-                ${dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
+                ${owned ? `<span class="gmt-owned-badge">Owned</span>` : dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
               </div>
             </div>
             <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
@@ -1458,7 +1467,7 @@ function renderStep1() {
           </button>`).join('')}
       </div>`;
     el.querySelectorAll('.cat-card').forEach(btn => {
-      btn.onclick = () => { selectedCategory = btn.dataset.cat; _loadWishlist().then(renderStep1); };
+      btn.onclick = () => { selectedCategory = btn.dataset.cat; Promise.all([_loadWishlist(), _loadPurchases()]).then(renderStep1); };
     });
   }
 }
