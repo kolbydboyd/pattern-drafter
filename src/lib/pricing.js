@@ -61,6 +61,8 @@ const GARMENT_TIERS = {
   'button-up-w':      'tailored',
   'shirt-dress-w':    'tailored',
   'wrap-dress-w':     'tailored',
+  'athletic-formal-jacket':   'tailored',
+  'athletic-formal-trousers': 'core',
 };
 
 // Garment display labels (used in checkout, emails, UI)
@@ -96,6 +98,8 @@ const GARMENT_LABELS = {
   'circle-skirt-w':     'Circle Skirt',
   'pencil-skirt-w':     'Pencil Skirt',
   'leggings':           'Leggings',
+  'athletic-formal-jacket':   'Athletic Formal Jacket',
+  'athletic-formal-trousers': 'Athletic Formal Trousers',
 };
 
 // ── Per-garment lookup (backward-compatible with existing consumers) ──────────

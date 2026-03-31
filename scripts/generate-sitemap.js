@@ -15,10 +15,11 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const GARMENT_IDS = [
   'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts',
   'straight-jeans', 'baggy-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
-  'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket',
+  'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
   'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
   'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
   'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
+  'athletic-formal-jacket', 'athletic-formal-trousers',
 ];
 
 // ── Article slugs (must match src/content/articles.js) ───────────────────────

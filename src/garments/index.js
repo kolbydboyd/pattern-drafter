@@ -34,6 +34,8 @@ import tankTop           from './tank-top.js';
 import circleSkirtW      from './circle-skirt-w.js';
 import pencilSkirtW      from './pencil-skirt-w.js';
 import leggings          from './leggings.js';
+import athleticFormalJacket   from './athletic-formal-jacket.js';
+import athleticFormalTrousers from './athletic-formal-trousers.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -67,6 +69,8 @@ const GARMENTS = {
   'circle-skirt-w':       circleSkirtW,
   'pencil-skirt-w':       pencilSkirtW,
   'leggings':             leggings,
+  'athletic-formal-jacket':   athleticFormalJacket,
+  'athletic-formal-trousers': athleticFormalTrousers,
 };
 
 export default GARMENTS;
