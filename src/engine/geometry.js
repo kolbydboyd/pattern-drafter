@@ -102,6 +102,29 @@ export function arcLength(pts) {
 }
 
 /**
+ * Walk a polyline from pts[0] and return the interpolated point at targetLen arc distance.
+ * Clamps to pts[last] if targetLen exceeds total arc length.
+ * @param {Array<{x,y}>} pts
+ * @param {number} targetLen
+ * @returns {{x, y}}
+ */
+export function ptAtArcLen(pts, targetLen) {
+  let walked = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = dist(pts[i - 1], pts[i]);
+    if (walked + d >= targetLen) {
+      const t = (targetLen - walked) / d;
+      return {
+        x: pts[i - 1].x + t * (pts[i].x - pts[i - 1].x),
+        y: pts[i - 1].y + t * (pts[i].y - pts[i - 1].y),
+      };
+    }
+    walked += d;
+  }
+  return { ...pts[pts.length - 1] };
+}
+
+/**
  * Generate crotch curve control points for pants/shorts
  * @param {number} ox - x origin (center seam top)
  * @param {number} oy - y origin (waist)
