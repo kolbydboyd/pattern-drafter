@@ -298,14 +298,17 @@ export default {
     // frontCapPtsRev[0] = capPts[last] = (capW, 0). So x counts toward crown (decreasing).
     // ptAtArcLen returns in the reversed pts frame: need no extra transform since we just use coords.
 
+    // capPts local frame has y=0 at underarms and y=-capHeight at crown.
+    // Sleeve polygon shifts all capPts by +capHeight, so polygon frame = local y + capHeight.
+    // Notch coords from ptAtArcLen are in local frame → add capHeight for polygon frame.
     const sleeveNotches = [
-      // Crown = shoulder seam alignment (center cap)
+      // Crown = shoulder seam alignment (top center cap, y=0 in polygon frame)
       { x: capW / 2, y: 0, angle: -90 },
-      // Back cap double notch (~3.25″ arc from back underarm)
-      { x: backCapNotch1.x, y: backCapNotch1.y, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
-      { x: backCapNotch2.x, y: backCapNotch2.y, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      // Back cap double notch (~3.25″ arc from back underarm) — local y + capHeight = polygon y
+      { x: backCapNotch1.x, y: backCapNotch1.y + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      { x: backCapNotch2.x, y: backCapNotch2.y + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
       // Front cap single notch (~3.25″ arc from front underarm)
-      { x: frontCapNotch.x, y: frontCapNotch.y, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
+      { x: frontCapNotch.x, y: frontCapNotch.y + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
     ];
 
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
