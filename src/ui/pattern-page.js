@@ -6,6 +6,10 @@ import { PATTERN_PRICES } from '../lib/pricing.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
+let _wishlistSet = new Set();
+let _purchasedSet = new Set();
+let _currentUser = null;
+
 // ── Dark-mode (shared with other pages) ──────────────────────────────────────
 const THEME_KEY = 'pp-theme';
 const savedTheme = localStorage.getItem(THEME_KEY);
@@ -232,8 +236,64 @@ root.innerHTML = `
 })();
 
 // ── Pattern listing (no garment ID given) ─────────────────────────────────────
-function renderPatternListing() {
+
+async function _loadUserData() {
+  try {
+    const { getUser } = await import('../lib/auth.js');
+    const { getWishlist, getPurchases } = await import('../lib/db.js');
+    const { user } = await getUser();
+    _currentUser = user || null;
+    if (_currentUser) {
+      const [wishRes, purchRes] = await Promise.all([
+        getWishlist(_currentUser.id),
+        getPurchases(_currentUser.id),
+      ]);
+      _wishlistSet = new Set((wishRes.data || []).map(r => r.garment_id));
+      _purchasedSet = new Set((purchRes.data || []).map(p => p.garment_id));
+      return;
+    }
+  } catch { _currentUser = null; }
+  // Guest or error fallback
+  try {
+    const stored = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    _wishlistSet = new Set(stored);
+  } catch { _wishlistSet = new Set(); }
+  _purchasedSet = new Set();
+}
+
+async function _toggleWishlist(garmentId, heartBtn) {
+  const isOn = _wishlistSet.has(garmentId);
+  if (_currentUser) {
+    const { addToWishlist, removeFromWishlist } = await import('../lib/db.js');
+    if (isOn) {
+      await removeFromWishlist(_currentUser.id, garmentId);
+      _wishlistSet.delete(garmentId);
+    } else {
+      await addToWishlist(_currentUser.id, garmentId);
+      _wishlistSet.add(garmentId);
+    }
+  } else {
+    if (isOn) { _wishlistSet.delete(garmentId); }
+    else      { _wishlistSet.add(garmentId); }
+    localStorage.setItem('wishlist', JSON.stringify([..._wishlistSet]));
+  }
+  heartBtn.classList.toggle('gmt-heart--on', _wishlistSet.has(garmentId));
+  heartBtn.setAttribute('aria-pressed', String(_wishlistSet.has(garmentId)));
+}
+
+function _attachHeartHandlers(container) {
+  container.querySelectorAll('.gmt-heart').forEach(hBtn => {
+    hBtn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      _toggleWishlist(hBtn.dataset.garment, hBtn);
+    });
+  });
+}
+
+async function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
+  await _loadUserData();
   const allGarments = Object.values(GARMENTS);
 
   function isWomenswear(g) { return g.id.endsWith('-w'); }
@@ -241,13 +301,16 @@ function renderPatternListing() {
   function buildCards(list) {
     return list.map(g => {
       const p = PATTERN_PRICES[g.id];
+      const wishlisted = _wishlistSet.has(g.id);
+      const owned = _purchasedSet.has(g.id);
       return `
         <a href="/patterns/${g.id}" class="pat-pg-listing-card">
           <div class="pat-pg-listing-name">${g.name}</div>
           <div class="pat-pg-listing-meta">
             <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
-            ${p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
+            ${owned ? `<span class="pat-pg-owned-badge">Owned</span>` : p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
           </div>
+          <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${g.id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
         </a>`;
     }).join('');
   }
@@ -263,6 +326,8 @@ function renderPatternListing() {
       <div class="pat-pg-listing-grid" id="pat-listing-grid">${buildCards(allGarments)}</div>
     </div>`;
 
+  _attachHeartHandlers(root);
+
   root.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       root.querySelectorAll('.filter-tab').forEach(b => {
@@ -275,7 +340,9 @@ function renderPatternListing() {
       const filtered = filter === 'all' ? allGarments
         : filter === 'womenswear' ? allGarments.filter(isWomenswear)
         : allGarments.filter(g => !isWomenswear(g));
-      document.getElementById('pat-listing-grid').innerHTML = buildCards(filtered);
+      const grid = document.getElementById('pat-listing-grid');
+      grid.innerHTML = buildCards(filtered);
+      _attachHeartHandlers(grid);
     });
   });
 }
