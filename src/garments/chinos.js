@@ -17,7 +17,7 @@ export default {
   id: 'chinos',
   name: 'Chinos',
   category: 'lower',
-  difficulty: 'advanced',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 31 },

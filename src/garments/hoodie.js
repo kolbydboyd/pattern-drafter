@@ -18,7 +18,7 @@ export default {
   id: 'hoodie',
   name: 'Hoodie',
   category: 'upper',
-  difficulty: 'intermediate',
+  difficulty: 'advanced',
   priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 25 },

@@ -27,7 +27,7 @@ export default {
   id: 'camp-shirt',
   name: 'Camp Shirt',
   category: 'upper',
-  difficulty: 'advanced',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
