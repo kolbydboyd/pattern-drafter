@@ -10,6 +10,7 @@ import {
   getDaysUntilDeletion,
   getWishlist, removeFromWishlist,
   getSubscription, getTotalCredits,
+  logMeasurementDelta,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -184,6 +185,14 @@ async function _renderMeasurements(main, user) {
     const name = nameInput?.value.trim();
     if (!name) { nameInput?.focus(); return; }
 
+    // Check for duplicate name among active and archived profiles
+    const allProfiles = [...active, ...archived];
+    if (allProfiles.some(p => p.name === name)) {
+      alert(`A profile named "${name}" already exists. Please choose a different name.`);
+      nameInput.focus(); nameInput.select();
+      return;
+    }
+
     const btn = document.getElementById('acct-add-profile-btn');
     const orig = btn.textContent;
     btn.disabled = true;
@@ -255,6 +264,18 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
   overlay.querySelector('#edit-prof-save').addEventListener('click', async () => {
     const name = overlay.querySelector('#edit-profile-name').value.trim();
     if (!name) { overlay.querySelector('#edit-profile-name').focus(); return; }
+
+    // Check for duplicate name if renamed (exclude this profile)
+    if (name !== currentName) {
+      const { data: allProfiles } = await getMeasurementProfiles(user.id);
+      const dup = (allProfiles || []).find(p => p.name === name && p.id !== profileId);
+      if (dup) {
+        alert(`A profile named "${name}" already exists. Please choose a different name.`);
+        overlay.querySelector('#edit-profile-name').focus();
+        return;
+      }
+    }
+
     const newMeas = { ...currentMeas };
     overlay.querySelectorAll('.acct-edit-meas').forEach(el => {
       const v = parseFloat(el.value);
@@ -275,6 +296,21 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
     }
     saveBtn.disabled = false; saveBtn.textContent = 'Save';
     if (error) { alert('Could not save: ' + error.message); return; }
+
+    // Log measurement deltas for data tracking
+    if (measChanged) {
+      const deltas = {};
+      const allKeys = new Set([...Object.keys(currentMeas), ...Object.keys(newMeas)]);
+      for (const k of allKeys) {
+        const o = currentMeas[k] ?? null;
+        const n = newMeas[k] ?? null;
+        if (o !== n) deltas[k] = { old: o, new: n };
+      }
+      if (Object.keys(deltas).length) {
+        logMeasurementDelta(user.id, profileId, deltas);
+      }
+    }
+
     close();
 
     if (measChanged) {
@@ -473,7 +509,14 @@ async function _renderPatterns(main, user, tab = 'active') {
           a0.href = json.a0DownloadUrl; a0.download = `${garmentId}-pattern-a0.pdf`;
           document.body.appendChild(a0); a0.click(); a0.remove();
         }, 800);
-        _showToast('Letter PDF + A0 copy-shop file downloading');
+        if (json.projectorDownloadUrl) {
+          setTimeout(() => {
+            const pj = document.createElement('a');
+            pj.href = json.projectorDownloadUrl; pj.download = `${garmentId}-pattern-projector.pdf`;
+            document.body.appendChild(pj); pj.click(); pj.remove();
+          }, 1600);
+        }
+        _showToast('Letter PDF + A0 + projector files downloading');
       } else {
         _showToast('Download started');
       }
@@ -506,6 +549,29 @@ async function _renderPatterns(main, user, tab = 'active') {
       const meas  = JSON.parse(card?.dataset.measurements || '{}');
       const profName = card?.dataset.profileName || '';
       _showRegenModal(user, garmentId, purchaseId, meas, profName, () => _renderPatterns(main, user, tab));
+    });
+  });
+
+  // A0 upsell button
+  main.querySelectorAll('.pat-a0-upsell-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = 'Redirecting\u2026';
+      try {
+        const { session } = await getSession();
+        const res = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: btn.dataset.purchaseId, userId: user.id }),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) { _showToast(json.error || 'Checkout failed'); btn.disabled = false; btn.textContent = 'Add A0 (+$4)'; return; }
+        window.location.href = json.url;
+      } catch {
+        _showToast('Could not start checkout. Try again.');
+        btn.disabled = false;
+        btn.textContent = 'Add A0 (+$4)';
+      }
     });
   });
 
@@ -671,8 +737,12 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         ? `<button class="acct-btn-xs pat-feedback-btn pat-feedback-done" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">Fit: submitted ✓</button>`
         : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
       : '';
+    const a0Btn = !p.a0_addon
+      ? `<button class="acct-btn-xs pat-a0-upsell-btn" data-purchase-id="${p.id}">Add A0 (+$4)</button>`
+      : '';
     actionHtml = `
       <button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>
+      ${a0Btn}
       <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>
       ${fbBtn}
       <div class="pat-overflow-wrap">
@@ -868,10 +938,10 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
 // ── Fit Feedback modal ────────────────────────────────────────────────────────
 function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
   const OVERALL_OPTS = [
-    { value: 'perfect',          label: 'Perfect - no changes needed' },
-    { value: 'good',             label: 'Good - minor tweaks only' },
-    { value: 'needs_adjustment', label: 'Needs adjustment - a few areas off' },
-    { value: 'poor',             label: 'Poor - significant fitting issues' },
+    { value: 'perfect',          label: 'Perfect, no changes needed' },
+    { value: 'good',             label: 'Good, minor tweaks only' },
+    { value: 'needs_adjustment', label: 'Needs adjustment, a few areas off' },
+    { value: 'poor',             label: 'Poor, significant fitting issues' },
   ];
   const AREA_OPTS = [
     { key: 'chest_fit',  label: 'Chest'    },
@@ -1100,8 +1170,8 @@ async function _renderSubscription(main, user) {
       ${canceledNote}
       <p style="font-size:.9rem;margin:0 0 12px">Subscribe for monthly pattern credits at the best per-pattern price.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="acct-btn" id="acct-sub-club">Club — $12/mo (1 credit)</button>
-        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe — $24/mo (3 credits)</button>
+        <button class="acct-btn" id="acct-sub-club">Club · $12/mo (1 credit)</button>
+        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe · $24/mo (3 credits)</button>
       </div>
     </div>`;
   }
@@ -1111,8 +1181,8 @@ async function _renderSubscription(main, user) {
     <p style="font-size:.9rem;font-weight:600;margin:0 0 8px">Buy a bundle</p>
     <p style="font-size:.85rem;color:var(--muted,#8a857d);margin:0 0 12px">Credits never expire. Use on any pattern, any tier.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule — $29</button>
-      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe — $49</button>
+      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule · $29</button>
+      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe · $49</button>
     </div>
   </div>`;
 

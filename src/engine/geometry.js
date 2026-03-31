@@ -102,6 +102,29 @@ export function arcLength(pts) {
 }
 
 /**
+ * Walk a polyline from pts[0] and return the interpolated point at targetLen arc distance.
+ * Clamps to pts[last] if targetLen exceeds total arc length.
+ * @param {Array<{x,y}>} pts
+ * @param {number} targetLen
+ * @returns {{x, y}}
+ */
+export function ptAtArcLen(pts, targetLen) {
+  let walked = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = dist(pts[i - 1], pts[i]);
+    if (walked + d >= targetLen) {
+      const t = (targetLen - walked) / d;
+      return {
+        x: pts[i - 1].x + t * (pts[i].x - pts[i - 1].x),
+        y: pts[i - 1].y + t * (pts[i].y - pts[i - 1].y),
+      };
+    }
+    walked += d;
+  }
+  return { ...pts[pts.length - 1] };
+}
+
+/**
  * Generate crotch curve control points for pants/shorts
  * @param {number} ox - x origin (center seam top)
  * @param {number} oy - y origin (waist)
@@ -405,10 +428,11 @@ export const LEG_SHAPES = {
  * @type {Object.<string, number>}
  */
 export const EASE_VALUES = {
-  slim: 1.5,
-  regular: 2.5,
-  relaxed: 4,
-  wide: 6,
+  // Minimum 4 inches ease at hip for woven fabrics. Slim fit only appropriate for stretch fabrics.
+  slim: 2.5,
+  regular: 4,
+  relaxed: 6,
+  wide: 8,
 };
 
 /**
@@ -439,4 +463,84 @@ export function edgeAngle(a, b) {
   const dx = b.x - a.x, dy = b.y - a.y;
   // Perpendicular pointing right of travel direction (outward for CW winding)
   return Math.atan2(dx, -dy) * (180 / Math.PI);
+}
+
+// ── Slant pocket piece builders ─────────────────────────────────────────────
+
+/**
+ * Build a slant pocket bag as a shaped piece with polygon + edgeAllowances.
+ * Shape: angled top matching slash line, straight sides, gentle convex bottom.
+ * Returns a piece object compatible with the bodice/sleeve renderer.
+ *
+ * @param {{ width?: number, height?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSlantPocketBag({ width = 7, height = 10.5, sa = 0.625, instruction = '' } = {}) {
+  const slantDrop = 2; // top-left is 2" lower than top-right (slash angle)
+  // Bottom curve: gentle convex arc from (width, height) to (0, height)
+  const curveDepth = 0.5;
+  const bottomPts = sampleBezier(
+    { x: width, y: height },
+    { x: width * 0.65, y: height + curveDepth },
+    { x: width * 0.35, y: height + curveDepth },
+    { x: 0, y: height },
+    16,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  // CW polygon: top-left → top-right → bottom-right → (curve) → bottom-left → back up
+  const polygon = [
+    { x: 0, y: slantDrop },          // top-left (lower due to slash angle)
+    { x: width, y: 0 },              // top-right (waist level)
+    ...bottomPts,                     // right-to-left curved bottom
+    // closes back to top-left
+  ];
+
+  return {
+    id: 'slant-bag',
+    name: 'Slant Pocket Bag',
+    instruction: instruction || `Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK`,
+    polygon,
+    sa,
+    hem: sa,
+    width,
+    height: height + curveDepth,
+    type: 'bodice',
+    isCutOnFold: false,
+    dimensions: { width, height: height + curveDepth },
+  };
+}
+
+/**
+ * Build a slant pocket facing as a shaped piece matching the slash line contour.
+ * Shape: parallelogram — top/bottom edges follow the slash angle, ~2" wide strip.
+ * Returns a piece object compatible with the bodice/sleeve renderer.
+ *
+ * @param {{ width?: number, height?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSlantPocketFacing({ width = 2, height = 6, sa = 0.625, instruction = '' } = {}) {
+  // The facing is a strip that follows the slash line angle.
+  // Slash line runs from (panelWidth - 3.5, 0) to (panelWidth, 6) on the panel,
+  // giving an angle. The facing mirrors this: top is offset rightward.
+  const slantOffset = width * 0.5; // horizontal shift from slash angle
+
+  // CW polygon: a parallelogram following the slash angle
+  const polygon = [
+    { x: slantOffset, y: 0 },             // top-left (slash edge, upper)
+    { x: width + slantOffset, y: 0 },     // top-right
+    { x: width, y: height },              // bottom-right
+    { x: 0, y: height },                  // bottom-left (slash edge, lower)
+  ];
+
+  return {
+    id: 'slant-facing',
+    name: 'Slant Pocket Facing',
+    instruction: instruction || `Cut 2 (1 + 1 mirror) \xb7 Match to front slash`,
+    polygon,
+    sa,
+    hem: sa,
+    width: width + slantOffset,
+    height,
+    type: 'bodice',
+    isCutOnFold: false,
+    dimensions: { width: width + slantOffset, height },
+  };
 }

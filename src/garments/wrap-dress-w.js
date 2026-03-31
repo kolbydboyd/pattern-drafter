@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -173,18 +173,29 @@ export default {
     // Notch marks — front bodice
     const frontShoulderMidX = neckW + shoulderW / 2;
     const frontShoulderMidY = slopeDrop / 2;
+    // Arc-length armhole notches: single = front, double = back
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: frontW, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: frontW, y: armholeY }) },
-      { x: frontW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: frontW, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Notch marks — back bodice
     const backNotches = [
       { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backW, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backW, y: armholeY }) },
-      { x: backW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backW, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     // Skirt
@@ -237,7 +248,7 @@ export default {
       });
       return {
         id, name,
-        instruction: `Cut 1${isBack ? ' on fold (CB)' : ' - left and right fronts are mirror images'}${gatherNote}`,
+        instruction: `Cut 1${isBack ? ' on fold (CB)' : '. Left and right fronts are mirror images'}${gatherNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
         width: bb(poly).width, height: adjSkirtL, isBack, sa, hem,
         dims: [{ label: fmtInches(panelW) + ' panel width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
@@ -249,7 +260,7 @@ export default {
 
     const pieces = [
       {
-        id: 'bodice-front', name: 'Front Bodice (cut 2 - mirror)',
+        id: 'bodice-front', name: 'Front Bodice (cut 2, mirror)',
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(wrapExt)} wrap extension past CF · V-neck descends to bust level · Facing sewn along V-neckline edge`,
         type: 'bodice', polygon: frontBodicePoly, path: pp(frontBodicePoly),
         isCutOnFold: false,
@@ -265,7 +276,7 @@ export default {
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
         notches: backNotches,
       },
-      buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2 - mirror)', false),
+      buildSkirtPanel('skirt-front', 'Skirt Front Panel (cut 2, mirror)', false),
       buildSkirtPanel('skirt-back',  'Skirt Back Panel', true),
     ];
 
@@ -274,7 +285,7 @@ export default {
     pieces.push({
       id: 'v-neck-facing', name: 'V-Neckline Facing',
       instruction: `Cut 4 (2 per side, self + interfacing) · 2.5″ wide · Follows V from shoulder to apex · {understitch} and {press} to WS · Tack at shoulder seam`,
-      dimensions: { length: vFacingLen, width: 2.5 }, type: 'pocket',
+      dimensions: { length: vFacingLen, width: 2.5 }, type: 'pocket', sa,
     });
 
     // Self-fabric ties
@@ -282,7 +293,7 @@ export default {
     pieces.push({
       id: 'tie', name: 'Self-Fabric Tie',
       instruction: `Cut 4 (2 per side) · Each ${fmtInches(tieLen)} long × 2.5″ cut (1.25″ finished) · Fold in half lengthwise, sew, turn, {press} · Attach 2 at inner side seam (hidden tie) and 2 at outer side seam (visible bow)`,
-      dimensions: { length: tieLen, width: 2.5 }, type: 'pocket',
+      dimensions: { length: tieLen, width: 2.5 }, type: 'pocket', sa,
     });
 
     // Sleeve
@@ -309,7 +320,7 @@ export default {
         notches: sleeveNotches,
       });
     } else {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     }
 
     return pieces;
@@ -323,7 +334,7 @@ export default {
 
     return buildMaterialsSpec({
       fabrics: isKnit
-        ? ['jersey-cotton', 'jersey-modal', 'jersey-bamboo', 'ponte']
+        ? ['cotton-jersey', 'cotton-modal', 'bamboo-jersey', 'ponte']
         : ['rayon-challis', 'crepe', 'viscose', 'cotton-lawn', 'silk-charmeuse'],
       notions,
       thread: 'poly-all',
@@ -332,12 +343,12 @@ export default {
         ? ['stretch', 'overlock', 'zigzag-med']
         : ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Cut front panels as mirror images - lay fabric doubled for one cut',
+        'Cut front panels as mirror images. Lay fabric doubled for one cut',
         'Stay-stitch V-neckline curves and waist seam immediately after cutting to prevent bias stretch',
         opts.skirtShape === 'flowy' ? 'Gather skirt waist: two rows of basting at ⅜″ and ¼″, draw up to match bodice width, distribute fullness evenly' : 'A-line skirt: {press} side seams open for a clean silhouette',
-        'Ties: attach inner tie to bodice facing, outer tie to side seam - the inner tie passes through a small opening at the side seam to tie at the back',
-        isKnit ? 'Use a stretch stitch or serger for all seams - straight stitch will pop when fabric stretches' : 'French seams at side seams are worth the effort on fine drapey fabrics',
-        'Hang dress 24 hours before hemming - drapey wovens and bias cuts will drop',
+        'Ties: attach inner tie to bodice facing, outer tie to side seam. The inner tie passes through a small opening at the side seam to tie at the back',
+        isKnit ? 'Use a stretch stitch or serger for all seams; straight stitch will pop when fabric stretches' : 'French seams at side seams are worth the effort on fine drapey fabrics',
+        'Hang dress 24 hours before hemming. Drapey wovens and bias cuts will drop',
       ].filter(Boolean),
     });
   },
@@ -348,7 +359,7 @@ export default {
 
     steps.push({ step: n++, title: 'Stay-stitch and prepare', detail: 'Stay-stitch V-neckline at ½″ on both front panels. Stay-stitch waist edges. For wovens: {press}-mark CF fold line on front panels.' });
     steps.push({ step: n++, title: 'Sew bodice shoulder seams', detail: 'Join front to back at shoulders {RST}. {press} toward back.' });
-    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. {clip} at V point - nearly to stitching. {understitch}. {press} facing to WS. Tack at shoulder seams.' });
+    steps.push({ step: n++, title: 'Attach V-neckline facing', detail: 'Interface facing pieces. Sew facing to neckline V {RST}, matching shoulder seams. {clip} at V point, nearly to stitching. {understitch}. {press} facing to WS. Tack at shoulder seams.' });
 
     if (opts.sleeve !== 'sleeveless') {
       steps.push({ step: n++, title: 'Set sleeves', detail: 'Pin sleeve cap to armhole center at shoulder seam. Sew {RST}. {press} SA toward sleeve. {serge} or {zigzag}.' });

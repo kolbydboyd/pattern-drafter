@@ -1,10 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M70,44 L80,60 L90,44"/>
-  <path d="M70,44 L50,52 L46,90 L56,90 L54,170 L106,170 L104,90 L114,90 L110,52 L90,44"/>
-  <line x1="80" y1="60" x2="80" y2="170"/>
-  <circle cx="80" cy="80" r="2"/>
-  <circle cx="80" cy="98" r="2"/>
-  <circle cx="80" cy="116" r="2"/>
-  <rect x="56" y="80" width="18" height="16" rx="1"/>
+  <!-- camp/notch collar -->
+  <path d="M66,40 L66,54 L74,46 L80,54 L86,46 L94,54 L94,40"/>
+  <path d="M66,40 Q80,34 94,40"/>
+  <!-- body + short sleeves -->
+  <path d="M66,54 L44,62 L40,98 L54,98 L54,170 L106,170 L106,98 L120,98 L116,62 L94,54"/>
+  <!-- button placket -->
+  <line x1="80" y1="54" x2="80" y2="170"/>
+  <!-- buttons -->
+  <circle cx="80" cy="72" r="2"/>
+  <circle cx="80" cy="92" r="2"/>
+  <circle cx="80" cy="112" r="2"/>
+  <circle cx="80" cy="132" r="2"/>
+  <circle cx="80" cy="152" r="2"/>
+  <!-- chest pocket -->
+  <rect x="56" y="76" width="18" height="14" rx="1"/>
+  <!-- straight boxy hem -->
+  <line x1="54" y1="170" x2="106" y2="170"/>
 </svg>

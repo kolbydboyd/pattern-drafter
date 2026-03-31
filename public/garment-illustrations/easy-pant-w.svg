@@ -1,6 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
-  <path d="M48,42 Q80,46 112,42"/>
-  <path d="M44,50 L42,190 L76,190 L80,90 L84,190 L118,190 L116,50"/>
+  <!-- elastic waistband (no belt loops, curved) -->
+  <path d="M44,40 L116,40 L116,52 L44,52 Z"/>
+  <path d="M54,40 Q80,46 106,40"/>
+  <!-- wide relaxed legs, ankle-crop length (shorter) -->
+  <path d="M44,52 L40,172 L76,172 L80,90 L84,172 L120,172 L116,52"/>
+  <line x1="80" y1="52" x2="80" y2="90"/>
+  <!-- curved side-seam pocket openings -->
+  <path d="M48,54 Q56,70 48,82"/>
+  <path d="M112,54 Q104,70 112,82"/>
+  <!-- relaxed/flowy drape lines -->
+  <path d="M56,120 Q58,140 54,172" stroke-dasharray="5 4"/>
+  <path d="M104,120 Q102,140 106,172" stroke-dasharray="5 4"/>
 </svg>

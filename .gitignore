@@ -6,9 +6,14 @@ dist/
 .env.local
 .env.*.local
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # External reference codebases
 freesewing-develop/
+freesewing-develop.zip
 
 # Internal assets — not for repo
 brand-kit/
 strategy/
+peoples-patterns-brand-kit/

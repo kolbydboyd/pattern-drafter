@@ -93,7 +93,7 @@ export const ARTICLES = [
   {
     slug:        'how-to-print-tiled-pdf-pattern',
     title:       'How to Print and Assemble a Tiled PDF Sewing Pattern at Home',
-    description: 'Complete guide to printing a tiled PDF sewing pattern on your home printer. Learn how to set print settings, verify scale, cut and align tiles, and assemble pages. Includes the A0 copy shop alternative.',
+    description: 'Complete guide to printing a tiled PDF sewing pattern on your home printer. Learn how to set print settings, verify scale, cut and align tiles, and assemble pages. Includes the A0 copy shop and projector alternative.',
     category:    'printing',
     youtubeId:   null,
     datePublished: '2026-03-28',
@@ -139,7 +139,7 @@ export const ARTICLES = [
 <h2>Step 3: Print All Pattern Pages</h2>
 <p>Once scale is verified, print all the remaining pages in the PDF. A few tips:</p>
 <ul>
-  <li>Double-sided printing is fine if your printer supports it. The pattern content is only on one side, so printing on both sides just saves paper without affecting anything.</li>
+  <li>Print single-sided only. You will be taping tiles together and cutting through the paper, so ink on the back side creates confusion and makes alignment harder.</li>
   <li>You do not need to print on heavy paper. Standard 20 lb copy paper works perfectly.</li>
   <li>If your printer occasionally jams or smudges, consider printing an extra copy of any pages that are hard to reprint later.</li>
 </ul>
@@ -170,10 +170,11 @@ export const ARTICLES = [
 <p>Before cutting into your fabric, we recommend tracing the pattern pieces onto pattern paper or tracing paper. This preserves the original so you can reuse it if your measurements change or if you want to make the same garment again later.</p>
 <p>Label each piece with the garment name, piece name (front panel, back panel, waistband, etc.), and the grainline direction. People's Patterns prints grainline arrows directly on each piece to make this easy.</p>
 
-<h2>The A0 Copy Shop Alternative: No Tiling Required</h2>
-<p>If you would rather skip the cutting and taping entirely, there is a faster option. People's Patterns offers an A0 / copy shop file with pattern downloads. This is a single large-format file designed to be printed on one big sheet (about 33 x 47 inches) at a copy shop or print center.</p>
+<h2>The A0 Copy Shop + Projector Alternative: No Tiling Required</h2>
+<p>If you would rather skip the cutting and taping entirely, there is a faster option. People's Patterns offers an optional A0 / copy shop + projector file that you can add to your pattern at checkout for $4. This is a single large-format file designed to be printed on one big sheet (about 33 x 47 inches) at a copy shop, or projected directly onto your fabric with a pattern projector.</p>
 <p>Places like FedEx Office, Staples, and most local print shops can handle A0 or wide-format printing. The typical cost is between $3 and $8 depending on your location and the shop's pricing.</p>
-<p>You walk in, hand them the file on a USB drive or send it from your phone, and walk out with a full-size pattern on a single sheet. No tiling, no taping, no alignment work. For sewists who make patterns regularly, this can be a real time saver.</p>
+<p>For copy shop printing, you walk in, hand them the file on a USB drive or send it from your phone, and walk out with a full-size pattern on a single sheet. No tiling, no taping, no alignment work.</p>
+<p>For projector sewing, open the file in your projector software (like ProjectorSewing or Calibrate), calibrate to your surface, and cut directly, no paper at all. For sewists who make patterns regularly, either option is a real time saver.</p>
 
 <h2>Common Tiled PDF Printing Mistakes and How to Fix Them</h2>
 
@@ -220,7 +221,7 @@ export const ARTICLES = [
 <p>Here is what that looks like in practice: the system knows that the front panel width should be your hip measurement divided by 4, plus a specific amount of ease. It knows that the crotch curve depth comes from your rise measurement minus a construction constant. It knows exactly how much to shape the armhole based on your chest and shoulder measurements.</p>
 <p>When you enter your measurements, the engine runs hundreds of these rules simultaneously. The output is a set of geometrically precise pattern pieces that are mathematically correct for your body.</p>
 <p>This is not something we invented. Parametric drafting is the same approach taught in fashion design schools and used by professional pattern-making software. People's Patterns makes it accessible to everyone directly through your browser. No software to install, no pattern-making experience required.</p>
-<p>Right now there are 23 garment modules in the system, covering tops, pants, shorts, skirts, dresses, and more. You can <a href="/patterns">browse the full pattern catalog here</a>.</p>
+<p>Right now there are {{GARMENT_COUNT}} garment modules in the system, covering tops, pants, shorts, skirts, dresses, and more. You can <a href="/patterns">browse the full pattern catalog here</a>.</p>
 
 <h2>What Does "Ease" Mean in Sewing Patterns?</h2>
 <p>If you are new to sewing, ease is one of the most important concepts to understand. Ease is the extra room added to a garment beyond your exact body measurements so that you can actually move, sit, and breathe comfortably.</p>
@@ -258,7 +259,7 @@ export const ARTICLES = [
 <p>Every pattern you download from People's Patterns includes everything you need to go from paper to finished garment:</p>
 <ul>
   <li><strong>Print-ready tiled PDF</strong> for US Letter and A4 paper</li>
-  <li><strong>A0 copy shop file</strong> for single-sheet large-format printing at any print center</li>
+  <li><strong>A0 copy shop + projector file</strong> (optional add-on, $4) for single-sheet large-format printing or projector sewing</li>
   <li><strong>Full materials list</strong> with recommended fabric types and yardage</li>
   <li><strong>Notions and thread guide</strong> so you know exactly what supplies to buy</li>
   <li><strong>Step-by-step construction instructions</strong> walking you through the build from start to finish</li>
@@ -305,7 +306,7 @@ export const ARTICLES = [
 <p>Yes. You can save multiple measurement profiles on your account, one for each person you sew for. Each profile generates its own custom pattern when you select it. This is great for parents sewing for kids, or anyone making garments as gifts.</p>
 
 <h3>What garments are available right now?</h3>
-<p>There are currently 23 garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly. <a href="/patterns">Browse the full catalog here.</a></p>
+<p>There are currently {{GARMENT_COUNT}} garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly. <a href="/patterns">Browse the full catalog here.</a></p>
 `,
   },
 ];

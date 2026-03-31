@@ -11,7 +11,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -35,7 +35,7 @@ export default {
     frontStyle: {
       type: 'select', label: 'Front opening',
       values: [
-        { value: 'pullover', label: 'Pullover - no zip'        },
+        { value: 'pullover', label: 'Pullover, no zip'        },
         { value: 'fullzip',  label: 'Full zip (split front)'  },
       ],
       default: 'pullover',
@@ -174,20 +174,39 @@ export default {
     sleevePoly.push({ x: 0, y: capHeight + slvLength });
 
     // ── HOOD PANELS ──────────────────────────────────────────────────────────
-    // Each panel is roughly a rectangle with a curved back seam.
-    // Width = head circumference / 3 + 1″ ease (estimated from neck × 1.45, min 22″)
-    // Height = head circumference / 2 + 2″ ease (estimated from neck × 1.45, min 22″)
+    // Two-panel hood construction per standard drafting:
+    //   Width  = head_circ / 3 + 1″ ease  (panel is roughly square for avg adult)
+    //   Height = head_circ / 2 + 2″ ease
+    //   Back seam curves inward (toward face) by ~0.5″ at 60% up from neckline —
+    //   this accommodates head roundness so the panels don't pull apart at the crown.
+    // Reference: Mueller & Sohn hood construction, Treasurie hood drafting guide.
     const headCircEst  = Math.max(m.neck * 1.45, 22); // anatomical head circ — neck × 1.45, floor at 22″
     const hoodH        = headCircEst / 2 + 2;
     const hoodW        = headCircEst / 3 + 1;
-    // Curved back seam: back of hood curves up ~1.5″ at top
-    const hoodPoly = [
-      { x: 0,      y: 0      }, // face opening top (CF)
-      { x: hoodW,  y: 0      }, // back top
-      { x: hoodW + 1.5, y: hoodH * 0.4 }, // back curve control point (approximated as polygon)
-      { x: hoodW,  y: hoodH  }, // back bottom
-      { x: 0,      y: hoodH  }, // face opening bottom (neck edge)
-    ];
+
+    // Curved back seam modeled as a Bézier:
+    //   p0 = back-top, p3 = back-bottom (neckline end)
+    //   Control points pull the seam inward (toward face opening, i.e. x decreases)
+    //   by ~0.5″ at the 60% point from top — matches standard inward concave arc.
+    const hoodBackCP = {
+      p0: { x: hoodW, y: 0 },                                      // back top
+      p1: { x: hoodW - 0.5, y: hoodH * 0.25 },                    // upper control
+      p2: { x: hoodW - 0.5, y: hoodH * 0.65 },                    // lower control
+      p3: { x: hoodW, y: hoodH },                                   // back bottom (neckline)
+    };
+    const hoodBackPts = sampleBezier(hoodBackCP.p0, hoodBackCP.p1, hoodBackCP.p2, hoodBackCP.p3, 12)
+      .map(p => ({ ...p, curve: true }));
+
+    // Build polygon: face-top → back curve (top→bottom) → face-bottom
+    const hoodPoly = [];
+    hoodPoly.push({ x: 0, y: 0 });       // face opening top (CF) — no curve tag (junction)
+    for (let i = 0; i < hoodBackPts.length; i++) {
+      const p = hoodBackPts[i];
+      // Remove curve tag at endpoints (junctions with straight face/neck edges)
+      if (i === 0 || i === hoodBackPts.length - 1) hoodPoly.push({ x: p.x, y: p.y });
+      else hoodPoly.push(p);
+    }
+    hoodPoly.push({ x: 0, y: hoodH });   // face opening bottom (neck edge) — no curve tag
 
     // ── RIB TRIM ─────────────────────────────────────────────────────────────
     const hemCirc = (frontW + backW) * 2;
@@ -195,28 +214,101 @@ export default {
     const cuffLen = slvWidth * 2 * 0.85;
 
     // ── NOTCH MARKS ─────────────────────────────────────────────────────────
+    // Industry convention: single notch = front, double notch = back.
+    // Notches are placed by arc-length along each curve (~3.25″ from underarm),
+    // matching positions on sleeve cap so they align when the cap is eased in.
+    // Reference: Fashion-Incubator notch maps, Dresspatternmaking sleeve cap guide.
+
     const shoulderMidX = neckW + shoulderW / 2;
     const shoulderMidY = slopeDrop / 2;
+
+    // Arc-length walk helper: find point at target arc-length from the START of pts array
+    function ptAtArcLen(pts, targetLen) {
+      let walked = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const d = dist(pts[i - 1], pts[i]);
+        if (walked + d >= targetLen) {
+          const t = (targetLen - walked) / d;
+          return {
+            x: pts[i - 1].x + t * (pts[i].x - pts[i - 1].x),
+            y: pts[i - 1].y + t * (pts[i].y - pts[i - 1].y),
+          };
+        }
+        walked += d;
+      }
+      return pts[pts.length - 1]; // clamp to end
+    }
+
+    // Front armhole pts go shoulder→underarm (p0→p3 direction in armholeCurve).
+    // We want arc-length FROM UNDERARM, so reverse the array.
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+
+    // Single front notch: ~3.25″ arc from underarm along front armhole
+    const FRONT_NOTCH_ARC = 3.25;
+    const frontNotchPt = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    // Double back notch: ~3.25″ arc from underarm along back armhole, spaced 0.25″ apart
+    const BACK_NOTCH_ARC  = 3.25;
+    const backNotch1Pt = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+
+    // Transform armhole pts from local bezier frame to bodice polygon frame.
+    // frontArmPts local origin = shoulderPt = (shoulderPtX, shoulderPtY) on bodice.
+    // frontArmPtsRev[0] = underarm (chestDepth, armholeDepth) in local frame → (sideX, armholeY+shoulderPtY) on bodice.
+    // The sampleBezier pts already have the local x/y. We need to add the offset.
+    const fArmOffset = { x: shoulderPtX, y: shoulderPtY };
+    const frontNotchBodice = { x: frontNotchPt.x + fArmOffset.x, y: frontNotchPt.y + fArmOffset.y };
+    const backNotch1Bodice = { x: backNotch1Pt.x + fArmOffset.x, y: backNotch1Pt.y + fArmOffset.y };
+    const backNotch2Bodice = { x: backNotch2Pt.x + fArmOffset.x, y: backNotch2Pt.y + fArmOffset.y };
 
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: sideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      // Single notch (front convention) at ~3.25″ arc from underarm
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
 
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
-      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      // Double notch (back convention) at ~3.25″ arc from underarm, spaced 0.25″ apart
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
+    // ── Sleeve cap notches matched by arc-length to armhole notches ──────────
+    // capPts run back-underarm (x=0) → crown (x=capW/2) → front-underarm (x=capW).
+    // Front cap = right half (crown→front-underarm), Back cap = left half (crown→back-underarm).
     const capW = slvWidth * 2;
+    const capPtsLocal = capPts.map(p => ({ x: p.x + capW / 2, y: p.y + capHeight })); // shift to polygon frame
+    // Actually capPts are in local frame with p0=(0,0)=back-underarm, p3=(capW,0)=front-underarm.
+    // The polygon offsets by (0, capHeight) when building sleevePoly.
+    // For arc-length, use the raw capPts.
+
+    // Back half: pts from back-underarm (index 0) toward crown
+    const capMidIdx = Math.floor(capPts.length / 2);
+    const backCapPts = capPts.slice(0, capMidIdx + 1); // back-underarm → crown
+    // Front half: pts from front-underarm toward crown (reversed so we walk from underarm)
+    const frontCapPtsRev = [...capPts.slice(capMidIdx)].reverse(); // front-underarm → crown
+
+    const backCapNotch1 = ptAtArcLen(backCapPts, BACK_NOTCH_ARC);
+    const backCapNotch2 = ptAtArcLen(backCapPts, BACK_NOTCH_ARC + 0.25);
+    const frontCapNotch = ptAtArcLen(frontCapPtsRev, FRONT_NOTCH_ARC);
+    // Translate frontCapNotch back to forward direction (it's from the reversed array)
+    // frontCapPtsRev[0] = capPts[last] = (capW, 0). So x counts toward crown (decreasing).
+    // ptAtArcLen returns in the reversed pts frame: need no extra transform since we just use coords.
+
+    // capPts local frame has y=0 at underarms and y=-capHeight at crown.
+    // Sleeve polygon shifts all capPts by +capHeight, so polygon frame = local y + capHeight.
+    // Notch coords from ptAtArcLen are in local frame → add capHeight for polygon frame.
     const sleeveNotches = [
+      // Crown = shoulder seam alignment (top center cap, y=0 in polygon frame)
       { x: capW / 2, y: 0, angle: -90 },
-      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
-      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
+      // Back cap double notch (~3.25″ arc from back underarm) — local y + capHeight = polygon y
+      { x: backCapNotch1.x, y: backCapNotch1.y + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      { x: backCapNotch2.x, y: backCapNotch2.y + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      // Front cap single notch (~3.25″ arc from front underarm)
+      { x: frontCapNotch.x, y: frontCapNotch.y + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
     ];
 
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
@@ -308,13 +400,46 @@ export default {
           { label: fmtInches(hoodH) + ' height', x: hoodW + 2, y1: 0, y2: hoodH, type: 'v' },
         ],
       },
-      {
-        id: 'kangaroo-pocket',
-        name: 'Kangaroo Pocket',
-        instruction: 'Cut 1 · Center on front bodice at waist level · Round bottom corners (2″ radius) · {topstitch} sides and bottom',
-        type: 'pocket',
-        dimensions: { width: 10, height: 7 },
-      },
+      // Kangaroo pocket: hexagonal shape — flat bottom, short vertical sides, diagonal hand openings.
+      // Shape: bottom-left → bottom-right → right side up to openH → diagonal to top (openW from right)
+      //        → top middle → diagonal to left side (openW from left) → left side down → close.
+      // Reference: BERNINA kangaroo pocket drafting, KT's Slow Closet tutorial.
+      (() => {
+        // Scale width to roughly span hip-to-hip (≈1.3× half-front panel, capped 10–14″)
+        const kW = Math.min(14, Math.max(10, Math.round(frontW * 1.3 * 2) / 2));
+        const kH = 8;             // standard hoodie pocket height
+        const openW = 3.25;       // diagonal opening: 3.25″ in from each top corner
+        const openH = 3.5;        // diagonal opening: 3.5″ up from bottom on each side
+
+        // Build hexagonal polygon CW: bottom-left → bottom-right → right opening → top → left opening → close
+        const poly = [];
+        poly.push({ x: 0,         y: kH });           // bottom-left
+        poly.push({ x: kW,        y: kH });           // bottom-right
+        poly.push({ x: kW,        y: kH - openH });   // right side, openH up from bottom (opening base)
+        poly.push({ x: kW - openW, y: 0 });           // right opening top (openW in from top-right corner)
+        poly.push({ x: openW,     y: 0 });            // left opening top (openW in from top-left corner)
+        poly.push({ x: 0,         y: kH - openH });   // left side, openH up from bottom (opening base)
+
+        // polygon closes back to bottom-left
+
+        const bb = bbox(poly);
+        return {
+          id: 'kangaroo-pocket',
+          name: 'Kangaroo Pocket',
+          instruction: 'Cut 1 · Center on front bodice at waist level · Diagonal openings = hand entries · {topstitch} bottom and side edges · Bar tack top corners of openings',
+          type: 'bodice',
+          polygon: poly,
+          path: polyToPathStr(poly),
+          width: bb.maxX - bb.minX,
+          height: bb.maxY - bb.minY,
+          isCutOnFold: false,
+          sa, hem: 0.5,
+          dims: [
+            { label: fmtInches(kW) + ' width', x1: 0, y1: kH + 0.4, x2: kW, y2: kH + 0.4, type: 'h' },
+            { label: fmtInches(kH) + ' height', x: kW + 1, y1: 0, y2: kH, type: 'v' },
+          ],
+        };
+      })(),
       {
         id: 'waistband',
         name: 'Waistband (rib)',
@@ -341,6 +466,7 @@ export default {
         instruction: `Cut 2 (L & R) · 1″ wide × ${fmtInches(zipLength)} long · Interface · Sew to CF edges before attaching zipper`,
         type: 'pocket',
         dimensions: { width: 1, height: zipLength },
+        sa,
       });
     }
 
@@ -354,13 +480,13 @@ export default {
     const hoodH       = headCircEst / 2 + 2;
 
     const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs - high recovery 2×2 rib' },
+      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs (high recovery 2×2 rib)' },
       { name: 'Flat cord drawstring', quantity: '54″', notes: 'Cotton or poly flat cord, ¼″–⅜″ wide, with aglets' },
       { name: 'Grommets or eyelets', quantity: '2', notes: '¼″ grommets at CF hood opening for cord exits' },
     ];
 
     if (isFullZip) {
-      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper - runs hem to neckline only (not through hood)' });
+      notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper. Runs hem to neckline only (not through hood)' });
       notions.push({ ref: 'interfacing-light', quantity: '0.5 yard (zipper tape extensions)' });
     }
 
@@ -390,7 +516,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach kangaroo pocket',
-      detail: 'Round the two bottom corners of pocket (2″ radius). {serge} top edge, fold under ½″, {topstitch}. {press} remaining edges under ½″. Position centered on front body at waist level. {topstitch} on sides and bottom. Bar tack top corners.',
+      detail: '{serge} diagonal opening edges, fold under ½″, {topstitch}. {press} bottom and side edges under ½″. Position centered on front body at waist level. {topstitch} on sides and bottom. Bar tack top corners of openings.',
     });
 
     steps.push({
@@ -449,7 +575,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} lightly with low steam. Try on - hood should sit comfortably without pulling neckline down.',
+      detail: '{press} lightly with low steam. Try on. Hood should sit comfortably without pulling neckline down.',
     });
 
     return steps;

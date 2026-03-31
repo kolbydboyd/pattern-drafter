@@ -1,24 +1,18 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Pattern detail page — handles /patterns/[garment-id]
 
+import '../analytics.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+
+// Shared page functionality (theme, hamburger, logo, auth, analytics inject)
+import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
 let _wishlistSet = new Set();
 let _purchasedSet = new Set();
 let _currentUser = null;
-
-// ── Dark-mode (shared with other pages) ──────────────────────────────────────
-const THEME_KEY = 'pp-theme';
-const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-document.getElementById('theme-btn')?.addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
-});
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
@@ -134,6 +128,9 @@ const relatedCards = related.map(g => {
   const p = PATTERN_PRICES[g.id];
   return `
     <a href="/patterns/${g.id}" class="pat-pg-related-card">
+      <div class="pat-pg-listing-img">
+        <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+      </div>
       <div class="pat-pg-related-name">${g.name}</div>
       <div class="pat-pg-related-meta">
         <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
@@ -157,6 +154,7 @@ root.innerHTML = `
   <div class="pat-pg-hero">
     <div class="pat-pg-photo-wrap">
       <div class="pat-pg-photo-placeholder">
+        <img src="/garment-illustrations/${garmentId}.svg" alt="${garment.name} illustration" class="pat-pg-hero-illustration" width="160" height="200">
         <span class="pat-pg-photo-coming">Photos coming soon</span>
       </div>
     </div>
@@ -305,6 +303,9 @@ async function renderPatternListing() {
       const owned = _purchasedSet.has(g.id);
       return `
         <a href="/patterns/${g.id}" class="pat-pg-listing-card">
+          <div class="pat-pg-listing-img">
+            <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+          </div>
           <div class="pat-pg-listing-name">${g.name}</div>
           <div class="pat-pg-listing-meta">
             <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>

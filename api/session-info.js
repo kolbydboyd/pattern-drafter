@@ -80,6 +80,18 @@ export default async function handler(req, res) {
     });
   }
 
+  // ── A0 upgrade ─────────────────────────────────────────────────────────────
+  if (checkoutMode === 'a0_upgrade') {
+    return res.status(200).json({
+      checkoutMode: 'a0_upgrade',
+      purchaseId:   meta.purchaseId,
+      amountCents:  session.amount_total,
+      userId:       meta.userId || null,
+      sessionId:    session_id,
+      status:       session.payment_status,
+    });
+  }
+
   return res.status(200).json({
     checkoutMode,
     amountCents: session.amount_total,
