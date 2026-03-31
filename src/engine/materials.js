@@ -133,6 +133,7 @@ export const FABRIC_TYPES = {
   'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
   'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
   'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
+  'heavyweight-jersey':{ name: 'Heavyweight cotton jersey (12 oz)', weight: '10–14 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-shrunk 100% cotton single jersey; machine washable' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
   'fleece':           { name: 'Cotton or poly fleece', weight: '10–14 oz/yd²', stretch: true, category: 'knit' },
   'sweatshirt-fleece':{ name: 'Sweatshirt fleece', weight: '10–12 oz/yd²', stretch: true, category: 'knit' },
