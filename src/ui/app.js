@@ -12,7 +12,7 @@ import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks }
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
-import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
+import { initAuthModal, openAuthModal, getCurrentUser, onUserChange } from './auth-modal.js';
 import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
@@ -1177,6 +1177,19 @@ async function handlePrint(btn) {
   printPattern();
 }
 
+async function _blobDownload(url, filename) {
+  const r = await fetch(url);
+  const blob = await r.blob();
+  const obj = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = obj;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(obj);
+}
+
 async function handleDownloadPDF(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handleDownloadPDF(btn));
@@ -1217,33 +1230,15 @@ async function handleDownloadPDF(btn) {
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
       return;
     }
-    // Trigger tiled letter PDF download
-    const a  = document.createElement('a');
-    a.href   = json.downloadUrl;
-    a.download = `${currentGarment}-pattern.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    // Trigger tiled letter PDF download — fetch as blob so the download
+    // attribute works (it's ignored for cross-origin Supabase URLs otherwise)
+    await _blobDownload(json.downloadUrl, `${currentGarment}-pattern.pdf`);
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
     // If A0 addon was purchased, trigger A0 + projector downloads and show a notice
     if (json.a0DownloadUrl) {
-      setTimeout(() => {
-        const a0  = document.createElement('a');
-        a0.href   = json.a0DownloadUrl;
-        a0.download = `${currentGarment}-pattern-a0.pdf`;
-        document.body.appendChild(a0);
-        a0.click();
-        a0.remove();
-      }, 800);
+      setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
       if (json.projectorDownloadUrl) {
-        setTimeout(() => {
-          const pj  = document.createElement('a');
-          pj.href   = json.projectorDownloadUrl;
-          pj.download = `${currentGarment}-pattern-projector.pdf`;
-          document.body.appendChild(pj);
-          pj.click();
-          pj.remove();
-        }, 1600);
+        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), 1600);
       }
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
@@ -1505,6 +1500,23 @@ function buildMeasureStep() {
       }
     }).catch(() => {});
   }
+
+  // Clear profiles on sign-out (privacy: don't leave personal measurements in localStorage)
+  // Reload profiles from Supabase on sign-in
+  onUserChange(async (user) => {
+    if (!user) {
+      localStorage.removeItem(PROFILES_KEY);
+      _setActiveProfile(null, null);
+      refreshProfileDropdown();
+      return;
+    }
+    const { data: remoteProfiles } = await getMeasurementProfiles(user.id);
+    if (remoteProfiles?.length) {
+      const local = remoteProfiles.map(rp => ({ name: rp.name, measurements: rp.measurements }));
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+    }
+    refreshProfileDropdown();
+  });
 
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
