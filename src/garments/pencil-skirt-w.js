@@ -120,6 +120,7 @@ export default {
       const hipY = 7;
       const notches = [
         { x: hipW, y: hipY, angle: edgeAngle({ x: hipW, y: 0 }, { x: hipW - sideOffset, y: L }) },
+        ...(id === 'skirt-back' ? [{ x: hipW, y: hipY + 0.25, angle: edgeAngle({ x: hipW, y: 0 }, { x: hipW - sideOffset, y: L }) }] : []),
         { x: hipW / 2, y: 0, angle: -90 },
       ];
       if (dartCount === 2) {

@@ -122,6 +122,7 @@ export default {
       const notches = [
         // Hip level on side seam
         { x: sideHipX, y: hipY, angle: edgeAngle(poly[1], poly[2]) },
+        ...(isBack ? [{ x: sideHipX, y: hipY + 0.25, angle: edgeAngle(poly[1], poly[2]) }] : []),
         // CF/CB mark at waist center
         { x: flarePerSide + hipW / 2, y: 0, angle: -90 },
       ];
