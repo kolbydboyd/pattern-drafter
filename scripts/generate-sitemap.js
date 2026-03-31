@@ -20,6 +20,7 @@ const GARMENT_IDS = [
   'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
   'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
   'athletic-formal-jacket', 'athletic-formal-trousers',
+  'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
 ];
 
 // ── Article slugs (must match src/content/articles.js) ───────────────────────

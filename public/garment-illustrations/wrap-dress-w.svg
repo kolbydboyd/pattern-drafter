@@ -1,22 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- V-neckline with wrap crossover -->
-  <path d="M66,36 L80,62 L94,36"/>
-  <!-- body + short sleeves -->
-  <path d="M66,36 L48,48 L44,84 L56,84"/>
-  <path d="M94,36 L112,48 L116,84 L104,84"/>
-  <!-- wrap crossover line -->
-  <path d="M80,62 Q66,90 56,108"/>
-  <!-- waist sash/tie at side -->
-  <path d="M56,108 L44,112"/>
-  <path d="M44,112 L38,118"/>
-  <path d="M44,112 L40,106"/>
-  <!-- bodice to skirt -->
-  <path d="M56,84 Q54,96 56,108"/>
-  <path d="M104,84 Q106,96 104,108"/>
-  <!-- flowing A-line skirt -->
-  <path d="M56,108 Q50,140 40,192 L120,192 Q110,140 104,108"/>
-  <!-- skirt drape lines -->
-  <path d="M66,118 Q62,150 56,192" stroke-dasharray="5 4"/>
-  <path d="M96,118 Q100,150 106,192" stroke-dasharray="5 4"/>
+  <path d="M68,36 L80,58 L92,36"/>
+  <path d="M68,36 L50,52 L46,110 L58,110 Q64,136 44,192 L116,192 Q96,136 102,110 L114,110 L110,52 L92,36"/>
+  <path d="M80,58 Q68,100 58,110"/>
+  <path d="M46,110 Q60,120 68,114"/>
+  <path d="M114,110 Q100,120 92,114"/>
 </svg>

@@ -1,14 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- waistband -->
   <path d="M44,42 L116,42 L116,54 L44,54 Z"/>
-  <!-- drawstring -->
-  <line x1="76" y1="42" x2="70" y2="50"/>
-  <line x1="84" y1="42" x2="90" y2="50"/>
-  <circle cx="80" cy="42" r="1.5"/>
-  <!-- legs: medium length, scalloped hem -->
+  <path d="M68,42 Q80,48 92,42"/>
   <path d="M44,54 L43,116 Q58,122 74,116 L80,78 L86,116 Q102,122 117,116 L116,54"/>
   <line x1="80" y1="54" x2="80" y2="78"/>
-  <!-- mesh pocket (dashed) -->
-  <rect x="88" y="68" width="20" height="22" rx="2" stroke-dasharray="3 2"/>
+  <rect x="90" y="66" width="20" height="22" rx="2" stroke-dasharray="3 2"/>
 </svg>

@@ -1,14 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- scoop neckline -->
-  <path d="M64,52 Q80,42 96,52"/>
-  <!-- body with hourglass waist shaping + cap sleeves -->
-  <path d="M62,52 L38,66 L44,82 L52,78"/>
-  <path d="M98,52 L122,66 L116,82 L108,78"/>
-  <!-- torso with waist nip -->
-  <path d="M52,78 Q50,100 56,120 Q62,130 58,170 Q72,176 80,176 Q88,176 102,170 Q98,130 104,120 Q110,100 108,78"/>
-  <!-- curved hem -->
-  <path d="M58,170 Q80,178 102,170"/>
-  <!-- waist emphasis line -->
-  <path d="M56,120 Q80,116 104,120" stroke-dasharray="4 3"/>
+  <path d="M56,60 L40,80 L52,92 L54,170 L106,170 L108,92 L120,80 L104,60 L96,72 Q80,76 64,72 Z"/>
+  <path d="M64,60 Q80,50 96,60"/>
+  <path d="M54,130 Q80,134 106,130"/>
 </svg>
