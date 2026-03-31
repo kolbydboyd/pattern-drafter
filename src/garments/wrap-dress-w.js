@@ -274,7 +274,7 @@ export default {
     pieces.push({
       id: 'v-neck-facing', name: 'V-Neckline Facing',
       instruction: `Cut 4 (2 per side, self + interfacing) · 2.5″ wide · Follows V from shoulder to apex · {understitch} and {press} to WS · Tack at shoulder seam`,
-      dimensions: { length: vFacingLen, width: 2.5 }, type: 'pocket',
+      dimensions: { length: vFacingLen, width: 2.5 }, type: 'pocket', sa,
     });
 
     // Self-fabric ties
@@ -282,7 +282,7 @@ export default {
     pieces.push({
       id: 'tie', name: 'Self-Fabric Tie',
       instruction: `Cut 4 (2 per side) · Each ${fmtInches(tieLen)} long × 2.5″ cut (1.25″ finished) · Fold in half lengthwise, sew, turn, {press} · Attach 2 at inner side seam (hidden tie) and 2 at outer side seam (visible bow)`,
-      dimensions: { length: tieLen, width: 2.5 }, type: 'pocket',
+      dimensions: { length: tieLen, width: 2.5 }, type: 'pocket', sa,
     });
 
     // Sleeve
@@ -309,7 +309,7 @@ export default {
         notches: sleeveNotches,
       });
     } else {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     }
 
     return pieces;

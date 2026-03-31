@@ -166,6 +166,7 @@ export default {
         instruction: 'Cut 4 (2 per side) · Same fabric or lining · {serge} all edges',
         dimensions: { width: 8, height: 9 },
         type: 'pocket',
+        sa,
       });
     }
     if (opts.frontPocket === 'slant') {
@@ -173,7 +174,7 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     // ── RIBBED CUFFS (jogger only) ──
@@ -193,6 +194,7 @@ export default {
         instruction: `Cut 2 from rib knit · ${fmtInches(cuffWidth)} wide × ${fmtInches(cuffHeight)} tall · 80% of hem opening (${fmtInches(hemOpening)}) for stretch recovery`,
         dimensions: { width: cuffWidth, height: cuffHeight },
         type: 'pocket',
+        sa,
       });
     }
 

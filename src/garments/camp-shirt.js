@@ -359,6 +359,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(placketH)} long`,
         type: 'pocket',
         dimensions: { width: PLACKET_W + 0.5, height: placketH },
+        sa,
       },
     ];
 
@@ -369,6 +370,7 @@ export default {
         instruction: 'Cut 1 · Position at left chest 2.5″ below neckline, 1.5″ from placket · Interface if desired',
         type: 'pocket',
         dimensions: { width: 4, height: 5 },
+        sa,
       });
     }
 

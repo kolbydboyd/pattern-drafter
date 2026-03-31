@@ -464,6 +464,7 @@ export default {
         instruction: 'Cut 1 · Position at left chest · Interface if desired',
         type: 'pocket',
         dimensions: { width: 4, height: 5 },
+        sa,
       });
     }
 

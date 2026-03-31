@@ -216,7 +216,7 @@ export default {
     }
 
     if (opts.pockets === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Same fabric or lining', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Same fabric or lining', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     if (opts.frontPocket === 'slant') {
@@ -224,12 +224,12 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side' && opts.pockets !== 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     if (opts.hemStyle === 'elastic') {
       const hemOpening = frontW * shape.hem * 2 * 0.85;
-      pieces.push({ id: 'hem-cuff', name: 'Hem Cuff (Elastic / Rib)', instruction: `Cut 2 · ${fmtInches(hemOpening)} long × 4″ cut (2″ finished) · Stretch to fit opening`, dimensions: { width: hemOpening, height: 4 }, type: 'pocket' });
+      pieces.push({ id: 'hem-cuff', name: 'Hem Cuff (Elastic / Rib)', instruction: `Cut 2 · ${fmtInches(hemOpening)} long × 4″ cut (2″ finished) · Stretch to fit opening`, dimensions: { width: hemOpening, height: 4 }, type: 'pocket', sa });
     }
 
     return pieces;

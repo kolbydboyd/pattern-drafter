@@ -219,6 +219,7 @@ export default {
         instruction: 'Cut 1 · Interface · {serge} curved edge',
         dimensions: { width: 2.5, height: rise },
         type: 'pocket',
+        sa,
       });
     }
 
@@ -227,14 +228,14 @@ export default {
       pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface or self-fabric' }));
       pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
     } else if (opts.pockets === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     } else if (opts.pockets === 'welt') {
-      pieces.push({ id: 'front-welt', name: 'Front Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'front-welt', name: 'Front Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5, height: 6 }, type: 'pocket', sa });
     }
 
     // ── BACK POCKETS ─────────────────────────────────────────────────────────
     if (opts.backPockets === 'welt2') {
-      pieces.push({ id: 'back-welt', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'back-welt', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
     }
 
     return pieces;

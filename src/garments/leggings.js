@@ -165,6 +165,7 @@ export default {
         instruction: `Cut 1 · Diamond shape ${fmtInches(gussetSize)} × ${fmtInches(gussetSize)} · Inset at crotch point where front and back meet`,
         dimensions: { width: gussetSize, height: gussetSize },
         type: 'pocket',
+        sa,
       });
     }
 

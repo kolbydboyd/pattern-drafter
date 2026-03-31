@@ -314,6 +314,7 @@ export default {
         instruction: 'Cut 1 · Center on front bodice at waist level · Round bottom corners (2″ radius) · {topstitch} sides and bottom',
         type: 'pocket',
         dimensions: { width: 10, height: 7 },
+        sa,
       },
       {
         id: 'waistband',
@@ -341,6 +342,7 @@ export default {
         instruction: `Cut 2 (L & R) · 1″ wide × ${fmtInches(zipLength)} long · Interface · Sew to CF edges before attaching zipper`,
         type: 'pocket',
         dimensions: { width: 1, height: zipLength },
+        sa,
       });
     }
 

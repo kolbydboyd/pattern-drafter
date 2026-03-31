@@ -168,22 +168,22 @@ export default {
 
     if (opts.closure === 'zip') {
       const zipLen = Math.ceil(L * 0.45);
-      pieces.push({ id: 'side-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Left side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket' });
+      pieces.push({ id: 'side-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Left side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket', sa });
     }
 
     if (opts.pockets === 'yes') {
-      pieces.push({ id: 'pocket-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Attach bag to front and back side seam SAs at hip level', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'pocket-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Attach bag to front and back side seam SAs at hip level', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     if (opts.hem === 'faced') {
       // Facing strip follows the curved hem
       const hemCirc = hemW * 2;
-      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · {understitch} and {press} to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket' });
+      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · {understitch} and {press} to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket', sa });
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 } });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 } });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 }, sa });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 }, sa });
     }
 
     return pieces;

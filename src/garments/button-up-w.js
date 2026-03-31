@@ -274,15 +274,15 @@ export default {
       },
       { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: fallH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
       { id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 · Interface one · ${fmtInches(collarLen)} long × ${fmtInches(standH * 2 + sa * 2)} cut (${fmtInches(standH)} finished stand) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: standH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
-      { id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(torsoLen - NECK_DEPTH_FRONT)} long`, dimensions: { width: PLACKET_W + 0.5, height: torsoLen - NECK_DEPTH_FRONT }, type: 'pocket' },
+      { id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(torsoLen - NECK_DEPTH_FRONT)} long`, dimensions: { width: PLACKET_W + 0.5, height: torsoLen - NECK_DEPTH_FRONT }, type: 'pocket', sa },
     ];
 
     if (opts.backDetail === 'yoke') {
-      pieces.push({ id: 'back-yoke', name: 'Back Yoke', instruction: 'Cut 2 (outer + lining) · Interface outer · Horizontal across upper back', dimensions: { length: backW * 2 + 1, width: yokeH + sa * 2 }, type: 'pocket' });
+      pieces.push({ id: 'back-yoke', name: 'Back Yoke', instruction: 'Cut 2 (outer + lining) · Interface outer · Horizontal across upper back', dimensions: { length: backW * 2 + 1, width: yokeH + sa * 2 }, type: 'pocket', sa });
     }
     if (opts.sleeve === 'long' && opts.cuff !== 'none') {
       const cuffH = opts.cuff === 'french' ? 5 : 2.5;
-      pieces.push({ id: 'cuff', name: opts.cuff === 'french' ? 'French Cuff' : 'Barrel Cuff', instruction: `Cut 4 (2 outer + 2 facing) · Interface outer · ${fmtInches(m.wrist + 1)} long × ${fmtInches(cuffH + sa * 2)} cut · 1 button per cuff${opts.cuff === 'french' ? ' (or cufflinks)' : ''}`, dimensions: { length: m.wrist + 1, width: cuffH + sa * 2 }, type: 'pocket' });
+      pieces.push({ id: 'cuff', name: opts.cuff === 'french' ? 'French Cuff' : 'Barrel Cuff', instruction: `Cut 4 (2 outer + 2 facing) · Interface outer · ${fmtInches(m.wrist + 1)} long × ${fmtInches(cuffH + sa * 2)} cut · 1 button per cuff${opts.cuff === 'french' ? ' (or cufflinks)' : ''}`, dimensions: { length: m.wrist + 1, width: cuffH + sa * 2 }, type: 'pocket', sa });
     }
 
     return pieces;

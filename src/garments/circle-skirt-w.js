@@ -191,7 +191,7 @@ export default {
 
     if (opts.closure === 'zip') {
       const zipLen = Math.ceil(L * 0.45);
-      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Install at CB before sewing last side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Install at CB before sewing last side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket', sa });
     }
 
     return pieces;

@@ -171,10 +171,10 @@ export default {
 
     // ── FLY ──
     if (opts.fly === 'zip') {
-      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
     }
     if (opts.fly === 'button') {
-      pieces.push({ id: 'button-placket', name: 'Button Fly Placket', instruction: 'Cut 2 (left + right) · Interface', dimensions: { width: 5, height: rise }, type: 'pocket' });
+      pieces.push({ id: 'button-placket', name: 'Button Fly Placket', instruction: 'Cut 2 (left + right) · Interface', dimensions: { width: 5, height: rise }, type: 'pocket', sa });
     }
 
     // ── POCKETS ──
@@ -183,9 +183,9 @@ export default {
       pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) per pocket · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+    pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) per pocket · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     return pieces;
   },

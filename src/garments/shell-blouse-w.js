@@ -217,11 +217,11 @@ export default {
         width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
-      { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket' },
+      { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket', sa },
     ];
 
     if (opts.sleeves === 'sleeveless') {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · Follows armhole curve, 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · Follows armhole curve, 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     } else if (opts.sleeves === 'cap' || opts.sleeves === 'short') {
       const slvLen = opts.sleeves === 'cap' ? 3.5 : 9;
       const slvW   = (m.bicep || 13) / 2 + easeVal * 0.15;
@@ -247,11 +247,11 @@ export default {
     } else if (opts.sleeves === 'flutter') {
       // Flutter: curved rectangle that drapes — wider at hem than at armhole
       const flutterW = armholeDepth * 1.5;
-      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket', sa });
     }
 
     if (opts.closure === 'zip') {
-      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ - install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ - install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket', sa });
     }
 
     return pieces;
