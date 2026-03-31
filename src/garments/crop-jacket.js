@@ -194,15 +194,17 @@ export default {
     const backSideX = shoulderPtX + backChestDepth;
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
-      { x: backSideX, y: armholeY, angle: 0 },
+      { x: backSideX, y: armholeY,        angle: 0 },  // double notch = back
+      { x: backSideX, y: armholeY + 0.25, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
       { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
     ];
 
     const sleeveNotches = [
-      { x: slvTopW, y: 0, angle: -90 },
-      { x: slvTopW * 0.5, y: 0, angle: -90 },
-      { x: slvTopW * 1.5, y: 0, angle: -90 },
+      { x: slvTopW,          y: 0, angle: -90 },  // crown → shoulder seam
+      { x: slvTopW * 0.5,    y: 0, angle: -90 },  // front quarter (single)
+      { x: slvTopW * 1.5,    y: 0, angle: -90 },  // back quarter (double)
+      { x: slvTopW * 1.5 + 0.25, y: 0, angle: -90 },
     ];
 
     const frontBB  = bbox(frontPoly);
