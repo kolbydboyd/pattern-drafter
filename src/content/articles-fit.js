@@ -1,6 +1,8 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Fit Issues & Troubleshooting articles for /learn
 
+import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
+
 export const ARTICLES_FIT = [
   {
     slug:        'why-pants-never-fit-made-to-measure',

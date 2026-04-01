@@ -1,6 +1,8 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Beginner Basics articles for /learn
 
+import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
+
 export const ARTICLES_GETTING_STARTED = [
   {
     slug:        'how-to-measure-yourself',
@@ -248,7 +250,7 @@ export const ARTICLES_GETTING_STARTED = [
       { question: 'How is People\'s Patterns different from a regular sewing pattern?', answer: 'Regular sewing patterns are drafted for a statistical average body in standard sizes. People\'s Patterns generates every pattern fresh from your individual measurements, so there is nothing to alter.' },
       { question: 'Do I need pattern-making experience to use People\'s Patterns?', answer: 'Not at all. The system handles all the drafting math. You enter your measurements, choose a garment, and get a ready-to-cut pattern with complete construction instructions.' },
       { question: 'Can I sew for other people using People\'s Patterns?', answer: 'Yes. You can save multiple measurement profiles on your account, one for each person you sew for. Each profile generates its own custom pattern when you select it.' },
-      { question: 'What garments are available right now?', answer: 'There are currently 23 garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly.' },
+      { question: 'What garments are available right now?', answer: 'There are currently ${GARMENT_COUNT} garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly.' },
     ],
     body: `
 <h2>Custom-Fit Sewing Patterns Without the Custom Price</h2>
@@ -261,7 +263,7 @@ export const ARTICLES_GETTING_STARTED = [
 <p>Here is what that looks like in practice: the system knows that the front panel width should be your hip measurement divided by 4, plus a specific amount of ease. It knows that the crotch curve depth comes from your rise measurement minus a construction constant. It knows exactly how much to shape the armhole based on your chest and shoulder measurements.</p>
 <p>When you enter your measurements, the engine runs hundreds of these rules simultaneously. The output is a set of geometrically precise pattern pieces that are mathematically correct for your body.</p>
 <p>This is not something we invented. Parametric drafting is the same approach taught in fashion design schools and used by professional pattern-making software. People's Patterns makes it accessible to everyone directly through your browser. No software to install, no pattern-making experience required.</p>
-<p>Right now there are 23 garment modules in the system, covering tops, pants, shorts, skirts, dresses, and more. You can <a href="/patterns">browse the full pattern catalog here</a>.</p>
+<p>Right now there are ${GARMENT_COUNT} garment modules in the system, covering tops, pants, shorts, skirts, dresses, and more. You can <a href="/patterns">browse the full pattern catalog here</a>.</p>
 
 <h2>What Does "Ease" Mean in Sewing Patterns?</h2>
 <p>If you are new to sewing, ease is one of the most important concepts to understand. Ease is the extra room added to a garment beyond your exact body measurements so that you can actually move, sit, and breathe comfortably.</p>
@@ -354,7 +356,7 @@ export const ARTICLES_GETTING_STARTED = [
 
 <div class="faq-item">
 <h3>What garments are available right now?</h3>
-<p>There are currently 23 garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly. <a href="/patterns">Browse the full catalog here.</a></p>
+<p>There are currently ${GARMENT_COUNT} garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly. <a href="/patterns">Browse the full catalog here.</a></p>
 </div>
 </section>
 `,

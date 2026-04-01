@@ -1,6 +1,8 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Garment-Specific Guides articles for /learn
 
+import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
+
 export const ARTICLES_GARMENTS = [
   {
     slug: 'sew-custom-tshirts-shoulder-fit',

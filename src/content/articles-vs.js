@@ -1,10 +1,12 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Competitor comparison ("vs") articles for /learn
 
+import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
+
 export const ARTICLES_VS = [
   {
     slug: 'peoples-patterns-vs-ditto-patterns',
-    title: 'People\'s Patterns vs Ditto Patterns: Honest Comparison 2026',
+    title: 'People\'s Patterns vs Ditto Patterns: Honest Comparison ${CURRENT_YEAR}',
     description: 'Ditto Patterns vs People\'s Patterns compared: projector cost, subscriptions, instant generation, and total 12-month ownership breakdown.',
     category: 'vs',
     tags: ['ditto-patterns', 'pattern-projector', 'comparison', 'custom-fit', 'made-to-measure', 'projector-sewing'],
@@ -13,7 +15,7 @@ export const ARTICLES_VS = [
     faqSchema: [
       { question: 'Do I need a projector to use People\'s Patterns?', answer: 'No. Every People\'s Patterns download includes a tiled PDF for home printing on US Letter or A4 paper, plus an A0 copy-shop file. If you do own a projector, you can add the projector-ready file for just $4.' },
       { question: 'Can I print Ditto Patterns on paper instead of projecting them?', answer: 'Ditto Patterns are designed primarily for projector use. While some may offer a PDF option, the platform is built around the projector workflow and the experience is optimized for direct-to-fabric projection.' },
-      { question: 'Which platform has more patterns to choose from?', answer: 'Ditto Patterns has a larger catalog with hundreds of patterns from multiple indie designers. People\'s Patterns currently offers 38 garment modules with deep customization options and is growing steadily.' },
+      { question: 'Which platform has more patterns to choose from?', answer: 'Ditto Patterns has a larger catalog with hundreds of patterns from multiple indie designers. People\'s Patterns currently offers ${GARMENT_COUNT} garment modules with deep customization options and is growing steadily.' },
       { question: 'What is the total 12-month cost comparison?', answer: 'For a moderate sewist making one pattern per month, Ditto Patterns costs roughly $199 or more for the projector plus subscription fees. People\'s Patterns starts free with your first pattern and costs $9 to $19 per pattern after that, with no hardware required.' },
     ],
     body: `
@@ -34,7 +36,7 @@ export const ARTICLES_VS = [
     <tr><td>Pattern delivery</td><td>Projector file (direct to fabric)</td><td>Tiled PDF (US Letter + A4) + A0 copy-shop file</td></tr>
     <tr><td>Hardware required</td><td>Projector ($199+)</td><td>Home printer or copy shop ($0)</td></tr>
     <tr><td>Custom fit</td><td>Standard sizes from indie designers</td><td>Made-to-measure from your exact measurements</td></tr>
-    <tr><td>Pattern catalog</td><td>Hundreds of patterns from multiple designers</td><td>38 garment modules with extensive customization</td></tr>
+    <tr><td>Pattern catalog</td><td>Hundreds of patterns from multiple designers</td><td>${GARMENT_COUNT} garment modules with extensive customization</td></tr>
     <tr><td>Pricing model</td><td>Subscription tiers + individual purchases</td><td>$9-$19 per pattern, credits, or membership ($12-$24/mo)</td></tr>
     <tr><td>First pattern</td><td>Varies by plan</td><td>Free, no credit card required</td></tr>
     <tr><td>Projector option</td><td>Core feature</td><td>$4 add-on per pattern</td></tr>
@@ -51,7 +53,7 @@ export const ARTICLES_VS = [
 
 <h2>Pattern Catalog and Design Variety</h2>
 <p><a href="https://www.dittopatterns.com" target="_blank" rel="noopener">Ditto Patterns</a> has a clear advantage in catalog size. They partner with popular indie pattern designers and offer hundreds of patterns spanning garments, accessories, bags, and more. If you follow specific indie designers and want their patterns in a projector-ready format, Ditto is likely where you will find them.</p>
-<p>People's Patterns currently offers 38 garment modules, including staples like the <a href="/patterns/tee">classic tee</a>, <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/wrap-dress-w">wrap dress</a>, <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodie</a>, and <a href="/patterns/a-line-skirt-w">A-line skirt</a>. Each module offers deep customization: fit style, length, pocket options, closure type, and more. The library is growing steadily, but if you need a very specific design from a specific designer, Ditto may have it and we may not.</p>
+<p>People's Patterns currently offers ${GARMENT_COUNT} garment modules, including staples like the <a href="/patterns/tee">classic tee</a>, <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/wrap-dress-w">wrap dress</a>, <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodie</a>, and <a href="/patterns/a-line-skirt-w">A-line skirt</a>. Each module offers deep customization: fit style, length, pocket options, closure type, and more. The library is growing steadily, but if you need a very specific design from a specific designer, Ditto may have it and we may not.</p>
 <p>The trade-off is fit. Ditto patterns use standard sizing from each designer. People's Patterns drafts every pattern to your exact measurements using a parametric engine, so the fit is truly custom rather than closest-size.</p>
 
 <h2>Custom Fit vs Standard Sizing</h2>
@@ -115,7 +117,7 @@ export const ARTICLES_VS = [
 
 <div class="faq-item">
 <h3>Which platform has more patterns to choose from?</h3>
-<p>Ditto Patterns has a larger catalog with hundreds of patterns from multiple indie designers. People's Patterns currently offers 38 garment modules with deep customization options and is growing steadily.</p>
+<p>Ditto Patterns has a larger catalog with hundreds of patterns from multiple indie designers. People's Patterns currently offers ${GARMENT_COUNT} garment modules with deep customization options and is growing steadily.</p>
 </div>
 
 <div class="faq-item">
@@ -158,7 +160,7 @@ export const ARTICLES_VS = [
     <tr><td>First pattern</td><td>Paid</td><td>Free, no credit card required</td></tr>
     <tr><td>Membership option</td><td>Not currently offered</td><td>Club $12/mo (1 credit), Wardrobe $24/mo (3 credits + early access)</td></tr>
     <tr><td>Live preview</td><td>Not available</td><td>Yes, in-browser before purchase</td></tr>
-    <tr><td>Catalog size</td><td>Focused collection of core basics</td><td>38 garment modules and growing</td></tr>
+    <tr><td>Catalog size</td><td>Focused collection of core basics</td><td>${GARMENT_COUNT} garment modules and growing</td></tr>
     <tr><td>Pattern delivery</td><td>PDF download</td><td>Tiled PDF (US Letter + A4) + A0 file</td></tr>
     <tr><td>Projector file</td><td>Varies</td><td>$4 add-on</td></tr>
     <tr><td>Free re-generation</td><td>Varies by pattern</td><td>Unlimited, always free</td></tr>
@@ -179,7 +181,7 @@ export const ARTICLES_VS = [
 
 <h2>Catalog and Style Focus</h2>
 <p>Apostrophe Patterns focuses on a curated collection of wardrobe basics. Their designs tend to be clean, modern, and well-tested. If you are building a capsule wardrobe of timeless pieces, their focused approach has real appeal.</p>
-<p>People's Patterns offers 38 garment modules that span basics, everyday wear, and trendier styles. From the <a href="/patterns/fitted-tee-w">fitted tee</a> and <a href="/patterns/easy-pant-w">easy pants</a> to the <a href="/patterns/wrap-dress-w">wrap dress</a> and <a href="/patterns/wide-leg-trouser-w">wide-leg trousers</a>, the catalog covers a wider range of garment types. Each module includes deep customization, so a single garment module can produce many different variations.</p>
+<p>People's Patterns offers ${GARMENT_COUNT} garment modules that span basics, everyday wear, and trendier styles. From the <a href="/patterns/fitted-tee-w">fitted tee</a> and <a href="/patterns/easy-pant-w">easy pants</a> to the <a href="/patterns/wrap-dress-w">wrap dress</a> and <a href="/patterns/wide-leg-trouser-w">wide-leg trousers</a>, the catalog covers a wider range of garment types. Each module includes deep customization, so a single garment module can produce many different variations.</p>
 <p>Neither approach is wrong. Apostrophe's focused catalog means each pattern gets intensive attention. People's Patterns' broader catalog means more variety from a single platform. It depends on whether you value depth in a few styles or breadth across many.</p>
 
 <h2>Measurement Handling and Re-Generation</h2>
@@ -277,7 +279,7 @@ export const ARTICLES_VS = [
     <tr><td>Price</td><td>Free (donation-supported)</td><td>$9-$19 per pattern, first pattern free</td></tr>
     <tr><td>Source code</td><td>Open-source (MIT license)</td><td>Proprietary</td></tr>
     <tr><td>Custom fit</td><td>Yes, parametric engine</td><td>Yes, parametric drafting engine</td></tr>
-    <tr><td>Pattern catalog</td><td>Dozens of community-contributed designs</td><td>38 garment modules with deep customization</td></tr>
+    <tr><td>Pattern catalog</td><td>Dozens of community-contributed designs</td><td>${GARMENT_COUNT} garment modules with deep customization</td></tr>
     <tr><td>Output format</td><td>SVG, PDF</td><td>Tiled PDF (US Letter + A4) + A0 copy-shop file</td></tr>
     <tr><td>Projector file</td><td>SVG can be used</td><td>$4 add-on per pattern</td></tr>
     <tr><td>User experience</td><td>Developer-oriented, powerful but complex</td><td>Guided wizard, beginner-friendly</td></tr>
@@ -301,7 +303,7 @@ export const ARTICLES_VS = [
 
 <h2>Pattern Quality and Design</h2>
 <p>FreeSewing's pattern library includes dozens of designs contributed by community members. Quality varies. Some patterns, like their button-down shirt and basic trouser, are well-tested and produce excellent results. Others are more experimental or have been contributed by individuals with varying levels of pattern-making experience.</p>
-<p>People's Patterns' 38 garment modules are all designed internally using a proprietary parametric engine that implements the same mathematical principles taught in fashion design schools. Every pattern goes through fit testing before release, and each one includes consistent, high-quality construction instructions. Patterns like the <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/hoodie">hoodie</a>, <a href="/patterns/cargo-shorts">cargo shorts</a>, and <a href="/patterns/wrap-dress-w">wrap dress</a> offer deep customization within a tested framework.</p>
+<p>People's Patterns' ${GARMENT_COUNT} garment modules are all designed internally using a proprietary parametric engine that implements the same mathematical principles taught in fashion design schools. Every pattern goes through fit testing before release, and each one includes consistent, high-quality construction instructions. Patterns like the <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/hoodie">hoodie</a>, <a href="/patterns/cargo-shorts">cargo shorts</a>, and <a href="/patterns/wrap-dress-w">wrap dress</a> offer deep customization within a tested framework.</p>
 <p>The trade-off is clear: FreeSewing gives you more experimental variety with less consistency. People's Patterns gives you a more curated, quality-controlled selection.</p>
 
 <h2>Output and Delivery</h2>
@@ -378,7 +380,7 @@ export const ARTICLES_VS = [
     faqSchema: [
       { question: 'How many measurements does Lekala require?', answer: 'Lekala typically requires only 4 basic measurements (bust, waist, hips, and height) to generate a custom pattern. People\'s Patterns uses a fuller set of measurements for more precise fit across different body proportions.' },
       { question: 'Are Lekala patterns really custom-fit at that price?', answer: 'Lekala does generate patterns adjusted to your measurements, but with only 4 measurements the system has less data to work with. The fit is personalized but may not account for individual proportions like shoulder width, rise, or arm length the way a more detailed measurement set does.' },
-      { question: 'Which platform has a larger pattern catalog?', answer: 'Lekala has a significantly larger catalog with thousands of designs updated weekly, covering everything from basics to formal wear. People\'s Patterns offers 38 garment modules with deep customization options per module.' },
+      { question: 'Which platform has a larger pattern catalog?', answer: 'Lekala has a significantly larger catalog with thousands of designs updated weekly, covering everything from basics to formal wear. People\'s Patterns offers ${GARMENT_COUNT} garment modules with deep customization options per module.' },
       { question: 'Can I get my People\'s Patterns instantly?', answer: 'Yes. People\'s Patterns generates your custom pattern in your browser in minutes. Lekala typically delivers patterns via email, which can take some time depending on their processing queue.' },
     ],
     body: `
@@ -398,7 +400,7 @@ export const ARTICLES_VS = [
     <tr><td>Price per pattern</td><td>$3.95-$3.99</td><td>$9 Simple, $14 Core, $19 Tailored</td></tr>
     <tr><td>First pattern</td><td>Some free options</td><td>Free, no credit card required</td></tr>
     <tr><td>Measurements required</td><td>~4 basic measurements</td><td>Full measurement set (varies by garment)</td></tr>
-    <tr><td>Catalog size</td><td>Thousands of designs, updated weekly</td><td>38 garment modules with deep customization</td></tr>
+    <tr><td>Catalog size</td><td>Thousands of designs, updated weekly</td><td>${GARMENT_COUNT} garment modules with deep customization</td></tr>
     <tr><td>Delivery method</td><td>Email delivery</td><td>Instant browser generation</td></tr>
     <tr><td>Output format</td><td>PDF</td><td>Tiled PDF (US Letter + A4) + A0 file</td></tr>
     <tr><td>Live preview</td><td>No</td><td>Yes, in-browser</td></tr>
@@ -417,7 +419,7 @@ export const ARTICLES_VS = [
 
 <h2>Catalog Size: Thousands vs Focused Quality</h2>
 <p>Lekala's catalog is enormous. They offer thousands of patterns across categories including dresses, blouses, skirts, pants, coats, activewear, formal wear, and more. New designs are added weekly. If you are looking for a very specific style, the sheer volume of Lekala's catalog means they probably have something close to what you want.</p>
-<p>People's Patterns currently offers 38 garment modules, but each module includes extensive customization. A single module like the <a href="/patterns/straight-jeans">straight jeans</a> lets you configure fit style, rise height, leg width, pocket placement, and more. So while the number of base designs is smaller, the number of possible variations is much larger than the number suggests.</p>
+<p>People's Patterns currently offers ${GARMENT_COUNT} garment modules, but each module includes extensive customization. A single module like the <a href="/patterns/straight-jeans">straight jeans</a> lets you configure fit style, rise height, leg width, pocket placement, and more. So while the number of base designs is smaller, the number of possible variations is much larger than the number suggests.</p>
 <p>The catalog is growing steadily, with new garment modules added regularly. Current offerings include everyday staples like the <a href="/patterns/tee">classic tee</a>, <a href="/patterns/gym-shorts">gym shorts</a>, <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodie</a>, <a href="/patterns/a-line-skirt-w">A-line skirt</a>, and <a href="/patterns/camp-shirt">camp shirt</a>.</p>
 
 <h2>Delivery: Email Queue vs Instant Generation</h2>
@@ -478,7 +480,7 @@ export const ARTICLES_VS = [
 
 <div class="faq-item">
 <h3>Which platform has a larger pattern catalog?</h3>
-<p>Lekala has a significantly larger catalog with thousands of designs updated weekly, covering everything from basics to formal wear. People's Patterns offers 38 garment modules with deep customization options per module.</p>
+<p>Lekala has a significantly larger catalog with thousands of designs updated weekly, covering everything from basics to formal wear. People's Patterns offers ${GARMENT_COUNT} garment modules with deep customization options per module.</p>
 </div>
 
 <div class="faq-item">
@@ -527,7 +529,7 @@ export const ARTICLES_VS = [
     <tr><td>Output format</td><td>PDF</td><td>Tiled PDF (US Letter + A4) + A0 file</td></tr>
     <tr><td>Projector file</td><td>Not typically offered</td><td>$4 add-on</td></tr>
     <tr><td>Re-generation</td><td>May require repurchase</td><td>Unlimited free re-generation</td></tr>
-    <tr><td>Catalog size</td><td>Varies, fashion-focused</td><td>38 garment modules and growing</td></tr>
+    <tr><td>Catalog size</td><td>Varies, fashion-focused</td><td>${GARMENT_COUNT} garment modules and growing</td></tr>
   </tbody>
 </table>
 
@@ -649,7 +651,7 @@ export const ARTICLES_VS = [
 <tbody>
 <tr><td>Primary approach</td><td>Made-to-measure pattern generator</td><td>2D CAD pattern design platform</td></tr>
 <tr><td>Learning curve</td><td>Minimal — enter measurements, choose garment</td><td>Moderate to steep — CAD tools require practice</td></tr>
-<tr><td>Garment library</td><td>38 garment modules and growing</td><td>Community-created designs + base blocks</td></tr>
+<tr><td>Garment library</td><td>${GARMENT_COUNT} garment modules and growing</td><td>Community-created designs + base blocks</td></tr>
 <tr><td>Customization depth</td><td>Parametric fit adjustments</td><td>Full CAD control over every point and curve</td></tr>
 <tr><td>Pricing</td><td>$9 / $14 / $19 per pattern; first free</td><td>Free for personal use; paid plans for advanced features</td></tr>
 <tr><td>Subscription</td><td>Club $12/mo (1 credit) or Wardrobe $24/mo (3 credits + early access)</td><td>Varies by plan tier</td></tr>
@@ -785,7 +787,7 @@ export const ARTICLES_VS = [
 <tr><td>Price per pattern</td><td>$9 / $14 / $19 (first free)</td><td>$5-$25+ (varies by sale pricing)</td></tr>
 <tr><td>Pattern format</td><td>Tiled PDF + A0 copy shop file</td><td>Printed tissue paper or PDF</td></tr>
 <tr><td>Projector option</td><td>$4 upsell</td><td>Not typically available</td></tr>
-<tr><td>Style variety</td><td>38 garment modules and growing</td><td>Thousands of designs across all companies</td></tr>
+<tr><td>Style variety</td><td>${GARMENT_COUNT} garment modules and growing</td><td>Thousands of designs across all companies</td></tr>
 <tr><td>Re-generation</td><td>Unlimited free with measurement changes</td><td>Buy new size or alter manually</td></tr>
 <tr><td>Instructions</td><td>Included</td><td>Included (often very detailed)</td></tr>
 <tr><td>Availability</td><td>Instant browser download</td><td>Stores or online; shipping wait for tissue</td></tr>
@@ -828,7 +830,7 @@ export const ARTICLES_VS = [
 
 <p>We have to be honest here: the Big 4 pattern companies have an enormous advantage in sheer design variety. Between Simplicity, McCall's, Vogue, and Butterick, there are thousands of designs covering everything from costumes and formal wear to activewear and children's clothing. Many of these designs are created by well-known fashion designers and include trend-forward styles that reflect current runway collections.</p>
 
-<p>People's Patterns currently offers 38 garment modules, and while that number is growing steadily, we cannot match the breadth of companies that have been producing patterns for decades. Our focus is on wardrobe staples — garments like the <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodie</a>, <a href="/patterns/easy-pant-w">easy pants</a>, and <a href="/patterns/fitted-tee-w">fitted tee</a> that form the foundation of a functional wardrobe. If you need a Renaissance costume or a couture ball gown, the Big 4 are your best bet.</p>
+<p>People's Patterns currently offers ${GARMENT_COUNT} garment modules, and while that number is growing steadily, we cannot match the breadth of companies that have been producing patterns for decades. Our focus is on wardrobe staples — garments like the <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodie</a>, <a href="/patterns/easy-pant-w">easy pants</a>, and <a href="/patterns/fitted-tee-w">fitted tee</a> that form the foundation of a functional wardrobe. If you need a Renaissance costume or a couture ball gown, the Big 4 are your best bet.</p>
 
 <p>That said, a perfectly fitting basic garment is more versatile than a trendy design that does not fit well. A <a href="/patterns/camp-shirt">camp shirt</a> that fits your shoulders and torso exactly right will become a wardrobe favorite in a way that a poorly fitting novelty pattern never will.</p>
 
@@ -909,7 +911,7 @@ export const ARTICLES_VS = [
 <tr><td>Cost per garment</td><td>Pattern ($9-$19) + fabric ($10-$60+)</td><td>Varies widely ($5 fast fashion to $200+ premium)</td></tr>
 <tr><td>Time investment</td><td>1-8 hours depending on garment</td><td>Minutes to buy; possible returns</td></tr>
 <tr><td>Sustainability</td><td>Zero overstock; you choose materials</td><td>Significant industry waste</td></tr>
-<tr><td>Style options</td><td>38 garment modules; customizable details</td><td>Unlimited variety across brands</td></tr>
+<tr><td>Style options</td><td>${GARMENT_COUNT} garment modules; customizable details</td><td>Unlimited variety across brands</td></tr>
 <tr><td>Longevity</td><td>Typically very high with quality fabric</td><td>Varies — fast fashion often poor</td></tr>
 <tr><td>Skill required</td><td>Basic sewing skills needed</td><td>None</td></tr>
 <tr><td>Repairability</td><td>Easy — you understand the construction</td><td>Possible but often not worth the effort on cheap garments</td></tr>
@@ -1042,7 +1044,7 @@ export const ARTICLES_VS = [
 <tr><td>Sizing approach</td><td>Drafted from your exact measurements</td><td>Standardized sizes (often wider range than Big 4)</td></tr>
 <tr><td>Size range</td><td>Any measurements — no size chart</td><td>Varies; some designers go to 5X or 6X</td></tr>
 <tr><td>Customization</td><td>Every piece parametrically drafted</td><td>Grade between sizes; apply manual alterations</td></tr>
-<tr><td>Design variety</td><td>38 garment modules and growing</td><td>Vast — hundreds of designers, thousands of designs</td></tr>
+<tr><td>Design variety</td><td>${GARMENT_COUNT} garment modules and growing</td><td>Vast — hundreds of designers, thousands of designs</td></tr>
 <tr><td>Instructions</td><td>Included with each pattern</td><td>Often excellent, with photos and video</td></tr>
 <tr><td>Price per pattern</td><td>$9 / $14 / $19 (first free)</td><td>Typically $12-$25 per pattern</td></tr>
 <tr><td>PDF format</td><td>Tiled (Letter + A4) + A0 copy shop</td><td>Usually tiled + A0; varies by designer</td></tr>
@@ -1072,7 +1074,7 @@ export const ARTICLES_VS = [
 
 <p>People's Patterns approaches customization from the measurement side. You enter your full bust measurement, your high bust measurement, and the engine calculates the exact dart size and placement for your body. You enter your shoulder width, and the shoulder seam is drafted to that width. There is no "adjustment" because the pattern was never a standard size to begin with — it was always your pattern.</p>
 
-<p>Where indie patterns currently have the advantage is in <em>design</em> customization. If you want a specific collar style, a particular pocket placement, or a unique design detail, indie designers offer variety that our library of 38 garment modules cannot yet match. We are growing steadily, but we are honest about the fact that indie designers collectively offer far more design options than we do today.</p>
+<p>Where indie patterns currently have the advantage is in <em>design</em> customization. If you want a specific collar style, a particular pocket placement, or a unique design detail, indie designers offer variety that our library of ${GARMENT_COUNT} garment modules cannot yet match. We are growing steadily, but we are honest about the fact that indie designers collectively offer far more design options than we do today.</p>
 
 <h2>Printing and Assembly Time</h2>
 
@@ -1122,7 +1124,7 @@ export const ARTICLES_VS = [
 
 <h2>Why We Built People's Patterns This Way</h2>
 
-<p>People's Patterns was not built to replace indie designers — it was built to solve a specific problem they cannot. No matter how talented a designer is, no matter how carefully they grade their sizes, a standardized pattern cannot anticipate every body's unique proportions. Made-to-measure can. Our founder built the parametric drafting engine in 2026 as a solo project, inspired by the same drafting methods taught in fashion design schools, automated and running entirely in your browser. It is a different tool for a different problem, and it works best alongside the amazing designs the indie community creates.</p>
+<p>People's Patterns was not built to replace indie designers — it was built to solve a specific problem they cannot. No matter how talented a designer is, no matter how carefully they grade their sizes, a standardized pattern cannot anticipate every body's unique proportions. Made-to-measure can. Our founder built the parametric drafting engine in ${CURRENT_YEAR} as a solo project, inspired by the same drafting methods taught in fashion design schools, automated and running entirely in your browser. It is a different tool for a different problem, and it works best alongside the amazing designs the indie community creates.</p>
 
 <h2>Final Verdict</h2>
 
@@ -1348,7 +1350,7 @@ export const ARTICLES_VS = [
 <tr><td>Muslin needed?</td><td>Almost always</td><td>Rarely for most garments</td></tr>
 <tr><td>Cost per pattern</td><td>Pattern price + muslin fabric + time</td><td>$9-$19 at People's Patterns</td></tr>
 <tr><td>Handles multiple fit issues</td><td>Requires stacking alterations (complex)</td><td>All proportions drafted at once</td></tr>
-<tr><td>Creative design options</td><td>Thousands of patterns available</td><td>Growing library (38 garments at People's Patterns)</td></tr>
+<tr><td>Creative design options</td><td>Thousands of patterns available</td><td>Growing library (${GARMENT_COUNT} garments at People's Patterns)</td></tr>
 <tr><td>Learning curve</td><td>Months to years</td><td>Learn to measure accurately (30 minutes)</td></tr>
 </tbody>
 </table>
@@ -1511,7 +1513,7 @@ export const ARTICLES_VS = [
 
 <p>When you sew your own garments from custom patterns, every decision is yours. You pick the fabric -- that hand-dyed linen from the indie dyer on Instagram, that deadstock Japanese denim, that organic cotton jersey from your favorite online shop. You choose the thread color, the buttons, the zipper. You decide whether to add patch pockets or welt pockets, whether the hem is rolled or blind-stitched, whether you topstitch with contrasting thread for a casual look or use invisible stitches for something more refined.</p>
 
-<p>People's Patterns gives you 38 garment modules to choose from, and that library is growing. From a <a href="/patterns/hoodie">hoodie</a> to <a href="/patterns/straight-jeans">straight jeans</a> to a <a href="/patterns/wrap-dress-w">wrap dress</a>, every pattern is drafted to your measurements and delivered as a printable file you can modify however you like.</p>
+<p>People's Patterns gives you ${GARMENT_COUNT} garment modules to choose from, and that library is growing. From a <a href="/patterns/hoodie">hoodie</a> to <a href="/patterns/straight-jeans">straight jeans</a> to a <a href="/patterns/wrap-dress-w">wrap dress</a>, every pattern is drafted to your measurements and delivered as a printable file you can modify however you like.</p>
 
 <figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="A sewing workspace with fabric swatches, buttons, zippers, and thread in various colors laid out next to a printed pattern">[ Image: A sewing workspace with fabric swatches, buttons, zippers, and thread in various colors laid out next to a custom-drafted pattern ]</div><figcaption>Full creative control means every garment reflects your personal style, not a tailor's default choices.</figcaption></figure>
 
@@ -1688,8 +1690,8 @@ export const ARTICLES_VS = [
   },
   {
     slug: 'best-made-to-measure-sewing-patterns',
-    title: 'Best Made-to-Measure Sewing Patterns in 2026: Full Comparison',
-    description: 'Compare all made-to-measure sewing pattern services in 2026. Speed, price, library size, and beginner-friendliness rated side by side.',
+    title: `Best Made-to-Measure Sewing Patterns in ${CURRENT_YEAR}: Full Comparison`,
+    description: 'Compare all made-to-measure sewing pattern services in ${CURRENT_YEAR}. Speed, price, library size, and beginner-friendliness rated side by side.',
     category: 'vs',
     tags: ['best-of', 'made-to-measure', 'comparison', '2026', 'custom-fit', 'roundup'],
     youtubeId: null,
@@ -1700,7 +1702,7 @@ export const ARTICLES_VS = [
       { question: 'Do all made-to-measure services produce patterns instantly?', answer: 'No. People\'s Patterns and FreeSewing generate patterns in real time in your browser. Lekala and Bootstrap Fashion also generate relatively quickly online. Sewist typically delivers within minutes. Apostrophe patterns are produced by a human pattern maker, so turnaround is measured in days.' },
       { question: 'Can I get a projector file from made-to-measure pattern services?', answer: 'People\'s Patterns offers a projector pattern as a $4 upsell alongside the standard tiled PDF and A0 files. FreeSewing exports in SVG which can be used with projectors. Availability of projector-specific files varies across other services -- check each provider for their current output options.' },
     ],
-    body: `<p>The made-to-measure sewing pattern space has grown more interesting than ever in 2026. Where a few years ago your options were limited to grading between sizes on a commercial pattern or learning to draft from scratch, today there are multiple services that will generate custom-fit patterns from your individual measurements. The promise is the same across all of them: patterns that fit your body, not a standardized size chart.</p>
+    body: `<p>The made-to-measure sewing pattern space has grown more interesting than ever in ${CURRENT_YEAR}. Where a few years ago your options were limited to grading between sizes on a commercial pattern or learning to draft from scratch, today there are multiple services that will generate custom-fit patterns from your individual measurements. The promise is the same across all of them: patterns that fit your body, not a standardized size chart.</p>
 
 <p>But the execution varies widely. Some services generate patterns instantly in your browser. Others require you to submit measurements through a form and wait for delivery. Some include detailed sewing instructions. Others assume you already know how to sew and provide only the pattern pieces. Prices range from free to $20 or more per pattern, and the garment libraries range from a handful of basics to hundreds of styles.</p>
 
@@ -1715,7 +1717,7 @@ export const ARTICLES_VS = [
 <tr><th>Service</th><th>Price Range</th><th>Generation Speed</th><th>Library Size</th><th>Beginner-Friendly</th><th>Output Format</th></tr>
 </thead>
 <tbody>
-<tr><td>People's Patterns</td><td>$9-$19 (first free)</td><td>Instant (browser)</td><td>38 garments</td><td>Very</td><td>Tiled PDF + A0 + projector ($4)</td></tr>
+<tr><td>People's Patterns</td><td>$9-$19 (first free)</td><td>Instant (browser)</td><td>${GARMENT_COUNT} garments</td><td>Very</td><td>Tiled PDF + A0 + projector ($4)</td></tr>
 <tr><td>Lekala</td><td>~$3-$6</td><td>Fast (online)</td><td>Hundreds of styles</td><td>Moderate</td><td>PDF (no seam allowances on many)</td></tr>
 <tr><td>Bootstrap Fashion</td><td>~$14-$20</td><td>Fast (online)</td><td>Large catalog</td><td>Moderate</td><td>PDF download</td></tr>
 <tr><td>FreeSewing</td><td>Free (open source)</td><td>Instant (browser)</td><td>~30+ designs</td><td>Moderate to Low</td><td>SVG / PDF</td></tr>
@@ -1760,7 +1762,7 @@ export const ARTICLES_VS = [
 
 <p><strong>Sewist</strong> offers a substantial catalog as well, covering a wide range of garment types with various style options.</p>
 
-<p><strong>People's Patterns</strong> currently has 38 garment modules. That includes core wardrobe staples like <a href="/patterns/tee">tees</a>, <a href="/patterns/fitted-tee-w">fitted tees</a>, <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodies</a>, <a href="/patterns/camp-shirt">camp shirts</a>, <a href="/patterns/wrap-dress-w">wrap dresses</a>, <a href="/patterns/a-line-skirt-w">A-line skirts</a>, <a href="/patterns/gym-shorts">gym shorts</a>, <a href="/patterns/cargo-shorts">cargo shorts</a>, <a href="/patterns/wide-leg-trouser-w">wide-leg trousers</a>, and <a href="/patterns/easy-pant-w">easy pants</a>, among others. The library is growing steadily, but it is smaller than Lekala's or Bootstrap Fashion's catalogs. If you need a very specific or unusual garment type, check whether it is available before committing.</p>
+<p><strong>People's Patterns</strong> currently has ${GARMENT_COUNT} garment modules. That includes core wardrobe staples like <a href="/patterns/tee">tees</a>, <a href="/patterns/fitted-tee-w">fitted tees</a>, <a href="/patterns/straight-jeans">straight jeans</a>, <a href="/patterns/chinos">chinos</a>, <a href="/patterns/hoodie">hoodies</a>, <a href="/patterns/camp-shirt">camp shirts</a>, <a href="/patterns/wrap-dress-w">wrap dresses</a>, <a href="/patterns/a-line-skirt-w">A-line skirts</a>, <a href="/patterns/gym-shorts">gym shorts</a>, <a href="/patterns/cargo-shorts">cargo shorts</a>, <a href="/patterns/wide-leg-trouser-w">wide-leg trousers</a>, and <a href="/patterns/easy-pant-w">easy pants</a>, among others. The library is growing steadily, but it is smaller than Lekala's or Bootstrap Fashion's catalogs. If you need a very specific or unusual garment type, check whether it is available before committing.</p>
 
 <p><strong>FreeSewing</strong> has roughly 30 or more designs, contributed by community members. The designs tend toward well-executed basics and clever constructions rather than trend-driven fashion. Because it is open source, new designs are added by contributors over time.</p>
 
@@ -1844,7 +1846,7 @@ export const ARTICLES_VS = [
     faqSchema: [
       { question: 'When was People\'s Patterns founded?', answer: 'People\'s Patterns launched on March 20, 2026. It was built by a solo founder who wanted to make custom-fit sewing patterns accessible to everyone, not just people with pattern drafting skills or the budget for professional tailoring.' },
       { question: 'Do I need to install any software to use People\'s Patterns?', answer: 'No. People\'s Patterns runs entirely in your web browser. There is no app to download, no desktop software to install, and no system requirements beyond a modern browser and internet connection. Your patterns generate on screen and download as PDF files.' },
-      { question: 'How many garments are available on People\'s Patterns?', answer: 'People\'s Patterns currently offers 38 garment modules, including tops, bottoms, dresses, skirts, shorts, and outerwear. The library is growing steadily, with new garments added regularly based on community feedback and demand.' },
+      { question: 'How many garments are available on People\'s Patterns?', answer: 'People\'s Patterns currently offers ${GARMENT_COUNT} garment modules, including tops, bottoms, dresses, skirts, shorts, and outerwear. The library is growing steadily, with new garments added regularly based on community feedback and demand.' },
       { question: 'What happens if my body measurements change?', answer: 'You can update your measurements at any time and re-generate any pattern you have purchased for free. There is no limit to how many times you can re-generate. Your patterns evolve with your body at no additional cost.' },
     ],
     body: `<p>Every product has an origin story, and most of them get polished into something more impressive than the truth. This is not one of those stories. People's Patterns started with a frustration, turned into an obsession, and became a company on March 20, 2026. There was no venture capital pitch, no team of twelve engineers, no board of advisors. Just one person who believed that custom-fit sewing patterns should not be this hard to get.</p>
@@ -1895,7 +1897,7 @@ export const ARTICLES_VS = [
 
 <h2>What's Next</h2>
 
-<p>People's Patterns is twelve days old as of this writing. The library is 38 garments and growing. Every week we are drafting new modules, refining existing ones based on sewist feedback, and improving the measurement guidance to help people get better results on their first try.</p>
+<p>People's Patterns is twelve days old as of this writing. The library is ${GARMENT_COUNT} garments and growing. Every week we are drafting new modules, refining existing ones based on sewist feedback, and improving the measurement guidance to help people get better results on their first try.</p>
 
 <p>The roadmap is guided by one question: what do sewists actually need? Not what is technically impressive, not what looks good in a demo, but what helps someone sit down at their sewing machine and make something they are proud to wear. That means more garments, better instructions, more sizes and body types represented, and faster iteration based on real feedback from real sewists.</p>
 
@@ -1918,7 +1920,7 @@ export const ARTICLES_VS = [
 <section class="faq"><h2>Frequently Asked Questions</h2>
 <div class="faq-item"><h3>When was People's Patterns founded?</h3><p>People's Patterns launched on March 20, 2026. It was built by a solo founder who wanted to make custom-fit sewing patterns accessible to everyone, not just those with drafting skills or the budget for professional tailoring.</p></div>
 <div class="faq-item"><h3>Do I need to install any software to use People's Patterns?</h3><p>No. Everything runs in your web browser. There is no app to download, no desktop software to install, and no special system requirements. Your patterns generate on screen and download as PDF files ready for printing.</p></div>
-<div class="faq-item"><h3>How many garments are available on People's Patterns?</h3><p>There are currently 38 garment modules, including tops, bottoms, dresses, skirts, shorts, and outerwear. The library grows regularly based on community feedback and demand.</p></div>
+<div class="faq-item"><h3>How many garments are available on People's Patterns?</h3><p>There are currently ${GARMENT_COUNT} garment modules, including tops, bottoms, dresses, skirts, shorts, and outerwear. The library grows regularly based on community feedback and demand.</p></div>
 <div class="faq-item"><h3>What happens if my body measurements change?</h3><p>You can update your measurements at any time and re-generate any pattern you have purchased for free. There is no limit on re-generations. Your patterns evolve with your body at no additional cost.</p></div>
 </section>`,
   },
