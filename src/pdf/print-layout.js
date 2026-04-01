@@ -598,12 +598,12 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
   const foldLabel = fold ? `${fmtInches(fullLen)} full (place on fold)` : `${fmtInches(fullLen)}`;
   const dimLabel = `${foldLabel} \xd7 ${fmtInches(fullWid)}`;
 
-  // Fold-line indicator — on top edge when rotated, left edge otherwise
+  // Fold-line indicator — on the outer cut-line edge (not the inner stitch line)
   let foldSvg = '';
   if (fold && rotated) {
-    // Horizontal fold line along the top edge
-    const fy = ry;
-    const fx1 = rx + rW * 0.1, fx2 = rx + rW * 0.9;
+    // Horizontal fold line along the top cut edge
+    const fy = ry - saOff;
+    const fx1 = rx - saOff + (rW + saOff * 2) * 0.1, fx2 = rx - saOff + (rW + saOff * 2) * 0.9;
     const fmx = (fx1 + fx2) / 2;
     foldSvg = `<line x1="${fx1}" y1="${fy}" x2="${fx2}" y2="${fy}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
     const aw = 3, ah = 4;
@@ -614,9 +614,9 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
     }
     foldSvg += `<text x="${fmx}" y="${fy + 5}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#555" text-anchor="middle" letter-spacing="1.5" dominant-baseline="middle">FOLD</text>`;
   } else if (fold) {
-    // Vertical fold line on the left edge (original orientation)
-    const fx = rx;
-    const fy1 = ry + rH * 0.1, fy2 = ry + rH * 0.9;
+    // Vertical fold line on the left cut edge (original orientation)
+    const fx = rx - saOff;
+    const fy1 = ry - saOff + (rH + saOff * 2) * 0.1, fy2 = ry - saOff + (rH + saOff * 2) * 0.9;
     const fmy = (fy1 + fy2) / 2;
     foldSvg = `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>`;
     const aw = 4, ah = 3;
