@@ -43,7 +43,8 @@
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
-    { "source": "/redeem", "destination": "/redeem.html" }
+    { "source": "/redeem", "destination": "/redeem.html" },
+    { "source": "/tester", "destination": "/tester.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" }

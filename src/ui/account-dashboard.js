@@ -11,6 +11,8 @@ import {
   getWishlist, removeFromWishlist,
   getSubscription, getTotalCredits,
   logMeasurementDelta,
+  getTesterApplication, getTesterAssignments, getTesterSubmissions,
+  updateTesterAssignment, getTesterProfile,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
@@ -51,6 +53,7 @@ export function openAccountDashboard(section = 'measurements') {
               <button class="acct-nav-item" data-section="subscription">Subscription</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
               <button class="acct-nav-item" data-section="giftcards">Gift Cards & Codes</button>
+              <button class="acct-nav-item" data-section="tester">Tester Program</button>
               <button class="acct-nav-item" data-section="settings">Account Settings</button>
             </nav>
             <button class="acct-close-btn" id="acct-close">✕ Close</button>
@@ -99,6 +102,7 @@ async function _showSection(section) {
     case 'subscription': await _renderSubscription(main, user); break;
     case 'orders':       await _renderOrders(main, user); break;
     case 'giftcards':    await _renderGiftCards(main, user); break;
+    case 'tester':       await _renderTester(main, user); break;
     case 'settings':     await _renderSettings(main, user); break;
     default:             main.innerHTML = `<p class="acct-empty">Unknown section.</p>`;
   }
@@ -1445,5 +1449,326 @@ async function _renderSettings(main, user) {
     if (!confirm('Are you absolutely sure? All purchases and saved profiles will be lost.')) return;
     // Supabase admin delete requires service role key — show instructions instead
     alert('To fully delete your account, email hello@peoplespatterns.com with the subject "Delete my account".\n\nWe\'ll process your request within 48 hours.');
+  });
+}
+
+// ── Tester Program ───────────────────────────────────────────────────────────
+
+const TESTER_FIT_AREAS = [
+  { key: 'waist_fit',  label: 'Waist' },
+  { key: 'hip_fit',    label: 'Hip' },
+  { key: 'chest_fit',  label: 'Chest' },
+  { key: 'shoulder',   label: 'Shoulder' },
+  { key: 'armhole',    label: 'Armhole' },
+  { key: 'thigh_fit',  label: 'Thigh' },
+  { key: 'length',     label: 'Length' },
+  { key: 'rise_fit',   label: 'Rise' },
+  { key: 'sleeve_fit', label: 'Sleeve' },
+];
+const TESTER_FIT_OPTIONS = ['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a'];
+
+async function _renderTester(main, user) {
+  const [appRes, assignRes, subRes, profileRes] = await Promise.all([
+    getTesterApplication(user.id),
+    getTesterAssignments(user.id),
+    getTesterSubmissions(user.id),
+    getTesterProfile(user.id),
+  ]);
+
+  const app         = appRes.data;
+  const assignments = assignRes.data ?? [];
+  const submissions = subRes.data ?? [];
+  const isTester    = profileRes.data?.is_tester ?? false;
+
+  let html = `<h2 class="acct-section-title">Tester Program</h2>`;
+
+  // ── Not a tester yet ───────────────────────────────────────────────────────
+  if (!isTester) {
+    if (app?.status === 'pending') {
+      html += `
+        <div class="tester-dash-status tester-dash-pending">
+          <strong>Application pending</strong>
+          <p>We review applications weekly. You'll receive an email when we've decided.</p>
+        </div>`;
+    } else if (app?.status === 'rejected') {
+      html += `
+        <div class="tester-dash-status tester-dash-rejected">
+          <strong>Application not accepted</strong>
+          <p>You can re-apply from the <a href="/tester#apply" class="acct-link">tester page</a>.</p>
+        </div>`;
+    } else {
+      html += `
+        <div class="tester-dash-status">
+          <p>You're not enrolled in the tester program yet.</p>
+          <a href="/tester#apply" class="acct-btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px">Apply Now</a>
+        </div>`;
+    }
+    main.innerHTML = html;
+    return;
+  }
+
+  // ── Active tester dashboard ────────────────────────────────────────────────
+  html += `<div class="tester-dash-status tester-dash-approved"><strong>Active Tester</strong></div>`;
+
+  // Assignments
+  const active    = assignments.filter(a => a.status === 'assigned' || a.status === 'in_progress');
+  const completed = assignments.filter(a => a.status === 'submitted' || a.status === 'featured');
+  const expired   = assignments.filter(a => a.status === 'expired');
+
+  if (active.length) {
+    html += `<h3 class="acct-sub-title">Current Assignments</h3>`;
+    html += `<div class="tester-assign-list">`;
+    for (const a of active) {
+      const name   = a.garment_id.replace(/-/g, ' ');
+      const due    = new Date(a.due_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const daysLeft = Math.max(0, Math.ceil((new Date(a.due_at) - Date.now()) / (1000 * 60 * 60 * 24)));
+      html += `
+      <div class="tester-assign-card" data-id="${a.id}" data-garment="${a.garment_id}">
+        <div class="tester-assign-info">
+          <span class="tester-assign-name">${name}</span>
+          <span class="tester-assign-meta">Due ${due} (${daysLeft} day${daysLeft !== 1 ? 's' : ''} left)</span>
+        </div>
+        <div class="tester-assign-actions">
+          ${a.status === 'assigned' ? `<button class="acct-btn-xs tester-start-btn" data-id="${a.id}">Start</button>` : ''}
+          <button class="acct-btn-sm tester-submit-btn" data-id="${a.id}" data-garment="${a.garment_id}">Submit Feedback</button>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    html += `<p class="acct-empty">No active assignments. We'll email you when a new one is ready.</p>`;
+  }
+
+  if (completed.length) {
+    html += `<h3 class="acct-sub-title" style="margin-top:24px">Completed</h3>`;
+    html += `<div class="tester-assign-list">`;
+    for (const a of completed) {
+      const name    = a.garment_id.replace(/-/g, ' ');
+      const sub     = submissions.find(s => s.assignment_id === a.id);
+      const badge   = a.status === 'featured' ? '<span class="tester-badge-featured">Featured</span>' : '<span class="tester-badge-submitted">Submitted</span>';
+      html += `
+      <div class="tester-assign-card tester-assign-done">
+        <div class="tester-assign-info">
+          <span class="tester-assign-name">${name}</span>
+          ${badge}
+          ${sub ? `<span class="tester-assign-meta">Fit: ${sub.overall_fit.replace(/_/g, ' ')}</span>` : ''}
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (expired.length) {
+    html += `<details class="acct-archived" style="margin-top:16px"><summary>Expired (${expired.length})</summary><div class="tester-assign-list">`;
+    for (const a of expired) {
+      const name = a.garment_id.replace(/-/g, ' ');
+      html += `<div class="tester-assign-card tester-assign-dim"><span class="tester-assign-name">${name}</span> <span class="tester-assign-meta">Expired</span></div>`;
+    }
+    html += `</div></details>`;
+  }
+
+  main.innerHTML = html;
+
+  // ── Bind start buttons ─────────────────────────────────────────────────────
+  main.querySelectorAll('.tester-start-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'Starting...';
+      await updateTesterAssignment(btn.dataset.id, user.id, { status: 'in_progress', started_at: new Date().toISOString() });
+      _showToast('Assignment started');
+      _showSection('tester');
+    });
+  });
+
+  // ── Bind submit buttons ────────────────────────────────────────────────────
+  main.querySelectorAll('.tester-submit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _showTesterFeedbackModal(user, btn.dataset.id, btn.dataset.garment);
+    });
+  });
+}
+
+function _showTesterFeedbackModal(user, assignmentId, garmentId) {
+  const garmentName = garmentId.replace(/-/g, ' ');
+
+  const fitAreasHtml = TESTER_FIT_AREAS.map(area => `
+    <div class="tester-fit-row">
+      <label class="tester-fit-label">${area.label}</label>
+      <select class="tester-fit-select" data-area="${area.key}">
+        ${TESTER_FIT_OPTIONS.map(o => `<option value="${o}">${o.replace(/_/g, ' ')}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
+  const { overlay, close } = _showModal({
+    title: `Feedback: ${garmentName}`,
+    body: `
+      <div class="tester-feedback-form" id="tester-feedback-form">
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Overall Fit *</label>
+          <select id="tfb-overall" class="tester-fit-select" required>
+            <option value="">Select</option>
+            <option value="perfect">Perfect</option>
+            <option value="good">Good</option>
+            <option value="needs_adjustment">Needs Adjustment</option>
+            <option value="poor">Poor</option>
+          </select>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fit by Area</label>
+          <div class="tester-fit-grid">${fitAreasHtml}</div>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Difficulty (1-5) *</label>
+          <input type="number" id="tfb-difficulty" min="1" max="5" value="3" class="acct-input" style="width:80px">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Instructions Clarity (1-5) *</label>
+          <input type="number" id="tfb-clarity" min="1" max="5" value="3" class="acct-input" style="width:80px">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Would Sew Again?</label>
+          <label class="tester-check-inline"><input type="checkbox" id="tfb-again" checked> Yes</label>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fit Notes</label>
+          <textarea id="tfb-fit-notes" class="acct-input" rows="3" placeholder="Describe any fit issues..."></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Construction Notes</label>
+          <textarea id="tfb-construction" class="acct-input" rows="3" placeholder="How were the instructions? Any confusing steps?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fabric Used</label>
+          <input type="text" id="tfb-fabric" class="acct-input" placeholder="e.g. Cotton twill, 8oz denim">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Modifications Made</label>
+          <textarea id="tfb-mods" class="acct-input" rows="2" placeholder="Any changes you made to the pattern?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Tips for Other Sewists</label>
+          <textarea id="tfb-tips" class="acct-input" rows="2" placeholder="Anything you wish you knew before starting?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Photos</label>
+          <p style="font-size:.72rem;color:var(--mid);margin-bottom:6px">Upload up to 10 photos (JPEG, PNG, WebP). Max 10 MB each.</p>
+          <input type="file" id="tfb-photos" accept="image/jpeg,image/png,image/webp" multiple class="acct-input">
+          <div id="tfb-photo-preview" class="tester-photo-preview"></div>
+        </div>
+
+        <div class="tester-fb-field" style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:8px">
+          <label class="tester-check-inline"><input type="checkbox" id="tfb-consent"> I consent to having my photos featured on the site and social media</label>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Social Handle (for credit)</label>
+          <input type="text" id="tfb-social" class="acct-input" placeholder="@yourhandle">
+        </div>
+      </div>`,
+    buttons: `<button class="acct-btn-sm" id="tfb-save">Submit Feedback</button>
+              <button class="acct-btn-sm acct-btn-ghost" id="tfb-cancel">Cancel</button>`,
+  });
+
+  overlay.querySelector('#tfb-cancel').addEventListener('click', close);
+
+  // Photo preview
+  const photoInput = overlay.querySelector('#tfb-photos');
+  photoInput?.addEventListener('change', () => {
+    const preview = overlay.querySelector('#tfb-photo-preview');
+    preview.innerHTML = '';
+    for (const file of photoInput.files) {
+      if (file.size > 10 * 1024 * 1024) { alert(`${file.name} exceeds 10 MB limit`); continue; }
+      const img = document.createElement('img');
+      img.className = 'tester-photo-thumb';
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
+    }
+  });
+
+  // Submit
+  overlay.querySelector('#tfb-save').addEventListener('click', async () => {
+    const overall = overlay.querySelector('#tfb-overall').value;
+    if (!overall) { alert('Please select overall fit.'); return; }
+
+    const saveBtn = overlay.querySelector('#tfb-save');
+    saveBtn.disabled = true; saveBtn.textContent = 'Uploading...';
+
+    const { session } = await getSession();
+    if (!session) { alert('Please sign in.'); return; }
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` };
+
+    // Upload photos first
+    const photoFiles = photoInput?.files || [];
+    const uploadedPaths = [];
+    const uploadedCaptions = [];
+
+    for (const file of photoFiles) {
+      if (file.size > 10 * 1024 * 1024) continue;
+      try {
+        // Get signed URL
+        const urlResp = await fetch('/api/tester-upload', {
+          method: 'POST', headers,
+          body: JSON.stringify({ fileName: file.name, contentType: file.type, assignmentId }),
+        });
+        const urlData = await urlResp.json();
+        if (!urlResp.ok) { console.error('upload URL error:', urlData.error); continue; }
+
+        // Upload the file
+        await fetch(urlData.signedUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+        uploadedPaths.push(urlData.publicUrl);
+        uploadedCaptions.push(file.name);
+      } catch (e) {
+        console.error('photo upload error:', e);
+      }
+    }
+
+    saveBtn.textContent = 'Saving...';
+
+    // Collect fit areas
+    const fitAreas = {};
+    overlay.querySelectorAll('.tester-fit-select[data-area]').forEach(sel => {
+      fitAreas[sel.dataset.area] = sel.value;
+    });
+
+    const payload = {
+      assignmentId,
+      overallFit:          overall,
+      fitAreas,
+      difficultyRating:    parseInt(overlay.querySelector('#tfb-difficulty').value) || 3,
+      instructionsClarity: parseInt(overlay.querySelector('#tfb-clarity').value) || 3,
+      wouldSewAgain:       overlay.querySelector('#tfb-again').checked,
+      fitNotes:            overlay.querySelector('#tfb-fit-notes').value,
+      constructionNotes:   overlay.querySelector('#tfb-construction').value,
+      fabricUsed:          overlay.querySelector('#tfb-fabric').value,
+      modifications:       overlay.querySelector('#tfb-mods').value,
+      tips:                overlay.querySelector('#tfb-tips').value,
+      photos:              uploadedPaths,
+      photoCaptions:       uploadedCaptions,
+      featureConsent:      overlay.querySelector('#tfb-consent').checked,
+      socialHandle:        overlay.querySelector('#tfb-social').value,
+    };
+
+    try {
+      const resp = await fetch('/api/tester-submit', { method: 'POST', headers, body: JSON.stringify(payload) });
+      const result = await resp.json();
+      if (!resp.ok) { alert(result.error || 'Could not save feedback'); saveBtn.disabled = false; saveBtn.textContent = 'Submit Feedback'; return; }
+
+      close();
+      _showToast('Feedback submitted — thank you!');
+      _showSection('tester');
+    } catch (e) {
+      console.error('tester submit error:', e);
+      alert('Network error — please try again.');
+      saveBtn.disabled = false; saveBtn.textContent = 'Submit Feedback';
+    }
   });
 }
