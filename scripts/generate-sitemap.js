@@ -39,6 +39,7 @@ const STATIC_PAGES = [
   { loc: '/faq',      priority: '0.6', changefreq: 'monthly' },
   { loc: '/terms',    priority: '0.3', changefreq: 'yearly'  },
   { loc: '/privacy',  priority: '0.3', changefreq: 'yearly'  },
+  { loc: '/tester',   priority: '0.7', changefreq: 'weekly'  },
 ];
 
 const BASE = 'https://peoplespatterns.com';

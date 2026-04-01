@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-03-31 · v0.7.0_
+_Last updated: 2026-04-01 · v0.7.0_
 
 ---
 
@@ -126,6 +126,13 @@ Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
 - [x] Purchase bypass patched (backend PDF authorization)
 - [x] Account dashboard (measurements, patterns, projects, wishlist, orders, gift cards, settings)
 - [x] cm / inch toggle
+- [x] Pattern Tester Program (full self-serve flow: apply, approve, sew muslin, submit feedback + photos, get featured)
+- [x] Tester page at `/tester` with gallery, application form, how-it-works
+- [x] Tester section in account dashboard (assignments, feedback modal, photo upload)
+- [x] 5 tester email templates (application received, approved, rejected, submission received, featured)
+- [x] Tester admin API (approve/reject/feature, free credit grant)
+- [x] Supabase Storage bucket for tester photos
+- [x] Tester link added to site-wide header and footer navigation
 
 ---
 

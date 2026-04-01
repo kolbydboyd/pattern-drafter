@@ -4,6 +4,22 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.9.0] — 2026-04-01
+
+### Pattern Tester Program
+- Added complete self-serve tester flow: apply, get approved, sew muslins, submit structured fit feedback with photos, get featured on site and socials
+- New public landing page at `/tester` with how-it-works, perks, auth-aware application form, and featured gallery
+- New "Tester Program" section in account dashboard with assignment tracking, feedback modal (9 body areas, difficulty/clarity ratings, photo upload), and feature consent
+- 4 new API endpoints: `tester-apply`, `tester-admin`, `tester-submit`, `tester-upload`
+- 5 new email templates: application received, approved, rejected, submission received, featured
+- Supabase migration: `tester_applications`, `tester_assignments`, `tester_submissions` tables with RLS, `tester-photos` storage bucket, `is_tester`/`is_admin` profile flags
+- Admin actions: list/approve/reject applications, grant free credits, create assignments, feature submissions
+
+### Navigation
+- Added "Tester" link to desktop header nav, mobile nav, and footer across all 12 HTML pages
+
+---
+
 ## [0.8.1] — 2026-03-29
 
 ### Codebase audit — dead code removal and cleanup
