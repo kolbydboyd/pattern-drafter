@@ -5,6 +5,10 @@
       "memory": 1024,
       "maxDuration": 60
     },
+    "api/regenerate-pattern.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    },
     "api/stripe-webhook.js": {
       "memory": 256
     },

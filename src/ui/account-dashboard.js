@@ -352,7 +352,7 @@ function _showRegenAllBanner(user, profileId, profileName, newMeas) {
         await fetch('/api/regenerate-pattern', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({ garmentId: p.garment_id, userId: user.id, purchaseId: p.id, measurements: newMeas, opts: {} }),
+          body: JSON.stringify({ garmentId: p.garment_id, purchaseId: p.id, measurements: newMeas, opts: {} }),
         });
         done++;
       } catch { /* skip failed */ }
@@ -868,9 +868,11 @@ function _showRegenModal(user, garmentId, purchaseId, measurements, profileName,
   confirmBtn.addEventListener('click', async () => {
     confirmBtn.disabled = true; confirmBtn.textContent = 'Generating…';
     try {
+      const { session } = await getSession();
       const res  = await fetch('/api/regenerate-pattern', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garmentId, userId: user.id, purchaseId, measurements, opts: {} }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ garmentId, purchaseId, measurements, opts: {} }),
       });
       const json = await res.json();
       if (!res.ok || json.error) {
