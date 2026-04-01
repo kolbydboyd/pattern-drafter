@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Generates public/sitemap.xml at build time.
+// Only includes articles whose datePublished <= today (drip-feed for SEO).
 // Run: node scripts/generate-sitemap.js
 
 import { writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { ARTICLES } from '../src/content/articles.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -24,12 +26,8 @@ const GARMENT_IDS = [
   'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
 ];
 
-// ── Article slugs (must match src/content/articles.js) ───────────────────────
-const ARTICLE_SLUGS = [
-  'how-to-measure-yourself',
-  'how-to-print-tiled-pdf-pattern',
-  'how-peoples-patterns-works',
-];
+// ── Published articles (datePublished <= today) ───────────────────────────────
+const PUBLISHED = ARTICLES.filter(a => !a.datePublished || a.datePublished <= TODAY);
 
 // ── Static pages ───────────────────────────────────────────────────────────────
 const STATIC_PAGES = [
@@ -44,10 +42,10 @@ const STATIC_PAGES = [
 
 const BASE = 'https://peoplespatterns.com';
 
-function url(loc, priority, changefreq) {
+function url(loc, priority, changefreq, lastmod) {
   return `  <url>
     <loc>${BASE}${loc}</loc>
-    <lastmod>${TODAY}</lastmod>
+    <lastmod>${lastmod || TODAY}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
@@ -58,12 +56,16 @@ const lines = [
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...STATIC_PAGES.map(p => url(p.loc, p.priority, p.changefreq)),
   ...GARMENT_IDS.map(id => url(`/patterns/${id}`, '0.8', 'monthly')),
-  ...ARTICLE_SLUGS.map(slug => url(`/learn/${slug}`, '0.7', 'monthly')),
+  ...PUBLISHED.map(a => url(`/learn/${a.slug}`, '0.7', 'monthly', a.datePublished)),
   '</urlset>',
 ];
 
 const xml = lines.join('\n');
 writeFileSync(resolve(ROOT, 'public', 'sitemap.xml'), xml, 'utf8');
 
-const totalUrls = STATIC_PAGES.length + GARMENT_IDS.length + ARTICLE_SLUGS.length;
+const totalUrls = STATIC_PAGES.length + GARMENT_IDS.length + PUBLISHED.length;
+const futureCount = ARTICLES.length - PUBLISHED.length;
 console.log(`sitemap.xml generated: ${totalUrls} URLs → public/sitemap.xml`);
+if (futureCount > 0) {
+  console.log(`  (${futureCount} articles scheduled for future publication, not yet in sitemap)`);
+}

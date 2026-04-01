@@ -9,12 +9,23 @@ import GARMENTS from '../garments/index.js';
 import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
+
+// ── Publish-date gate (drip feed for SEO) ─────────────────────────────────────
+// Only articles whose datePublished <= today appear in listing & related links.
+// Direct URL access still works for previewing upcoming articles.
+const TODAY = new Date().toISOString().slice(0, 10);
+const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
+const PUBLISHED = ARTICLES.filter(isPublished);
 const CATEGORY_LABELS = {
   'getting-started': 'Getting Started',
   'printing':        'Printing',
   'about':           'About',
   'technique':       'Technique',
   'fit':             'Fit',
+  'fabric':          'Fabric & Materials',
+  'garments':        'Garment Guides',
+  'community':       'Community & More',
+  'vs':              'Comparisons',
 };
 
 // ── Routing ───────────────────────────────────────────────────────────────────
@@ -33,11 +44,12 @@ if (slug) {
 function renderListing() {
   document.title = "Learn | People's Patterns";
 
-  const cards = ARTICLES.map(a => `
+  const cards = PUBLISHED.map(a => `
     <a href="/learn/${a.slug}" class="learn-card">
       <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
       <h2 class="learn-card-title">${a.title}</h2>
       <p class="learn-card-desc">${a.description}</p>
+      ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(t => `<span class="learn-tag">${t}</span>`).join('')}</div>` : ''}
       <span class="learn-card-read">Read article →</span>
     </a>`).join('');
 
@@ -99,8 +111,25 @@ function renderArticle(slug) {
   const jsonldEl = document.getElementById('pp-jsonld');
   if (jsonldEl) jsonldEl.textContent = JSON.stringify(jsonld);
 
-  // Related articles (same category, exclude current)
-  const related = ARTICLES
+  // FAQ JSON-LD (FAQPage schema)
+  if (article.faqSchema?.length) {
+    const faqJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: article.faqSchema.map(faq => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    };
+    const faqScript = document.createElement('script');
+    faqScript.type = 'application/ld+json';
+    faqScript.textContent = JSON.stringify(faqJsonLd);
+    document.head.appendChild(faqScript);
+  }
+
+  // Related articles (same category, exclude current, published only)
+  const related = PUBLISHED
     .filter(a => a.slug !== slug && a.category === article.category)
     .slice(0, 2);
 
