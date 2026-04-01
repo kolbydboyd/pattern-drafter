@@ -309,6 +309,309 @@ export const ARTICLES = [
 <p>There are currently {{GARMENT_COUNT}} garment modules available, including pants, shorts, skirts, tops, dresses, and more. New garments are added regularly. <a href="/patterns">Browse the full catalog here.</a></p>
 `,
   },
+
+  {
+    slug:        'best-beginner-sewing-projects-custom-patterns',
+    title:       'Best Beginner Sewing Projects for Custom Patterns',
+    description: 'Discover the best beginner sewing projects to start with custom-fit patterns. From pajama pants to tote bags, learn which projects build skills fast.',
+    category:    'getting-started',
+    youtubeId:   null,
+    datePublished: '2026-04-01',
+    body: `
+<h2>Why Custom Patterns Are Perfect for Beginners</h2>
+<p>If you have ever pulled a sewing project out of a machine and thought "this looks nothing like the picture," you are not alone. Most beginners blame themselves when a project does not turn out right. But here is a secret that experienced sewists know: the pattern is usually the problem, not you.</p>
+<p>The best beginner sewing projects for custom patterns are the ones that let you build real skills without fighting your fabric the whole time. When a pattern is drafted to your exact measurements, the pieces go together the way they should. Seams line up. Hems fall where they are supposed to. You spend your energy learning technique instead of troubleshooting fit.</p>
+<p>That is why we built <a href="/">People's Patterns</a>. Every pattern is generated from your body measurements using <a href="/learn/how-peoples-patterns-works">parametric drafting</a>, the same math used in fashion design schools. No sizes, no grading, no guesswork. Just a pattern that fits you from the start.</p>
+<p>Below are our top picks for beginner-friendly projects, ranked from easiest to slightly more challenging. Each one teaches you something new, and all of them result in something you will actually want to wear.</p>
+
+<!-- IMAGE: Flat lay of completed beginner projects (pajama pants, tote bag, A-line skirt, simple tee) arranged on a wooden table with scissors and measuring tape, alt text: "Completed beginner sewing projects including pajama pants, tote bag, skirt, and tee shirt" -->
+
+<h2>1. Pajama Pants: The Perfect First Project</h2>
+<p>Ask any sewing teacher what beginners should make first, and most of them will say pajama pants. There is a good reason for that.</p>
+<p>Pajama pants have only two main pattern pieces (front and back), straight seams, an elastic waistband, and a simple hem. There are no zippers, no buttons, no complicated curves. You can finish a pair in an afternoon, and you will actually wear them tonight.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>How to lay out and cut pattern pieces on fabric</li>
+  <li>Sewing straight seams on a machine</li>
+  <li>Creating an elastic casing waistband</li>
+  <li>Hemming pant legs</li>
+  <li>How a crotch curve works (it is simpler than it sounds)</li>
+</ul>
+<p>With a custom-fit pattern from People's Patterns, your pajama pants will fit your waist and your inseam perfectly. No more pants that are weirdly long or tight in the hips. A sewist named Rachel told us her first pair of custom pajama pants fit better than anything she had bought in a store in years.</p>
+<p><strong>Recommended fabric:</strong> Cotton flannel for winter, cotton lawn or rayon challis for summer. Both are easy to handle and forgiving of beginner mistakes.</p>
+
+<h2>2. A-Line Skirt: Simple Shape, Flattering Fit</h2>
+<p>An A-line skirt is one step up from pajama pants. You are still working with relatively simple shapes, but you add a waistband and a zipper (or elastic, if you prefer to skip the zipper for now).</p>
+<p>The A-line shape is universally flattering because it skims over the hips without clinging. And when the pattern is drafted from your actual hip and waist measurements, the skirt sits exactly where it should without pulling or gapping.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>Working with a shaped waistband</li>
+  <li>Installing a basic zipper (or elastic waist alternative)</li>
+  <li>Sewing curved side seams</li>
+  <li>Hemming a flared edge</li>
+</ul>
+<p>People's Patterns offers several skirt styles in the <a href="/patterns">pattern catalog</a>, including the circle skirt which is another great beginner option. The pattern engine handles all the math for the flare, so you just cut and sew.</p>
+
+<!-- IMAGE: Someone wearing a completed A-line skirt in a solid cotton fabric, showing the fit at waist and the flare at hem, alt text: "Completed A-line skirt sewn from a custom-fit pattern showing proper waist fit and hem flare" -->
+
+<h2>3. Simple Tee: Your First Knit Project</h2>
+<p>Sewing with knit fabric (stretchy material like t-shirt fabric) scares a lot of beginners. But honestly, once you know a couple of tricks, knits are not harder than woven fabrics. They are just different.</p>
+<p>A simple tee is the best way to learn knit sewing because the construction is straightforward: front panel, back panel, sleeves, neckband. That is it. And the beauty of a custom-fit tee is that you finally get a t-shirt where the shoulder seams sit on your actual shoulders and the body does not billow out like a tent.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>Cutting slippery knit fabric (tip: use a rotary cutter and weights instead of pins)</li>
+  <li>Sewing stretch seams (zigzag stitch or stretch stitch on a regular machine)</li>
+  <li>Attaching a neckband</li>
+  <li>Hemming knit fabric</li>
+</ul>
+<p>If you do not have a serger, that is completely fine. A regular sewing machine with a zigzag stitch handles knits well. Many of our sewists make their first custom tee on a basic machine and the results are great.</p>
+<p><strong>Recommended fabric:</strong> Cotton jersey with a bit of spandex (sometimes labeled cotton/lycra). It is stable, easy to handle, and available everywhere.</p>
+
+<h2>4. Cargo Shorts: Adding Pockets and Details</h2>
+<p>Once you have a couple of projects under your belt, cargo shorts are a fun way to level up. You are building on everything you learned with the pajama pants (same basic structure), but now you add patch pockets, a fly front, and belt loops.</p>
+<p>This is where custom fit really shines. Shorts from the store are notorious for fitting badly because everyone's rise measurement is different. Your custom pattern accounts for your exact rise, so the shorts sit comfortably without riding up or sagging.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>Sewing and attaching patch pockets</li>
+  <li>Constructing a fly front with a zipper</li>
+  <li>Making and attaching belt loops</li>
+  <li>Topstitching for a professional finish</li>
+</ul>
+<p>We have a <a href="/patterns">cargo shorts pattern</a> in the catalog that includes full step-by-step construction instructions. Several beginners have told us it was the project that made them feel like a "real sewist."</p>
+
+<!-- IMAGE: Close-up of cargo shorts pocket detail showing clean topstitching and pocket flap, alt text: "Cargo shorts sewn from custom pattern showing pocket construction detail and topstitching" -->
+
+<h2>5. Camp Shirt: A Wearable Layer With Collar Skills</h2>
+<p>A camp shirt (also called a camp collar or bowling shirt) is the gateway to shirt making. The collar is flat and unstructured, so it is much simpler than a traditional pointed collar with a stand. But it still teaches you the fundamentals of collar construction.</p>
+<p>Camp shirts look great on every body type and work for every season. Make one in cotton for summer or flannel for layering. Because the pattern is custom-drafted, the shoulders will fit properly and the body will drape the way it should.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>Attaching a flat collar</li>
+  <li>Sewing a button placket</li>
+  <li>Setting in sleeves (short sleeves are easier to start with)</li>
+  <li>Making and sewing buttonholes</li>
+</ul>
+<p>Buttonholes sound intimidating, but most modern sewing machines have a one-step buttonhole foot that does the work for you. Practice on a scrap first and you will be surprised how easy it is.</p>
+
+<h2>6. Hoodie: Combining Knits and Structure</h2>
+<p>Once you are comfortable with knit fabric from making your tee, a hoodie is the natural next step. It combines knit sewing skills with more complex construction: a hood, a kangaroo pocket, ribbed cuffs and hem band, and possibly a zipper.</p>
+<p>A custom-fit hoodie is genuinely one of the most satisfying things you can sew. Store-bought hoodies are made for an average body that does not exist. When you make your own from a custom pattern, the sleeves are the right length, the body fits your torso, and the hood actually covers your head without falling off.</p>
+<p>What you will learn:</p>
+<ul>
+  <li>Constructing and attaching a hood</li>
+  <li>Sewing a kangaroo pocket</li>
+  <li>Working with ribbing (cuffs and hem band)</li>
+  <li>Managing bulky seam intersections</li>
+</ul>
+<p><strong>Recommended fabric:</strong> French terry or medium-weight sweatshirt fleece. Both are easy to sew and give that classic hoodie feel.</p>
+
+<h2>Tips for Beginner Sewing Success</h2>
+<p>No matter which project you start with, these tips will help you get better results from day one:</p>
+<ul>
+  <li><strong>Take accurate measurements first.</strong> This is the foundation of everything. Use our <a href="/learn/how-to-measure-yourself">complete measurement guide</a> to get it right the first time.</li>
+  <li><strong>Always cut a muslin first.</strong> A muslin is a test version in cheap fabric. It takes an extra hour but saves you from ruining expensive material. This is standard practice for professional sewists.</li>
+  <li><strong>Press your seams as you go.</strong> Ironing each seam before you sew across it makes a bigger difference than almost anything else. Pressed seams lay flat, line up with the next piece, and give your finished project a clean, professional look.</li>
+  <li><strong>Read all the instructions before you start cutting.</strong> Sewing instructions are like a recipe. Skimming ahead helps you understand the sequence and avoid surprises midway through.</li>
+  <li><strong>Do not compare yourself to people who have been sewing for years.</strong> Your first project will not look like something from a sewing influencer's Instagram. That is fine. It will fit your body, and that already puts you ahead of most store-bought clothes.</li>
+</ul>
+
+<!-- IMAGE: A pressing station showing an iron pressing open a seam on fabric, with a sewing machine visible in the background, alt text: "Pressing a seam open with an iron during a sewing project" -->
+
+<h2>What Order Should I Make These Projects In?</h2>
+<p>If you are starting from zero, here is the progression we recommend:</p>
+<ol>
+  <li><strong>Pajama pants</strong> (straight seams, elastic waist, instant gratification)</li>
+  <li><strong>A-line skirt</strong> (shaped seams, waistband, optional zipper)</li>
+  <li><strong>Simple tee</strong> (introduction to knit fabrics)</li>
+  <li><strong>Cargo shorts</strong> (pockets, fly front, topstitching)</li>
+  <li><strong>Camp shirt</strong> (collar, buttonholes, set-in sleeves)</li>
+  <li><strong>Hoodie</strong> (hood construction, ribbing, knit + structure)</li>
+</ol>
+<p>Each project builds on skills from the one before it. By the time you finish all six, you will be comfortable with both woven and knit fabrics, zippers, buttons, pockets, collars, and more. That covers most of what you need to sew almost any garment.</p>
+<p>All of these patterns are available in the <a href="/patterns">People's Patterns catalog</a>. There are currently {{GARMENT_COUNT}} garment modules, with new ones added regularly. And remember, your first pattern download is completely free. <a href="/pricing">See pricing details here.</a></p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>What sewing machine do I need for these projects?</h3>
+<p>Any basic sewing machine that does a straight stitch and a zigzag stitch will handle all six projects. You do not need a fancy or expensive machine. Machines from Brother, Singer, and Janome in the $100 to $200 range work perfectly for beginners.</p>
+
+<h3>How much does fabric cost for a beginner project?</h3>
+<p>Most beginner projects need 2 to 3 yards of fabric. At a local fabric store, that runs $10 to $30 depending on the material. Online retailers often have even better prices. Cotton quilting fabric and cotton jersey are some of the most affordable options.</p>
+
+<h3>How long does it take to sew a beginner project?</h3>
+<p>Pajama pants can be done in 2 to 3 hours for a first timer. A tee takes about the same. A skirt or shorts might take an afternoon. A camp shirt or hoodie could take a full day spread across a couple of sessions. Speed comes with practice, so do not rush yourself.</p>
+
+<h3>What if my first project does not turn out perfectly?</h3>
+<p>That is completely normal and expected. The point of a first project is to learn the process. If the seams are a little wobbly or the hem is not perfectly even, you still learned how to operate your machine, follow a pattern, and construct a garment. The next one will be better. And with a custom-fit pattern, at least the sizing will be right even if the technique needs practice.</p>
+
+<h3>Do I need to know how to use a sewing pattern before starting?</h3>
+<p>Every People's Patterns download comes with complete step-by-step construction instructions. If you can follow a recipe, you can follow these instructions. We also have a <a href="/learn/how-to-print-tiled-pdf-pattern">guide on printing and assembling your pattern</a> so you know exactly what to do with the PDF once you download it.</p>
+
+<p class="cta">Ready to try your first custom pattern? <a href="/patterns">Browse our pattern catalog and start with a free download.</a></p>
+`,
+  },
+
+  {
+    slug:        'fix-common-fit-issues-made-to-measure-patterns',
+    title:       'Fix Common Fit Issues With Custom Patterns',
+    description: 'Learn how to fix common fit issues with made-to-measure sewing patterns. Troubleshoot pulling, gapping, and length problems with simple fixes.',
+    category:    'fit',
+    youtubeId:   null,
+    datePublished: '2026-04-01',
+    body: `
+<h2>When Your Custom Pattern Does Not Fit Perfectly (and What to Do About It)</h2>
+<p>Made-to-measure patterns are a huge leap forward from off-the-rack sizing. When you enter your actual body measurements and the pattern engine drafts a pattern specifically for you, the fit is going to be closer than anything you have ever pulled off a store rack. But "closer" does not always mean "perfect on the first try."</p>
+<p>Even professional tailors expect to make adjustments. That is what a muslin (test garment) is for. The difference is that with a custom pattern, you are making small tweaks instead of major overhauls. You are not re-drafting an entire bodice because the standard size does not match your proportions. You are nudging a measurement by half an inch here or adjusting a style preference there.</p>
+<p>This guide walks through the most common fit issues sewists encounter with made-to-measure patterns and shows you exactly how to fix common fit issues so your next version fits like it was made for you. Because it was.</p>
+
+<!-- IMAGE: Side-by-side comparison of a muslin with fit issues marked with pins and tape versus the corrected final garment, alt text: "Muslin fitting with pins marking adjustments next to corrected final garment" -->
+
+<h2>The Golden Rule: Always Sew a Muslin First</h2>
+<p>Before we get into specific fit issues, let us talk about the single most important habit in garment sewing: cutting a muslin.</p>
+<p>A muslin is a test version of your garment sewn in cheap fabric. It does not need to look pretty. It just needs to go together well enough for you to try it on and check the fit. Unbleached muslin cloth works great (that is where the name comes from), but any inexpensive fabric with a similar weight to your final fabric will do.</p>
+<p>Why does this matter?</p>
+<ul>
+  <li>Measurements are taken on the outside of your body, but garments wrap around curves and sit differently depending on posture, fabric weight, and construction method</li>
+  <li>Everyone's body has asymmetries that a tape measure cannot fully capture</li>
+  <li>Personal fit preference is subjective. Some people like a closer fit, others prefer more room</li>
+</ul>
+<p>Think of a muslin as a rough draft. Writers do not publish their first draft and neither should sewists. People's Patterns lets you <a href="/learn/how-peoples-patterns-works">re-generate any purchased pattern for free</a> after updating your measurements, so fixing fit issues costs you nothing but a little time.</p>
+
+<h2>Fit Issue: Pulling or Strain Lines</h2>
+<p>What it looks like: tight diagonal lines radiating from a specific point on the garment. The fabric is under tension and being pulled toward the tightest area.</p>
+<p>Where it commonly appears: across the bust, across the upper back, at the hips on pants or skirts, or at the thighs.</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>The measurement for that area is too small.</strong> If you pulled the tape too tight when measuring, the pattern will be drafted with less room than your body needs.</li>
+  <li><strong>You chose a slimmer fit than your body is comfortable in.</strong> Slim fit adds less ease, which works great for some body types but can cause pulling on others.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>Re-measure the area where you see pulling. Make sure the tape is snug but not compressing your body. You should be able to slide a finger under the tape. Use our <a href="/learn/how-to-measure-yourself">measurement guide</a> for detailed instructions.</li>
+  <li>If the measurement was correct, try switching from slim fit to regular fit for that garment. The extra ease often solves the problem completely.</li>
+  <li>Update your measurement or fit preference in your People's Patterns profile and re-generate the pattern.</li>
+</ol>
+
+<h2>Fit Issue: Excess Fabric or Baggy Areas</h2>
+<p>What it looks like: fabric bubbling, folding, or hanging loosely in areas where it should sit closer to the body. Vertical folds of excess material along the torso or horizontal folds below the waistband.</p>
+<p>Where it commonly appears: at the waist (if the hip measurement is correct but the waist is smaller than average relative to hips), under the arms on tops, or at the seat on pants.</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>The measurement for that area is too large.</strong> If the tape was loose when you measured, or if you measured over clothing, the pattern will have more room than needed.</li>
+  <li><strong>You chose a relaxed fit when regular would have been better.</strong> Relaxed fit adds generous ease, which is great for casual garments but can look baggy on structured ones.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>Re-measure the area, making sure to measure over fitted underwear only (not over clothes).</li>
+  <li>Consider switching from relaxed fit to regular fit if the bagginess is uniform rather than localized.</li>
+  <li>If the issue is only in one area (like the waist on pants), update just that measurement and re-generate.</li>
+</ol>
+
+<!-- IMAGE: Close-up of a garment showing excess fabric at the waist being pinched with fingers to demonstrate where adjustment is needed, alt text: "Demonstrating excess fabric at waist by pinching the extra material" -->
+
+<h2>Fit Issue: Wrong Length</h2>
+<p>What it looks like: pants that pool at the ankles or stop above where you want them. Skirts that hit at an unflattering spot on the leg. Tops that are too long or too short in the torso.</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>Inseam measurement is off.</strong> For pants and shorts, the inseam controls the leg length. Even a one-inch difference is noticeable.</li>
+  <li><strong>Rise measurement is off.</strong> Rise affects how high or low the waistband sits, which in turn affects where the hems fall.</li>
+  <li><strong>You did not account for your shoes.</strong> If you plan to wear your pants with heels or boots, you may want a longer inseam than what you measured barefoot.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>For pants: re-measure your inseam standing barefoot, then add length for your typical shoe height if needed.</li>
+  <li>For tops and dresses: measure from your shoulder point to where you want the garment to end. Compare that to your current measurement in your profile.</li>
+  <li>Many People's Patterns garments let you adjust the finished length in the pattern options. Check the style options before re-generating.</li>
+</ol>
+
+<h2>Fit Issue: Shoulder Seams Off Position</h2>
+<p>What it looks like: the seam that connects the front and back panels at the shoulder does not sit on the bony point of your shoulder. It either falls off the edge of your shoulder (too wide) or sits inward toward your neck (too narrow).</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>Shoulder width measurement is inaccurate.</strong> This is one of the hardest measurements to take on yourself because you cannot easily see across your own back.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>Have someone else measure your shoulder width. Feel for the bony point at the top of each shoulder and measure from point to point across the back.</li>
+  <li>The tape should follow the natural curve of your shoulders, not pull tight in a straight line.</li>
+  <li>Update the measurement and re-generate. Shoulder width affects the entire upper body of a garment, so getting this right makes a big difference.</li>
+</ol>
+
+<h2>Fit Issue: Crotch Too Low or Too Tight on Pants</h2>
+<p>What it looks like: either the crotch seam hangs several inches below your body (too low) or it rides up and feels uncomfortably tight (too high).</p>
+<p>This is one of the most common fit issues with made-to-measure patterns for pants, and it almost always comes down to the rise measurement.</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>Rise (crotch depth) was measured incorrectly.</strong> Rise is measured sitting on a firm, flat chair, from the natural waist straight down to the chair seat. If you measured standing, or on a soft cushion, or from the wrong waist position, the number will be off.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>Sit on a firm, flat chair (wooden dining chair works well).</li>
+  <li>Find your natural waist by bending sideways and locating the crease.</li>
+  <li>Measure straight down the side of your body from the waist crease to the surface of the chair seat.</li>
+  <li>Update and re-generate. A half-inch difference in rise is very noticeable in the finished garment, so precision matters here.</li>
+</ol>
+
+<!-- IMAGE: Diagram showing how to correctly measure rise while sitting on a chair, with annotations pointing to natural waist and chair seat, alt text: "How to measure rise correctly sitting on a firm flat chair" -->
+
+<h2>Fit Issue: Gapping at Neckline or Armholes</h2>
+<p>What it looks like: the neckline stands away from your chest instead of laying flat, or the armholes gape open when you move your arms.</p>
+<p>What causes it:</p>
+<ul>
+  <li><strong>Bust or chest measurement is slightly off.</strong> A larger-than-actual bust measurement creates extra room in the upper body that shows up as gapping.</li>
+  <li><strong>Posture differences.</strong> If you have a more rounded upper back or forward shoulders, standard drafting curves may need minor adjustment.</li>
+</ul>
+<p>How to fix it:</p>
+<ol>
+  <li>Re-check your bust measurement, making sure the tape passes over the fullest part and stays level all the way around.</li>
+  <li>Try a slightly smaller bust measurement (subtract half an inch) and re-generate to see if the gapping resolves.</li>
+  <li>For persistent armhole issues, consider trying a different fit option. Regular fit often resolves armhole gapping that appears with relaxed fit.</li>
+</ol>
+
+<h2>The Feedback Loop: How to Dial In Your Perfect Fit</h2>
+<p>Getting a perfect fit is a process, not a one-shot event. Even the best tailors in the world use this cycle:</p>
+<ol>
+  <li><strong>Measure</strong> carefully using our <a href="/learn/how-to-measure-yourself">measurement guide</a></li>
+  <li><strong>Generate</strong> your pattern on <a href="/patterns">People's Patterns</a></li>
+  <li><strong>Sew a muslin</strong> in cheap fabric</li>
+  <li><strong>Try it on</strong> and note what needs adjustment</li>
+  <li><strong>Update</strong> the relevant measurement in your profile</li>
+  <li><strong>Re-generate</strong> the pattern (free for any purchased pattern)</li>
+  <li><strong>Sew another muslin</strong> if the change was significant, or go straight to your good fabric if it was minor</li>
+</ol>
+<p>Most sewists find that after one or two rounds with their first garment, their measurements are dialed in and every subsequent pattern fits well right from the first muslin. Your body measurements do not change garment to garment, so once they are accurate, they stay accurate.</p>
+<p>You can also use the fit feedback system in your People's Patterns account to track what you adjusted and why. This is especially helpful if you sew for multiple people with separate measurement profiles.</p>
+
+<h2>When the Issue Is Fabric, Not Fit</h2>
+<p>Sometimes what looks like a fit issue is actually a fabric issue. Here are a few common examples:</p>
+<ul>
+  <li><strong>Wrinkling along seams:</strong> this can happen when the fabric is too stiff for the garment style. A structured cotton in a pattern designed for drapey rayon will not hang the same way.</li>
+  <li><strong>Stretching out after wearing:</strong> knit fabrics with low recovery (like rayon jersey) will relax and stretch during the day. This is a property of the fabric, not a pattern issue. Choose knits with some spandex content for better shape retention.</li>
+  <li><strong>Seams puckering:</strong> this is usually a tension or needle issue on your sewing machine, not a pattern problem. Try adjusting your thread tension or switching to a new needle.</li>
+</ul>
+<p>If you are not sure whether an issue is fit-related or fabric-related, sew the same pattern in a different fabric and compare. If the issue disappears, it was the fabric. If it persists, adjust your measurements.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<h3>How do I know if the issue is my measurements or my sewing technique?</h3>
+<p>If the garment pieces went together smoothly and the seams are straight, but the fit is wrong, it is a measurement issue. If the pieces were hard to align, seams are wavy, or the garment looks different from the instructions, technique is likely the factor. A good test: if the problem is symmetrical (both sides have the same issue), it is probably measurements. If it is only on one side, it could be technique.</p>
+
+<h3>Can I re-generate my pattern for free after updating measurements?</h3>
+<p>Yes. Any pattern you have purchased from People's Patterns can be re-generated with updated measurements at no additional charge, as many times as you need. Your pattern library and re-generation rights are permanent. <a href="/pricing">See pricing details here.</a></p>
+
+<h3>Should I adjust one measurement at a time or several at once?</h3>
+<p>If your muslin reveals issues in multiple areas, go ahead and update all the relevant measurements at once. But if you are unsure which measurement is causing a specific issue, change one at a time so you can see the effect of each adjustment clearly.</p>
+
+<h3>What if my body is significantly different on one side?</h3>
+<p>Most bodies have some asymmetry, and standard pattern drafting (including parametric drafting) assumes reasonable symmetry. For minor differences, the ease built into the garment will accommodate them. For more significant asymmetry, use the larger side's measurements so the garment fits comfortably on both sides, and take in the smaller side during construction if needed.</p>
+
+<h3>How many muslins should I expect to make?</h3>
+<p>For your first garment with People's Patterns, plan for one to two muslins. After that, your measurements will be well-calibrated and most future garments will need zero to one muslin. Many of our experienced sewists skip the muslin entirely for garment types they have made before, going straight to their good fabric with confidence.</p>
+
+<p class="cta">Ready to try your first custom pattern? <a href="/patterns">Browse our pattern catalog and start with a free download.</a></p>
+`,
+  },
+
 ];
 
 export default ARTICLES;

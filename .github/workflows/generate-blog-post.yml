@@ -1,0 +1,131 @@
+name: Generate Blog Post
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Blog post topic (e.g. "How to Choose Fabric for Custom Sewing Patterns")'
+        required: true
+        type: string
+      target_keyword:
+        description: 'Primary SEO keyword (e.g. "choose fabric sewing patterns")'
+        required: true
+        type: string
+      create_pr:
+        description: 'Create a PR instead of pushing directly to main'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate blog post via Anthropic API
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TOPIC: ${{ inputs.topic }}
+          TARGET_KEYWORD: ${{ inputs.target_keyword }}
+        run: |
+          cat > /tmp/prompt-system.txt << 'SYSTEMPROMPT'
+          You are the People's Patterns content strategist. People's Patterns generates made-to-measure sewing patterns in the browser from your exact body measurements. Target audience: beginner to intermediate sewists who want clothes that actually fit. Tone: warm, empowering, zero jargon, step-by-step. Sound 100% human — conversational, real stories, no em dashes or AI speak.
+
+          You must respond with ONLY a valid JSON object (no markdown fences, no extra text). The JSON must have these exact keys:
+          - "slug": URL slug (lowercase, hyphens, no trailing slash)
+          - "title": SEO-friendly, under 60 characters
+          - "description": meta description, 155-160 characters
+          - "category": one of "getting-started", "technique", "fit", "printing", "about"
+          - "datePublished": today's date in YYYY-MM-DD format
+          - "tags": array of 5-7 tag strings
+          - "body": the full article as an HTML string (no wrapping <html> or <body> tags, just the article content starting with <h2>)
+
+          Article requirements:
+          - 1,800-2,200 words
+          - Structure: intro paragraph (no H1, the title is used as H1), then 6-8 H2 sections, bullet/numbered steps where appropriate, FAQ section at end with H3 subheadings
+          - Naturally use the target keyword in the first 100 words and 3-4 more times throughout
+          - Include internal links: <a href="/patterns">pattern catalog</a>, <a href="/learn/how-to-measure-yourself">measurement guide</a>, <a href="/learn/how-peoples-patterns-works">how it works</a>, <a href="/learn/how-to-print-tiled-pdf-pattern">printing guide</a>, <a href="/pricing">pricing</a>
+          - Add 3-4 HTML comments for image placeholders like: <!-- IMAGE: description of what image should show, alt text: "alt text here" -->
+          - End with CTA: <p class="cta">Ready to try your first custom pattern? <a href="/patterns">Browse our pattern catalog and start with a free download.</a></p>
+          - Reference {{GARMENT_COUNT}} when mentioning how many garments are available (this placeholder is replaced at render time)
+          SYSTEMPROMPT
+
+          # Call the Anthropic API
+          curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "$(jq -n \
+              --arg system "$(cat /tmp/prompt-system.txt)" \
+              --arg user "Write a blog post about: $TOPIC. Primary SEO keyword: $TARGET_KEYWORD. Today's date is $(date +%Y-%m-%d)." \
+              '{
+                "model": "claude-sonnet-4-20250514",
+                "max_tokens": 8192,
+                "system": $system,
+                "messages": [{"role": "user", "content": $user}]
+              }')" > /tmp/api-response.json
+
+          # Check for API errors
+          if jq -e '.error' /tmp/api-response.json > /dev/null 2>&1; then
+            echo "API error:"
+            jq '.error' /tmp/api-response.json
+            exit 1
+          fi
+
+          echo "API response received, inserting article..."
+
+      - name: Insert article into articles.js
+        run: node scripts/insert-blog-post.mjs /tmp/api-response.json
+
+      - name: Verify build
+        run: npm run build
+
+      - name: Create slug variable
+        id: slug
+        run: |
+          SLUG=$(jq -r '.content[0].text' /tmp/api-response.json | jq -r '.slug // empty' 2>/dev/null || echo "")
+          if [ -z "$SLUG" ]; then
+            SLUG=$(echo "${{ inputs.topic }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//')
+          fi
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/articles.js
+          git commit -m "blog: add post — ${{ steps.slug.outputs.slug }}"
+
+      - name: Push or create PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.create_pr }}" = "true" ]; then
+            BRANCH="blog/${{ steps.slug.outputs.slug }}"
+            git checkout -b "$BRANCH"
+            git push -u origin "$BRANCH"
+            gh pr create \
+              --title "New blog post: ${{ inputs.topic }}" \
+              --body "Auto-generated blog post via Anthropic API.
+
+          **Topic:** ${{ inputs.topic }}
+          **Keyword:** ${{ inputs.target_keyword }}
+          **Preview:** /learn/${{ steps.slug.outputs.slug }}
+
+          Please review the content before merging." \
+              --base main
+          else
+            git push origin main
+          fi
