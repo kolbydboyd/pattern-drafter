@@ -5,7 +5,7 @@
  */
 
 import '../analytics.js';
-import { trackEvent, initSiteTracking, initHeroABTest } from '../analytics.js';
+import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } from '../analytics.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
 import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks } from './pattern-view.js';
@@ -1970,3 +1970,4 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 // Analytics — site-wide tracking + hero A/B test
 initSiteTracking();
 initHeroABTest();
+initSocialProofABTest();

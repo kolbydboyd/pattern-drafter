@@ -95,3 +95,51 @@ export function initHeroABTest() {
     }, { once: true });
   });
 }
+
+// ── Social proof A/B test ────────────────────────────────────────────────────
+// Feature flag: 'social-proof-variant'
+// Control  (default): no social proof section shown
+// Variant  ('test'):  shows "Real Sewists, Real Fits" proof section
+//
+// To activate: create feature flag 'social-proof-variant' in PostHog
+//   → Rollout: 50% control / 50% test
+//   → No payload needed; variant name 'test' is the trigger
+
+export function initSocialProofABTest() {
+  posthog.onFeatureFlags(() => {
+    const variant = posthog.getFeatureFlag('social-proof-variant') ?? 'control';
+
+    if (variant === 'test') {
+      const proofSection = document.getElementById('land-proof');
+      const heroEl = document.querySelector('.land-hero');
+      if (proofSection) {
+        proofSection.style.display = '';
+        if (heroEl) heroEl.classList.add('land-hero--proof');
+
+        const observer = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              trackEvent('social_proof_impression', { variant });
+              observer.disconnect();
+              break;
+            }
+          }
+        }, { threshold: 0.5 });
+        observer.observe(proofSection);
+      }
+    }
+
+    const proofGrid = document.querySelector('.land-proof-grid');
+    if (proofGrid) {
+      proofGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.land-proof-card');
+        if (card) {
+          trackEvent('social_proof_card_clicked', {
+            variant,
+            card_id: card.dataset.proof,
+          });
+        }
+      });
+    }
+  });
+}
