@@ -14,7 +14,7 @@
 //   node scripts/generate-pins.mjs --mark-exported <pinId> <localPath>
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -37,8 +37,8 @@ function saveManifest(manifest) {
 // ── Load pin data (dynamic import since it's ES module) ─────────────────────
 
 async function loadPinData() {
-  const { PIN_DATA } = await import(join(ROOT, 'src', 'content', 'pin-data.js'));
-  const { ARTICLES } = await import(join(ROOT, 'src', 'content', 'articles.js'));
+  const { PIN_DATA } = await import(pathToFileURL(join(ROOT, 'src', 'content', 'pin-data.js')).href);
+  const { ARTICLES } = await import(pathToFileURL(join(ROOT, 'src', 'content', 'articles.js')).href);
   return { PIN_DATA, ARTICLES };
 }
 

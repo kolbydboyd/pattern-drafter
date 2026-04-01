@@ -11,7 +11,7 @@
 // Requires: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local
 
 import { readFileSync, existsSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { getSmartPostTime } from './smart-schedule.mjs';
@@ -49,8 +49,8 @@ async function main() {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
-  const { PIN_DATA } = await import(join(ROOT, 'src', 'content', 'pin-data.js'));
-  const { ARTICLES } = await import(join(ROOT, 'src', 'content', 'articles.js'));
+  const { PIN_DATA } = await import(pathToFileURL(join(ROOT, 'src', 'content', 'pin-data.js')).href);
+  const { ARTICLES } = await import(pathToFileURL(join(ROOT, 'src', 'content', 'articles.js')).href);
 
   const articleMap = Object.fromEntries(ARTICLES.map(a => [a.slug, a]));
 
