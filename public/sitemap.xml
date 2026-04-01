@@ -2,175 +2,235 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://peoplespatterns.com/</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/learn</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/faq</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/terms</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/privacy</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://peoplespatterns.com/tester</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://peoplespatterns.com/patterns/cargo-shorts</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/gym-shorts</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/swim-trunks</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/pleated-shorts</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/straight-jeans</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/baggy-jeans</loc>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/chinos</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/pleated-trousers</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/sweatpants</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/tee</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/camp-shirt</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/crewneck</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/hoodie</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/crop-jacket</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/denim-jacket</loc>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/wide-leg-trouser-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/straight-trouser-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/easy-pant-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/button-up-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/shell-blouse-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/fitted-tee-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/slip-skirt-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/a-line-skirt-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/shirt-dress-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/wrap-dress-w</loc>
-    <lastmod>2026-03-28</lastmod>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/cargo-work-pants</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/athletic-formal-jacket</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/athletic-formal-trousers</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/tshirt-dress-w</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/slip-dress-w</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/a-line-dress-w</loc>
+    <lastmod>2026-04-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/sundress-w</loc>
+    <lastmod>2026-04-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

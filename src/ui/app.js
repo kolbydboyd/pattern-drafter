@@ -5,38 +5,15 @@
  */
 
 import '../analytics.js';
-import { trackEvent, initSiteTracking, initHeroABTest } from '../analytics.js';
+import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } from '../analytics.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
-import { fmtInches, easeDistribution, sanitizePoly } from '../engine/geometry.js';
-import cargoShorts      from '../garments/cargo-shorts.js';
-import gymShorts        from '../garments/gym-shorts.js';
-import swimTrunks       from '../garments/swim-trunks.js';
-import pleatedShorts    from '../garments/pleated-shorts.js';
-import straightJeans    from '../garments/straight-jeans.js';
-import chinos           from '../garments/chinos.js';
-import pleatedTrousers  from '../garments/pleated-trousers.js';
-import sweatpants       from '../garments/sweatpants.js';
-import tee              from '../garments/tee.js';
-import campShirt        from '../garments/camp-shirt.js';
-import crewneck         from '../garments/crewneck.js';
-import hoodie           from '../garments/hoodie.js';
-import cropJacket       from '../garments/crop-jacket.js';
-import wideLegTrouserW  from '../garments/wide-leg-trouser-w.js';
-import straightTrouserW from '../garments/straight-trouser-w.js';
-import easyPantW        from '../garments/easy-pant-w.js';
-import buttonUpW        from '../garments/button-up-w.js';
-import shellBlouseW     from '../garments/shell-blouse-w.js';
-import fittedTeeW       from '../garments/fitted-tee-w.js';
-import slipSkirtW       from '../garments/slip-skirt-w.js';
-import aLineSkirtW      from '../garments/a-line-skirt-w.js';
-import shirtDressW      from '../garments/shirt-dress-w.js';
-import wrapDressW       from '../garments/wrap-dress-w.js';
+import { fmtInches, sanitizePoly } from '../engine/geometry.js';
 import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
-import { initAuthModal, openAuthModal, getCurrentUser } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
+import { initAuthModal, openAuthModal, getCurrentUser, onUserChange } from './auth-modal.js';
+import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
@@ -49,14 +26,28 @@ const BETA_MODE = false;
 
 // ── URL sync ──────────────────────────────────────────────────────────────────
 // Read ?garment= from the URL on load so direct links pre-select correctly
-const _urlGarmentParam = new URLSearchParams(location.search).get('garment');
+const _urlParams        = new URLSearchParams(location.search);
+const _urlGarmentParam  = _urlParams.get('garment');
+const _urlRedeemFlag    = _urlParams.get('redeem') === '1';
 let currentGarment    = (_urlGarmentParam && GARMENTS[_urlGarmentParam]) ? _urlGarmentParam : 'cargo-shorts';
+
+// ── Redemption code state (set by /redeem page, stored in sessionStorage) ────
+let _redemptionCode       = sessionStorage.getItem('redemptionCode') || null;
+let _redemptionGarment    = sessionStorage.getItem('redemptionGarment') || null;
+let _redemptionGarmentName = sessionStorage.getItem('redemptionGarmentName') || null;
+const _isRedemptionMode   = !!(_redemptionCode && _redemptionGarment && GARMENTS[_redemptionGarment]);
+
+// If arriving from /redeem, lock to the redemption garment
+if (_isRedemptionMode) {
+  currentGarment = _redemptionGarment;
+}
 
 function _syncGarmentUrl(id) {
   window.history.replaceState(null, '', '?garment=' + encodeURIComponent(id));
 }
 
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
+let _currentHasA0     = false; // whether current pattern purchase includes A0 addon
 let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
 let _activeProfileName = null; // display name, shown in step 2 label
 
@@ -68,14 +59,16 @@ let renderedGarment = null;
 let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
+let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',     label:'Pants',     desc:'Trousers, jeans & sweatpants',   ids:['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
-  { id:'shorts',    label:'Shorts',    desc:'Casual, sport & tailored shorts', ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
-  { id:'tops',      label:'Tops',      desc:'Tees, shirts, hoodies & blouses', ids:['tee','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
-  { id:'skirts',    label:'Skirts',    desc:'Slip & A-line skirts',            ids:['slip-skirt-w','a-line-skirt-w'] },
-  { id:'dresses',   label:'Dresses',   desc:'Shirt dress & wrap dress',        ids:['shirt-dress-w','wrap-dress-w'] },
-  { id:'outerwear', label:'Outerwear', desc:'Jackets & coats',                 ids:['crop-jacket','denim-jacket'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','baggy-jeans','chinos','pleated-trousers','athletic-formal-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
+  { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
+  { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
+  { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','wrap-dress-w','tshirt-dress-w','slip-dress-w','a-line-dress-w','sundress-w'] },
+  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','athletic-formal-jacket'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties & more',                ids:['apron','bow-tie'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
@@ -104,6 +97,37 @@ function _showSaveFeedback(anchor) {
   // trigger fade-out then remove
   requestAnimationFrame(() => requestAnimationFrame(() => { msg.style.opacity = '0'; }));
   setTimeout(() => msg.remove(), 1400);
+}
+
+function _showDuplicateProfilePrompt(name) {
+  return new Promise(resolve => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dup-profile-overlay';
+    overlay.innerHTML = `
+      <div class="dup-profile-dialog">
+        <p>A profile named <strong>"${name}"</strong> already exists.</p>
+        <p>Would you like to overwrite it or choose a different name?</p>
+        <div class="dup-profile-btns">
+          <button class="btn-xs" id="dup-overwrite">Overwrite</button>
+          <button class="btn-xs" id="dup-rename">Change Name</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#dup-overwrite').addEventListener('click', () => { overlay.remove(); resolve('overwrite'); });
+    overlay.querySelector('#dup-rename').addEventListener('click', () => { overlay.remove(); resolve('rename'); });
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.remove(); resolve('cancel'); } });
+  });
+}
+
+function _computeMeasDeltas(oldMeas, newMeas) {
+  const deltas = {};
+  const allKeys = new Set([...Object.keys(oldMeas), ...Object.keys(newMeas)]);
+  for (const k of allKeys) {
+    const o = oldMeas[k] ?? null;
+    const n = newMeas[k] ?? null;
+    if (o !== n) deltas[k] = { old: o, new: n };
+  }
+  return Object.keys(deltas).length ? deltas : null;
 }
 
 // Update active profile state + step 2 stepper label
@@ -151,7 +175,42 @@ async function saveCurrentProfile() {
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
   }
 
-  // Save to Supabase first to get the UUID
+  // Check for existing profile with same name
+  const existing = loadProfiles().find(p => p.name === name);
+  if (existing) {
+    const action = await _showDuplicateProfilePrompt(name);
+    if (action === 'rename') { nameInput.focus(); nameInput.select(); return; }
+    if (action !== 'overwrite') return;
+
+    // Overwrite existing profile
+    const user = getCurrentUser();
+    const btn  = document.getElementById('save-profile-btn');
+    const orig = btn?.textContent;
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    if (existing.id) {
+      // Log measurement delta before overwriting
+      const oldMeas = { ...existing }; delete oldMeas.id; delete oldMeas.name;
+      const deltas = _computeMeasDeltas(oldMeas, m);
+      if (deltas) logMeasurementDelta(user.id, existing.id, deltas);
+
+      const { error } = await updateMeasurementProfile(existing.id, m);
+      if (error) console.error('Supabase update failed:', error.message);
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+
+    const profiles = loadProfiles().filter(p => p.name !== name);
+    profiles.push({ id: existing.id, name, ...m });
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
+    refreshProfileDropdown();
+    _setActiveProfile(existing.id, name);
+    nameInput.value = '';
+    _showSaveFeedback(btn?.closest('.profile-row') || btn?.parentElement);
+    return;
+  }
+
+  // Save new profile to Supabase
   const user = getCurrentUser();
   const btn  = document.getElementById('save-profile-btn');
   const orig = btn?.textContent;
@@ -189,8 +248,11 @@ function applyProfile(name) {
   const profile = loadProfiles().find(p => p.name === name);
   if (!profile) return;
   _setActiveProfile(profile.id ?? null, name);
+  const g = GARMENTS[currentGarment];
+  const garmentDefaults = g?.measurementDefaults ?? {};
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
+    if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
     const el = document.getElementById(`m-${key}`);
     if (el) el.value = val;
   }
@@ -423,7 +485,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const fName = f.affiliateUrl
       ? `<a href="${f.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${f.name}</a>`
       : f.name;
-    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${f.notes}</span>` : ''}</div>`;
+    html += `<div class="mat-row">${fName} <span class="note">(${f.weight})</span>${f.notes ? ` <span class="note">${expandGlossary(f.notes)}</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -433,7 +495,7 @@ function renderMaterials(mat, yardage45, yardage60) {
     const nName = n.affiliateUrl
       ? `<a href="${n.affiliateUrl}" class="mat-aff-link" target="_blank" rel="noopener sponsored">${n.name}</a>`
       : n.name;
-    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${n.notes})</span>` : ''}</div>`;
+    html += `<div class="mat-row">${nName}${n.quantity ? ` <span class="qty">${n.quantity}</span>` : ''}${n.notes ? ` <span class="note">(${expandGlossary(n.notes)})</span>` : ''}</div>`;
   }
   html += `</div>`;
 
@@ -454,13 +516,29 @@ function renderMaterials(mat, yardage45, yardage60) {
   html += `<div class="mat-section"><h5>Stitch Settings</h5>`;
   for (const s of mat.stitches) {
     if (!s?.name) continue;
-    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${s.use}</span>`;
+    html += `<span class="mat-stitch">${s.name} ${s.length}${s.width !== '0' ? ' w:' + s.width : ''} · ${expandGlossary(s.use)}</span>`;
   }
   html += `</div>`;
 
+  if (mat.machineSettings?.length) {
+    html += `<div class="mat-section"><h5>Machine Settings</h5>`;
+    for (const ms of mat.machineSettings) {
+      html += `<div class="mat-row"><strong>${ms.label}</strong></div>`;
+      html += `<div class="mat-row">Tension: ${ms.tension} · ${ms.stitch}</div>`;
+      html += `<div class="mat-row"><span class="note">${ms.notes}</span></div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (mat.troubleshooting?.length) {
+    html += `<div class="mat-section"><h5>Troubleshooting</h5>`;
+    for (const t of mat.troubleshooting) html += `<div class="mat-row">• ${expandGlossary(t)}</div>`;
+    html += `</div>`;
+  }
+
   if (mat.notes?.length) {
     html += `<div class="mat-section"><h5>Important Notes</h5>`;
-    for (const n of mat.notes) html += `<div class="mat-row">• ${n}</div>`;
+    for (const n of mat.notes) html += `<div class="mat-row">• ${expandGlossary(n)}</div>`;
     html += `</div>`;
   }
 
@@ -610,12 +688,46 @@ function _generate() {
         </table></div>`;
     } else if (piece.type === 'pocket') {
       const pd = piece.dimensions;
+      const pW = pd.length ?? pd.width;
+      const pH = pd.height ?? pd.width;
       const pSize = pd.length != null
         ? `${fmtInches(pd.length)} × ${fmtInches(pd.width)}`
         : `${fmtInches(pd.width)} × ${fmtInches(pd.height)}`;
+      // Mini SVG preview showing SA outline + marks
+      const pSc = 12; // px per inch for pocket preview
+      const pM = 16;  // margin in px
+      const svgW = pM * 2 + pW * pSc;
+      const svgH = pM * 2 + pH * pSc;
+      const prx = pM, pry = pM, prW = pW * pSc, prH = pH * pSc;
+      const pSa = piece.sa || 0;
+      const pSaOff = pSa * pSc;
+      let pSvg = `<svg viewBox="0 0 ${svgW} ${svgH}" style="max-width:${Math.min(svgW, 280)}px;display:block;margin:8px auto">`;
+      if (pSa > 0) pSvg += `<rect x="${prx - pSaOff}" y="${pry - pSaOff}" width="${prW + pSaOff * 2}" height="${prH + pSaOff * 2}" stroke="#000" stroke-width="1.2" fill="none"/>`;
+      pSvg += `<rect x="${prx}" y="${pry}" width="${prW}" height="${prH}" stroke="${pSa > 0 ? '#666' : '#2c2a26'}" stroke-width="${pSa > 0 ? 0.6 : 1.2}" ${pSa > 0 ? 'stroke-dasharray="3,2"' : ''} fill="none"/>`;
+      const marks = piece.marks || [];
+      for (const mk of marks) {
+        const mc = '#4a8a5a';
+        if (mk.type === 'fold' && mk.axis === 'h') {
+          const ly = pry + mk.position * pSc;
+          pSvg += `<line x1="${prx}" y1="${ly}" x2="${prx + prW}" y2="${ly}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+        } else if (mk.type === 'fold' && mk.axis === 'v') {
+          const lx = prx + mk.position * pSc;
+          pSvg += `<line x1="${lx}" y1="${pry}" x2="${lx}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+        } else if (mk.type === 'pleat') {
+          const lx1 = prx + (mk.center - mk.intake) * pSc;
+          const lx2 = prx + (mk.center + mk.intake) * pSc;
+          const lxC = prx + mk.center * pSc;
+          pSvg += `<line x1="${lx1}" y1="${pry}" x2="${lx1}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+          pSvg += `<line x1="${lx2}" y1="${pry}" x2="${lx2}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+          pSvg += `<line x1="${lxC}" y1="${pry}" x2="${lxC}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.3" stroke-dasharray="2,3"/>`;
+        }
+      }
+      pSvg += '</svg>';
       piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
+        ${pSvg}
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
+          ${pSa > 0 ? `<tr><td>SA</td><td>${fmtInches(pSa)}</td></tr>` : ''}
         </table></div>`;
     }
   }
@@ -667,7 +779,7 @@ function _generate() {
     { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0/Plotter  33.1 x 46.8 in (single sheet)' },
+    { id: 'a0',      label: 'A0 / Copy Shop / Projector  33.1 x 46.8 in (+$4)' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
@@ -727,11 +839,75 @@ async function _applyWatermarkState(garmentId) {
     const banner = document.createElement('div');
     banner.id = 'wm-purchase-banner';
     banner.className = 'wm-banner';
-    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF - Free during beta</button>`;
+    banner.innerHTML = `<button class="wm-banner-btn" id="wm-beta-dl-btn">Download PDF (free during beta)</button>`;
     output.parentNode.insertBefore(banner, output);
     document.getElementById('wm-beta-dl-btn').addEventListener('click', () => {
       showEmailGate(() => handleDownloadPDF(document.getElementById('wm-beta-dl-btn')));
     });
+    return;
+  }
+
+  // ── REDEMPTION CODE MODE ─────────────────────────────────────────────────
+  if (_isRedemptionMode && garmentId === _redemptionGarment) {
+    const user = getCurrentUser();
+    // Check if already purchased (code was already redeemed in a previous session)
+    if (user) {
+      const purchaseRes = await hasPurchased(user.id, garmentId);
+      if (purchaseRes.data) {
+        _currentPurchased = true;
+        _currentHasA0 = !!purchaseRes.data?.a0_addon;
+        return;
+      }
+    }
+
+    const banner = document.createElement('div');
+    banner.id = 'wm-purchase-banner';
+    banner.className = 'wm-banner';
+    const gName = _redemptionGarmentName || garmentId.replace(/-/g, ' ');
+
+    if (!user) {
+      // Not logged in: prompt signup first, then redeem on download
+      banner.innerHTML = `
+        <span class="wm-banner-text">Redeeming code for <strong>${gName}</strong>. Create a free account to download.</span>
+        <button class="wm-banner-btn" id="wm-redeem-signup-btn">Create Free Account &amp; Download</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-redeem-signup-btn').addEventListener('click', () => {
+        _showFreeSignupModal(garmentId);
+      });
+    } else {
+      // Logged in: redeem code and download
+      banner.innerHTML = `
+        <span class="wm-banner-text">Your code unlocks a custom-fit <strong>${gName}</strong>. Free with your redemption code.</span>
+        <button class="wm-banner-btn wm-free-btn" id="wm-redeem-btn">Download My Pattern</button>`;
+      output.parentNode.insertBefore(banner, output);
+      document.getElementById('wm-redeem-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('wm-redeem-btn');
+        btn.disabled = true; btn.textContent = 'Redeeming…';
+        const { session } = await getSession();
+        const { m: _rM, opts: _rOpts } = readInputs();
+        try {
+          const res = await fetch('/api/redeem-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ code: _redemptionCode, profileId: _activeProfileId, measurements: _rM, opts: _rOpts }),
+          });
+          const json = await res.json();
+          if (!res.ok) { btn.disabled = false; btn.textContent = 'Download My Pattern'; alert(json.error || 'Could not redeem code.'); return; }
+          _currentPurchased = true;
+          // Clear redemption state
+          sessionStorage.removeItem('redemptionCode');
+          sessionStorage.removeItem('redemptionGarment');
+          sessionStorage.removeItem('redemptionGarmentName');
+          _redemptionCode = null;
+          removeWatermarks(output);
+          banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Code redeemed! <strong>${gName}</strong> is now in your account.</span>`;
+          handleDownloadPDF(btn);
+        } catch {
+          btn.disabled = false; btn.textContent = 'Download My Pattern';
+          alert('Something went wrong. Please try again.');
+        }
+      });
+    }
     return;
   }
 
@@ -745,6 +921,7 @@ async function _applyWatermarkState(garmentId) {
       getFreeCredits(user.id),
     ]);
     purchased   = !!purchaseRes.data;
+    _currentHasA0 = !!purchaseRes.data?.a0_addon;
     freeCredits = creditsRes.credits ?? 0;
   }
   _currentPurchased = purchased;
@@ -762,7 +939,7 @@ async function _applyWatermarkState(garmentId) {
     if (!user) {
       // Not logged in: frictionless account creation → free credit → download
       banner.innerHTML = `
-        <span class="wm-banner-text">Your first pattern is <strong>free</strong> - no credit card needed.</span>
+        <span class="wm-banner-text">Your first pattern is <strong>free</strong>. No credit card needed.</span>
         <button class="wm-banner-btn" id="wm-signup-btn">Create Free Account &amp; Download</button>`;
       output.parentNode.insertBefore(banner, output);
       document.getElementById('wm-signup-btn').addEventListener('click', () => {
@@ -788,7 +965,7 @@ async function _applyWatermarkState(garmentId) {
         if (!res.ok) { btn.disabled = false; btn.textContent = 'Download Free (1 credit)'; alert(json.error); return; }
         _currentPurchased = true;
         removeWatermarks(output);
-        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
         handleDownloadPDF(btn);
       });
     } else {
@@ -797,7 +974,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Copy Shop file <span class="wm-a0-price">(+$4)</span> - one sheet, no taping
+          Add A0 / Projector / Copy Shop files <span class="wm-a0-price">(+$4)</span> · no taping
         </label>
         <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -818,7 +995,7 @@ function _showFreeSignupModal(garmentId) {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body">Create a free account to download - your first pattern is free, no credit card needed.</p>
+        <p class="email-gate-body">Create a free account to download. Your first pattern is free, no credit card needed.</p>
         <form id="free-signup-form" class="email-gate-form">
           <input type="email" id="free-signup-email" placeholder="you@example.com" required autocomplete="email">
           <input type="password" id="free-signup-pw" placeholder="Choose a password (8+ characters)" required autocomplete="new-password" minlength="8">
@@ -872,9 +1049,38 @@ function _showFreeSignupModal(garmentId) {
 
     dlg.close();
 
-    // Use the free credit and trigger download
     const { session } = data;
     const { m: _scM, opts: _scOpts } = readInputs();
+
+    // ── Redemption mode: use the code instead of free credit ──────────────
+    if (_isRedemptionMode && _redemptionCode && garmentId === _redemptionGarment) {
+      const redeemRes = await fetch('/api/redeem-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ code: _redemptionCode, profileId: _activeProfileId, measurements: _scM, opts: _scOpts }),
+      });
+      const redeemJson = await redeemRes.json();
+      if (!redeemRes.ok) {
+        alert('Account created! ' + (redeemJson.error || 'Could not redeem code. Try again from your account.'));
+        return;
+      }
+      _currentPurchased = true;
+      sessionStorage.removeItem('redemptionCode');
+      sessionStorage.removeItem('redemptionGarment');
+      sessionStorage.removeItem('redemptionGarmentName');
+      _redemptionCode = null;
+      const output = document.getElementById('output');
+      if (output) removeWatermarks(output);
+      const banner = document.getElementById('wm-purchase-banner');
+      const gName = _redemptionGarmentName || garmentId.replace(/-/g, ' ');
+      if (banner) banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Code redeemed! <strong>${gName}</strong> is now in your account.</span>`;
+      const dummyBtn = document.createElement('button');
+      dummyBtn.textContent = 'Downloading…';
+      handleDownloadPDF(dummyBtn);
+      return;
+    }
+
+    // ── Standard flow: use free credit ────────────────────────────────────
     const creditRes = await fetch('/api/use-free-credit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
@@ -893,7 +1099,7 @@ function _showFreeSignupModal(garmentId) {
     if (banner) {
       const price = PATTERN_PRICES[garmentId];
       const label = price?.label ?? 'this pattern';
-      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+      banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used. Your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
     }
 
     // Trigger download
@@ -1032,16 +1238,97 @@ function _triggerBuyPattern(garmentId, addA0 = false) {
   });
 }
 
-function handlePrint(btn) {
+function _promptA0Upgrade() {
+  let dlg = document.getElementById('a0-upgrade-dlg');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = 'a0-upgrade-dlg';
+    dlg.innerHTML = `
+      <div class="email-gate-card">
+        <div class="email-gate-logo">People's Patterns</div>
+        <p class="email-gate-body"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
+        <ul class="a0-upgrade-list">
+          <li><strong>A0 PDF</strong> — single-sheet print at any copy shop</li>
+          <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
+        </ul>
+        <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
+        <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
+        <p class="a0-upgrade-err" id="a0-upgrade-err" hidden></p>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  const buyBtn = dlg.querySelector('#a0-upgrade-buy');
+  const cancelBtn = dlg.querySelector('#a0-upgrade-cancel');
+  const errEl = dlg.querySelector('#a0-upgrade-err');
+  errEl.hidden = true;
+  buyBtn.disabled = false;
+  buyBtn.textContent = 'Add for $4';
+
+  buyBtn.onclick = async () => {
+    buyBtn.disabled = true;
+    buyBtn.textContent = 'Redirecting\u2026';
+    errEl.hidden = true;
+    try {
+      const user = getCurrentUser();
+      const { supabase } = await import('../lib/supabase.js');
+      const { data: purchase } = await supabase
+        .from('purchases')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('garment_id', currentGarment)
+        .limit(1)
+        .maybeSingle();
+      if (!purchase) throw new Error('Purchase not found. Try from My Patterns.');
+      const { session } = await getSession();
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: purchase.id, userId: user.id }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Checkout failed');
+      window.location.href = json.url;
+    } catch (err) {
+      errEl.textContent = err.message || 'Something went wrong. Try again.';
+      errEl.hidden = false;
+      buyBtn.disabled = false;
+      buyBtn.textContent = 'Add for $4';
+    }
+  };
+
+  cancelBtn.onclick = () => dlg.close();
+  dlg.showModal();
+}
+
+async function handlePrint(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handlePrint(btn));
     return;
   }
   if (!_currentPurchased) {
-    _triggerBuyPattern(currentGarment);
+    // Refresh purchase/credit state — user may have just signed up with a free credit
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
   printPattern();
+}
+
+async function _blobDownload(url, filename) {
+  const r = await fetch(url);
+  const blob = await r.blob();
+  const obj = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = obj;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(obj);
 }
 
 async function handleDownloadPDF(btn) {
@@ -1050,7 +1337,12 @@ async function handleDownloadPDF(btn) {
     return;
   }
   if (!_currentPurchased) {
-    _triggerBuyPattern(currentGarment);
+    // Refresh purchase/credit state — user may have just signed up with a free credit
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
+  }
+  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+    _promptA0Upgrade();
     return;
   }
 
@@ -1079,27 +1371,19 @@ async function handleDownloadPDF(btn) {
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
       return;
     }
-    // Trigger tiled letter PDF download
-    const a  = document.createElement('a');
-    a.href   = json.downloadUrl;
-    a.download = `${currentGarment}-pattern.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    // Trigger tiled letter PDF download — fetch as blob so the download
+    // attribute works (it's ignored for cross-origin Supabase URLs otherwise)
+    await _blobDownload(json.downloadUrl, `${currentGarment}-pattern.pdf`);
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
-    // If A0 addon was purchased, trigger A0 download and show a notice
+    // If A0 addon was purchased, trigger A0 + projector downloads and show a notice
     if (json.a0DownloadUrl) {
-      setTimeout(() => {
-        const a0  = document.createElement('a');
-        a0.href   = json.a0DownloadUrl;
-        a0.download = `${currentGarment}-pattern-a0.pdf`;
-        document.body.appendChild(a0);
-        a0.click();
-        a0.remove();
-      }, 800);
+      setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
+      if (json.projectorDownloadUrl) {
+        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), 1600);
+      }
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 / copy-shop file is also downloading - one sheet, no taping required.';
+      notice.textContent = 'Your A0 + projector files are also downloading. No taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
@@ -1159,7 +1443,7 @@ function goToStep(n) {
   for (let i = 1; i <= 4; i++) {
     document.getElementById(`wiz-step-${i}`).style.display = i === n ? '' : 'none';
   }
-  if (n === 1) { _loadWishlist().then(renderStep1); }
+  if (n === 1) { Promise.all([_loadWishlist(), _loadPurchases()]).then(renderStep1); }
   else if (n === 4) renderStep4();
 }
 
@@ -1185,6 +1469,13 @@ async function _loadWishlist() {
   }
   const { data } = await getWishlist(user.id);
   _wishlistSet = new Set((data || []).map(r => r.garment_id));
+}
+
+async function _loadPurchases() {
+  const user = getCurrentUser();
+  if (!user) { _purchasedSet = new Set(); return; }
+  const { data } = await getPurchases(user.id);
+  _purchasedSet = new Set((data || []).map(p => p.garment_id));
 }
 
 async function _toggleWishlist(garmentId, heartBtn) {
@@ -1223,6 +1514,7 @@ function renderStep1() {
         ${cat.ids.map(id => {
           const g = GARMENTS[id];
           const wishlisted = _wishlistSet.has(id);
+          const owned = _purchasedSet.has(id);
           const price = PATTERN_PRICES[id];
           const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
           return `<button class="gmt-card" data-garment="${id}">
@@ -1233,7 +1525,7 @@ function renderStep1() {
               <div class="gmt-name">${g.name}</div>
               <div class="gmt-card-meta">
                 ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
-                ${dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
+                ${owned ? `<span class="gmt-owned-badge">Owned</span>` : dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
               </div>
             </div>
             <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
@@ -1281,7 +1573,7 @@ function renderStep1() {
           </button>`).join('')}
       </div>`;
     el.querySelectorAll('.cat-card').forEach(btn => {
-      btn.onclick = () => { selectedCategory = btn.dataset.cat; _loadWishlist().then(renderStep1); };
+      btn.onclick = () => { selectedCategory = btn.dataset.cat; Promise.all([_loadWishlist(), _loadPurchases()]).then(renderStep1); };
     });
   }
 }
@@ -1357,6 +1649,23 @@ function buildMeasureStep() {
       }
     }).catch(() => {});
   }
+
+  // Clear profiles on sign-out (privacy: don't leave personal measurements in localStorage)
+  // Reload profiles from Supabase on sign-in
+  onUserChange(async (user) => {
+    if (!user) {
+      localStorage.removeItem(PROFILES_KEY);
+      _setActiveProfile(null, null);
+      refreshProfileDropdown();
+      return;
+    }
+    const { data: remoteProfiles } = await getMeasurementProfiles(user.id);
+    if (remoteProfiles?.length) {
+      const local = remoteProfiles.map(rp => ({ name: rp.name, measurements: rp.measurements }));
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+    }
+    refreshProfileDropdown();
+  });
 
   document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
   document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
@@ -1528,8 +1837,17 @@ document.getElementById('land-email-btn')?.addEventListener('click', async () =>
 // Get Started
 document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
 
-// If ?garment= was in the URL, open the wizard and pre-select it
-if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
+// If arriving from /redeem page with a redemption code, open wizard at step 2 with garment locked
+if (_isRedemptionMode && _urlRedeemFlag) {
+  const sel = document.getElementById('garment-select');
+  if (sel) { sel.value = currentGarment; sel.disabled = true; }
+  showWizard();
+  buildInputs();
+  stepsCompleted = 1; // allow access to step 2
+  goToStep(2);
+}
+// If ?garment= was in the URL (non-redemption), open the wizard and pre-select it
+else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   const sel = document.getElementById('garment-select');
   if (sel) sel.value = currentGarment;
   showWizard();
@@ -1542,7 +1860,10 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
 (function loadPatternCount() {
   const el = document.getElementById('land-pattern-count');
   if (!el) return;
-  fetch('/api/pattern-count').then(r => r.json()).then(({ count }) => {
+  fetch('/api/pattern-count').then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }).then(({ count }) => {
     if (count && count > 0) {
       el.textContent = `${count.toLocaleString()} custom patterns generated`;
     }
@@ -1649,3 +1970,4 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 // Analytics — site-wide tracking + hero A/B test
 initSiteTracking();
 initHeroABTest();
+initSocialProofABTest();
