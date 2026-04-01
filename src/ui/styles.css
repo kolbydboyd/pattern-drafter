@@ -196,6 +196,18 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-footer .social-icon{color:var(--mid)}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 .wiz-footer{margin-top:auto}
+/* ── Social proof section (A/B test) ── */
+.land-proof{width:100%;max-width:860px;margin:0 auto 18px;text-align:center}
+.land-proof-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.land-proof-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.land-proof-card{background:var(--card);border:1px solid var(--bdr);border-radius:6px;padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:8px}
+.land-proof-img{display:flex;justify-content:center}
+.land-proof-placeholder{display:flex;flex-direction:column;align-items:center;gap:6px}
+.land-proof-soon{font-family:'IBM Plex Mono',monospace;font-size:.55rem;color:var(--light);letter-spacing:1.5px;text-transform:uppercase}
+.land-proof-photo{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;border:1px solid var(--bdr)}
+.land-proof-quote{font-size:.75rem;color:var(--text);line-height:1.5;font-style:italic}
+.land-proof-attr{font-family:'IBM Plex Mono',monospace;font-size:.6rem;color:var(--mid);letter-spacing:.5px}
+.land-hero--proof{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start}
 /* Header nav links (pricing, patterns, learn pages) */
 .hdr-nav{display:flex;gap:20px;align-items:center;margin-left:auto}
 .hdr-link{font-family:'IBM Plex Mono',monospace;font-size:.67rem;letter-spacing:.5px;text-transform:uppercase;color:var(--hdr-text);text-decoration:none;opacity:.7;transition:opacity .15s}
@@ -339,6 +351,10 @@ details.adv-meas summary:hover{color:var(--text)}
   #hdr-menu-btn{display:block}
   .hdr{position:relative;flex-wrap:nowrap}
   .land-hero{overflow-y:auto;-webkit-overflow-scrolling:touch;justify-content:flex-start;padding-top:28px}
+  .land-proof-grid{grid-template-columns:1fr 1fr;gap:10px}
+}
+@media(max-width:420px){
+  .land-proof-grid{grid-template-columns:1fr}
 }
 
 /* ── Account dashboard ── */

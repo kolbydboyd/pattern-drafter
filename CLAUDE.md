@@ -34,6 +34,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - Run `npm run build` after every task to catch errors early
 - Env vars prefixed with `VITE_` for client-side, plain for server-side
 - Do not commit `.env.local` — it's in `.gitignore`
+- No em dashes anywhere user-facing
 
 ## Current Tasks
 
