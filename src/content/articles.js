@@ -6,6 +6,7 @@ import { ARTICLES_FIT }             from './articles-fit.js';
 import { ARTICLES_FABRIC }          from './articles-fabric.js';
 import { ARTICLES_GARMENTS }        from './articles-garments.js';
 import { ARTICLES_COMMUNITY }       from './articles-community.js';
+import { ARTICLES_VS }              from './articles-vs.js';
 
 export const ARTICLES = [
   ...ARTICLES_GETTING_STARTED,
@@ -13,6 +14,7 @@ export const ARTICLES = [
   ...ARTICLES_FABRIC,
   ...ARTICLES_GARMENTS,
   ...ARTICLES_COMMUNITY,
+  ...ARTICLES_VS,
 ];
 
 export default ARTICLES;

@@ -25,6 +25,7 @@ const CATEGORY_LABELS = {
   'fabric':          'Fabric & Materials',
   'garments':        'Garment Guides',
   'community':       'Community & More',
+  'vs':              'Comparisons',
 };
 
 // ── Routing ───────────────────────────────────────────────────────────────────
