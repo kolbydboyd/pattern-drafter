@@ -12,3 +12,7 @@ freesewing-develop/
 # Internal assets — not for repo
 brand-kit/
 strategy/
+
+# Pinterest pin generation artifacts
+pins/images/
+pins/manifest.json

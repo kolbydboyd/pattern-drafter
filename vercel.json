@@ -35,6 +35,7 @@
     { "source": "/pricing", "destination": "/pricing.html" }
   ],
   "crons": [
-    { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
+    { "path": "/api/cron-emails", "schedule": "0 9 * * *" },
+    { "path": "/api/cron-pinterest", "schedule": "0 14,16,18,19,0,1,2 * * *" }
   ]
 }
