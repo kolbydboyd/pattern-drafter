@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- elastic waistband -->
+  <path d="M50,38 L110,38 L110,48 L50,48 Z"/>
+  <path d="M66,38 Q80,43 94,38"/>
+  <!-- skin-tight legs -->
+  <path d="M50,48 L56,192 L76,192 L80,88 L84,192 L104,192 L110,48"/>
+  <line x1="80" y1="48" x2="80" y2="88"/>
+  <!-- side seam lines -->
+  <line x1="52" y1="80" x2="56" y2="192" stroke-dasharray="5 5"/>
+  <line x1="108" y1="80" x2="104" y2="192" stroke-dasharray="5 5"/>
+</svg>
