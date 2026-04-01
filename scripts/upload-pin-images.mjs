@@ -42,6 +42,10 @@ async function main() {
     process.env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
+  if (!existsSync(MANIFEST)) {
+    console.log('No manifest found — run generate-pins.mjs first to generate pin images.');
+    return;
+  }
   const manifest = JSON.parse(readFileSync(MANIFEST, 'utf-8'));
   const targetId = process.argv[2];
 
