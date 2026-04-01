@@ -10,6 +10,9 @@ const CATEGORY_LABELS = {
   'about':           'About',
   'technique':       'Technique',
   'fit':             'Fit',
+  'fabric':          'Fabric & Materials',
+  'garments':        'Garment Guides',
+  'community':       'Community & More',
 };
 
 // ── Dark-mode ──────────────────────────────────────────────────────────────────
@@ -43,6 +46,7 @@ function renderListing() {
       <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
       <h2 class="learn-card-title">${a.title}</h2>
       <p class="learn-card-desc">${a.description}</p>
+      ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(t => `<span class="learn-tag">${t}</span>`).join('')}</div>` : ''}
       <span class="learn-card-read">Read article →</span>
     </a>`).join('');
 
@@ -103,6 +107,23 @@ function renderArticle(slug) {
   };
   const jsonldEl = document.getElementById('pp-jsonld');
   if (jsonldEl) jsonldEl.textContent = JSON.stringify(jsonld);
+
+  // FAQ JSON-LD (FAQPage schema)
+  if (article.faqSchema?.length) {
+    const faqJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: article.faqSchema.map(faq => ({
+        '@type': 'Question',
+        name: faq.question,
+        acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+      })),
+    };
+    const faqScript = document.createElement('script');
+    faqScript.type = 'application/ld+json';
+    faqScript.textContent = JSON.stringify(faqJsonLd);
+    document.head.appendChild(faqScript);
+  }
 
   // Related articles (same category, exclude current)
   const related = ARTICLES
