@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pattern Tester Program - People's Patterns</title>
+<meta name="description" content="Join the People's Patterns Tester Program. Sew free patterns, submit fit feedback, and get featured on our site and socials.">
+<link rel="canonical" href="https://peoplespatterns.com/tester">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pattern Tester Program — People's Patterns">
+<meta property="og:description" content="Get free patterns, sew muslins, give feedback, and get featured. Join the People's Patterns Tester Program.">
+<meta property="og:url" content="https://peoplespatterns.com/tester">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
+<link rel="stylesheet" href="/src/ui/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="pg pg-scrollable">
+
+<div class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
+  <nav id="hdr-nav-desktop">
+    <a href="/patterns">Patterns</a>
+    <a href="/learn">Learn</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/about">About</a>
+    <a href="/faq">FAQ</a>
+  </nav>
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+    <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
+      <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
+      <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+    </svg>
+  </button>
+  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <nav id="hdr-nav-mobile">
+  <div class="hdr-nav-m-links">
+    <a class="hdr-nav-m-link" href="/">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about">About</a>
+    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+  </div>
+  <div class="hdr-nav-m-theme">
+    <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
+  </div>
+  </nav>
+</div>
+
+<main class="pg-content tester-pg" id="tester-root">
+
+  <!-- Hero -->
+  <section class="tester-hero">
+    <h1 class="tester-hero-title">Pattern Tester Program</h1>
+    <p class="tester-hero-sub">Get free patterns. Sew them. Tell us how they fit. Get featured.</p>
+  </section>
+
+  <!-- How it works -->
+  <section class="tester-section">
+    <h2 class="tester-section-title">How It Works</h2>
+    <div class="tester-steps">
+      <div class="tester-step">
+        <span class="tester-step-num">01</span>
+        <h3 class="tester-step-title">Apply</h3>
+        <p class="tester-step-desc">Tell us about your sewing experience and what machines you have. Takes 2 minutes.</p>
+      </div>
+      <div class="tester-step">
+        <span class="tester-step-num">02</span>
+        <h3 class="tester-step-title">Get Approved</h3>
+        <p class="tester-step-desc">We review applications weekly. Approved testers get a free pattern credit and a garment assignment.</p>
+      </div>
+      <div class="tester-step">
+        <span class="tester-step-num">03</span>
+        <h3 class="tester-step-title">Sew a Muslin</h3>
+        <p class="tester-step-desc">Generate your pattern, print it, and sew a test garment. Cheap fabric, no finishing needed.</p>
+      </div>
+      <div class="tester-step">
+        <span class="tester-step-num">04</span>
+        <h3 class="tester-step-title">Submit Feedback</h3>
+        <p class="tester-step-desc">Rate the fit, flag problem areas, and upload photos. Your feedback directly improves the pattern.</p>
+      </div>
+      <div class="tester-step">
+        <span class="tester-step-num">05</span>
+        <h3 class="tester-step-title">Get Featured</h3>
+        <p class="tester-step-desc">Opt in and your photos appear in our gallery + social channels. Tag us and we share your makes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What testers get -->
+  <section class="tester-section">
+    <h2 class="tester-section-title">What Testers Get</h2>
+    <div class="tester-perks">
+      <div class="tester-perk">
+        <span class="tester-perk-icon">&#9993;</span>
+        <strong>Free pattern credit</strong> for every assignment completed
+      </div>
+      <div class="tester-perk">
+        <span class="tester-perk-icon">&#9733;</span>
+        <strong>Featured on the site</strong> in the tester gallery
+      </div>
+      <div class="tester-perk">
+        <span class="tester-perk-icon">&#128247;</span>
+        <strong>Social media features</strong> on our Instagram, TikTok, and Pinterest
+      </div>
+      <div class="tester-perk">
+        <span class="tester-perk-icon">&#128172;</span>
+        <strong>Direct input</strong> into pattern improvements
+      </div>
+      <div class="tester-perk">
+        <span class="tester-perk-icon">&#128100;</span>
+        <strong>Early access</strong> to new garments before public release
+      </div>
+    </div>
+  </section>
+
+  <!-- Application form (shows only for logged-in users without an active application) -->
+  <section class="tester-section" id="tester-apply-section">
+    <h2 class="tester-section-title" id="apply">Apply Now</h2>
+    <div id="tester-apply-container">
+      <!-- Rendered by tester-page.js -->
+      <p class="tester-login-prompt">
+        <a href="/?signup=1" class="tester-link">Sign in or create an account</a> to apply.
+      </p>
+    </div>
+  </section>
+
+  <!-- Featured gallery -->
+  <section class="tester-section" id="gallery">
+    <h2 class="tester-section-title">Tester Gallery</h2>
+    <div id="tester-gallery-container">
+      <p class="tester-empty">Featured tester makes will appear here once submissions start rolling in.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="land-footer">
+    <span class="land-footer-copy">&copy; 2026 People's Patterns</span>
+    <span class="land-footer-legal">
+      <a class="land-footer-link" href="/patterns">Patterns</a>
+      <a class="land-footer-link" href="/learn">Learn</a>
+      <a class="land-footer-link" href="/faq">FAQ</a>
+      <a class="land-footer-link" href="/pricing">Pricing</a>
+      <a class="land-footer-link" href="/terms">Terms</a>
+      <a class="land-footer-link" href="/privacy">Privacy</a>
+    </span>
+    <div class="social-icons">
+      <a class="social-icon" href="https://instagram.com/peoplespatterns" target="_blank" rel="noopener" aria-label="Instagram @peoplespatterns"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M10.202 2.098c-1.49.07-2.507.308-3.396.657-.92.359-1.7.84-2.477 1.619-.776.779-1.254 1.56-1.61 2.481-.345.891-.578 1.909-.644 3.4-.066 1.49-.08 1.97-.073 5.771s.024 4.278.096 5.772c.071 1.489.308 2.506.657 3.396.359.92.84 1.7 1.619 2.477.779.776 1.559 1.253 2.483 1.61.89.344 1.909.579 3.399.644 1.49.065 1.97.08 5.771.073 3.801-.007 4.279-.024 5.773-.095s2.505-.309 3.395-.657c.92-.36 1.701-.84 2.477-1.62s1.254-1.561 1.609-2.483c.345-.89.579-1.909.644-3.398.065-1.494.081-1.971.073-5.773s-.024-4.278-.095-5.771-.308-2.507-.657-3.397c-.36-.92-.84-1.7-1.619-2.477s-1.561-1.254-2.483-1.609c-.891-.345-1.909-.58-3.399-.644s-1.97-.081-5.772-.074-4.278.024-5.771.096m.164 25.309c-1.365-.059-2.106-.286-2.6-.476-.654-.252-1.12-.557-1.612-1.044s-.795-.955-1.05-1.608c-.192-.494-.423-1.234-.487-2.599-.069-1.475-.084-1.918-.092-5.656s.006-4.18.071-5.656c.058-1.364.286-2.106.476-2.6.252-.655.556-1.12 1.044-1.612s.955-.795 1.608-1.05c.493-.193 1.234-.422 2.598-.487 1.476-.07 1.919-.084 5.656-.092 3.737-.008 4.181.006 5.658.071 1.364.059 2.106.285 2.599.476.654.252 1.12.555 1.612 1.044s.795.954 1.051 1.609c.193.492.422 1.232.486 2.597.07 1.476.086 1.919.093 5.656.007 3.737-.006 4.181-.071 5.656-.06 1.365-.286 2.106-.476 2.601-.252.654-.556 1.12-1.045 1.612s-.955.795-1.608 1.05c-.493.192-1.234.422-2.597.487-1.476.069-1.919.084-5.657.092s-4.18-.007-5.656-.071M21.779 8.517c.002.928.755 1.679 1.683 1.677s1.679-.755 1.677-1.683c-.002-.928-.755-1.679-1.683-1.677-.928.002-1.678.755-1.677 1.683m-12.967 7.496c.008 3.97 3.232 7.182 7.202 7.174s7.183-3.232 7.176-7.202c-.008-3.97-3.233-7.183-7.203-7.175s-7.182 3.233-7.174 7.203m2.522-.005c-.005-2.577 2.08-4.671 4.658-4.676 2.577-.005 4.671 2.08 4.676 4.658.005 2.577-2.08 4.671-4.658 4.676-2.577.005-4.671-2.079-4.676-4.656"/></svg></a>
+      <a class="social-icon" href="https://tiktok.com/@peoplespatternsofficial" target="_blank" rel="noopener" aria-label="TikTok @peoplespatternsofficial"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M24.562 7.613c-1.508-.983-2.597-2.557-2.936-4.391-.073-.396-.114-.804-.114-1.221h-4.814l-.008 19.292c-.081 2.16-1.859 3.894-4.039 3.894-.677 0-1.315-.169-1.877-.465-1.288-.678-2.169-2.028-2.169-3.582 0-2.231 1.815-4.047 4.046-4.047.417 0 .816.069 1.194.187v-4.914c-.391-.053-.788-.087-1.194-.087-4.886 0-8.86 3.975-8.86 8.86 0 2.998 1.498 5.65 3.783 7.254 1.439 1.01 3.19 1.606 5.078 1.606 4.886 0 8.86-3.975 8.86-8.86V11.357c1.888 1.355 4.201 2.154 6.697 2.154v-4.814c-1.345 0-2.597-.4-3.647-1.085z"/></svg></a>
+      <a class="social-icon" href="https://youtube.com/@peoplespatterns" target="_blank" rel="noopener" aria-label="YouTube @peoplespatterns"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M31.331 8.248c-.368-1.386-1.452-2.477-2.829-2.848C26.006 4.727 16 4.727 16 4.727s-10.007 0-12.502.673c-1.377.37-2.461 1.462-2.829 2.848C.001 10.76.001 16 .001 16s0 5.241.668 7.752c.368 1.386 1.452 2.477 2.829 2.847C5.994 27.272 16 27.272 16 27.272s10.007 0 12.502-.673c1.377-.37 2.461-1.462 2.829-2.847C31.999 21.24 31.999 16 31.999 16s0-5.24-.668-7.752zM12.727 20.758V11.242l8.364 4.758-8.364 4.758z"/></svg></a>
+    </div>
+</footer>
+
+<script type="module" src="/src/ui/tester-page.js"></script>
+</body>
+</html>

@@ -38,6 +38,7 @@ export default defineConfig({
         pricing:   resolve(__dirname, 'pricing.html'),
         about:     resolve(__dirname, 'about.html'),
         redeem:    resolve(__dirname, 'redeem.html'),
+        tester:    resolve(__dirname, 'tester.html'),
       },
     },
   },

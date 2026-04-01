@@ -255,3 +255,91 @@ export async function removeFromWishlist(userId, garmentId) {
     .eq('garment_id', garmentId);
   return { error };
 }
+
+// ── Pattern Tester Program ───────────────────────────────────────────────────
+
+export async function getTesterApplication(userId) {
+  const { data, error } = await supabase
+    .from('tester_applications')
+    .select('*')
+    .eq('user_id', userId)
+    .neq('status', 'withdrawn')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return { data, error };
+}
+
+export async function submitTesterApplication(userId, application) {
+  const { data, error } = await supabase
+    .from('tester_applications')
+    .insert({
+      user_id:       userId,
+      experience:    application.experience,
+      specialties:   application.specialties ?? [],
+      machine_types: application.machineTypes ?? [],
+      social_handle: application.socialHandle?.trim() || null,
+      portfolio_url: application.portfolioUrl?.trim() || null,
+      why_test:      application.whyTest?.trim() || '',
+    })
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function withdrawTesterApplication(userId) {
+  const { error } = await supabase
+    .from('tester_applications')
+    .update({ status: 'withdrawn', updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .eq('status', 'pending');
+  return { error };
+}
+
+export async function getTesterAssignments(userId) {
+  const { data, error } = await supabase
+    .from('tester_assignments')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  return { data, error };
+}
+
+export async function updateTesterAssignment(assignmentId, userId, updates) {
+  const { data, error } = await supabase
+    .from('tester_assignments')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', assignmentId)
+    .eq('user_id', userId)
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function getTesterSubmissions(userId) {
+  const { data, error } = await supabase
+    .from('tester_submissions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  return { data, error };
+}
+
+export async function getFeaturedTesterSubmissions() {
+  const { data, error } = await supabase
+    .from('tester_submissions')
+    .select('id, garment_id, overall_fit, fit_notes, fabric_used, tips, photos, photo_captions, social_handle, featured_at')
+    .eq('featured', true)
+    .order('featured_at', { ascending: false })
+    .limit(20);
+  return { data, error };
+}
+
+export async function getTesterProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('is_tester, is_admin')
+    .eq('id', userId)
+    .single();
+  return { data, error };
+}
