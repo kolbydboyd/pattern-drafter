@@ -9,7 +9,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['pattern tester', 'free patterns', 'sewing community', 'pattern testing', 'indie sewing patterns', 'sewing skills'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-30',
     faqSchema: [
       { question: 'Do I need to be an advanced sewer to become a pattern tester?', answer: 'No. Many designers specifically look for beginner and intermediate testers to ensure their instructions are clear for all skill levels. Honesty and reliability matter more than experience.' },
       { question: 'How many free patterns can I get each month as a pattern tester?', answer: 'It varies by how many calls you apply to, but active testers typically receive between two and six free patterns per month from various designers.' },
@@ -118,7 +118,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['fit feedback sewing patterns', 'data-driven sewing', 'made-to-measure', 'pattern improvement', 'sewing community', 'body data'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-02',
     faqSchema: [
       { question: 'What happens to my fit feedback after I submit it?', answer: 'Your feedback is anonymized and combined with reports from thousands of other sewists. The aggregate data reveals systematic fit trends that help improve pattern algorithms for all body types.' },
       { question: 'Is my personal measurement data shared with anyone?', answer: 'No. Your individual measurements are never shared or sold. Only anonymized, aggregate trends are used to improve pattern generation. Your personal data stays private.' },
@@ -229,7 +229,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['Gen Z sewing trends', 'Y2K sewing', 'coquette aesthetic', 'gorpcore patterns', 'custom sewing patterns', 'trend sewing'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-04',
     faqSchema: [
       { question: 'Can I sew Y2K and Coquette styles as a beginner?', answer: 'Absolutely. Many Y2K and Coquette pieces are structurally simple, relying more on fabric choice and styling than complex construction. A slip skirt or crop jacket is a great beginner project.' },
       { question: 'What fabrics work best for Gorpcore sewing projects?', answer: 'Ripstop nylon, waxed cotton, canvas, and technical fleece are popular Gorpcore fabrics. Look for materials with functional properties like water resistance or durability.' },
@@ -322,7 +322,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['men\'s made-to-measure sewing', 'sewing for men', 'men\'s sewing patterns', 'custom fit menswear', 'beginner sewing men', 'menswear patterns'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-07',
     faqSchema: [
       { question: 'Are there enough sewing patterns available for men?', answer: 'The selection has been historically limited compared to women\'s patterns, but it is growing. Made-to-measure platforms like People\'s Patterns offer a range of menswear including tees, jeans, chinos, hoodies, and camp shirts, all drafted to individual measurements.' },
       { question: 'What is the easiest men\'s garment to sew first?', answer: 'A basic tee shirt is the most beginner-friendly men\'s garment. It uses knit fabric, has minimal pieces, and teaches fundamental skills like sewing curves and hems.' },
@@ -419,7 +419,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['custom patterns save money', 'sewing budget', 'cost of sewing', 'sewing vs buying', 'made-to-measure savings', 'sewing economics'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-09',
     faqSchema: [
       { question: 'Is sewing your own clothes actually cheaper than buying them?', answer: 'It depends on what you compare against. Sewing is rarely cheaper than fast fashion, but it is significantly cheaper than mid-range and premium ready-to-wear for comparable quality. Factor in better fit, longer garment life, and repair skills, and the economics favor sewing strongly.' },
       { question: 'How much does it cost to sew a basic tee shirt?', answer: 'A quality cotton jersey tee typically costs between four and eight dollars in fabric when using mid-range material. Adding thread and a custom pattern brings the total to roughly five to ten dollars for a shirt that rivals premium brands.' },
@@ -530,7 +530,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['sustainable wardrobe sewing', 'eco-friendly sewing', 'slow fashion', 'made-to-measure sustainability', 'ethical sewing', 'reduce clothing waste'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-11',
     faqSchema: [
       { question: 'How does sewing your own clothes help the environment?', answer: 'Sewing reduces waste in multiple ways: garments that fit well get worn more and discarded less, you choose durable fabrics that last longer, you control construction quality, and you can repair garments instead of replacing them. You also eliminate the carbon footprint of overseas shipping.' },
       { question: 'What are the most sustainable fabrics for home sewing?', answer: 'Organic cotton, linen, hemp, Tencel (lyocell), and deadstock fabrics are among the most sustainable options. Upcycled fabric from thrifted garments is another excellent zero-waste choice.' },
@@ -634,7 +634,7 @@ export const ARTICLES_COMMUNITY = [
     category: 'community',
     tags: ['parametric custom patterns', 'sewing technology', 'future of sewing', 'algorithmic pattern design', 'made-to-measure technology', 'digital sewing patterns'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-07-14',
     faqSchema: [
       { question: 'What is a parametric sewing pattern?', answer: 'A parametric pattern is generated by an algorithm that takes your body measurements as inputs and produces a custom pattern as output. Instead of grading from a fixed base size, every line, curve, and dart is calculated specifically for your body.' },
       { question: 'Do I need special software to use parametric patterns?', answer: 'No. Platforms like People\'s Patterns handle the computation in the browser. You enter your measurements, and the system generates a printable PDF pattern. No special software or technical knowledge is required.' },

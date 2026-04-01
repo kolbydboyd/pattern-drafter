@@ -9,7 +9,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['pants-fit', 'made-to-measure', 'rise-adjustment', 'thigh-fit', 'hip-fit', 'custom-patterns'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-25',
     faqSchema: [
       { question: 'Why do my pants always feel tight in the thighs but loose in the waist?', answer: 'Standard patterns are graded from a single base size, so all proportions scale together. If your thighs are proportionally larger than the size chart expects, you have to size up for the thighs and end up with extra room in the waist. A made-to-measure pattern drafts each measurement independently, so the waist and thighs both fit correctly.' },
       { question: 'What is rise and why does it matter for pants fit?', answer: 'Rise is the distance from the waistband down to the crotch seam. If the rise is too short, the crotch pulls and feels uncomfortable. If it is too long, the crotch hangs low and looks baggy. Made-to-measure patterns use your actual seated rise measurement to get this right.' },
@@ -115,7 +115,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['full-bust-adjustment', 'fba', 'bust-fit', 'custom-patterns', 'bodice-fit', 'women-sewing'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-28',
     faqSchema: [
       { question: 'What is a full bust adjustment in sewing?', answer: 'A full bust adjustment, or FBA, is a pattern alteration that adds extra room to the bust area of a bodice pattern. It involves slashing the pattern, spreading it to add width and length at the bust point, and then truing up the seam lines. It is one of the most common alterations needed with standard-sized patterns.' },
       { question: 'Do I still need an FBA with a custom-drafted pattern?', answer: 'No. A custom-drafted pattern uses your actual bust measurement as an input, so the bodice is drafted with the correct amount of room from the start. The dart placement and bodice shaping are calculated for your specific bust size and position.' },
@@ -199,7 +199,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['fit-problems', 'pattern-alterations', 'custom-drafting', 'sewing-fit', 'bodice-fit', 'pants-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-30',
     faqSchema: [
       { question: 'What are the most common fit problems in sewing?', answer: 'The most common fit problems include gaping necklines, pulling at the bust or hips, excess fabric in the back bodice, waistbands that do not sit at the natural waist, armholes that are too tight or too loose, and pants that twist on the leg. Nearly all of these stem from the mismatch between standard sizing and individual body proportions.' },
       { question: 'Can custom drafting fix all fit problems?', answer: 'Custom drafting eliminates the fit problems caused by sizing mismatches, which account for the vast majority of issues. Some fit preferences, like how much ease you like or where you prefer your waistband to sit, may still require a small adjustment after your first muslin.' },
@@ -280,7 +280,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['gaping-armholes', 'armhole-fit', 'made-to-measure', 'armscye', 'shoulder-fit', 'sleeve-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-02',
     faqSchema: [
       { question: 'Why do my armholes always gap?', answer: 'Gaping armholes are usually caused by an armhole that is too large for your body. Standard patterns size the armhole based on the bust or chest measurement, but the armhole also depends on your shoulder width and chest depth. If your shoulders are narrower or your chest is shallower than the pattern assumes, the armhole will be too big and gap open.' },
       { question: 'Can I fix gaping armholes without re-cutting the pattern?', answer: 'You can take in the side seam or add a small dart at the underarm to reduce the armhole size, but these are workarounds that change the garment proportions. The best fix is a pattern that drafts the armhole correctly from the start.' },
@@ -370,7 +370,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['swayback-adjustment', 'posture-fit', 'back-fitting', 'custom-patterns', 'waistline-fit', 'bodice-alterations'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-05',
     faqSchema: [
       { question: 'What is a swayback in sewing?', answer: 'A swayback refers to a posture where the lower back curves inward more than average, causing the back waistline of a garment to sit below the natural waist. This creates horizontal folds of excess fabric across the lower back. In sewing, the swayback adjustment removes this excess by shortening the back bodice at the waistline.' },
       { question: 'How do I know if I need a swayback adjustment?', answer: 'If your garments consistently have horizontal wrinkles or folds across the lower back, just above the waistline, you likely have a swayback. The excess fabric forms because the back bodice is longer than your body needs in that area.' },
@@ -452,7 +452,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['pattern-alterations', 'custom-patterns', 'sewing-fit', 'fba', 'lengthen-shorten', 'fit-adjustments'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-07',
     faqSchema: [
       { question: 'What pattern alterations do custom patterns eliminate?', answer: 'Custom patterns eliminate virtually all alterations caused by sizing mismatches, including full and small bust adjustments, broad and narrow shoulder adjustments, lengthening and shortening adjustments, swayback adjustments, and hip curve adjustments. These account for roughly 90 percent of the alterations most sewers need to make.' },
       { question: 'Are there any alterations I might still need with a custom pattern?', answer: 'You might still want to adjust ease preferences (more or less room than the default), make minor styling changes (hemline length, neckline depth), or account for highly unusual posture that is not fully captured by standard measurements. These are personal preference adjustments rather than fitting corrections.' },
@@ -544,7 +544,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['troubleshoot-fit', 'muslin-fitting', 'pre-cutting', 'sewing-tips', 'fit-check', 'measurement-verification'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-09',
     faqSchema: [
       { question: 'How can I check fit before cutting my good fabric?', answer: 'Start by verifying your measurements are accurate. Then review the generated pattern dimensions against your body. Finally, sew a muslin (test garment) from inexpensive fabric. This three-step process catches virtually all fit issues before you cut into your fashion fabric.' },
       { question: 'What is a muslin and why should I sew one?', answer: 'A muslin is a test version of your garment sewn from inexpensive fabric, usually unbleached cotton or old bedsheets. It lets you check the fit, evaluate the proportions, and identify any adjustments before committing your good fabric. It takes about an hour and can save you from wasting expensive material.' },
@@ -655,7 +655,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['plus-size-sewing', 'custom-patterns', 'inclusive-sizing', 'body-positive', 'grading-problems', 'curvy-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-12',
     faqSchema: [
       { question: 'Why do standard sewing patterns fit so poorly in plus sizes?', answer: 'Standard patterns are drafted for a fit model in the middle of the size range and then graded outward. Grading assumes all proportions scale uniformly, but larger bodies have diverse proportions that do not follow a linear scale. The result is patterns that are technically the right circumference but wrong in shape, proportion, and ease distribution.' },
       { question: 'Do custom patterns work for all sizes?', answer: 'Yes. Custom patterns use your individual measurements rather than a size chart, so they work for any body size. There is no upper or lower limit. The pattern engine drafts from your numbers, whatever they are.' },
@@ -741,7 +741,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['length-adjustment', 'petite-sewing', 'tall-sewing', 'auto-length', 'made-to-measure', 'proportional-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-14',
     faqSchema: [
       { question: 'Do I need to use lengthen/shorten lines with a custom pattern?', answer: 'No. Custom patterns draft all lengths from your actual measurements, so the bodice, sleeves, pants, and skirt lengths are correct from the start. Lengthen/shorten lines are only needed when a standard pattern assumes a different body length than yours.' },
       { question: 'I am petite. Will a custom pattern adjust the proportions or just the length?', answer: 'Custom patterns adjust everything proportionally based on your measurements. If you are petite, the bodice length, armhole depth, sleeve length, and dart placement are all drafted for your proportions. It is not just a shortened version of a taller pattern.' },
@@ -821,7 +821,7 @@ export const ARTICLES_FIT = [
     category:    'fit',
     tags:        ['athletic-build', 'custom-patterns', 'broad-shoulders', 'muscular-thighs', 'mens-sewing', 'body-proportions'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-16',
     faqSchema: [
       { question: 'Why do clothes not fit athletic builds?', answer: 'Athletic builds typically have proportions that standard sizing does not account for: broader shoulders relative to the waist, larger chest relative to the stomach, more muscular arms and thighs relative to the waist and knee. Standard sizing ties these measurements together in fixed ratios, so fitting one area means the others are wrong.' },
       { question: 'Can custom patterns fit very muscular bodies?', answer: 'Yes. Custom patterns use your actual measurements, including bicep, thigh, chest, and shoulder width. Whether your muscles are from weightlifting, swimming, cycling, or any other activity, the pattern is drafted to your specific dimensions.' },

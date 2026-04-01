@@ -9,7 +9,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['fabric-yardage', 'yardage-calculator', 'fabric-buying', 'sewing-math', 'beginner', 'custom-patterns'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-11',
     faqSchema: [
       { question: 'How much extra fabric should I buy for mistakes?', answer: 'A good rule of thumb is to add 10 to 15 percent on top of your calculated yardage. This gives you a safety margin for cutting errors, fabric flaws, or minor layout adjustments. If you are working with a directional print or fabric that requires matching, add closer to 20 percent.' },
       { question: 'Does fabric width affect how much yardage I need?', answer: 'Yes, significantly. Wider fabric (58 to 60 inches) allows you to fit more pattern pieces side by side, which means you need less length overall. Narrower fabric (44 to 45 inches) requires more yardage because pieces must be placed end to end more often.' },
@@ -117,7 +117,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['beginner-fabric', 'easy-sewing', 'cotton', 'knit-fabric', 'first-project', 'pdf-patterns'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-13',
     faqSchema: [
       { question: 'What is the single easiest fabric for a beginner to sew?', answer: 'Quilting cotton is widely considered the most beginner-friendly fabric. It is stable, does not stretch, presses crisply, and is forgiving of small mistakes. It is perfect for learning basic techniques before moving on to trickier materials.' },
       { question: 'Should beginners avoid knit fabrics entirely?', answer: 'Not at all. A stable cotton jersey with moderate stretch is very manageable for beginners, especially with a ballpoint needle and a slight zigzag stitch. Just avoid very stretchy or slippery knits like rayon jersey or power mesh until you have a few projects under your belt.' },
@@ -226,7 +226,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['stretch-fabric', 'woven-fabric', 'knit-vs-woven', 'fabric-selection', 'custom-patterns', 'sewing-basics'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-16',
     faqSchema: [
       { question: 'Can I use a stretch fabric with a pattern designed for wovens?', answer: 'Generally, no. Patterns designed for wovens include extra room (ease) to allow movement, since the fabric does not stretch. If you use a stretch fabric with a woven pattern, the garment will likely be too loose and baggy. Similarly, a woven fabric in a stretch pattern will be too tight and restrict movement.' },
       { question: 'What does negative ease mean?', answer: 'Negative ease means the finished garment measurements are smaller than your body measurements. This only works with stretch fabrics, because the fabric stretches to fit over your body and then recovers to hug your shape. A garment with negative ease feels snug and fitted.' },
@@ -324,7 +324,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['fabric-selection', 'dress-fabric', 'pants-fabric', 'drape', 'fabric-weight', 'custom-sewing'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-18',
     faqSchema: [
       { question: 'What weight fabric should I use for pants?', answer: 'Medium-weight fabrics in the 6 to 10 ounce per yard range work best for most pants. This includes cotton twill, chino cloth, linen, and lightweight denim. Heavier fabrics like 12-ounce denim work for jeans but may be too stiff for dressier styles.' },
       { question: 'Can I use the same fabric for a dress and pants?', answer: 'Some fabrics cross over beautifully. A medium-weight linen or cotton poplin can work for both a casual dress and a pair of wide-leg pants. However, a very drapey rayon challis that is perfect for a wrap dress would not have enough body for structured trousers.' },
@@ -434,7 +434,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['fabric-recommendations', 'fabric-shopping', 'online-fabric', 'garment-sewing', 'fabric-stores', 'sewing-supplies'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-20',
     faqSchema: [
       { question: 'Where is the best place to buy fabric online?', answer: 'Several reputable online fabric stores serve the garment sewing community well. Fabric.com offers enormous selection at competitive prices. Mood Fabrics carries high-end designer fabrics. Wawak provides specialty sewing supplies alongside fabric. Blackbird Fabrics and Sitka Fabrics specialize in curated apparel fabrics that are popular with indie pattern sewists.' },
       { question: 'How do I know if an online fabric will work for my pattern?', answer: 'Check the fiber content, weight, and stretch percentage listed in the product description and compare it to your pattern requirements. Many online fabric stores include customer reviews that describe how the fabric sews and behaves. Ordering a swatch before committing to full yardage is always a smart move.' },
@@ -530,7 +530,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['pre-washing', 'fabric-prep', 'shrinkage', 'fabric-care', 'sewing-basics', 'custom-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-23',
     faqSchema: [
       { question: 'What happens if I do not pre-wash my fabric?', answer: 'If the fabric shrinks after you sew your garment, the finished piece will become smaller and the fit will be thrown off. Seams may pucker, hems may shorten unevenly, and the overall proportions can change. This is especially problematic with made-to-measure patterns, where the fit is drafted to your exact measurements.' },
       { question: 'Which fabrics shrink the most?', answer: 'Natural fibers shrink the most. Cotton can shrink 3 to 5 percent, linen can shrink up to 10 percent, and rayon can shrink 5 to 8 percent. Wool can both shrink and felt if washed in hot water. Synthetic fabrics like polyester typically shrink very little, usually under 1 percent.' },
@@ -640,7 +640,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['sustainable-fabric', 'eco-sewing', 'organic-cotton', 'tencel', 'deadstock', 'slow-fashion'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-25',
     faqSchema: [
       { question: 'Is sewing your own clothes more sustainable than buying fast fashion?', answer: 'In most cases, yes. When you sew your own garments, you control the fabric source, produce no shipping waste for the finished product, and create pieces that fit well enough to wear for years. Made-to-measure patterns reduce fabric waste further because the pattern is sized to your body, not a generic range. And the skills you build mean you can repair and alter garments instead of discarding them.' },
       { question: 'What is the most sustainable fabric available?', answer: 'There is no single most sustainable fabric because sustainability depends on many factors including farming practices, processing, dyeing, transport, and end-of-life disposal. However, organic linen, organic cotton, and Tencel (lyocell) consistently rank among the lowest-impact options. Deadstock fabric is also highly sustainable because it uses material that already exists and would otherwise go to waste.' },
@@ -738,7 +738,7 @@ export const ARTICLES_FABRIC = [
     category:    'fabric',
     tags:        ['grainline', 'fabric-grain', 'cutting-layout', 'pattern-placement', 'bias', 'custom-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-27',
     faqSchema: [
       { question: 'What happens if I cut my pattern off-grain?', answer: 'A garment cut off-grain will twist on the body. Side seams will spiral toward the front or back instead of hanging straight. Hems will be uneven. The garment may also stretch out of shape in unexpected areas because the bias (which has the most stretch) will be running in the wrong direction. This is one of the most common fit problems in homemade garments.' },
       { question: 'How do I find the grainline on my fabric?', answer: 'The grainline runs parallel to the selvage, which is the finished edge that runs along each side of the fabric. You can also pull a single thread from the cut edge and follow it across the fabric. The direction that thread runs is the crosswise grain. Perpendicular to that is the lengthwise grain, which is your grainline.' },

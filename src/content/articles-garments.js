@@ -9,7 +9,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['t-shirt', 'shoulder fit', 'custom fit', 'made-to-measure', 'knit sewing', 'beginner friendly'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-19',
     faqSchema: [
       { question: 'Why do my t-shirt shoulders always droop or pull?', answer: 'Standard t-shirt patterns use fixed shoulder widths based on chest size alone. If your shoulder slope or width differs from the size chart average, the seam will land in the wrong spot. A made-to-measure pattern uses your actual shoulder measurement to place the seam correctly.' },
       { question: 'What measurements do I need for custom t-shirts with perfect shoulder fit?', answer: 'You need shoulder width (point to point across the back), shoulder slope (the angle from neck to shoulder tip), chest circumference, and bicep circumference. These four measurements ensure the shoulder seam sits right where it should.' },
@@ -115,7 +115,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['cargo shorts', 'custom fit', 'shorts sewing', 'made-to-measure', 'pockets', 'summer sewing'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-21',
     faqSchema: [
       { question: 'What fabric should I use for cargo shorts?', answer: 'Cotton twill or cotton-canvas blends in the 6 to 10 ounce range work best. They are sturdy enough to support cargo pockets without being too heavy for warm weather. Pre-wash and tumble dry your fabric before cutting to prevent shrinkage later.' },
       { question: 'How do I get cargo pockets that lay flat instead of bulging?', answer: 'Flat cargo pockets start with proper placement. The pocket should be centered on the outer thigh, angled slightly forward to follow the leg shape. Using a lighter-weight fabric for the pocket bag interior also reduces bulk.' },
@@ -214,7 +214,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['wide-leg trousers', 'made-to-measure', 'trouser sewing', 'PDF pattern', 'women sewing', 'drape'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-23',
     faqSchema: [
       { question: 'What is the best fabric for wide-leg trousers?', answer: 'Fabrics with natural drape work best: rayon challis, Tencel twill, linen, and crepe. Avoid stiff fabrics like quilting cotton or heavy denim, which fight the wide-leg silhouette instead of flowing with it.' },
       { question: 'How do I prevent wide-leg trousers from making me look shorter?', answer: 'A high waist and a full-length hem that just grazes the top of your shoe create a long, unbroken leg line. A made-to-measure pattern sets the rise and inseam to your body, so the proportions work for your height.' },
@@ -313,7 +313,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['wrap dress', 'custom fit', 'dress sewing', 'made-to-measure', 'women sewing', 'beginner dress'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-26',
     faqSchema: [
       { question: 'How do I stop a wrap dress from gaping at the neckline?', answer: 'Gaping happens when the bodice front is too wide for your bust or when the wrap angle is too shallow. A made-to-measure pattern calculates the wrap overlap from your actual bust and waist measurements, creating enough overlap to stay closed without pins.' },
       { question: 'What fabric works best for a wrap dress?', answer: 'Matte jersey, rayon challis, and crepe are ideal. They drape around the body, hold the wrap shape, and are comfortable to wear. Avoid very stiff or very slippery fabrics.' },
@@ -415,7 +415,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['custom jeans', 'jeans rise', 'denim sewing', 'made-to-measure', 'trouser fitting', 'crotch curve'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-28',
     faqSchema: [
       { question: 'What is rise in jeans and why does it matter?', answer: 'Rise is the measurement from the waistband, through the crotch, and back to the waistband. It determines how jeans fit through the seat and crotch. If the rise is too short, the jeans dig in. If it is too long, the crotch sags. It is the single most common source of jean fit problems.' },
       { question: 'How do I measure my rise for custom jeans?', answer: 'Sit on a flat, hard chair. Measure from the waistband level down to the chair seat for your back rise. For front rise, measure from the waistband level down through the crotch to the chair. You can also measure the rise on a pair of well-fitting pants you already own.' },
@@ -502,7 +502,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['a-line skirt', 'skirt sewing', 'every body shape', 'made-to-measure', 'beginner sewing', 'flattering fit'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-05-30',
     faqSchema: [
       { question: 'Why is the a-line skirt considered universally flattering?', answer: 'The a-line shape fits snugly at the waist and gradually widens toward the hem, creating a balanced silhouette. It skims over the hips and thighs without clinging, which works well for a wide range of body proportions.' },
       { question: 'How many measurements do I need for a made-to-measure a-line skirt?', answer: 'You need three core measurements: waist, hips, and desired skirt length. Some patterns also ask for waist-to-hip distance to place the hip curve accurately.' },
@@ -598,7 +598,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['camp shirt', 'collar sewing', 'sleeve fit', 'shirt sewing', 'made-to-measure', 'casual shirt'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-02',
     faqSchema: [
       { question: 'What makes a camp shirt different from a regular button-up?', answer: 'A camp shirt has a convertible camp collar that lays flat against the chest instead of standing up like a dress shirt collar. It also has a straight hem designed to be worn untucked, and usually features short sleeves with a relaxed fit.' },
       { question: 'How do I get the camp collar to lay flat?', answer: 'The collar must be cut on the correct grain and interfaced with a lightweight fusible. Press it thoroughly at every step. A made-to-measure pattern ensures the collar width matches your neck and shoulder proportions, which helps it sit flat naturally.' },
@@ -697,7 +697,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['gym shorts', 'custom fit', 'athletic sewing', 'ride-up fix', 'made-to-measure', 'activewear'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-04',
     faqSchema: [
       { question: 'Why do gym shorts ride up during exercise?', answer: 'Ride-up happens when the inseam is too short for your thigh circumference, or when the leg opening is too narrow relative to your thigh. As you move, the fabric bunches upward because there is not enough room for your thighs to move freely. A custom pattern balances inseam length and leg width for your body.' },
       { question: 'What fabric should I use for gym shorts?', answer: 'Lightweight athletic wovens like taslan nylon or polyester microfiber work well. For a knit option, try performance jersey or moisture-wicking poly-spandex. Avoid cotton for active workouts as it absorbs sweat and becomes heavy.' },
@@ -792,7 +792,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['straight-leg jeans', 'men sewing', 'custom jeans', 'denim', 'made-to-measure', 'trouser fit'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-06',
     faqSchema: [
       { question: 'What defines straight-leg jeans compared to other cuts?', answer: 'Straight-leg jeans have a consistent leg width from the knee to the hem. They do not taper inward like slim or skinny jeans, and they do not flare outward like bootcut. This creates a clean, balanced silhouette that works on most body types.' },
       { question: 'What is the most important measurement for men sewing jeans?', answer: 'Rise is the most critical measurement. It determines how the jeans fit through the seat and crotch. Thigh circumference is a close second, especially for men with athletic builds whose thighs are proportionally larger than their waist.' },
@@ -898,7 +898,7 @@ export const ARTICLES_GARMENTS = [
     category: 'garments',
     tags: ['beginner dress', 'dress sewing', 'first garment', 'measurements', 'made-to-measure', 'learn to sew'],
     youtubeId: null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-06-09',
     faqSchema: [
       { question: 'What is the easiest dress to sew as a complete beginner?', answer: 'A wrap dress or a simple shirt dress are the most beginner-friendly options. Both have straightforward construction, forgiving fits, and no complicated closures like invisible zippers or buttonhole rows. A made-to-measure pattern simplifies the fitting process, which is usually the biggest challenge for beginners.' },
       { question: 'How many measurements do I need to sew a dress?', answer: 'Most dress patterns need 5 to 7 measurements: bust, waist, hips, shoulder width, bodice length (shoulder to waist), and desired skirt length. Some patterns also ask for upper arm circumference for sleeve fitting.' },

@@ -4,6 +4,13 @@
 import { ARTICLES } from '../content/articles.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
+
+// ── Publish-date gate (drip feed for SEO) ─────────────────────────────────────
+// Only articles whose datePublished <= today appear in listing & related links.
+// Direct URL access still works for previewing upcoming articles.
+const TODAY = new Date().toISOString().slice(0, 10);
+const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
+const PUBLISHED = ARTICLES.filter(isPublished);
 const CATEGORY_LABELS = {
   'getting-started': 'Getting Started',
   'printing':        'Printing',
@@ -41,7 +48,7 @@ if (slug) {
 function renderListing() {
   document.title = "Learn | People's Patterns";
 
-  const cards = ARTICLES.map(a => `
+  const cards = PUBLISHED.map(a => `
     <a href="/learn/${a.slug}" class="learn-card">
       <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
       <h2 class="learn-card-title">${a.title}</h2>
@@ -125,8 +132,8 @@ function renderArticle(slug) {
     document.head.appendChild(faqScript);
   }
 
-  // Related articles (same category, exclude current)
-  const related = ARTICLES
+  // Related articles (same category, exclude current, published only)
+  const related = PUBLISHED
     .filter(a => a.slug !== slug && a.category === article.category)
     .slice(0, 2);
 

@@ -367,7 +367,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['body-measurements', 'beginner', 'quick-start', 'measuring', 'custom-fit', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-02',
     faqSchema: [
       { question: 'Can I really take all my measurements in 5 minutes?', answer: 'Yes. If you focus on the six core measurements and use a flexible tape measure, most people finish in under five minutes. The key is knowing where to place the tape and having a helper if possible.' },
       { question: 'Do I need a helper to take my measurements?', answer: 'A helper makes shoulder width and back measurements easier, but you can do most measurements solo with a mirror. The waist, hip, and bust measurements are straightforward to take on your own.' },
@@ -487,7 +487,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['made-to-measure', 'custom-fit', 'standard-sizes', 'beginner', 'pattern-drafting', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-04',
     faqSchema: [
       { question: 'Is a made-to-measure pattern the same as a bespoke pattern?', answer: 'They are closely related. Bespoke traditionally refers to hand-drafted patterns created by a tailor through multiple fittings. Made-to-measure uses the same mathematical drafting approach but generates the pattern computationally from your measurements, making it faster and more affordable.' },
       { question: 'Do I still need to make alterations with a made-to-measure pattern?', answer: 'In most cases, no. Because the pattern is drafted from your exact measurements, the common alterations needed with standard sizes are already accounted for. A muslin test garment is still recommended to verify fit before cutting your good fabric.' },
@@ -604,7 +604,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['tiled-pdf', 'printing', 'beginner', 'pdf-patterns', 'assembly', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-07',
     faqSchema: [
       { question: 'What printer do I need for tiled PDF sewing patterns?', answer: 'Any standard home inkjet or laser printer that prints on US Letter or A4 paper will work. You do not need a special or expensive printer.' },
       { question: 'How do I know if my pattern printed at the right size?', answer: 'Every People\'s Patterns PDF includes a 2 x 2 inch test square on the scale verification page. Print that page first and measure the square with a ruler. If it measures exactly 2 inches, your scale is correct.' },
@@ -713,7 +713,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['pattern-generator', 'walkthrough', 'custom-fit', 'beginner', 'how-to', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-09',
     faqSchema: [
       { question: 'Do I need any software to use the pattern generator?', answer: 'No. People\'s Patterns runs entirely in your web browser. There is nothing to download or install. You just need a browser and an internet connection.' },
       { question: 'How long does it take to generate a pattern?', answer: 'The pattern engine generates your custom pattern in under a minute once you have entered your measurements and selected your style options. The entire process from start to download typically takes five to ten minutes.' },
@@ -826,7 +826,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['first-time-sewing', 'beginner', 'free-pattern', 'getting-started', 'learn-to-sew', 'custom-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-11',
     faqSchema: [
       { question: 'What sewing machine do I need as a beginner?', answer: 'Any basic sewing machine that does a straight stitch and a zigzag stitch is enough to get started. You do not need an expensive or fancy machine. Many sewists start with entry-level machines that cost under 150 dollars.' },
       { question: 'Is sewing my own clothes actually cheaper than buying them?', answer: 'It depends on the garment and the fabric you choose. Sewing is not always cheaper per item, especially for basics. But the fit, quality, and satisfaction of wearing something you made yourself are hard to put a price on. Over time, as your skills grow, the value becomes even clearer.' },
@@ -944,7 +944,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['first-pattern', 'beginner', 'choosing-patterns', 'tee', 'shorts', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-14',
     faqSchema: [
       { question: 'What is the easiest garment to sew as a first project?', answer: 'A classic tee or gym shorts are the easiest starting points. Both have few pattern pieces, simple construction, and forgiving fit. They teach fundamental skills like straight seams, hemming, and working with a waistband or neckband.' },
       { question: 'Should I sew a tee, shorts, or dress first?', answer: 'If you are brand new to sewing, start with a tee or shorts. Both are quick projects that build confidence. A dress is a great second or third project once you are comfortable with the basics.' },
@@ -1064,7 +1064,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['ease', 'fit', 'made-to-measure', 'pattern-drafting', 'beginner', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-16',
     faqSchema: [
       { question: 'What is ease in a sewing pattern?', answer: 'Ease is the extra room added to a garment beyond your exact body measurements. It allows you to move, sit, and breathe comfortably. Without ease, a garment drafted to your exact measurements would be skin-tight and restrictive.' },
       { question: 'How much ease is added in a slim fit versus a relaxed fit?', answer: 'The exact amount varies by garment and body area, but as a general example, a slim fit might add 2 inches of ease at the bust, a regular fit might add 3 to 4 inches, and a relaxed fit might add 5 to 6 inches. People\'s Patterns calculates the precise amount for each pattern piece automatically.' },
@@ -1180,7 +1180,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['body-measurements', 'profile', 'account', 'reuse', 'getting-started', 'custom-fit'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-18',
     faqSchema: [
       { question: 'Do I have to re-measure every time I generate a pattern?', answer: 'No. Once you save your body measurements profile, every pattern you generate pulls from those saved numbers automatically. You only need to measure once.' },
       { question: 'Can I save measurements for multiple people?', answer: 'Yes. Your People\'s Patterns account supports multiple measurement profiles. You can create a separate body measurements profile for each person you sew for, such as family members, friends, or clients.' },
@@ -1292,7 +1292,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['beginner', 'easy-projects', 'first-project', 'custom-fit', 'learn-to-sew', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-21',
     faqSchema: [
       { question: 'What is the single easiest sewing project for a beginner?', answer: 'Gym shorts with an elastic waistband. They have the fewest pieces, mostly straight seams, and no closures to install. A pair of custom-fit gym shorts can be finished in a couple of hours.' },
       { question: 'Do I need an expensive sewing machine for beginner projects?', answer: 'No. A basic sewing machine with straight stitch and zigzag capabilities is all you need for beginner sewing projects. Entry-level machines work perfectly well.' },
@@ -1428,7 +1428,7 @@ export const ARTICLES_GETTING_STARTED = [
     category:    'getting-started',
     tags:        ['inches', 'centimeters', 'metric', 'imperial', 'measurements', 'getting-started'],
     youtubeId:   null,
-    datePublished: '2026-04-01',
+    datePublished: '2026-04-23',
     faqSchema: [
       { question: 'Can I enter some measurements in inches and others in centimeters?', answer: 'People\'s Patterns uses one unit system at a time for consistency, but you can switch between inches and centimeters at any point. The system converts your existing measurements automatically when you switch.' },
       { question: 'Does switching units affect my pattern accuracy?', answer: 'No. The pattern engine works with precise decimal values internally. Whether you enter your measurements in inches and centimeters makes no difference to the accuracy of the generated pattern.' },
