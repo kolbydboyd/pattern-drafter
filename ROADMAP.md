@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-03-27 · v0.7.0_
+_Last updated: 2026-03-31 · v0.7.0_
 
 ---
 
@@ -24,6 +24,71 @@ reporting "waist right, hip too tight" — we build
 the most detailed real-body fit dataset in existence.
 No clothing brand, pattern company, or fabric
 manufacturer has this. It becomes a licensable asset.
+
+---
+
+## Market Research — Gen Z & Men's Demand
+
+_Research completed 2026-03-31. Sources: Fortune, CNN, MR PORTER,
+Complex, Gitnux, Tapstitch, Printful, Google Trends, Depop,
+Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
+
+### Key Stats
+- Millennials + Gen Z = **60% of new sewers**
+- Custom clothing market: **$60B in 2025, projected $149.5B by 2035** (9.56% CAGR)
+- No widely adopted automated MTM platform exists for home sewists — **we have no direct competitor at scale**
+- Online pattern sales up 25% since 2019
+- TikTok: ~3M #sewing posts; #boyswhosew at 53.4M views
+- 45% increase in male crafting participation over 5 years
+- Sweet spot pricing $8–16/pattern (our $9–19 is on target)
+
+### Why People Sew (ranked)
+1. **Fit** — 68% prefer oversized but standard sizing doesn't deliver; online return rates 20–30% (poor fit)
+2. **Cost** — quality clothing increasingly unaffordable; custom shirt $20–40 in fabric vs $100+ retail
+3. **Sustainability** — 73% willing to pay more for sustainable; #ThriftFlip 3B+ TikTok views
+4. **Self-expression** — mass-produced feels generic; DIY content gets 3x more engagement than brand content
+5. **Screen fatigue** — analog hobby to get off phones
+6. **Social currency** — making clothes is a flex showing skill, creativity, and values
+
+### Gen Z Aesthetics Driving Demand (ranked)
+| Aesthetic | Key Garments | Status |
+|---|---|---|
+| Y2K Revival | Slip dresses, corset tops, low-rise, bold prints | Peak popularity |
+| Coquette / Romantic | Corset tops, babydoll dresses, lace, bows | Very strong |
+| Gorpcore / Utility | Cargo pants, utility jackets, quarter-zips | Evergreen |
+| Cottagecore | Flowy dresses, puff sleeves, midi skirts | Sustained/mature |
+| Quiet Luxury | Clean trousers, simple blazers, tonal | Rising |
+| Office Siren | Pencil skirts, blazers, slinky office-wear | Growing (workforce entry) |
+| Gender-Fluid | Oversized silhouettes, elastic waists | Growing strongly |
+
+### Men's Aesthetics Driving Demand (ranked)
+| Aesthetic | Key Garments | Status |
+|---|---|---|
+| Workwear / Heritage | Chore coats, worker trousers, denim, overshirts | HIGHEST demand |
+| Quiet Luxury | Unstructured blazers, clean trousers, neutral tones | Dominant macro-trend |
+| Streetwear | Bombers, hoodies, joggers, varsity, oversized | Evergreen for Gen Z |
+| Elevated Athleisure | Tailored joggers, zip fleeces, gym-to-work | $257B market |
+| Y2K / Retro Revival | Baggy jeans, vintage sportswear, oversized | Strong with 18–25 |
+| Relaxed Tailoring | Wider silhouettes replacing slim-fit | Growing for 2026 |
+
+### Men's MTM Opportunity
+- **Rise is the #1 MTM value prop for men** — standard sizing only provides waist + inseam, ignoring rise, thigh, hip. Rise CANNOT be fixed by a tailor.
+- **Athletic builds**: 95% of off-the-rack doesn't accommodate muscular proportions
+- **Short men (under 5'8")**: ~30% of US men, essentially ignored by the industry
+- **Plus-size (XL+)**: 34.1% of US men overweight, only 12% of market serves them
+- **67% of men** don't know their correct waist size
+- Men's formalwear = 60% of custom orders in North America
+- Men's suits market: $19.57B in 2026; custom suit adoption up 38%
+
+### Competitive Landscape (Men's MTM)
+| Company | Strength | Gap |
+|---|---|---|
+| Thread Theory | Best-known men's indie, workwear | Standard sizing only |
+| Wardrobe By Me | Largest men's indie collection | Standard sizing only |
+| Freesewing.org | Free, open-source, true MTM | Too technical for avg sewist |
+| Lekala / Sewist | Wide MTM catalog | Dated styling |
+| BootstrapFashion | Paid MTM with 3D tool | Complex, expensive |
+| **People's Patterns** | **Automated MTM + modern styling** | **Needs more men's garments** |
 
 ---
 
@@ -77,6 +142,7 @@ manufacturer has this. It becomes a licensable asset.
 - [ ] **Fix any fit issues found during muslin testing**
 - [ ] **Test full purchase flow end-to-end** — checkout, webhook, PDF generation, download, re-download
 - [ ] **Test print layout at 1:1 scale** — verify scale square, tiles assemble, no clipping
+- [ ] **Register LLC in Texas**
 - [ ] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
 - [ ] **Set up Google Search Console** and submit sitemap
 - [ ] **Update pricing in Stripe** to match new 3-tier structure if not already done
@@ -153,6 +219,61 @@ measure → generate → print → tile → cut → sew → finished
 
 ---
 
+## B2B Sewing Studio Partnerships (Houston Pilot)
+
+**Goal:** Get sewing schools to integrate People's Patterns into their curriculum — students
+generate custom-fit patterns from their own measurements as part of class.
+
+### Target Studios
+
+- **HTX Sewn Goods** — 9,000 sq ft textile lab, $3k 10-week courses, multiple class
+  levels, membership model coming
+- **The Little Sewing Room** (Spring, TX) — professional instructors
+  (theater/film/garment industry backgrounds), teaches pattern drafting, draping,
+  tutoring
+- **Thimble Fingers** — pattern fitting classes (Sure-Fit Designs system), supervised
+  sewing sessions, flexible self-paced format
+
+### Go-to-Market
+
+- Welcome kit with ~50–60 brochures per studio. Each brochure has a
+  sticker with a unique code giving the student free credit (e.g., 1 pattern generation).
+- Students sign up, take measurements, pick a garment, generate a pattern, and sew it in
+  class.
+
+### Pricing (TBD)
+
+- Could be per-student seat license, flat institutional subscription, or
+  revenue share bundled into tuition
+
+### Why This Matters Beyond Revenue
+
+Dozens of sewists at varied body types generating and sewing patterns in a supervised
+environment = massive structured fit feedback. Instructors present to diagnose issues
+in real-time.
+
+### Long Term
+
+Template for national replication via cold outreach to sewing schools/studios
+across the country.
+
+### Prerequisite
+
+Finished muslins as proof of concept. Walk in with a garment you made
+from your own app.
+
+---
+
+## Local Community Presence
+
+- Attend classes at Houston sewing studios (Thimble Fingers supervised sessions,
+  HTX Sewn Goods workshops) to get fitting feedback on muslins and naturally introduce
+  People's Patterns to other sewists
+- Library makerspaces (Houston Public Library TECHLink, HCPL Maker Central) for free
+  sewing machine access
+
+---
+
 ## Phase 3 — Revenue Expansion
 
 ### Membership Tiers (from pricing strategy)
@@ -197,6 +318,7 @@ These use existing engine geometry with minimal new math.
 | Leggings | lower | beginner | knit stretch panels, elastic waist | lily, lumina |
 | Apron | accessory | beginner | flat rectangle + ties, no fitting | albert |
 | Bow tie | accessory | beginner | flat pattern, no fitting | benjamin |
+| Joggers (tapered) | lower | beginner | tapered sweatpants variant, elastic cuffs. Gen Z athleisure, $257B market | - |
 | Flat cap | accessory | beginner | crown + brim panels | florent |
 
 #### Tier 2 — Strong demand, intermediate, some new geometry
@@ -216,6 +338,17 @@ These require moderate new engine functions or garment-specific logic.
 | Quarter-zip pullover | upper | intermediate | half-placket, stand collar | - |
 | Swimshirt / rash guard | upper | intermediate | knit, raglan or set-in, UPF fabric | shelly |
 | Bikini top | swimwear | intermediate | cups, ties/bands, stretch | bee |
+| Corset / bustier top | upper | intermediate | boning channels, cups, lacing. Gen Z coquette + Y2K, no MTM competitor exists | cathrin |
+| Cargo pants | lower | intermediate | extend cargo-shorts module to full length. Gorpcore evergreen, functional pockets | - |
+| Slip dress | dress | intermediate | extend slip-skirt module + straps/bodice. Y2K staple, beginner-friendly | - |
+| Wrap top / tie-front | upper | intermediate | share wrap logic with wrap-dress. Perennial bestseller, flattering across body types | - |
+| Bomber / varsity jacket | jacket | intermediate | ribbed bands, zip front, lining. Streetwear staple, 90s/varsity revival | - |
+| Chore coat / shacket (M) | jacket | intermediate | boxy fit, patch pockets, topstitch. #1 men's sewing aesthetic, no MTM options | - |
+| Babydoll dress | dress | intermediate | empire waist + gathered skirt. Coquette aesthetic, top thrift-flip result | - |
+| Puff-sleeve blouse | upper | intermediate | gathered sleeve cap, volume control. Cottagecore signature, "sleeves are the main character" | - |
+| Henley (M) | upper | intermediate | knit, button placket, long sleeve variant of tee. Steady men's demand | - |
+| Midi skirt | skirt | intermediate | straight or A-line, below-knee. Trending across cottagecore, quiet luxury, office siren | - |
+| Matching set (trouser + top) | set | intermediate | coordinated pair sold together. Market gap — no one bundles these. Social media gold | - |
 
 #### Tier 3 — Aspirational, advanced/expert, significant new engine work
 These need new geometry (collars, tailoring, structure) or complex piece counts.
@@ -223,10 +356,10 @@ These need new geometry (collars, tailoring, structure) or complex piece counts.
 | Garment | Type | Difficulty | Engine needs | FreeSewing ref |
 |---|---|---|---|---|
 | Denim trucker jacket | jacket | expert | already built (v0.8.0) | - |
-| Blazer / sport coat | jacket | expert | lapel/gorge line, welt pockets, canvas | jaeger |
+| Blazer / sport coat | jacket | expert | lapel/gorge line, welt pockets, canvas. Quiet luxury + office siren demand. Men's custom suit market $19.57B, adoption up 38% | jaeger |
 | Coat (overcoat) | jacket | expert | extended blazer block, lining, deep hem | carlita/carlton |
 | Trench coat | jacket | expert | storm flap, gun flap, belt, epaulettes | - |
-| Corset | structure | expert | boning channels, busk, lacing | cathrin |
+| Corset (full, structured) | structure | expert | boning channels, busk, lacing. See also: corset/bustier top in Tier 2 (simplified version) | cathrin |
 | Tailored shirt (W) | upper | advanced | princess seams, collar variations | simone |
 | Puffy pants | lower | advanced | volume, gathering, elastic | percy |
 
@@ -247,6 +380,9 @@ Fun patterns that drive social engagement and seasonal sales.
 | Halloween costume base | costume | intermediate | seasonal, October launch |
 | Holiday party dress | dress | intermediate | seasonal, November launch |
 | Plush toy (octopus) | novelty | beginner | social media magnet, kid-friendly | octoplushy |
+| Bucket hat | accessory | beginner | breakout trending accessory, Gen Z gorpcore | florent |
+| Quilted vest / gilet | outerwear | intermediate | gorpcore layering trend, accessible outerwear project | - |
+| Skort | lower | beginner | Biarritz skort is an indie bestseller, athletic + casual crossover | - |
 
 ### Sewing skills / engine capabilities needed for expansion
 
@@ -265,6 +401,8 @@ Fun patterns that drive social engagement and seasonal sales.
 
 ### Build order recommendation
 
+_Updated 2026-03-31 based on Gen Z + men's market research._
+
 **Month 1 post-launch** (beginner patterns, fast catalog growth):
 1. Circle skirt — uses curved waistband v2 engine
 2. Pencil skirt — straight panels, minimal new geometry
@@ -272,21 +410,56 @@ Fun patterns that drive social engagement and seasonal sales.
 4. Tank top — sleeveless variant of existing bodice
 5. Tote bag — MYOG gateway, Etsy listing
 
-**Month 2** (intermediate, fills catalog gaps):
-6. Leggings — stretch block (from boxers)
-7. Classic button-up shirt (M) — collar stand + yoke
-8. Sundress — bodice + gathered skirt
-9. Overalls — trouser block + bib
-10. Crossbody bag — second MYOG pattern
+**Month 2** (research-driven high-demand priorities):
+6. Corset / bustier top — highest unmet Gen Z demand, no MTM competitor, huge social media appeal
+7. Cargo pants — extend cargo-shorts module, gorpcore/utility aesthetic is evergreen
+8. Slip dress — extend slip-skirt module, Y2K staple, beginner-friendly
+9. Classic button-up shirt (M) — #1 most sewn men's garment, strongest MTM fit case
+10. Chore coat / shacket (M) — #1 men's sewing aesthetic, no MTM options exist
 
-**Month 3** (advanced, flagship patterns):
-11. Blazer — biggest single unlock for the catalog
-12. Waistcoat — shares block with blazer
-13. Knit dress — stretch bodice + skirt
-14. Messenger bag — structured MYOG
+**Month 3** (strong demand, flagship patterns):
+11. Bomber / varsity jacket — streetwear staple, 90s revival, highly shareable
+12. Wrap top — share logic with wrap-dress, perennial bestseller
+13. Blazer + Waistcoat — quiet luxury, biggest single unlock for catalog
+14. Matching set (trouser + top) — market gap, social media gold
 
-**Month 4+** (niche, seasonal, novelty):
-15-20. Costume base, holiday dress, plush toy, hat, tie, etc.
+**Month 4+** (niche, seasonal, novelty + remaining fills):
+15. Babydoll dress, puff-sleeve blouse, midi skirt, joggers
+16. Leggings, sundress, overalls, knit dress
+17. Costume base, holiday dress, plush toy, hat, tie
+18. MYOG bags: crossbody, messenger, duffle
+
+### Research-backed marketing angles
+
+_From 2026-03-31 market research._
+
+**Lead messaging:**
+- "Pants that actually fit YOUR body" — strongest MTM value prop across all demographics
+- Men's angle: "Rise-customized pants — the measurement no other brand addresses"
+- Athletic fit as explicit option — serve the fitness community directly
+- "Finally, men's patterns that don't look like your dad's wardrobe" — modern styling differentiator
+
+**Channels:**
+- Target TikTok first — 3M+ sewing posts, #boyswhosew 53.4M views, sewing videos getting 11M+ views
+- Free pattern as acquisition funnel (every major indie brand does this — Mood has 490+ free patterns)
+- Seed 50–100 free downloads to sewists with 5k–50k followers
+
+**Differentiators to emphasize:**
+- Gender-inclusive sizing (measurements, not gendered size charts)
+- Plus-size support above XXL/46" chest — the entire men's market ignores this
+- Short/tall proportional adjustment — not just length changes, full proportional redesign
+- Sustainability angle: make what you need, not fast fashion
+
+**Underserved segments to target:**
+- Athletic/muscular builds (95% of off-the-rack doesn't fit)
+- Short men under 5'8" (~30% of US men, essentially ignored)
+- Plus-size men above XXL (34% of men, 12% of market)
+- Gen Z men wanting unique/OOAK garments
+
+**Competitive positioning:**
+- Top indie brands Gen Z follows: Friday Pattern Company, Closet Core, Megan Nielsen, Helen's Closet, Papercut Patterns, Merchant & Mills — all use standard sizing
+- Big 4 (Simplicity, McCall's, Butterick, Vogue) are slow to adapt to trend cycles
+- No MTM brand combines modern/trending styling with true custom-fit — we own this gap
 
 ### MYOG Push (Month 2-3)
 - [ ] Tote, crossbody — list on r/myog immediately
@@ -335,7 +508,8 @@ not yet covered, it has higher catalog value.
 | Webbing / strap | tote, crossbody, daypack | not yet |
 | Invisible zipper | a-line-skirt-w, slip-skirt-w | done |
 | Exposed / sport zipper | hoodie, daypack | done (hoodie) |
-| Boning / structure | corset | not yet — future |
+| Boning / structure | corset, corset/bustier top | not yet — planned Month 2 (bustier top) |
+| Tie / wrap closure | wrap top, wrap-dress | not yet — planned Month 3 (wrap top) |
 | Bias binding / tape | apron, tank top | not yet |
 | Rolled hem | - | not yet — easy add on any garment |
 
@@ -457,6 +631,27 @@ At ~15% feedback-per-purchase conversion (industry sew-rate × return-to-submit 
 not an early-stage strategy. Milestones:
 - **5,000 reviews** → correction factors per garment module (useful for us)
 - **50,000 reviews** → licensable dataset (useful to others, 5+ year horizon)
+
+### Proportion-Aware Pattern Intelligence
+
+- **Phase 1 — Collect feedback:** Add optional post-sew feedback step: "Did you adjust
+  the length/fit? By how much?" Map adjustments to body proportion ratios
+  (torso-to-inseam, shoulder-to-waist, etc.)
+- **Phase 2 — Light recommendations:** Surface insights like "Sewists with similar
+  proportions to yours typically add 1 inch to the body length on this garment."
+  No automatic changes — informational only. Builds trust.
+- **Phase 3 — Auto-adjust:** Drafting engine detects proportion ratios and applies
+  statistically preferred adjustments by default, with override option.
+- **Requires:** Significant user volume. Phase 1 can ship early; Phase 2 needs hundreds of
+  data points per garment; Phase 3 needs thousands.
+- **B2B synergy:** Studio partnerships accelerate data collection — cohorts of students
+  sewing the same garments simultaneously at varied body types.
+
+### Studio Dashboard (B2B Feature)
+
+- Instructor-facing view: which patterns students generated, common fit issues by
+  measurement range, flagged patterns with frequent adjustments
+- Turns B2B relationship from one-time brochure drop into ongoing value
 
 ### Fit Feedback Collection
 - [x] Post-sew feedback form in account dashboard
@@ -853,3 +1048,15 @@ See `peoples-patterns-strategy/` for detailed plans:
 6. **06-upsell-crosssell-downsell.md** — Revenue maximization per touchpoint
 7. **07-pricing-strategy.md** — 3-tier pricing, bundles, membership tiers, per-garment pricing
 8. **08-master-action-plan.md** — 30-day launch plan, revenue targets, solo founder playbook
+9. **09-video-content-ladder.md** — 13 videos across 3 funnel rungs (problem → solution → product)
+10. **10-video-script-learn-to-sew.md** — Full script for "Why You Should Learn to Sew in [YEAR]"
+11. **11-etsy-and-implementation.md** — Etsy listing strategy, unit economics, implementation plan
+12. **12-income-projections.md** — Revenue projections, channel breakdown, Brother partnership
+
+---
+
+## Deferred
+
+- **Oneshy** — revisit when paid ad spend exists
+- **Viktor** — not relevant for solopreneur Slack workflow
+- **Routine app** (personal life OS) — shelved while People's Patterns is priority

@@ -19,10 +19,11 @@ onAuthStateChange(user => {
   updateHeaderAuth(user);
 });
 
-// Restore session on page load
+// Restore session on page load — identify returning users for analytics
 getUser().then(({ user }) => {
   _broadcast(user);
   updateHeaderAuth(user);
+  if (user) identifyUser(user.id, { email: user.email });
 });
 
 export function getCurrentUser() { return _authUser; }

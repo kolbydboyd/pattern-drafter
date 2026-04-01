@@ -1,7 +1,12 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Learn / blog page — handles /learn and /learn/[slug]
 
+import '../analytics.js';
 import { ARTICLES } from '../content/articles.js';
+import GARMENTS from '../garments/index.js';
+
+// Shared page functionality (theme, hamburger, logo, auth, analytics inject)
+import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
@@ -21,16 +26,6 @@ const CATEGORY_LABELS = {
   'garments':        'Garment Guides',
   'community':       'Community & More',
 };
-
-// ── Dark-mode ──────────────────────────────────────────────────────────────────
-const THEME_KEY = 'pp-theme';
-const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-document.getElementById('theme-btn')?.addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
-});
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
@@ -168,7 +163,7 @@ function renderArticle(slug) {
 
       ${youtubeEmbed}
 
-      <div class="learn-article-body">${article.body}</div>
+      <div class="learn-article-body">${article.body.replace(/\{\{GARMENT_COUNT\}\}/g, Object.keys(GARMENTS).length)}</div>
 
       ${relatedHtml}
 

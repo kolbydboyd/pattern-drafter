@@ -2,13 +2,16 @@
 // PostHog analytics — initialized once on import, helpers exported for use across the app.
 
 import posthog from 'posthog-js';
+import { inject } from '@vercel/analytics';
+
+inject();
 
 posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host:         import.meta.env.VITE_POSTHOG_HOST,
-  autocapture:      true,
-  capture_pageview: true,
+  api_host:          import.meta.env.VITE_POSTHOG_HOST,
+  autocapture:       true,
+  capture_pageview:  true,
   capture_pageleave: true,
-  defaults:         '2026-01-30',
+  session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' },
 });
 
 export function trackEvent(name, properties) {
@@ -27,15 +30,8 @@ export function resetUser() {
 // Call once after DOMContentLoaded. Tracks buttons, forms, scroll depth, outbound links.
 
 export function initSiteTracking() {
-  // Button clicks + outbound links (single delegated listener)
+  // Outbound link clicks (autocapture handles internal clicks)
   document.addEventListener('click', e => {
-    const btn = e.target.closest('button, [role="button"]');
-    if (btn) {
-      trackEvent('button_clicked', {
-        text: btn.textContent?.trim().slice(0, 100) || undefined,
-        id:   btn.id || undefined,
-      });
-    }
     const a = e.target.closest('a[href]');
     if (a && a.href && !a.href.startsWith(location.origin) && !a.href.startsWith('mailto:')) {
       trackEvent('outbound_link_clicked', {
