@@ -17,3 +17,7 @@ freesewing-develop.zip
 brand-kit/
 strategy/
 peoples-patterns-brand-kit/
+
+# Pinterest pin generation artifacts
+pins/images/
+pins/manifest.json
