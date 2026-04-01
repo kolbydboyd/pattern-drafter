@@ -47,6 +47,7 @@
     { "source": "/tester", "destination": "/tester.html" }
   ],
   "crons": [
-    { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
+    { "path": "/api/cron-emails",        "schedule": "0 9 * * *"   },
+    { "path": "/api/cron/publish-posts", "schedule": "0 9 * * 1,4" }
   ]
 }
