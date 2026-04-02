@@ -66,6 +66,17 @@ export default {
       ],
       default: 'none',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1,    label: '1″ (2″ finished waistband → 4″ cut)' },
+        { value: 1.5,  label: '1½″ (2½″ finished waistband → 5″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+      showWhen: { fly: 'none' },
+    },
     internalBelt: {
       type: 'select', label: 'Internal belt',
       values: [
@@ -188,7 +199,9 @@ export default {
     const shortsWaist = (frontW + backW) * 2; // actual waist opening of assembled shorts
     const wbBase = (opts.fly === 'none') ? shortsWaist : (m.waist + ease.total);
     const wbLength = wbBase + flyOverlap + sa * 2;
-    const wbWidth = 4; // 2" finished
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
+    // Elastic waistband: cut = (elastic + 1″ ease/fold) × 2. Structured: fixed 3″ (1.5″ finished).
+    const wbWidth = (opts.fly === 'none') ? (elasticW + 1) * 2 : 3;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
@@ -247,8 +260,9 @@ export default {
       { ref: 'interfacing-med', quantity: '0.5 yard (2 layers for waistband)' },
     ];
 
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1', quantity: `${Math.round(m.waist * 0.9)}″ (adjust at fitting \xb7 should be snug, ~90% of waist)` });
+      notions.push({ ref: `elastic-${elasticW}`, quantity: `${Math.round(m.waist * 0.9)}″ of ${fmtInches(elasticW)} wide elastic (adjust at fitting \xb7 should be snug, ~90% of waist)` });
       if (opts.internalBelt === 'webbing') {
         notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
       }
@@ -284,6 +298,11 @@ export default {
    * Construction instructions
    */
   instructions(m, opts) {
+    const ease = easeDistribution(opts.ease);
+    const sa = parseFloat(opts.sa);
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
+    const frontW = m.hip / 4 + ease.front;
+    const backW  = m.hip / 4 + ease.back;
     const steps = [];
     let n = 1;
 
@@ -330,7 +349,7 @@ export default {
           `{press} the seam allowance up into the waistband. The panel raw edges point straight up. Do not fold the panels.`,
           `Fold the waistband up and over along the center crease you pressed earlier. The waistband wraps around the panel raw edges like a sandwich (outer waistband, panel SA in the middle, inner waistband). Tuck the inner waistband raw edge under about ⅝″ so it just covers the seam line on the inside. Pin from the right side.`,
           `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
-          `Thread 1″ elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Tip: pin the trailing end to the fabric near the gap so it does not get pulled in. Work the fabric along the elastic rather than pulling the elastic through. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
+          `Thread ${fmtInches(elasticW)} elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Tip: pin the trailing end to the fabric near the gap so it does not get pulled in. Work the fabric along the elastic rather than pulling the elastic through. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
         ].filter(Boolean).join(' ') });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',

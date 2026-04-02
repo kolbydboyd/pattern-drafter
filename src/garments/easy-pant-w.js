@@ -52,6 +52,16 @@ export default {
       ],
       default: 'elastic',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished casing → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished casing → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished casing → 4½″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
+    },
     pockets: {
       type: 'select', label: 'Pockets',
       values: [
@@ -216,7 +226,9 @@ export default {
     const pantOpening = (frontW + backW) * 2;
     const wbCirc = pantOpening + sa * 2;
     if (opts.waistband === 'elastic') {
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · 3″ cut (1.5″ finished × 2) · Thread 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 0.75) * 2;
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} finished × 2) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     } else {
       const yogaLen = Math.round(pantOpening * 0.85 * 4) / 4;
       pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(yogaLen)} long × 6″ cut (3″ finished fold-over) · Stretch 15% to meet pant opening (${fmtInches(pantOpening)})`, dimensions: { length: yogaLen, width: 6 }, type: 'rectangle', sa });
@@ -245,7 +257,7 @@ export default {
   materials(m, opts) {
     const isKnit = opts.waistband === 'yoga';
     const notions = [
-      { name: 'Elastic 1″', quantity: `${Math.round(m.waist * 0.9)}″`, notes: 'Non-roll elastic (~90% of waist)' },
+      { name: `Elastic ${fmtInches(parseFloat(opts.elasticWidth) || 1)}`, quantity: `${Math.round(m.waist * 0.9)}″`, notes: `Non-roll ${fmtInches(parseFloat(opts.elasticWidth) || 1)} wide elastic (~90% of waist)` },
     ];
 
     return buildMaterialsSpec({

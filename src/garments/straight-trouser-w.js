@@ -72,6 +72,17 @@ export default {
       ],
       default: 'structured',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1,    label: '1″ (2″ finished waistband → 4″ cut)' },
+        { value: 1.5,  label: '1½″ (2½″ finished waistband → 5″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
+    },
     pockets: {
       type: 'select', label: 'Front pockets',
       values: [
@@ -204,7 +215,9 @@ export default {
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband (Structured)', instruction: 'Cut 1 · Interface · 1.5″ finished · Button + hook-and-eye · 1″ CF overlap', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else if (opts.waistband === 'elastic') {
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · 2.5″ cut (1.25″ casing) · Thread 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 1) * 2;
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} casing) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     } else {
       pieces.push({ id: 'waistband', name: 'Waistband (Contoured)', instruction: 'Cut 2 (outer + facing) · Interface outer · 1.5″ finished · Curve to match waist · Hook-and-eye', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     }
@@ -236,7 +249,8 @@ export default {
       notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 2 at waistband overlap' });
     }
     if (opts.waistband === 'elastic') {
-      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist * 0.9)}″`, notes: 'Non-roll elastic (~90% of waist)' });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      notions.push({ name: `Elastic ${fmtInches(elasticW)}`, quantity: `${Math.round(m.waist * 0.9)}″`, notes: `Non-roll ${fmtInches(elasticW)} wide elastic (~90% of waist)` });
     }
 
     return buildMaterialsSpec({

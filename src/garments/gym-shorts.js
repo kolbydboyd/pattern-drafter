@@ -46,6 +46,15 @@ export default {
       ],
       default: 'grommets',
     },
+    elasticWidth: {
+      type: 'select', label: 'Back elastic width',
+      values: [
+        { value: 0.75, label: '¾″' },
+        { value: 1,    label: '1″' },
+        { value: 1.5,  label: '1½″' },
+      ],
+      default: 1,
+    },
     liner: {
       type: 'select', label: 'Brief liner',
       values: [
@@ -161,7 +170,8 @@ export default {
     // ── WAISTBAND — FRONT HALF (drawstring + grommets) ──
     // Front half matches front garment opening (both front panels)
     const wbFrontLen   = frontW * 2 + sa * 2;
-    const wbWidth      = 3.5;   // 1.75″ finished (doubled)
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
+    const wbWidth      = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband-front',
       name: 'Waistband Front',
@@ -176,7 +186,7 @@ export default {
     pieces.push({
       id: 'waistband-back',
       name: 'Waistband Back',
-      instruction: `Cut 1 · Casing for 1″ elastic · ${fmtInches(wbWidth / 2)} finished`,
+      instruction: `Cut 1 · Casing for ${fmtInches(elasticW)} elastic · ${fmtInches(wbWidth / 2)} finished`,
       dimensions: { length: wbBackLen, width: wbWidth },
       type: 'rectangle',
       sa,
@@ -217,7 +227,7 @@ export default {
    */
   materials(m, opts) {
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.45)}″ - back waistband casing (~90% of half-waist)` },
+      { ref: `elastic-${parseFloat(opts.elasticWidth) || 1}`, quantity: `${Math.round(m.waist * 0.45)}″ of ${fmtInches(parseFloat(opts.elasticWidth) || 1)} wide elastic - back waistband casing (~90% of half-waist)` },
       { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ - front tie + tails` },
       { ref: 'interfacing-med', quantity: '0.25 yard - front waistband only' },
     ];

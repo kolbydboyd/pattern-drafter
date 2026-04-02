@@ -57,6 +57,16 @@ export default {
       ],
       default: 'none',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished waistband → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished waistband → 4½″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+    },
     riseStyle: {
       type: 'select', label: 'Rise style',
       values: [
@@ -149,11 +159,12 @@ export default {
 
     // ── WAISTBAND (elastic + drawstring) ──
     const wbLen   = (frontW + backW) * 2 + sa * 2;
-    const wbWidth = 3.5;  // ~1.75″ finished
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
+    const wbWidth = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · Elastic + drawstring casing · Buttonhole/grommet pair at CF`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     });

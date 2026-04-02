@@ -52,6 +52,17 @@ export default {
       ],
       default: 'elastic',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished waistband → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished waistband → 4½″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: ['elastic', 'hybrid'] },
+    },
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
@@ -188,14 +199,15 @@ export default {
 
     // ── WAISTBAND ──
     const garmentWaist = (frontHipW + backHipW) * 2;
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
     if (opts.waistband === 'elastic') {
       // Full elastic + drawcord casing (like sweatpants)
       const wbLen   = garmentWaist + sa * 2;
-      const wbWidth = 3.5;  // ~1.75″ finished
+      const wbWidth = (elasticW + 1) * 2;
       pieces.push({
         id: 'waistband',
         name: 'Waistband (Elastic + Drawcord)',
-        instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · Elastic + drawcord casing · Buttonhole/grommet pair at CF`,
+        instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawcord casing · Buttonhole/grommet pair at CF`,
         dimensions: { length: wbLen, width: wbWidth },
         type: 'rectangle', sa,
       });
@@ -204,7 +216,7 @@ export default {
       // Back: elastic casing
       const frontWbLen = (m.waist + ease.total + pleatExtra * 2) / 2 + 2; // front half + overlap
       const backWbLen  = garmentWaist / 2 + sa * 2; // back half, matches garment opening
-      const wbWidth = 3.5;
+      const wbWidth = (elasticW + 1) * 2;
       pieces.push({
         id: 'waistband-front',
         name: 'Front Waistband (Structured)',

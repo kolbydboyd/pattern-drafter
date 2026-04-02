@@ -35,6 +35,16 @@ export default {
       ],
       default: 'structured',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished casing → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished casing → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished casing → 4½″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
+    },
     closure: {
       type: 'select', label: 'Closure',
       values: [
@@ -164,7 +174,9 @@ export default {
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband', instruction: `Cut 2 (self + interfacing) · ${fmtInches(wbCirc)} long × 3.5″ cut (1.5″ finished + SA) · Interface fully`, dimensions: { length: wbCirc, width: 3.5 }, type: 'rectangle', sa });
     } else {
-      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut · Fold over 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 0.75) * 2;
+      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × ${fmtInches(wbWidth)} cut · Fold over ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     }
 
     if (opts.closure === 'zip') {
