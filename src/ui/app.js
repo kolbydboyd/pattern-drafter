@@ -68,7 +68,7 @@ const GARMENT_CATEGORIES = [
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
   { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','wrap-dress-w','tshirt-dress-w','slip-dress-w','a-line-dress-w','sundress-w'] },
   { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','athletic-formal-jacket'] },
-  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties & more',                ids:['apron','bow-tie'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
