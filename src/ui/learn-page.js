@@ -11,6 +11,18 @@ import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
+const CATEGORY_LABELS = {
+  'getting-started': 'Getting Started',
+  'printing':        'Printing',
+  'about':           'About',
+  'technique':       'Technique',
+  'fit':             'Fit',
+  'fabric':          'Fabric & Materials',
+  'garments':        'Garment Guides',
+  'community':       'Community & More',
+  'vs':              'Comparisons',
+};
+
 // ── Fetch articles (Supabase first, static fallback) ─────────────────────────
 async function loadArticles() {
   try {
@@ -20,7 +32,6 @@ async function loadArticles() {
       .order('date_published', { ascending: false });
 
     if (!error && data?.length) {
-      // Map DB column names to JS camelCase
       return data.map(a => ({
         slug:          a.slug,
         title:         a.title,
@@ -39,40 +50,25 @@ async function loadArticles() {
   return STATIC_ARTICLES;
 }
 
-const ARTICLES = await loadArticles();
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadArticles().then(ARTICLES => {
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
+  const PUBLISHED = ARTICLES.filter(isPublished);
 
-// ── Publish-date gate (drip feed for SEO) ─────────────────────────────────────
-// Only articles whose datePublished <= today appear in listing & related links.
-// Direct URL access still works for previewing upcoming articles.
-const TODAY = new Date().toISOString().slice(0, 10);
-const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
-const PUBLISHED = ARTICLES.filter(isPublished);
-const CATEGORY_LABELS = {
-  'getting-started': 'Getting Started',
-  'printing':        'Printing',
-  'about':           'About',
-  'technique':       'Technique',
-  'fit':             'Fit',
-  'fabric':          'Fabric & Materials',
-  'garments':        'Garment Guides',
-  'community':       'Community & More',
-  'vs':              'Comparisons',
-};
+  const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+  const slug = pathParts[1] || '';
+  const root = document.getElementById('learn-root');
 
-// ── Routing ───────────────────────────────────────────────────────────────────
-const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
-// /learn → listing, /learn/slug → article
-const slug = pathParts[1] || '';
-const root = document.getElementById('learn-root');
-
-if (slug) {
-  renderArticle(slug);
-} else {
-  renderListing();
-}
+  if (slug) {
+    renderArticle(slug, ARTICLES, PUBLISHED, root);
+  } else {
+    renderListing(PUBLISHED, root);
+  }
+});
 
 // ── Listing ───────────────────────────────────────────────────────────────────
-function renderListing() {
+function renderListing(PUBLISHED, root) {
   document.title = "Learn | People's Patterns";
 
   const cards = PUBLISHED.map(a => `
@@ -97,7 +93,7 @@ function renderListing() {
 }
 
 // ── Article ───────────────────────────────────────────────────────────────────
-function renderArticle(slug) {
+function renderArticle(slug, ARTICLES, PUBLISHED, root) {
   const article = ARTICLES.find(a => a.slug === slug);
 
   if (!article) {
