@@ -277,46 +277,46 @@ export default {
     // Pockets first
     if (opts.frontPocket === 'slant') {
       steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
-        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers. Tension: 3.5\u20134 for straight stitch on pocket seams.' });
       steps.push({ step: n++, title: 'Attach pocket to front panel',
-        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn. Tension: 3.5\u20134 for understitch and basting.' });
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat. Finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
+        detail: 'Mark center of pocket body. Fold 1\u2033 to each side of center line to form box pleat (two folds meeting at center, consuming 2\u2033 total width). {press} pleat flat. Finished pocket is 5\u2033 wide, expands to 7\u2033 when filled. {baste} pleat at top and bottom edges. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install snap on flap center. Tension: 4 for topstitch. If sewing through the box pleat layers, increase to 4.5.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',
-        detail: 'Fold top edge under 1″, {topstitch}. {press} remaining edges under ⅝″. Position on back panel 2.5″ below waist line, centered. {topstitch} close to edge on 3 sides. Bar tack top corners.' });
+        detail: 'Fold top edge under 1\u2033, {topstitch}. {press} remaining edges under \u215d\u2033. Position on back panel 2.5\u2033 below waist line, centered. {topstitch} close to edge on 3 sides. Bar tack top corners. Tension: 4 for topstitch.' });
     }
 
     // Assembly
     steps.push({ step: n++, title: 'Sew center front seam',
-      detail: 'Join two front panels at center seam {RST}. {clip} crotch curve. {press} seam open or to one side.' });
+      detail: 'Join two front panels at center seam {RST}. {clip} crotch curve. {press} seam open or to one side. Tension: 4 for straight stitch.' });
     steps.push({ step: n++, title: 'Sew center back seam',
-      detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}.' });
+      detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}. Tension: 4 for straight stitch.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: 'Join front to back at side seams {RST}. {press} open.' });
+      detail: 'Join front to back at side seams {RST}. {press} open. Tension: 4 for straight stitch.' });
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Attach cargo pockets',
-        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement.' });
+        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement. Tension: 4 for topstitch. Use 4.5 if sewing through multiple layers at pleat area.' });
     }
     steps.push({ step: n++, title: 'Sew inseam',
-      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}.' });
+      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}. Tension: reduce to 2.5\u20133 for stretch stitch at crotch curve (the multi-pass stitch puts extra pull on the top thread at normal tension). Return to 4 for straight stitch on the rest of the inseam.' });
 
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.` });
+        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2\u2033 gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1\u2033, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband. Tension: 4 for seaming. Reduce to 3\u20133.5 for {zigzag} through elastic.` });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });
+        detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap. Tension: 4 for seaming and topstitch.' });
     }
 
     steps.push({ step: n++, title: 'Hem',
-      detail: 'Fold up ½″, {press}. Fold again ½″, {press}. {topstitch} close to inner fold. Clean 1″ finished hem.' });
+      detail: 'Fold up \u00bd\u2033, {press}. Fold again \u00bd\u2033, {press}. {topstitch} close to inner fold. Clean 1\u2033 finished hem. Tension: 4 for topstitch.' });
     steps.push({ step: n++, title: 'Finish',
-      detail: '{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction. Try on and adjust elastic tension if needed.' });
+      detail: '{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction. Try on and adjust elastic tension if needed. Bar tack tension: 0\u20131 (or as low as your machine allows). Short, dense {zigzag}.' });
 
     return steps;
   },
