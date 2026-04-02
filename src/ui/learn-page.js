@@ -2,7 +2,8 @@
 // Learn / blog page — handles /learn and /learn/[slug]
 
 import '../analytics.js';
-import { ARTICLES } from '../content/articles.js';
+import { ARTICLES as STATIC_ARTICLES } from '../content/articles.js';
+import { supabase } from '../lib/supabase.js';
 import GARMENTS from '../garments/index.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
@@ -10,12 +11,6 @@ import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
-// ── Publish-date gate (drip feed for SEO) ─────────────────────────────────────
-// Only articles whose datePublished <= today appear in listing & related links.
-// Direct URL access still works for previewing upcoming articles.
-const TODAY = new Date().toISOString().slice(0, 10);
-const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
-const PUBLISHED = ARTICLES.filter(isPublished);
 const CATEGORY_LABELS = {
   'getting-started': 'Getting Started',
   'printing':        'Printing',
@@ -28,20 +23,52 @@ const CATEGORY_LABELS = {
   'vs':              'Comparisons',
 };
 
-// ── Routing ───────────────────────────────────────────────────────────────────
-const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
-// /learn → listing, /learn/slug → article
-const slug = pathParts[1] || '';
-const root = document.getElementById('learn-root');
+// ── Fetch articles (Supabase first, static fallback) ─────────────────────────
+async function loadArticles() {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('slug, title, description, category, tags, youtube_id, date_published, faq_schema, body')
+      .order('date_published', { ascending: false });
 
-if (slug) {
-  renderArticle(slug);
-} else {
-  renderListing();
+    if (!error && data?.length) {
+      return data.map(a => ({
+        slug:          a.slug,
+        title:         a.title,
+        description:   a.description,
+        category:      a.category,
+        tags:          a.tags || [],
+        youtubeId:     a.youtube_id || null,
+        datePublished: a.date_published,
+        faqSchema:     a.faq_schema || [],
+        body:          a.body,
+      }));
+    }
+  } catch (_) {
+    // Supabase unavailable — fall through to static
+  }
+  return STATIC_ARTICLES;
 }
 
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadArticles().then(ARTICLES => {
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
+  const PUBLISHED = ARTICLES.filter(isPublished);
+
+  const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+  const slug = pathParts[1] || '';
+  const root = document.getElementById('learn-root');
+
+  if (slug) {
+    renderArticle(slug, ARTICLES, PUBLISHED, root);
+  } else {
+    renderListing(PUBLISHED, root);
+  }
+});
+
 // ── Listing ───────────────────────────────────────────────────────────────────
-function renderListing() {
+function renderListing(PUBLISHED, root) {
   document.title = "Learn | People's Patterns";
 
   const cards = PUBLISHED.map(a => `
@@ -66,7 +93,7 @@ function renderListing() {
 }
 
 // ── Article ───────────────────────────────────────────────────────────────────
-function renderArticle(slug) {
+function renderArticle(slug, ARTICLES, PUBLISHED, root) {
   const article = ARTICLES.find(a => a.slug === slug);
 
   if (!article) {
