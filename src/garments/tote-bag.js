@@ -269,7 +269,7 @@ export default {
         id: 'contrast-bottom', name: 'Contrast Bottom Strip',
         instruction: `Cut 2 in contrast fabric · ${fmtInches(W)} wide × ${fmtInches(contrastH)} tall · Replaces bottom section of outer panel`,
         type: 'rectangle',
-        dimensions: { width: W, height: contrastH },
+        dimensions: { length: contrastH, width: W },
         sa,
       });
     }
@@ -298,7 +298,7 @@ export default {
         id: 'interior-slip-pocket', name: 'Interior Slip Pocket',
         instruction: `Cut 1 · ${fmtInches(pW)} wide × 7″ tall · Fold top edge under ½″ twice, {topstitch}`,
         type: 'rectangle',
-        dimensions: { width: pW, height: 7 },
+        dimensions: { length: 7, width: pW },
         sa,
       });
     }
@@ -310,7 +310,7 @@ export default {
         id: 'interior-zip-pocket', name: 'Interior Zippered Pocket',
         instruction: `Cut 2 (front + back) · ${fmtInches(pW)} wide × 6″ tall · Install zipper between the two layers`,
         type: 'rectangle',
-        dimensions: { width: pW, height: 6 },
+        dimensions: { length: 6, width: pW },
         sa,
       });
     }
@@ -324,7 +324,7 @@ export default {
         id: 'exterior-patch-pocket', name: 'Exterior Patch Pocket',
         instruction: `Cut 1 · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · Attach to ${placement}`,
         type: 'rectangle',
-        dimensions: { width: pW, height: pH },
+        dimensions: { length: pH, width: pW },
         sa,
       });
     }
@@ -335,7 +335,7 @@ export default {
         id: 'exterior-gusseted-pocket', name: 'Exterior Gusseted Pocket',
         instruction: `Cut 1 · 5″ wide × 8″ tall · Pleat 1½″ gusset on each side before attaching`,
         type: 'rectangle',
-        dimensions: { width: 5, height: 8 },
+        dimensions: { length: 8, width: 5 },
         sa,
       });
     }
@@ -346,7 +346,7 @@ export default {
         id: 'strap-phone-pocket', name: 'Strap Phone Pocket',
         instruction: `Cut 2 (front + back) · 4″ wide × 6″ tall · Sew together, turn, attach to strap`,
         type: 'rectangle',
-        dimensions: { width: 4, height: 6 },
+        dimensions: { length: 6, width: 4 },
         sa,
       });
     }
@@ -370,7 +370,7 @@ export default {
         id: 'bottom-reinforcement', name: 'Bottom Reinforcement',
         instruction: `Cut 1 from ${matName} · ${fmtInches(W - 0.5)} wide × ${fmtInches(D - 0.5)} deep · No seam allowance needed. Slides into finished bag.`,
         type: 'rectangle',
-        dimensions: { width: W - 0.5, height: D - 0.5 },
+        dimensions: { length: D - 0.5, width: W - 0.5 },
         sa: 0,
       });
     }
