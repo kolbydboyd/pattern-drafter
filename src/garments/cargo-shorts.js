@@ -248,7 +248,7 @@ export default {
     ];
 
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist * 0.9)}″ (adjust at fitting \xb7 should be snug, ~90% of waist)` });
+      notions.push({ ref: 'elastic-1', quantity: `${Math.round(m.waist * 0.9)}″ (adjust at fitting \xb7 should be snug, ~90% of waist)` });
       if (opts.internalBelt === 'webbing') {
         notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
       }
@@ -330,7 +330,7 @@ export default {
           `{press} the seam allowance up into the waistband. The panel raw edges point straight up. Do not fold the panels.`,
           `Fold the waistband up and over along the center crease you pressed earlier. The waistband wraps around the panel raw edges like a sandwich (outer waistband, panel SA in the middle, inner waistband). Tuck the inner waistband raw edge under about ⅝″ so it just covers the seam line on the inside. Pin from the right side.`,
           `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
-          `Thread elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
+          `Thread 1″ elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Tip: pin the trailing end to the fabric near the gap so it does not get pulled in. Work the fabric along the elastic rather than pulling the elastic through. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
         ].filter(Boolean).join(' ') });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
