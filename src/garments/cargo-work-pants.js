@@ -329,7 +329,13 @@ export default {
     steps.push({ step: n++, title: 'Sew center back seam',
       detail: 'Join back panels at CB crotch seam {RST}. {clip} crotch curve. {press} seam open.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargoPocket === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''} Position ruler pocket on outer side seam at thigh level, {topstitch} sides and bottom.` });
+      detail: 'Join front to back at side seams {RST}. {press} open.' });
+    if (opts.cargoPocket === 'cargo') {
+      steps.push({ step: n++, title: 'Attach cargo pockets',
+        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement.' });
+    }
+    steps.push({ step: n++, title: 'Attach ruler pockets',
+      detail: 'Position each ruler pocket on the outer side seam at thigh level. {topstitch} the sides and bottom close to the edge. Leave the top open. Bar tack the top corners.' });
     steps.push({ step: n++, title: 'Sew inner leg seam',
       detail: opts.innerLeg === 'double'
         ? 'One continuous seam from hem to hem through crotch. {clip} crotch curve. Sew second line of stitching ¼″ from first for double-seam durability. {press} toward front.'
