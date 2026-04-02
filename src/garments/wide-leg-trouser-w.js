@@ -10,7 +10,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketFacing,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -225,8 +225,8 @@ export default {
 
     // ── FRONT POCKETS ────────────────────────────────────────────────────────
     if (opts.pockets === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 7, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Interface or self-fabric' }));
-      pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Interface or self-fabric \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     } else if (opts.pockets === 'welt') {
@@ -299,10 +299,10 @@ export default {
 
     // Front pockets
     if (opts.pockets === 'slant') {
-      steps.push({
-        step: n++, title: 'Prepare slant pockets',
-        detail: 'Interface facing. Sew facing to front panel along slash line {RST}. {clip} curve, turn, {press}. {understitch} facing. Attach pocket bag to facing bottom. {baste} bag edges to panel edges.',
-      });
+      steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+      steps.push({ step: n++, title: 'Attach pocket to front panel',
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     } else if (opts.pockets === 'side') {
       steps.push({
         step: n++, title: 'Prepare side-seam pockets',
@@ -397,6 +397,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: -ext,         y: rise    });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
+
+  const hasSlash = !isBack && opts?.pockets === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 7);
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;

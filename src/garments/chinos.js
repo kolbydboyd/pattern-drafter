@@ -9,7 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketFacing
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -170,8 +170,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 6.5, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match fabric or lining \xb7 {serge} before attaching' }));
-      pieces.push(buildSlantPocketBag({ width: 7, height: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining or drill \xb7 {serge} all edges' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining or drill \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
@@ -227,10 +227,10 @@ export default {
       });
     }
 
-    steps.push({
-      step: n++, title: 'Prepare slant pockets',
-      detail: '{serge} pocket bag and facing edges. Sew facing to front panel slash line {RST}. {clip}, turn, {press}. {understitch} facing. Attach bag to facing. {baste} bag to panel at side and waist.',
-    });
+    steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+      detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+    steps.push({ step: n++, title: 'Attach pocket to front panel',
+      detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     steps.push({
       step: n++, title: 'Install zip fly',
       detail: '{serge} fly shield edges. {staystitch} CF seam allowances. Sew front panels at CF from crotch to bottom of fly opening. {clip} curve. Sew zipper to right CF. Sew fly shield to left CF. {topstitch} fly curve from RS at 3.0mm.',
@@ -296,6 +296,26 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: -ext,         y: rise    });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
+
+  // Clip front panel at slash line for slant pocket
+  const hasSlash = !isBack && opts?.frontPocket === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 6);
+
+  // Per-edge seam allowances
+  const crotchEdgeCount = curvePts.length - 2;
+  const sideIdx = hasSlash ? 2 : 1;
+  const edgeAllowances = poly.map((_, i) => {
+    if (i === 0) return { sa, label: 'Waist' };
+    if (hasSlash && i === 1) return { sa, label: 'Slash' };
+    if (i === sideIdx) return { sa, label: 'Side seam' };
+    if (i === sideIdx + 1) return { sa, label: 'Side seam' };
+    if (i === sideIdx + 2) return { sa, label: 'Side seam' };
+    if (i === sideIdx + 3) return { sa: hem, label: 'Hem' };
+    if (i === sideIdx + 4) return { sa, label: 'Inseam' };
+    if (i === sideIdx + 5) return { sa, label: 'Inseam' };
+    if (i >= sideIdx + 6 && i < sideIdx + 6 + crotchEdgeCount) return { sa, label: 'Crotch' };
+    return { sa, label: 'Center' };
+  });
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
