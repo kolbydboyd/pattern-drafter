@@ -69,6 +69,7 @@ const GARMENT_TIERS = {
   'slip-dress-w':    'core',
   'a-line-dress-w':  'tailored',
   'sundress-w':      'core',
+  'tote-bag':        'core',
 };
 
 // Garment display labels (used in checkout, emails, UI)
@@ -111,6 +112,7 @@ const GARMENT_LABELS = {
   'slip-dress-w':             'Slip Dress',
   'a-line-dress-w':           'A-Line Dress',
   'sundress-w':               'Sundress',
+  'tote-bag':                 'Tote Bag',
 };
 
 // ── Per-garment lookup (backward-compatible with existing consumers) ──────────

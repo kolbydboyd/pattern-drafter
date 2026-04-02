@@ -24,6 +24,7 @@ const GARMENT_IDS = [
   'cargo-work-pants',
   'athletic-formal-jacket', 'athletic-formal-trousers',
   'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
+  'tote-bag',
 ];
 
 // ── Published articles (datePublished <= today) ───────────────────────────────
