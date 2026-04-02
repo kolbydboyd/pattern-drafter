@@ -2,13 +2,44 @@
 // Learn / blog page — handles /learn and /learn/[slug]
 
 import '../analytics.js';
-import { ARTICLES } from '../content/articles.js';
+import { ARTICLES as STATIC_ARTICLES } from '../content/articles.js';
+import { supabase } from '../lib/supabase.js';
 import GARMENTS from '../garments/index.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
+
+// ── Fetch articles (Supabase first, static fallback) ─────────────────────────
+async function loadArticles() {
+  try {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('slug, title, description, category, tags, youtube_id, date_published, faq_schema, body')
+      .order('date_published', { ascending: false });
+
+    if (!error && data?.length) {
+      // Map DB column names to JS camelCase
+      return data.map(a => ({
+        slug:          a.slug,
+        title:         a.title,
+        description:   a.description,
+        category:      a.category,
+        tags:          a.tags || [],
+        youtubeId:     a.youtube_id || null,
+        datePublished: a.date_published,
+        faqSchema:     a.faq_schema || [],
+        body:          a.body,
+      }));
+    }
+  } catch (_) {
+    // Supabase unavailable — fall through to static
+  }
+  return STATIC_ARTICLES;
+}
+
+const ARTICLES = await loadArticles();
 
 // ── Publish-date gate (drip feed for SEO) ─────────────────────────────────────
 // Only articles whose datePublished <= today appear in listing & related links.

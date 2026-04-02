@@ -55,11 +55,13 @@
     { "source": "/learn/:slug", "destination": "/learn.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/redeem", "destination": "/redeem.html" },
-    { "source": "/tester", "destination": "/tester.html" },
-    { "source": "/pin-preview", "destination": "/pin-preview.html" }
+    { "source": "/tester", "destination": "/tester.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" },
-    { "path": "/api/cron-pinterest", "schedule": "0 14,16,18,19,0,1,2 * * *" }
+    { "path": "/api/cron-pinterest", "schedule": "0 14,16,18,19,0,1,2 * * *" },
+    { "path": "/api/cron-sitemap", "schedule": "0 6 * * *" },
+    { "path": "/api/cron-images", "schedule": "0 7 * * *" },
+    { "path": "/api/cron-links", "schedule": "30 7 * * *" }
   ]
 }
