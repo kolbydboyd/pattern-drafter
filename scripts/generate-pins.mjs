@@ -128,7 +128,6 @@ function baseHTML(title, innerContent) {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
   }
   .pin-footer {
     margin-top: auto;
@@ -153,21 +152,21 @@ function baseHTML(title, innerContent) {
   /* comparison-table */
   .cmp-table { width: 100%; border-collapse: collapse; }
   .cmp-table th {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: 1px;
     text-transform: uppercase;
-    padding: 16px 12px;
+    padding: 20px 14px;
     text-align: left;
     border-bottom: 2px solid ${BRAND.gold};
   }
   .cmp-table th.cmp-better { color: ${BRAND.gold}; }
   .cmp-table th.cmp-other { color: ${BRAND.mid}; }
   .cmp-table td {
-    font-size: 17px;
-    padding: 18px 12px;
+    font-size: 20px;
+    padding: 24px 14px;
     border-bottom: 1px solid ${BRAND.bdr};
-    line-height: 1.4;
+    line-height: 1.5;
     vertical-align: top;
   }
   .cmp-table td.cmp-better-cell { color: ${BRAND.text}; }
@@ -179,17 +178,17 @@ function baseHTML(title, innerContent) {
   .chk-item {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    padding: 16px 0;
+    gap: 18px;
+    padding: 20px 0;
     border-bottom: 1px solid ${BRAND.bdr};
-    font-size: 19px;
+    font-size: 22px;
     line-height: 1.45;
   }
   .chk-item:last-child { border-bottom: none; }
   .chk-box {
     flex-shrink: 0;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border: 2px solid ${BRAND.gold};
     border-radius: 4px;
     display: flex;
@@ -199,7 +198,7 @@ function baseHTML(title, innerContent) {
   }
   .chk-check {
     color: ${BRAND.gold};
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
   }
 
@@ -215,15 +214,15 @@ function baseHTML(title, innerContent) {
     flex-direction: column;
     align-items: center;
     flex-shrink: 0;
-    width: 44px;
+    width: 52px;
   }
   .howto-num {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: ${BRAND.gold};
     color: ${BRAND.bg};
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -236,9 +235,9 @@ function baseHTML(title, innerContent) {
     background: ${BRAND.bdr};
   }
   .howto-text {
-    font-size: 19px;
-    line-height: 1.4;
-    padding: 10px 0 28px;
+    font-size: 22px;
+    line-height: 1.45;
+    padding: 12px 0 32px;
     color: ${BRAND.text};
   }
   .howto-step:last-child .howto-line { display: none; }
@@ -248,18 +247,18 @@ function baseHTML(title, innerContent) {
   .feat-list { display: flex; flex-direction: column; gap: 0; }
   .feat-item {
     display: flex;
-    gap: 16px;
+    gap: 18px;
     align-items: flex-start;
-    padding: 14px 0;
+    padding: 18px 0;
     border-bottom: 1px solid ${BRAND.bdr};
-    font-size: 19px;
+    font-size: 22px;
     line-height: 1.45;
   }
   .feat-item:last-child { border-bottom: none; }
   .feat-bullet {
     flex-shrink: 0;
     color: ${BRAND.gold};
-    font-size: 22px;
+    font-size: 24px;
     margin-top: -1px;
   }
 
@@ -275,15 +274,15 @@ function baseHTML(title, innerContent) {
     flex-direction: column;
     align-items: center;
     flex-shrink: 0;
-    width: 14px;
+    width: 18px;
   }
   .info-dot {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: ${BRAND.gold};
     flex-shrink: 0;
-    margin-top: 4px;
+    margin-top: 5px;
   }
   .info-connector {
     width: 2px;
@@ -291,15 +290,15 @@ function baseHTML(title, innerContent) {
     min-height: 16px;
     background: ${BRAND.bdr};
   }
-  .info-body { padding: 0 0 28px; }
+  .info-body { padding: 0 0 32px; }
   .info-heading {
-    font-size: 20px;
+    font-size: 23px;
     font-weight: 600;
     color: ${BRAND.gold};
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .info-detail {
-    font-size: 17px;
+    font-size: 20px;
     color: ${BRAND.mid};
     line-height: 1.5;
   }
