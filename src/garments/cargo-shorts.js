@@ -192,10 +192,19 @@ export default {
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold · Interface before cutting · ${fmtInches(wbWidth / 2)} finished`,
+      instruction: [
+        `Cut 1 on fold · Interface (2 layers) before cutting · ${fmtInches(wbWidth / 2)} finished`,
+        `Notch at CF, CB, and both side seams (front panel = ${fmtInches(frontW)}, back panel = ${fmtInches(backW)} from each side seam)`,
+      ].join(' · '),
       dimensions: { length: wbLength, width: wbWidth },
       type: 'rectangle',
       sa,
+      notches: [
+        { label: 'CF', position: 0 },
+        { label: 'Side seam', position: frontW },
+        { label: 'CB', position: frontW + backW },
+        { label: 'Side seam', position: frontW + backW + backW },
+      ],
     });
 
     // ── POCKET PIECES ──
@@ -311,7 +320,18 @@ export default {
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends together to form a loop. Leave a 2\u2033 gap in the center back seam for threading elastic. The waistband loop should match the shorts waist opening. Pin waistband to shorts waist {RST}, matching side seams and CB. Ease any slight difference evenly. Sew all the way around. Fold waistband over, {press}. Fold top edge under, pin to inside covering the seam. {topstitch} through all layers. Thread elastic (~90% of waist measurement, should feel snug) through the 2\u2033 gap with a bodkin. Overlap ends 1\u2033, {zigzag}. Close the gap. Double {topstitch} top and bottom of waistband. Tension: 4 for seaming. Reduce to 3\u20133.5 for {zigzag} through elastic.` });
+        detail: [
+          `Fuse interfacing (2 layers) to waistband before cutting.`,
+          opts.internalBelt === 'webbing' ? 'Sew webbing centered on the outer half.' : '',
+          `Notch or mark CF, CB, and both side seams on the waistband (front panel width = ${fmtInches(frontW)}, back = ${fmtInches(backW)} from each side seam).`,
+          `Fold the waistband in half lengthwise {WST} and {press} the fold. This fold becomes the top edge of the finished waistband.`,
+          `Open it back up. Sew the short ends {RST} to form a loop, leaving a 2″ gap in the CB seam for threading elastic later.`,
+          `Pin one raw edge of the waistband loop to the shorts waist {RST}, matching CF, CB, and side seam notches. Sew all the way around. Tension: 4.`,
+          `{press} the seam allowance up into the waistband.`,
+          `Fold the waistband up and over along the center crease you pressed earlier. The other raw edge should now be on the inside. Tuck that raw edge under about ⅝″ so it just covers the seam line you sewed. Pin from the right side.`,
+          `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
+          `Thread elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
+        ].filter(Boolean).join(' ') });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap. Tension: 4 for seaming and topstitch.' });
