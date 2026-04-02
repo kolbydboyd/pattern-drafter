@@ -9,6 +9,7 @@ import swimTrunks   from './swim-trunks.js';
 import pleatedShorts from './pleated-shorts.js';
 import straightJeans from './straight-jeans.js';
 import baggyJeans    from './baggy-jeans.js';
+import baggyShorts   from './baggy-shorts.js';
 import chinos        from './chinos.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
@@ -50,6 +51,7 @@ const GARMENTS = {
   'pleated-shorts':       pleatedShorts,
   'straight-jeans':       straightJeans,
   'baggy-jeans':          baggyJeans,
+  'baggy-shorts':         baggyShorts,
   'chinos':               chinos,
   'pleated-trousers':     pleatedTrousers,
   'sweatpants':           sweatpants,
