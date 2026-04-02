@@ -290,11 +290,13 @@
 
 </div>
 <script>
-// Set frame heights to match scaled content
-document.querySelectorAll('.pin-frame').forEach(frame => {
-  const inner = frame.querySelector('.pin-frame-inner');
-  const pin = inner.querySelector('.pin');
-  frame.style.height = (pin.scrollHeight * 0.333) + 'px';
+// Wait for fonts then set frame heights to match scaled content
+document.fonts.ready.then(() => {
+  document.querySelectorAll('.pin-frame').forEach(frame => {
+    const pin = frame.querySelector('.pin');
+    frame.style.height = Math.ceil(pin.scrollHeight * 0.333) + 'px';
+    frame.querySelector('.pin-frame-inner').style.height = pin.scrollHeight + 'px';
+  });
 });
 </script>
 </body>
