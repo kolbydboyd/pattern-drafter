@@ -16,10 +16,9 @@ create table if not exists articles (
   updated_at    timestamptz not null default now()
 );
 
--- Index for published-article queries (sitemap, listing, link updater)
+-- Index for date-based queries (sitemap, listing, link updater)
 create index if not exists idx_articles_published
-  on articles (date_published desc)
-  where date_published <= current_date;
+  on articles (date_published desc);
 
 -- Index for slug lookups
 create index if not exists idx_articles_slug on articles (slug);
