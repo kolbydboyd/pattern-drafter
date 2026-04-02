@@ -55,7 +55,8 @@
     { "source": "/learn/:slug", "destination": "/learn.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/redeem", "destination": "/redeem.html" },
-    { "source": "/tester", "destination": "/tester.html" }
+    { "source": "/tester", "destination": "/tester.html" },
+    { "source": "/pin-preview", "destination": "/pin-preview.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" },
