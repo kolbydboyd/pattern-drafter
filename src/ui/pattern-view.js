@@ -264,9 +264,14 @@ export function renderPanelSVG(piece) {
     const bagL = ox + sc(width - 7);        // left edge of bag
     const bagB = oy + sc(9.5);             // bottom of bag (7″ up to slash + 2.5″ deeper extension)
     // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
+    // Slash line label: rotated to follow the diagonal
+    const slashAngle = Math.atan2(slashY2 - slashY1, slashX2 - slashX1) * 180 / Math.PI;
+    const slashMidX = (slashX1 + slashX2) / 2;
+    const slashMidY = (slashY1 + slashY2) / 2;
     pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
-      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
+      <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1.2"/>
+      <text x="${slashMidX - 4}" y="${slashMidY - 4}" font-family="IBM Plex Mono" font-size="7" font-weight="bold" fill="#8a4a4a" transform="rotate(${slashAngle.toFixed(1)},${slashMidX - 4},${slashMidY - 4})">SLASH LINE</text>
+      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && opts?.frontPocket === 'side') {
     // Two tick marks on the side seam showing the pocket opening span.

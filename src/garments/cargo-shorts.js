@@ -197,7 +197,7 @@ export default {
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
       pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash' }));
-      pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
+      pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK \xb7 Single layer (front panel is pocket front)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket', sa });
@@ -276,8 +276,10 @@ export default {
 
     // Pockets first
     if (opts.frontPocket === 'slant') {
-      steps.push({ step: n++, title: 'Prepare slant pockets',
-        detail: 'Sew facing to front panel along slash line {RST}. {clip} curve, turn, {press}. {understitch} facing. Attach pocket bag to facing bottom and side seam allowance. {baste} bag edges to panel.' });
+      steps.push({ step: n++, title: 'Attach slant pocket facing',
+        detail: 'Find the diagonal SLASH LINE on the front panel (marked from waist, 3.5\u2033 in from side seam, down to the side seam at 6\u2033 below waist). Place the facing strip on the front panel {RST}, aligning the long edge of the facing to the slash line. Sew along the slash line. {clip} the seam allowance of the slash seam (cut small notches into the SA so it can bend). Turn the facing to the wrong side of the panel. {press} flat. {understitch} the facing (sew through facing + both seam allowances, close to the seam, so the facing rolls to the inside).' });
+      steps.push({ step: n++, title: 'Attach pocket bag',
+        detail: 'The pocket bag is a single layer. The front panel itself is the front of the pocket (visible when you reach inside). Align the top angled edge of the pocket bag to the bottom edge of the facing. Sew the bag to the facing. Then align the bag\u2019s straight side edge to the front panel\u2019s side seam allowance and {baste} together (this gets caught in the side seam later). {baste} the bag\u2019s top edge to the front panel\u2019s waist seam allowance. The bag now hangs behind the front panel, enclosed in the waist and side seams.' });
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
