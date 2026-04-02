@@ -103,7 +103,8 @@ export default {
     const waistHeightExtra = opts.waistHeight === 'high' ? 2 : opts.waistHeight === 'low' ? -1.5 : 0;
     const baseRise = m.rise || 10;
     const riseOff  = (RISE_OFFSETS[opts.riseStyle] ?? 0) + waistHeightExtra;
-    const rise     = baseRise + riseOff;
+    const crotchEase = 0.5; // less ease for knit — fabric stretches
+    const rise     = baseRise + riseOff + crotchEase;
 
     const fullInseam = m.inseam || 28;
     const inseam = opts.length === 'capri'

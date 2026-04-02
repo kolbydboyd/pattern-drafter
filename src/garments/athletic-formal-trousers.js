@@ -115,7 +115,7 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
-    frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3   },
+    frontExt: { type: 'number', label: 'Front crotch ext', default: 2, step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5, step: 0.25, min: 1,   max: 4   },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,   max: 2.5 },
     sa: {
@@ -151,7 +151,8 @@ export default {
     const RISE_OFFSETS = { low: -1.5, mid: 0, high: 1.5 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
-    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const crotchEase = 0.75; // ease below body rise — prevents fabric pulling tight against crotch
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff + crotchEase);
 
     const lengthAdj = opts.legLength === 'cropped' ? -3 : 0;
     const inseam    = (m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31)) + lengthAdj;
