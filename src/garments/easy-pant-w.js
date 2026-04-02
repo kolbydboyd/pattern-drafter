@@ -213,10 +213,10 @@ export default {
       buildPanel('back',  true,  backW,  backExt),
     ];
 
-    const wbCirc = m.hip + easeVal + sa * 2;
     const pantOpening = (frontW + backW) * 2;
+    const wbCirc = pantOpening + sa * 2;
     if (opts.waistband === 'elastic') {
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · 3″ cut (1.5″ finished × 2) · Thread 1″ elastic = waist − 2″`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · 3″ cut (1.5″ finished × 2) · Thread 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else {
       const yogaLen = Math.round(pantOpening * 0.85 * 4) / 4;
       pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(yogaLen)} long × 6″ cut (3″ finished fold-over) · Stretch 15% to meet pant opening (${fmtInches(pantOpening)})`, dimensions: { length: yogaLen, width: 6 }, type: 'rectangle', sa });
@@ -245,7 +245,7 @@ export default {
   materials(m, opts) {
     const isKnit = opts.waistband === 'yoga';
     const notions = [
-      { name: 'Elastic 1″', quantity: `${Math.round(m.waist - 2)}″`, notes: 'Non-roll elastic (waist − 2″ for snug fit)' },
+      { name: 'Elastic 1″', quantity: `${Math.round(m.waist * 0.9)}″`, notes: 'Non-roll elastic (~90% of waist)' },
     ];
 
     return buildMaterialsSpec({
@@ -283,7 +283,7 @@ export default {
     steps.push({
       step: n++, title: 'Attach waistband and thread elastic',
       detail: opts.waistband === 'elastic'
-        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (waist − 2″) with a {bodkin}. Overlap ends 1″, {zigzag}. Close gap. {topstitch} close to fold.'
+        ? 'Fold casing strip in half lengthwise {WST}, {press}. Sew to waist edge {RST}. Fold to inside. {topstitch} leaving a 2″ gap. Thread elastic (~90% of waist) with a {bodkin}. Overlap ends 1″, {zigzag}. Close gap. {topstitch} close to fold.'
         : 'Fold yoga band in half lengthwise {WST}. Divide into quarters, pin to waist. Stretch band slightly to match waist. Sew with stretch stitch. Fold band down to outside of pant for a fold-over yoga waist.',
     });
     steps.push({

@@ -180,8 +180,10 @@ export default {
     }));
 
     // ── WAISTBAND ────────────────────────────────────────────────────────────
-    // Structured/contoured sits at waist; elastic must pass over hips
-    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease.total + pleatExtra * 2 + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
+    // Elastic waistband matches garment waist opening (sum of panel tops).
+    // Structured/contoured sits at body waist measurement.
+    const garmentWaist = (frontHipW + backHipW) * 2;
+    const wbCirc = (opts.waistband === 'elastic') ? garmentWaist + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       // 1.5″ finished = 3″ cut
@@ -197,7 +199,7 @@ export default {
       pieces.push({
         id: 'waistband',
         name: 'Waistband (Elastic Casing)',
-        instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut (1.25″ finished casing) · Thread 1″ elastic = waist measurement − 1″`,
+        instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut (1.25″ finished casing) · Thread 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`,
         dimensions: { length: wbCirc, width: 2.5 },
         type: 'rectangle', sa,
       });
@@ -256,7 +258,7 @@ export default {
       notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 2–3 at waistband overlap' });
     }
     if (opts.waistband === 'elastic') {
-      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic for waistband casing' });
+      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist * 0.9)}″`, notes: 'Non-roll elastic (~90% of waist) for waistband casing' });
     }
     if (opts.waistband === 'wide') {
       notions.push({ name: 'Petersham ribbon', quantity: `${Math.round(m.waist + 4)}″`, notes: '2.5″ wide petersham (optional facing for wide waistband interior)' });
@@ -356,7 +358,7 @@ export default {
     } else if (opts.waistband === 'elastic') {
       steps.push({
         step: n++, title: 'Construct elastic waistband casing',
-        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (waist − 1″) using a {bodkin}. Overlap elastic ends 1″, {zigzag}. Close gap. {topstitch} close to folded edge.',
+        detail: 'Fold casing strip in half lengthwise {WST}, {press}. Sew to trouser waist {RST}. Fold over to inside, {topstitch} leaving a 2″ gap at CB. Thread elastic (~90% of waist) using a {bodkin}. Overlap elastic ends 1″, {zigzag}. Close gap. {topstitch} close to folded edge.',
       });
     } else {
       steps.push({

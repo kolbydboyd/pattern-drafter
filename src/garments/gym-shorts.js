@@ -159,8 +159,8 @@ export default {
     }));
 
     // ── WAISTBAND — FRONT HALF (drawstring + grommets) ──
-    // Front half = waist circ / 2 + SA each end
-    const wbFrontLen   = (m.waist / 2 + ease.front) + sa * 2;
+    // Front half matches front garment opening (both front panels)
+    const wbFrontLen   = frontW * 2 + sa * 2;
     const wbWidth      = 3.5;   // 1.75″ finished (doubled)
     pieces.push({
       id: 'waistband-front',
@@ -172,7 +172,7 @@ export default {
     });
 
     // ── WAISTBAND — BACK HALF (elastic casing) ──
-    const wbBackLen = (m.waist / 2 + ease.back) + sa * 2;
+    const wbBackLen = backW * 2 + sa * 2;
     pieces.push({
       id: 'waistband-back',
       name: 'Waistband Back',
@@ -217,7 +217,7 @@ export default {
    */
   materials(m, opts) {
     const notions = [
-      { ref: 'elastic-1',    quantity: `${Math.round(m.waist / 2 + 2)}″ - back waistband casing` },
+      { ref: 'elastic-1',    quantity: `${Math.round(m.waist * 0.45)}″ - back waistband casing (~90% of half-waist)` },
       { ref: 'drawstring',   quantity: `${Math.round(m.waist + 12)}″ - front tie + tails` },
       { ref: 'interfacing-med', quantity: '0.25 yard - front waistband only' },
     ];

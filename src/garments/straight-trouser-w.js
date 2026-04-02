@@ -196,13 +196,15 @@ export default {
       calf: m.calf, seatDepth: m.seatDepth,
     }));
 
-    // Structured/contoured sits at waist; elastic must pass over hips
-    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease.total + pleatExtra * 2 + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
+    // Elastic waistband matches garment waist opening (sum of panel tops).
+    // Structured/contoured sits at body waist measurement.
+    const garmentWaist = (frontHipW + backHipW) * 2;
+    const wbCirc = (opts.waistband === 'elastic') ? garmentWaist + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband (Structured)', instruction: 'Cut 1 · Interface · 1.5″ finished · Button + hook-and-eye · 1″ CF overlap', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else if (opts.waistband === 'elastic') {
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · 2.5″ cut (1.25″ casing) · Thread 1″ elastic = waist − 1″`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · 2.5″ cut (1.25″ casing) · Thread 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
     } else {
       pieces.push({ id: 'waistband', name: 'Waistband (Contoured)', instruction: 'Cut 2 (outer + facing) · Interface outer · 1.5″ finished · Curve to match waist · Hook-and-eye', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     }
@@ -234,7 +236,7 @@ export default {
       notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 2 at waistband overlap' });
     }
     if (opts.waistband === 'elastic') {
-      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic' });
+      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist * 0.9)}″`, notes: 'Non-roll elastic (~90% of waist)' });
     }
 
     return buildMaterialsSpec({
@@ -286,7 +288,7 @@ export default {
     if (opts.waistband === 'structured' || opts.waistband === 'contoured') {
       steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew to trouser waist {RST}. Fold over. Grade SA in layers before turning. {slipstitch} or {edgestitch} inside. Install button and hook-and-eye.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half {WST}. Sew to waist {RST}. Fold to inside, {topstitch} leaving 2″ gap at CB. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half {WST}. Sew to waist {RST}. Fold to inside, {topstitch} leaving 2″ gap at CB. Thread elastic (~90% of waist). Overlap ends 1″, {zigzag}. Close gap.' });
     }
     if (opts.crease === 'crease') {
       steps.push({ step: n++, title: '{press} front creases', detail: 'Fold each front leg so the inseam lies exactly on top of the side seam. {press} a sharp crease from waist to hem using heavy steam and a {press} cloth. The crease should run straight down the center of each leg.' });

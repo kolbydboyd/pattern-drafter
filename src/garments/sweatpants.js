@@ -148,7 +148,7 @@ export default {
     }));
 
     // ── WAISTBAND (elastic + drawstring) ──
-    const wbLen   = m.hip + easeVal + sa * 2;
+    const wbLen   = (frontW + backW) * 2 + sa * 2;
     const wbWidth = 3.5;  // ~1.75″ finished
     pieces.push({
       id: 'waistband',

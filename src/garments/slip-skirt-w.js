@@ -156,7 +156,7 @@ export default {
     } else if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Structured Waistband', instruction: `Cut 2 (self + interfacing) · ${fmtInches(wbCirc)} long × 3″ cut (1.5″ finished) · Interface fully`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else {
-      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut · Fold over 1″ elastic (waist − 1″)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut · Fold over 1″ elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
     }
 
     if (opts.closure === 'zip') {
@@ -230,7 +230,7 @@ export default {
     } else if (opts.waistband === 'structured') {
       steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, {slipstitch} or {edgestitch} other edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (~90% of waist). Overlap ends 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {

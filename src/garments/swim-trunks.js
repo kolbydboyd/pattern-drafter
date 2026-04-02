@@ -147,7 +147,7 @@ export default {
     }
 
     // ── WAISTBAND (drawstring only — no elastic) ──
-    const wbLen   = m.hip + ease.total + sa * 2;
+    const wbLen   = (frontW + backW) * 2 + sa * 2;
     const wbWidth = 3;   // 1.5″ finished
     pieces.push({
       id: 'waistband',

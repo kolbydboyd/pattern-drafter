@@ -187,9 +187,10 @@ export default {
     }));
 
     // ── WAISTBAND ──
+    const garmentWaist = (frontHipW + backHipW) * 2;
     if (opts.waistband === 'elastic') {
       // Full elastic + drawcord casing (like sweatpants)
-      const wbLen   = m.hip + ease.total + pleatExtra * 2 + sa * 2;
+      const wbLen   = garmentWaist + sa * 2;
       const wbWidth = 3.5;  // ~1.75″ finished
       pieces.push({
         id: 'waistband',
@@ -202,7 +203,7 @@ export default {
       // Front: structured flat waistband with button
       // Back: elastic casing
       const frontWbLen = (m.waist + ease.total + pleatExtra * 2) / 2 + 2; // front half + overlap
-      const backWbLen  = (m.hip + ease.total) / 2 + sa * 2; // back half, sized to hip for elastic recovery
+      const backWbLen  = garmentWaist / 2 + sa * 2; // back half, matches garment opening
       const wbWidth = 3.5;
       pieces.push({
         id: 'waistband-front',
