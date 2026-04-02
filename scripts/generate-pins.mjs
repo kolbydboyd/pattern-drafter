@@ -87,8 +87,10 @@ function baseHTML(title, innerContent) {
 <html>
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&display=swap');
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -413,18 +415,25 @@ async function renderPins(pins, manifest) {
   for (const pin of pins) {
     const html = buildPinHTML(pin);
 
-    // First pass: measure content height (load fonts fully)
+    // First pass: measure content height
     await page.setViewport({ width: WIDTH, height: MAX_H, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 60000 });
-    await page.evaluate(() => document.fonts.ready);
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    // Wait for fonts: up to 10s, then proceed anyway
+    await page.evaluate(() => Promise.race([
+      document.fonts.ready,
+      new Promise(r => setTimeout(r, 10000)),
+    ]));
 
     const contentH = await page.evaluate(() => document.querySelector('.pin').scrollHeight);
     const pinH = Math.min(MAX_H, Math.max(MIN_H, contentH));
 
     // Second pass: screenshot at exact height (fonts cached now)
     await page.setViewport({ width: WIDTH, height: pinH, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 60000 });
-    await page.evaluate(() => document.fonts.ready);
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => Promise.race([
+      document.fonts.ready,
+      new Promise(r => setTimeout(r, 5000)),
+    ]));
 
     const outPath = join(IMAGES, `${pin.id}.png`);
     await page.screenshot({ path: outPath, type: 'png', clip: { x: 0, y: 0, width: WIDTH, height: pinH } });
