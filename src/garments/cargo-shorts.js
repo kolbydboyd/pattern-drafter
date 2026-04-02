@@ -296,7 +296,11 @@ export default {
     steps.push({ step: n++, title: 'Sew center back seam',
       detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargo === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom at ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''}` });
+      detail: 'Join front to back at side seams {RST}. {press} open.' });
+    if (opts.cargo === 'cargo') {
+      steps.push({ step: n++, title: 'Attach cargo pockets',
+        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement.' });
+    }
     steps.push({ step: n++, title: 'Sew inseam',
       detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}.' });
 
