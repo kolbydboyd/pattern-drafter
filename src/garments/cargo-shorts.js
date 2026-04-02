@@ -60,14 +60,15 @@ export default {
     fly: {
       type: 'select', label: 'Closure',
       values: [
-        { value: 'none', label: 'None (elastic/drawstring)' },
+        { value: 'none', label: 'Elastic waistband' },
+        { value: 'drawstring', label: 'Drawstring (no elastic)' },
         { value: 'zip', label: 'Zip fly' },
         { value: 'button', label: 'Button fly' },
       ],
       default: 'none',
     },
     elasticWidth: {
-      type: 'select', label: 'Elastic width',
+      type: 'select', label: 'Elastic / casing width',
       values: [
         { value: 0.75, label: '¾″ (1¾″ finished waistband → 3½″ cut)' },
         { value: 1,    label: '1″ (2″ finished waistband → 4″ cut)' },
@@ -75,7 +76,7 @@ export default {
         { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
       ],
       default: 1,
-      showWhen: { fly: 'none' },
+      showWhen: { fly: ['none', 'drawstring'] },
     },
     internalBelt: {
       type: 'select', label: 'Internal belt',
@@ -193,22 +194,26 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    // For elastic/pull-on: waistband matches the shorts waist opening (sum of panel tops).
-    // For zip/button fly: uses body waist measurement.
-    const flyOverlap = (opts.fly === 'none') ? 0 : 2;
+    // Elastic/drawstring: waistband matches garment waist opening. Fly: body waist + overlap.
+    const isCasing = opts.fly === 'none' || opts.fly === 'drawstring';
+    const flyOverlap = isCasing ? 0 : 2;
     const shortsWaist = (frontW + backW) * 2; // actual waist opening of assembled shorts
-    const wbBase = (opts.fly === 'none') ? shortsWaist : (m.waist + ease.total);
+    const wbBase = isCasing ? shortsWaist : (m.waist + ease.total);
     const wbLength = wbBase + flyOverlap + sa * 2;
     const elasticW = parseFloat(opts.elasticWidth) || 1;
-    // Elastic waistband: cut = (elastic + 1″ ease/fold) × 2. Structured: fixed 3″ (1.5″ finished).
-    const wbWidth = (opts.fly === 'none') ? (elasticW + 1) * 2 : 3;
+    // Casing waistband: cut = (elastic/cord width + 1″ ease/fold) × 2. Structured: fixed 3″.
+    const wbWidth = isCasing ? (elasticW + 1) * 2 : 3;
+
+    const wbInstruction = [
+      `Cut 1 on fold · Interface (2 layers) before cutting · ${fmtInches(wbWidth / 2)} finished`,
+      `Notch at CF, CB, and both side seams (front panel = ${fmtInches(frontW)}, back panel = ${fmtInches(backW)} from each side seam)`,
+      opts.fly === 'drawstring' ? `Mark 2 buttonholes at CF, 1″ apart, on the inner half (near the fold). On the printed on-fold piece, mark 1 buttonhole ½″ from the fold.` : '',
+    ].filter(Boolean).join(' · ');
+
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: [
-        `Cut 1 on fold · Interface (2 layers) before cutting · ${fmtInches(wbWidth / 2)} finished`,
-        `Notch at CF, CB, and both side seams (front panel = ${fmtInches(frontW)}, back panel = ${fmtInches(backW)} from each side seam)`,
-      ].join(' · '),
+      instruction: wbInstruction,
       dimensions: { length: wbLength, width: wbWidth },
       type: 'rectangle',
       sa,
@@ -218,6 +223,9 @@ export default {
         { label: 'CB', position: frontW + backW },
         { label: 'Side seam', position: frontW + backW + backW },
       ],
+      marks: opts.fly === 'drawstring' ? [
+        { type: 'buttonhole', axis: 'h', position: wbWidth / 2 - 0.5, label: 'drawstring buttonhole (work through both layers at CF)' },
+      ] : [],
     });
 
     // ── POCKET PIECES ──
@@ -263,6 +271,12 @@ export default {
     const elasticW = parseFloat(opts.elasticWidth) || 1;
     if (opts.fly === 'none') {
       notions.push({ ref: `elastic-${elasticW}`, quantity: `${Math.round(m.waist * 0.9)}″ of ${fmtInches(elasticW)} wide elastic (adjust at fitting \xb7 should be snug, ~90% of waist)` });
+    }
+    if (opts.fly === 'drawstring') {
+      notions.push({ ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ cord or flat drawstring (waist + 14″ for tails)` });
+      notions.push({ name: 'Grommets or buttonholes', quantity: '2', notes: '½″ inner dia at CF for drawstring exits (or work 2 vertical buttonholes)' });
+    }
+    if (opts.fly === 'none' || opts.fly === 'drawstring') {
       if (opts.internalBelt === 'webbing') {
         notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
       }
@@ -337,20 +351,34 @@ export default {
       detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}. Tension: reduce to 2.5\u20133 for stretch stitch at crotch curve (the multi-pass stitch puts extra pull on the top thread at normal tension). Return to 4 for straight stitch on the rest of the inseam.' });
 
     // Waistband
-    if (opts.fly === 'none') {
+    const isCasing = opts.fly === 'none' || opts.fly === 'drawstring';
+    if (isCasing) {
+      // Shared steps for elastic and drawstring waistbands
+      const sharedSteps = [
+        `Fuse interfacing (2 layers) to waistband before cutting.`,
+        opts.internalBelt === 'webbing' ? 'Sew webbing centered on the outer half.' : '',
+        `Notch or mark CF, CB, and both side seams on the waistband (front panel width = ${fmtInches(frontW)}, back = ${fmtInches(backW)} from each side seam).`,
+        opts.fly === 'drawstring'
+          ? `Work 2 vertical buttonholes (or install ½″ grommets) at CF, spaced 1″ apart, on the INNER half of the waistband (the half closer to the fold/top edge). Do this while the waistband is still flat, before sewing the loop.`
+          : '',
+        `Fold the waistband in half lengthwise {WST} and {press} the fold. This fold becomes the top edge of the finished waistband.`,
+        opts.fly === 'none'
+          ? `Open it back up. Sew the short ends {RST} to form a loop, leaving a 2″ gap in the CB seam for threading elastic later.`
+          : `Open it back up. Sew the short ends {RST} to form a loop. No gap needed (drawstring enters and exits through the CF buttonholes).`,
+        `Pin one raw edge of the waistband loop to the shorts waist {RST}, matching CF, CB, and side seam notches. Sew all the way around. Tension: 4.`,
+        `{press} the seam allowance up into the waistband. The panel raw edges point straight up. Do not fold the panels.`,
+        `Fold the waistband up and over along the center crease you pressed earlier. The waistband wraps around the panel raw edges like a sandwich (outer waistband, panel SA in the middle, inner waistband). Tuck the inner waistband raw edge under about ⅝″ so it just covers the seam line on the inside. Pin from the right side.`,
+        `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
+      ];
+
+      if (opts.fly === 'none') {
+        sharedSteps.push(`Thread ${fmtInches(elasticW)} elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Tip: pin the trailing end to the fabric near the gap so it does not get pulled in. Work the fabric along the elastic rather than pulling the elastic through. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`);
+      } else {
+        sharedSteps.push(`Thread drawstring cord through the CF buttonholes using a {bodkin} or safety pin. Feed in through one buttonhole, around the full waistband casing, and out through the other buttonhole. Even up the tails. Knot or heat-seal cord ends to prevent fraying.`);
+      }
+
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: [
-          `Fuse interfacing (2 layers) to waistband before cutting.`,
-          opts.internalBelt === 'webbing' ? 'Sew webbing centered on the outer half.' : '',
-          `Notch or mark CF, CB, and both side seams on the waistband (front panel width = ${fmtInches(frontW)}, back = ${fmtInches(backW)} from each side seam).`,
-          `Fold the waistband in half lengthwise {WST} and {press} the fold. This fold becomes the top edge of the finished waistband.`,
-          `Open it back up. Sew the short ends {RST} to form a loop, leaving a 2″ gap in the CB seam for threading elastic later.`,
-          `Pin one raw edge of the waistband loop to the shorts waist {RST}, matching CF, CB, and side seam notches. Sew all the way around. Tension: 4.`,
-          `{press} the seam allowance up into the waistband. The panel raw edges point straight up. Do not fold the panels.`,
-          `Fold the waistband up and over along the center crease you pressed earlier. The waistband wraps around the panel raw edges like a sandwich (outer waistband, panel SA in the middle, inner waistband). Tuck the inner waistband raw edge under about ⅝″ so it just covers the seam line on the inside. Pin from the right side.`,
-          `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
-          `Thread ${fmtInches(elasticW)} elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Tip: pin the trailing end to the fabric near the gap so it does not get pulled in. Work the fabric along the elastic rather than pulling the elastic through. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
-        ].filter(Boolean).join(' ') });
+        detail: sharedSteps.filter(Boolean).join(' ') });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap. Tension: 4 for seaming and topstitch.' });
@@ -359,7 +387,7 @@ export default {
     steps.push({ step: n++, title: 'Hem',
       detail: 'Fold up \u00bd\u2033, {press}. Fold again \u00bd\u2033, {press}. {topstitch} close to inner fold. Clean 1\u2033 finished hem. Tension: 4 for topstitch.' });
     steps.push({ step: n++, title: 'Finish',
-      detail: '{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction. Try on and adjust elastic tension if needed. Bar tack tension: 0\u20131 (or as low as your machine allows). Short, dense {zigzag}.' });
+      detail: `{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction.${opts.fly === 'none' ? ' Try on and adjust elastic tension if needed.' : ''}${opts.fly === 'drawstring' ? ' Try on and adjust drawstring length.' : ''} Bar tack tension: 0\u20131 (or as low as your machine allows). Short, dense {zigzag}.` });
 
     return steps;
   },
