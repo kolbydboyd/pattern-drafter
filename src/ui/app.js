@@ -397,6 +397,30 @@ function buildInputs() {
   });
 }
 
+// ═══ SYNC WIZARD → SIDE PANEL ═══
+// Wizard fields use wz- prefix to avoid duplicate IDs. Copy values to panel on advance.
+function _syncWizardToPanel(g, which) {
+  if (which === 'measurements') {
+    for (const mId of g.measurements) {
+      const wz = document.getElementById(`wz-m-${mId}`);
+      const sp = document.getElementById(`m-${mId}`);
+      if (wz && sp) sp.value = wz.value;
+    }
+    for (const mId of relevantOptionalIds(g)) {
+      const wz = document.getElementById(`wz-m-${mId}`);
+      const sp = document.getElementById(`m-${mId}`);
+      if (wz && sp) sp.value = wz.value;
+    }
+  }
+  if (which === 'options') {
+    for (const key of Object.keys(g.options)) {
+      const wz = document.getElementById(`wz-o-${key}`);
+      const sp = document.getElementById(`o-${key}`);
+      if (wz && sp) sp.value = wz.value;
+    }
+  }
+}
+
 // ═══ READ INPUTS ═══
 function readInputs() {
   const g = GARMENTS[currentGarment];
@@ -737,36 +761,38 @@ function _generate() {
         </table></div>`;
     }
   }
-  // Fit check lives in pieces pane
-  let fitCheckHtml = '';
-  if (isUpper) {
-    const frontP = pieces.find(p => p.id === 'bodice-front' || p.id === 'bodice-front-right');
-    const PLACKET_W = 1.5;
-    const panelWidth = frontP
-      ? (frontP.id === 'bodice-front-right'
-          ? frontP.width - PLACKET_W
-          : frontP.width)
-      : 0;
-    const chestCirc = panelWidth * 4;
-    fitCheckHtml = `<table class="dt" style="max-width:480px">
-      ${m.chest ? `<tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
-      <tr><td>Chest (pattern circ)</td><td>${fmtInches(chestCirc)}</td></tr>
-      <tr><td>Chest ease</td><td>${fmtInches(chestCirc - m.chest)}</td></tr>` : ''}
-      ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
-      ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
-    </table>`;
-  } else {
-    const fW = pieces.find(p => p.id === 'front')?.width || 0;
-    const bW = pieces.find(p => p.id === 'back')?.width || 0;
-    fitCheckHtml = `<table class="dt" style="max-width:480px">
-      ${m.thigh ? `<tr><td>Thigh (yours)</td><td>${fmtInches(m.thigh)}</td></tr>
-      <tr><td>Thigh (pattern circ)</td><td>${fmtInches((fW + bW) * 2)}</td></tr>
-      <tr><td>Thigh ease</td><td>${fmtInches((fW + bW) * 2 - m.thigh)}</td></tr>` : ''}
-      ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
-      ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
-    </table>`;
+  // Fit check lives in pieces pane (skip for accessories — no body measurements to verify)
+  if (g.category !== 'accessory') {
+    let fitCheckHtml = '';
+    if (isUpper) {
+      const frontP = pieces.find(p => p.id === 'bodice-front' || p.id === 'bodice-front-right');
+      const PLACKET_W = 1.5;
+      const panelWidth = frontP
+        ? (frontP.id === 'bodice-front-right'
+            ? frontP.width - PLACKET_W
+            : frontP.width)
+        : 0;
+      const chestCirc = panelWidth * 4;
+      fitCheckHtml = `<table class="dt" style="max-width:480px">
+        ${m.chest ? `<tr><td>Chest (yours)</td><td>${fmtInches(m.chest)}</td></tr>
+        <tr><td>Chest (pattern circ)</td><td>${fmtInches(chestCirc)}</td></tr>
+        <tr><td>Chest ease</td><td>${fmtInches(chestCirc - m.chest)}</td></tr>` : ''}
+        ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
+        ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
+      </table>`;
+    } else {
+      const fW = pieces.find(p => p.id === 'front')?.width || 0;
+      const bW = pieces.find(p => p.id === 'back')?.width || 0;
+      fitCheckHtml = `<table class="dt" style="max-width:480px">
+        ${m.thigh ? `<tr><td>Thigh (yours)</td><td>${fmtInches(m.thigh)}</td></tr>
+        <tr><td>Thigh (pattern circ)</td><td>${fmtInches((fW + bW) * 2)}</td></tr>
+        <tr><td>Thigh ease</td><td>${fmtInches((fW + bW) * 2 - m.thigh)}</td></tr>` : ''}
+        ${m.waist ? `<tr><td>Waist (yours)</td><td>${fmtInches(m.waist)}</td></tr>` : ''}
+        ${m.hip ? `<tr><td>Hip (yours)</td><td>${fmtInches(m.hip)}</td></tr>` : ''}
+      </table>`;
+    }
+    piecesHtml += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;
   }
-  piecesHtml += `<div class="pc full"><h3>Fit Check</h3><div class="sub">Verify before cutting</div>${fitCheckHtml}</div>`;
   piecesHtml += `</div>`;
 
   // ── Materials pane ──
@@ -1601,18 +1627,18 @@ function buildMeasureStep() {
 
   if (!isAccessory) {
     html += `<div class="f profile-row">
-      <select id="profile-select" title="Load saved profile">
+      <select id="wz-profile-select" title="Load saved profile">
         <option value="">- saved profiles -</option>
         ${loadProfiles().map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
       </select>
-      <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
-      <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
-      <input type="text" id="profile-name-input" placeholder="Profile name" style="width:120px">
+      <button class="btn-xs" id="wz-save-profile-btn" title="Save current measurements">Save</button>
+      <button class="btn-xs btn-xs-del" id="wz-del-profile-btn" title="Delete selected profile">&times;</button>
+      <input type="text" id="wz-profile-name-input" placeholder="Profile name" style="width:120px">
     </div>`;
   }
 
-  html += `<button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">${isAccessory ? 'Dimension guide ▾' : 'How to measure ▾'}</button>
-    <div id="mt-guide-container" style="display:none"></div>`;
+  html += `<button class="btn-s" id="wz-how-to-measure-btn" style="margin-bottom:6px">${isAccessory ? 'Dimension guide ▾' : 'How to measure ▾'}</button>
+    <div id="wz-mt-guide-container" style="display:none"></div>`;
 
   for (const mId of g.measurements) {
     const mDef = MEASUREMENTS[mId];
@@ -1620,7 +1646,7 @@ function buildMeasureStep() {
     const mDefault = g.measurementDefaults?.[mId] ?? mDef.default;
     html += `<div class="f"><label>${mDef.label}</label>
       <div class="hint">${mDef.instruction}</div>
-      <input type="number" id="m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
+      <input type="number" id="wz-m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
   }
 
   const optIds = relevantOptionalIds(g);
@@ -1632,7 +1658,7 @@ function buildMeasureStep() {
       if (!mDef) continue;
       html += `<div class="f"><label>${mDef.label}</label>
         <div class="hint">${mDef.instruction}</div>
-        <input type="number" id="m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
+        <input type="number" id="wz-m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
     }
     html += `</details>`;
   }
@@ -1685,14 +1711,14 @@ function buildMeasureStep() {
     });
   }
 
-  document.getElementById('save-profile-btn')?.addEventListener('click', saveCurrentProfile);
-  document.getElementById('del-profile-btn')?.addEventListener('click', deleteCurrentProfile);
-  document.getElementById('profile-select')?.addEventListener('change', e => {
+  document.getElementById('wz-save-profile-btn')?.addEventListener('click', saveCurrentProfile);
+  document.getElementById('wz-del-profile-btn')?.addEventListener('click', deleteCurrentProfile);
+  document.getElementById('wz-profile-select')?.addEventListener('change', e => {
     if (e.target.value) applyProfile(e.target.value);
   });
-  document.getElementById('how-to-measure-btn').addEventListener('click', () => {
-    const container = document.getElementById('mt-guide-container');
-    const btn = document.getElementById('how-to-measure-btn');
+  document.getElementById('wz-how-to-measure-btn').addEventListener('click', () => {
+    const container = document.getElementById('wz-mt-guide-container');
+    const btn = document.getElementById('wz-how-to-measure-btn');
     const hidden = container.style.display === 'none';
     if (hidden) {
       container.innerHTML = renderMeasurementTeacher(g.measurements);
@@ -1705,6 +1731,7 @@ function buildMeasureStep() {
   });
   document.getElementById('wiz-s2-back').addEventListener('click', () => goToStep(1));
   document.getElementById('wiz-s2-next').addEventListener('click', () => {
+    _syncWizardToPanel(g, 'measurements');
     stepsCompleted = Math.max(stepsCompleted, 2);
     trackEvent('measurements_entered', { garment_id: currentGarment });
     goToStep(3);
@@ -1722,14 +1749,14 @@ function buildOptionsStep() {
 
   for (const [key, opt] of Object.entries(g.options)) {
     if (opt.type === 'select') {
-      html += `<div class="f"><label>${opt.label}</label><select id="o-${key}">
+      html += `<div class="f"><label>${opt.label}</label><select id="wz-o-${key}">
         ${opt.values.map(v =>
           `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
         ).join('')}
       </select></div>`;
     } else if (opt.type === 'number') {
       html += `<div class="f"><label>${opt.label}</label>
-        <input type="number" id="o-${key}" value="${opt.default}" step="${opt.step || 0.25}"></div>`;
+        <input type="number" id="wz-o-${key}" value="${opt.default}" step="${opt.step || 0.25}"></div>`;
     }
   }
 
@@ -1740,22 +1767,23 @@ function buildOptionsStep() {
 
   el.innerHTML = html;
 
-  // Rise style auto-fill (cross-step: m-rise is in step 2, o-riseStyle/o-riseOverride are here)
-  const riseStyleEl    = document.getElementById('o-riseStyle');
-  const riseOverrideEl = document.getElementById('o-riseOverride');
+  // Rise style auto-fill (cross-step: wz-m-rise is in step 2, wz-o-riseStyle/wz-o-riseOverride are here)
+  const riseStyleEl    = document.getElementById('wz-o-riseStyle');
+  const riseOverrideEl = document.getElementById('wz-o-riseOverride');
   if (riseStyleEl && riseOverrideEl) {
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const updateRise = () => {
-      const bodyRise = parseFloat(document.getElementById('m-rise')?.value) || 10;
+      const bodyRise = parseFloat(document.getElementById('wz-m-rise')?.value) || 10;
       riseOverrideEl.value = (bodyRise + (RISE_OFFSETS[riseStyleEl.value] ?? 0)).toFixed(2);
     };
     riseStyleEl.addEventListener('change', updateRise);
-    document.getElementById('m-rise')?.addEventListener('input', updateRise);
+    document.getElementById('wz-m-rise')?.addEventListener('input', updateRise);
     updateRise();
   }
 
   document.getElementById('wiz-s3-back').addEventListener('click', () => goToStep(2));
   document.getElementById('wiz-s3-next').addEventListener('click', () => {
+    _syncWizardToPanel(g, 'options');
     stepsCompleted = Math.max(stepsCompleted, 3);
     const { opts } = readInputs();
     trackEvent('pattern_generated', { garment_id: currentGarment, options: opts });
