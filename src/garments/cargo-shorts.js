@@ -327,8 +327,8 @@ export default {
           `Fold the waistband in half lengthwise {WST} and {press} the fold. This fold becomes the top edge of the finished waistband.`,
           `Open it back up. Sew the short ends {RST} to form a loop, leaving a 2″ gap in the CB seam for threading elastic later.`,
           `Pin one raw edge of the waistband loop to the shorts waist {RST}, matching CF, CB, and side seam notches. Sew all the way around. Tension: 4.`,
-          `{press} the seam allowance up into the waistband.`,
-          `Fold the waistband up and over along the center crease you pressed earlier. The other raw edge should now be on the inside. Tuck that raw edge under about ⅝″ so it just covers the seam line you sewed. Pin from the right side.`,
+          `{press} the seam allowance up into the waistband. The panel raw edges point straight up. Do not fold the panels.`,
+          `Fold the waistband up and over along the center crease you pressed earlier. The waistband wraps around the panel raw edges like a sandwich (outer waistband, panel SA in the middle, inner waistband). Tuck the inner waistband raw edge under about ⅝″ so it just covers the seam line on the inside. Pin from the right side.`,
           `{topstitch} from the RS through all layers, stitching close to the lower edge of the waistband (this catches the folded inner edge). Then {topstitch} again along the top fold.`,
           `Thread elastic (~90% of waist, should feel snug) through the 2″ CB gap using a {bodkin}. Overlap ends 1″, {zigzag} to join. Tension: 3 to 3.5 for zigzag through elastic. Close the gap with a few hand stitches or machine stitch.`,
         ].filter(Boolean).join(' ') });
