@@ -470,8 +470,8 @@ export function edgeAngle(a, b) {
 
 /**
  * Shared polygon builder for slant pocket backing and bag.
- * Shape: right-angle corner at top-right (waist + side seam of the removed triangle),
- * slash diagonal on the right, straight left side, curved bottom.
+ * Shape: slash diagonal as top-right edge (matching the front panel cut),
+ * straight left side, curved bottom.
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number }} opts
  * @returns {{ polygon: Array, width: number, height: number }}
@@ -487,12 +487,13 @@ function slantPocketPoly({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDe
     16,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
-  // CW polygon: top-left at waist → top-right at waist (side seam corner) →
-  // down side seam to slash exit → curved bottom → back to top-left
+  // CW polygon: top-left at waist → slash start on waist →
+  // slash diagonal to side seam → down side seam → curved bottom → back to top-left
+  const slashStartX = bagWidth - slashInset; // where slash meets waist line
   const polygon = [
     { x: 0, y: 0 },                       // top-left (waist, inner edge of pocket)
-    { x: bagWidth, y: 0 },                // top-right (waist at side seam — the triangle corner)
-    { x: bagWidth, y: slashDepth },        // slash exit on side seam
+    { x: slashStartX, y: 0 },             // slash start on waist (3.5″ from side seam)
+    { x: bagWidth, y: slashDepth },        // slash exit on side seam (diagonal edge)
     ...bottomPts,                          // curved bottom (right to left)
     // closes back to top-left
   ];
@@ -502,8 +503,8 @@ function slantPocketPoly({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDe
 
 /**
  * Build a slant pocket backing piece (self-fabric).
- * This is the visible front of the pocket. Includes the triangle removed from
- * the front panel plus the full pocket bag area below.
+ * This is the visible front of the pocket. Top-right edge follows the slash
+ * diagonal (matching the front panel cut line).
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
