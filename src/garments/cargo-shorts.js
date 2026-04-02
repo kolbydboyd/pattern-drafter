@@ -203,11 +203,11 @@ export default {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket', sa });
     }
     if (opts.cargo === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 · 7″ wide × 8″ tall cut · 1″ box pleat at center (fold 1″ under each side = 2″ consumed) · Finished pocket 5″ wide, expands to 7″', dimensions: { width: 7, height: 8 }, type: 'pocket', sa, marks: [
-        { type: 'pleat', axis: 'v', center: 3.5, intake: 1, label: 'box pleat 1″ ea. side' },
-        { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
+      pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 \xb7 10\u2033 wide \xd7 7\u2033 tall cut \xb7 Box pleat at center: fold 2.5\u2033 under each side (2\u2033 showing on top, \u00bd\u2033 tucked underneath = 5\u2033 consumed total) \xb7 Finished pocket 5\u2033 wide, expands to 10\u2033', dimensions: { width: 10, height: 7 }, type: 'pocket', sa, marks: [
+        { type: 'pleat', axis: 'v', center: 5, intake: 2.5, label: 'box pleat 2\u2033 top + \u00bd\u2033 under ea. side' },
+        { type: 'fold', axis: 'h', position: 1, label: 'fold under 1\u2033' },
       ] });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket', sa });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) \xb7 5\u00bd\u2033 wide \xd7 3\u2033 tall \xb7 Covers finished pocket opening with \u00bc\u2033 overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket', sa });
     }
     if (opts.backPocket !== 'none') {
       const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
@@ -283,7 +283,7 @@ export default {
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Mark center of pocket body. Fold 1\u2033 to each side of center line to form box pleat (two folds meeting at center, consuming 2\u2033 total width). {press} pleat flat. Finished pocket is 5\u2033 wide, expands to 7\u2033 when filled. {baste} pleat at top and bottom edges. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install snap on flap center. Tension: 4 for topstitch. If sewing through the box pleat layers, increase to 4.5.' });
+        detail: 'Mark center of pocket body. Fold 2.5\u2033 to each side of center line to form box pleat (2\u2033 showing on top, \u00bd\u2033 tucked underneath on each fold). The two folds meet at center, consuming 5\u2033 total width. {press} pleat flat. Finished pocket is 5\u2033 wide, expands to 10\u2033 when filled. {baste} pleat at top and bottom edges. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install snap on flap center. Tension: 4 for topstitch. If sewing through the box pleat layers, increase to 4.5.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',

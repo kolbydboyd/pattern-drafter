@@ -213,8 +213,8 @@ export default {
 
     // ── CARGO POCKETS ──
     if (opts.cargoPocket === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 · 8″ wide × 9″ tall · 1″ box pleat each side (2″ consumed) · Mark internal divider at center for main + Velcro compartments · Mark smartphone pocket 2.5″ from left edge', dimensions: { width: 8, height: 9 }, type: 'pocket' });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 6″ wide × 3″ tall', dimensions: { width: 6, height: 3 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 \xb7 11\u2033 wide \xd7 8\u2033 tall \xb7 Box pleat at center: fold 2.5\u2033 under each side (2\u2033 showing on top, \u00bd\u2033 tucked underneath = 5\u2033 consumed total) \xb7 Finished pocket 6\u2033 wide, expands to 11\u2033 \xb7 Mark internal divider at center for main + Velcro compartments \xb7 Mark smartphone pocket 2.5\u2033 from left edge', dimensions: { width: 11, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) \xb7 6\u00bd\u2033 wide \xd7 3\u2033 tall \xb7 Covers finished pocket opening with \u00bc\u2033 overlap each side', dimensions: { width: 6.5, height: 3 }, type: 'pocket' });
       pieces.push({ id: 'cargo-zip-pocket', name: 'Cargo Zip Safety Pocket', instruction: 'Cut 2 (outer + lining) · Sewn inside cargo body · Install 4″ zip', dimensions: { width: 4, height: 5 }, type: 'pocket' });
     }
 
@@ -314,7 +314,7 @@ export default {
     // Cargo pockets
     if (opts.cargoPocket === 'cargo') {
       steps.push({ step: n++, title: 'Prepare multi-compartment cargo pockets',
-        detail: 'Mark center divider line on cargo body. Sew internal divider (fold fabric strip, topstitch to body along center line — creates main compartment and secondary compartment). Install Velcro strip along top of secondary compartment. Mark smartphone pocket position 2.5″ from left edge, sew vertical divider. Install zip safety pocket: sew zipper between pocket pieces, attach inside cargo body at bottom. Fold 1″ box pleat each side of center (2″ consumed total). {press} pleat flat. {baste} pleat at top and bottom. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install press stud on flap center.' });
+        detail: 'Mark center divider line on cargo body. Sew internal divider (fold fabric strip, topstitch to body along center line \u2014 creates main compartment and secondary compartment). Install Velcro strip along top of secondary compartment. Mark smartphone pocket position 2.5\u2033 from left edge, sew vertical divider. Install zip safety pocket: sew zipper between pocket pieces, attach inside cargo body at bottom. Fold 2.5\u2033 to each side of center to form box pleat (2\u2033 showing on top, \u00bd\u2033 tucked underneath on each fold, 5\u2033 consumed total). {press} pleat flat. {baste} pleat at top and bottom. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install press stud on flap center.' });
     }
 
     // Back pockets
