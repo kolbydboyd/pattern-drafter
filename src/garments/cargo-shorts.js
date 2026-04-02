@@ -108,7 +108,7 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
-    cbRaise: { type: 'number', label: 'CB raise', default: 0.75, step: 0.25, min: 0, max: 2 },
+    cbRaise: { type: 'number', label: 'CB raise', default: 1.25, step: 0.25, min: 0, max: 2.5 },
   },
 
   /**
