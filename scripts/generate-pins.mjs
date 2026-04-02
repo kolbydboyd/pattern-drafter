@@ -381,7 +381,7 @@ function buildInfographic(pin) {
   return `<div class="info-sections">${sections}</div>`;
 }
 
-function buildPinHTML(pin) {
+export function buildPinHTML(pin) {
   let inner;
   switch (pin.type) {
     case 'comparison-table': inner = buildComparisonTable(pin); break;
