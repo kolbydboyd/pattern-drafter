@@ -469,15 +469,10 @@ export function edgeAngle(a, b) {
 // ── Slant pocket piece builders ─────────────────────────────────────────────
 
 /**
- * Shared polygon builder for slant pocket backing and bag.
- * Shape: slash diagonal as top-right edge (matching the front panel cut),
- * straight left side, curved bottom.
- *
- * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number }} opts
- * @returns {{ polygon: Array, width: number, height: number }}
+ * Shared bottom curve for slant pocket pieces.
+ * @returns {{ bottomPts: Array, curveDepth: number }}
  */
-function slantPocketPoly({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625 } = {}) {
-  // Bottom curve: gentle convex arc from right to left
+function slantPocketBottomCurve(bagWidth, bagDepth) {
   const curveDepth = 0.5;
   const bottomPts = sampleBezier(
     { x: bagWidth, y: bagDepth },
@@ -486,30 +481,28 @@ function slantPocketPoly({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDe
     { x: 0, y: bagDepth },
     16,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
-
-  // CW polygon: top-left at waist → slash start on waist →
-  // slash diagonal to side seam → down side seam → curved bottom → back to top-left
-  const slashStartX = bagWidth - slashInset; // where slash meets waist line
-  const polygon = [
-    { x: 0, y: 0 },                       // top-left (waist, inner edge of pocket)
-    { x: slashStartX, y: 0 },             // slash start on waist (3.5″ from side seam)
-    { x: bagWidth, y: slashDepth },        // slash exit on side seam (diagonal edge)
-    ...bottomPts,                          // curved bottom (right to left)
-    // closes back to top-left
-  ];
-
-  return { polygon, width: bagWidth, height: bagDepth + curveDepth };
+  return { bottomPts, curveDepth };
 }
 
 /**
  * Build a slant pocket backing piece (self-fabric).
- * This is the visible front of the pocket. Top-right edge follows the slash
- * diagonal (matching the front panel cut line).
+ * Visible front of the pocket. Full rectangle top (waist to side seam),
+ * straight down side seam, curved bottom, straight left side.
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
 export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const { polygon, width, height } = slantPocketPoly({ bagWidth, slashInset, slashDepth, bagDepth, sa });
+  const { bottomPts, curveDepth } = slantPocketBottomCurve(bagWidth, bagDepth);
+
+  // CW polygon: waist across to side seam → down side seam → curved bottom → left side up
+  const polygon = [
+    { x: 0, y: 0 },                       // top-left (waist, inner edge)
+    { x: bagWidth, y: 0 },                // top-right (waist at side seam)
+    ...bottomPts,                          // side seam down + curved bottom (right to left)
+    // closes back to top-left
+  ];
+  const width = bagWidth;
+  const height = bagDepth + curveDepth;
 
   return {
     id: 'slant-backing',
@@ -528,12 +521,26 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
 
 /**
  * Build a slant pocket bag piece (lining).
- * Same shape as the backing. Forms the back of the pocket against the body.
+ * Forms the back of the pocket against the body. Top-right edge follows
+ * the slash diagonal (sewn to the front panel at the slash seam).
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
 export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const { polygon, width, height } = slantPocketPoly({ bagWidth, slashInset, slashDepth, bagDepth, sa });
+  const { bottomPts, curveDepth } = slantPocketBottomCurve(bagWidth, bagDepth);
+
+  // CW polygon: waist to slash start → slash diagonal to side seam →
+  // down side seam → curved bottom → left side up
+  const slashStartX = bagWidth - slashInset;
+  const polygon = [
+    { x: 0, y: 0 },                       // top-left (waist, inner edge)
+    { x: slashStartX, y: 0 },             // slash start on waist
+    { x: bagWidth, y: slashDepth },        // slash exit on side seam (diagonal)
+    ...bottomPts,                          // side seam down + curved bottom (right to left)
+    // closes back to top-left
+  ];
+  const width = bagWidth;
+  const height = bagDepth + curveDepth;
 
   return {
     id: 'slant-bag',
