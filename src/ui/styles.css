@@ -767,6 +767,10 @@ details.adv-meas summary:hover{color:var(--text)}
 .learn-related-title{font-size:.78rem;font-family:'IBM Plex Mono',monospace;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mid);margin-bottom:12px}
 .learn-related-link{display:block;font-size:.88rem;color:var(--gold);text-decoration:none;margin-bottom:6px}
 .learn-related-link:hover{text-decoration:underline}
+.learn-card-tags{display:flex;flex-wrap:wrap;gap:6px}
+.learn-tag{display:inline-block;font-size:.65rem;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;color:var(--mid);background:var(--ibg);border:1px solid var(--bdr);border-radius:3px;padding:2px 7px}
+.learn-article-body a{color:var(--gold);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px}
+.learn-article-body a:hover{text-decoration-thickness:2px}
 
 /* ── FAQ accordion ── */
 .faq-accordion{display:flex;flex-direction:column;gap:0}
