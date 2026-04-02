@@ -8,7 +8,7 @@
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketFacing
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -108,7 +108,7 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
-    cbRaise: { type: 'number', label: 'CB raise', default: 0.75, step: 0.25, min: 0, max: 2 },
+    cbRaise: { type: 'number', label: 'CB raise', default: 1.25, step: 0.25, min: 0, max: 2.5 },
   },
 
   /**
@@ -196,8 +196,8 @@ export default {
 
     // ── POCKET PIECES ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketFacing({ width: 2, height: 6, sa, instruction: 'Cut 2 (1 + 1 mirror; flip fabric for second) \xb7 Match to front slash' }));
-      pieces.push(buildSlantPocketBag({ width: 7, height: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket', sa });
@@ -276,41 +276,47 @@ export default {
 
     // Pockets first
     if (opts.frontPocket === 'slant') {
-      steps.push({ step: n++, title: 'Prepare slant pockets',
-        detail: 'Sew facing to front panel along slash line {RST}. {clip} curve, turn, {press}. {understitch} facing. Attach pocket bag to facing bottom and side seam allowance. {baste} bag edges to panel.' });
+      steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers. Tension: 3.5\u20134 for straight stitch on pocket seams.' });
+      steps.push({ step: n++, title: 'Attach pocket to front panel',
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn. Tension: 3.5\u20134 for understitch and basting.' });
     }
     if (opts.cargo === 'cargo') {
       steps.push({ step: n++, title: 'Prepare cargo pockets',
-        detail: 'Mark center of pocket body. Fold 1″ to each side of center line to form box pleat (two folds meeting at center, consuming 2″ total width). {press} pleat flat. Finished pocket is 5″ wide, expands to 7″ when filled. {baste} pleat at top and bottom edges. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install snap on flap center.' });
+        detail: 'Mark center of pocket body. Fold 1\u2033 to each side of center line to form box pleat (two folds meeting at center, consuming 2\u2033 total width). {press} pleat flat. Finished pocket is 5\u2033 wide, expands to 7\u2033 when filled. {baste} pleat at top and bottom edges. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install snap on flap center. Tension: 4 for topstitch. If sewing through the box pleat layers, increase to 4.5.' });
     }
     if (opts.backPocket !== 'none') {
       steps.push({ step: n++, title: 'Prepare & attach back pocket',
-        detail: 'Fold top edge under 1″, {topstitch}. {press} remaining edges under ⅝″. Position on back panel 2.5″ below waist line, centered. {topstitch} close to edge on 3 sides. Bar tack top corners.' });
+        detail: 'Fold top edge under 1\u2033, {topstitch}. {press} remaining edges under \u215d\u2033. Position on back panel 2.5\u2033 below waist line, centered. {topstitch} close to edge on 3 sides. Bar tack top corners. Tension: 4 for topstitch.' });
     }
 
     // Assembly
     steps.push({ step: n++, title: 'Sew center front seam',
-      detail: 'Join two front panels at center seam {RST}. {clip} crotch curve. {press} seam open or to one side.' });
+      detail: 'Join two front panels at center seam {RST}. {clip} crotch curve. {press} seam open or to one side. Tension: 4 for straight stitch.' });
     steps.push({ step: n++, title: 'Sew center back seam',
-      detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}.' });
+      detail: 'Join two back panels at center seam {RST}. {clip} crotch curve. {press}. Tension: 4 for straight stitch.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargo === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom at ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''}` });
+      detail: 'Join front to back at side seams {RST}. {press} open. Tension: 4 for straight stitch.' });
+    if (opts.cargo === 'cargo') {
+      steps.push({ step: n++, title: 'Attach cargo pockets',
+        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement. Tension: 4 for topstitch. Use 4.5 if sewing through multiple layers at pleat area.' });
+    }
     steps.push({ step: n++, title: 'Sew inseam',
-      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}.' });
+      detail: 'One continuous seam from hem to hem through crotch. Use stretch stitch or small {zigzag} at crotch curve for durability. {clip} curve, {press}. Tension: reduce to 2.5\u20133 for stretch stitch at crotch curve (the multi-pass stitch puts extra pull on the top thread at normal tension). Return to 4 for straight stitch on the rest of the inseam.' });
 
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2″ gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1″, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband.` });
+        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2\u2033 gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1\u2033, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband. Tension: 4 for seaming. Reduce to 3\u20133.5 for {zigzag} through elastic.` });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap.' });
+        detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap. Tension: 4 for seaming and topstitch.' });
     }
 
     steps.push({ step: n++, title: 'Hem',
-      detail: 'Fold up ½″, {press}. Fold again ½″, {press}. {topstitch} close to inner fold. Clean 1″ finished hem.' });
+      detail: 'Fold up \u00bd\u2033, {press}. Fold again \u00bd\u2033, {press}. {topstitch} close to inner fold. Clean 1\u2033 finished hem. Tension: 4 for topstitch.' });
     steps.push({ step: n++, title: 'Finish',
-      detail: '{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction. Try on and adjust elastic tension if needed.' });
+      detail: '{press} entire garment. Bar tack all stress points: pocket openings, cargo pocket corners, crotch junction. Try on and adjust elastic tension if needed. Bar tack tension: 0\u20131 (or as low as your machine allows). Short, dense {zigzag}.' });
 
     return steps;
   },
@@ -352,14 +358,22 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   }
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
+  // Clip front panel at slash line for slant pocket
+  const hasSlash = !isBack && opts?.frontPocket === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, width, 3.5, 6);
+
   // Per-edge seam allowances
   const crotchEdgeCount = curvePts.length - 2; // 15 crotch curve edges
+  // When slant pocket is active, vertex 1 is the slash-waist point and
+  // vertex 2 is the slash-side-seam point (extra vertex inserted by clip).
+  const sideIdx = hasSlash ? 2 : 1; // index of the first side-seam vertex
   const edgeAllowances = poly.map((_, i) => {
     if (i === 0) return { sa, label: 'Waist' };
-    if (i === 1) return { sa, label: 'Side seam' };
-    if (i === 2) return { sa: hem, label: 'Hem' };
-    if (i === 3) return { sa, label: 'Inseam' };
-    if (i >= 4 && i < 4 + crotchEdgeCount) return { sa, label: 'Crotch' };
+    if (hasSlash && i === 1) return { sa, label: 'Slash' };
+    if (i === sideIdx) return { sa, label: 'Side seam' };
+    if (i === sideIdx + 1) return { sa: hem, label: 'Hem' };
+    if (i === sideIdx + 2) return { sa, label: 'Inseam' };
+    if (i >= sideIdx + 3 && i < sideIdx + 3 + crotchEdgeCount) return { sa, label: 'Crotch' };
     return { sa, label: 'Center' };
   });
 

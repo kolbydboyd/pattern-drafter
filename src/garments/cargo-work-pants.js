@@ -9,7 +9,8 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
-  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
+  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -201,8 +202,8 @@ export default {
 
     // ── FRONT POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Deep Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror) · Match to front slash · Deep crossover opening', dimensions: { width: 2.5, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag', name: 'Deep Slant Pocket Bag', instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK · Deep pocket for crossover access', dimensions: { width: 8, height: 12 }, type: 'pocket' });
+      pieces.push(buildSlantPocketBacking({ bagWidth: 8, slashInset: 4, slashDepth: 7, bagDepth: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Deep crossover opening \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 8, slashInset: 4, slashDepth: 7, bagDepth: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Deep pocket for crossover access \xb7 Pocket back (against body)' }));
       pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 2 (outer + lining) · Right front only · Inside slant pocket', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
       pieces.push({ id: 'zip-pocket', name: 'Zip Security Pocket', instruction: 'Cut 2 (outer + lining) · Left front only · Inside slant pocket · Install 4″ zip', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
     }
@@ -304,8 +305,10 @@ export default {
 
     // Front pockets
     if (opts.frontPocket === 'slant') {
-      steps.push({ step: n++, title: 'Prepare deep slant pockets',
-        detail: 'Sew facing to front panel along slash line {RST}. {clip} curve, turn, {press}. {understitch} facing. Construct coin pocket: sew outer to lining {RST} on 3 sides, turn, {press}. Topstitch coin pocket inside right pocket bag. Construct zip security pocket: install 4″ zipper between outer and lining, {press}. Topstitch zip pocket inside left pocket bag. Attach pocket bags to facings and side seam allowance. {baste} bag edges to panel.' });
+      steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+      steps.push({ step: n++, title: 'Attach pocket to front panel',
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     }
 
     // Cargo pockets
@@ -326,7 +329,13 @@ export default {
     steps.push({ step: n++, title: 'Sew center back seam',
       detail: 'Join back panels at CB crotch seam {RST}. {clip} crotch curve. {press} seam open.' });
     steps.push({ step: n++, title: 'Sew side seams',
-      detail: `Join front to back at side seams {RST}. {press} open.${opts.cargoPocket === 'cargo' ? ' Position cargo pockets on outer leg centered over side seam, top edge at mid-thigh. {topstitch} sides and bottom ⅛″ from edge. Sew flap above pocket opening, flip down. Bar tack all four corners of pocket body.' : ''} Position ruler pocket on outer side seam at thigh level, {topstitch} sides and bottom.` });
+      detail: 'Join front to back at side seams {RST}. {press} open.' });
+    if (opts.cargoPocket === 'cargo') {
+      steps.push({ step: n++, title: 'Attach cargo pockets',
+        detail: 'Position each cargo pocket on the outer leg, centered over the side seam, with the top edge at mid-thigh. Pin in place. {topstitch} the sides and bottom at \u215b\u2033 from the edge, backstitching at the top corners. Align the flap above the pocket opening with the raw edge pointing up. Sew across the flap \u00bc\u2033 from the raw edge. Flip the flap down over the pocket and {press}. {topstitch} \u00bc\u2033 from the fold to hold the flap in place. Bar tack all four corners of the pocket body for reinforcement.' });
+    }
+    steps.push({ step: n++, title: 'Attach ruler pockets',
+      detail: 'Position each ruler pocket on the outer side seam at thigh level. {topstitch} the sides and bottom close to the edge. Leave the top open. Bar tack the top corners.' });
     steps.push({ step: n++, title: 'Sew inner leg seam',
       detail: opts.innerLeg === 'double'
         ? 'One continuous seam from hem to hem through crotch. {clip} crotch curve. Sew second line of stitching ¼″ from first for double-seam durability. {press} toward front.'
@@ -382,6 +391,11 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   poly.push({ x: -ext,         y: rise    });
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise });
+
+  const hasSlash = !isBack && opts?.frontPocket === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 4, 7);
+
+  const sideIdx = hasSlash ? 2 : 1;
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;

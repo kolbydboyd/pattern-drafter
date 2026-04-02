@@ -469,79 +469,116 @@ export function edgeAngle(a, b) {
 // ── Slant pocket piece builders ─────────────────────────────────────────────
 
 /**
- * Build a slant pocket bag as a shaped piece with polygon + edgeAllowances.
- * Shape: angled top matching slash line, straight sides, gentle convex bottom.
- * Returns a piece object compatible with the bodice/sleeve renderer.
+ * Shared polygon builder for slant pocket backing and bag.
+ * Shape: right-angle corner at top-right (waist + side seam of the removed triangle),
+ * slash diagonal on the right, straight left side, curved bottom.
  *
- * @param {{ width?: number, height?: number, sa?: number, instruction?: string }} opts
+ * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number }} opts
+ * @returns {{ polygon: Array, width: number, height: number }}
  */
-export function buildSlantPocketBag({ width = 7, height = 10.5, sa = 0.625, instruction = '' } = {}) {
-  const slantDrop = 2; // top-left is 2" lower than top-right (slash angle)
-  // Bottom curve: gentle convex arc from (width, height) to (0, height)
+function slantPocketPoly({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625 } = {}) {
+  // Bottom curve: gentle convex arc from right to left
   const curveDepth = 0.5;
   const bottomPts = sampleBezier(
-    { x: width, y: height },
-    { x: width * 0.65, y: height + curveDepth },
-    { x: width * 0.35, y: height + curveDepth },
-    { x: 0, y: height },
+    { x: bagWidth, y: bagDepth },
+    { x: bagWidth * 0.65, y: bagDepth + curveDepth },
+    { x: bagWidth * 0.35, y: bagDepth + curveDepth },
+    { x: 0, y: bagDepth },
     16,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
-  // CW polygon: top-left → top-right → bottom-right → (curve) → bottom-left → back up
+  // CW polygon: top-left at waist → top-right at waist (side seam corner) →
+  // down side seam to slash exit → curved bottom → back to top-left
   const polygon = [
-    { x: 0, y: slantDrop },          // top-left (lower due to slash angle)
-    { x: width, y: 0 },              // top-right (waist level)
-    ...bottomPts,                     // right-to-left curved bottom
+    { x: 0, y: 0 },                       // top-left (waist, inner edge of pocket)
+    { x: bagWidth, y: 0 },                // top-right (waist at side seam — the triangle corner)
+    { x: bagWidth, y: slashDepth },        // slash exit on side seam
+    ...bottomPts,                          // curved bottom (right to left)
     // closes back to top-left
   ];
 
+  return { polygon, width: bagWidth, height: bagDepth + curveDepth };
+}
+
+/**
+ * Build a slant pocket backing piece (self-fabric).
+ * This is the visible front of the pocket. Includes the triangle removed from
+ * the front panel plus the full pocket bag area below.
+ *
+ * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const { polygon, width, height } = slantPocketPoly({ bagWidth, slashInset, slashDepth, bagDepth, sa });
+
   return {
-    id: 'slant-bag',
-    name: 'Slant Pocket Bag',
-    instruction: instruction || `Cut 2 (1 + 1 mirror) \xb7 Lining fabric OK`,
+    id: 'slant-backing',
+    name: 'Slant Pocket Backing',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Visible pocket front',
     polygon,
     sa,
     hem: sa,
     width,
-    height: height + curveDepth,
+    height,
     type: 'bodice',
     isCutOnFold: false,
-    dimensions: { width, height: height + curveDepth },
+    dimensions: { width, height },
   };
 }
 
 /**
- * Build a slant pocket facing as a shaped piece matching the slash line contour.
- * Shape: parallelogram — top/bottom edges follow the slash angle, ~2" wide strip.
- * Returns a piece object compatible with the bodice/sleeve renderer.
+ * Build a slant pocket bag piece (lining).
+ * Same shape as the backing. Forms the back of the pocket against the body.
  *
- * @param {{ width?: number, height?: number, sa?: number, instruction?: string }} opts
+ * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
-export function buildSlantPocketFacing({ width = 2, height = 6, sa = 0.625, instruction = '' } = {}) {
-  // The facing is a strip that follows the slash line angle.
-  // Slash line runs from (panelWidth - 3.5, 0) to (panelWidth, 6) on the panel,
-  // giving an angle. The facing mirrors this: top is offset rightward.
-  const slantOffset = width * 0.5; // horizontal shift from slash angle
-
-  // CW polygon: a parallelogram following the slash angle
-  const polygon = [
-    { x: slantOffset, y: 0 },             // top-left (slash edge, upper)
-    { x: width + slantOffset, y: 0 },     // top-right
-    { x: width, y: height },              // bottom-right
-    { x: 0, y: height },                  // bottom-left (slash edge, lower)
-  ];
+export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const { polygon, width, height } = slantPocketPoly({ bagWidth, slashInset, slashDepth, bagDepth, sa });
 
   return {
-    id: 'slant-facing',
-    name: 'Slant Pocket Facing',
-    instruction: instruction || `Cut 2 (1 + 1 mirror) \xb7 Match to front slash`,
+    id: 'slant-bag',
+    name: 'Slant Pocket Bag',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)',
     polygon,
     sa,
     hem: sa,
-    width: width + slantOffset,
+    width,
     height,
     type: 'bodice',
     isCutOnFold: false,
-    dimensions: { width: width + slantOffset, height },
+    dimensions: { width, height },
   };
+}
+
+// Legacy alias — some garments may still import the old name
+export { buildSlantPocketBacking as buildSlantPocketFacing };
+
+/**
+ * Clip a front panel polygon at the slash line for a slant pocket.
+ * Removes the triangle at the waist/side-seam corner and replaces it
+ * with the slash diagonal.
+ *
+ * Mutates `poly` in place and returns it.
+ *
+ * @param {Array<{x:number, y:number}>} poly - CW panel polygon
+ * @param {number} waistSideX - x of the waist-at-side-seam vertex (width or sideWaistX)
+ * @param {number} slashInset - how far in from side seam the slash starts on waist (default 3.5)
+ * @param {number} slashDepth - how far below waist the slash meets the side seam (default 6)
+ * @returns {Array<{x:number, y:number}>} the mutated polygon
+ */
+export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth = 6) {
+  // Find the waist-at-side-seam vertex: the point closest to (waistSideX, 0)
+  let idx = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const d = Math.abs(poly[i].x - waistSideX) + Math.abs(poly[i].y);
+    if (d < bestDist) { bestDist = d; idx = i; }
+  }
+  if (idx < 0 || bestDist > 1) return poly; // safety: no match found
+
+  // Replace the corner vertex with two slash endpoints
+  poly.splice(idx, 1,
+    { x: waistSideX - slashInset, y: 0 },    // slash start on waist
+    { x: waistSideX, y: slashDepth },         // slash end on side seam
+  );
+  return poly;
 }
