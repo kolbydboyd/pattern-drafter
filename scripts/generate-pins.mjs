@@ -17,8 +17,9 @@ const ROOT      = join(__dirname, '..');
 const MANIFEST  = join(ROOT, 'pins', 'manifest.json');
 const IMAGES    = join(ROOT, 'pins', 'images');
 
-const WIDTH  = 1000;
-const HEIGHT = 1500;
+const WIDTH    = 1000;
+const MIN_H    = 1000;  // minimum pin height (1:1)
+const MAX_H    = 1500;  // cap at 2:3
 
 // ── Manifest helpers ────────────────────────────────────────────────────────
 
@@ -87,18 +88,11 @@ function baseHTML(title, innerContent) {
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     width: ${WIDTH}px;
-    height: ${HEIGHT}px;
     background: ${BRAND.bg};
     color: ${BRAND.text};
     font-family: 'IBM Plex Mono', monospace;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
   }
   .pin {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     padding: 60px 56px;
   }
   .pin-logo {
@@ -125,12 +119,9 @@ function baseHTML(title, innerContent) {
     margin-bottom: 40px;
   }
   .pin-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 48px;
   }
   .pin-footer {
-    margin-top: auto;
     padding-top: 32px;
     border-top: 1px solid ${BRAND.bdr};
     display: flex;
@@ -413,14 +404,22 @@ async function renderPins(pins, manifest) {
   mkdirSync(IMAGES, { recursive: true });
 
   const page = await browser.newPage();
-  await page.setViewport({ width: WIDTH, height: HEIGHT, deviceScaleFactor: 2 });
 
   for (const pin of pins) {
     const html = buildPinHTML(pin);
+
+    // First pass: measure content height
+    await page.setViewport({ width: WIDTH, height: MAX_H, deviceScaleFactor: 2 });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    const contentH = await page.evaluate(() => document.querySelector('.pin').scrollHeight);
+    const pinH = Math.min(MAX_H, Math.max(MIN_H, contentH));
+
+    // Second pass: screenshot at exact height
+    await page.setViewport({ width: WIDTH, height: pinH, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const outPath = join(IMAGES, `${pin.id}.png`);
-    await page.screenshot({ path: outPath, type: 'png' });
+    await page.screenshot({ path: outPath, type: 'png', clip: { x: 0, y: 0, width: WIDTH, height: pinH } });
 
     manifest[pin.id] = {
       ...manifest[pin.id],

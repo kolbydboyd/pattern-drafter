@@ -19,7 +19,6 @@
   /* Pin frame — scaled down for preview */
   .pin-frame {
     width: 333px;
-    height: 500px;
     overflow: hidden;
     border: 1px solid #3a3530;
     border-radius: 8px;
@@ -27,7 +26,6 @@
   }
   .pin-frame-inner {
     width: 1000px;
-    height: 1500px;
     transform: scale(0.333);
     transform-origin: top left;
   }
@@ -35,12 +33,9 @@
   /* ── Pin styles (same as generate-pins.mjs) ── */
   .pin {
     width: 1000px;
-    height: 1500px;
     background: #1a1714;
     color: #e8e0d4;
     font-family: 'IBM Plex Mono', monospace;
-    display: flex;
-    flex-direction: column;
     padding: 60px 56px;
   }
   .pin-logo {
@@ -67,12 +62,9 @@
     margin-bottom: 40px;
   }
   .pin-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 48px;
   }
   .pin-footer {
-    margin-top: auto;
     padding-top: 32px;
     border-top: 1px solid #3a3530;
     display: flex;
@@ -297,5 +289,13 @@
   </div>
 
 </div>
+<script>
+// Set frame heights to match scaled content
+document.querySelectorAll('.pin-frame').forEach(frame => {
+  const inner = frame.querySelector('.pin-frame-inner');
+  const pin = inner.querySelector('.pin');
+  frame.style.height = (pin.scrollHeight * 0.333) + 'px';
+});
+</script>
 </body>
 </html>
