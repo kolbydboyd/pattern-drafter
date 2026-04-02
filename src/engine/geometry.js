@@ -469,40 +469,44 @@ export function edgeAngle(a, b) {
 // ── Slant pocket piece builders ─────────────────────────────────────────────
 
 /**
- * Shared bottom curve for slant pocket pieces.
- * @returns {{ bottomPts: Array, curveDepth: number }}
+ * Scoop curve for slant pocket pieces.
+ * Matches the front panel overlay: one continuous curve from
+ * (bagWidth, slashDepth) scooping down to (0, bagDepth).
+ * No straight right edge below the slash — just the curve.
+ *
+ * Cubic bezier approximation of the quadratic Q(bagWidth,bagDepth).
  */
-function slantPocketBottomCurve(bagWidth, bagDepth) {
-  const curveDepth = 0.5;
-  const bottomPts = sampleBezier(
-    { x: bagWidth, y: bagDepth },
-    { x: bagWidth * 0.65, y: bagDepth + curveDepth },
-    { x: bagWidth * 0.35, y: bagDepth + curveDepth },
-    { x: 0, y: bagDepth },
+function slantPocketScoop(bagWidth, slashDepth, bagDepth) {
+  const scoopPts = sampleBezier(
+    { x: bagWidth, y: slashDepth },                                            // start: slash exit on side seam
+    { x: bagWidth, y: slashDepth + (bagDepth - slashDepth) * 2 / 3 },         // cp1: pulls down along side seam
+    { x: bagWidth * 2 / 3, y: bagDepth },                                     // cp2: pulls across at bottom
+    { x: 0, y: bagDepth },                                                    // end: bottom-left
     16,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
-  return { bottomPts, curveDepth };
+  return scoopPts;
 }
 
 /**
  * Build a slant pocket backing piece (self-fabric).
- * Visible front of the pocket. Full rectangle top (waist to side seam),
- * straight down side seam, curved bottom, straight left side.
+ * Visible front of the pocket. Waist to side seam, straight down side
+ * seam to slash exit level, then scoop curve to bottom-left.
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
 export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const { bottomPts, curveDepth } = slantPocketBottomCurve(bagWidth, bagDepth);
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
 
-  // CW polygon: waist across to side seam → down side seam → curved bottom → left side up
+  // CW polygon: waist across → side seam down to slash exit → scoop curve to bottom-left → left side up
   const polygon = [
     { x: 0, y: 0 },                       // top-left (waist, inner edge)
     { x: bagWidth, y: 0 },                // top-right (waist at side seam)
-    ...bottomPts,                          // side seam down + curved bottom (right to left)
+    { x: bagWidth, y: slashDepth },        // side seam down to slash exit level
+    ...scoopPts.slice(1),                  // scoop from slash exit to bottom-left (skip first, it's the same point)
     // closes back to top-left
   ];
   const width = bagWidth;
-  const height = bagDepth + curveDepth;
+  const height = bagDepth;
 
   return {
     id: 'slant-backing',
@@ -527,20 +531,19 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
 export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const { bottomPts, curveDepth } = slantPocketBottomCurve(bagWidth, bagDepth);
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
 
-  // CW polygon: waist to slash start → slash diagonal to side seam →
-  // down side seam → curved bottom → left side up
+  // CW polygon: waist to slash start → slash diagonal to slash exit →
+  // scoop curve to bottom-left → left side up
   const slashStartX = bagWidth - slashInset;
   const polygon = [
     { x: 0, y: 0 },                       // top-left (waist, inner edge)
     { x: slashStartX, y: 0 },             // slash start on waist
-    { x: bagWidth, y: slashDepth },        // slash exit on side seam (diagonal)
-    ...bottomPts,                          // side seam down + curved bottom (right to left)
+    ...scoopPts,                           // slash exit then scoop to bottom-left
     // closes back to top-left
   ];
   const width = bagWidth;
-  const height = bagDepth + curveDepth;
+  const height = bagDepth;
 
   return {
     id: 'slant-bag',
