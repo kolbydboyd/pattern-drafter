@@ -5,12 +5,20 @@
 // Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars (or .env.local).
 
 import { createClient } from '@supabase/supabase-js';
-import { config } from 'dotenv';
+import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-config({ path: resolve(__dirname, '..', '.env.local') });
+
+// Load .env.local without requiring dotenv
+try {
+  const envFile = readFileSync(resolve(__dirname, '..', '.env.local'), 'utf8');
+  for (const line of envFile.split('\n')) {
+    const match = line.match(/^\s*([\w]+)\s*=\s*(.+?)\s*$/);
+    if (match && !process.env[match[1]]) process.env[match[1]] = match[2];
+  }
+} catch (_) { /* no .env.local — rely on existing env vars */ }
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
