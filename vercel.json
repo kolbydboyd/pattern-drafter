@@ -31,6 +31,17 @@
       "memory": 256
     }
   },
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "statusCode": 301 },
+    { "source": "/patterns.html", "destination": "/patterns", "statusCode": 301 },
+    { "source": "/learn.html", "destination": "/learn", "statusCode": 301 },
+    { "source": "/faq.html", "destination": "/faq", "statusCode": 301 },
+    { "source": "/pricing.html", "destination": "/pricing", "statusCode": 301 },
+    { "source": "/about.html", "destination": "/about", "statusCode": 301 },
+    { "source": "/terms.html", "destination": "/terms", "statusCode": 301 },
+    { "source": "/privacy.html", "destination": "/privacy", "statusCode": 301 },
+    { "source": "/tester.html", "destination": "/tester", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/faq", "destination": "/faq.html" },
     { "source": "/terms", "destination": "/terms.html" },
