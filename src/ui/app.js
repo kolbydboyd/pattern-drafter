@@ -278,7 +278,8 @@ function buildInputs() {
     </select></div>`;
 
   // "How to measure" toggle
-  html += `<button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">How to measure ▾</button>
+  const isAccessory = g.category === 'accessory';
+  html += `<button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">${isAccessory ? 'Dimension guide ▾' : 'How to measure ▾'}</button>
     <div id="mt-guide-container" style="display:none"></div>`;
 
   // Body measurements + profile selector
@@ -286,7 +287,11 @@ function buildInputs() {
   const profileOptions = profiles.map(p =>
     `<option value="${p.name}">${p.name}</option>`
   ).join('');
-  html += `<h2>Body</h2><p class="sd">Flexible tape over underwear. Don't pull tight.</p>
+
+  if (isAccessory) {
+    html += `<h2>${g.measurementLabel || 'Dimensions'}</h2><p class="sd">Enter your desired dimensions.</p>`;
+  } else {
+    html += `<h2>Body</h2><p class="sd">Flexible tape over underwear. Don't pull tight.</p>
     <div class="f profile-row">
       <select id="profile-select" title="Load saved profile">
         <option value="">- saved profiles -</option>
@@ -296,6 +301,7 @@ function buildInputs() {
       <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
       <input type="text" id="profile-name-input" placeholder="Profile name" style="width:120px">
     </div>`;
+  }
   for (const mId of g.measurements) {
     const mDef = MEASUREMENTS[mId];
     if (!mDef) continue;
@@ -363,9 +369,9 @@ function buildInputs() {
   document.getElementById('print-btn').addEventListener('click', () => handlePrint(document.getElementById('print-btn')));
   document.getElementById('download-pdf-btn').addEventListener('click', () => handleDownloadPDF(document.getElementById('download-pdf-btn')));
   document.getElementById('reset-btn').addEventListener('click', resetToDefaults);
-  document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
-  document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
-  document.getElementById('profile-select').addEventListener('change', e => {
+  document.getElementById('save-profile-btn')?.addEventListener('click', saveCurrentProfile);
+  document.getElementById('del-profile-btn')?.addEventListener('click', deleteCurrentProfile);
+  document.getElementById('profile-select')?.addEventListener('change', e => {
     if (e.target.value) applyProfile(e.target.value);
   });
   document.getElementById('garment-select').addEventListener('change', e => {
@@ -1581,12 +1587,20 @@ function renderStep1() {
 function buildMeasureStep() {
   const g = GARMENTS[currentGarment];
   const el = document.getElementById('wiz-step-2');
+  const isAccessory = g.category === 'accessory';
+  const measTitle = g.measurementLabel || (isAccessory ? 'Dimensions' : 'Measurements');
+  const measDesc  = isAccessory
+    ? `${g.name}: enter your desired dimensions.`
+    : `${g.name}: flexible tape over underwear. Don't pull tight.`;
+
   let html = `<div class="wiz-form-wrap">
     <div class="wiz-form-header">
-      <h2 class="wiz-form-title">Measurements</h2>
-      <p class="wiz-form-desc">${g.name}: flexible tape over underwear. Don't pull tight.</p>
-    </div>
-    <div class="f profile-row">
+      <h2 class="wiz-form-title">${measTitle}</h2>
+      <p class="wiz-form-desc">${measDesc}</p>
+    </div>`;
+
+  if (!isAccessory) {
+    html += `<div class="f profile-row">
       <select id="profile-select" title="Load saved profile">
         <option value="">- saved profiles -</option>
         ${loadProfiles().map(p => `<option value="${p.name}">${p.name}</option>`).join('')}
@@ -1594,8 +1608,10 @@ function buildMeasureStep() {
       <button class="btn-xs" id="save-profile-btn" title="Save current measurements">Save</button>
       <button class="btn-xs btn-xs-del" id="del-profile-btn" title="Delete selected profile">&times;</button>
       <input type="text" id="profile-name-input" placeholder="Profile name" style="width:120px">
-    </div>
-    <button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">How to measure ▾</button>
+    </div>`;
+  }
+
+  html += `<button class="btn-s" id="how-to-measure-btn" style="margin-bottom:6px">${isAccessory ? 'Dimension guide ▾' : 'How to measure ▾'}</button>
     <div id="mt-guide-container" style="display:none"></div>`;
 
   for (const mId of g.measurements) {
@@ -1629,47 +1645,49 @@ function buildMeasureStep() {
   el.innerHTML = html;
 
   // Sync Supabase profiles into localStorage so the dropdown reflects any
-  // profiles saved from the account dashboard.
-  const _wizUser = getCurrentUser();
-  if (_wizUser) {
-    getMeasurementProfiles(_wizUser.id).then(({ data: remoteProfiles }) => {
-      if (!remoteProfiles?.length) return;
-      const local = loadProfiles();
-      const localNames = new Set(local.map(p => p.name));
-      let added = false;
-      for (const rp of remoteProfiles) {
-        if (!localNames.has(rp.name) && rp.measurements) {
-          local.push({ name: rp.name, measurements: rp.measurements });
-          added = true;
+  // profiles saved from the account dashboard. Skip for accessories (no body profiles).
+  if (!isAccessory) {
+    const _wizUser = getCurrentUser();
+    if (_wizUser) {
+      getMeasurementProfiles(_wizUser.id).then(({ data: remoteProfiles }) => {
+        if (!remoteProfiles?.length) return;
+        const local = loadProfiles();
+        const localNames = new Set(local.map(p => p.name));
+        let added = false;
+        for (const rp of remoteProfiles) {
+          if (!localNames.has(rp.name) && rp.measurements) {
+            local.push({ name: rp.name, measurements: rp.measurements });
+            added = true;
+          }
         }
-      }
-      if (added) {
-        localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+        if (added) {
+          localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+          refreshProfileDropdown();
+        }
+      }).catch(() => {});
+    }
+
+    // Clear profiles on sign-out (privacy: don't leave personal measurements in localStorage)
+    // Reload profiles from Supabase on sign-in
+    onUserChange(async (user) => {
+      if (!user) {
+        localStorage.removeItem(PROFILES_KEY);
+        _setActiveProfile(null, null);
         refreshProfileDropdown();
+        return;
       }
-    }).catch(() => {});
+      const { data: remoteProfiles } = await getMeasurementProfiles(user.id);
+      if (remoteProfiles?.length) {
+        const local = remoteProfiles.map(rp => ({ name: rp.name, measurements: rp.measurements }));
+        localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+      }
+      refreshProfileDropdown();
+    });
   }
 
-  // Clear profiles on sign-out (privacy: don't leave personal measurements in localStorage)
-  // Reload profiles from Supabase on sign-in
-  onUserChange(async (user) => {
-    if (!user) {
-      localStorage.removeItem(PROFILES_KEY);
-      _setActiveProfile(null, null);
-      refreshProfileDropdown();
-      return;
-    }
-    const { data: remoteProfiles } = await getMeasurementProfiles(user.id);
-    if (remoteProfiles?.length) {
-      const local = remoteProfiles.map(rp => ({ name: rp.name, measurements: rp.measurements }));
-      localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
-    }
-    refreshProfileDropdown();
-  });
-
-  document.getElementById('save-profile-btn').addEventListener('click', saveCurrentProfile);
-  document.getElementById('del-profile-btn').addEventListener('click', deleteCurrentProfile);
-  document.getElementById('profile-select').addEventListener('change', e => {
+  document.getElementById('save-profile-btn')?.addEventListener('click', saveCurrentProfile);
+  document.getElementById('del-profile-btn')?.addEventListener('click', deleteCurrentProfile);
+  document.getElementById('profile-select')?.addEventListener('change', e => {
     if (e.target.value) applyProfile(e.target.value);
   });
   document.getElementById('how-to-measure-btn').addEventListener('click', () => {
@@ -1679,10 +1697,10 @@ function buildMeasureStep() {
     if (hidden) {
       container.innerHTML = renderMeasurementTeacher(g.measurements);
       container.style.display = '';
-      btn.textContent = 'How to measure ▴';
+      btn.textContent = isAccessory ? 'Dimension guide ▴' : 'How to measure ▴';
     } else {
       container.style.display = 'none';
-      btn.textContent = 'How to measure ▾';
+      btn.textContent = isAccessory ? 'Dimension guide ▾' : 'How to measure ▾';
     }
   });
   document.getElementById('wiz-s2-back').addEventListener('click', () => goToStep(1));

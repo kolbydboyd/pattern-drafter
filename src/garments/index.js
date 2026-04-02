@@ -41,6 +41,7 @@ import tshirtDressW          from './tshirt-dress-w.js';
 import slipDressW            from './slip-dress-w.js';
 import aLineDressW           from './a-line-dress-w.js';
 import sundressW             from './sundress-w.js';
+import toteBag             from './tote-bag.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -81,6 +82,7 @@ const GARMENTS = {
   'slip-dress-w':             slipDressW,
   'a-line-dress-w':           aLineDressW,
   'sundress-w':               sundressW,
+  'tote-bag':               toteBag,
 };
 
 export default GARMENTS;
