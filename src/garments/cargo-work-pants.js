@@ -93,7 +93,7 @@ export default {
       ],
       default: 'double',
     },
-    frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3   },
+    frontExt: { type: 'number', label: 'Front crotch ext', default: 2, step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5, step: 0.25, min: 1,   max: 4   },
     riseStyle: {
       type: 'select', label: 'Rise style',
@@ -138,7 +138,8 @@ export default {
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise = m.rise || 10;
     const riseOff  = RISE_OFFSETS[opts.riseStyle] ?? 0;
-    const rise     = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const crotchEase = 0.75; // ease below body rise — prevents fabric pulling tight against crotch
+    const rise     = parseFloat(opts.riseOverride) || (baseRise + riseOff + crotchEase);
     const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 32);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
@@ -213,8 +214,8 @@ export default {
 
     // ── CARGO POCKETS ──
     if (opts.cargoPocket === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 · 8″ wide × 9″ tall · 1″ box pleat each side (2″ consumed) · Mark internal divider at center for main + Velcro compartments · Mark smartphone pocket 2.5″ from left edge', dimensions: { width: 8, height: 9 }, type: 'pocket' });
-      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 6″ wide × 3″ tall', dimensions: { width: 6, height: 3 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 \xb7 10\u2033 wide \xd7 8\u2033 tall \xb7 Box pleat at center: \u00bd\u2033 under, \u00bd\u2033 fold back, 2\u2033 on top, \u00bd\u2033 under, \u00bd\u2033 back out (4\u2033 consumed total) \xb7 Finished pocket 6\u2033 wide, expands to 10\u2033 \xb7 Mark internal divider at center for main + Velcro compartments \xb7 Mark smartphone pocket 2.5\u2033 from left edge', dimensions: { width: 10, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) \xb7 6\u00bd\u2033 wide \xd7 3\u2033 tall \xb7 Covers finished pocket opening with \u00bc\u2033 overlap each side', dimensions: { width: 6.5, height: 3 }, type: 'pocket' });
       pieces.push({ id: 'cargo-zip-pocket', name: 'Cargo Zip Safety Pocket', instruction: 'Cut 2 (outer + lining) · Sewn inside cargo body · Install 4″ zip', dimensions: { width: 4, height: 5 }, type: 'pocket' });
     }
 
@@ -314,7 +315,7 @@ export default {
     // Cargo pockets
     if (opts.cargoPocket === 'cargo') {
       steps.push({ step: n++, title: 'Prepare multi-compartment cargo pockets',
-        detail: 'Mark center divider line on cargo body. Sew internal divider (fold fabric strip, topstitch to body along center line — creates main compartment and secondary compartment). Install Velcro strip along top of secondary compartment. Mark smartphone pocket position 2.5″ from left edge, sew vertical divider. Install zip safety pocket: sew zipper between pocket pieces, attach inside cargo body at bottom. Fold 1″ box pleat each side of center (2″ consumed total). {press} pleat flat. {baste} pleat at top and bottom. Fold top edge under 1″, {topstitch}. {press} side and bottom SA under ⅝″. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} ¼″ from edge. Install press stud on flap center.' });
+        detail: 'Mark center divider line on cargo body. Sew internal divider (fold fabric strip, topstitch to body along center line \u2014 creates main compartment and secondary compartment). Install Velcro strip along top of secondary compartment. Mark smartphone pocket position 2.5\u2033 from left edge, sew vertical divider. Install zip safety pocket: sew zipper between pocket pieces, attach inside cargo body at bottom. Form box pleat at center: from each side, fold \u00bd\u2033 under, fold back \u00bd\u2033, then bring 2\u2033 across on top to the center line (\u00bd\u2033 + \u00bd\u2033 tucked inside each fold, 4\u2033 consumed total). {press} pleat flat. {baste} pleat at top and bottom. Fold top edge under 1\u2033, {topstitch}. {press} side and bottom SA under \u215d\u2033. Sew flap outer to lining {RST} on 3 sides, {clip} corners, turn, {press}. {topstitch} \u00bc\u2033 from edge. Install press stud on flap center.' });
     }
 
     // Back pockets
