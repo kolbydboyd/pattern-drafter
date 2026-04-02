@@ -415,13 +415,18 @@ async function renderPins(pins, manifest) {
 
     // First pass: measure content height
     await page.setViewport({ width: WIDTH, height: MAX_H, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // Wait for Google Fonts (best effort, 3s max)
+    await page.evaluate(() => document.fonts.ready).catch(() => {});
+    await new Promise(r => setTimeout(r, 1000));
+
     const contentH = await page.evaluate(() => document.querySelector('.pin').scrollHeight);
     const pinH = Math.min(MAX_H, Math.max(MIN_H, contentH));
 
     // Second pass: screenshot at exact height
     await page.setViewport({ width: WIDTH, height: pinH, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.evaluate(() => document.fonts.ready).catch(() => {});
 
     const outPath = join(IMAGES, `${pin.id}.png`);
     await page.screenshot({ path: outPath, type: 'png', clip: { x: 0, y: 0, width: WIDTH, height: pinH } });
