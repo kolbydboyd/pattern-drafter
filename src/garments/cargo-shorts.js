@@ -181,10 +181,13 @@ export default {
       opts, seatDepth: m.seatDepth,
     }));
 
-    // ── WAISTBAND — elastic/drawstring uses hip (pull-on); zip/button uses waist ──
+    // ── WAISTBAND ──
+    // For elastic/pull-on: waistband matches the shorts waist opening (sum of panel tops).
+    // For zip/button fly: uses body waist measurement.
     const flyOverlap = (opts.fly === 'none') ? 0 : 2;
-    const wbBase = (opts.fly === 'none') ? m.hip : m.waist;
-    const wbLength = wbBase + ease.total + flyOverlap + sa * 2;
+    const shortsWaist = (frontW + backW) * 2; // actual waist opening of assembled shorts
+    const wbBase = (opts.fly === 'none') ? shortsWaist : (m.waist + ease.total);
+    const wbLength = wbBase + flyOverlap + sa * 2;
     const wbWidth = 4; // 2" finished
     pieces.push({
       id: 'waistband',
@@ -236,7 +239,7 @@ export default {
     ];
 
     if (opts.fly === 'none') {
-      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist + 1)}″ (adjust at fitting)` });
+      notions.push({ ref: 'elastic-1.5', quantity: `${Math.round(m.waist * 0.9)}″ (adjust at fitting \xb7 should be snug, ~90% of waist)` });
       if (opts.internalBelt === 'webbing') {
         notions.push({ ref: 'webbing-1.5', quantity: `${Math.round(m.waist + 2)}″ (internal belt for holster support)` });
       }
@@ -308,7 +311,7 @@ export default {
     // Waistband
     if (opts.fly === 'none') {
       steps.push({ step: n++, title: 'Construct waistband',
-        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends to form loop (leave 2\u2033 gap for elastic). Pin to shorts waist {RST}, matching side seams. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Thread elastic with bodkin. Overlap ends 1\u2033, {zigzag}. Close gap. Double {topstitch} top and bottom of waistband. Tension: 4 for seaming. Reduce to 3\u20133.5 for {zigzag} through elastic.` });
+        detail: `Fuse interfacing (2 layers).${opts.internalBelt === 'webbing' ? ' Sew webbing centered on outer half.' : ''} Sew short ends together to form a loop. Leave a 2\u2033 gap in the center back seam for threading elastic. The waistband loop should match the shorts waist opening. Pin waistband to shorts waist {RST}, matching side seams and CB. Ease any slight difference evenly. Sew all the way around. Fold waistband over, {press}. Fold top edge under, pin to inside covering the seam. {topstitch} through all layers. Thread elastic (~90% of waist measurement, should feel snug) through the 2\u2033 gap with a bodkin. Overlap ends 1\u2033, {zigzag}. Close the gap. Double {topstitch} top and bottom of waistband. Tension: 4 for seaming. Reduce to 3\u20133.5 for {zigzag} through elastic.` });
     } else {
       steps.push({ step: n++, title: 'Construct waistband',
         detail: 'Fuse interfacing. Attach to shorts waist {RST}. Fold, {press}, {topstitch}. Install button/buttonhole at center front overlap. Tension: 4 for seaming and topstitch.' });
