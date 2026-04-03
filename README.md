@@ -22,8 +22,8 @@ npm run build   # production build to /dist
 | Frontend | Vite + vanilla JS (ES modules) | Wizard UI, SVG pattern rendering, measurement input |
 | Auth & DB | Supabase | User accounts, purchase records, wishlists, newsletter signups |
 | Payments | Stripe | Checkout sessions, webhooks, subscription and per-pattern purchases |
-| Email | Resend | Transactional emails (purchase confirmation, welcome, download links) |
-| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list` |
+| Email | Resend | Transactional + marketing emails (welcome sequence, weekly digest, abandoned pattern reminders) |
+| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list`, `/api/email-opt-in`, `/api/cron-emails` |
 | Hosting | Vercel | Auto-deploys on push to main |
 
 ## Environment Variables
@@ -96,12 +96,17 @@ src/
   lib/
     supabase.js          # Supabase client init + auth helpers
     db.js                # DB queries (purchases, wishlists, downloads)
-    email-templates.js   # HTML email templates (welcome, purchase confirmation)
+    email-templates.js   # HTML email templates (welcome sequence, digest, abandoned pattern, purchase confirmation)
+    pricing.js           # Tier, bundle, credit pack, and subscription price definitions
+    checkout.js          # Client-side checkout helpers (pattern, bundle, credit pack, subscription)
 api/
-  checkout.js            # Stripe checkout session creation
+  create-checkout.js     # Stripe checkout session creation (pattern, bundle, credit pack, subscription)
   stripe-webhook.js      # Stripe webhook handler (payment confirmation, DB writes)
   generate-pattern.js    # PDF generation + download (purchase-verified, rate-limited)
-  join-list.js           # Newsletter email capture
+  join-list.js           # Newsletter email capture + welcome sequence enrollment
+  email-opt-in.js        # Marketing email opt-in + welcome sequence enrollment
+  send-email.js          # Email dispatcher via Resend (21 template types)
+  cron-emails.js         # Daily cron: welcome drips, weekly digest, abandoned pattern reminders
 docs/
   GARMENT-MODULE-SPEC.md   # How to add a new garment
   MODULE-STATUS.md         # Per-module interface audit and known issues
