@@ -185,6 +185,43 @@ export const MEASUREMENTS = {
     category: 'lower',
     min: 12, max: 45, step: 0.5, default: 22,
   },
+
+  // ── Accessory — Bag Dimensions ──
+  bagWidth: {
+    id: 'bagWidth',
+    label: 'Width (bottom & top)',
+    instruction: 'Finished outer width of the bag.',
+    category: 'accessory',
+    min: 8, max: 20, step: 0.5, default: 14,
+  },
+  bagHeight: {
+    id: 'bagHeight',
+    label: 'Height',
+    instruction: 'Finished outer height (excluding straps).',
+    category: 'accessory',
+    min: 8, max: 22, step: 0.5, default: 15,
+  },
+  bagDepth: {
+    id: 'bagDepth',
+    label: 'Depth / Gusset',
+    instruction: '0 = completely flat. 4 to 6 = most popular flat bottom.',
+    category: 'accessory',
+    min: 0, max: 8, step: 0.5, default: 4,
+  },
+  strapWidth: {
+    id: 'strapWidth',
+    label: 'Strap Width',
+    instruction: 'Finished width of straps.',
+    category: 'accessory',
+    min: 1, max: 3, step: 0.25, default: 1.5,
+  },
+  strapLength: {
+    id: 'strapLength',
+    label: 'Strap Length',
+    instruction: 'Shoulder drop (or total fabric length if you prefer).',
+    category: 'accessory',
+    min: 20, max: 60, step: 1, default: 28,
+  },
 };
 
 /**

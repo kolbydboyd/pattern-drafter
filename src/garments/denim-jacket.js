@@ -42,8 +42,8 @@ export default {
     length: {
       type: 'select', label: 'Length',
       values: [
-        { value: 'crop', label: 'Cropped - at waist (classic trucker)' },
-        { value: 'hip',  label: 'Hip - +4″ below waist' },
+        { value: 'crop', label: 'Cropped, at waist (classic trucker)' },
+        { value: 'hip',  label: 'Hip, +4″ below waist' },
       ],
       default: 'crop',
     },
@@ -337,7 +337,8 @@ export default {
     ];
 
     const backPanelNotches = [
-      { x: backSideX, y: armholeY, angle: 0 },
+      { x: backSideX, y: armholeY,        angle: 0 },  // double notch = back
+      { x: backSideX, y: armholeY + 0.25, angle: 0 },
       { x: backSideX, y: (yokeLineY + armholeY) / 2, angle: edgeAngle({ x: backYokeX, y: yokeLineY }, { x: backSideX, y: armholeY }) },
     ];
 
@@ -463,11 +464,19 @@ export default {
           sleeveLength: slvLength,
           sleeveWidth: onePieceSlvBB.maxX - onePieceSlvBB.minX,
           sa, hem,
-          notches: [
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0, angle: -90 },
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) * 0.25, y: onePieceCapH * 0.5, angle: edgeAngle({ x: 0, y: onePieceCapH }, { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0 }) },
-            { x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) * 0.75, y: onePieceCapH * 0.5, angle: edgeAngle({ x: (onePieceSlvBB.maxX - onePieceSlvBB.minX) / 2, y: 0 }, { x: onePieceSlvBB.maxX - onePieceSlvBB.minX, y: onePieceCapH }) },
-          ],
+          notches: (() => {
+            const slvW = onePieceSlvBB.maxX - onePieceSlvBB.minX;
+            const bDx = slvW / 2, bDy = onePieceCapH;
+            const bLen = Math.sqrt(bDx * bDx + bDy * bDy);
+            const bStepX = 0.25 * bDx / bLen, bStepY = 0.25 * bDy / bLen;
+            const backAngle = edgeAngle({ x: slvW / 2, y: 0 }, { x: slvW, y: onePieceCapH });
+            return [
+              { x: slvW / 2,           y: 0,                         angle: -90 },             // crown → shoulder
+              { x: slvW * 0.25,        y: onePieceCapH * 0.5,        angle: edgeAngle({ x: 0, y: onePieceCapH }, { x: slvW / 2, y: 0 }) },  // front (single)
+              { x: slvW * 0.75,        y: onePieceCapH * 0.5,        angle: backAngle },        // back (double)
+              { x: slvW * 0.75 + bStepX, y: onePieceCapH * 0.5 + bStepY, angle: backAngle },
+            ];
+          })(),
           dims: [
             { label: fmtInches(onePieceSlvBB.maxX - onePieceSlvBB.minX) + ' underarm width', x1: onePieceSlvBB.minX, y1: onePieceCapH + 0.4, x2: onePieceSlvBB.maxX, y2: onePieceCapH + 0.4, type: 'h' },
             { label: fmtInches(slvLength) + ' length', x: onePieceSlvBB.maxX + 1, y1: onePieceCapH, y2: onePieceCapH + slvLength, type: 'v' },
@@ -528,6 +537,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
         type: 'pocket',
         dimensions: { width: FACING_W, height: facingH },
+        sa,
       },
     ];
 
@@ -539,6 +549,7 @@ export default {
         instruction: `Cut 4 (2 pocket bags + 2 flaps - mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} pocket · ${fmtInches(pocketW)} × ${fmtInches(flapH)} flap · Position on front panel just below yoke seam`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
+        sa,
       });
       pieces.push({
         id: 'pocket-flap',
@@ -546,6 +557,7 @@ export default {
         instruction: `Cut 4 (2 outer + 2 facing) · ${fmtInches(pocketW)} × ${fmtInches(flapH)} · Interface outer · Button snap or shank at center`,
         type: 'pocket',
         dimensions: { width: pocketW, height: flapH },
+        sa,
       });
     } else if (opts.chestPocket === 'patch') {
       pieces.push({
@@ -554,6 +566,7 @@ export default {
         instruction: `Cut 2 (mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} · Position on front panel just below yoke seam · {topstitch} 3 sides`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
+        sa,
       });
     }
 
@@ -567,12 +580,12 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare - ⅞″ tack or shank` });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff tabs + 2 pocket flaps + 1 spare (⅞″ tack or shank)` });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket - size 24 heavy duty` });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount + 4}`, notes: `${btnCount} front + 2 cuff + 2 pocket (size 24 heavy duty)` });
     }
 
-    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points - traditional denim detail' });
+    notions.push({ name: 'Rivets (optional)', quantity: '6–8', notes: 'Copper rivets at pocket corners and stress points (traditional denim detail)' });
 
     return buildMaterialsSpec({
       fabrics: ['denim-12oz', 'bull-denim', 'raw-selvedge-denim'],
@@ -687,7 +700,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check - all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
+      detail: '{press} with steam on cotton setting. Add rivets at pocket corners and stress points if desired (use rivet setter tool). Final {topstitch} check: all seams should show clean parallel rows. Try on and check collar roll, sleeve hang, and yoke alignment.',
     });
 
     return steps;

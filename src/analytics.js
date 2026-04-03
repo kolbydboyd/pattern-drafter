@@ -2,13 +2,16 @@
 // PostHog analytics — initialized once on import, helpers exported for use across the app.
 
 import posthog from 'posthog-js';
+import { inject } from '@vercel/analytics';
+
+inject();
 
 posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host:         import.meta.env.VITE_POSTHOG_HOST,
-  autocapture:      true,
-  capture_pageview: true,
+  api_host:          import.meta.env.VITE_POSTHOG_HOST,
+  autocapture:       true,
+  capture_pageview:  true,
   capture_pageleave: true,
-  defaults:         '2026-01-30',
+  session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' },
 });
 
 export function trackEvent(name, properties) {
@@ -27,15 +30,8 @@ export function resetUser() {
 // Call once after DOMContentLoaded. Tracks buttons, forms, scroll depth, outbound links.
 
 export function initSiteTracking() {
-  // Button clicks + outbound links (single delegated listener)
+  // Outbound link clicks (autocapture handles internal clicks)
   document.addEventListener('click', e => {
-    const btn = e.target.closest('button, [role="button"]');
-    if (btn) {
-      trackEvent('button_clicked', {
-        text: btn.textContent?.trim().slice(0, 100) || undefined,
-        id:   btn.id || undefined,
-      });
-    }
     const a = e.target.closest('a[href]');
     if (a && a.href && !a.href.startsWith(location.origin) && !a.href.startsWith('mailto:')) {
       trackEvent('outbound_link_clicked', {
@@ -97,5 +93,53 @@ export function initHeroABTest() {
     ctaEl?.addEventListener('click', () => {
       trackEvent('hero_cta_clicked', { variant });
     }, { once: true });
+  });
+}
+
+// ── Social proof A/B test ────────────────────────────────────────────────────
+// Feature flag: 'social-proof-variant'
+// Control  (default): no social proof section shown
+// Variant  ('test'):  shows "Real Sewists, Real Fits" proof section
+//
+// To activate: create feature flag 'social-proof-variant' in PostHog
+//   → Rollout: 50% control / 50% test
+//   → No payload needed; variant name 'test' is the trigger
+
+export function initSocialProofABTest() {
+  posthog.onFeatureFlags(() => {
+    const variant = posthog.getFeatureFlag('social-proof-variant') ?? 'control';
+
+    if (variant === 'test') {
+      const proofSection = document.getElementById('land-proof');
+      const heroEl = document.querySelector('.land-hero');
+      if (proofSection) {
+        proofSection.style.display = '';
+        if (heroEl) heroEl.classList.add('land-hero--proof');
+
+        const observer = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              trackEvent('social_proof_impression', { variant });
+              observer.disconnect();
+              break;
+            }
+          }
+        }, { threshold: 0.5 });
+        observer.observe(proofSection);
+      }
+    }
+
+    const proofGrid = document.querySelector('.land-proof-grid');
+    if (proofGrid) {
+      proofGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.land-proof-card');
+        if (card) {
+          trackEvent('social_proof_card_clicked', {
+            variant,
+            card_id: card.dataset.proof,
+          });
+        }
+      });
+    }
   });
 }
