@@ -71,25 +71,65 @@ loadArticles().then(ARTICLES => {
 function renderListing(PUBLISHED, root) {
   document.title = "Learn | People's Patterns";
 
-  const cards = PUBLISHED.map(a => `
-    <a href="/learn/${a.slug}" class="learn-card">
-      <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
-      <h2 class="learn-card-title">${a.title}</h2>
-      <p class="learn-card-desc">${a.description}</p>
-      ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(t => `<span class="learn-tag">${t}</span>`).join('')}</div>` : ''}
-      <span class="learn-card-read">Read article →</span>
-    </a>`).join('');
+  // Build category pills
+  const cats = [...new Set(PUBLISHED.map(a => a.category))];
+  const pills = ['all', ...cats].map(c => {
+    const label = c === 'all' ? 'All' : (CATEGORY_LABELS[c] || c);
+    return `<button class="learn-pill${c === 'all' ? ' learn-pill-active' : ''}" data-cat="${c}">${label}</button>`;
+  }).join('');
+
+  function renderCards(articles) {
+    return articles.map(a => `
+      <a href="/learn/${a.slug}" class="learn-card">
+        <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
+        <h2 class="learn-card-title">${a.title}</h2>
+        <p class="learn-card-desc">${a.description}</p>
+        ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(t => `<span class="learn-tag">${t}</span>`).join('')}</div>` : ''}
+        <span class="learn-card-read">Read article &rarr;</span>
+      </a>`).join('');
+  }
 
   root.innerHTML = `
     <div class="learn-wrap">
       <h1 class="learn-index-title">Learn</h1>
       <p class="learn-index-sub">Guides for measuring, printing, and sewing custom-fit patterns.</p>
-      <div class="learn-grid">${cards}</div>
+      <div class="learn-filters">
+        <input type="text" class="learn-search" id="learn-search" placeholder="Search articles..." autocomplete="off">
+        <div class="learn-pills">${pills}</div>
+      </div>
+      <div class="learn-grid" id="learn-grid">${renderCards(PUBLISHED)}</div>
       <div class="learn-cta">
         <h2 class="learn-cta-title">Ready to generate your pattern?</h2>
         <a href="/?step=1" class="btn-primary">Browse Patterns</a>
       </div>
     </div>`;
+
+  // Filter logic
+  let activeCat = 'all';
+  const grid = document.getElementById('learn-grid');
+  const searchInput = document.getElementById('learn-search');
+
+  function applyFilters() {
+    const q = (searchInput?.value || '').toLowerCase().trim();
+    const filtered = PUBLISHED.filter(a => {
+      if (activeCat !== 'all' && a.category !== activeCat) return false;
+      if (q && !a.title.toLowerCase().includes(q) && !a.description.toLowerCase().includes(q) &&
+          !(a.tags || []).some(t => t.toLowerCase().includes(q))) return false;
+      return true;
+    });
+    grid.innerHTML = renderCards(filtered) || '<p style="color:var(--mid);padding:24px;text-align:center">No articles match your search.</p>';
+  }
+
+  root.querySelectorAll('.learn-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.learn-pill').forEach(b => b.classList.remove('learn-pill-active'));
+      btn.classList.add('learn-pill-active');
+      activeCat = btn.dataset.cat;
+      applyFilters();
+    });
+  });
+
+  searchInput?.addEventListener('input', applyFilters);
 }
 
 // ── Article ───────────────────────────────────────────────────────────────────
@@ -186,6 +226,7 @@ function renderArticle(slug, ARTICLES, PUBLISHED, root) {
         <span>${article.title}</span>
       </nav>
 
+      <div class="learn-founder-badge">Written by the founder who sews every pattern</div>
       <span class="learn-card-cat">${CATEGORY_LABELS[article.category] || article.category}</span>
       <h1 class="learn-article-title">${article.title}</h1>
 

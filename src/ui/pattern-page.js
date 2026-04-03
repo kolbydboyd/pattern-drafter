@@ -156,7 +156,7 @@ root.innerHTML = `
     <div class="pat-pg-photo-wrap">
       <div class="pat-pg-photo-placeholder">
         <img src="/garment-illustrations/${garmentId}.svg" alt="${garment.name} illustration" class="pat-pg-hero-illustration" width="160" height="200">
-        <span class="pat-pg-photo-coming">Photos coming soon</span>
+        <span class="pat-pg-maker-cta">Be the first featured maker<br><a href="/tester" class="pat-pg-maker-link">Apply to test this pattern &rarr;</a></span>
       </div>
     </div>
 
@@ -170,10 +170,11 @@ root.innerHTML = `
 
       <p class="pat-pg-tagline">Custom-fit sewing pattern drafted to your exact measurements.</p>
 
-      <a href="/?step=1&garment=${garmentId}" class="btn-primary pat-pg-generate-btn">
+      <a href="/?step=1&garment=${garmentId}" class="btn-primary pat-pg-generate-btn pat-pg-generate-lg">
         Generate This Pattern
       </a>
       <p class="pat-pg-generate-note">Enter your measurements and customize. Preview before you buy.</p>
+      <p class="pat-pg-fit-summary">This pattern drafts ${(garment.measurements || []).length} measurements directly from your body. No size chart approximation.</p>
       <div id="pat-pg-as-seen-on" style="display:none"></div>
       <p class="pat-pg-sewists-count" id="pat-pg-sewists-count"></p>
     </div>

@@ -1894,6 +1894,14 @@ window.addEventListener('pp:redownload', e => {
 
 initAuthModal();
 
+// ── Promo banner (logged-out only) ────────────────────────────────────────────
+const _promoBanner = document.getElementById('promo-banner');
+function _updatePromoBanner(user) {
+  if (_promoBanner) _promoBanner.style.display = user ? 'none' : '';
+}
+_updatePromoBanner(getCurrentUser());
+onUserChange(_updatePromoBanner);
+
 // Landing email capture
 document.getElementById('land-email-btn')?.addEventListener('click', async () => {
   const input = document.getElementById('land-email-input');
