@@ -8,7 +8,8 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, LEG_SHAPES, insetCrotchBezier
+  fmtInches, LEG_SHAPES, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -25,17 +26,17 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack'  },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'       },
-        { value: 'wide',    label: 'Wide (+6″)',      reference: 'Margiela, deconstructed' },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack'  },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'       },
+        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed' },
       ],
       default: 'relaxed',
     },
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight - twin needle hem',   reference: 'classic, relaxed'    },
-        { value: 'jogger',   label: 'Jogger - tapered + rib cuff',  reference: 'streetwear, tapered' },
+        { value: 'straight', label: 'Straight, twin needle hem',   reference: 'classic, relaxed'    },
+        { value: 'jogger',   label: 'Jogger, tapered + rib cuff',  reference: 'streetwear, tapered' },
       ],
       default: 'straight',
     },
@@ -56,6 +57,16 @@ export default {
       ],
       default: 'none',
     },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished waistband → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished waistband → 4½″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+    },
     riseStyle: {
       type: 'select', label: 'Rise style',
       values: [
@@ -70,7 +81,7 @@ export default {
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5, step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5, step: 0.25, min: 1,   max: 4   },
-    cbRaise:  { type: 'number', label: 'CB raise',         default: 0.5, step: 0.25, min: 0,   max: 1.5 },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,   max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -103,14 +114,29 @@ export default {
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam   = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
     const isJogger = opts.legStyle === 'jogger';
 
     // For jogger: taper to ~55% of panel width at hem (similar to slim shape)
     const shape = isJogger ? { knee: 0.82, hem: 0.58 } : { knee: 1.0, hem: 1.0 };
 
-    const frontW = m.hip / 4 + easeFront;
-    const backW  = m.hip / 4 + easeBack;
+    let frontW = m.hip / 4 + easeFront;
+    let backW  = m.hip / 4 + easeBack;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[sweatpants] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[sweatpants] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];
@@ -132,12 +158,13 @@ export default {
     }));
 
     // ── WAISTBAND (elastic + drawstring) ──
-    const wbLen   = m.hip + easeVal + sa * 2;
-    const wbWidth = 3.5;  // ~1.75″ finished
+    const wbLen   = (frontW + backW) * 2 + sa * 2;
+    const elasticW = parseFloat(opts.elasticWidth) || 1;
+    const wbWidth = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · Elastic + drawstring casing · Buttonhole/grommet pair at CF`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     });
@@ -150,14 +177,15 @@ export default {
         instruction: 'Cut 4 (2 per side) · Same fabric or lining · {serge} all edges',
         dimensions: { width: 8, height: 9 },
         type: 'pocket',
+        sa,
       });
     }
     if (opts.frontPocket === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match fabric or lining · {serge} before attaching', dimensions: { width: 2, height: 6.5 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric · {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric or lining \xb7 Visible pocket front \xb7 {serge} before attaching' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     // ── RIBBED CUFFS (jogger only) ──
@@ -177,6 +205,7 @@ export default {
         instruction: `Cut 2 from rib knit · ${fmtInches(cuffWidth)} wide × ${fmtInches(cuffHeight)} tall · 80% of hem opening (${fmtInches(hemOpening)}) for stretch recovery`,
         dimensions: { width: cuffWidth, height: cuffHeight },
         type: 'pocket',
+        sa,
       });
     }
 
@@ -192,7 +221,7 @@ export default {
       { ref: 'drawstring',   quantity: `${Math.round(m.waist + 14)}″ - front tie + tails` },
     ];
     if (isJogger) {
-      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs - high recovery stretch' });
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs (high recovery stretch)' });
     }
 
     return buildMaterialsSpec({
@@ -222,6 +251,13 @@ export default {
         step: n++, title: 'Prepare slash pockets',
         detail: '{serge} all pocket bag edges. Mark pocket opening on front and back panels at mid-hip height. Sew pocket bag to front and back panels along opening seam {RST}. {press} bags away from opening. {understitch} if desired. {baste} bags to panel at side seam edges.',
       });
+    }
+
+    if (opts.frontPocket === 'slant') {
+      steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+      steps.push({ step: n++, title: 'Attach pocket to front panel',
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     }
 
     steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join front panels at CF {RST}. Stretch stitch from waist to crotch. {clip} curve. {press} or {serge}.' });
@@ -275,7 +311,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const inseamHemX  = -ext   + hemInward;
 
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
+  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
   poly.push({ x: width,       y: 0      });
   poly.push({ x: sideKneeX,   y: kneeY  });
   poly.push({ x: sideHemX,    y: height });
@@ -285,6 +321,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
+  const hasSlash = !isBack && opts?.frontPocket === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, width, 3.5, 6.5);
+
+  const sideIdx = hasSlash ? 2 : 1;
   const saPoly = offsetPolygon(poly, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
     return -sa;
@@ -302,10 +342,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   const effSeatDepth = seatDepth || 7;
   const notches = [
-    { x: width,        y: effSeatDepth, angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
-    { x: -ext,         y: rise,         angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
-    { x: sideKneeX,    y: kneeY,        angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
-    { x: inseamKneeX,  y: kneeY,        angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
+    { x: width,        y: effSeatDepth,        angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    ...(isBack ? [{ x: width, y: effSeatDepth + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) }] : []),
+    { x: -ext,         y: rise,                angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
+    ...(isBack ? [{ x: -ext, y: rise - 0.25,           angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) }] : []),
+    { x: sideKneeX,    y: kneeY,               angle: edgeAngle({ x: width, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    { x: inseamKneeX,  y: kneeY,               angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
   ];
 
   return {

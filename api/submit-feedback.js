@@ -1,6 +1,9 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Vercel serverless function — store fit feedback in Supabase.
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from './_rate-limit.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 10 });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -12,6 +15,7 @@ const VALID_AREA_VALS = new Set(['perfect', 'too_tight', 'too_loose', 'too_long'
 const AREA_KEYS       = ['waist_fit', 'hip_fit', 'length', 'shoulder', 'armhole', 'chest_fit', 'thigh_fit'];
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   // Auth — extract user from Bearer token
