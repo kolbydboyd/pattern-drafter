@@ -822,6 +822,13 @@ details.adv-meas summary:hover{color:var(--text)}
 .pricing-bundle-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;color:var(--text)}
 .pricing-bundle-price{font-size:1.8rem;font-weight:700;color:var(--text)}
 .pricing-bundle-desc{font-size:.78rem;color:var(--mid);line-height:1.5;flex:1}
+.pricing-curated-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+.pricing-curated-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:8px}
+.pricing-curated-cat{font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}
+.pricing-curated-desc{font-size:.78rem;color:var(--mid);line-height:1.5}
+.pricing-curated-patterns{list-style:none;padding:0;margin:0;font-size:.78rem;color:var(--text);line-height:2;flex:1}
+.pricing-curated-tier{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.58rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:1px 6px;border-radius:3px;margin-right:4px;background:var(--ibg);color:var(--mid)}
+.pricing-curated-savings{font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:.3px}
 .pricing-memberships{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
 .pricing-membership{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:28px 24px;display:flex;flex-direction:column;gap:10px;position:relative}
 .pricing-membership-featured{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}

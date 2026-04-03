@@ -84,6 +84,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Unknown bundle: ${bundleId}` });
     }
 
+    // Curated bundles have fixed garment selections - validate to prevent tampering
+    if (bundle.curated) {
+      const expected = JSON.stringify([...bundle.garmentIds].sort());
+      const received = JSON.stringify([...garmentIds].sort());
+      if (expected !== received) {
+        return res.status(400).json({ error: 'Invalid garment selection for this bundle' });
+      }
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: [{ price: bundle.priceId, quantity: 1 }],
