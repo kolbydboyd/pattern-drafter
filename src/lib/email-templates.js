@@ -1382,3 +1382,278 @@ People's Patterns · ${SITE_URL}`;
     plain,
   };
 }
+
+// ─── 20. Affiliate Application Received ──────────────────────────────────────
+
+export function affiliateApplicationEmail({ name = '', code = '' } = {}) {
+  const subject = 'We received your affiliate application';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Thanks for applying, ${name || 'there'}!
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  We've received your application for the People's Patterns affiliate program. We'll review it within 48 hours.
+</p>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Here's what you applied with:
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${CARD_BG};border-radius:6px;padding:16px;margin-bottom:20px;">
+  <tr>
+    <td style="padding:8px 16px;">
+      <p style="margin:0;font-family:${MONO};font-size:13px;color:#777773;">Your referral code</p>
+      <p style="margin:4px 0 0;font-family:${MONO};font-size:16px;font-weight:600;color:${NEAR_BLACK};">${code}</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Once approved, your unique link will be:
+</p>
+<p style="margin:0 0 20px;font-family:${MONO};font-size:13px;color:${GOLD};word-break:break-all;">
+  ${SITE_URL}/?ref=${code}
+</p>
+
+<p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  We'll email you as soon as your account is activated. In the meantime, feel free to explore the patterns at peoplespatterns.com.
+</p>`;
+
+  const plain = `Thanks for applying, ${name || 'there'}!
+
+We've received your affiliate application. We'll review it within 48 hours.
+
+Your referral code: ${code}
+Your link (once approved): ${SITE_URL}/?ref=${code}
+
+We'll email you as soon as your account is activated.
+
+-
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'Your affiliate application is under review.', subject, body }),
+    plain,
+  };
+}
+
+// ─── 21. Affiliate Approved ──────────────────────────────────────────────────
+
+export function affiliateApprovedEmail({ name = '', code = '', commissionRate = 30 } = {}) {
+  const subject = "You're approved! Your affiliate link is ready";
+  const link = `${SITE_URL}/?ref=${code}`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  You're in, ${name || 'there'}!
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Your People's Patterns affiliate account is now active. You earn ${commissionRate}% commission on every sale you refer.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">
+  Your referral link:
+</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${CARD_BG};border-radius:6px;margin-bottom:20px;">
+  <tr>
+    <td style="padding:12px 16px;">
+      <a href="${link}" style="font-family:${MONO};font-size:14px;color:${GOLD};word-break:break-all;text-decoration:none;">${link}</a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">
+  How it works:
+</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">Share your link in blog posts, YouTube descriptions, social bios, or anywhere your audience hangs out.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">When someone clicks your link and buys a pattern within 30 days, you earn ${commissionRate}% of the sale.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">3.</td>
+          <td>
+            <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">Track your clicks and earnings in your account dashboard. Payouts are sent monthly via PayPal once you reach $20.</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+${btn('View Your Dashboard →', SITE_URL + '/?account=affiliate')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Questions? Reply to this email or reach us at <a href="mailto:hello@peoplespatterns.com" style="color:${GOLD};text-decoration:none;">hello@peoplespatterns.com</a>.
+</p>`;
+
+  const plain = `You're approved, ${name || 'there'}!
+
+Your People's Patterns affiliate account is active. You earn ${commissionRate}% on every sale.
+
+Your referral link: ${link}
+
+How it works:
+1. Share your link in blog posts, YouTube descriptions, social bios, etc.
+2. When someone buys within 30 days of clicking, you earn ${commissionRate}%.
+3. Track earnings in your dashboard. Payouts monthly via PayPal ($20 minimum).
+
+Dashboard: ${SITE_URL}/?account=affiliate
+
+Questions? hello@peoplespatterns.com
+
+-
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `Your affiliate link is live. Earn ${commissionRate}% on every referral.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 22. Affiliate Admin Notification ────────────────────────────────────────
+
+export function affiliateAdminNotifyEmail({ name = '', email = '', code = '', websiteUrl = '', socialHandles = {}, paypalEmail = '' } = {}) {
+  const subject = `New affiliate application: ${name}`;
+
+  const socialList = Object.entries(socialHandles)
+    .filter(([, v]) => v)
+    .map(([k, v]) => `<strong>${k}:</strong> ${v}`)
+    .join('<br>');
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  New affiliate application
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Review and approve in the Supabase dashboard.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${CARD_BG};border-radius:6px;">
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Name</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};font-weight:600;">${name}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Email</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};">${email}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Desired code</p>
+    <p style="margin:2px 0 0;font-family:${MONO};font-size:14px;color:${GOLD};font-weight:600;">${code}</p>
+  </td></tr>
+  ${websiteUrl ? `<tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Website</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};">${websiteUrl}</p>
+  </td></tr>` : ''}
+  ${socialList ? `<tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Social</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:13px;color:${NEAR_BLACK};line-height:1.6;">${socialList}</p>
+  </td></tr>` : ''}
+  ${paypalEmail ? `<tr><td style="padding:12px 16px;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">PayPal email</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};">${paypalEmail}</p>
+  </td></tr>` : ''}
+</table>
+
+<p style="margin:20px 0 0;font-family:${SANS};font-size:13px;color:#777773;">
+  To approve: update the <code>status</code> column to <code>'active'</code> and set <code>approved_at</code> in the Supabase affiliates table.
+</p>`;
+
+  const socialPlain = Object.entries(socialHandles)
+    .filter(([, v]) => v)
+    .map(([k, v]) => `  ${k}: ${v}`)
+    .join('\n');
+
+  const plain = `New affiliate application
+
+Name: ${name}
+Email: ${email}
+Code: ${code}
+Website: ${websiteUrl || 'N/A'}
+${socialPlain ? `Social:\n${socialPlain}` : ''}
+PayPal: ${paypalEmail || 'N/A'}
+
+Approve in Supabase: set status to 'active' and approved_at to now().`;
+
+  return {
+    subject,
+    html: shell({ preheader: `${name} wants to join the affiliate program.`, subject, body }),
+    plain,
+  };
+}
+
+// ─── 23. Affiliate Payout Sent ───────────────────────────────────────────────
+
+export function affiliatePayoutEmail({ name = '', amount = '0.00', method = 'PayPal' } = {}) {
+  const subject = `Your People's Patterns affiliate payout: $${amount}`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Payout sent!
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Hi ${name || 'there'}, we've sent your affiliate commission payout.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${CARD_BG};border-radius:6px;margin-bottom:20px;">
+  <tr>
+    <td style="padding:16px;text-align:center;">
+      <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Amount sent</p>
+      <p style="margin:4px 0 0;font-family:${MONO};font-size:28px;font-weight:700;color:${GOLD};">$${amount}</p>
+      <p style="margin:8px 0 0;font-family:${SANS};font-size:13px;color:#777773;">via ${method}</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Keep sharing your referral link to earn more. You can track your stats any time from your account dashboard.
+</p>
+
+${btn('View Dashboard →', SITE_URL + '/?account=affiliate')}`;
+
+  const plain = `Payout sent!
+
+Amount: $${amount} via ${method}
+
+Keep sharing your referral link to earn more. Track your stats in your dashboard.
+
+Dashboard: ${SITE_URL}/?account=affiliate
+
+-
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: `$${amount} affiliate payout sent via ${method}.`, subject, body }),
+    plain,
+  };
+}

@@ -29,6 +29,15 @@
     },
     "api/redeem-code.js": {
       "memory": 256
+    },
+    "api/affiliate-apply.js": {
+      "memory": 256
+    },
+    "api/affiliate-click.js": {
+      "memory": 256
+    },
+    "api/affiliate-dashboard.js": {
+      "memory": 256
     }
   },
   "redirects": [
@@ -56,7 +65,8 @@
     { "source": "/pricing", "destination": "/pricing.html" },
     { "source": "/redeem", "destination": "/redeem.html" },
     { "source": "/tester", "destination": "/tester.html" },
-    { "source": "/pin-preview", "destination": "/pin-preview.html" }
+    { "source": "/pin-preview", "destination": "/pin-preview.html" },
+    { "source": "/affiliate", "destination": "/affiliate.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" },

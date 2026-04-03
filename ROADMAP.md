@@ -238,6 +238,22 @@ measure → generate → print → tile → cut → sew → finished
 - [ ] Referral program:
       Give a friend a free pattern, get a free pattern
 
+### Affiliate Program — ready to deploy
+Code-complete, built, not yet live. Flip on by running the migration and deploying.
+- [x] Database schema (4 tables: affiliates, clicks, conversions, payouts)
+- [x] Referral tracking via `?ref=CODE` cookie (30-day, first-touch)
+- [x] Public `/affiliate` signup page with application form
+- [x] 3 API endpoints (apply, click, dashboard)
+- [x] Stripe metadata integration (all checkout modes)
+- [x] Webhook conversion recording with self-referral prevention
+- [x] Affiliate tab in account dashboard (link + copy, stats, earnings, conversions table)
+- [x] 4 email templates (application, approved, admin notify, payout)
+- [x] 30% default commission, overridable per affiliate
+- [x] Manual PayPal payouts ($20 minimum threshold)
+- [ ] **To activate:** run `supabase/migrations/004_add_affiliate_program.sql`, deploy
+- [ ] Add `/affiliate` link to site footer
+- [ ] Promote in blog posts, tester emails, social bios
+
 ---
 
 ## B2B Sewing Studio Partnerships (Houston Pilot)

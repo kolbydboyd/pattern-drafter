@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   try {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || 'https://peoplespatterns.com';
-  const { mode = 'pattern' } = req.body;
+  const { mode = 'pattern', affiliateCode = '' } = req.body;
 
   // ── Single pattern checkout ────────────────────────────────────────────────
   if (mode === 'pattern') {
@@ -68,6 +68,7 @@ export default async function handler(req, res) {
         garmentId,
         pendingId:    pendingRow.id,
         a0_addon:     addA0 ? 'true' : 'false',
+        affiliateCode,
       },
     });
 
@@ -95,6 +96,7 @@ export default async function handler(req, res) {
         bundleId,
         garmentIds:   JSON.stringify(garmentIds),
         patternCount: String(bundle.patternCount),
+        affiliateCode,
       },
     });
 
@@ -120,6 +122,7 @@ export default async function handler(req, res) {
         checkoutMode: 'subscription',
         userId:       userId ?? '',
         planId,
+        affiliateCode,
       },
       subscription_data: {
         metadata: {
