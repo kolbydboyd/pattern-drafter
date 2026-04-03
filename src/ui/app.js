@@ -1534,8 +1534,8 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   if (sel) sel.value = currentGarment;
   showWizard();
   buildInputs();
-  generate();
-  goToStep(4);
+  stepsCompleted = 1;
+  goToStep(2);
 }
 
 // Pattern generation counter — fetch once and display
