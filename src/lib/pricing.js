@@ -273,6 +273,17 @@ export const SUBSCRIPTION_PRICES = {
 // ── Legacy alias (used by existing cron-emails.js, stripe-webhook.js) ─────────
 export const SUBSCRIPTION_PRICE = SUBSCRIPTION_PRICES.club_monthly;
 
+// ── Credit packs ─────────────────────────────────────────────────────────────
+export const CREDIT_PACKS = {
+  pack2: {
+    cents:       2200,
+    label:       '2-Credit Pack',
+    priceId:     'price_CREDIT_PACK_2',  // replace with live Stripe price ID
+    creditCount: 2,
+    description: '2 pattern credits - use on any pattern, any tier',
+  },
+};
+
 // ── A0 / copy shop add-on ─────────────────────────────────────────────────────
 export const A0_UPSELL = {
   cents:   400,

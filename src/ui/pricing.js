@@ -54,7 +54,27 @@ async function startSubscriptionCheckout(planId) {
   buySubscription(planId, user.id).catch(err => alert('Checkout failed: ' + err.message));
 }
 
+// ── Credit pack checkout ────────────────────────────────────────────────────
+
+async function startCreditPackCheckout(packId) {
+  trackEvent('credit_pack_cta_clicked', { pack_id: packId });
+  const user = await getUser();
+  if (!user) {
+    openAuthModal('download', () => startCreditPackCheckout(packId));
+    return;
+  }
+  const { buyCreditPack } = await import('../lib/checkout.js');
+  buyCreditPack(packId, user.id).catch(err => alert('Checkout failed: ' + err.message));
+}
+
 // ── Wire buttons ─────────────────────────────────────────────────────────────
+
+document.querySelectorAll('[data-credit-pack]').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    startCreditPackCheckout(btn.dataset.creditPack);
+  });
+});
 
 document.querySelectorAll('[data-bundle]').forEach(btn => {
   btn.addEventListener('click', e => {
