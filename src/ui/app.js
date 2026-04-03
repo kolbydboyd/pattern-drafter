@@ -1884,8 +1884,39 @@ document.getElementById('land-email-btn')?.addEventListener('click', async () =>
   }
 });
 
-// Get Started
+// Get Started / Get Your Pattern — all CTA buttons
 document.getElementById('get-started-btn')?.addEventListener('click', showWizard);
+document.getElementById('hdr-cta-btn')?.addEventListener('click', showWizard);
+document.getElementById('hdr-cta-btn-m')?.addEventListener('click', () => {
+  document.getElementById('hdr-nav-mobile')?.classList.remove('open');
+  showWizard();
+});
+document.querySelectorAll('.lp-cta-btn').forEach(btn => btn.addEventListener('click', showWizard));
+
+// "How It Works" smooth scroll from nav
+function scrollToHowItWorks(e) {
+  const target = document.getElementById('how-it-works');
+  if (!target) return;
+  // Only intercept if we're on the landing page
+  const landing = document.getElementById('landing');
+  if (landing && landing.style.display !== 'none') {
+    e.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('hdr-nav-mobile')?.classList.remove('open');
+  }
+}
+document.getElementById('nav-how-it-works')?.addEventListener('click', scrollToHowItWorks);
+document.getElementById('nav-how-it-works-m')?.addEventListener('click', scrollToHowItWorks);
+
+// Landing page FAQ accordion
+document.getElementById('lp-faq-accordion')?.addEventListener('click', e => {
+  const btn = e.target.closest('.faq-q');
+  if (!btn) return;
+  const item = btn.closest('.faq-item');
+  const isOpen = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', String(!isOpen));
+  item.classList.toggle('open', !isOpen);
+});
 
 // If arriving from /redeem page with a redemption code, open wizard at step 2 with garment locked
 if (_isRedemptionMode && _urlRedeemFlag) {
