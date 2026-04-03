@@ -1,6 +1,17 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Minimal JS for static pages (FAQ, Terms, Privacy) — theme toggle only.
 
+import { inject } from '@vercel/analytics';
+import '../analytics.js';
+import './auth-modal.js';
+import GARMENTS from '../garments/index.js';
+
+inject();
+
+// Inject dynamic garment count on pages that reference it
+const countEl = document.getElementById('about-garment-count');
+if (countEl) countEl.textContent = Object.keys(GARMENTS).length;
+
 function getSavedTheme() {
   try { return localStorage.getItem('theme'); } catch { return null; }
 }

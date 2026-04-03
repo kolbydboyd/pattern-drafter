@@ -54,6 +54,8 @@ export default async function handler(req, res) {
       await handleBundlePurchase(session, stripe);
     } else if (checkoutMode === 'subscription') {
       await handleSubscriptionCreated(session, stripe);
+    } else if (checkoutMode === 'a0_upgrade') {
+      await handleA0Upgrade(session);
     }
   }
 
@@ -113,13 +115,19 @@ async function handlePatternPurchase(session, stripe) {
   });
   if (error) console.error('Failed to insert purchase:', error);
 
-  await supabase.from('orders').insert({
+  const { data: orderRow } = await supabase.from('orders').insert({
     user_id:        userId || null,
     stripe_session: session.id,
     status:         'completed',
     items:          [{ garment_id: garmentId }],
     total_cents:    session.amount_total,
-  });
+  }).select('id').single();
+
+  // Record affiliate conversion if this sale came from a referral link
+  const affiliateCode = session.metadata?.affiliateCode;
+  if (affiliateCode) {
+    await recordAffiliateConversion(affiliateCode, orderRow?.id, userId, session.amount_total);
+  }
 
   await sendPostPurchaseEmail(userId, garmentId, session);
   await markSessionPurchased(userId, garmentId);
@@ -132,6 +140,20 @@ async function handlePatternPurchase(session, stripe) {
   }
 }
 
+// ── A0 copy-shop upgrade ────────────────────────────────────────────────────
+
+async function handleA0Upgrade(session) {
+  const { purchaseId, userId } = session.metadata;
+
+  const { error } = await supabase
+    .from('purchases')
+    .update({ a0_addon: true })
+    .eq('id', purchaseId)
+    .eq('user_id', userId);
+
+  if (error) console.error('Failed to update a0_addon:', error);
+}
+
 // ── Bundle purchase ──────────────────────────────────────────────────────────
 
 async function handleBundlePurchase(session, stripe) {
@@ -139,13 +161,19 @@ async function handleBundlePurchase(session, stripe) {
   const parsedGarmentIds = garmentIds ? JSON.parse(garmentIds) : [];
   const creditCount = parseInt(patternCount, 10) || 0;
 
-  await supabase.from('orders').insert({
+  const { data: bundleOrderRow } = await supabase.from('orders').insert({
     user_id:        userId || null,
     stripe_session: session.id,
     status:         'completed',
     items:          [{ bundle_id: bundleId, garment_ids: parsedGarmentIds }],
     total_cents:    session.amount_total,
-  });
+  }).select('id').single();
+
+  // Record affiliate conversion if this sale came from a referral link
+  const bundleAffiliateCode = session.metadata?.affiliateCode;
+  if (bundleAffiliateCode) {
+    await recordAffiliateConversion(bundleAffiliateCode, bundleOrderRow?.id, userId, session.amount_total);
+  }
 
   // If the user pre-selected garments, record them as purchases now.
   // Otherwise, add bundle credits so they can redeem later.
@@ -217,13 +245,19 @@ async function handleSubscriptionCreated(session, stripe) {
     current_credits:      plan?.credits ?? 0,
   });
 
-  await supabase.from('orders').insert({
+  const { data: subOrderRow } = await supabase.from('orders').insert({
     user_id:        userId,
     stripe_session: session.id,
     status:         'completed',
     items:          [{ subscription: planId }],
     total_cents:    session.amount_total,
-  });
+  }).select('id').single();
+
+  // Record affiliate conversion (first payment only, not renewals)
+  const subAffiliateCode = session.metadata?.affiliateCode;
+  if (subAffiliateCode) {
+    await recordAffiliateConversion(subAffiliateCode, subOrderRow?.id, userId, session.amount_total);
+  }
 
   const email = await getUserEmail(userId);
   if (email) {
@@ -341,6 +375,43 @@ async function handleCartAbandon(session) {
         }))
         .catch(err => console.error('Cart abandon email failed:', err));
     }
+  }
+}
+
+// ── Affiliate conversion recording ──────────────────────────────────────────
+
+async function recordAffiliateConversion(code, orderId, buyerUserId, amountCents) {
+  if (!code) return;
+
+  const { data: affiliate } = await supabase
+    .from('affiliates')
+    .select('id, user_id, commission_rate')
+    .eq('code', code)
+    .eq('status', 'active')
+    .single();
+  if (!affiliate) return;
+
+  // Prevent self-referral
+  if (affiliate.user_id && affiliate.user_id === buyerUserId) return;
+
+  const commissionCents = Math.round(amountCents * Number(affiliate.commission_rate));
+
+  await supabase.from('affiliate_conversions').insert({
+    affiliate_id:      affiliate.id,
+    order_id:          orderId || null,
+    customer_user_id:  buyerUserId || null,
+    order_total_cents: amountCents,
+    commission_cents:  commissionCents,
+    commission_rate:   affiliate.commission_rate,
+    status:            'pending',
+  });
+
+  // Tag the order with the affiliate
+  if (orderId) {
+    supabase.from('orders')
+      .update({ affiliate_id: affiliate.id })
+      .eq('id', orderId)
+      .then(() => {}).catch(() => {});
   }
 }
 

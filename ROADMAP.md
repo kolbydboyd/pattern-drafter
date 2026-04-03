@@ -166,13 +166,27 @@ Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
 - [ ] Create individual pattern pages with SEO meta tags
 - [ ] Post branded avatars and banners to all social accounts
 
-### Email Flows (templates exist, verify sequences work)
-- [ ] Welcome sequence:
-      Email 1: "Here's how to measure yourself"
-      Email 2: "Your first pattern — what to expect"
-      Email 3: "How tiled PDFs work"
-- [ ] Generated-not-purchased follow-up
-- [ ] Post-sew fit feedback request
+### Email Flows (ready to implement - code complete, not yet live)
+- [x] Email opt-in UI after free pattern redemption + paid purchases
+- [x] 5-email welcome sequence (Day 0/2/5/9/13):
+      Email 1: "You're in - here's what to expect"
+      Email 2: "3 tips for a perfect first make"
+      Email 3: "How to read your pattern pieces"
+      Email 4: "New patterns + what testers are sewing"
+      Email 5: "Your next pattern, 20% off"
+- [x] Weekly digest (new articles + tester calls, Sundays)
+- [x] Abandoned pattern reminders with credit pack CTA
+- [x] Landing page newsletter copy updated ("Weekly fit tips + new pattern drops")
+- [x] All email templates, dispatcher cases, and cron triggers built
+- [ ] **To activate:** run `supabase/migrations/004_email_marketing.sql`,
+      create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in pricing.js
+- [x] Generated-not-purchased follow-up
+- [x] Post-sew fit feedback request
+
+### Credit Packs (ready to implement - code complete, not yet live)
+- [x] 2-credit pack at $22 (any tier, never expire)
+- [x] Checkout flow, webhook fulfillment, pricing page section
+- [ ] **To activate:** create Stripe price ID and update `src/lib/pricing.js`
 
 ### Privacy / Technical
 - [ ] Move body measurements out of Stripe session metadata
@@ -223,6 +237,77 @@ measure → generate → print → tile → cut → sew → finished
       with 5k–50k followers
 - [ ] Referral program:
       Give a friend a free pattern, get a free pattern
+
+### Affiliate Program — ready to deploy
+Code-complete, built, not yet live. Flip on by running the migration and deploying.
+- [x] Database schema (4 tables: affiliates, clicks, conversions, payouts)
+- [x] Referral tracking via `?ref=CODE` cookie (30-day, first-touch)
+- [x] Public `/affiliate` signup page with application form
+- [x] 3 API endpoints (apply, click, dashboard)
+- [x] Stripe metadata integration (all checkout modes)
+- [x] Webhook conversion recording with self-referral prevention
+- [x] Affiliate tab in account dashboard (link + copy, stats, earnings, conversions table)
+- [x] 4 email templates (application, approved, admin notify, payout)
+- [x] 30% default commission, overridable per affiliate
+- [x] Manual PayPal payouts ($20 minimum threshold)
+- [ ] **To activate:** run `supabase/migrations/004_add_affiliate_program.sql`, deploy
+- [ ] Add `/affiliate` link to site footer
+- [ ] Promote in blog posts, tester emails, social bios
+
+---
+
+## B2B Sewing Studio Partnerships (Houston Pilot)
+
+**Goal:** Get sewing schools to integrate People's Patterns into their curriculum — students
+generate custom-fit patterns from their own measurements as part of class.
+
+### Target Studios
+
+- **HTX Sewn Goods** — 9,000 sq ft textile lab, $3k 10-week courses, multiple class
+  levels, membership model coming
+- **The Little Sewing Room** (Spring, TX) — professional instructors
+  (theater/film/garment industry backgrounds), teaches pattern drafting, draping,
+  tutoring
+- **Thimble Fingers** — pattern fitting classes (Sure-Fit Designs system), supervised
+  sewing sessions, flexible self-paced format
+
+### Go-to-Market
+
+- Welcome kit with ~50–60 brochures per studio. Each brochure has a
+  sticker with a unique code giving the student free credit (e.g., 1 pattern generation).
+- Students sign up, take measurements, pick a garment, generate a pattern, and sew it in
+  class.
+
+### Pricing (TBD)
+
+- Could be per-student seat license, flat institutional subscription, or
+  revenue share bundled into tuition
+
+### Why This Matters Beyond Revenue
+
+Dozens of sewists at varied body types generating and sewing patterns in a supervised
+environment = massive structured fit feedback. Instructors present to diagnose issues
+in real-time.
+
+### Long Term
+
+Template for national replication via cold outreach to sewing schools/studios
+across the country.
+
+### Prerequisite
+
+Finished muslins as proof of concept. Walk in with a garment you made
+from your own app.
+
+---
+
+## Local Community Presence
+
+- Attend classes at Houston sewing studios (Thimble Fingers supervised sessions,
+  HTX Sewn Goods workshops) to get fitting feedback on muslins and naturally introduce
+  People's Patterns to other sewists
+- Library makerspaces (Houston Public Library TECHLink, HCPL Maker Central) for free
+  sewing machine access
 
 ---
 
