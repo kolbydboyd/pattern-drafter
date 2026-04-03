@@ -897,8 +897,8 @@ html:has(#landing:not([style*="display:none"])),body:has(#landing:not([style*="d
 .pricing-bundle-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;color:var(--text)}
 .pricing-bundle-price{font-size:1.8rem;font-weight:700;color:var(--text)}
 .pricing-bundle-desc{font-size:.78rem;color:var(--mid);line-height:1.5;flex:1}
-.pricing-curated-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-.pricing-curated-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:8px}
+.pricing-curated-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:20px}
+.pricing-curated-card{width:240px;flex:0 1 240px;background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:8px}
 .pricing-curated-cat{font-family:'IBM Plex Mono',monospace;font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}
 .pricing-curated-desc{font-size:.78rem;color:var(--mid);line-height:1.5}
 .pricing-curated-patterns{list-style:none;padding:0;margin:0;font-size:.78rem;color:var(--text);line-height:2;flex:1}
@@ -979,7 +979,8 @@ html:has(#landing:not([style*="display:none"])),body:has(#landing:not([style*="d
 .tester-hero-sub{font-size:.83rem;color:var(--mid);letter-spacing:.5px;max-width:500px;margin:0 auto}
 .tester-section{margin-bottom:40px}
 .tester-section-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;color:var(--text);margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
-.tester-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}
+.tester-steps{display:flex;flex-wrap:wrap;justify-content:center;gap:16px}
+.tester-step{width:200px;flex:0 1 200px}
 .tester-step{background:var(--card);border:1px solid var(--bdr);border-radius:6px;padding:20px 18px}
 .tester-step-num{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:2px}
 .tester-step-title{font-family:'Fraunces',serif;font-size:.9rem;font-weight:400;color:var(--text);margin:6px 0 6px}
