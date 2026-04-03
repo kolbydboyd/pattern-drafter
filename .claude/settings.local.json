@@ -65,7 +65,8 @@
       "mcp__Claude_Preview__preview_start",
       "WebSearch",
       "Bash(\"C:/Users/black/OneDrive/Desktop/pattern-drafter/.claude/worktrees/jovial-torvalds/.env.local\")",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(npx vite:*)"
     ]
   }
 }

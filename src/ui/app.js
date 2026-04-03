@@ -1977,6 +1977,9 @@ else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   if (sel) sel.value = currentGarment;
   showWizard();
   buildInputs();
+  buildMeasureStep();
+  buildOptionsStep();
+  renderedGarment = currentGarment;
   stepsCompleted = 1;
   goToStep(2);
 }
