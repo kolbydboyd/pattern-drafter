@@ -1,6 +1,9 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 
-const SITE_URL   = 'https://peoplespatterns.com';
+import GARMENTS from '../garments/index.js';
+
+const SITE_URL       = 'https://peoplespatterns.com';
+const GARMENT_COUNT  = Object.keys(GARMENTS).length;
 const GOLD       = '#c9a96e';
 const NEAR_BLACK = '#2c2a26';
 const BG         = '#f5f3ef';
@@ -132,7 +135,7 @@ export function welcomeEmail({ name = '' } = {}) {
           <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
           <td>
             <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Choose your garment</p>
-            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">23 patterns and growing. Every one drafted to your body, not a size chart.</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">${GARMENT_COUNT} patterns and growing. Every one drafted to your body, not a size chart.</p>
           </td>
         </tr>
       </table>
@@ -166,7 +169,7 @@ ${rule()}
 Made-to-measure patterns, starting at $7.
 
 1. Enter your measurements once - takes 3 minutes.
-2. Choose your garment - 23 patterns drafted to your body.
+2. Choose your garment - ${GARMENT_COUNT} patterns drafted to your body.
 3. Print and sew - tiles to standard printer paper.
 
 Start here: ${SITE_URL}
@@ -850,7 +853,7 @@ export function bundlePurchasedEmail({ bundleId = '', patternCount = 0, selected
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
-  ${bundleName} — purchased.
+  ${bundleName}: purchased.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
   ${patternCount} pattern credits have been added to your account.${remaining > 0 ? ` ${remaining} ready to use whenever you are.` : ''}
@@ -868,7 +871,7 @@ export function bundlePurchasedEmail({ bundleId = '', patternCount = 0, selected
           <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
           <td>
             <p style="margin:0;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">Pick any pattern, any tier</p>
-            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Your credits work on everything — Simple, Core, or Tailored.</p>
+            <p style="margin:4px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">Your credits work on everything: Simple, Core, or Tailored.</p>
           </td>
         </tr>
       </table>
@@ -908,13 +911,12 @@ ${btn('Choose Your Patterns →', SITE_URL + '/?step=1')}`;
 
 ${patternCount} pattern credits have been added to your account.
 
-1. Pick any pattern, any tier — credits work on everything.
-2. Enter measurements, generate — same measurements across all patterns.
-3. Credits never expire — use them whenever you're ready.
+1. Pick any pattern, any tier. Credits work on everything.
+2. Enter measurements, generate. Same measurements across all patterns.
+3. Credits never expire. Use them whenever you're ready.
 
 Choose your patterns: ${SITE_URL}/?step=1
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -936,7 +938,7 @@ export function subscriptionWelcomeEmail({ planId = '', credits = 0 } = {}) {
     club_monthly: 'Club', club_annual: 'Club Annual',
     wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
   }[planId] || 'Membership';
-  const subject = `Welcome to ${planName} — ${credits} credits ready`;
+  const subject = `Welcome to ${planName}: ${credits} credits ready`;
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
@@ -958,7 +960,7 @@ export function subscriptionWelcomeEmail({ planId = '', credits = 0 } = {}) {
   </tr>
   <tr>
     <td style="padding:8px 0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
-      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Any pattern, any tier — no restrictions
+      <span style="color:${GOLD};font-weight:700;">+</span> &nbsp;Any pattern, any tier, no restrictions
     </td>
   </tr>
   <tr>
@@ -995,13 +997,12 @@ Generate your first pattern: ${SITE_URL}/?step=1
 
 Manage your subscription: ${SITE_URL}/?account=subscription
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
     subject,
     html: shell({
-      preheader: `${planName} is active — ${credits} credits ready to use.`,
+      preheader: `${planName} is active. ${credits} credits ready to use.`,
       subject,
       body,
       footerExtra: `You're receiving this because you subscribed at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
@@ -1017,14 +1018,14 @@ export function subscriptionRenewedEmail({ planId = '', newCredits = 0, totalCre
     club_monthly: 'Club', club_annual: 'Club Annual',
     wardrobe_monthly: 'Wardrobe', wardrobe_annual: 'Wardrobe Annual',
   }[planId] || 'Membership';
-  const subject = `${newCredits} new credits added — ${totalCredits} total`;
+  const subject = `${newCredits} new credits added (${totalCredits} total)`;
 
   const body = `
 <p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
   Credits refilled.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
-  Your ${planName} membership renewed. ${newCredits} new credit${newCredits !== 1 ? 's' : ''} added — you now have <strong style="color:${NEAR_BLACK};">${totalCredits} total</strong>.
+  Your ${planName} membership renewed. ${newCredits} new credit${newCredits !== 1 ? 's' : ''} added. You now have <strong style="color:${NEAR_BLACK};">${totalCredits} total</strong>.
 </p>
 
 <p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
@@ -1041,7 +1042,7 @@ ${rule()}
 
   const plain = `Credits refilled
 
-Your ${planName} membership renewed. ${newCredits} new credits added — you now have ${totalCredits} total.
+Your ${planName} membership renewed. ${newCredits} new credits added. You now have ${totalCredits} total.
 
 Unused credits from last month rolled over automatically.
 
@@ -1049,7 +1050,6 @@ Use a credit: ${SITE_URL}/?step=1
 
 Manage your plan: ${SITE_URL}/?account=subscription
 
-—
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -1074,7 +1074,7 @@ export function subscriptionCanceledEmail() {
   Subscription canceled.
 </p>
 <p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
-  Your membership won't renew. Any remaining credits are still in your account - they're yours to use whenever you're ready.
+  Your membership won't renew. Any remaining credits are still in your account. They're yours to use whenever you're ready.
 </p>
 
 <p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
@@ -1090,12 +1090,12 @@ ${btn('Use Remaining Credits →', SITE_URL + '/?step=1')}
 ${rule()}
 
 <p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
-  Individual patterns are always available at <a href="${SITE_URL}/pricing" style="color:${GOLD};text-decoration:none;font-weight:600;">$9-19 each</a>.
+  Individual patterns are always available at <a href="${SITE_URL}/pricing" style="color:${GOLD};text-decoration:none;font-weight:600;">$9–19 each</a>.
 </p>`;
 
   const plain = `Subscription canceled
 
-Your membership won't renew. Any remaining credits are still in your account - use them whenever you're ready.
+Your membership won't renew. Any remaining credits are still in your account. Use them whenever you're ready.
 
 All patterns you've downloaded are permanently saved in My Patterns.
 
@@ -1105,7 +1105,6 @@ Use remaining credits: ${SITE_URL}/?step=1
 
 Individual patterns always available: ${SITE_URL}/pricing
 
--
 People's Patterns · ${SITE_URL}`;
 
   return {
@@ -1120,7 +1119,271 @@ People's Patterns · ${SITE_URL}`;
   };
 }
 
-// ─── 15. Affiliate Application Received ──────────────────────────────────────
+// ─── Pattern Tester Program Emails ────────────────────────────────────────────
+
+export function testerApplicationReceivedEmail({ name = '' } = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,';
+  const subject  = "We got your tester application";
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Thanks for applying to the People's Patterns Tester Program. We review applications weekly and will be in touch soon.
+</p>
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">
+  What happens next:
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;">We review your experience and availability</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;">If approved, you'll get a free pattern credit and a garment assignment</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">3.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;">Sew a muslin, submit fit feedback + photos, and get featured</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`;
+
+  const plain = `Thanks for applying to the People's Patterns Tester Program.
+
+We review applications weekly and will be in touch soon.
+
+What happens next:
+1. We review your experience and availability
+2. If approved, you get a free pattern credit and a garment assignment
+3. Sew a muslin, submit fit feedback + photos, and get featured
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'Your tester application is in — we\'ll review it shortly.', subject, body }),
+    plain,
+  };
+}
+
+export function testerApprovedEmail({ name = '', garmentName = '' } = {}) {
+  const greeting = name ? `Hi ${name},` : 'Congrats,';
+  const subject  = "You're in — welcome to the Tester Program";
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  You've been accepted into the People's Patterns Tester Program. A free pattern credit has been added to your account${garmentName ? `, and your first assignment is the <strong>${garmentName}</strong>` : ''}.
+</p>
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:14px;font-weight:600;color:${NEAR_BLACK};">
+  Your tester checklist:
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">1.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;"><strong>Generate your pattern</strong> — use your free credit from the wizard</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">2.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;"><strong>Sew a muslin first</strong> — cheap fabric, no finishing needed</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">3.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;"><strong>Submit feedback + photos</strong> — from your account dashboard</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 0 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td width="36" valign="top" style="font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};padding-top:2px;">4.</td>
+          <td><p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;"><strong>Get featured</strong> — opt in and we'll showcase your make on the site + socials</p></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:16px 0 0;font-family:${SANS};font-size:13px;color:#777773;line-height:1.5;">
+  You have 30 days from today to complete your assignment. Head to your account dashboard to get started.
+</p>
+
+${btn('Open My Dashboard →', SITE_URL + '/?account=tester')}`;
+
+  const plain = `You've been accepted into the People's Patterns Tester Program!
+
+A free pattern credit has been added to your account${garmentName ? `. Your first assignment: ${garmentName}` : ''}.
+
+Your tester checklist:
+1. Generate your pattern — use your free credit from the wizard
+2. Sew a muslin first — cheap fabric, no finishing needed
+3. Submit feedback + photos — from your account dashboard
+4. Get featured — opt in and we'll showcase your make
+
+You have 30 days to complete your assignment.
+
+Open your dashboard: ${SITE_URL}/?account=tester
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'You\'re in! A free credit + your first tester assignment are ready.', subject, body }),
+    plain,
+  };
+}
+
+export function testerRejectedEmail({ name = '' } = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,';
+  const subject  = "Update on your tester application";
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Thanks for your interest in the Tester Program. We're not able to accept your application at this time — we had more applicants than spots available.
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  You're welcome to re-apply in the future when we open more slots. In the meantime, your first pattern is still free with your account.
+</p>
+
+${btn('Browse Patterns →', SITE_URL + '/patterns')}`;
+
+  const plain = `Thanks for your interest in the Tester Program.
+
+We're not able to accept your application at this time — we had more applicants than spots available.
+
+You're welcome to re-apply in the future. Your first pattern is still free.
+
+Browse patterns: ${SITE_URL}/patterns
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'Update on your tester application.', subject, body }),
+    plain,
+  };
+}
+
+export function testerSubmissionReceivedEmail({ name = '', garmentName = '' } = {}) {
+  const greeting = name ? `Hi ${name},` : 'Hi there,';
+  const subject  = "Your tester feedback is in — thank you!";
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  We received your fit feedback${garmentName ? ` for the <strong>${garmentName}</strong>` : ''}. Your input directly improves our patterns for everyone.
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  If you opted in to be featured, we'll reach out before publishing your photos on the site or social media.
+</p>
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Check the status of your assignments in <a href="${SITE_URL}/?account=tester" style="color:${GOLD};text-decoration:none;font-weight:600;">your dashboard →</a>
+</p>`;
+
+  const plain = `We received your fit feedback${garmentName ? ` for the ${garmentName}` : ''}.
+
+Your input directly improves our patterns for everyone.
+
+If you opted in to be featured, we'll reach out before publishing.
+
+Check your dashboard: ${SITE_URL}/?account=tester
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'Your tester feedback is in. Thank you for helping improve our patterns!', subject, body }),
+    plain,
+  };
+}
+
+export function testerFeaturedEmail({ name = '', garmentName = '' } = {}) {
+  const greeting = name ? `Hi ${name},` : 'Great news,';
+  const subject  = "Your make has been featured!";
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  ${greeting}
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Your ${garmentName ? `<strong>${garmentName}</strong> ` : ''}photos are now live on our Tester Gallery! Thank you for being part of the program.
+</p>
+
+${btn('See the Gallery →', SITE_URL + '/tester#gallery')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Tag us <strong>@peoplespatterns</strong> if you share — we love to re-share tester makes.
+</p>`;
+
+  const plain = `Your ${garmentName ? `${garmentName} ` : ''}photos are now live on our Tester Gallery!
+
+See the gallery: ${SITE_URL}/tester#gallery
+
+Tag us @peoplespatterns if you share — we love to re-share tester makes.
+
+People's Patterns · ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({ preheader: 'Your make is live on the People\'s Patterns Tester Gallery!', subject, body }),
+    plain,
+  };
+}
+
+// ─── 20. Affiliate Application Received ──────────────────────────────────────
 
 export function affiliateApplicationEmail({ name = '', code = '' } = {}) {
   const subject = 'We received your affiliate application';
@@ -1176,7 +1439,7 @@ People's Patterns · ${SITE_URL}`;
   };
 }
 
-// ─── 16. Affiliate Approved ──────────────────────────────────────────────────
+// ─── 21. Affiliate Approved ──────────────────────────────────────────────────
 
 export function affiliateApprovedEmail({ name = '', code = '', commissionRate = 30 } = {}) {
   const subject = "You're approved! Your affiliate link is ready";
@@ -1276,7 +1539,7 @@ People's Patterns · ${SITE_URL}`;
   };
 }
 
-// ─── 17. Affiliate Admin Notification ────────────────────────────────────────
+// ─── 22. Affiliate Admin Notification ────────────────────────────────────────
 
 export function affiliateAdminNotifyEmail({ name = '', email = '', code = '', websiteUrl = '', socialHandles = {}, paypalEmail = '' } = {}) {
   const subject = `New affiliate application: ${name}`;
@@ -1348,7 +1611,7 @@ Approve in Supabase: set status to 'active' and approved_at to now().`;
   };
 }
 
-// ─── 18. Affiliate Payout Sent ───────────────────────────────────────────────
+// ─── 23. Affiliate Payout Sent ───────────────────────────────────────────────
 
 export function affiliatePayoutEmail({ name = '', amount = '0.00', method = 'PayPal' } = {}) {
   const subject = `Your People's Patterns affiliate payout: $${amount}`;

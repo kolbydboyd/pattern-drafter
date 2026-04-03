@@ -4,7 +4,8 @@ Made-to-measure sewing patterns. Input your measurements, choose your garment ty
 
 **[peoplespatterns.com](https://peoplespatterns.com) · [@peoplespatterns](https://instagram.com/peoplespatterns)**
 
-> This repository is **private and proprietary**. See [License](#license) below.
+> This repository is **private and proprietary**.
+See [License](#license) below.
 
 ## Quick Start
 
@@ -21,8 +22,8 @@ npm run build   # production build to /dist
 | Frontend | Vite + vanilla JS (ES modules) | Wizard UI, SVG pattern rendering, measurement input |
 | Auth & DB | Supabase | User accounts, purchase records, wishlists, newsletter signups |
 | Payments | Stripe | Checkout sessions, webhooks, subscription and per-pattern purchases |
-| Email | Resend | Transactional emails (purchase confirmation, welcome, download links) |
-| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list`, `/api/affiliate-*` |
+| Email | Resend | Transactional + marketing emails (welcome sequence, weekly digest, abandoned pattern reminders) |
+| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list`, `/api/email-opt-in`, `/api/cron-emails`, `/api/affiliate-*` |
 | Hosting | Vercel | Auto-deploys on push to main |
 
 ## Environment Variables
@@ -40,6 +41,7 @@ The following environment variables are required for full functionality:
 | `VITE_SUPABASE_URL` | Client | Supabase project URL (browser-side auth) |
 | `VITE_SUPABASE_ANON_KEY` | Client | Supabase anonymous key (browser-side auth) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Client | Stripe publishable key (Checkout.js redirect) |
+| `VITE_SENTRY_DSN` | Client | Sentry DSN for error monitoring (optional — omit to disable) |
 
 Server variables are set in Vercel project settings. Client variables (prefixed `VITE_`) are embedded at build time.
 
@@ -94,14 +96,18 @@ src/
   lib/
     supabase.js          # Supabase client init + auth helpers
     db.js                # DB queries (purchases, wishlists, downloads)
-    email-templates.js   # HTML email templates (welcome, purchase confirmation)
+    email-templates.js   # HTML email templates (welcome sequence, digest, abandoned pattern, purchase confirmation)
+    pricing.js           # Tier, bundle, credit pack, and subscription price definitions
     affiliate.js         # Referral cookie tracking (?ref= param, 30-day first-touch)
-    checkout.js          # Client-side checkout helpers (pattern, bundle, subscription)
+    checkout.js          # Client-side checkout helpers (pattern, bundle, credit pack, subscription)
 api/
-  checkout.js            # Stripe checkout session creation
+  create-checkout.js     # Stripe checkout session creation (pattern, bundle, credit pack, subscription)
   stripe-webhook.js      # Stripe webhook handler (payment confirmation, DB writes)
   generate-pattern.js    # PDF generation + download (purchase-verified, rate-limited)
-  join-list.js           # Newsletter email capture
+  join-list.js           # Newsletter email capture + welcome sequence enrollment
+  email-opt-in.js        # Marketing email opt-in + welcome sequence enrollment
+  send-email.js          # Email dispatcher via Resend (21 template types)
+  cron-emails.js         # Daily cron: welcome drips, weekly digest, abandoned pattern reminders
   affiliate-apply.js     # Affiliate program application handler
   affiliate-click.js     # Referral click recording
   affiliate-dashboard.js # Affiliate stats API (clicks, conversions, earnings)
@@ -166,7 +172,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `pleated-trousers` | Pleated Trousers | done |
 | `sweatpants` | Sweatpants | done |
 
-### Menswear · Tops (5)
+### Menswear · Tops (6)
 | Module | Garment | Status |
 |---|---|---|
 | `tee` | T-Shirt | done |
@@ -174,6 +180,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `crewneck` | Crewneck Sweatshirt | done |
 | `hoodie` | Hoodie | done |
 | `crop-jacket` | Crop Jacket | done |
+| `denim-jacket` | Denim Jacket | done |
 
 ### Womenswear · Bottoms (5)
 | Module | Garment | Status |
