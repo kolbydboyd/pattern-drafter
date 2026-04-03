@@ -93,18 +93,37 @@ manufacturer has this. It becomes a licensable asset.
 - [ ] Create individual pattern pages with SEO meta tags
 - [ ] Post branded avatars and banners to all social accounts
 
-### Email Flows (templates exist, verify sequences work)
-- [ ] Welcome sequence:
-      Email 1: "Here's how to measure yourself"
-      Email 2: "Your first pattern — what to expect"
-      Email 3: "How tiled PDFs work"
-- [ ] Generated-not-purchased follow-up
-- [ ] Post-sew fit feedback request
+### Email Flows - ready to implement (code complete, not yet live)
+- [x] 5-email welcome sequence (Days 0/2/5/9/13):
+      Day 0: "Welcome! How to measure yourself"
+      Day 2: "Your first pattern - what to expect"
+      Day 5: "How tiled PDFs work"
+      Day 9: "3 patterns beginners love"
+      Day 13: "Fit tips from the community"
+- [x] Email opt-in UI after free pattern redemption + paid purchase success
+- [x] Weekly digest (new articles + tester calls, Sundays)
+- [x] Abandoned pattern reminders (3-7 days, 25% off credit pack)
+- [x] Landing page copy: "Weekly fit tips + new pattern drops"
+- [x] join-list.js upgraded to full welcome sequence enrollment
+- [x] Generated-not-purchased follow-up
+- [x] Post-sew fit feedback request
+
+**To activate:**
+1. Run migration `004_email_marketing.sql` in Supabase
+2. Create Stripe price for 2-credit pack, update `price_CREDIT_PACK_2` in `pricing.js`
+3. Create Stripe promotion code `FIRSTPACK25` (25% off credit packs)
+
+### Credit Packs - ready to implement (code complete, not yet live)
+- [x] 2-Credit Pack at $22 ($11/credit)
+- [x] Checkout flow (create-checkout.js, stripe-webhook.js)
+- [x] Pricing page section between bundles and memberships
+- [x] Success page display
+- [x] Abandoned pattern reminder ties into credit pack upsell
 
 ### Privacy / Technical
-- [ ] Move body measurements out of Stripe session metadata
+- [x] Move body measurements out of Stripe session metadata
       (store only in Supabase, pass reference ID to Stripe)
-- [ ] Document required schema state or use proper Supabase migrations
+- [x] Document required schema state or use proper Supabase migrations
 
 ---
 

@@ -2,7 +2,7 @@
 // Returns metadata for a completed Stripe Checkout session (garment name, amount).
 // Supports single pattern, bundle, and subscription sessions.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, BUNDLES, SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -77,6 +77,23 @@ export default async function handler(req, res) {
       sessionId:    session_id,
       status:       session.payment_status,
       subscriptionId: session.subscription || null,
+    });
+  }
+
+  // ── Credit pack ────────────────────────────────────────────────────────────
+  if (checkoutMode === 'credit_pack') {
+    const { packId, userId, creditCount } = meta;
+    const pack = CREDIT_PACKS[packId];
+
+    return res.status(200).json({
+      checkoutMode: 'credit_pack',
+      packId,
+      packName:     pack?.label ?? packId,
+      creditCount:  parseInt(creditCount, 10) || 0,
+      amountCents:  session.amount_total,
+      userId:       userId || null,
+      sessionId:    session_id,
+      status:       session.payment_status,
     });
   }
 

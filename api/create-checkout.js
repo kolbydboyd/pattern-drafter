@@ -2,7 +2,7 @@
 // Vercel serverless function — creates a Stripe Checkout session
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -122,6 +122,32 @@ export default async function handler(req, res) {
           planId,
           credits:  String(plan.credits),
         },
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
+  // ── Credit pack checkout ────────────────────────────────────────────────
+  if (mode === 'credit_pack') {
+    const { packId, userId } = req.body;
+
+    const pack = CREDIT_PACKS[packId];
+    if (!pack) {
+      return res.status(400).json({ error: `Unknown credit pack: ${packId}` });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: pack.priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/pricing`,
+      metadata: {
+        checkoutMode: 'credit_pack',
+        userId:       userId ?? '',
+        packId,
+        creditCount:  String(pack.creditCount),
       },
     });
 

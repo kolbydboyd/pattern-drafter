@@ -16,6 +16,13 @@ import {
   subscriptionWelcomeEmail,
   subscriptionRenewedEmail,
   subscriptionCanceledEmail,
+  welcomeSequenceDay0Email,
+  welcomeSequenceDay2Email,
+  welcomeSequenceDay5Email,
+  welcomeSequenceDay9Email,
+  welcomeSequenceDay13Email,
+  weeklyDigestEmail,
+  abandonedPatternReminderEmail,
 } from '../src/lib/email-templates.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -66,6 +73,27 @@ export async function sendEmail(type, to, data = {}) {
       break;
     case 'SUBSCRIPTION_CANCELED':
       tmpl = subscriptionCanceledEmail(data);
+      break;
+    case 'WELCOME_SEQUENCE_DAY_0':
+      tmpl = welcomeSequenceDay0Email(data);
+      break;
+    case 'WELCOME_SEQUENCE_DAY_2':
+      tmpl = welcomeSequenceDay2Email(data);
+      break;
+    case 'WELCOME_SEQUENCE_DAY_5':
+      tmpl = welcomeSequenceDay5Email(data);
+      break;
+    case 'WELCOME_SEQUENCE_DAY_9':
+      tmpl = welcomeSequenceDay9Email(data);
+      break;
+    case 'WELCOME_SEQUENCE_DAY_13':
+      tmpl = welcomeSequenceDay13Email(data);
+      break;
+    case 'WEEKLY_DIGEST':
+      tmpl = weeklyDigestEmail(data);
+      break;
+    case 'ABANDONED_PATTERN_REMINDER':
+      tmpl = abandonedPatternReminderEmail(data);
       break;
     default:
       throw new Error(`Unknown email type: ${type}`);

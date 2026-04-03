@@ -19,6 +19,9 @@
     },
     "api/join-list.js": {
       "memory": 256
+    },
+    "api/email-opt-in.js": {
+      "memory": 256
     }
   },
   "rewrites": [

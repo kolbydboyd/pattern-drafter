@@ -789,6 +789,7 @@ async function _applyWatermarkState(garmentId) {
         _currentPurchased = true;
         removeWatermarks(output);
         banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
+        _showEmailOptIn(getCurrentUser()?.email);
         handleDownloadPDF(btn);
       });
     } else {
@@ -895,6 +896,7 @@ function _showFreeSignupModal(garmentId) {
       const label = price?.label ?? 'this pattern';
       banner.innerHTML = `<span class="wm-banner-text" style="color:var(--gold)">Free credit used - your next pattern starts at $9. <strong>${label}</strong> is now in your account.</span>`;
     }
+    _showEmailOptIn(email);
 
     // Trigger download
     const dummyBtn = document.createElement('button');
@@ -905,6 +907,52 @@ function _showFreeSignupModal(garmentId) {
   dlg.querySelector('#free-signup-email').value = '';
   dlg.querySelector('#free-signup-pw').value = '';
   dlg.showModal();
+}
+
+// ═══ EMAIL OPT-IN ═══
+function _showEmailOptIn(userEmail) {
+  // Don't show if already on page
+  if (document.getElementById('email-optin-card')) return;
+
+  const card = document.createElement('div');
+  card.id = 'email-optin-card';
+  card.className = 'email-optin-card';
+  card.innerHTML = `
+    <p class="email-optin-title">Get weekly fit tips + early new pattern drops</p>
+    <p class="email-optin-sub">One email a week, max. Unsubscribe any time.</p>
+    <div class="email-optin-row">
+      <input type="email" class="email-optin-input" id="email-optin-input" placeholder="you@example.com" value="${userEmail || ''}">
+      <button class="email-optin-btn" id="email-optin-btn">Yes please</button>
+    </div>`;
+
+  const banner = document.getElementById('wm-purchase-banner');
+  if (banner) {
+    banner.after(card);
+  }
+
+  document.getElementById('email-optin-btn')?.addEventListener('click', async () => {
+    const input = document.getElementById('email-optin-input');
+    const btn   = document.getElementById('email-optin-btn');
+    const email = input?.value.trim();
+    if (!email || !email.includes('@')) return;
+
+    btn.disabled    = true;
+    btn.textContent = '...';
+
+    try {
+      const user = getCurrentUser();
+      await fetch('/api/email-opt-in', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, userId: user?.id }),
+      });
+      card.innerHTML = '<p class="email-optin-done">You\'re in! Check your inbox.</p>';
+      setTimeout(() => card.remove(), 4000);
+    } catch {
+      btn.disabled    = false;
+      btn.textContent = 'Yes please';
+    }
+  });
 }
 
 // ═══ RECOMMENDATIONS ═══

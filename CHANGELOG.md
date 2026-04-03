@@ -4,7 +4,41 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.8.0] — 2026-03-28
+## [0.9.0] - 2026-04-03
+
+### Email marketing system (code complete, not yet live)
+- **5-email welcome sequence** - Day 0 (how to measure), Day 2 (what to expect), Day 5 (tiled PDFs), Day 9 (beginner patterns), Day 13 (community fit tips). Drip schedule stored in `welcome_sequence` table, delivered via daily cron.
+- **Email opt-in UI** - shown after free pattern redemption (app.js) and on all purchase success pages (success.html). Pre-fills user email, posts to new `/api/email-opt-in` endpoint.
+- **Weekly digest** - sends every Sunday to opted-in subscribers with new articles and tester calls since last digest. Summary card layout in email template.
+- **Abandoned pattern reminders** - targets users who used their free credit 3-7 days ago but haven't made a paid purchase. Offers 25% off first credit pack with code `FIRSTPACK25`.
+- **Landing page copy** - email section updated from "Get notified when new patterns drop" to "Weekly fit tips + new pattern drops" with "One email a week, max" subtext.
+- **join-list.js** - upgraded from single welcome email to full welcome sequence enrollment with marketing opt-in tracking.
+
+### Credit packs (code complete, not yet live)
+- **2-Credit Pack** at $22 ($11/credit) - new purchase type alongside individual patterns, bundles, and subscriptions.
+- Full checkout flow: `pricing.js` (CREDIT_PACKS export), `checkout.js` (buyCreditPack), `create-checkout.js` (credit_pack mode), `stripe-webhook.js` (handleCreditPackPurchase), `session-info.js` (credit_pack response).
+- Pricing page section between bundles and memberships with wired button.
+- Success page display for credit pack purchases.
+- Separate `credit_pack_credits` column on profiles (distinct from `bundle_credits` for analytics).
+
+### Database
+- Migration `004_email_marketing.sql`: `marketing_opt_in` on profiles and newsletter, `welcome_sequence` table, `digest_state` table, `credit_pack_credits` on profiles.
+
+### Infrastructure
+- New API endpoint: `api/email-opt-in.js` (opt-in + welcome sequence enrollment)
+- 7 new email templates: 5 welcome sequence + weekly digest + abandoned pattern reminder
+- 7 new cases in `api/send-email.js` dispatcher
+- 3 new cron triggers in `api/cron-emails.js` (welcome drip, weekly digest, abandoned reminders)
+- `vercel.json` updated with `email-opt-in.js` function config
+
+**To activate:**
+1. Run migration `004_email_marketing.sql` in Supabase
+2. Create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in `pricing.js`
+3. Create Stripe promotion code `FIRSTPACK25` (25% off credit packs)
+
+---
+
+## [0.8.0] - 2026-03-28
 
 ### Drafting math audit — corrected formulas to standard block rules
 - **Neck width** changed from `neck / 6` to `neck / 5` (Aldrich standard). Affects all 11 upper-body garments. Widens neck opening ~0.5" per side, fixing tight crew necks.

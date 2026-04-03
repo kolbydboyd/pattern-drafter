@@ -54,6 +54,8 @@ export default async function handler(req, res) {
       await handleBundlePurchase(session, stripe);
     } else if (checkoutMode === 'subscription') {
       await handleSubscriptionCreated(session, stripe);
+    } else if (checkoutMode === 'credit_pack') {
+      await handleCreditPackPurchase(session);
     }
   }
 
@@ -310,6 +312,43 @@ async function handleSubscriptionCanceled(subscription) {
   if (email) {
     sendEmail('SUBSCRIPTION_CANCELED', email, {})
       .catch(err => console.error('Cancellation email failed:', err));
+  }
+}
+
+// ── Credit pack purchase ────────────────────────────────────────────────────
+
+async function handleCreditPackPurchase(session) {
+  const { userId, packId, creditCount } = session.metadata;
+  const credits = parseInt(creditCount, 10) || 0;
+
+  await supabase.from('orders').insert({
+    user_id:        userId || null,
+    stripe_session: session.id,
+    status:         'completed',
+    items:          [{ credit_pack: packId, credits }],
+    total_cents:    session.amount_total,
+  });
+
+  if (userId && credits > 0) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('credit_pack_credits')
+      .eq('id', userId)
+      .single();
+
+    await supabase.from('profiles')
+      .update({ credit_pack_credits: (profile?.credit_pack_credits ?? 0) + credits })
+      .eq('id', userId);
+  }
+
+  // Send purchase confirmation
+  if (userId) {
+    const email = await getUserEmail(userId);
+    if (email) {
+      sendEmail('PURCHASE_CONFIRMATION', email, {
+        garmentName: `${credits}-Credit Pack`,
+      }).catch(err => console.error('Credit pack email failed:', err));
+    }
   }
 }
 

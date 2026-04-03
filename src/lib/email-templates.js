@@ -1119,3 +1119,476 @@ People's Patterns · ${SITE_URL}`;
     plain,
   };
 }
+
+// ─── Welcome Sequence: Day 0 ─────────────────────────────────────────────────
+
+export function welcomeSequenceDay0Email() {
+  const subject = 'Welcome! How to measure yourself';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Welcome to People's Patterns
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  You just joined the easiest way to make clothes that actually fit your body. Every pattern we generate is drafted from your exact measurements - no grading, no size charts.
+</p>
+
+<p style="margin:0 0 12px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">
+  Step 1: Get your measurements right
+</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Accurate measurements are the single biggest factor in fit. Grab a flexible tape measure and a friend (or a mirror). It takes about 10 minutes.
+</p>
+
+<ul style="margin:0 0 20px;padding-left:20px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.8;">
+  <li>Measure over fitted clothing or underwear - not over bulky layers</li>
+  <li>Keep the tape snug but not tight - you should be able to slide a finger under it</li>
+  <li>Stand naturally. Don't suck in or puff out</li>
+  <li>Measure twice. If the numbers differ, measure a third time and take the middle value</li>
+</ul>
+
+${btn('How to Measure Yourself', SITE_URL + '/learn/how-to-measure-yourself')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Over the next two weeks we'll send you a few short emails to help you get the most out of your patterns. You can unsubscribe any time.
+</p>`;
+
+  const plain = `Welcome to People's Patterns
+
+You just joined the easiest way to make clothes that actually fit your body. Every pattern we generate is drafted from your exact measurements.
+
+Step 1: Get your measurements right
+
+Accurate measurements are the single biggest factor in fit. Grab a flexible tape measure and a friend (or a mirror). It takes about 10 minutes.
+
+- Measure over fitted clothing or underwear
+- Keep the tape snug but not tight
+- Stand naturally
+- Measure twice
+
+How to measure yourself: ${SITE_URL}/learn/how-to-measure-yourself
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Accurate measurements are the single biggest factor in fit.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you signed up at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Welcome Sequence: Day 2 ─────────────────────────────────────────────────
+
+export function welcomeSequenceDay2Email() {
+  const subject = 'Your first pattern - what to expect';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  What happens when you generate a pattern
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Here's the full flow from measurements to finished garment:
+</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 20px;">
+  <tr>
+    <td style="padding:12px 16px;background:${CARD_BG};border-radius:6px 6px 0 0;border-bottom:1px solid #e0ddd6;">
+      <p style="margin:0;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">01 CHOOSE</p>
+      <p style="margin:4px 0 0;font-family:${SANS};font-size:14px;color:#555551;">Pick a garment from 23+ styles - shorts, pants, shirts, dresses, jackets.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px;background:${CARD_BG};border-bottom:1px solid #e0ddd6;">
+      <p style="margin:0;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">02 MEASURE</p>
+      <p style="margin:4px 0 0;font-family:${SANS};font-size:14px;color:#555551;">Enter your body measurements. We only ask for what the garment needs.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px;background:${CARD_BG};border-bottom:1px solid #e0ddd6;">
+      <p style="margin:0;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">03 CUSTOMIZE</p>
+      <p style="margin:4px 0 0;font-family:${SANS};font-size:14px;color:#555551;">Adjust rise, length, ease, and style options to match your preference.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px;background:${CARD_BG};border-bottom:1px solid #e0ddd6;">
+      <p style="margin:0;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">04 DOWNLOAD</p>
+      <p style="margin:4px 0 0;font-family:${SANS};font-size:14px;color:#555551;">Get a tiled PDF sized for your home printer. Letter, A4, or Tabloid.</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:12px 16px;background:${CARD_BG};border-radius:0 0 6px 6px;">
+      <p style="margin:0;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">05 SEW</p>
+      <p style="margin:4px 0 0;font-family:${SANS};font-size:14px;color:#555551;">Print, tape tiles together, cut your fabric, and sew. Instructions included.</p>
+    </td>
+  </tr>
+</table>
+
+${btn('Generate Your First Pattern', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Your first pattern is free - no credit card needed.
+</p>`;
+
+  const plain = `What happens when you generate a pattern
+
+Here's the full flow from measurements to finished garment:
+
+01 CHOOSE - Pick a garment from 23+ styles
+02 MEASURE - Enter your body measurements
+03 CUSTOMIZE - Adjust rise, length, ease, and style options
+04 DOWNLOAD - Get a tiled PDF for your home printer
+05 SEW - Print, tape, cut, and sew
+
+Generate your first pattern: ${SITE_URL}/?step=1
+
+Your first pattern is free - no credit card needed.
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Choose, measure, customize, download, sew.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you signed up at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Welcome Sequence: Day 5 ─────────────────────────────────────────────────
+
+export function welcomeSequenceDay5Email() {
+  const subject = 'How tiled PDFs work';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Printing your pattern at home
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Every People's Patterns PDF is tiled to fit on standard paper. Here's how to go from PDF to fabric-ready pattern pieces:
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">1. Print at 100% scale</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Set your printer to "Actual Size" or "100%" - never "Fit to Page." Each PDF includes a 1-inch scale square on page 1. Measure it with a ruler to verify.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">2. Trim and tape</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Cut along the crop marks on two sides of each page (bottom and right), then overlap the tiles using the alignment marks. Tape them together.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">3. Cut your fabric</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Cut out each pattern piece, pin it to your fabric following the grainline arrow, and cut. Seam allowances are already included.
+</p>
+
+${btn('Try It Now', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Prefer not to tape? Add the A0/Copy Shop file at checkout and print the whole piece on one sheet at a print shop.
+</p>`;
+
+  const plain = `Printing your pattern at home
+
+Every People's Patterns PDF is tiled to fit on standard paper.
+
+1. Print at 100% scale
+Set your printer to "Actual Size" or "100%." Each PDF includes a 1-inch scale square on page 1.
+
+2. Trim and tape
+Cut along crop marks, overlap tiles using alignment marks, and tape.
+
+3. Cut your fabric
+Pin pattern pieces to fabric following the grainline arrow. Seam allowances are included.
+
+Try it now: ${SITE_URL}/?step=1
+
+Prefer not to tape? Add the A0/Copy Shop file at checkout.
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Print at 100%, trim, tape, cut. Your pattern is ready.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you signed up at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Welcome Sequence: Day 9 ─────────────────────────────────────────────────
+
+export function welcomeSequenceDay9Email() {
+  const subject = '3 patterns that beginners love';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Great first makes
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Not sure where to start? These three patterns are our most popular with first-time sewists. All are in the Simple tier ($9) with elastic waists, minimal shaping, and fast construction.
+</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 20px;">
+  <tr>
+    <td style="padding:16px;background:${CARD_BG};border-radius:6px;margin-bottom:8px;">
+      <p style="margin:0 0 4px;font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};">Gym Shorts</p>
+      <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+        Two pattern pieces, elastic waist, done in an afternoon. The fastest path from "I want to sew" to "I made this."
+      </p>
+    </td>
+  </tr>
+  <tr><td style="height:8px;"></td></tr>
+  <tr>
+    <td style="padding:16px;background:${CARD_BG};border-radius:6px;">
+      <p style="margin:0 0 4px;font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};">T-Shirt</p>
+      <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+        The garment everyone wears every day. Knit fabric, relaxed fit, set-in sleeves. A great introduction to working with stretch.
+      </p>
+    </td>
+  </tr>
+  <tr><td style="height:8px;"></td></tr>
+  <tr>
+    <td style="padding:16px;background:${CARD_BG};border-radius:6px;">
+      <p style="margin:0 0 4px;font-family:${MONO};font-size:13px;font-weight:700;color:${GOLD};">Slip Skirt</p>
+      <p style="margin:0;font-family:${SANS};font-size:14px;color:#555551;line-height:1.5;">
+        Bias-cut or straight grain, elastic waist. Two pieces, one seam, instant wardrobe staple.
+      </p>
+    </td>
+  </tr>
+</table>
+
+${btn('Pick Your First Pattern', SITE_URL + '/?step=1')}`;
+
+  const plain = `Great first makes
+
+Not sure where to start? These three patterns are our most popular with first-time sewists:
+
+1. Gym Shorts - Two pieces, elastic waist, done in an afternoon.
+2. T-Shirt - Knit fabric, relaxed fit, set-in sleeves.
+3. Slip Skirt - Two pieces, one seam, instant wardrobe staple.
+
+All are in the Simple tier ($9).
+
+Pick your first pattern: ${SITE_URL}/?step=1
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Gym Shorts, T-Shirt, Slip Skirt - perfect first makes.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you signed up at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Welcome Sequence: Day 13 ────────────────────────────────────────────────
+
+export function welcomeSequenceDay13Email() {
+  const subject = 'Fit tips from the community';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Tips from sewists like you
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  We've collected the most common fit advice from our community. These small details make a big difference in how your finished garment looks and feels.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">Make a muslin first</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  Use cheap fabric (or an old bedsheet) for your first version. Check the fit, mark any adjustments, then cut into your good fabric. It takes an extra hour but saves you from wasting expensive material.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">Check ease at the hip</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  The most common fit issue is pants that are too tight at the hip. If you're between measurements, round up. You can always take fabric in, but you can't add it back.
+</p>
+
+<p style="margin:0 0 8px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">Press every seam</p>
+<p style="margin:0 0 16px;font-family:${SANS};font-size:14px;color:#555551;line-height:1.6;">
+  The difference between "homemade" and "handmade" is pressing. Iron every seam before you cross it with another seam. It's the single best habit to build.
+</p>
+
+${btn('Start Your Next Pattern', SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  This was the last email in our welcome series. You'll still get our weekly digest with new patterns and articles - unless you <a href="${SITE_URL}/unsubscribe" style="color:${GOLD};text-decoration:none;">unsubscribe</a>.
+</p>`;
+
+  const plain = `Tips from sewists like you
+
+Make a muslin first
+Use cheap fabric for your first version. Check the fit, then cut into your good fabric.
+
+Check ease at the hip
+If you're between measurements, round up. You can always take fabric in.
+
+Press every seam
+Iron every seam before you cross it with another seam. It's the single best habit to build.
+
+Start your next pattern: ${SITE_URL}/?step=1
+
+This was the last email in our welcome series. You'll still get our weekly digest.
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: 'Muslin first, check hip ease, press every seam.',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you signed up at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Weekly Digest ───────────────────────────────────────────────────────────
+
+export function weeklyDigestEmail({ articles = [], testerCalls = [] } = {}) {
+  const subject = "This week at People's Patterns";
+
+  let articleCards = '';
+  for (const a of articles) {
+    articleCards += `
+    <tr>
+      <td style="padding:14px 16px;background:${CARD_BG};border-radius:6px;margin-bottom:8px;">
+        <p style="margin:0 0 4px;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">NEW ARTICLE</p>
+        <p style="margin:0 0 4px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">
+          <a href="${SITE_URL}/learn/${a.slug}" style="color:${NEAR_BLACK};text-decoration:none;">${a.title}</a>
+        </p>
+        <p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;">${a.description || ''}</p>
+      </td>
+    </tr>
+    <tr><td style="height:8px;"></td></tr>`;
+  }
+
+  let testerCards = '';
+  for (const t of testerCalls) {
+    testerCards += `
+    <tr>
+      <td style="padding:14px 16px;background:${CARD_BG};border-radius:6px;border-left:3px solid ${GOLD};">
+        <p style="margin:0 0 4px;font-family:${MONO};font-size:12px;font-weight:700;color:${GOLD};letter-spacing:0.5px;">TESTER CALL</p>
+        <p style="margin:0 0 4px;font-family:${SANS};font-size:15px;font-weight:600;color:${NEAR_BLACK};">${t.garmentName}</p>
+        <p style="margin:0;font-family:${SANS};font-size:13px;color:#555551;line-height:1.5;">
+          Help us test this pattern before launch. Free download for testers.
+        </p>
+      </td>
+    </tr>
+    <tr><td style="height:8px;"></td></tr>`;
+  }
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Weekly roundup
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Here's what's new this week:
+</p>
+
+${articleCards ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 16px;">${articleCards}</table>` : ''}
+${testerCards ? `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 16px;">${testerCards}</table>` : ''}
+
+${btn('Browse All Patterns', SITE_URL + '/patterns')}`;
+
+  const articlePlain = articles.map(a => `- ${a.title}: ${SITE_URL}/learn/${a.slug}`).join('\n');
+  const testerPlain = testerCalls.map(t => `- Tester call: ${t.garmentName}`).join('\n');
+
+  const plain = `Weekly roundup - People's Patterns
+
+${articlePlain ? 'New articles:\n' + articlePlain + '\n\n' : ''}${testerPlain ? 'Tester calls:\n' + testerPlain + '\n\n' : ''}Browse all patterns: ${SITE_URL}/patterns
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: articles.length ? articles[0].title : 'New content this week',
+      subject,
+      body,
+      footerExtra: `You're receiving this because you opted in to weekly updates. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
+
+// ─── Abandoned Pattern Reminder ──────────────────────────────────────────────
+
+export function abandonedPatternReminderEmail({ garmentName = 'your pattern', patternUrl = '' } = {}) {
+  const subject = `You started ${garmentName} - finish it with 25% off`;
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  Pick up where you left off
+</p>
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  You generated a ${garmentName} pattern but haven't downloaded the full version yet. Ready to finish what you started?
+</p>
+
+<p style="margin:0 0 20px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Use code <strong style="color:${NEAR_BLACK};font-family:${MONO};">FIRSTPACK25</strong> for 25% off your first credit pack. Two credits for $16.50 instead of $22 - use them on any pattern, any tier.
+</p>
+
+${btn('Finish Your ' + garmentName, patternUrl || SITE_URL + '/?step=1')}
+
+${rule()}
+
+<p style="margin:0;text-align:center;font-family:${SANS};font-size:13px;color:#777773;">
+  Credit packs never expire. Use them whenever you're ready.
+</p>`;
+
+  const plain = `Pick up where you left off
+
+You generated a ${garmentName} pattern but haven't downloaded the full version yet.
+
+Use code FIRSTPACK25 for 25% off your first credit pack. Two credits for $16.50 instead of $22.
+
+Finish your pattern: ${patternUrl || SITE_URL + '/?step=1'}
+
+Credit packs never expire.
+
+-
+People's Patterns - ${SITE_URL}`;
+
+  return {
+    subject,
+    html: shell({
+      preheader: `25% off your first credit pack - finish your ${garmentName}.`,
+      subject,
+      body,
+      footerExtra: `You're receiving this because you generated a pattern at People's Patterns. <a href="${SITE_URL}/unsubscribe" style="color:#888880;">Unsubscribe</a>`,
+    }),
+    plain,
+  };
+}
