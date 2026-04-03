@@ -32,7 +32,8 @@
     { "source": "/about", "destination": "/about.html" },
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" },
-    { "source": "/pricing", "destination": "/pricing.html" }
+    { "source": "/pricing", "destination": "/pricing.html" },
+    { "source": "/submit-make", "destination": "/submit-make.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 9 * * *" }

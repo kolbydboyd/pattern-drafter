@@ -6,6 +6,7 @@
 
 import '../analytics.js';
 import { trackEvent, initSiteTracking, initHeroABTest } from '../analytics.js';
+import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, easeDistribution, sanitizePoly } from '../engine/geometry.js';
 import cargoShorts      from '../garments/cargo-shorts.js';
@@ -1537,6 +1538,12 @@ if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   generate();
   goToStep(4);
 }
+
+// Real Makes gallery on home page — loads async, hidden if empty
+(function loadRealMakes() {
+  const el = document.getElementById('real-makes-home');
+  if (el) renderMakesGallery(el, { limit: 8 });
+})();
 
 // Pattern generation counter — fetch once and display
 (function loadPatternCount() {
