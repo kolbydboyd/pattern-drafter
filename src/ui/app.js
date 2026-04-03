@@ -6,6 +6,7 @@
 
 import '../analytics.js';
 import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } from '../analytics.js';
+import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
 import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks } from './pattern-view.js';
@@ -1905,6 +1906,12 @@ else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   generate();
   goToStep(4);
 }
+
+// Real Makes gallery on home page — loads async, hidden if empty
+(function loadRealMakes() {
+  const el = document.getElementById('real-makes-home');
+  if (el) renderMakesGallery(el, { limit: 8 });
+})();
 
 // Pattern generation counter — fetch once and display
 (function loadPatternCount() {
