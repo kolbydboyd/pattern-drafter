@@ -209,21 +209,41 @@ export default {
       let poly;
       if (opts.skirtShape === 'aline') {
         const flare = 5.0;
-        const fh = flare / 2;
-        poly = [
-          { x: fh,              y: 0          },
-          { x: fh + panelW,     y: 0          },
-          { x: panelW + flare,  y: adjSkirtL  },
-          { x: 0,               y: adjSkirtL  },
-        ];
+        if (isBack) {
+          // Fold at CB (left edge) must be vertical — all flare to side seam
+          poly = [
+            { x: 0,              y: 0          },
+            { x: panelW,         y: 0          },
+            { x: panelW + flare, y: adjSkirtL  },
+            { x: 0,              y: adjSkirtL  },
+          ];
+        } else {
+          const fh = flare / 2;
+          poly = [
+            { x: fh,              y: 0          },
+            { x: fh + panelW,     y: 0          },
+            { x: panelW + flare,  y: adjSkirtL  },
+            { x: 0,               y: adjSkirtL  },
+          ];
+        }
       } else if (opts.skirtShape === 'flowy') {
         const flowW = panelW * 2.2;
-        poly = [
-          { x: (flowW - panelW) / 2,          y: 0          },
-          { x: (flowW - panelW) / 2 + panelW, y: 0          },
-          { x: flowW,                          y: adjSkirtL  },
-          { x: 0,                              y: adjSkirtL  },
-        ];
+        if (isBack) {
+          // Fold at CB (left edge) must be vertical — all flare to side seam
+          poly = [
+            { x: 0,      y: 0          },
+            { x: panelW, y: 0          },
+            { x: flowW,  y: adjSkirtL  },
+            { x: 0,      y: adjSkirtL  },
+          ];
+        } else {
+          poly = [
+            { x: (flowW - panelW) / 2,          y: 0          },
+            { x: (flowW - panelW) / 2 + panelW, y: 0          },
+            { x: flowW,                          y: adjSkirtL  },
+            { x: 0,                              y: adjSkirtL  },
+          ];
+        }
       } else {
         poly = [
           { x: 0,       y: 0          },
