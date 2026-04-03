@@ -4,6 +4,7 @@
 import '../analytics.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+import { renderMakesGallery, extractTesters, renderAsSeenOn } from './real-makes.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
@@ -173,6 +174,7 @@ root.innerHTML = `
         Generate This Pattern
       </a>
       <p class="pat-pg-generate-note">Enter your measurements and customize. Preview before you buy.</p>
+      <div id="pat-pg-as-seen-on" style="display:none"></div>
       <p class="pat-pg-sewists-count" id="pat-pg-sewists-count"></p>
     </div>
   </div>
@@ -198,12 +200,7 @@ root.innerHTML = `
     </table>
   </section>` : ''}
 
-  <section class="pat-pg-section pat-pg-section-placeholder">
-    <h2 class="pat-pg-section-title">Sewn Samples</h2>
-    <div class="pat-pg-photos-placeholder">
-      <p>Photos coming soon. Want to be featured? Share your make with <a href="https://instagram.com/peoplespatterns" target="_blank" rel="noopener">@peoplespatterns</a>.</p>
-    </div>
-  </section>
+  <section class="pat-pg-section" id="pat-pg-makes-gallery" style="display:none"></section>
 
   <section class="pat-pg-section pat-pg-section-placeholder">
     <h2 class="pat-pg-section-title">Customer Reviews</h2>
@@ -220,6 +217,18 @@ root.innerHTML = `
   </section>` : ''}
 
 </div>`;
+
+// ── Real Makes gallery + "As seen on" attribution ───────────────────────────
+(async function loadMakes() {
+  const galleryEl = document.getElementById('pat-pg-makes-gallery');
+  const asSeenEl = document.getElementById('pat-pg-as-seen-on');
+  if (!galleryEl) return;
+  const makes = await renderMakesGallery(galleryEl, { garmentId, limit: 12 });
+  if (makes.length && asSeenEl) {
+    const testers = extractTesters(makes);
+    renderAsSeenOn(asSeenEl, testers);
+  }
+})();
 
 // ── Per-garment sewist count ──────────────────────────────────────────────────
 (function loadGarmentCount() {

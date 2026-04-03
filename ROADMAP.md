@@ -311,6 +311,61 @@ from your own app.
 
 ---
 
+## B2B Sewing Studio Partnerships (Houston Pilot)
+
+**Goal:** Get sewing schools to integrate People's Patterns into their curriculum — students
+generate custom-fit patterns from their own measurements as part of class.
+
+### Target Studios
+
+- **HTX Sewn Goods** — 9,000 sq ft textile lab, $3k 10-week courses, multiple class
+  levels, membership model coming
+- **The Little Sewing Room** (Spring, TX) — professional instructors
+  (theater/film/garment industry backgrounds), teaches pattern drafting, draping,
+  tutoring
+- **Thimble Fingers** — pattern fitting classes (Sure-Fit Designs system), supervised
+  sewing sessions, flexible self-paced format
+
+### Go-to-Market
+
+- Welcome kit with ~50–60 brochures per studio. Each brochure has a
+  sticker with a unique code giving the student free credit (e.g., 1 pattern generation).
+- Students sign up, take measurements, pick a garment, generate a pattern, and sew it in
+  class.
+
+### Pricing (TBD)
+
+- Could be per-student seat license, flat institutional subscription, or
+  revenue share bundled into tuition
+
+### Why This Matters Beyond Revenue
+
+Dozens of sewists at varied body types generating and sewing patterns in a supervised
+environment = massive structured fit feedback. Instructors present to diagnose issues
+in real-time.
+
+### Long Term
+
+Template for national replication via cold outreach to sewing schools/studios
+across the country.
+
+### Prerequisite
+
+Finished muslins as proof of concept. Walk in with a garment you made
+from your own app.
+
+---
+
+## Local Community Presence
+
+- Attend classes at Houston sewing studios (Thimble Fingers supervised sessions,
+  HTX Sewn Goods workshops) to get fitting feedback on muslins and naturally introduce
+  People's Patterns to other sewists
+- Library makerspaces (Houston Public Library TECHLink, HCPL Maker Central) for free
+  sewing machine access
+
+---
+
 ## Phase 3 — Revenue Expansion
 
 ### Membership Tiers (from pricing strategy)
@@ -420,6 +475,21 @@ Fun patterns that drive social engagement and seasonal sales.
 | Bucket hat | accessory | beginner | breakout trending accessory, Gen Z gorpcore | florent |
 | Quilted vest / gilet | outerwear | intermediate | gorpcore layering trend, accessible outerwear project | - |
 | Skort | lower | beginner | Biarritz skort is an indie bestseller, athletic + casual crossover | - |
+
+#### Children's Wear (longer session - new measurement system + construction simplification)
+
+Build child-sized versions of existing garments with age-appropriate defaults.
+Requires: child measurement set, simplified ease tables, reduced construction
+complexity (fewer pieces, elastic instead of zippers, wider seam allowances).
+
+| Item | Notes |
+|---|---|
+| Child measurement profiles | Height-based sizing (2T-14), age-correlated ease defaults |
+| Simplified construction mode | Reduce piece count, swap closures for elastic, widen SA |
+| Kid tee | Adapted from adult tee, knit |
+| Kid shorts | Adapted from gym shorts, elastic waist |
+| Kid sundress | Adapted from sundress-w, gathered skirt |
+| "Mom & Me" curated bundles | Adult + child versions of same style, sold as a bundle |
 
 ### Sewing skills / engine capabilities needed for expansion
 

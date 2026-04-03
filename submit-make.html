@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Share Your Make - People's Patterns</title>
+<meta name="description" content="Share photos of garments you've sewn with People's Patterns. Get featured on our site and social media.">
+<link rel="canonical" href="https://peoplespatterns.com/submit-make">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Share Your Make - People's Patterns">
+<meta property="og:description" content="Share photos of garments you've sewn with People's Patterns. Get featured on our site and social media.">
+<meta property="og:url" content="https://peoplespatterns.com/submit-make">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/src/ui/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="pg">
+
+<header class="hdr">
+  <h1 onclick="location.href='/'">People's Patterns</h1>
+  <nav class="hdr-nav">
+    <a href="/" class="hdr-link">Generator</a>
+    <a href="/patterns" class="hdr-link">Patterns</a>
+    <a href="/learn" class="hdr-link">Learn</a>
+    <a href="/pricing" class="hdr-link">Pricing</a>
+  </nav>
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+    <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
+      <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
+      <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+      <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
+    </svg>
+  </button>
+  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <nav id="hdr-nav-mobile">
+    <div class="hdr-nav-m-links">
+      <a class="hdr-nav-m-link" href="/">Home</a>
+      <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
+      <a class="hdr-nav-m-link" href="/learn">Learn</a>
+      <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
+      <a class="hdr-nav-m-link" href="/about">About</a>
+      <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+    </div>
+  </nav>
+</header>
+
+<main class="pg-content submit-make-page">
+  <h2 class="pg-title">Share Your Make</h2>
+  <p class="pg-subtitle">Show off what you've sewn with People's Patterns. Approved photos appear on our site and you'll be credited with a link to your Instagram.</p>
+
+  <form id="submit-make-form" class="submit-make-form">
+    <div class="sm-field">
+      <label for="sm-garment">Which pattern did you sew? <span class="sm-req">*</span></label>
+      <select id="sm-garment" required>
+        <option value="">Select a pattern...</option>
+      </select>
+    </div>
+
+    <div class="sm-field">
+      <label for="sm-name">Your name <span class="sm-req">*</span></label>
+      <input type="text" id="sm-name" required maxlength="100" placeholder="How you'd like to be credited">
+    </div>
+
+    <div class="sm-field">
+      <label for="sm-instagram">Instagram handle</label>
+      <input type="text" id="sm-instagram" maxlength="60" placeholder="@yourhandle">
+    </div>
+
+    <div class="sm-field">
+      <label for="sm-email">Email</label>
+      <input type="email" id="sm-email" maxlength="200" placeholder="We'll let you know when you're featured">
+    </div>
+
+    <div class="sm-field">
+      <label>Photos (1-4, max 5 MB each) <span class="sm-req">*</span></label>
+      <div class="sm-dropzone" id="sm-dropzone">
+        <input type="file" id="sm-files" accept="image/jpeg,image/png,image/webp" multiple hidden>
+        <p class="sm-dropzone-text">Drop photos here or <button type="button" class="sm-browse-btn" id="sm-browse-btn">browse</button></p>
+        <p class="sm-dropzone-hint">JPEG, PNG, or WebP</p>
+      </div>
+      <div class="sm-previews" id="sm-previews"></div>
+    </div>
+
+    <div class="sm-field">
+      <label for="sm-caption">Caption (optional)</label>
+      <textarea id="sm-caption" maxlength="500" rows="3" placeholder="Tell us about your sew - fabric, modifications, anything you'd like to share"></textarea>
+    </div>
+
+    <button type="submit" class="btn-primary sm-submit-btn" id="sm-submit-btn">Submit Your Make</button>
+    <p class="sm-note">By submitting, you give People's Patterns permission to display your photos on our website and social media with credit to you.</p>
+  </form>
+
+  <div id="sm-success" class="sm-success" style="display:none">
+    <h3>Thanks for sharing!</h3>
+    <p>We'll review your photos and let you know when they go live. If you included your Instagram handle, we'll tag you when we feature your make.</p>
+    <a href="/" class="btn-secondary">Back to Home</a>
+  </div>
+</main>
+
+<footer class="land-footer" style="margin-top:auto;">
+  <span class="land-footer-copy">peoplespatterns.com</span>
+  <span class="land-footer-legal">
+    <a class="land-footer-link" href="/faq">FAQ</a>
+    <a class="land-footer-link" href="/terms">Terms</a>
+    <a class="land-footer-link" href="/privacy">Privacy</a>
+  </span>
+</footer>
+
+<script type="module" src="/src/ui/submit-make.js"></script>
+</body>
+</html>

@@ -103,6 +103,24 @@ const SVGS = {
   <line x1="58" y1="80" x2="56" y2="118"/>
   <line x1="102" y1="80" x2="104" y2="118"/>`),
 
+  'baggy-shorts': svg(`
+  <path d="M42,34 L118,34 L118,48 L42,48 Z"/>
+  <rect x="55" y="31" width="5" height="8" rx="1"/>
+  <rect x="78" y="31" width="5" height="8" rx="1"/>
+  <rect x="100" y="31" width="5" height="8" rx="1"/>
+  <path d="M42,48 L34,148 L74,148 L80,88 L86,148 L126,148 L118,48"/>
+  <line x1="80" y1="48" x2="80" y2="88"/>
+  <path d="M80,48 Q76,60 80,66"/>
+  <path d="M46,50 Q54,62 64,56"/>
+  <path d="M114,50 Q106,62 96,56"/>
+  <rect x="46" y="54" width="10" height="8" rx="1"/>
+  <circle cx="48" cy="60" r="1.2"/>
+  <circle cx="64" cy="56" r="1.2"/>
+  <circle cx="112" cy="60" r="1.2"/>
+  <circle cx="96" cy="56" r="1.2"/>
+  <line x1="38" y1="80" x2="34" y2="148" stroke-dasharray="4 3"/>
+  <line x1="122" y1="80" x2="126" y2="148" stroke-dasharray="4 3"/>`),
+
   'tee': svg(`
   <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60 L96,72 Q80,78 64,72 Z"/>
   <path d="M64,60 Q80,50 96,60"/>`),
