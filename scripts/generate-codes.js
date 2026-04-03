@@ -14,7 +14,7 @@ import { randomBytes } from 'crypto';
 
 // ── Config ───────────────────────────────────────────────────────────────────
 const VALID_GARMENTS = [
-  'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts',
+  'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts', 'baggy-shorts',
   'straight-jeans', 'baggy-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
   'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
   'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
