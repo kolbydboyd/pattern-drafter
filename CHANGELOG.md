@@ -4,6 +4,37 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.0] - 2026-04-03
+
+### Email marketing system (code complete, not yet live)
+- **5-email welcome sequence** - Day 0 (how to measure), Day 2 (what to expect), Day 5 (tiled PDFs), Day 9 (beginner patterns), Day 13 (community fit tips). Drip schedule stored in `welcome_sequence` table, delivered via daily cron.
+- **Email opt-in UI** - shown after free pattern redemption (app.js) and on all purchase success pages (success.html). Pre-fills user email, posts to new `/api/email-opt-in` endpoint.
+- **Weekly digest** - sends every Sunday to opted-in subscribers with new articles and tester calls since last digest.
+- **Abandoned pattern reminders** - targets users who used their free credit 3-7 days ago but haven't made a paid purchase. Offers 25% off first credit pack with code `FIRSTPACK25`.
+- **Landing page copy** - email section updated to "Weekly fit tips + new pattern drops" with "One email a week, max" subtext.
+- **join-list.js** upgraded to full welcome sequence enrollment with marketing opt-in tracking.
+- 7 new email templates, 7 new dispatcher cases, 3 new cron triggers.
+
+### Credit packs (code complete, not yet live)
+- **2-Credit Pack at $22** ($11/credit) - new purchase type alongside individual patterns, bundles, and subscriptions.
+- Full checkout flow: create-checkout.js, stripe-webhook.js, session-info.js, checkout.js.
+- Pricing page section between bundles and memberships with wired button.
+- Separate `credit_pack_credits` column on profiles for analytics.
+
+### Database
+- Migration `004_email_marketing.sql`: `marketing_opt_in` on profiles/newsletter, `welcome_sequence` table, `digest_state` table, `credit_pack_credits` on profiles.
+
+### Infrastructure
+- New API endpoint: `api/email-opt-in.js`
+- `vercel.json` updated with function config
+
+**To activate:**
+1. Run migration `004_email_marketing.sql` in Supabase
+2. Create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in `pricing.js`
+3. Create Stripe promotion code `FIRSTPACK25` (25% off credit packs)
+
+---
+
 ## [0.11.0] — 2026-04-03
 
 ### Affiliate program (built, not yet live)

@@ -43,7 +43,12 @@ async function init() {
     initSubscriptionSuccess(info);
   } else if (checkoutMode === 'a0_upgrade') {
     initA0UpgradeSuccess(info);
+  } else if (checkoutMode === 'credit_pack') {
+    initCreditPackSuccess(info);
   }
+
+  // Show email opt-in for all purchase types
+  initEmailOptIn(session?.user);
 }
 
 // ── Single pattern success ───────────────────────────────────────────────────
@@ -196,6 +201,71 @@ function initA0UpgradeSuccess(info) {
   trackEvent('a0_upgrade_completed', {
     purchase_id: info.purchaseId,
     amount:      info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
+// ── Credit pack success ─────────────────────────────────────────────────────
+
+function initCreditPackSuccess(info) {
+  const el = document.getElementById('success-credit-pack');
+  document.getElementById('success-pack-credits').textContent = info.creditCount;
+  el.hidden = false;
+
+  trackEvent('credit_pack_purchased', {
+    pack_id:      info.packId,
+    credit_count: info.creditCount,
+    amount:       info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
+// ── Email opt-in ────────────────────────────────────────────────────────────
+
+async function initEmailOptIn(user) {
+  const card = document.getElementById('success-email-optin');
+  if (!card) return;
+
+  if (user) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY,
+      );
+      const { data } = await supabase
+        .from('profiles')
+        .select('marketing_opt_in')
+        .eq('id', user.id)
+        .single();
+      if (data?.marketing_opt_in) return;
+    } catch { /* show opt-in anyway */ }
+
+    const input = document.getElementById('success-optin-email');
+    if (input && user.email) input.value = user.email;
+  }
+
+  card.hidden = false;
+
+  document.getElementById('success-optin-btn')?.addEventListener('click', async () => {
+    const input = document.getElementById('success-optin-email');
+    const btn   = document.getElementById('success-optin-btn');
+    const email = input?.value.trim();
+    if (!email || !email.includes('@')) return;
+
+    btn.disabled    = true;
+    btn.textContent = '...';
+
+    try {
+      await fetch('/api/email-opt-in', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email, userId: user?.id }),
+      });
+      card.innerHTML = '<p class="email-optin-done">You\'re in! Check your inbox.</p>';
+      setTimeout(() => { card.hidden = true; }, 4000);
+    } catch {
+      btn.disabled    = false;
+      btn.textContent = 'Yes please';
+    }
   });
 }
 

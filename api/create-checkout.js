@@ -2,7 +2,7 @@
 // Vercel serverless function — creates a Stripe Checkout session
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
 import { rateLimit } from './_rate-limit.js';
 
 const limiter = rateLimit({ windowMs: 60_000, max: 10 });
@@ -82,6 +82,15 @@ export default async function handler(req, res) {
     const bundle = BUNDLES[bundleId];
     if (!bundle) {
       return res.status(400).json({ error: `Unknown bundle: ${bundleId}` });
+    }
+
+    // Curated bundles have fixed garment selections - validate to prevent tampering
+    if (bundle.curated) {
+      const expected = JSON.stringify([...bundle.garmentIds].sort());
+      const received = JSON.stringify([...garmentIds].sort());
+      if (expected !== received) {
+        return res.status(400).json({ error: 'Invalid garment selection for this bundle' });
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -172,6 +181,32 @@ export default async function handler(req, res) {
         checkoutMode: 'a0_upgrade',
         userId:       userId ?? '',
         purchaseId,
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
+  // ── Credit pack checkout ────────────────────────────────────────────────
+  if (mode === 'credit_pack') {
+    const { packId, userId } = req.body;
+
+    const pack = CREDIT_PACKS[packId];
+    if (!pack) {
+      return res.status(400).json({ error: `Unknown credit pack: ${packId}` });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: pack.priceId, quantity: 1 }],
+      allow_promotion_codes: true,
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/pricing`,
+      metadata: {
+        checkoutMode: 'credit_pack',
+        userId:       userId ?? '',
+        packId,
+        creditCount:  String(pack.creditCount),
       },
     });
 
