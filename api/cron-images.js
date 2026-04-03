@@ -16,6 +16,7 @@ const GARMENT_NAMES = {
   'gym-shorts':         'gym shorts',
   'swim-trunks':        'swim trunks',
   'pleated-shorts':     'pleated shorts',
+  'baggy-shorts':       'baggy shorts',
   'straight-jeans':     'straight-leg jeans',
   'baggy-jeans':        'baggy jeans',
   'chinos':             'chinos',

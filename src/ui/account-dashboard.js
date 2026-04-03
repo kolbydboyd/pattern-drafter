@@ -1041,7 +1041,7 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
 
 // ── Wardrobe progress (shown at the top of My Patterns) ──────────────────────
 const WARDROBE_CATEGORIES = [
-  { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
   { key: 'pants',     label: 'Pants',     icon: '👖', garments: ['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
   { key: 'tops',      label: 'Tops',      icon: '👕', garments: ['tee','camp-shirt','crewneck','hoodie','crop-jacket','denim-jacket','button-up-w','shell-blouse-w','fitted-tee-w'] },
   { key: 'skirts',    label: 'Skirts',    icon: '🌂', garments: ['slip-skirt-w','a-line-skirt-w'] },
