@@ -207,14 +207,29 @@ export default {
 
     function buildSkirtPanel(id, name, isBack) {
       const panelW = hipHalf / 2 + (isBack ? 0 : wrapExt);
+      const waistDip = 0.375; // ⅜″ concave curve at CB for body shaping
       let poly;
+
+      // Back panel: curved waistline (horizontal tangent at fold so no kink when unfolded)
+      let waistPts;
+      if (isBack) {
+        const waistCp = {
+          p0: { x: 0,            y: waistDip },
+          p1: { x: panelW * 0.4, y: waistDip },
+          p2: { x: panelW * 0.8, y: 0 },
+          p3: { x: panelW,       y: 0 },
+        };
+        waistPts = sc(waistCp, 12);
+        // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+      }
+
       if (opts.skirtShape === 'aline') {
         const flare = 5.0;
         if (isBack) {
           // Fold at CB (left edge) must be vertical — all flare to side seam
-          poly = [
-            { x: 0,              y: 0          },
-            { x: panelW,         y: 0          },
+          poly = [...waistPts,
             { x: panelW + flare, y: adjSkirtL  },
             { x: 0,              y: adjSkirtL  },
           ];
@@ -231,9 +246,7 @@ export default {
         const flowW = panelW * 2.2;
         if (isBack) {
           // Fold at CB (left edge) must be vertical — all flare to side seam
-          poly = [
-            { x: 0,      y: 0          },
-            { x: panelW, y: 0          },
+          poly = [...waistPts,
             { x: flowW,  y: adjSkirtL  },
             { x: 0,      y: adjSkirtL  },
           ];
@@ -246,12 +259,19 @@ export default {
           ];
         }
       } else {
-        poly = [
-          { x: 0,       y: 0          },
-          { x: panelW,  y: 0          },
-          { x: panelW,  y: adjSkirtL  },
-          { x: 0,       y: adjSkirtL  },
-        ];
+        if (isBack) {
+          poly = [...waistPts,
+            { x: panelW, y: adjSkirtL  },
+            { x: 0,      y: adjSkirtL  },
+          ];
+        } else {
+          poly = [
+            { x: 0,       y: 0          },
+            { x: panelW,  y: 0          },
+            { x: panelW,  y: adjSkirtL  },
+            { x: 0,       y: adjSkirtL  },
+          ];
+        }
       }
       const gatherNote = opts.skirtShape === 'flowy' ? ' · Gather waist to match bodice waist width' : '';
       const hipLevel = Math.min(8, adjSkirtL * 0.3);
