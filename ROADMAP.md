@@ -93,13 +93,27 @@ manufacturer has this. It becomes a licensable asset.
 - [ ] Create individual pattern pages with SEO meta tags
 - [ ] Post branded avatars and banners to all social accounts
 
-### Email Flows (templates exist, verify sequences work)
-- [ ] Welcome sequence:
-      Email 1: "Here's how to measure yourself"
-      Email 2: "Your first pattern — what to expect"
-      Email 3: "How tiled PDFs work"
-- [ ] Generated-not-purchased follow-up
-- [ ] Post-sew fit feedback request
+### Email Flows (ready to implement - code complete, not yet live)
+- [x] Email opt-in UI after free pattern redemption + paid purchases
+- [x] 5-email welcome sequence (Day 0/2/5/9/13):
+      Email 1: "You're in - here's what to expect"
+      Email 2: "3 tips for a perfect first make"
+      Email 3: "How to read your pattern pieces"
+      Email 4: "New patterns + what testers are sewing"
+      Email 5: "Your next pattern, 20% off"
+- [x] Weekly digest (new articles + tester calls, Sundays)
+- [x] Abandoned pattern reminders with credit pack CTA
+- [x] Landing page newsletter copy updated ("Weekly fit tips + new pattern drops")
+- [x] All email templates, dispatcher cases, and cron triggers built
+- [ ] **To activate:** run `supabase/migrations/004_email_marketing.sql`,
+      create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in pricing.js
+- [x] Generated-not-purchased follow-up
+- [x] Post-sew fit feedback request
+
+### Credit Packs (ready to implement - code complete, not yet live)
+- [x] 2-credit pack at $22 (any tier, never expire)
+- [x] Checkout flow, webhook fulfillment, pricing page section
+- [ ] **To activate:** create Stripe price ID and update `src/lib/pricing.js`
 
 ### Privacy / Technical
 - [ ] Move body measurements out of Stripe session metadata

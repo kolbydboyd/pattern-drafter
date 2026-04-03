@@ -4,6 +4,39 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.9.0] — 2026-04-03 (ready to implement - not yet live)
+
+### Email marketing system
+- **Email opt-in UI** shown after free pattern redemption (`app.js`) and paid purchases (`success.js`). Headline: "Get weekly fit tips + early new pattern drops". Gold CTA button, neutral dismiss, PostHog tracking.
+- **5-email welcome sequence** dripped over 13 days: Day 0 (immediate), Day 2 (fit tips), Day 5 (pattern piece guide), Day 9 (social proof/tester calls), Day 13 (20% off credit pack nudge). Day 0 sent immediately at opt-in; Days 2-13 queued in `welcome_sequence` table and sent by daily cron.
+- **Weekly digest** sends every Sunday via the existing daily cron. Compares `ARTICLES` array `datePublished` against a `digest_state` watermark. Includes article summary cards and tester call section. Only sent to opted-in subscribers.
+- **Abandoned pattern reminders** for users who generated but didn't purchase (3-7 day window). Only sent to opted-in users. CTA: "25% off your first credit pack".
+- **Landing page newsletter** copy updated from "Get notified when new patterns drop" to "Weekly fit tips + new pattern drops" with "One email a week, max. Unsubscribe any time." subtext.
+- **`api/join-list.js`** now sets `marketing_opt_in = true` and enrolls in welcome sequence (replaces old generic welcome email).
+- **7 new email templates** added to `email-templates.js`: 5 welcome sequence, weekly digest, abandoned pattern reminder. All use existing branded shell/btn/rule helpers.
+- **8 new dispatcher cases** in `send-email.js`: `WELCOME_SEQ_0` through `WELCOME_SEQ_4`, `WEEKLY_DIGEST`, `ABANDONED_PATTERN_REMINDER`.
+- **3 new cron triggers** in `cron-emails.js`: `sendWelcomeSequenceDrips()`, `sendWeeklyDigest()`, `sendAbandonedPatternReminders()`.
+
+### Credit packs
+- **2-Credit Pack at $22** added to `CREDIT_PACKS` in `pricing.js`. Any tier, credits never expire.
+- Full checkout flow: `create-checkout.js` handles `mode: 'credit_pack'`, `stripe-webhook.js` fulfills by adding credits to `profiles.credit_pack_credits`, `checkout.js` exports `buyCreditPack()`.
+- Credit Packs section added to `pricing.html` between Bundles and Memberships, wired in `pricing.js`.
+
+### Database migration (`004_email_marketing.sql`)
+- `profiles`: added `marketing_opt_in`, `opted_in_at`, `credit_pack_credits` columns
+- `newsletter`: added `marketing_opt_in`, `opted_in_at` columns
+- New tables: `welcome_sequence` (drip scheduling), `digest_state` (cron watermarks)
+
+### Infrastructure
+- New endpoint: `api/email-opt-in.js` (records opt-in, sends Day 0, enqueues Days 2-13)
+- `vercel.json`: added function configs for `email-opt-in.js` and `cron-emails.js`
+
+### To activate
+- Run `supabase/migrations/004_email_marketing.sql` in Supabase SQL editor
+- Create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in `src/lib/pricing.js`
+
+---
+
 ## [0.8.0] — 2026-03-28
 
 ### Drafting math audit — corrected formulas to standard block rules
