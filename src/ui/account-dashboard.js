@@ -50,6 +50,7 @@ export function openAccountDashboard(section = 'measurements') {
               <button class="acct-nav-item" data-section="subscription">Subscription</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
               <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
+              <button class="acct-nav-item" data-section="affiliate">Affiliate</button>
               <button class="acct-nav-item" data-section="settings">Account Settings</button>
             </nav>
             <button class="acct-close-btn" id="acct-close">✕ Close</button>
@@ -98,6 +99,7 @@ async function _showSection(section) {
     case 'subscription': await _renderSubscription(main, user); break;
     case 'orders':       await _renderOrders(main, user); break;
     case 'giftcards':    await _renderGiftCards(main, user); break;
+    case 'affiliate':    await _renderAffiliate(main, user); break;
     case 'settings':     await _renderSettings(main, user); break;
     default:             main.innerHTML = `<p class="acct-empty">Unknown section.</p>`;
   }
@@ -1257,7 +1259,186 @@ async function _renderGiftCards(main, user) {
   });
 }
 
-// ── 6. Account Settings ───────────────────────────────────────────────────────
+// ── 6. Affiliate Dashboard ────────────────────────────────────────────────────
+async function _renderAffiliate(main, user) {
+  const session = await getSession();
+  const token = session?.access_token;
+
+  if (!token) {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Sign in to view your affiliate dashboard.</p>`;
+    return;
+  }
+
+  let data;
+  try {
+    const res = await fetch('/api/affiliate-dashboard', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    data = await res.json();
+  } catch {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Could not load affiliate data. Please try again.</p>`;
+    return;
+  }
+
+  // Not an affiliate yet
+  if (!data.affiliate) {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty" style="margin-bottom:16px;">You're not signed up as an affiliate yet.</p>
+      <p style="font-size:14px;color:var(--fg-muted, #777);margin-bottom:20px;">Earn 30% commission on every sale you refer. Share your unique link with your audience and get paid monthly via PayPal.</p>
+      <a href="/affiliate" class="btn-pricing" style="display:inline-block;text-decoration:none;">Become an Affiliate</a>`;
+    return;
+  }
+
+  // Pending
+  if (data.affiliate.status === 'pending') {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:24px;text-align:center;">
+        <p style="font-size:16px;font-weight:600;margin:0 0 8px;">Application Under Review</p>
+        <p style="font-size:14px;color:var(--fg-muted, #777);margin:0;">We're reviewing your application for the code <strong style="font-family:'IBM Plex Mono',monospace;">${data.affiliate.code}</strong>. You'll receive an email once you're approved (usually within 48 hours).</p>
+      </div>`;
+    return;
+  }
+
+  // Rejected or paused
+  if (data.affiliate.status !== 'active') {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Your affiliate account is currently ${data.affiliate.status}. Contact us at hello@peoplespatterns.com for details.</p>`;
+    return;
+  }
+
+  // Active affiliate dashboard
+  const s = data.stats;
+  const link = `https://peoplespatterns.com/?ref=${data.affiliate.code}`;
+  const rate = Math.round(data.affiliate.commissionRate * 100);
+
+  let html = `<h2 class="acct-section-title">Affiliate Dashboard</h2>`;
+
+  // Referral link box
+  html += `
+    <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:20px;margin-bottom:20px;">
+      <p style="font-size:13px;font-weight:600;margin:0 0 8px;">Your Referral Link</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" readonly value="${link}" id="aff-link-input" style="flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--border, #d0cdc7);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--bg, #f5f3ef);color:var(--fg, #2c2a26);">
+        <button id="aff-copy-btn" class="btn-pricing" style="padding:10px 20px;font-size:13px;white-space:nowrap;">Copy Link</button>
+      </div>
+      <p style="margin:8px 0 0;font-size:12px;color:var(--fg-muted, #888);">Code: <strong>${data.affiliate.code}</strong> | Commission rate: ${rate}%</p>
+    </div>`;
+
+  // Stats cards
+  html += `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:12px;margin-bottom:20px;">
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Clicks</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.totalClicks}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Conversions</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.totalConversions}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Conv. Rate</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.conversionRate}%</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Total Earned</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;color:var(--gold, #c9a96e);">$${(s.totalEarnedCents / 100).toFixed(2)}</p>
+      </div>
+    </div>`;
+
+  // Earnings breakdown
+  html += `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px;margin-bottom:24px;">
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:14px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Pending</p>
+        <p style="font-size:18px;font-weight:600;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">$${(s.pendingCents / 100).toFixed(2)}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:14px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Paid</p>
+        <p style="font-size:18px;font-weight:600;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">$${(s.paidCents / 100).toFixed(2)}</p>
+      </div>
+    </div>`;
+
+  // PayPal email
+  html += `
+    <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;margin-bottom:24px;">
+      <p style="font-size:13px;font-weight:600;margin:0 0 4px;">PayPal Email for Payouts</p>
+      <p style="font-size:14px;margin:0;color:var(--fg-muted, #777);">${data.affiliate.paypalEmail || 'Not set - contact hello@peoplespatterns.com to add one'}</p>
+    </div>`;
+
+  // Recent conversions table
+  if (data.recentConversions && data.recentConversions.length > 0) {
+    html += `<h3 style="font-size:15px;font-weight:600;margin:0 0 12px;">Recent Conversions</h3>
+      <div style="overflow-x:auto;margin-bottom:24px;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border, #e0ddd6);">
+              <th style="text-align:left;padding:8px;font-weight:600;">Date</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Sale</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Commission</th>
+              <th style="text-align:center;padding:8px;font-weight:600;">Status</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    for (const c of data.recentConversions) {
+      const date = new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const statusColor = c.status === 'paid' ? '#4a8a5a' : c.status === 'approved' ? 'var(--gold, #c9a96e)' : 'var(--fg-muted, #888)';
+      html += `<tr style="border-bottom:1px solid var(--border, #e0ddd6);">
+        <td style="padding:8px;">${date}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;">$${(c.order_total_cents / 100).toFixed(2)}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;">$${(c.commission_cents / 100).toFixed(2)}</td>
+        <td style="text-align:center;padding:8px;"><span style="font-size:11px;font-weight:600;text-transform:uppercase;color:${statusColor};">${c.status}</span></td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  // Monthly breakdown
+  const months = Object.entries(data.monthly || {}).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
+  if (months.length > 0) {
+    html += `<h3 style="font-size:15px;font-weight:600;margin:0 0 12px;">Monthly Breakdown</h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border, #e0ddd6);">
+              <th style="text-align:left;padding:8px;font-weight:600;">Month</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Conversions</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Earned</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    for (const [month, d] of months) {
+      html += `<tr style="border-bottom:1px solid var(--border, #e0ddd6);">
+        <td style="padding:8px;">${month}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;">${d.conversions}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;">$${(d.earnedCents / 100).toFixed(2)}</td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  main.innerHTML = html;
+
+  // Copy link button
+  const copyBtn = document.getElementById('aff-copy-btn');
+  const linkInput = document.getElementById('aff-link-input');
+  if (copyBtn && linkInput) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(linkInput.value).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+      }).catch(() => {
+        linkInput.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+      });
+    });
+  }
+}
+
+// ── 7. Account Settings ───────────────────────────────────────────────────────
 async function _renderSettings(main, user) {
   let html = `<h2 class="acct-section-title">Account Settings</h2>
     <div class="acct-settings-group">

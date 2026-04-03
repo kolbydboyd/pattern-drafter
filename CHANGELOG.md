@@ -4,6 +4,23 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.9.0] — 2026-04-03
+
+### Affiliate program (built, not yet live)
+- 30% commission referral system for sewing bloggers, YouTubers, and influencers
+- Referral tracking via `?ref=CODE` URL parameter with 30-day first-touch cookie attribution
+- Public `/affiliate` signup page with application form, commission table, and how-it-works
+- 3 new API endpoints: `affiliate-apply.js`, `affiliate-click.js`, `affiliate-dashboard.js`
+- Affiliate tab in account dashboard: referral link with copy button, stats cards (clicks, conversions, conversion rate, total earned), earnings breakdown (pending/paid), recent conversions table, monthly breakdown
+- Stripe metadata integration: affiliate code passed through all checkout modes (pattern, bundle, subscription)
+- Webhook conversion recording with self-referral prevention and per-affiliate commission rates
+- 4 new email templates: application confirmation, approval with referral link, admin notification, payout confirmation
+- Database migration `004_add_affiliate_program.sql`: affiliates, affiliate_clicks, affiliate_conversions, affiliate_payouts tables
+- Manual PayPal payouts with $20 minimum threshold
+- **Not yet activated** - requires running the migration and deploying
+
+---
+
 ## [0.8.0] — 2026-03-28
 
 ### Drafting math audit — corrected formulas to standard block rules

@@ -41,6 +41,10 @@ import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession, signIn } from '../lib/auth.js';
+import { checkAndSetAffiliateCookie } from '../lib/affiliate.js';
+
+// Check for affiliate referral on every page load
+checkAndSetAffiliateCookie();
 
 // ── Beta mode ─────────────────────────────────────────────────────────────────
 // When true: everyone gets free downloads via email gate. No purchase required.

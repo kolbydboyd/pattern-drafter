@@ -22,7 +22,7 @@ npm run build   # production build to /dist
 | Auth & DB | Supabase | User accounts, purchase records, wishlists, newsletter signups |
 | Payments | Stripe | Checkout sessions, webhooks, subscription and per-pattern purchases |
 | Email | Resend | Transactional emails (purchase confirmation, welcome, download links) |
-| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list` |
+| Serverless | Vercel Functions | `/api/checkout`, `/api/stripe-webhook`, `/api/generate-pattern`, `/api/join-list`, `/api/affiliate-*` |
 | Hosting | Vercel | Auto-deploys on push to main |
 
 ## Environment Variables
@@ -95,11 +95,16 @@ src/
     supabase.js          # Supabase client init + auth helpers
     db.js                # DB queries (purchases, wishlists, downloads)
     email-templates.js   # HTML email templates (welcome, purchase confirmation)
+    affiliate.js         # Referral cookie tracking (?ref= param, 30-day first-touch)
+    checkout.js          # Client-side checkout helpers (pattern, bundle, subscription)
 api/
   checkout.js            # Stripe checkout session creation
   stripe-webhook.js      # Stripe webhook handler (payment confirmation, DB writes)
   generate-pattern.js    # PDF generation + download (purchase-verified, rate-limited)
   join-list.js           # Newsletter email capture
+  affiliate-apply.js     # Affiliate program application handler
+  affiliate-click.js     # Referral click recording
+  affiliate-dashboard.js # Affiliate stats API (clicks, conversions, earnings)
 docs/
   GARMENT-MODULE-SPEC.md   # How to add a new garment
   MODULE-STATUS.md         # Per-module interface audit and known issues
@@ -211,8 +216,9 @@ See `docs/MODULE-STATUS.md` for a full interface audit and known issues per modu
 - **Print layout**: Print-ready tiled output at true scale with piece labels and SA key
 - **Dark mode**: Persistent light/dark toggle via localStorage
 - **Auth**: Sign in / sign up with email or magic link via Supabase
-- **Account dashboard**: My Patterns (active/archived/trash), wishlist, profile
+- **Account dashboard**: My Patterns (active/archived/trash), wishlist, profile, affiliate stats
 - **Wishlist**: Heart icon on garment cards, synced to Supabase
+- **Affiliate program**: 30% commission referral tracking via `?ref=` links, public signup page, dashboard with earnings/clicks/conversions (built, not yet live)
 
 ## Engine
 

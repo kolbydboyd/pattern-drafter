@@ -13,6 +13,7 @@ function mpaRewrites() {
       server.middlewares.use((req, _res, next) => {
         if (req.url.match(/^\/learn\/.+/))    req.url = '/learn.html';
         if (req.url.match(/^\/patterns\/.+/)) req.url = '/patterns.html';
+        if (req.url === '/affiliate')          req.url = '/affiliate.html';
         next();
       });
     },
@@ -37,6 +38,7 @@ export default defineConfig({
         learn:     resolve(__dirname, 'learn.html'),
         pricing:   resolve(__dirname, 'pricing.html'),
         about:     resolve(__dirname, 'about.html'),
+        affiliate: resolve(__dirname, 'affiliate.html'),
       },
     },
   },
