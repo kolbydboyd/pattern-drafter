@@ -1,131 +1,132 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-// Vercel serverless function - self-service tester make submission.
-// Accepts JSON with base64-encoded photos, uploads to Supabase Storage,
-// creates tester + tester_makes rows with status 'pending'.
+// Vercel serverless function — tester feedback submission.
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from './_rate-limit.js';
+import { sendEmail } from './send-email.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 10 });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
-const VALID_GARMENTS = new Set([
-  'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts',
-  'straight-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
-  'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
-  'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w', 'button-up-w',
-  'shell-blouse-w', 'fitted-tee-w', 'slip-skirt-w', 'a-line-skirt-w',
-  'shirt-dress-w', 'wrap-dress-w',
-]);
-
-const MAX_PHOTOS = 4;
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB per photo
+const VALID_FIT     = new Set(['perfect', 'good', 'needs_adjustment', 'poor']);
+const VALID_AREA    = new Set(['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a']);
+const FIT_AREA_KEYS = ['waist_fit', 'hip_fit', 'length', 'shoulder', 'armhole', 'chest_fit', 'thigh_fit', 'rise_fit', 'sleeve_fit'];
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { displayName, instagramHandle, email, garmentId, caption, photos } = req.body ?? {};
+  const token = req.headers.authorization?.split('Bearer ')[1];
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !user) return res.status(401).json({ error: 'Unauthorized' });
+
+  const {
+    assignmentId,
+    overallFit,
+    fitAreas = {},
+    difficultyRating,
+    instructionsClarity,
+    wouldSewAgain = true,
+    fitNotes = '',
+    constructionNotes = '',
+    fabricUsed = '',
+    modifications = '',
+    tips = '',
+    photos = [],
+    photoCaptions = [],
+    featureConsent = false,
+    socialHandle = '',
+  } = req.body ?? {};
 
   // Validate required fields
-  if (!displayName || typeof displayName !== 'string' || displayName.trim().length < 1) {
-    return res.status(400).json({ error: 'displayName is required' });
+  if (!assignmentId) return res.status(400).json({ error: 'assignmentId required' });
+  if (!VALID_FIT.has(overallFit)) return res.status(400).json({ error: 'Invalid overallFit' });
+  if (!difficultyRating || difficultyRating < 1 || difficultyRating > 5) {
+    return res.status(400).json({ error: 'difficultyRating must be 1-5' });
   }
-  if (!garmentId || !VALID_GARMENTS.has(garmentId)) {
-    return res.status(400).json({ error: 'Invalid garmentId' });
-  }
-  if (!Array.isArray(photos) || photos.length < 1 || photos.length > MAX_PHOTOS) {
-    return res.status(400).json({ error: `Provide 1-${MAX_PHOTOS} photos` });
-  }
-
-  // Sanitize instagram handle (strip @ if included)
-  const cleanHandle = instagramHandle
-    ? instagramHandle.trim().replace(/^@/, '').slice(0, 60)
-    : null;
-
-  // Find or create tester
-  let testerId;
-  const cleanEmail = email ? email.trim().toLowerCase().slice(0, 200) : null;
-
-  if (cleanEmail) {
-    const { data: existing } = await supabase
-      .from('testers')
-      .select('id')
-      .eq('email', cleanEmail)
-      .single();
-    if (existing) {
-      testerId = existing.id;
-      // Update display name and handle if changed
-      await supabase.from('testers').update({
-        display_name: displayName.trim().slice(0, 100),
-        instagram_handle: cleanHandle,
-      }).eq('id', testerId);
-    }
+  if (!instructionsClarity || instructionsClarity < 1 || instructionsClarity > 5) {
+    return res.status(400).json({ error: 'instructionsClarity must be 1-5' });
   }
 
-  if (!testerId) {
-    const { data: newTester, error: testerErr } = await supabase
-      .from('testers')
-      .insert({
-        display_name: displayName.trim().slice(0, 100),
-        instagram_handle: cleanHandle,
-        email: cleanEmail,
-      })
-      .select('id')
-      .single();
-    if (testerErr) {
-      console.error('tester-submit: tester insert error:', testerErr.message);
-      return res.status(500).json({ error: 'Could not create tester profile' });
-    }
-    testerId = newTester.id;
+  // Verify user owns the assignment
+  const { data: assignment, error: assignErr } = await supabase
+    .from('tester_assignments')
+    .select('id, garment_id, status')
+    .eq('id', assignmentId)
+    .eq('user_id', user.id)
+    .single();
+
+  if (assignErr || !assignment) return res.status(404).json({ error: 'Assignment not found' });
+  if (assignment.status === 'submitted' || assignment.status === 'featured') {
+    return res.status(400).json({ error: 'Feedback already submitted for this assignment' });
   }
 
-  // Upload photos to Supabase Storage
-  const photoUrls = [];
-  for (let i = 0; i < photos.length; i++) {
-    const photo = photos[i];
-    if (!photo.data || !photo.contentType) {
-      return res.status(400).json({ error: `Photo ${i + 1}: missing data or contentType` });
-    }
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(photo.contentType)) {
-      return res.status(400).json({ error: `Photo ${i + 1}: unsupported type. Use JPEG, PNG, or WebP.` });
-    }
-    const buf = Buffer.from(photo.data, 'base64');
-    if (buf.length > MAX_FILE_SIZE) {
-      return res.status(400).json({ error: `Photo ${i + 1}: exceeds 5 MB limit` });
-    }
-    const ext = photo.contentType.split('/')[1] === 'jpeg' ? 'jpg' : photo.contentType.split('/')[1];
-    const path = `${testerId}/${Date.now()}-${i}.${ext}`;
-
-    const { error: uploadErr } = await supabase.storage
-      .from('tester-makes')
-      .upload(path, buf, { contentType: photo.contentType, upsert: false });
-    if (uploadErr) {
-      console.error('tester-submit: upload error:', uploadErr.message);
-      return res.status(500).json({ error: `Failed to upload photo ${i + 1}` });
-    }
-
-    const { data: urlData } = supabase.storage
-      .from('tester-makes')
-      .getPublicUrl(path);
-    photoUrls.push(urlData.publicUrl);
+  // Sanitize fit areas
+  const cleanFitAreas = {};
+  for (const key of FIT_AREA_KEYS) {
+    const val = fitAreas[key];
+    if (val && VALID_AREA.has(val)) cleanFitAreas[key] = val;
   }
 
-  // Insert tester_makes row
-  const { error: makeErr } = await supabase
-    .from('tester_makes')
+  // Sanitize photos (array of storage paths, max 10)
+  const cleanPhotos   = (photos || []).filter(p => typeof p === 'string').slice(0, 10);
+  const cleanCaptions = (photoCaptions || []).filter(c => typeof c === 'string').slice(0, 10);
+
+  // Insert submission
+  const { data: submission, error: insertErr } = await supabase
+    .from('tester_submissions')
     .insert({
-      tester_id: testerId,
-      garment_id: garmentId,
-      photo_urls: photoUrls,
-      caption: caption ? caption.trim().slice(0, 500) : null,
-      status: 'pending',
-    });
+      assignment_id:        assignmentId,
+      user_id:              user.id,
+      garment_id:           assignment.garment_id,
+      overall_fit:          overallFit,
+      fit_areas:            cleanFitAreas,
+      difficulty_rating:    difficultyRating,
+      instructions_clarity: instructionsClarity,
+      would_sew_again:      !!wouldSewAgain,
+      fit_notes:            fitNotes.trim().slice(0, 2000),
+      construction_notes:   constructionNotes.trim().slice(0, 2000),
+      fabric_used:          fabricUsed.trim().slice(0, 500),
+      modifications:        modifications.trim().slice(0, 2000),
+      tips:                 tips.trim().slice(0, 1000),
+      photos:               cleanPhotos,
+      photo_captions:       cleanCaptions,
+      feature_consent:      !!featureConsent,
+      social_handle:        socialHandle?.trim().slice(0, 100) || null,
+    })
+    .select()
+    .single();
 
-  if (makeErr) {
-    console.error('tester-submit: make insert error:', makeErr.message);
+  if (insertErr) {
+    console.error('tester-submit insert error:', insertErr.message);
     return res.status(500).json({ error: 'Could not save submission' });
   }
 
-  return res.status(200).json({ ok: true });
+  // Mark assignment as submitted
+  await supabase
+    .from('tester_assignments')
+    .update({
+      status:       'submitted',
+      completed_at: new Date().toISOString(),
+      updated_at:   new Date().toISOString(),
+    })
+    .eq('id', assignmentId);
+
+  // Send confirmation email
+  try {
+    const name = user.user_metadata?.name || user.email?.split('@')[0] || '';
+    await sendEmail('TESTER_SUBMISSION_RECEIVED', user.email, {
+      name,
+      garmentName: assignment.garment_id,
+    });
+  } catch (e) {
+    console.error('tester submit email error:', e.message);
+  }
+
+  return res.status(200).json({ ok: true, submission });
 }

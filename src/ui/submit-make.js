@@ -133,7 +133,7 @@ form.addEventListener('submit', async (e) => {
       photos,
     };
 
-    const res = await fetch('/api/tester-submit', {
+    const res = await fetch('/api/ugc-submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),

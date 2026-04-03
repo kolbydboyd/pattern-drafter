@@ -128,15 +128,12 @@ export const FABRIC_TYPES = {
   'nylon-taslan':     { name: 'Nylon taslan', weight: '3–5 oz/yd²', stretch: false, category: 'woven', notes: 'Water resistant, for swim/gym' },
 
   // ── Knit ──────────────────────────────────────────────────────────────────
-  'jersey':           { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit' },
   'cotton-jersey':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - cotton knits shrink 3–5%' },
   'rayon-jersey':     { name: 'Rayon jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Drapey, fluid; pre-wash gently' },
   'poly-jersey':      { name: 'Poly jersey / interlock', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Minimal shrink; great for casual wear' },
   'cotton-modal':     { name: 'Cotton-modal blend', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft; minimal shrink' },
   'bamboo-jersey':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Naturally antibacterial; wash cold' },
-  'jersey-cotton':    { name: 'Cotton jersey', weight: '5–7 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-wash - knits shrink 3–5%' },
-  'jersey-modal':     { name: 'Modal jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Silky soft with excellent drape' },
-  'jersey-bamboo':    { name: 'Bamboo jersey', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: 'Soft and eco-friendly; wash cold' },
+  'heavyweight-jersey':{ name: 'Heavyweight cotton jersey (12 oz)', weight: '10–14 oz/yd²', stretch: true, category: 'knit', notes: 'Pre-shrunk 100% cotton single jersey; machine washable' },
   'french-terry':     { name: 'French terry', weight: '8–10 oz/yd²', stretch: true, category: 'knit' },
   'fleece':           { name: 'Cotton or poly fleece', weight: '10–14 oz/yd²', stretch: true, category: 'knit' },
   'sweatshirt-fleece':{ name: 'Sweatshirt fleece', weight: '10–12 oz/yd²', stretch: true, category: 'knit' },
@@ -214,7 +211,6 @@ export const STANDARD_NOTIONS = {
   'drawstring':        { name: '½–¾″ flat drawstring cord', notes: 'Woven cotton or nylon' },
   'interfacing-light':  { name: 'Lightweight fusible interfacing', notes: 'Pellon SF101 or similar - for lightweight wovens and facings' },
   'interfacing-med':    { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
-  'interfacing-medium': { name: 'Medium fusible interfacing', notes: 'Pellon SF101 or similar' },
   'interfacing-heavy':  { name: 'Heavy fusible interfacing', notes: 'Pellon 809 Decor-Bond' },
   'webbing-1.5':       { name: '1.5″ nylon webbing', notes: 'Stiff, for internal belt/holster support' },
   'zipper':            { name: 'Zipper', notes: 'Length = rise measurement' },
@@ -270,10 +266,42 @@ export function buildMaterialsSpec(config) {
   const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
   const rawNeedle = typeof config.needle === 'string' ? NEEDLE_TYPES[config.needle] : config.needle;
 
+  // Determine fabric categories used by this garment
+  const fabricEntries = config.fabrics.map(f =>
+    typeof f === 'string' ? FABRIC_TYPES[f] : f
+  ).filter(Boolean);
+  const hasWoven = fabricEntries.some(f => f.category === 'woven');
+  const hasKnit  = fabricEntries.some(f => f.category === 'knit');
+
+  const machineSettings = [];
+  if (hasWoven) {
+    machineSettings.push({
+      label: 'Woven fabrics (cotton twill, gabardine, muslin, linen)',
+      tension: '4–4.5',
+      stitch: 'Straight stitch, length 2.5mm',
+      notes: 'Backstitch 3–4 stitches at start and end of every seam',
+    });
+  }
+  if (hasKnit) {
+    machineSettings.push({
+      label: 'Knit fabrics (cotton jersey, rayon jersey)',
+      tension: '3.5–4',
+      stitch: 'Stretch stitch or narrow zigzag (width 0.5, length 2.5)',
+      notes: 'Reduce presser foot pressure if available',
+    });
+  }
+
+  const troubleshooting = [
+    'Loops on the back of fabric = top tension too loose, increase by 0.5',
+    'Loops on the front of fabric = bobbin tension issue, re-seat bobbin',
+    'Thread breaking = re-thread from scratch with presser foot UP',
+    'Skipped stitches = change needle, ensure correct needle type for fabric',
+    'Fabric not feeding = check feed dogs are up, clean lint under needle plate',
+    'Puckering = reduce tension by 0.5 and/or reduce presser foot pressure',
+  ];
+
   return {
-    fabrics: config.fabrics.map(f =>
-      enrichFabric(typeof f === 'string' ? { ...FABRIC_TYPES[f] } : f)
-    ),
+    fabrics: fabricEntries.map(f => enrichFabric({ ...f })),
     notions: config.notions.map(n =>
       enrichNotion(
         typeof n === 'string'
@@ -289,5 +317,7 @@ export function buildMaterialsSpec(config) {
       typeof s === 'string' ? STITCH_TYPES[s] : s
     ),
     notes: config.notes || [],
+    machineSettings,
+    troubleshooting,
   };
 }

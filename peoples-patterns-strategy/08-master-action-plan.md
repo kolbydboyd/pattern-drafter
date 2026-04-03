@@ -28,6 +28,36 @@ Your positioning: **"The easiest way for home sewists to make clothes that actua
 
 ---
 
+## Competitive Landscape
+
+| Competitor | Strengths | Weaknesses |
+|---|---|---|
+| FreeSewing | Open-source, MIT-licensed, deep technical community | Steep UX, intimidating to beginners |
+| Bootstrap Fashion | Large customer base, cross-stitch patterns too | Generic, US, limited education |
+| Lekala | Large garment selection | Generic, fit, limited education |
+| Seamwork / Seamly | Custom fit from fashion, measurements | Dated interface |
+| Apostrophe | Modern approach | Newer, limited catalog |
+
+Our edge: **UX simplicity + community + education + demonstrated fit via sewn examples.** The proof is in the garment.
+
+---
+
+## Key Principles
+
+- **MIT-discussed pattern math is fair game.** Mechanical/actual drafting algos, ease ratios, correction factors — proprietary logic is not copyrightable. Study/benchmarking of competitor logic is legally sound.
+- **AI as force multiplier.** Content writing, SEO, email sequences, affiliate matching, strategy, modeling — all things AI accelerates. Keep personal brand and manual labor in the foreground.
+- **Fit needs real investment before committing.** Self-aware about moving between ideas. Follow through to sell while buy-in for the product is hot.
+- **Competitive differentiation is UX + education + proof.** Not uniqueness of concept but simplicity, speed, and demonstrated fit.
+
+---
+
+## Data Strategy (Long-Term)
+
+- **Proportion-Aware Intelligence:** Collect post-sew adjustment data → map to body proportion ratios → surface recommendations → eventually auto-adjust drafting defaults. See ROADMAP.md for phased rollout.
+- **B2B Data Accelerator:** Studio partnerships provide structured high-volume sewing/fitting data from multiple garments at varied body types — accelerates the feedback loop that makes the proportion engine viable.
+
+---
+
 ## What's Been Done
 
 - [x] 23 garment modules built
@@ -247,6 +277,8 @@ That last one is the most important. If you're wearing it, you can sell it.
 6. **06-upsell-crosssell-downsell.md** — Revenue maximization per customer touchpoint
 7. **07-pricing-strategy.md** — Three-tier pricing, bundles, membership tiers, per-garment pricing
 8. **08-master-action-plan.md** — This document: everything in one place
+9. **09-video-content-ladder.md** — 13 videos across 3 funnel rungs (problem → solution → product awareness)
+10. **10-video-script-learn-to-sew.md** — Full script for "Why You Should Learn to Sew in [YEAR]" (R1-V4)
 
 ---
 

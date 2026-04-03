@@ -4,6 +4,93 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.11.0] — 2026-04-03
+
+### Affiliate program (built, not yet live)
+- 30% commission referral system for sewing bloggers, YouTubers, and influencers
+- Referral tracking via `?ref=CODE` URL parameter with 30-day first-touch cookie attribution
+- Public `/affiliate` signup page with application form, commission table, and how-it-works
+- 3 new API endpoints: `affiliate-apply.js`, `affiliate-click.js`, `affiliate-dashboard.js`
+- Affiliate tab in account dashboard: referral link with copy button, stats cards (clicks, conversions, conversion rate, total earned), earnings breakdown (pending/paid), recent conversions table, monthly breakdown
+- Stripe metadata integration: affiliate code passed through all checkout modes (pattern, bundle, subscription)
+- Webhook conversion recording with self-referral prevention and per-affiliate commission rates
+- 4 new email templates: application confirmation, approval with referral link, admin notification, payout confirmation
+- Database migration `005_add_affiliate_program.sql`: affiliates, affiliate_clicks, affiliate_conversions, affiliate_payouts tables
+- Manual PayPal payouts with $20 minimum threshold
+- **Not yet activated** - requires running the migration and deploying
+
+---
+
+## [0.10.0] — 2026-04-03 (ready to implement - not yet live)
+
+### Email marketing system
+- **Email opt-in UI** shown after free pattern redemption (`app.js`) and paid purchases (`success.js`). Headline: "Get weekly fit tips + early new pattern drops". Gold CTA button, neutral dismiss, PostHog tracking.
+- **5-email welcome sequence** dripped over 13 days: Day 0 (immediate), Day 2 (fit tips), Day 5 (pattern piece guide), Day 9 (social proof/tester calls), Day 13 (20% off credit pack nudge). Day 0 sent immediately at opt-in; Days 2-13 queued in `welcome_sequence` table and sent by daily cron.
+- **Weekly digest** sends every Sunday via the existing daily cron. Compares `ARTICLES` array `datePublished` against a `digest_state` watermark. Includes article summary cards and tester call section. Only sent to opted-in subscribers.
+- **Abandoned pattern reminders** for users who generated but didn't purchase (3-7 day window). Only sent to opted-in users. CTA: "25% off your first credit pack".
+- **Landing page newsletter** copy updated from "Get notified when new patterns drop" to "Weekly fit tips + new pattern drops" with "One email a week, max. Unsubscribe any time." subtext.
+- **`api/join-list.js`** now sets `marketing_opt_in = true` and enrolls in welcome sequence (replaces old generic welcome email).
+- **7 new email templates** added to `email-templates.js`: 5 welcome sequence, weekly digest, abandoned pattern reminder. All use existing branded shell/btn/rule helpers.
+- **8 new dispatcher cases** in `send-email.js`: `WELCOME_SEQ_0` through `WELCOME_SEQ_4`, `WEEKLY_DIGEST`, `ABANDONED_PATTERN_REMINDER`.
+- **3 new cron triggers** in `cron-emails.js`: `sendWelcomeSequenceDrips()`, `sendWeeklyDigest()`, `sendAbandonedPatternReminders()`.
+
+### Credit packs
+- **2-Credit Pack at $22** added to `CREDIT_PACKS` in `pricing.js`. Any tier, credits never expire.
+- Full checkout flow: `create-checkout.js` handles `mode: 'credit_pack'`, `stripe-webhook.js` fulfills by adding credits to `profiles.credit_pack_credits`, `checkout.js` exports `buyCreditPack()`.
+- Credit Packs section added to `pricing.html` between Bundles and Memberships, wired in `pricing.js`.
+
+### Database migration (`004_email_marketing.sql`)
+- `profiles`: added `marketing_opt_in`, `opted_in_at`, `credit_pack_credits` columns
+- `newsletter`: added `marketing_opt_in`, `opted_in_at` columns
+- New tables: `welcome_sequence` (drip scheduling), `digest_state` (cron watermarks)
+
+### Infrastructure
+- New endpoint: `api/email-opt-in.js` (records opt-in, sends Day 0, enqueues Days 2-13)
+- `vercel.json`: added function configs for `email-opt-in.js` and `cron-emails.js`
+
+### To activate
+- Run `supabase/migrations/004_email_marketing.sql` in Supabase SQL editor
+- Create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in `src/lib/pricing.js`
+
+---
+
+## [0.9.0] — 2026-04-01
+
+### Pattern Tester Program
+- Added complete self-serve tester flow: apply, get approved, sew muslins, submit structured fit feedback with photos, get featured on site and socials
+- New public landing page at `/tester` with how-it-works, perks, auth-aware application form, and featured gallery
+- New "Tester Program" section in account dashboard with assignment tracking, feedback modal (9 body areas, difficulty/clarity ratings, photo upload), and feature consent
+- 4 new API endpoints: `tester-apply`, `tester-admin`, `tester-submit`, `tester-upload`
+- 5 new email templates: application received, approved, rejected, submission received, featured
+- Supabase migration: `tester_applications`, `tester_assignments`, `tester_submissions` tables with RLS, `tester-photos` storage bucket, `is_tester`/`is_admin` profile flags
+- Admin actions: list/approve/reject applications, grant free credits, create assignments, feature submissions
+
+### Navigation
+- Added "Tester" link to desktop header nav, mobile nav, and footer across all 12 HTML pages
+
+---
+
+## [0.8.1] — 2026-03-29
+
+### Codebase audit — dead code removal and cleanup
+- Removed bogus `tmux` npm dependency (supply chain risk -- unmaintained, unrelated package)
+- Removed 4 duplicate fabric entries from `materials.js`: bare `jersey`, `jersey-cotton`, `jersey-modal`, `jersey-bamboo` (canonical keys are `cotton-jersey`, `cotton-modal`, `bamboo-jersey`)
+- Updated `wrap-dress-w.js` to use canonical fabric keys
+- Removed `interfacing-medium` from `STANDARD_NOTIONS` (trap for misuse -- `interfacing-med` is the canonical key)
+- Deleted 24 dead garment imports from `app.js` (all garments accessed via `GARMENTS` from `index.js`)
+- Removed unused `easeDistribution` import from `app.js`
+- Fixed A-line skirt lining pieces: now compute actual dimensions from panel instead of hardcoded 1x1" placeholder
+
+### Infrastructure
+- Added GitHub Actions CI workflow -- runs `npm run build` on every push to main and PR
+- Added Sentry browser error monitoring (`@sentry/browser`) -- catches unhandled JS errors in production
+- Added per-IP rate limiting to 5 API endpoints: `join-list` (5/min), `signup-free` (5/min), `create-checkout` (10/min), `use-free-credit` (5/min), `submit-feedback` (10/min)
+
+### README
+- Added missing `denim-jacket` to garment module table (was in code but not listed)
+
+---
+
 ## [0.8.0] — 2026-03-28
 
 ### Drafting math audit — corrected formulas to standard block rules
