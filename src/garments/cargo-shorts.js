@@ -209,7 +209,6 @@ export default {
       `Notch at CF, CB, and both side seams (front panel = ${fmtInches(frontW)}, back panel = ${fmtInches(backW)} from each side seam)`,
       opts.fly === 'drawstring' ? `Mark 2 buttonholes at CF, 1″ apart, on the inner half (near the fold). On the printed on-fold piece, mark 1 buttonhole ½″ from the fold.` : '',
     ].filter(Boolean).join(' · ');
-
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
@@ -244,8 +243,8 @@ export default {
       pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) \xb7 5\u00bd\u2033 wide \xd7 3\u2033 tall \xb7 Covers finished pocket opening with \u00bc\u2033 overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket', sa });
     }
     if (opts.backPocket !== 'none') {
-      const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
-      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (2 per back panel)' : ' (one per back panel)'}`, dimensions: { width: 6, height: 7 }, type: 'pocket', sa, marks: [
+      const qty = opts.backPocket === 'patch2' ? 2 : 1;
+      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (one per back panel)' : ''}`, dimensions: { width: 6, height: 7 }, type: 'pocket', sa, marks: [
         { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
       ] });
     }
