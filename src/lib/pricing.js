@@ -147,7 +147,7 @@ export const BUNDLES = {
   beach_day: {
     cents:        3900,
     label:        'Beach Day',
-    priceId:      'price_PLACEHOLDER_beach_day',
+    priceId:      'price_1TIDCtEcctnfQkkL3ANEqiJq',
     patternCount: 4,
     description:  'Everything you need for a day at the shore.',
     curated:      true,
@@ -158,7 +158,7 @@ export const BUNDLES = {
   weekend_casual: {
     cents:        3400,
     label:        'Weekend Casual',
-    priceId:      'price_PLACEHOLDER_weekend_casual',
+    priceId:      'price_1TIDDNEcctnfQkkLrZoW9p57',
     patternCount: 3,
     description:  'Laid-back layers for errands, coffee, and beyond.',
     curated:      true,
@@ -169,7 +169,7 @@ export const BUNDLES = {
   athleisure: {
     cents:        3400,
     label:        'Athleisure',
-    priceId:      'price_PLACEHOLDER_athleisure',
+    priceId:      'price_1TIDDnEcctnfQkkLEU0sIcRd',
     patternCount: 3,
     description:  'Gym to couch to grocery run. All day comfort.',
     curated:      true,
@@ -180,7 +180,7 @@ export const BUNDLES = {
   tailored_essentials: {
     cents:        4200,
     label:        'Tailored Essentials',
-    priceId:      'price_PLACEHOLDER_tailored_essentials',
+    priceId:      'price_1TIDEFEcctnfQkkL2nXnChXG',
     patternCount: 3,
     description:  'Sharp, polished pieces that mean business.',
     curated:      true,
@@ -191,7 +191,7 @@ export const BUNDLES = {
   cozy_weekend: {
     cents:        2500,
     label:        'Cozy Weekend',
-    priceId:      'price_PLACEHOLDER_cozy_weekend',
+    priceId:      'price_1TIDEhEcctnfQkkLiSi9GosD',
     patternCount: 3,
     description:  'Soft layers for slow mornings and movie nights.',
     curated:      true,
@@ -202,7 +202,7 @@ export const BUNDLES = {
   summer_capsule_w: {
     cents:        2500,
     label:        'Summer Capsule',
-    priceId:      'price_PLACEHOLDER_summer_capsule_w',
+    priceId:      'price_1TIDFBEcctnfQkkLrT38Krrf',
     patternCount: 3,
     description:  'Light, breezy makes for warm-weather days.',
     curated:      true,
@@ -213,7 +213,7 @@ export const BUNDLES = {
   office_ready_w: {
     cents:        3400,
     label:        'Office Ready',
-    priceId:      'price_PLACEHOLDER_office_ready_w',
+    priceId:      'price_1TIDG1EcctnfQkkLsLDyDqtb',
     patternCount: 3,
     description:  'Professional wardrobe staples that actually fit.',
     curated:      true,
@@ -224,7 +224,7 @@ export const BUNDLES = {
   date_night_w: {
     cents:        2900,
     label:        'Date Night',
-    priceId:      'price_PLACEHOLDER_date_night_w',
+    priceId:      'price_1TIDGYEcctnfQkkLP0piCOIy',
     patternCount: 2,
     description:  'A head-turning dress plus a chic layer for the evening.',
     curated:      true,
@@ -278,7 +278,7 @@ export const CREDIT_PACKS = {
   pack2: {
     cents:       2200,
     label:       '2-Credit Pack',
-    priceId:     'price_CREDIT_PACK_2',  // replace with live Stripe price ID
+    priceId:     'price_1TIDHKEcctnfQkkLFZOWG5Cs',
     creditCount: 2,
     description: '2 pattern credits - use on any pattern, any tier',
   },
