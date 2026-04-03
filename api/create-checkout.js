@@ -3,15 +3,20 @@
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
 import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
+import { rateLimit } from './_rate-limit.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 10 });
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  try {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const origin = req.headers.origin || 'https://peoplespatterns.com';
-  const { mode = 'pattern' } = req.body;
+  const { mode = 'pattern', affiliateCode = '' } = req.body;
 
   // ── Single pattern checkout ────────────────────────────────────────────────
   if (mode === 'pattern') {
@@ -63,6 +68,7 @@ export default async function handler(req, res) {
         garmentId,
         pendingId:    pendingRow.id,
         a0_addon:     addA0 ? 'true' : 'false',
+        affiliateCode,
       },
     });
 
@@ -90,6 +96,7 @@ export default async function handler(req, res) {
         bundleId,
         garmentIds:   JSON.stringify(garmentIds),
         patternCount: String(bundle.patternCount),
+        affiliateCode,
       },
     });
 
@@ -115,6 +122,7 @@ export default async function handler(req, res) {
         checkoutMode: 'subscription',
         userId:       userId ?? '',
         planId,
+        affiliateCode,
       },
       subscription_data: {
         metadata: {
@@ -122,6 +130,48 @@ export default async function handler(req, res) {
           planId,
           credits:  String(plan.credits),
         },
+      },
+    });
+
+    return res.status(200).json({ url: session.url });
+  }
+
+  // ── A0 copy-shop upgrade (post-purchase) ──────────────────────────────────
+  if (mode === 'a0_upgrade') {
+    const { purchaseId, userId } = req.body;
+    if (!purchaseId || !userId) {
+      return res.status(400).json({ error: 'Missing purchaseId or userId' });
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+
+    const { data: purchase, error: purchaseErr } = await supabase
+      .from('purchases')
+      .select('id, a0_addon')
+      .eq('id', purchaseId)
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (purchaseErr || !purchase) {
+      return res.status(400).json({ error: 'Purchase not found' });
+    }
+    if (purchase.a0_addon) {
+      return res.status(400).json({ error: 'A0 + projector file already included in this purchase' });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: [{ price: A0_UPSELL.priceId, quantity: 1 }],
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:  `${origin}/account`,
+      metadata: {
+        checkoutMode: 'a0_upgrade',
+        userId:       userId ?? '',
+        purchaseId,
       },
     });
 
@@ -155,4 +205,9 @@ export default async function handler(req, res) {
   }
 
   return res.status(400).json({ error: `Unknown checkout mode: ${mode}` });
+
+  } catch (err) {
+    console.error('Checkout handler error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 }

@@ -41,6 +41,8 @@ async function init() {
     initBundleSuccess(info);
   } else if (checkoutMode === 'subscription') {
     initSubscriptionSuccess(info);
+  } else if (checkoutMode === 'a0_upgrade') {
+    initA0UpgradeSuccess(info);
   } else if (checkoutMode === 'credit_pack') {
     initCreditPackSuccess(info);
   }
@@ -181,6 +183,27 @@ function initSubscriptionSuccess(info) {
   });
 }
 
+// ── A0 upgrade success ──────────────────────────────────────────────────────
+
+function initA0UpgradeSuccess(info) {
+  const el = document.getElementById('success-state');
+  const elName   = document.getElementById('success-garment-name');
+  const elAmount = document.getElementById('success-amount');
+
+  elName.textContent   = 'A0 / Projector / Copy Shop Upgrade';
+  elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
+  el.hidden = false;
+
+  const dlBtn = document.getElementById('success-download-btn');
+  dlBtn.textContent = 'Go to My Patterns';
+  dlBtn.addEventListener('click', () => { window.location.href = '/account'; });
+
+  trackEvent('a0_upgrade_completed', {
+    purchase_id: info.purchaseId,
+    amount:      info.amountCents ? info.amountCents / 100 : undefined,
+  });
+}
+
 // ── Credit pack success ─────────────────────────────────────────────────────
 
 function initCreditPackSuccess(info) {
@@ -201,7 +224,6 @@ async function initEmailOptIn(user) {
   const card = document.getElementById('success-email-optin');
   if (!card) return;
 
-  // Check if already opted in
   if (user) {
     try {
       const { createClient } = await import('@supabase/supabase-js');
@@ -214,10 +236,9 @@ async function initEmailOptIn(user) {
         .select('marketing_opt_in')
         .eq('id', user.id)
         .single();
-      if (data?.marketing_opt_in) return; // already opted in, don't show
+      if (data?.marketing_opt_in) return;
     } catch { /* show opt-in anyway */ }
 
-    // Pre-fill email
     const input = document.getElementById('success-optin-email');
     if (input && user.email) input.value = user.email;
   }

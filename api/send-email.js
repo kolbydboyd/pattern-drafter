@@ -16,6 +16,15 @@ import {
   subscriptionWelcomeEmail,
   subscriptionRenewedEmail,
   subscriptionCanceledEmail,
+  testerApplicationReceivedEmail,
+  testerApprovedEmail,
+  testerRejectedEmail,
+  testerSubmissionReceivedEmail,
+  testerFeaturedEmail,
+  affiliateApplicationEmail,
+  affiliateApprovedEmail,
+  affiliateAdminNotifyEmail,
+  affiliatePayoutEmail,
   welcomeSequenceDay0Email,
   welcomeSequenceDay2Email,
   welcomeSequenceDay5Email,
@@ -73,6 +82,33 @@ export async function sendEmail(type, to, data = {}) {
       break;
     case 'SUBSCRIPTION_CANCELED':
       tmpl = subscriptionCanceledEmail(data);
+      break;
+    case 'TESTER_APPLICATION_RECEIVED':
+      tmpl = testerApplicationReceivedEmail(data);
+      break;
+    case 'TESTER_APPROVED':
+      tmpl = testerApprovedEmail(data);
+      break;
+    case 'TESTER_REJECTED':
+      tmpl = testerRejectedEmail(data);
+      break;
+    case 'TESTER_SUBMISSION_RECEIVED':
+      tmpl = testerSubmissionReceivedEmail(data);
+      break;
+    case 'TESTER_FEATURED':
+      tmpl = testerFeaturedEmail(data);
+      break;
+    case 'AFFILIATE_APPLICATION':
+      tmpl = affiliateApplicationEmail(data);
+      break;
+    case 'AFFILIATE_APPROVED':
+      tmpl = affiliateApprovedEmail(data);
+      break;
+    case 'AFFILIATE_ADMIN_NOTIFY':
+      tmpl = affiliateAdminNotifyEmail(data);
+      break;
+    case 'AFFILIATE_PAYOUT':
+      tmpl = affiliatePayoutEmail(data);
       break;
     case 'WELCOME_SEQUENCE_DAY_0':
       tmpl = welcomeSequenceDay0Email(data);
