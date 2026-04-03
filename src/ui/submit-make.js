@@ -2,15 +2,7 @@
 // Submit-make form logic: photo preview, validation, POST to /api/tester-submit.
 
 import GARMENTS from '../garments/index.js';
-
-// ── Dark mode ────────────────────────────────────────────────────────────────
-const THEME_KEY = 'pp-theme';
-if (localStorage.getItem(THEME_KEY) === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-document.getElementById('theme-btn')?.addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
-});
+import './page.js';
 
 // ── Populate garment dropdown ────────────────────────────────────────────────
 const garmentSelect = document.getElementById('sm-garment');
