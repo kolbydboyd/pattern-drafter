@@ -8,6 +8,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+  sleeveCapCurve,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -321,22 +322,33 @@ export default {
       const SLEEVE_LENGTHS = { short: 9, three_qtr: 17, long: 25 };
       const slvLen    = SLEEVE_LENGTHS[opts.sleeve] || 9;
       const effArmToElbow = m.armToElbow || (slvLen * 0.45);
-      const slvW      = (m.bicep || 13) / 2 + easeVal * 0.15;
-      const slvPoly   = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
-      const slvBB     = bb(slvPoly);
-      const capW = slvW * 2;
-      const capH = 0;
+      const slvFullWidth = (m.bicep || 13) + 2;
+      const capH = armholeDepth * (opts.fit === 'relaxed' ? 0.55 : 0.60);
+      const capCp = sleeveCapCurve(m.bicep || 13, capH, slvFullWidth);
+      const capPts = sc(capCp, 32);
+
+      const slvPoly = [];
+      for (const p of capPts) {
+        slvPoly.push({ ...p, y: p.y + capH });
+      }
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete slvPoly[0].curve;
+      delete slvPoly[capPts.length - 1].curve;
+      slvPoly.push({ x: slvFullWidth, y: capH + slvLen });
+      slvPoly.push({ x: 0, y: capH + slvLen });
+
+      const slvBB = bb(slvPoly);
       const sleeveNotches = [
-        { x: capW / 2, y: 0, angle: -90 },
-        { x: capW * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: capW / 2, y: 0 }) },
-        { x: capW * 0.75, y: capH * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capH }) },
+        { x: slvFullWidth / 2, y: 0, angle: -90 },
+        { x: slvFullWidth * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: slvFullWidth / 2, y: 0 }) },
+        { x: slvFullWidth * 0.75, y: capH * 0.5, angle: edgeAngle({ x: slvFullWidth / 2, y: 0 }, { x: slvFullWidth, y: capH }) },
       ];
       pieces.push({
         id: 'sleeve', name: 'Sleeve',
         instruction: 'Cut 2 (mirror L & R)',
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        width: slvBB.width, height: slvBB.height, capHeight: capH, sleeveLength: slvLen, sleeveWidth: slvFullWidth, sa, hem,
+        dims: [{ label: fmtInches(slvFullWidth) + ' width', x1: 0, y1: -0.4, x2: slvFullWidth, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
         notches: sleeveNotches,
       });
     } else {
