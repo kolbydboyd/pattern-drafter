@@ -168,20 +168,36 @@ export default {
     const hipHalf = m.hip / 2 + 1;
     const waistHalf = m.waist / 2;
     const skirtPanelW = hipHalf / 2;
-    const hemW = skirtPanelW + flareAmt / 2;
-    const flarePerSide = (hemW - skirtPanelW) / 2;
+    // Fold at CF/CB (left edge) must be vertical — all flare to side seam
+    const skirtHemW = skirtPanelW + flareAmt / 2;
+    const waistDip = 0.375;
 
-    function buildSkirt() {
-      const poly = [];
-      poly.push({ x: flarePerSide, y: 0 }); // waist left
-      poly.push({ x: flarePerSide + skirtPanelW, y: 0 }); // waist right
-      poly.push({ x: hemW, y: skirtL }); // hem right (flared)
-      poly.push({ x: 0, y: skirtL }); // hem left (flared)
-      return poly;
+    function buildSkirt(isBack) {
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: skirtPanelW * 0.4, y: waistDip },
+          { x: skirtPanelW * 0.8, y: 0 }, { x: skirtPanelW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        return [...waistPts,
+          { x: skirtHemW, y: skirtL },
+          { x: 0,         y: skirtL },
+        ];
+      }
+      return [
+        { x: 0,           y: 0 },
+        { x: skirtPanelW, y: 0 },
+        { x: skirtHemW,   y: skirtL },
+        { x: 0,           y: skirtL },
+      ];
     }
 
-    const skirtPoly = buildSkirt();
-    const skirtBB = bb(skirtPoly);
+    const skirtFrontPoly = buildSkirt(false);
+    const skirtBackPoly  = buildSkirt(true);
+    const skirtFrontBB = bb(skirtFrontPoly);
+    const skirtBackBB  = bb(skirtBackPoly);
 
     // Waist darts on skirt
     const skirtDartIntake = (skirtPanelW - waistHalf / 2);
@@ -189,8 +205,8 @@ export default {
     if (skirtDartIntake > 0.5) {
       const dartW = Math.min(skirtDartIntake / 2, 0.75);
       skirtDarts.push({
-        apexX: flarePerSide + skirtPanelW * 0.4, apexY: 0,
-        sideX: flarePerSide + skirtPanelW * 0.4, upperY: 0, lowerY: 3.5,
+        apexX: skirtPanelW * 0.4, apexY: 0,
+        sideX: skirtPanelW * 0.4, upperY: 0, lowerY: 3.5,
         intake: dartW, length: 3.5,
       });
     }
@@ -221,8 +237,8 @@ export default {
     ];
 
     const skirtNotches = [
-      { x: flarePerSide + skirtPanelW / 2, y: 0, angle: -90 }, // center waist
-      { x: hemW * 0.5, y: 7, angle: 0 }, // hip level
+      { x: skirtPanelW / 2, y: 0, angle: -90 }, // center waist
+      { x: skirtHemW * 0.5, y: 7, angle: 0 }, // hip level
     ];
 
     const pieces = [
@@ -243,18 +259,18 @@ export default {
       {
         id: 'skirt-front', name: 'Front Skirt',
         instruction: `Cut 1 on fold (CF) · ${fmtInches(flareAmt)} total A-line flare${skirtDarts.length ? ` · ${skirtDarts.length} waist dart(s)` : ''}`,
-        type: 'bodice', polygon: skirtPoly, path: pp(skirtPoly),
-        width: skirtBB.width, height: skirtBB.height, isBack: false, sa, hem, notches: skirtNotches, bustDarts: skirtDarts,
+        type: 'bodice', polygon: skirtFrontPoly, path: pp(skirtFrontPoly),
+        width: skirtFrontBB.width, height: skirtFrontBB.height, isBack: false, sa, hem, notches: skirtNotches, bustDarts: skirtDarts,
         dims: [
-          { label: fmtInches(hemW) + ' half width at hem', x1: 0, y1: skirtL + 0.4, x2: hemW, y2: skirtL + 0.4, type: 'h' },
-          { label: fmtInches(skirtL) + ' length', x: hemW + 1, y1: 0, y2: skirtL, type: 'v' },
+          { label: fmtInches(skirtHemW) + ' half width at hem', x1: 0, y1: skirtL + 0.4, x2: skirtHemW, y2: skirtL + 0.4, type: 'h' },
+          { label: fmtInches(skirtL) + ' length', x: skirtHemW + 1, y1: 0, y2: skirtL, type: 'v' },
         ],
       },
       {
         id: 'skirt-back', name: 'Back Skirt',
         instruction: `Cut 1 on fold (CB)${skirtDarts.length ? ` · ${skirtDarts.length} waist dart(s)` : ''}`,
-        type: 'bodice', polygon: skirtPoly, path: pp(skirtPoly),
-        width: skirtBB.width, height: skirtBB.height, isBack: true, sa, hem, notches: skirtNotches, bustDarts: skirtDarts,
+        type: 'bodice', polygon: skirtBackPoly, path: pp(skirtBackPoly),
+        width: skirtBackBB.width, height: skirtBackBB.height, isBack: true, sa, hem, notches: skirtNotches, bustDarts: skirtDarts,
       },
     ];
 

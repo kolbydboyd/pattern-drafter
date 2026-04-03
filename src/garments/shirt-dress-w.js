@@ -9,6 +9,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+  sleeveCapCurve,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -250,32 +251,69 @@ export default {
     const skirtBackW  = hipHalf / 2;
 
     function buildSkirtPanel(id, name, isBack, panelW) {
+      const waistDip = 0.375;
       let poly;
+
+      // Back panel: curved waist (horizontal tangent at fold for smooth unfold)
+      let waistPts;
+      if (isBack) {
+        const waistCp = {
+          p0: { x: 0,            y: waistDip },
+          p1: { x: panelW * 0.4, y: waistDip },
+          p2: { x: panelW * 0.8, y: 0 },
+          p3: { x: panelW,       y: 0 },
+        };
+        waistPts = sc(waistCp, 12);
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+      }
+
       if (opts.skirtShape === 'aline') {
         const flare = 4.0;
-        const fh = flare / 2;
-        poly = [
-          { x: fh,           y: 0       },
-          { x: fh + panelW,  y: 0       },
-          { x: panelW + fh + flare / 2, y: adjSkirtL },
-          { x: 0,            y: adjSkirtL },
-        ];
+        if (isBack) {
+          // Fold at CB (left edge) must be vertical — all flare to side seam
+          poly = [...waistPts,
+            { x: panelW + flare, y: adjSkirtL },
+            { x: 0,              y: adjSkirtL },
+          ];
+        } else {
+          const fh = flare / 2;
+          poly = [
+            { x: fh,              y: 0       },
+            { x: fh + panelW,     y: 0       },
+            { x: panelW + flare,  y: adjSkirtL },
+            { x: 0,               y: adjSkirtL },
+          ];
+        }
       } else if (opts.skirtShape === 'gathered') {
         const gatheredW = panelW * 1.5;
-        poly = [
-          { x: 0,          y: 0          },
-          { x: gatheredW,  y: 0          },
-          { x: gatheredW,  y: adjSkirtL  },
-          { x: 0,          y: adjSkirtL  },
-        ];
+        if (isBack) {
+          poly = [...waistPts,
+            { x: gatheredW, y: adjSkirtL },
+            { x: 0,         y: adjSkirtL },
+          ];
+        } else {
+          poly = [
+            { x: 0,          y: 0          },
+            { x: gatheredW,  y: 0          },
+            { x: gatheredW,  y: adjSkirtL  },
+            { x: 0,          y: adjSkirtL  },
+          ];
+        }
       } else {
-        // straight
-        poly = [
-          { x: 0,       y: 0          },
-          { x: panelW,  y: 0          },
-          { x: panelW,  y: adjSkirtL  },
-          { x: 0,       y: adjSkirtL  },
-        ];
+        if (isBack) {
+          poly = [...waistPts,
+            { x: panelW, y: adjSkirtL },
+            { x: 0,      y: adjSkirtL },
+          ];
+        } else {
+          poly = [
+            { x: 0,       y: 0          },
+            { x: panelW,  y: 0          },
+            { x: panelW,  y: adjSkirtL  },
+            { x: 0,       y: adjSkirtL  },
+          ];
+        }
       }
 
       const gatherNote = opts.skirtShape === 'gathered' ? ' · Gather waist edge to match bodice waist width' : '';
@@ -346,22 +384,33 @@ export default {
       const SLEEVE_LENGTHS = { short: 9, roll: 17, long: 26 };
       const slvLen  = SLEEVE_LENGTHS[opts.sleeve] || 9;
       const effArmToElbow = m.armToElbow || (slvLen * 0.45);
-      const slvW    = (m.bicep || 13) / 2 + easeVal * 0.15 + 0.5;
-      const slvPoly = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
-      const slvBB   = bb(slvPoly);
-      const capW = slvW * 2;
-      const capH = 0;
+      const slvFullWidth = (m.bicep || 13) + 2;
+      const capH = armholeDepth * (opts.fit === 'fitted' ? 0.60 : 0.55);
+      const capCp = sleeveCapCurve(m.bicep || 13, capH, slvFullWidth);
+      const capPts = sc(capCp, 32);
+
+      const slvPoly = [];
+      for (const p of capPts) {
+        slvPoly.push({ ...p, y: p.y + capH });
+      }
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete slvPoly[0].curve;
+      delete slvPoly[capPts.length - 1].curve;
+      slvPoly.push({ x: slvFullWidth, y: capH + slvLen });
+      slvPoly.push({ x: 0, y: capH + slvLen });
+
+      const slvBB = bb(slvPoly);
       const sleeveNotches = [
-        { x: capW / 2, y: 0, angle: -90 },
-        { x: capW * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: capW / 2, y: 0 }) },
-        { x: capW * 0.75, y: capH * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capH }) },
+        { x: slvFullWidth / 2, y: 0, angle: -90 },
+        { x: slvFullWidth * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: slvFullWidth / 2, y: 0 }) },
+        { x: slvFullWidth * 0.75, y: capH * 0.5, angle: edgeAngle({ x: slvFullWidth / 2, y: 0 }, { x: slvFullWidth, y: capH }) },
       ];
       pieces.push({
         id: 'sleeve', name: `${opts.sleeve === 'roll' ? 'Roll-up' : opts.sleeve === 'long' ? 'Long' : 'Short'} Sleeve`,
         instruction: `Cut 2 (mirror L & R)${opts.sleeve === 'roll' ? ' · Tab and button to hold roll-up position' : ''}`,
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        width: slvBB.width, height: slvBB.height, capHeight: capH, sleeveLength: slvLen, sleeveWidth: slvFullWidth, sa, hem,
+        dims: [{ label: fmtInches(slvFullWidth) + ' width', x1: 0, y1: -0.4, x2: slvFullWidth, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
         notches: sleeveNotches,
       });
     } else {
