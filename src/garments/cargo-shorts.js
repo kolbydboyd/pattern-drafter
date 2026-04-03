@@ -159,7 +159,9 @@ export default {
     // ── WAISTBAND — elastic/drawstring uses hip (pull-on); zip/button uses waist ──
     const flyOverlap = (opts.fly === 'none') ? 0 : 2;
     const wbBase = (opts.fly === 'none') ? m.hip : m.waist;
-    const wbLength = wbBase + ease.total + flyOverlap + sa * 2;
+    const wbLength = (opts.fly === 'none')
+      ? m.hip + sa * 2
+      : m.waist + ease.total + flyOverlap + sa * 2;
     const wbWidth = 4; // 2" finished
     pieces.push({
       id: 'waistband',
@@ -183,8 +185,8 @@ export default {
       pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · 5½″ wide × 3″ tall · Covers finished pocket opening with ¼″ overlap each side', dimensions: { width: 5.5, height: 3 }, type: 'pocket' });
     }
     if (opts.backPocket !== 'none') {
-      const qty = opts.backPocket === 'patch2' ? 4 : 2; // patch2: 2 pockets × 2 panels = 4; patch1: 1 pocket × 2 panels = 2
-      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (2 per back panel)' : ' (one per back panel)'}`, dimensions: { width: 6, height: 7 }, type: 'pocket' });
+      const qty = opts.backPocket === 'patch2' ? 2 : 1;
+      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: `Cut ${qty}${opts.backPocket === 'patch2' ? ' (one per back panel)' : ''}`, dimensions: { width: 6, height: 7 }, type: 'pocket' });
     }
     if (opts.fly === 'zip') {
       pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface', dimensions: { width: 3, height: m.rise }, type: 'pocket' });
