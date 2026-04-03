@@ -14,6 +14,7 @@ function mpaRewrites() {
         if (req.url.match(/^\/learn\/.+/))    req.url = '/learn.html';
         if (req.url.match(/^\/patterns\/.+/)) req.url = '/patterns.html';
         if (req.url === '/affiliate')          req.url = '/affiliate.html';
+        if (req.url === '/submit-make')       req.url = '/submit-make.html';
         next();
       });
     },
@@ -42,6 +43,7 @@ export default defineConfig({
         tester:    resolve(__dirname, 'tester.html'),
         'pin-preview': resolve(__dirname, 'pin-preview.html'),
         affiliate: resolve(__dirname, 'affiliate.html'),
+        'submit-make': resolve(__dirname, 'submit-make.html'),
       },
     },
   },
