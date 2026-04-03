@@ -255,18 +255,14 @@ export function renderPanelSVG(piece) {
   // Pocket indicators
   let pocketSVG = '';
   if (!isBack && opts?.frontPocket === 'slant') {
-    // Slash opening: from waist 3.5″ inward from side seam → side seam 6″ below waist
-    const slashX1 = ox + sc(width - 3.5);  // waist entry point
-    const slashY1 = oy;
-    const slashX2 = ox + sc(width);         // side seam exit point
+    // The front panel is now cut at the slash line (diagonal edge is part of the piece outline).
+    // Show the pocket bag area as a dashed reference overlay.
+    const slashX2 = ox + sc(width);         // side seam at slash exit
     const slashY2 = oy + sc(6);
-    // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
     const bagL = ox + sc(width - 7);        // left edge of bag
-    const bagB = oy + sc(9.5);             // bottom of bag (7″ up to slash + 2.5″ deeper extension)
-    // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
-    pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
-      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
+    const bagB = oy + sc(9.5);             // bottom of bag
+    pocketSVG += `<path d="M ${bagL} ${oy} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="none"/>
+      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && opts?.frontPocket === 'side') {
     // Two tick marks on the side seam showing the pocket opening span.

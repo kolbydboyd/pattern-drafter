@@ -4,7 +4,8 @@ Made-to-measure sewing patterns. Input your measurements, choose your garment ty
 
 **[peoplespatterns.com](https://peoplespatterns.com) · [@peoplespatterns](https://instagram.com/peoplespatterns)**
 
-> This repository is **private and proprietary**. See [License](#license) below.
+> This repository is **private and proprietary**.
+See [License](#license) below.
 
 ## Quick Start
 
@@ -40,6 +41,7 @@ The following environment variables are required for full functionality:
 | `VITE_SUPABASE_URL` | Client | Supabase project URL (browser-side auth) |
 | `VITE_SUPABASE_ANON_KEY` | Client | Supabase anonymous key (browser-side auth) |
 | `VITE_STRIPE_PUBLISHABLE_KEY` | Client | Stripe publishable key (Checkout.js redirect) |
+| `VITE_SENTRY_DSN` | Client | Sentry DSN for error monitoring (optional — omit to disable) |
 
 Server variables are set in Vercel project settings. Client variables (prefixed `VITE_`) are embedded at build time.
 
@@ -166,7 +168,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `pleated-trousers` | Pleated Trousers | done |
 | `sweatpants` | Sweatpants | done |
 
-### Menswear · Tops (5)
+### Menswear · Tops (6)
 | Module | Garment | Status |
 |---|---|---|
 | `tee` | T-Shirt | done |
@@ -174,6 +176,7 @@ Adding a new garment = adding one file to `src/garments/` and one import line in
 | `crewneck` | Crewneck Sweatshirt | done |
 | `hoodie` | Hoodie | done |
 | `crop-jacket` | Crop Jacket | done |
+| `denim-jacket` | Denim Jacket | done |
 
 ### Womenswear · Bottoms (5)
 | Module | Garment | Status |

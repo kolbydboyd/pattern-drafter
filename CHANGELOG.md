@@ -4,7 +4,7 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.9.0] — 2026-04-03 (ready to implement - not yet live)
+## [0.10.0] — 2026-04-03 (ready to implement - not yet live)
 
 ### Email marketing system
 - **Email opt-in UI** shown after free pattern redemption (`app.js`) and paid purchases (`success.js`). Headline: "Get weekly fit tips + early new pattern drops". Gold CTA button, neutral dismiss, PostHog tracking.
@@ -34,6 +34,43 @@ All notable changes are documented here, newest first.
 ### To activate
 - Run `supabase/migrations/004_email_marketing.sql` in Supabase SQL editor
 - Create Stripe price for 2-credit pack, replace `price_CREDIT_PACK_2` in `src/lib/pricing.js`
+
+---
+
+## [0.9.0] — 2026-04-01
+
+### Pattern Tester Program
+- Added complete self-serve tester flow: apply, get approved, sew muslins, submit structured fit feedback with photos, get featured on site and socials
+- New public landing page at `/tester` with how-it-works, perks, auth-aware application form, and featured gallery
+- New "Tester Program" section in account dashboard with assignment tracking, feedback modal (9 body areas, difficulty/clarity ratings, photo upload), and feature consent
+- 4 new API endpoints: `tester-apply`, `tester-admin`, `tester-submit`, `tester-upload`
+- 5 new email templates: application received, approved, rejected, submission received, featured
+- Supabase migration: `tester_applications`, `tester_assignments`, `tester_submissions` tables with RLS, `tester-photos` storage bucket, `is_tester`/`is_admin` profile flags
+- Admin actions: list/approve/reject applications, grant free credits, create assignments, feature submissions
+
+### Navigation
+- Added "Tester" link to desktop header nav, mobile nav, and footer across all 12 HTML pages
+
+---
+
+## [0.8.1] — 2026-03-29
+
+### Codebase audit — dead code removal and cleanup
+- Removed bogus `tmux` npm dependency (supply chain risk -- unmaintained, unrelated package)
+- Removed 4 duplicate fabric entries from `materials.js`: bare `jersey`, `jersey-cotton`, `jersey-modal`, `jersey-bamboo` (canonical keys are `cotton-jersey`, `cotton-modal`, `bamboo-jersey`)
+- Updated `wrap-dress-w.js` to use canonical fabric keys
+- Removed `interfacing-medium` from `STANDARD_NOTIONS` (trap for misuse -- `interfacing-med` is the canonical key)
+- Deleted 24 dead garment imports from `app.js` (all garments accessed via `GARMENTS` from `index.js`)
+- Removed unused `easeDistribution` import from `app.js`
+- Fixed A-line skirt lining pieces: now compute actual dimensions from panel instead of hardcoded 1x1" placeholder
+
+### Infrastructure
+- Added GitHub Actions CI workflow -- runs `npm run build` on every push to main and PR
+- Added Sentry browser error monitoring (`@sentry/browser`) -- catches unhandled JS errors in production
+- Added per-IP rate limiting to 5 API endpoints: `join-list` (5/min), `signup-free` (5/min), `create-checkout` (10/min), `use-free-credit` (5/min), `submit-feedback` (10/min)
+
+### README
+- Added missing `denim-jacket` to garment module table (was in code but not listed)
 
 ---
 

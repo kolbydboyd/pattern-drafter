@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- Back collar / neck -->
+  <path d="M63,30 L80,22 L97,30"/>
+
+  <!-- Left peak lapel: shoulder-neck → gorge outer → peak tip (up-out) → gorge inner → break point -->
+  <path d="M63,30 L54,62 L42,52 L60,70 L76,92"/>
+
+  <!-- Right peak lapel (mirror) -->
+  <path d="M97,30 L106,62 L118,52 L100,70 L84,92"/>
+
+  <!-- Body silhouette: shoulders, sides, hem -->
+  <path d="M63,30 L22,48 L18,84 L26,168 L134,168 L142,84 L138,48 L97,30"/>
+
+  <!-- CF line from break point to hem -->
+  <line x1="80" y1="92" x2="80" y2="168"/>
+
+  <!-- Double-breasted buttons: 2 columns × 3 rows -->
+  <circle cx="70" cy="108" r="2.5"/>
+  <circle cx="90" cy="108" r="2.5"/>
+  <circle cx="70" cy="124" r="2.5"/>
+  <circle cx="90" cy="124" r="2.5"/>
+  <circle cx="70" cy="140" r="2.5"/>
+  <circle cx="90" cy="140" r="2.5"/>
+
+  <!-- Breast welt pocket (right chest) -->
+  <line x1="92" y1="82" x2="110" y2="82"/>
+
+  <!-- Hip patch pockets -->
+  <rect x="22" y="136" width="22" height="18" rx="2"/>
+  <rect x="116" y="136" width="22" height="18" rx="2"/>
+
+</svg>

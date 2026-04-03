@@ -62,7 +62,9 @@
       "Bash(gh run:*)",
       "Bash(npx vercel:*)",
       "Bash(\"C:\\\\Users\\\\black\\\\OneDrive\\\\Desktop\\\\pattern-drafter\\\\src\\\\ui\\\\app.js\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "WebSearch",
+      "Bash(\"C:/Users/black/OneDrive/Desktop/pattern-drafter/.claude/worktrees/jovial-torvalds/.env.local\")"
     ]
   }
 }

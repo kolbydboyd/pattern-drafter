@@ -102,6 +102,29 @@ export function arcLength(pts) {
 }
 
 /**
+ * Walk a polyline from pts[0] and return the interpolated point at targetLen arc distance.
+ * Clamps to pts[last] if targetLen exceeds total arc length.
+ * @param {Array<{x,y}>} pts
+ * @param {number} targetLen
+ * @returns {{x, y}}
+ */
+export function ptAtArcLen(pts, targetLen) {
+  let walked = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const d = dist(pts[i - 1], pts[i]);
+    if (walked + d >= targetLen) {
+      const t = (targetLen - walked) / d;
+      return {
+        x: pts[i - 1].x + t * (pts[i].x - pts[i - 1].x),
+        y: pts[i - 1].y + t * (pts[i].y - pts[i - 1].y),
+      };
+    }
+    walked += d;
+  }
+  return { ...pts[pts.length - 1] };
+}
+
+/**
  * Generate crotch curve control points for pants/shorts
  * @param {number} ox - x origin (center seam top)
  * @param {number} oy - y origin (waist)
@@ -395,7 +418,8 @@ export const LEG_SHAPES = {
   slim:     { knee: 0.80, hem: 0.68 },
   straight: { knee: 0.90, hem: 0.85 },
   bootcut:  { knee: 0.78, hem: 0.92 },
-  wide:     { knee: 1.00, hem: 1.10 },
+  wide:       { knee: 1.00, hem: 1.10 },
+  'ultra-wide': { knee: 1.10, hem: 1.25 },
 };
 
 /**
@@ -405,10 +429,11 @@ export const LEG_SHAPES = {
  * @type {Object.<string, number>}
  */
 export const EASE_VALUES = {
-  slim: 1.5,
-  regular: 2.5,
-  relaxed: 4,
-  wide: 6,
+  // Minimum 4 inches ease at hip for woven fabrics. Slim fit only appropriate for stretch fabrics.
+  slim: 2.5,
+  regular: 4,
+  relaxed: 6,
+  wide: 8,
 };
 
 /**
@@ -439,4 +464,132 @@ export function edgeAngle(a, b) {
   const dx = b.x - a.x, dy = b.y - a.y;
   // Perpendicular pointing right of travel direction (outward for CW winding)
   return Math.atan2(dx, -dy) * (180 / Math.PI);
+}
+
+// ── Slant pocket piece builders ─────────────────────────────────────────────
+
+/**
+ * Scoop curve for slant pocket pieces.
+ * Matches the front panel overlay: one continuous curve from
+ * (bagWidth, slashDepth) scooping down to (0, bagDepth).
+ * No straight right edge below the slash — just the curve.
+ *
+ * Cubic bezier approximation of the quadratic Q(bagWidth,bagDepth).
+ */
+function slantPocketScoop(bagWidth, slashDepth, bagDepth) {
+  const scoopPts = sampleBezier(
+    { x: bagWidth, y: slashDepth },                                            // start: slash exit on side seam
+    { x: bagWidth, y: slashDepth + (bagDepth - slashDepth) * 2 / 3 },         // cp1: pulls down along side seam
+    { x: bagWidth * 2 / 3, y: bagDepth },                                     // cp2: pulls across at bottom
+    { x: 0, y: bagDepth },                                                    // end: bottom-left
+    16,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+  return scoopPts;
+}
+
+/**
+ * Build a slant pocket backing piece (self-fabric).
+ * Visible front of the pocket. Waist to side seam, straight down side
+ * seam to slash exit level, then scoop curve to bottom-left.
+ *
+ * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
+
+  // CW polygon: waist across → side seam down to slash exit → scoop curve to bottom-left → left side up
+  const polygon = [
+    { x: 0, y: 0 },                       // top-left (waist, inner edge)
+    { x: bagWidth, y: 0 },                // top-right (waist at side seam)
+    { x: bagWidth, y: slashDepth },        // side seam down to slash exit level
+    ...scoopPts.slice(1),                  // scoop from slash exit to bottom-left (skip first, it's the same point)
+    // closes back to top-left
+  ];
+  const width = bagWidth;
+  const height = bagDepth;
+
+  return {
+    id: 'slant-backing',
+    name: 'Slant Pocket Backing',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Visible pocket front',
+    polygon,
+    sa,
+    hem: sa,
+    width,
+    height,
+    type: 'bodice',
+    isCutOnFold: false,
+    dimensions: { width, height },
+  };
+}
+
+/**
+ * Build a slant pocket bag piece (lining).
+ * Forms the back of the pocket against the body. Top-right edge follows
+ * the slash diagonal (sewn to the front panel at the slash seam).
+ *
+ * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
+
+  // CW polygon: waist to slash start → slash diagonal to slash exit →
+  // scoop curve to bottom-left → left side up
+  const slashStartX = bagWidth - slashInset;
+  const polygon = [
+    { x: 0, y: 0 },                       // top-left (waist, inner edge)
+    { x: slashStartX, y: 0 },             // slash start on waist
+    ...scoopPts,                           // slash exit then scoop to bottom-left
+    // closes back to top-left
+  ];
+  const width = bagWidth;
+  const height = bagDepth;
+
+  return {
+    id: 'slant-bag',
+    name: 'Slant Pocket Bag',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)',
+    polygon,
+    sa,
+    hem: sa,
+    width,
+    height,
+    type: 'bodice',
+    isCutOnFold: false,
+    dimensions: { width, height },
+  };
+}
+
+// Legacy alias — some garments may still import the old name
+export { buildSlantPocketBacking as buildSlantPocketFacing };
+
+/**
+ * Clip a front panel polygon at the slash line for a slant pocket.
+ * Removes the triangle at the waist/side-seam corner and replaces it
+ * with the slash diagonal.
+ *
+ * Mutates `poly` in place and returns it.
+ *
+ * @param {Array<{x:number, y:number}>} poly - CW panel polygon
+ * @param {number} waistSideX - x of the waist-at-side-seam vertex (width or sideWaistX)
+ * @param {number} slashInset - how far in from side seam the slash starts on waist (default 3.5)
+ * @param {number} slashDepth - how far below waist the slash meets the side seam (default 6)
+ * @returns {Array<{x:number, y:number}>} the mutated polygon
+ */
+export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth = 6) {
+  // Find the waist-at-side-seam vertex: the point closest to (waistSideX, 0)
+  let idx = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const d = Math.abs(poly[i].x - waistSideX) + Math.abs(poly[i].y);
+    if (d < bestDist) { bestDist = d; idx = i; }
+  }
+  if (idx < 0 || bestDist > 1) return poly; // safety: no match found
+
+  // Replace the corner vertex with two slash endpoints
+  poly.splice(idx, 1,
+    { x: waistSideX - slashInset, y: 0 },    // slash start on waist
+    { x: waistSideX, y: slashDepth },         // slash end on side seam
+  );
+  return poly;
 }
