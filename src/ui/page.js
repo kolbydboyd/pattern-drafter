@@ -3,7 +3,7 @@
 
 import { inject } from '@vercel/analytics';
 import '../analytics.js';
-import './auth-modal.js';
+import { onUserChange, getCurrentUser } from './auth-modal.js';
 import GARMENTS from '../garments/index.js';
 
 inject();
@@ -54,6 +54,15 @@ document.addEventListener('click', e => {
     mobileNav.classList.remove('open');
   }
 });
+// ── Promo banner (logged-out only) ────────────────────────────────────────────
+const _promoBanner = document.getElementById('promo-banner');
+function _updateBanner(user) {
+  if (!_promoBanner) return;
+  _promoBanner.style.display = user ? 'none' : '';
+}
+_updateBanner(getCurrentUser());
+onUserChange(_updateBanner);
+
 document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = !isDark;

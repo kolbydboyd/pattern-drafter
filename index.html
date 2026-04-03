@@ -63,6 +63,7 @@
 <link rel="stylesheet" href="/src/ui/styles.css">
 </head>
 <body>
+<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
 <div class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
     <a href="/patterns">Patterns</a>
@@ -246,6 +247,38 @@
     <button class="land-cta lp-cta-btn" aria-label="Get Your Pattern">Get Your Pattern</button>
   </section>
 
+  <!-- ── Section 3b: Featured Patterns ── -->
+  <section class="lp-section lp-featured">
+    <h2 class="lp-heading">Popular patterns</h2>
+    <div class="lp-featured-grid">
+      <a href="/?step=1&garment=cargo-shorts" class="lp-featured-card">
+        <img src="/garment-illustrations/cargo-shorts.svg" alt="Cargo Shorts" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Cargo Shorts</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-intermediate">Intermediate</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=a-line-skirt-w" class="lp-featured-card">
+        <img src="/garment-illustrations/a-line-skirt-w.svg" alt="A-Line Skirt" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">A-Line Skirt</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-beginner">Beginner</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=camp-shirt" class="lp-featured-card">
+        <img src="/garment-illustrations/camp-shirt.svg" alt="Camp Shirt" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Camp Shirt</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-intermediate">Intermediate</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=wrap-dress-w" class="lp-featured-card">
+        <img src="/garment-illustrations/wrap-dress-w.svg" alt="Wrap Dress" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Wrap Dress</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-advanced">Advanced</span> $19</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+    </div>
+    <p style="text-align:center;margin-top:16px"><a href="/patterns" style="color:var(--gold);font-size:.82rem">View all 37 patterns &rarr;</a></p>
+  </section>
+
   <!-- ── Section 4: Benefits ── -->
   <section class="lp-section lp-benefits">
     <h2 class="lp-heading">Why sewists choose People's Patterns</h2>
@@ -262,23 +295,48 @@
   <!-- ── Section 5: Founder Story ── -->
   <section class="lp-section lp-founder">
     <div class="lp-founder-card">
-      <h2 class="lp-heading">Hi, I'm the founder</h2>
+      <h2 class="lp-heading">Why I built this</h2>
       <p>I sewed a garment from an AI-generated pattern. The fit was off and the instructions were terrible. So I tried drafting my own pattern from scratch. Turns out, pattern drafting is a mountain of math and it takes forever. All I wanted was a pair of shorts that fit me perfectly, made from good fabric, without spending a fortune.</p>
       <p>So I built the engine behind People's Patterns. It uses the same parametric drafting formulas that professional pattern makers rely on, but you get your pattern <strong>in seconds</strong> and at a price that makes sense for home sewists.</p>
+      <p>I sew every pattern myself before it ships. If it doesn't fit after you sew it correctly, I will personally help you fix it or refund you. No questions asked.</p>
     </div>
   </section>
 
-  <!-- ── Section 6: Guarantees ── -->
+  <!-- ── Section 6: Guarantee ── -->
   <section class="lp-section lp-guarantee">
     <svg class="lp-guarantee-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M24 4L6 12v12c0 11.1 7.68 21.48 18 24 10.32-2.52 18-12.9 18-24V12L24 4z" stroke="var(--gold)" stroke-width="2.5" fill="none"/>
       <path d="M16 24l6 6 10-12" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <h2 class="lp-heading">We stand behind every pattern</h2>
-    <p>If the pattern we generate does not match the measurements you entered, or the fit is not what you expected after sewing it correctly, contact me.</p>
-    <p><strong>I will personally help you adjust it or refund you. No questions asked.</strong></p>
-    <p class="lp-guarantee-fine">This covers the pattern drafting and instructions. It does not cover inaccurate measurements or sewing mistakes.</p>
+    <h2 class="lp-heading">Personal fit guarantee</h2>
+    <p><strong>If the pattern doesn't fit after you sew it correctly, I will personally help you adjust it or refund you. No questions asked.</strong></p>
+    <p class="lp-guarantee-fine">Covers the pattern drafting and instructions. Does not cover inaccurate measurements or sewing mistakes.</p>
     <p class="lp-cta-sub">Secure checkout · Instant download · You're covered</p>
+  </section>
+
+  <!-- ── Section 6b: Why People's Patterns ── -->
+  <section class="lp-section">
+    <h2 class="lp-heading">How we compare</h2>
+    <div class="lp-compare">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="cmp-us">People's Patterns</th>
+            <th>Ditto / Apostrophe</th>
+            <th>Big 4 (Simplicity, McCall's)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Custom fit to your body</td><td class="cmp-check">Yes - from your measurements</td><td>Limited adjustments</td><td class="cmp-x">Standard sizes only</td></tr>
+          <tr><td>Delivery</td><td class="cmp-check">Instant PDF</td><td>Ships in days</td><td>Ships or print-at-home</td></tr>
+          <tr><td>Price range</td><td class="cmp-check">$9 - $19</td><td>$20 - $40+</td><td>$10 - $25 (sale prices vary)</td></tr>
+          <tr><td>Size range</td><td class="cmp-check">Any body - no size chart</td><td>Limited size range</td><td>2 - 30+, graded</td></tr>
+          <tr><td>Alterations needed</td><td class="cmp-check">Minimal - drafted to you</td><td>Some adjustment</td><td>Often significant</td></tr>
+          <tr><td>Instructions included</td><td class="cmp-check">Full step-by-step</td><td>Varies</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- ── Section 7: FAQ Accordion ── -->
@@ -339,6 +397,7 @@
       <a class="land-footer-link" href="/pricing">Pricing</a>
       <a class="land-footer-link" href="/submit-make">Share Your Make</a>
       <a class="land-footer-link" href="/affiliate">Affiliate</a>
+      <a class="land-footer-link" href="/redeem">Redeem</a>
       <a class="land-footer-link" href="/terms">Terms</a>
       <a class="land-footer-link" href="/privacy">Privacy</a>
     </span>
@@ -382,6 +441,7 @@
       <a class="land-footer-link" href="/pricing">Pricing</a>
       <a class="land-footer-link" href="/submit-make">Share Your Make</a>
       <a class="land-footer-link" href="/affiliate">Affiliate</a>
+      <a class="land-footer-link" href="/redeem">Redeem</a>
       <a class="land-footer-link" href="/terms">Terms</a>
       <a class="land-footer-link" href="/privacy">Privacy</a>
     </span>
