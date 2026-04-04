@@ -37,7 +37,6 @@ import tankTop           from './tank-top.js';
 import circleSkirtW      from './circle-skirt-w.js';
 import pencilSkirtW      from './pencil-skirt-w.js';
 import leggings          from './leggings.js';
-import athleticFormalJacket   from './athletic-formal-jacket.js';
 import athleticFormalTrousers from './athletic-formal-trousers.js';
 import tshirtDressW          from './tshirt-dress-w.js';
 import slipDressW            from './slip-dress-w.js';
@@ -80,7 +79,6 @@ const GARMENTS = {
   'circle-skirt-w':       circleSkirtW,
   'pencil-skirt-w':       pencilSkirtW,
   'leggings':             leggings,
-  'athletic-formal-jacket':   athleticFormalJacket,
   'athletic-formal-trousers': athleticFormalTrousers,
   'tshirt-dress-w':           tshirtDressW,
   'slip-dress-w':             slipDressW,
