@@ -21,7 +21,7 @@ import {
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
   peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, offsetPolygon } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -326,6 +326,13 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
+        // Roll line: break point (CF edge) → shoulder roll (neckline)
+        // The lapel folds back along this line when worn
+        rollLine: opts.collar !== 'shawl' ? {
+          from: { x: -PLACKET_W, y: breakPointY },
+          to:   { x: neckW, y: 0 },
+          label: 'roll line',
+        } : undefined,
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -435,26 +442,54 @@ export default {
       // We reverse to go gorge → outer → break, then add the facing strip below.
       const rawLapel = [...lapelResult.lapelPoints].reverse();
 
-      // Smooth the lapel outline using cubic bezier segments between each pair
-      // of consecutive raw points (chord-based control points for gentle arcs).
-      const facingPoly = [];
-      facingPoly.push({ x: rawLapel[0].x, y: rawLapel[0].y }); // gorge (structural)
-      for (let seg = 0; seg < rawLapel.length - 1; seg++) {
-        const a = rawLapel[seg];
-        const b = rawLapel[seg + 1];
-        // Use the previous and next points for tangent direction (Catmull-Rom style)
-        const prev = seg > 0 ? rawLapel[seg - 1] : a;
-        const next = seg + 2 < rawLapel.length ? rawLapel[seg + 2] : b;
-        const cp1 = { x: a.x + (b.x - prev.x) / 6, y: a.y + (b.y - prev.y) / 6 };
-        const cp2 = { x: b.x - (next.x - a.x) / 6, y: b.y - (next.y - a.y) / 6 };
-        const pts = sampleBezier(a, cp1, cp2, b, 6);
-        for (let i = 1; i < pts.length; i++) facingPoly.push({ x: pts[i].x, y: pts[i].y });
-      }
+      // Use the raw lapel control points directly (straight segments).
+      // FreeSewing's Jaeger also uses straight lines for the lapel outline.
+      const facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
 
       // Facing strip: break → CF hem → facing inner hem → facing inner top
       facingPoly.push({ x: 0, y: torsoLen });
       facingPoly.push({ x: FACING_W, y: torsoLen });
       facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
+
+      // Per-edge SA: use ⅜″ on the narrow lapel edges to reduce overlap
+      const lapelSa = 0.375;
+      const lapelEdgeCount = rawLapel.length - 1;
+      const facingEdges = [];
+      for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
+      facingEdges.push({ sa, label: 'CF' });
+      facingEdges.push({ sa: hem, label: 'Hem' });
+      facingEdges.push({ sa, label: 'Inner' });
+      facingEdges.push({ sa, label: 'Neck' });
+
+      // Pre-compute SA polygon and clip any self-intersecting loops.
+      // The narrow lapel wing can cause opposite-edge stitch lines to cross.
+      const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
+      // Simple loop clipper: walk the polygon, when an edge crosses a later
+      // edge, jump to the intersection point and skip the loop.
+      const clippedSA = [];
+      for (let i = 0; i < rawSA.length; i++) {
+        clippedSA.push(rawSA[i]);
+        const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
+        // Check if this edge crosses any later non-adjacent edge
+        let jumped = false;
+        for (let j = i + 2; j < rawSA.length; j++) {
+          if (j === rawSA.length - 1 && i === 0) continue;
+          const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
+          const d1x = b.x - a.x, d1y = b.y - a.y;
+          const d2x = d.x - c.x, d2y = d.y - c.y;
+          const denom = d1x * d2y - d1y * d2x;
+          if (Math.abs(denom) < 1e-10) continue;
+          const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
+          const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
+          if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
+            // Found intersection — add the crossing point and skip to j+1
+            clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
+            i = j; // skip the loop
+            jumped = true;
+            break;
+          }
+        }
+      }
 
       const facingBB = bbox(facingPoly);
       pieces.push({
@@ -464,7 +499,15 @@ export default {
         type: 'bodice',
         isCutOnFold: false,
         polygon: facingPoly,
+        saPolygon: clippedSA,
         path: polyToPathStr(facingPoly),
+        edgeAllowances: facingEdges,
+        // Roll line on the facing: break point → gorge
+        rollLine: {
+          from: { x: 0, y: breakPointY },
+          to:   { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y },
+          label: 'roll line',
+        },
         width: facingBB.maxX - facingBB.minX,
         height: facingBB.maxY - facingBB.minY,
         isBack: false,
