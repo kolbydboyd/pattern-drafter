@@ -66,9 +66,13 @@
       "WebSearch",
       "Bash(\"C:/Users/black/OneDrive/Desktop/pattern-drafter/.claude/worktrees/jovial-torvalds/.env.local\")",
       "Bash(gh pr:*)",
-      "Bash(node _resolve.js)",
-      "Bash(mv _resolve.js _resolve.cjs)",
-      "Bash(node _resolve.cjs)"
+      "Bash(npx vite:*)",
+      "WebFetch(domain:www.threadsmagazine.com)",
+      "WebFetch(domain:www.muellerundsohn.com)",
+      "WebFetch(domain:blog.fabrics-store.com)",
+      "WebFetch(domain:www.parisiangentleman.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:patternscissorscloth.com)"
     ]
   }
 }
