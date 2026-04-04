@@ -5,11 +5,11 @@
  *
  * Key features:
  * - 12 oz heavyweight cotton jersey (t-shirt fabric, not fleece)
- * - Double pleat default (suit silhouette)
+ * - Gathered waist with two out-tucks providing room around hips
  * - Elastic + drawcord waistband default (comfort), with hybrid and flat front options
- * - Straight leg default (suit look), with tapered and wide options
- * - Slant front pockets, faux welt back pockets
- * - Relaxed ease (+4″ default) for the slouchy Kaneko silhouette
+ * - Tapered leg default - silhouette tapers beautifully towards the hem
+ * - Side seam pockets on both sides, single-welt pocket on right rear
+ * - Relaxed ease (+4" default) for the slouchy Kaneko silhouette
  *
  * Companion: athletic-formal-jacket
  */
@@ -21,7 +21,7 @@ import {
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
-const PLEAT_DEPTH = 1.5; // inches per pleat (front panel only)
+const OUTTUCK_DEPTH = 1.25; // inches per out-tuck (front panel only)
 
 export default {
   id: 'athletic-formal-trousers',
@@ -63,23 +63,23 @@ export default {
       default: 1,
       showWhen: { waistband: ['elastic', 'hybrid'] },
     },
-    pleats: {
-      type: 'select', label: 'Pleats (front only)',
+    outtucks: {
+      type: 'select', label: 'Out-tucks (front only)',
       values: [
-        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern'   },
-        { value: 'single', label: 'Single pleat', reference: 'classic, Italian'     },
-        { value: 'double', label: 'Double pleat', reference: 'full, Kaneko original' },
+        { value: 'none',   label: 'None',           reference: 'flat front, modern'         },
+        { value: 'single', label: 'Single out-tuck', reference: 'subtle hip room'            },
+        { value: 'double', label: 'Double out-tuck', reference: 'Kaneko original, full drape' },
       ],
       default: 'double',
     },
     legStyle: {
       type: 'select', label: 'Leg style',
       values: [
-        { value: 'straight', label: 'Straight',                reference: 'suit silhouette'    },
-        { value: 'tapered',  label: 'Tapered (jogger-style)',   reference: 'streetwear, modern' },
-        { value: 'wide',     label: 'Wide leg',                 reference: 'relaxed, full drape' },
+        { value: 'tapered',  label: 'Tapered',    reference: 'Kaneko original, tapers to hem' },
+        { value: 'straight', label: 'Straight',   reference: 'suit silhouette'                },
+        { value: 'wide',     label: 'Wide leg',   reference: 'relaxed, full drape'            },
       ],
-      default: 'straight',
+      default: 'tapered',
     },
     legLength: {
       type: 'select', label: 'Length',
@@ -101,20 +101,21 @@ export default {
     pocket: {
       type: 'select', label: 'Front pockets',
       values: [
-        { value: 'slant', label: 'Slant (western)' },
-        { value: 'side',  label: 'Side seam'       },
-        { value: 'none',  label: 'None'             },
+        { value: 'side',  label: 'Side seam',       reference: 'Kaneko original' },
+        { value: 'slant', label: 'Slant (western)'                               },
+        { value: 'none',  label: 'None'                                           },
       ],
-      default: 'slant',
+      default: 'side',
     },
     backPocket: {
-      type: 'select', label: 'Back pockets',
+      type: 'select', label: 'Back pocket',
       values: [
-        { value: 'welt',  label: 'Faux welt ×2'  },
-        { value: 'patch', label: 'Patch ×2'       },
-        { value: 'none',  label: 'None'            },
+        { value: 'welt-single', label: 'Single welt (right rear)', reference: 'Kaneko original'   },
+        { value: 'welt',        label: 'Welt x2'                                                   },
+        { value: 'patch',       label: 'Patch x2'                                                  },
+        { value: 'none',        label: 'None'                                                      },
       ],
-      default: 'welt',
+      default: 'welt-single',
     },
     riseStyle: {
       type: 'select', label: 'Rise style',
@@ -156,8 +157,8 @@ export default {
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
 
-    const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
-    const pleatExtra = numPleats * PLEAT_DEPTH;
+    const numOuttucks  = opts.outtucks === 'double' ? 2 : opts.outtucks === 'single' ? 1 : 0;
+    const outtuckExtra = numOuttucks * OUTTUCK_DEPTH;
 
     const RISE_OFFSETS = { low: -1.5, mid: 0, high: 1.5 };
     const baseRise  = m.rise || 10;
@@ -169,14 +170,14 @@ export default {
     const lengthAdj = opts.legLength === 'cropped' ? -3 : 0;
     const inseam    = (m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 31)) + lengthAdj;
 
-    // Leg shape: straight (no taper), tapered (jogger-style), or wide
+    // Leg shape: tapered (gentle, elegant taper), straight, or wide
     const shape = opts.legStyle === 'tapered'
-      ? { knee: 0.82, hem: 0.58 }
+      ? { knee: 0.90, hem: 0.72 }
       : opts.legStyle === 'wide'
         ? { knee: 1.05, hem: 1.05 }
         : { knee: 1.0, hem: 1.0 };
 
-    const frontHipW = m.hip / 4 + ease.front + 0.5 + pleatExtra;
+    const frontHipW = m.hip / 4 + ease.front + 0.5 + outtuckExtra;
     const backHipW  = m.hip / 4 + ease.back;
     const H         = rise + inseam;
 
@@ -184,9 +185,9 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat folded toward side seam, ${fmtInches(PLEAT_DEPTH)} each` : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numOuttucks > 0 ? ` · ${numOuttucks === 2 ? 'Double' : 'Single'} out-tuck folded away from CF, ${fmtInches(OUTTUCK_DEPTH)} each` : ''}`,
       width: frontHipW, height: H, rise, inseam,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, numPleats, pleatDepth: PLEAT_DEPTH, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, numOuttucks, outtuckDepth: OUTTUCK_DEPTH, opts,
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
@@ -215,7 +216,7 @@ export default {
     } else if (opts.waistband === 'hybrid') {
       // Front: structured flat waistband with button
       // Back: elastic casing
-      const frontWbLen = (m.waist + ease.total + pleatExtra * 2) / 2 + 2; // front half + overlap
+      const frontWbLen = (m.waist + ease.total + outtuckExtra * 2) / 2 + 2; // front half + overlap
       const backWbLen  = garmentWaist / 2 + sa * 2; // back half, matches garment opening
       const wbWidth = (elasticW + 1) * 2;
       pieces.push({
@@ -234,7 +235,7 @@ export default {
       });
     } else {
       // Flat front: structured curtain waistband (like pleated-trousers)
-      const wbLen = m.waist + ease.total + pleatExtra * 2 + sa * 2 + 2; // +2 overlap
+      const wbLen = m.waist + ease.total + outtuckExtra * 2 + sa * 2 + 2; // +2 overlap
       const wbWidth = 4;
       pieces.push({
         id: 'waistband',
@@ -255,11 +256,19 @@ export default {
     }
 
     // ── BACK POCKETS ──
+    if (opts.backPocket === 'welt-single') {
+      pieces.push({
+        id: 'back-welt-r',
+        name: 'Back Welt Pocket (Right Rear)',
+        instruction: 'Cut 2 welts + 1 bag - RIGHT rear only - interface welts with knit fusible',
+        dimensions: { width: 5.5, height: 6 }, type: 'pocket',
+      });
+    }
     if (opts.backPocket === 'welt') {
       pieces.push({
         id: 'back-welt',
-        name: 'Back Faux Welt Pocket',
-        instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total · Interface welts with knit fusible',
+        name: 'Back Welt Pocket',
+        instruction: 'Cut 4 (2 welts + 2 bags) - x2 pockets total - interface welts with knit fusible',
         dimensions: { width: 5.5, height: 6 }, type: 'pocket',
       });
     }
@@ -267,7 +276,7 @@ export default {
       pieces.push({
         id: 'back-patch',
         name: 'Back Patch Pocket',
-        instruction: 'Cut 2 · Position centered on back panel below hip · {topstitch} sides and bottom · Bar tack corners',
+        instruction: 'Cut 2 - position centered on back panel below hip - {topstitch} sides and bottom - bar tack corners',
         dimensions: { width: 6, height: 7 }, type: 'pocket',
       });
     }
@@ -296,7 +305,7 @@ export default {
 
   materials(m, opts) {
     const ease = easeDistribution(opts.ease || 'relaxed');
-    const numPleats = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
+    const numOuttucks = opts.outtucks === 'double' ? 2 : opts.outtucks === 'single' ? 1 : 0;
 
     const notions = [];
 
@@ -314,8 +323,8 @@ export default {
       notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 3 - waistband closure' });
       notions.push({ ref: 'interfacing-light', quantity: '0.25 yard (waistband, knit fusible only)' });
     }
-    if (opts.backPocket === 'welt') {
-      notions.push({ ref: 'interfacing-light', quantity: '¼ yard (welt pocket facings, knit fusible only)' });
+    if (opts.backPocket === 'welt-single' || opts.backPocket === 'welt') {
+      notions.push({ ref: 'interfacing-light', quantity: '1/4 yard (welt pocket facings, knit fusible only)' });
     }
     if (opts.cuff === 'rib') {
       notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For leg cuffs - high recovery stretch' });
@@ -334,7 +343,7 @@ export default {
         'Pre-wash heavyweight jersey before cutting — cotton knits can shrink 3–5% in the first wash',
         'Do not {press} with high heat — use medium heat, light steam, or finger {press} seams',
         `Hem finish: ${opts.cuff === 'rib' ? 'ribbed cuffs at 80% of hem opening for stretch recovery' : opts.cuff === 'turnup' ? 'fold up 1.5″ twice for turn-up cuff, {press} lightly, tack at side seam and inseam' : 'twin needle creates two parallel rows of {topstitch} from RS; or use coverstitch if available'}`,
-        numPleats > 0 ? `Pleats: {press} lightly from WS with steam, allow to drape naturally below hip. Jersey pleats are soft — do not {press} a hard crease.` : '',
+        numOuttucks > 0 ? `Out-tucks: {press} lightly from WS with steam, allow to drape naturally below hip. Jersey out-tucks are soft - do not {press} a hard crease.` : '',
         opts.waistband === 'hybrid' ? 'Hybrid waistband: the structured front uses knit fusible interfacing for subtle body, while the elastic back provides comfort. Join front and back waistband at side seams.' : '',
       ].filter(Boolean),
     });
@@ -343,19 +352,25 @@ export default {
   instructions(m, opts) {
     const steps = [];
     let n = 1;
-    const numPleats = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
+    const numOuttucks = opts.outtucks === 'double' ? 2 : opts.outtucks === 'single' ? 1 : 0;
 
     // ── POCKETS ──
+    if (opts.backPocket === 'welt-single') {
+      steps.push({
+        step: n++, title: 'Prepare back welt pocket (right rear)',
+        detail: 'Interface welt pieces with knit fusible. Mark pocket position on RIGHT back panel only (2.5" below waist, centered in panel). Sew bound welt, slash, turn, {press} gently with press cloth. Attach bag halves. Whipstitch bag sides. Bar tack ends.',
+      });
+    }
     if (opts.backPocket === 'welt') {
       steps.push({
         step: n++, title: 'Prepare back welt pockets',
-        detail: 'Interface welt pieces with knit fusible. Mark pocket positions on back panels (2.5″ below waist, centered in panel). Sew bound welts, slash, turn, {press} gently. Attach bag halves. Whipstitch bag sides. Bar tack ends.',
+        detail: 'Interface welt pieces with knit fusible. Mark pocket positions on both back panels (2.5" below waist, centered in panel). Sew bound welts, slash, turn, {press} gently. Attach bag halves. Whipstitch bag sides. Bar tack ends.',
       });
     }
     if (opts.backPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare back patch pockets',
-        detail: 'Fold top edge under ¾″ twice, {topstitch}. {press} remaining three edges under ½″. Position on back panels below hip. {topstitch} on 3 sides. Bar tack all four corners.',
+        detail: 'Fold top edge under 3/4" twice, {topstitch}. {press} remaining three edges under 1/2". Position on back panels below hip. {topstitch} on 3 sides. Bar tack all four corners.',
       });
     }
     if (opts.pocket === 'slant') {
@@ -371,11 +386,11 @@ export default {
       });
     }
 
-    // ── PLEATS ──
-    if (numPleats > 0) {
+    // ── OUT-TUCKS ──
+    if (numOuttucks > 0) {
       steps.push({
-        step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist. {baste} ⅜″ from edge. {press} lightly from WS — jersey pleats should drape softly, not crease sharply.`,
+        step: n++, title: `Form ${numOuttucks === 2 ? 'double' : 'single'} front out-tuck${numOuttucks === 2 ? 's' : ''}`,
+        detail: `Mark out-tuck fold line${numOuttucks === 2 ? 's' : ''} on RS. Fold each out-tuck AWAY from CF (toward side seam), enclosing ${fmtInches(OUTTUCK_DEPTH)}. The out-tucks release fabric around the hips for a roomier silhouette. Pin at waist. {baste} 3/8" from edge. {press} lightly from WS with press cloth - jersey out-tucks should drape softly, not crease sharply. Allow to release naturally below the hip.`,
       });
     }
 
@@ -437,7 +452,7 @@ export default {
 
 // ── Panel builder ────────────────────────────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, numPleats = 0, pleatDepth = 0, opts, calf, ankle, seatDepth }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, numOuttucks = 0, outtuckDepth = 0, opts, calf, ankle, seatDepth }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -482,8 +497,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   ];
 
   const pleats = [];
-  if (!isBack && numPleats >= 1) pleats.push({ x: width * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
-  if (!isBack && numPleats >= 2) pleats.push({ x: width * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numOuttucks >= 1) pleats.push({ x: width * 0.25, depth: outtuckDepth, y1: 0, y2: 4.5, label: 'out-tuck' });
+  if (!isBack && numOuttucks >= 2) pleats.push({ x: width * 0.5,  depth: outtuckDepth, y1: 0, y2: 4.5, label: 'out-tuck' });
 
   const effSeatDepth = seatDepth || 7;
   const notches = [
