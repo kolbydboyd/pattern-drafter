@@ -412,30 +412,49 @@ export default {
         sa,
       });
 
-      // Front facing includes the shaped lapel outline
-      const lapelParams = {
+      // ── FRONT FACING + LAPEL ────────────────────────────────────────
+      // The facing is the CF-edge strip that shapes the lapel when folded.
+      // Below the break point it's a simple FACING_W-wide strip.
+      // Above the break point it widens into the lapel extension.
+      //
+      // We use bezier curves between the key lapel control points
+      // (from peakLapelCurve / notchedLapelCurve) and sample densely
+      // so the SA offset polygon stays clean at the curves.
+
+      const lapelCurveParams = {
         neckDepthFront: NECK_DEPTH_FRONT,
         breakPointY,
         lapelWidth: lapelW,
         collarStand: 1.25,
       };
       const lapelResult = opts.collar === 'peak'
-        ? peakLapelCurve(lapelParams)
-        : notchedLapelCurve(lapelParams);
+        ? peakLapelCurve(lapelCurveParams)
+        : notchedLapelCurve(lapelCurveParams);
 
-      // Build facing polygon: gorge → (outer lapel edge) → break point → CF hem → facing inner → back to gorge
+      // lapelPoints: [breakPoint, ...outer edge..., peakTip/notchInner, gorgePoint]
+      // We reverse to go gorge → outer → break, then add the facing strip below.
+      const rawLapel = [...lapelResult.lapelPoints].reverse();
+
+      // Smooth the lapel outline using cubic bezier segments between each pair
+      // of consecutive raw points (chord-based control points for gentle arcs).
       const facingPoly = [];
-      // Lapel outer edge: reverse lapelPoints so we go gorge → break
-      const revLapel = [...lapelResult.lapelPoints].reverse();
-      for (const p of revLapel) facingPoly.push(p);
-      // Down CF from break point to hem
+      facingPoly.push({ x: rawLapel[0].x, y: rawLapel[0].y }); // gorge (structural)
+      for (let seg = 0; seg < rawLapel.length - 1; seg++) {
+        const a = rawLapel[seg];
+        const b = rawLapel[seg + 1];
+        // Use the previous and next points for tangent direction (Catmull-Rom style)
+        const prev = seg > 0 ? rawLapel[seg - 1] : a;
+        const next = seg + 2 < rawLapel.length ? rawLapel[seg + 2] : b;
+        const cp1 = { x: a.x + (b.x - prev.x) / 6, y: a.y + (b.y - prev.y) / 6 };
+        const cp2 = { x: b.x - (next.x - a.x) / 6, y: b.y - (next.y - a.y) / 6 };
+        const pts = sampleBezier(a, cp1, cp2, b, 6);
+        for (let i = 1; i < pts.length; i++) facingPoly.push({ x: pts[i].x, y: pts[i].y });
+      }
+
+      // Facing strip: break → CF hem → facing inner hem → facing inner top
       facingPoly.push({ x: 0, y: torsoLen });
-      // Across to facing inner edge at hem
       facingPoly.push({ x: FACING_W, y: torsoLen });
-      // Up facing inner edge to neckline level
       facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
-      // Close back to gorge point
-      facingPoly.push({ x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y });
 
       const facingBB = bbox(facingPoly);
       pieces.push({
