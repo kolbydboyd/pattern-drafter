@@ -307,6 +307,14 @@ html:has(#landing:not([style*="display:none"])),body:has(#landing:not([style*="d
 @media(max-width:600px){.land-footer{flex-direction:column;align-items:center;text-align:center;gap:8px}.land-footer-copy{flex:none}.land-footer-legal{flex:none;flex-wrap:wrap;justify-content:center}.land-footer .social-icons{flex:none;width:100%;justify-content:center}}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 .wiz-footer{margin-top:auto}
+/* Active page highlight in header nav */
+body[data-page="patterns"] #hdr-nav-desktop a[href="/patterns"],
+body[data-page="learn"] #hdr-nav-desktop a[href="/learn"],
+body[data-page="pricing"] #hdr-nav-desktop a[href="/pricing"],
+body[data-page="about"] #hdr-nav-desktop a[href="/about"],
+body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
+/* Footer margin-top for pages using flexbox layout */
+.land-footer{margin-top:auto}
 /* ── Social proof section (A/B test) ── */
 .land-proof{width:100%;max-width:860px;margin:0 auto 18px;text-align:center}
 .land-proof-label{font-family:'IBM Plex Mono',monospace;font-size:.62rem;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}

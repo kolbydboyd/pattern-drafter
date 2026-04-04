@@ -1,5 +1,7 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-// Minimal JS for static pages (FAQ, Terms, Privacy) — theme toggle only.
+// Shared JS for static pages (FAQ, Terms, Privacy, etc.) — theme toggle + auth.
+
+import { initAuthModal } from './auth-modal.js';
 
 import { inject } from '@vercel/analytics';
 import '../analytics.js';
@@ -70,3 +72,6 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   applyTheme(next);
   mobileNav?.classList.remove('open');
 });
+
+// Auth modal (sign in / account UI in header)
+initAuthModal();
