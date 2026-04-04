@@ -466,9 +466,11 @@ export default {
       const facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
 
       // Facing strip: break → CF hem → facing inner hem → facing inner top
+      // Tapers from FACING_W (3″) at hem to ~2″ at shoulder/neckline
+      const FACING_TOP_W = 2.0;
       facingPoly.push({ x: 0, y: torsoLen });
       facingPoly.push({ x: FACING_W, y: torsoLen });
-      facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
+      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
 
       // Per-edge SA: use ⅜″ on the narrow lapel edges to reduce overlap
       const lapelSa = 0.375;
