@@ -318,6 +318,7 @@ export default {
         name: isDouble ? 'Front Panel (Left)' : 'Front Panel (Left)',
         instruction: `Cut 2 (L & R mirror) · ${fmtInches(PLACKET_W)} ${isDouble ? 'double-breasted overlap' : 'placket'} extension at CF · ${isDouble ? '4×2 button arrangement' : '2-button single-breasted'}`,
         type: 'bodice',
+        isCutOnFold: false,
         polygon: frontPoly,
         path: polyToPathStr(frontPoly),
         width: frontBB.maxX - frontBB.minX,
@@ -336,6 +337,7 @@ export default {
         name: 'Back Panel (Left)',
         instruction: `Cut 2 (L & R mirror) · Center back seam (NOT cut on fold)${opts.vent === 'center' ? ` · ${fmtInches(ventLen)} center vent — left overlap, right underlap` : opts.vent === 'side' ? ' · Side vents at side seams' : ''}`,
         type: 'bodice',
+        isCutOnFold: false,
         polygon: backPoly,
         path: polyToPathStr(backPoly),
         width: backBB.maxX - backBB.minX,
@@ -410,14 +412,44 @@ export default {
         sa,
       });
 
-      // Front facing includes the lapel shape
-      const facingH = torsoLen - NECK_DEPTH_FRONT;
+      // Front facing includes the shaped lapel outline
+      const lapelParams = {
+        neckDepthFront: NECK_DEPTH_FRONT,
+        breakPointY,
+        lapelWidth: lapelW,
+        collarStand: 1.25,
+      };
+      const lapelResult = opts.collar === 'peak'
+        ? peakLapelCurve(lapelParams)
+        : notchedLapelCurve(lapelParams);
+
+      // Build facing polygon: gorge → (outer lapel edge) → break point → CF hem → facing inner → back to gorge
+      const facingPoly = [];
+      // Lapel outer edge: reverse lapelPoints so we go gorge → break
+      const revLapel = [...lapelResult.lapelPoints].reverse();
+      for (const p of revLapel) facingPoly.push(p);
+      // Down CF from break point to hem
+      facingPoly.push({ x: 0, y: torsoLen });
+      // Across to facing inner edge at hem
+      facingPoly.push({ x: FACING_W, y: torsoLen });
+      // Up facing inner edge to neckline level
+      facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
+      // Close back to gorge point
+      facingPoly.push({ x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y });
+
+      const facingBB = bbox(facingPoly);
       pieces.push({
         id: 'front-facing',
         name: 'Front Facing + Lapel',
-        instruction: `Cut 2 (L & R) · Interface with knit fusible · ${fmtInches(FACING_W)} wide plus lapel extension · This piece shapes the ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel`,
-        type: 'pocket',
-        dimensions: { width: FACING_W + lapelW, height: facingH },
+        instruction: `Cut 2 (L & R) · Interface with knit fusible · ${fmtInches(FACING_W)} wide facing plus ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel extension`,
+        type: 'bodice',
+        isCutOnFold: false,
+        polygon: facingPoly,
+        path: polyToPathStr(facingPoly),
+        width: facingBB.maxX - facingBB.minX,
+        height: facingBB.maxY - facingBB.minY,
+        isBack: false,
+        sa,
       });
     } else {
       // Shawl collar — combined collar + facing, one piece
