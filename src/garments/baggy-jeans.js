@@ -101,7 +101,7 @@ export default {
     const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 33);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.wide;
 
-    let frontHipW   = m.hip / 4 + ease.front;
+    let frontHipW   = m.hip / 4 + ease.front + 0.5;
     let backHipW    = m.hip / 4 + ease.back;
     const frontWaistW = m.waist / 4 + ease.front;
     const backWaistW  = m.waist / 4 + ease.back;
