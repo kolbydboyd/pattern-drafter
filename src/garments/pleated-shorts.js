@@ -164,7 +164,7 @@ export default {
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
       pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Match to front slash line', dimensions: { width: 2, height: 6 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK',           dimensions: { width: 7, height: 10.5 }, type: 'pocket' });
+      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric OK',           dimensions: { width: 7, height: 12.5 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
