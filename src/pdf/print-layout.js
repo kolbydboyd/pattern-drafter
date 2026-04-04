@@ -1096,22 +1096,59 @@ function buildMaterialsPage(materials) {
   </div>`;
 }
 
-function buildInstructionsPage(instructions) {
-  const stepsHtml = (instructions || []).map(s =>
-    `<div class="step">
-      <div class="step-n">${s.step}</div>
-      <div class="step-b">
-        <div class="step-t">${s.title}</div>
-        <div class="step-d">${s.detail}</div>
-      </div>
-    </div>`
-  ).join('');
+function buildInstructionsPage(instructions, PH) {
+  const PAD = 0.5;            // top + bottom padding on .instr-page
+  const HEAD_H = 0.55;        // heading + note on first page
+  const CONT_HEAD_H = 0.35;   // heading only on continuation pages
+  const STEP_GAP = 0.14;      // gap between steps
+  const CHARS_PER_LINE = 85;  // ~chars fitting in detail column at 9pt
+  const LINE_H = 0.135;       // 9pt * 1.55 line-height
+  const TITLE_H = 0.2;        // title line height
 
-  return `<div class="page instr-page">
-    <h2 class="page-head">Construction Order</h2>
-    <p class="note" style="margin-bottom:0.2in">Read all steps before starting. Press every seam.</p>
-    <div class="steps">${stepsHtml}</div>
-  </div>`;
+  function estimateStepHeight(s) {
+    const detailLines = Math.ceil((s.detail || '').length / CHARS_PER_LINE) || 1;
+    return TITLE_H + detailLines * LINE_H + STEP_GAP;
+  }
+
+  const allSteps = instructions || [];
+  const pages = [];
+  let cur = [];
+  let usedH = 0;
+  let availH = PH - PAD * 2 - HEAD_H;
+
+  for (const s of allSteps) {
+    const h = estimateStepHeight(s);
+    if (cur.length > 0 && usedH + h > availH) {
+      pages.push(cur);
+      cur = [];
+      usedH = 0;
+      availH = PH - PAD * 2 - CONT_HEAD_H;
+    }
+    cur.push(s);
+    usedH += h;
+  }
+  if (cur.length > 0) pages.push(cur);
+
+  return pages.map((steps, i) => {
+    const stepsHtml = steps.map(s =>
+      `<div class="step">
+        <div class="step-n">${s.step}</div>
+        <div class="step-b">
+          <div class="step-t">${s.title}</div>
+          <div class="step-d">${s.detail}</div>
+        </div>
+      </div>`
+    ).join('');
+    const heading = i === 0 ? 'Construction Order' : "Construction Order (cont'd)";
+    const note = i === 0
+      ? '<p class="note" style="margin-bottom:0.2in">Read all steps before starting. Press every seam.</p>'
+      : '';
+    return `<div class="page instr-page">
+      <h2 class="page-head">${heading}</h2>
+      ${note}
+      <div class="steps">${stepsHtml}</div>
+    </div>`;
+  }).join('');
 }
 
 // ── Large-format combined preamble (A0/plotter) ────────────────────────────
@@ -1371,7 +1408,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
     + buildMaterialsPage(materials)
-    + buildInstructionsPage(instructions);
+    + buildInstructionsPage(instructions, PH);
 
   // ── Pattern piece pages ─────────────────────────────────────────────────
   let tilePages;
