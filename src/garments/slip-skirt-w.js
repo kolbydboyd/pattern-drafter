@@ -5,14 +5,14 @@
  * Two darts per panel to absorb waist-hip differential.
  */
 
-import { fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
   id: 'slip-skirt-w',
   name: 'Slip Skirt (W)',
   category: 'lower',
-  difficulty: 'intermediate',
+  difficulty: 'beginner',
   priceTier: 'simple',
   measurements: ['waist', 'hip', 'skirtLength'],
   measurementDefaults: { skirtLength: 28 },
@@ -26,6 +26,16 @@ export default {
         { value: 'elastic',    label: 'Elastic casing (1″)',                  reference: 'chef pant, pull-on'    },
       ],
       default: 'petersham',
+    },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished casing → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished casing → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished casing → 4½″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
     },
     closure: {
       type: 'select', label: 'Closure',
@@ -55,7 +65,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes - full lining' },
+        { value: 'yes', label: 'Yes, full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -88,16 +98,37 @@ export default {
 
     const L = m.skirtLength || 28;
 
+    function pp(poly) {
+      let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
+      for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`;
+      return d + ' Z';
+    }
+
     // Simple rectangle panel: straight sides, width = hipW, height = L
     // Waist edge is narrower than hip (darts handle the shaping)
     function buildPanel(name, id) {
-      const poly = [
-        { x: 0,    y: 0 },
-        { x: hipW, y: 0 },
-        { x: hipW, y: L },
-        { x: 0,    y: L },
-      ];
-      const path = `M 0 0 L ${hipW.toFixed(2)} 0 L ${hipW.toFixed(2)} ${L.toFixed(2)} L 0 ${L.toFixed(2)} Z`;
+      const isBack = id === 'skirt-back';
+      const waistDip = 0.375;
+      let poly;
+
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: hipW * 0.4, y: waistDip },
+          { x: hipW * 0.8, y: 0 }, { x: hipW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        poly = [...waistPts, { x: hipW, y: L }, { x: 0, y: L }];
+      } else {
+        poly = [
+          { x: 0,    y: 0 },
+          { x: hipW, y: 0 },
+          { x: hipW, y: L },
+          { x: 0,    y: L },
+        ];
+      }
+      const path = pp(poly);
 
       // Dart annotations as dimensions (visual only — rendered as note)
       const dims = [
@@ -115,6 +146,7 @@ export default {
       const notches = [
         // Hip level on side seam (right edge, pointing outward)
         { x: hipW, y: hipY, angle: 0 },
+        ...(id === 'skirt-back' ? [{ x: hipW, y: hipY + 0.25, angle: 0 }] : []),
         // CF/CB mark at waist center
         { x: hipW / 2, y: 0, angle: -90 },
       ];
@@ -136,7 +168,7 @@ export default {
 
       return {
         id, name,
-        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
+        instruction: `Cut 1 on fold (${id === 'skirt-front' ? 'CF' : 'CB'})${opts.closure === 'zip' && id === 'skirt-back' ? ' · Split at CB for invisible zip. Add ⅝″ SA at CB seam' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path,
         width: hipW, height: L, isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
         dims,
@@ -155,17 +187,19 @@ export default {
     } else if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Structured Waistband', instruction: `Cut 2 (self + interfacing) · ${fmtInches(wbCirc)} long × 3″ cut (1.5″ finished) · Interface fully`, dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else {
-      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut · Fold over 1″ elastic (waist − 1″)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 0.75) * 2;
+      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × ${fmtInches(wbWidth)} cut · Fold over ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     }
 
     if (opts.closure === 'zip') {
       const zipLen = Math.ceil(L * 0.45);
-      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Install at CB before sewing CB seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Install at CB before sewing CB seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket', sa });
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · Same as front panel · Shorten 1″ from hem · Sew to zip tape and waistband`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket' });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Leave CB open to zip`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket' });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · Same as front panel · Shorten 1″ from hem · Sew to zip tape and waistband`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket', sa });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Leave CB open to zip`, dimensions: { length: hipW, width: L - 1 }, type: 'pocket', sa });
     }
 
     return pieces;
@@ -218,7 +252,7 @@ export default {
       steps.push({ step: n++, title: 'Install invisible zipper', detail: '{press} zip coils flat. Sew right side of zip to right CB seam allowance. Sew left side to left CB seam allowance. Attach zip foot. Close remaining CB seam below zip stop.' });
     }
 
-    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams - sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
+    steps.push({ step: n++, title: 'Sew side seams', detail: 'Join front to back at both side seams {RST}. Sew from waist to hem. {press} open. For fine fabrics: use French seams: sew WS together first at 3mm, {press}, flip RS together, sew at ¼″.' });
 
     if (opts.lining === 'yes') {
       steps.push({ step: n++, title: 'Assemble lining', detail: 'Sew lining darts and side seams as for shell. Leave CB open for zipper. {press}.' });
@@ -229,7 +263,7 @@ export default {
     } else if (opts.waistband === 'structured') {
       steps.push({ step: n++, title: 'Attach structured waistband', detail: 'Interface waistband. Fold in half lengthwise {RST}, sew ends. Turn. Sew one long edge to waist {RST}. Fold over, {slipstitch} or {edgestitch} other edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing strip in half {WST}. Sew to waist {RST}. Fold inside. {topstitch} leaving 2″ gap. Thread elastic (~90% of waist). Overlap ends 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {

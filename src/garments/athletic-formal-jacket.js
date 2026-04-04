@@ -19,9 +19,9 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
-  peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve,
+  peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve, twoPartSleeve,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, offsetPolygon } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -234,23 +234,28 @@ export default {
     }
     backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
-    // ── SLEEVE ───────────────────────────────────────────────────────────
+    // ── TWO-PIECE SLEEVE ──────────────────────────────────────────────────
+    // Top sleeve (outer arm) + under sleeve (inner arm) for tailored arm hang.
+    // Knit fabric: lower cap height, less ease, slight elbow bend.
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
-    const sleeveEase = totalEase * 0.2;
-    const slvWidth   = m.bicep / 2 + sleeveEase;
-    // Knit fabrics need less cap ease — use lower cap height ratio
-    const capHeight  = armholeDepth * (opts.fit === 'oversized' ? 0.50 : 0.55);
-    const capCp      = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-    const capPts     = sampleCurve(capCp, 16);
-    const sleevePoly = [];
-    for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capHeight });
-    // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
-    delete sleevePoly[0].curve;
-    delete sleevePoly[capPts.length - 1].curve;
-    // Slight taper toward wrist for jacket sleeve
-    const wristW = (m.wrist || m.bicep * 0.75) / 2 + 0.5;
-    sleevePoly.push({ x: slvWidth + wristW, y: capHeight + slvLength });
-    sleevePoly.push({ x: slvWidth - wristW, y: capHeight + slvLength });
+    const frontArmArc = arcLength(frontArmPts);
+    const backArmArc  = arcLength(backArmPts);
+    const armholeArc  = frontArmArc + backArmArc;
+
+    const sleeveResult = twoPartSleeve({
+      bicep: m.bicep,
+      sleeveLength: slvLength,
+      armToElbow: effArmToElbow,
+      wrist: m.wrist || m.bicep * 0.55,
+      armholeArc,
+      capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
+      sleeveBend: 8,          // slight elbow bend (less than structured denim)
+      bicepEase: 0.15,
+      capHeightRatio: 0.40,   // lower cap for knit
+    });
+    const topSlvBB   = bbox(sleeveResult.topSleeve);
+    const underSlvBB = bbox(sleeveResult.underSleeve);
+    const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(sleeveResult.capArc - armholeArc)} (${sleeveResult.iterations} iter)`;
 
     // ── COLLAR ───────────────────────────────────────────────────────────
     // Button positions for lapel break point calculation
@@ -276,6 +281,9 @@ export default {
       { x: sideX, y: armholeY, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      // Collar/facing assembly notches
+      { x: 0, y: NECK_DEPTH_FRONT, angle: 90 },       // CF neckline — matches under collar CF end
+      { x: -PLACKET_W, y: breakPointY, angle: 180 },   // break point — matches facing break point
     ];
 
     const backNotches = [
@@ -289,27 +297,8 @@ export default {
       backNotches.push({ x: 0, y: torsoLen - ventLen, angle: 180 }); // vent top mark
     }
 
-    const capW = slvWidth * 2;
-    const sleeveNotches = [
-      { x: capW / 2, y: 0, angle: -90 },
-      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
-      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
-    ];
-
-    // ── SLEEVE CAP / ARMHOLE VALIDATION ──────────────────────────────────
-    const frontArmArc = arcLength(frontArmPts);
-    const backArmArc  = arcLength(backArmPts);
-    const armholeArc  = frontArmArc + backArmArc;
-    const capArc      = arcLength(capPts);
-    const capEase     = capArc - armholeArc;
-    if (capEase < 0.25 || capEase > 2.5) {
-      console.warn(`[athletic-formal-jacket] Sleeve cap ease: ${capEase.toFixed(2)}″ (expected 0.25–2.5″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
-    }
-    const capEaseNote = `Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
-
     const frontBB  = bbox(frontPoly);
     const backBB   = bbox(backPoly);
-    const sleeveBB = bbox(sleevePoly);
 
     // ── PIECES ───────────────────────────────────────────────────────────
     const pieces = [
@@ -326,6 +315,13 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
+        // Roll line: break point (CF placket edge) → CF neckline point
+        // The lapel folds back along this line when worn
+        rollLine: opts.collar !== 'shawl' ? {
+          from: { x: -PLACKET_W, y: breakPointY },
+          to:   { x: 0, y: NECK_DEPTH_FRONT },
+          label: 'roll line',
+        } : undefined,
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -352,23 +348,39 @@ export default {
         ],
       },
       {
-        id: 'sleeve',
-        name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · Cap top, set into armhole · ${capEaseNote}`,
+        id: 'top-sleeve',
+        name: 'Top Sleeve (Outer)',
+        instruction: `Cut 2 (mirror L & R) · Outer arm · Carries the full cap crown · ${capEaseNote}`,
         type: 'sleeve',
-        polygon: sleevePoly,
-        path: polyToPathStr(sleevePoly),
-        width: sleeveBB.maxX - sleeveBB.minX,
-        height: sleeveBB.maxY - sleeveBB.minY,
-        capHeight,
+        polygon: sleeveResult.topSleeve,
+        path: polyToPathStr(sleeveResult.topSleeve),
+        width: topSlvBB.maxX - topSlvBB.minX,
+        height: topSlvBB.maxY - topSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
         sleeveLength: slvLength,
-        sleeveWidth: slvWidth * 2,
+        sleeveWidth: sleeveResult.topSleeveWidth,
         sa, hem,
-        notches: sleeveNotches,
         dims: [
-          { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvWidth * 2, y2: capHeight + 0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
-          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
+          { label: fmtInches(sleeveResult.topSleeveWidth) + ' top width', x1: topSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: topSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: topSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+        ],
+      },
+      {
+        id: 'under-sleeve',
+        name: 'Under Sleeve (Inner)',
+        instruction: 'Cut 2 (mirror L & R) · Inner arm · Joins top sleeve at front and back seams',
+        type: 'sleeve',
+        polygon: sleeveResult.underSleeve,
+        path: polyToPathStr(sleeveResult.underSleeve),
+        width: underSlvBB.maxX - underSlvBB.minX,
+        height: underSlvBB.maxY - underSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.underSleeveWidth,
+        sa, hem,
+        dims: [
+          { label: fmtInches(sleeveResult.underSleeveWidth) + ' under width', x1: underSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: underSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: underSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
         ],
       },
     ];
@@ -386,6 +398,13 @@ export default {
         underShrink: 0.02,
       });
 
+      // Notch positions for collar-to-facing/panel assembly
+      const collarW = opts.collar === 'peak' ? 3.5 : 3;
+      const ucCFEnd = upperCollar[upperCollar.length - 2];  // CF end of upper collar
+      const ucCBMid = { x: 0, y: collarW / 2 };            // CB fold midpoint
+      const lcCFEnd = underCollar[underCollar.length - 2];
+      const lcCBMid = { x: 0, y: (collarW / 1.02) / 2 };
+
       pieces.push({
         id: 'upper-collar',
         name: 'Upper Collar',
@@ -394,48 +413,107 @@ export default {
         polygon: upperCollar,
         path: polyToPathStr(upperCollar),
         width: standLength,
-        height: opts.collar === 'peak' ? 3.5 : 3,
+        height: collarW,
         isBack: false,
         sa,
+        notches: [
+          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches facing gorge
+          { x: ucCBMid.x, y: ucCBMid.y, angle: 180 },  // CB fold — alignment mark
+        ],
       });
 
       pieces.push({
         id: 'under-collar',
         name: 'Under Collar',
-        instruction: 'Cut 1 on fold (CB) · 2% smaller than upper collar for seam roll · Interface with knit fusible',
+        instruction: 'Cut 2 (mirror at CB) · Bias cut · 2% smaller than upper collar for seam roll · Interface with knit fusible',
         type: 'bodice',
+        isCutOnFold: false,
+        grainAngle: 45,
         polygon: underCollar,
         path: polyToPathStr(underCollar),
         width: standLength / 1.02,
-        height: (opts.collar === 'peak' ? 3.5 : 3) / 1.02,
+        height: collarW / 1.02,
         isBack: false,
         sa,
+        notches: [
+          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches front panel neckline
+          { x: lcCBMid.x, y: lcCBMid.y, angle: 180 },  // CB seam — alignment mark
+        ],
       });
 
-      // Front facing includes the shaped lapel outline
-      const lapelParams = {
+      // ── FRONT FACING + LAPEL ────────────────────────────────────────
+      // The facing is the CF-edge strip that shapes the lapel when folded.
+      // Below the break point it's a simple FACING_W-wide strip.
+      // Above the break point it widens into the lapel extension.
+      //
+      // We use bezier curves between the key lapel control points
+      // (from peakLapelCurve / notchedLapelCurve) and sample densely
+      // so the SA offset polygon stays clean at the curves.
+
+      const lapelCurveParams = {
         neckDepthFront: NECK_DEPTH_FRONT,
         breakPointY,
         lapelWidth: lapelW,
         collarStand: 1.25,
       };
       const lapelResult = opts.collar === 'peak'
-        ? peakLapelCurve(lapelParams)
-        : notchedLapelCurve(lapelParams);
+        ? peakLapelCurve(lapelCurveParams)
+        : notchedLapelCurve(lapelCurveParams);
 
-      // Build facing polygon: gorge → (outer lapel edge) → break point → CF hem → facing inner → back to gorge
-      const facingPoly = [];
-      // Lapel outer edge: reverse lapelPoints so we go gorge → break
-      const revLapel = [...lapelResult.lapelPoints].reverse();
-      for (const p of revLapel) facingPoly.push(p);
-      // Down CF from break point to hem
+      // lapelPoints: [breakPoint, ...outer edge..., peakTip/notchInner, gorgePoint]
+      // We reverse to go gorge → outer → break, then add the facing strip below.
+      const rawLapel = [...lapelResult.lapelPoints].reverse();
+
+      // Use the raw lapel control points directly (straight segments).
+      // FreeSewing's Jaeger also uses straight lines for the lapel outline.
+      const facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
+
+      // Facing strip: break → CF hem → facing inner hem → facing inner top
+      // Tapers from FACING_W (3″) at hem to ~2″ at shoulder/neckline
+      const FACING_TOP_W = 2.0;
       facingPoly.push({ x: 0, y: torsoLen });
-      // Across to facing inner edge at hem
       facingPoly.push({ x: FACING_W, y: torsoLen });
-      // Up facing inner edge to neckline level
-      facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
-      // Close back to gorge point
-      facingPoly.push({ x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y });
+      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
+
+      // Per-edge SA: use ⅜″ on the narrow lapel edges to reduce overlap
+      const lapelSa = 0.375;
+      const lapelEdgeCount = rawLapel.length - 1;
+      const facingEdges = [];
+      for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
+      facingEdges.push({ sa, label: 'CF' });
+      facingEdges.push({ sa: hem, label: 'Hem' });
+      facingEdges.push({ sa, label: 'Inner' });
+      facingEdges.push({ sa, label: 'Neck' });
+
+      // Pre-compute SA polygon and clip any self-intersecting loops.
+      // The narrow lapel wing can cause opposite-edge stitch lines to cross.
+      const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
+      // Simple loop clipper: walk the polygon, when an edge crosses a later
+      // edge, jump to the intersection point and skip the loop.
+      const clippedSA = [];
+      for (let i = 0; i < rawSA.length; i++) {
+        clippedSA.push(rawSA[i]);
+        const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
+        // Check if this edge crosses any later non-adjacent edge
+        let jumped = false;
+        for (let j = i + 2; j < rawSA.length; j++) {
+          if (j === rawSA.length - 1 && i === 0) continue;
+          const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
+          const d1x = b.x - a.x, d1y = b.y - a.y;
+          const d2x = d.x - c.x, d2y = d.y - c.y;
+          const denom = d1x * d2y - d1y * d2x;
+          if (Math.abs(denom) < 1e-10) continue;
+          const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
+          const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
+          if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
+            // Found intersection — add the crossing point and skip to j+1
+            clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
+            i = j; // skip the loop
+            jumped = true;
+            break;
+          }
+        }
+      }
 
       const facingBB = bbox(facingPoly);
       pieces.push({
@@ -445,7 +523,19 @@ export default {
         type: 'bodice',
         isCutOnFold: false,
         polygon: facingPoly,
+        saPolygon: clippedSA,
         path: polyToPathStr(facingPoly),
+        edgeAllowances: facingEdges,
+        // Roll line on the facing: break point → gorge
+        rollLine: {
+          from: { x: 0, y: breakPointY },
+          to:   { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y },
+          label: 'roll line',
+        },
+        notches: [
+          { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },  // gorge — matches upper collar CF
+          { x: 0, y: breakPointY, angle: 180 },                                     // break point — matches front panel
+        ],
         width: facingBB.maxX - facingBB.minX,
         height: facingBB.maxY - facingBB.minY,
         isBack: false,
@@ -522,7 +612,8 @@ export default {
 
     // ── SLEEVE CUFF ─────────────────────────────────────────────────────
     if (opts.sleeveCuff === 'rib') {
-      const cuffLen = wristW * 2 * 0.85;
+      const wristCirc = (m.wrist || m.bicep * 0.55) * 1.4;
+      const cuffLen = wristCirc * 0.85;
       pieces.push({
         id: 'sleeve-rib-cuff',
         name: 'Sleeve Rib Cuff',
@@ -533,21 +624,91 @@ export default {
       });
     }
 
+    // ── BACK NECK FACING ────────────────────────────────────────────────
+    // Shaped piece that finishes the back neckline between the front facings.
+    // Follows the back neckline curve, 2.5″ wide. Cut 1 on fold at CB.
+    const BACK_FACING_W = 2.5;
+    const backFacingPoly = [];
+    // Outer edge: neckline curve (same as back panel neckline)
+    const neckBackForFacing = [...backNeckPts].reverse();
+    for (const p of neckBackForFacing) backFacingPoly.push({ ...p, x: neckW - p.x });
+    delete backFacingPoly[0].curve;
+    delete backFacingPoly[backFacingPoly.length - 1].curve;
+    // Inner edge: offset 2.5″ below neckline
+    backFacingPoly.push({ x: shoulderPtX, y: slopeDrop + BACK_FACING_W });
+    backFacingPoly.push({ x: 0, y: NECK_DEPTH_BACK + BACK_FACING_W });
+    const backFacingBB = bbox(backFacingPoly);
+
+    pieces.push({
+      id: 'back-neck-facing',
+      name: 'Back Neck Facing',
+      instruction: `Cut 1 on fold (CB) · Interface with knit fusible · ${fmtInches(BACK_FACING_W)} wide · Joins front facings at shoulder seams`,
+      type: 'bodice',
+      polygon: backFacingPoly,
+      path: polyToPathStr(backFacingPoly),
+      width: backFacingBB.maxX - backFacingBB.minX,
+      height: backFacingBB.maxY - backFacingBB.minY,
+      isBack: true,
+      sa,
+    });
+
     // ── LINING ──────────────────────────────────────────────────────────
     if (opts.lining === 'half') {
+      // Back lining: follows back panel from shoulder to 4″ below armhole
+      const liningCutoff = armholeY + 4;
+      const backLiningPoly = [];
+      for (const p of backPoly) {
+        if (p.y <= liningCutoff) backLiningPoly.push({ x: p.x, y: p.y });
+      }
+      // Close the bottom edge
+      if (backLiningPoly.length > 0) {
+        const lastX = backLiningPoly[backLiningPoly.length - 1].x;
+        backLiningPoly.push({ x: lastX, y: liningCutoff });
+        backLiningPoly.push({ x: 0, y: liningCutoff });
+      }
+      const backLiningBB = bbox(backLiningPoly);
+
       pieces.push({
         id: 'lining-back',
         name: 'Back Lining (Upper)',
-        instruction: 'Cut 1 on fold (CB) · Extends from shoulder to 4″ below armhole · Jersey or tricot lining',
-        type: 'pocket',
-        dimensions: { width: backW, height: armholeY + 4 },
+        instruction: `Cut 1 on fold (CB) · Extends from shoulder to ${fmtInches(liningCutoff)} below baseline · Jersey or tricot lining`,
+        type: 'bodice',
+        polygon: backLiningPoly,
+        path: polyToPathStr(backLiningPoly),
+        width: backLiningBB.maxX - backLiningBB.minX,
+        height: backLiningBB.maxY - backLiningBB.minY,
+        isBack: true,
+        sa,
+      });
+
+      // Sleeve lining: follows top sleeve shape
+      pieces.push({
+        id: 'lining-top-sleeve',
+        name: 'Top Sleeve Lining',
+        instruction: 'Cut 2 (mirror L & R) · Outer arm lining · Jersey or tricot',
+        type: 'sleeve',
+        polygon: sleeveResult.topSleeve,
+        path: polyToPathStr(sleeveResult.topSleeve),
+        width: topSlvBB.maxX - topSlvBB.minX,
+        height: topSlvBB.maxY - topSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.topSleeveWidth,
+        sa, hem,
       });
       pieces.push({
-        id: 'lining-sleeve',
-        name: 'Sleeve Lining',
-        instruction: 'Cut 2 (mirror L & R) · Full sleeve length · Jersey or tricot lining',
-        type: 'pocket',
-        dimensions: { width: slvWidth * 2, height: slvLength + capHeight },
+        id: 'lining-under-sleeve',
+        name: 'Under Sleeve Lining',
+        instruction: 'Cut 2 (mirror L & R) · Inner arm lining · Jersey or tricot',
+        type: 'sleeve',
+        polygon: sleeveResult.underSleeve,
+        path: polyToPathStr(sleeveResult.underSleeve),
+        width: underSlvBB.maxX - underSlvBB.minX,
+        height: underSlvBB.maxY - underSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.underSleeveWidth,
+        sa, hem,
       });
     }
 
@@ -559,63 +720,40 @@ export default {
     const btnCount = isDouble ? 4 : 2;
 
     const notions = [
-      { name: 'Knit fusible interfacing (lightweight)', quantity: '1 yard', notes: 'Tricot-type knit fusible ONLY - apply to: lapel edges (inner side only, not outer bend), collar stand inner side, front facing inner side near opening. Never use woven interfacing on knit fabric.' },
+      { ref: 'interfacing-light', quantity: '1 yard (lapels, collar, facings, pockets — knit fusible ONLY)' },
     ];
 
     notions.push({
       name: isDouble ? 'Flat buttons (4 functional + 2 decorative)' : 'Buttons',
       quantity: `${isDouble ? 6 : btnCount + 1}`,
-      notes: `¾" - ⅞" flat or shank buttons${isDouble ? ' - 4x2 arrangement: 2 rows of 2 functional, plus 2 anchor buttons on inner overlap' : ''} +1 spare`,
+      notes: `¾″ – ⅞″ flat or shank buttons${isDouble ? ' — 4×2 arrangement: 2 rows of 2 functional, plus 2 anchor buttons on inner overlap' : ''} +1 spare`,
     });
 
-    notions.push({ name: 'Walking foot (recommended)', quantity: '1', notes: 'Or use stabilizer for thick seams - double-layer lapels and facings create bulk' });
-
     if (opts.sleeveCuff === 'rib') {
-      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For sleeve cuffs - high recovery stretch' });
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For sleeve cuffs — high recovery stretch' });
     }
 
     if (opts.lining === 'half') {
-      notions.push({ name: 'Jersey or tricot lining', quantity: '1.5 yard', notes: 'Slippery knit lining for sleeves + upper back - NOT woven lining' });
+      notions.push({ name: 'Jersey or tricot lining', quantity: '1.5 yard', notes: 'Slippery knit lining for sleeves + upper back — NOT woven lining' });
     }
 
     return buildMaterialsSpec({
-      fabrics: [
-        { name: 'Heavy French terry (300-340 GSM)', weight: '9-10 oz/yd²', stretch: true, category: 'knit', notes: 'Primary recommendation - heavyweight cotton knit with looped back, pre-wash to preshrink (cotton knits shrink 3-5%)' },
-        'ponte',
-        'french-terry',
-      ],
+      fabrics: ['heavyweight-jersey', 'ponte', 'french-terry'],
       notions,
-      thread: 'cotton',
+      thread: 'poly-all',
       needle: 'ballpoint-90',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        // ── Pattern pieces & layering ──
-        'CUTTING GUIDE: Front bodice (L & R) - 1 layer main fabric. Back - 1 layer main fabric. Lapels - 2 layers self-fabric (double layer). Collar stand - 2 layers self-fabric (double layer). Front facings - 2 layers self-fabric (double layer). Pocket welts (optional) - 2 layers self-fabric. Hem bands - 1 pair main fabric.',
-        // ── Interfacing strategy ──
-        'INTERFACING: Apply knit fusible ONLY to: (1) lapel edges, inner side only - not the outer bend, (2) collar stand inner side, (3) front facing inner side near the opening edge. Do NOT interface outer lapel layers, hem bands, or full piece areas.',
-        // ── Needle & thread ──
-        'NEEDLE & THREAD: Ballpoint/stretch needle 90/14. Stitch length 2.5-3.0 mm. Use cotton thread for consistency with fabric.',
-        // ── Stitch types ──
-        'STITCH TYPES: Stretch/zigzag stitch for all main seams. Twin needle or coverstitch for topstitching lapels and hems. Serger/overlock for finishing seams to avoid bulk.',
-        // ── Pressing ──
-        'PRESSING: Low heat only. Always use a press cloth. Avoid hard creases - you want edges smooth, not sharp. This is knit fabric, not woven.',
-        // ── Tailored-but-soft: lapels ──
-        'LAPEL SHAPE: Double-layer lapels prevent droopiness. Add edge interfacing only on the inner half of the lapel. {topstitch} 1/8" from edge to create visual structure without stiffness.',
-        // ── Tailored-but-soft: front opening ──
-        'FRONT OPENING: Double-layer front panels. Fold under once, fuse just the edge with knit fusible. {topstitch} 1/8" from fold for a smooth, blazer-like look.',
-        // ── Pockets ──
-        opts.pocket !== 'none' ? 'POCKETS: Welt pockets use self-fabric welts. Apply light interfacing only where the pocket meets the front panel edge.' : '',
-        // ── Hem & cuffs ──
-        'HEM BANDS: Single layer. Fold 2x and {topstitch}. No interfacing needed here - stretch is fine at the hem.',
-        // ── General ──
-        'Pre-wash fabric before cutting - cotton knits can shrink 3-5% in the first wash.',
-        'Use a walking foot or stabilizer for thick seams (double-layer areas).',
-        `Hem finish: ${opts.sleeveCuff === 'rib' ? 'rib knit cuffs at 85% of sleeve opening for stretch recovery' : 'twin-needle or coverstitch hem - two parallel rows visible from RS'}`,
-        isDouble ? `Double-breasted: the inner overlap has 2 anchor buttons that align with buttonholes on the inner front panel. The outer 4 buttons sit in a 2x2 arrangement - ${fmtInches(4.5)} vertical spacing, ${fmtInches(3)} horizontal spacing.` : '',
-        opts.vent === 'center' ? 'Center vent: left back panel overlaps right. Vent is not sewn closed - it opens naturally for movement.' : '',
+        'Use a ballpoint (jersey) needle 90/14 — prevents skipped stitches on knit',
+        'Use stretch stitch or serger for ALL seams — a straight stitch will pop when stretched',
+        'IMPORTANT: Use KNIT FUSIBLE interfacing ONLY — woven interfacing prevents stretch and causes puckering. Interface lapels, collar, facings, and welt pockets.',
+        'This is a DECONSTRUCTED blazer — no canvas, no pad stitching, no shoulder pads. The knit fusible interfacing provides all the structure needed.',
+        'Pre-wash heavyweight jersey before cutting — cotton knits can shrink 3–5% in the first wash',
+        'Do not {press} with high heat — use medium heat, light steam. Finger {press} seams where possible.',
+        `Hem finish: ${opts.sleeveCuff === 'rib' ? 'rib knit cuffs at 85% of sleeve opening for stretch recovery' : 'twin-needle or coverstitch hem — two parallel rows visible from RS'}`,
+        isDouble ? `Double-breasted: the inner overlap has 2 anchor buttons that align with buttonholes on the inner front panel. The outer 4 buttons sit in a 2×2 arrangement — ${fmtInches(4.5)} vertical spacing, ${fmtInches(3)} horizontal spacing.` : '',
+        opts.vent === 'center' ? 'Center vent: left back panel overlaps right. Vent is not sewn closed — it opens naturally for movement.' : '',
         opts.lining === 'half' ? 'Half lining: use a slippery KNIT lining (jersey or tricot), never woven. Line sleeves and upper back only. This allows the jacket to slide on over knit layers.' : '',
-        // ── Final checklist ──
-        'BEFORE SEWING CHECKLIST: (1) Main fabric 300-350 GSM French terry or heavyweight cotton. (2) Knit fusible interfacing (light). (3) Ballpoint/stretch needle installed. (4) Cotton or polyester thread. (5) Walking foot or stabilizer for thick seams. (6) Double-layer lapels and facings cut.',
       ].filter(Boolean),
     });
   },
@@ -630,80 +768,75 @@ export default {
     if (opts.chestPocket === 'welt') {
       steps.push({
         step: n++, title: 'Prepare chest welt pocket',
-        detail: 'Cut self-fabric welts (2 layers). Interface welt facing with knit fusible only where the pocket meets the front panel edge. Mark pocket position on left front panel (centered at chest level, about 2" below shoulder). Sew bound welt: stitch welt rectangle, slash center, turn. {press} gently with press cloth on low heat - smooth edges, no hard crease. Attach bag halves. Whipstitch sides. Bar tack ends.',
+        detail: 'Interface welt facing with knit fusible. Mark pocket position on left front panel (centered at chest level, about 2″ below shoulder). Sew bound welt: stitch welt rectangle, slash center, turn, {press} gently. Attach bag halves. Whipstitch sides. Bar tack ends.',
       });
     }
 
     if (opts.pocket === 'combo') {
       steps.push({
         step: n++, title: 'Prepare hip welt pockets',
-        detail: 'Cut self-fabric welts (2 layers). Interface welt facings with knit fusible only where the pocket meets the front panel edge. Mark pocket positions at hip level. Sew bound welts on each front panel. Slash, turn. {press} gently with press cloth - smooth, not sharp. Attach bags. Bar tack ends.',
+        detail: 'Interface welt facings with knit fusible. Mark pocket positions at hip level. Sew bound welts on each front panel. Slash, turn, {press} gently. Attach bags. Bar tack ends.',
       });
       steps.push({
         step: n++, title: 'Prepare hip patch pockets',
-        detail: 'Fold top edge under 3/4" twice, {topstitch}. {press} remaining three edges under 1/2" with press cloth on low heat. Position above welt pockets on front panels. {topstitch} on 3 sides. Bar tack all four corners.',
+        detail: 'Fold top edge under ¾″ twice, {topstitch}. {press} remaining three edges under ½″. Position above welt pockets on front panels. {topstitch} on 3 sides. Bar tack all four corners.',
       });
     } else if (opts.pocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare hip patch pockets',
-        detail: 'Fold top edge under 3/4" twice, {topstitch}. {press} remaining three edges under 1/2" with press cloth on low heat. Position on front panels at hip level. {topstitch} on 3 sides. Bar tack all four corners.',
+        detail: 'Fold top edge under ¾″ twice, {topstitch}. {press} remaining three edges under ½″. Position on front panels at hip level. {topstitch} on 3 sides. Bar tack all four corners.',
       });
     } else if (opts.pocket === 'welt') {
       steps.push({
         step: n++, title: 'Prepare hip welt pockets',
-        detail: 'Cut self-fabric welts (2 layers). Interface welt facings with knit fusible only where the pocket meets the front panel edge. Mark pocket positions at hip level on each front panel. Sew bound welts, slash, turn. {press} gently with press cloth - smooth, not sharp. Attach bag halves. Bar tack ends.',
+        detail: 'Interface welt facings with knit fusible. Mark pocket positions at hip level on each front panel. Sew bound welts, slash, turn, {press} gently. Attach bag halves. Bar tack ends.',
       });
     }
 
-    // ── LAPELS (double-layer) ──
+    // ── COLLAR ──
     if (opts.collar === 'peak' || opts.collar === 'notched') {
       steps.push({
-        step: n++, title: 'Prepare lapels (double-layer)',
-        detail: `Cut lapels in 2 layers of self-fabric. Apply knit fusible interfacing to the inner half of the inner lapel layer only - do NOT interface the outer bend. Place two lapel layers {RST}, sew outer edges. Trim SA to 3mm, {clip} corners. Turn RS out. {press} with press cloth on low heat - smooth edges, avoid hard creases. {topstitch} 1/8" from edge to create visual structure without stiffness.`,
+        step: n++, title: 'Prepare collar',
+        detail: `Interface upper collar with knit fusible. Sew upper to under collar {RST} on three sides, leaving neck edge open. Trim SA to 3mm. {clip} corners. Turn, {press} gently — the under collar is 2% smaller so the seam rolls to the underside. {topstitch} 6mm from edge if desired.`,
       });
 
       steps.push({
-        step: n++, title: 'Prepare collar stand (double-layer)',
-        detail: 'Cut collar stand in 2 layers of self-fabric. Apply knit fusible interfacing to the inner side of the inner collar stand layer. Sew two collar stand layers {RST} on three sides, leaving neck edge open. Trim SA to 3mm, {clip} corners. Turn RS out. {press} with press cloth on low heat - the under collar is 2% smaller so the seam rolls to the underside. {topstitch} 1/8" from finished edges.',
-      });
-
-      steps.push({
-        step: n++, title: 'Prepare front facings (double-layer)',
-        detail: `Cut front facings in 2 layers of self-fabric. Apply knit fusible interfacing to the inner side of the facing, near the opening edge only. Sew facings to front panels {RST} along the lapel roll line and CF edge. {clip} curves. Turn. {press} with press cloth on low heat - fold under once, fuse just the edge. {topstitch} 1/8" from fold for a smooth, blazer-like look. The facing creates the ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel shape when folded back.`,
+        step: n++, title: 'Prepare front facings and lapels',
+        detail: `Interface facing + lapel pieces with knit fusible. Sew facings to front panels {RST} along the lapel roll line and CF edge. {clip} curves. Turn, {press} gently. The facing creates the ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel shape when folded back.`,
       });
     } else {
       steps.push({
-        step: n++, title: 'Prepare shawl collar (double-layer)',
-        detail: 'Cut shawl collar in 2 layers of self-fabric. Apply knit fusible interfacing to the inner side of the outer shawl collar, near the edge only. Sew outer to facing {RST} around the outer edge, leaving neck edge open. {clip} curves. Turn. {press} with press cloth on low heat - smooth, not sharp. {topstitch} 1/8" from edge. The collar flows continuously from the back neck into the lapel with no seam break.',
+        step: n++, title: 'Prepare shawl collar',
+        detail: 'Interface outer shawl collar with knit fusible. Sew outer to facing {RST} around the outer edge, leaving neck edge open. {clip} curves. Turn, {press} gently. The collar flows continuously from the back neck into the lapel with no seam break.',
       });
     }
 
     // ── BODY CONSTRUCTION ──
     steps.push({
       step: n++, title: 'Sew center back seam',
-      detail: `Join back panels at CB {RST}. Stretch/zigzag stitch from neckline to ${opts.vent === 'center' ? 'vent opening. Leave the vent section unsewn - the overlap and underlap extensions fold back independently.' : 'hem.'}${opts.vent === 'side' ? ' Sew full length.' : ''} {serge} seam allowances to avoid bulk. {press} open with press cloth on low heat.`,
+      detail: `Join back panels at CB {RST}. Stretch stitch from neckline to ${opts.vent === 'center' ? 'vent opening. Leave the vent section unsewn — the overlap and underlap extensions fold back independently.' : 'hem.'}${opts.vent === 'side' ? ' Sew full length.' : ''} {press} open.`,
     });
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front to back at shoulders {RST}. Stretch/zigzag stitch or {serge}. {press} toward back with press cloth on low heat.',
+      detail: 'Join front to back at shoulders {RST}. Stretch stitch or {serge}. {press} toward back.',
     });
 
     steps.push({
-      step: n++, title: 'Attach collar stand to body',
+      step: n++, title: 'Attach collar to body',
       detail: opts.collar === 'shawl'
-        ? 'Pin shawl collar to neckline {RST}, matching CB and shoulder marks. The collar ends at the break point on each front. Sew with stretch stitch. {clip} curve. {press} SA toward collar with press cloth on low heat.'
-        : 'Pin collar stand to neckline {RST}, matching CB and front gorge points. Sew with stretch stitch. {clip} curve. The collar stand meets the lapel facing at the gorge - hand-stitch the gorge junction for a clean finish. {press} SA toward collar with press cloth on low heat.',
+        ? 'Pin shawl collar to neckline {RST}, matching CB and shoulder marks. The collar ends at the break point on each front. Sew. {clip} curve. {press} SA toward collar.'
+        : `Pin collar to neckline {RST}, matching CB and front gorge points. Sew. {clip} curve. The collar meets the lapel facing at the gorge — hand-stitch the gorge junction for a clean finish. {press} SA toward collar.`,
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit (knit fabric eases readily). Stretch stitch or {serge}. {press} toward sleeve with press cloth on low heat.',
+      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit (knit fabric eases readily). Stretch stitch or {serge}. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams',
-      detail: `Sew front to back at side seams {RST} from hem through underarm to sleeve hem in one continuous seam.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch/zigzag stitch or {serge} to avoid bulk. {press} open with press cloth on low heat.`,
+      detail: `Sew front to back at side seams {RST} from hem through underarm to sleeve hem in one continuous seam.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch stitch or {serge}. {press} open.`,
     });
 
     // ── LINING ──
@@ -718,40 +851,40 @@ export default {
     if (opts.sleeveCuff === 'rib') {
       steps.push({
         step: n++, title: 'Attach sleeve rib cuffs',
-        detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff and opening into quarters. Sew cuff to sleeve opening {RST}, stretching rib to match opening. Stretch stitch or {serge}. {press} SA into sleeve with press cloth on low heat.',
+        detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff and opening into quarters. Sew cuff to sleeve opening {RST}, stretching rib to match opening. Stretch stitch or {serge}. {press} SA into sleeve.',
       });
     } else {
       steps.push({
         step: n++, title: 'Hem sleeves',
-        detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} once. {press} gently with press cloth on low heat. Twin-needle or coverstitch from RS. No interfacing needed at hem - stretch is fine.`,
+        detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} once. {press} gently. Twin-needle or coverstitch from RS.`,
       });
     }
 
-    // ── HEM BANDS ──
+    // ── BODY HEM ──
     steps.push({
-      step: n++, title: 'Hem body with hem bands',
-      detail: `Single layer hem bands. Fold 2x and {topstitch} with twin needle or coverstitch. No interfacing needed here - stretch is fine at the hem. {press} gently with press cloth on low heat.${opts.vent !== 'none' ? ' At the vent area, fold and {press} the vent extensions before attaching hem band.' : ''}`,
+      step: n++, title: 'Hem body',
+      detail: `Fold body hem up ${fmtInches(parseFloat(opts.hem))} once. {press} gently. Twin-needle or coverstitch from RS. At the vent area, fold and {press} the vent extensions before hemming.`,
     });
 
     // ── BUTTONS ──
     steps.push({
-      step: n++, title: isDouble ? 'Buttons - double-breasted' : 'Buttons',
+      step: n++, title: isDouble ? 'Buttons — double-breasted' : 'Buttons',
       detail: isDouble
-        ? 'Mark 4 button positions on right front panel in a 2x2 arrangement: 2 columns approximately 3" apart, 2 rows approximately 4.5" apart. Top row sits just below the break point. Make buttonholes on right panel. Sew buttons on left panel at corresponding positions. Sew 2 anchor buttons inside the left panel at the inner overlap - these hold the inner layer flat when buttoned.'
-        : `Mark ${btnCount} button positions on right front panel: first at the break point, second 5" below. Make vertical buttonholes on right panel. Sew buttons on left panel.`,
+        ? 'Mark 4 button positions on right front panel in a 2×2 arrangement: 2 columns approximately 3″ apart, 2 rows approximately 4.5″ apart. Top row sits just below the break point. Make buttonholes on right panel. Sew buttons on left panel at corresponding positions. Sew 2 anchor buttons inside the left panel at the inner overlap — these hold the inner layer flat when buttoned.'
+        : `Mark ${btnCount} button positions on right front panel: first at the break point, second 5″ below. Make vertical buttonholes on right panel. Sew buttons on left panel.`,
     });
 
     // ── VENT FINISH ──
     if (opts.vent === 'center') {
       steps.push({
         step: n++, title: 'Finish center vent',
-        detail: 'The left back panel overlaps the right at the vent. {press} the vent extensions with press cloth on low heat - smooth, not sharp. Bar tack the top of the vent on both sides to reinforce. The vent should open naturally for movement - do not sew it closed.',
+        detail: 'The left back panel overlaps the right at the vent. {press} the vent extensions flat. Bar tack the top of the vent on both sides to reinforce. The vent should open naturally for movement — do not sew it closed.',
       });
     }
 
     steps.push({
-      step: n++, title: 'Final pressing and finish',
-      detail: '{press} entire jacket with press cloth on LOW heat. Avoid hard creases everywhere - edges should be smooth, not sharp. Roll the lapels into position - with knit fabric they will naturally hold a soft roll without pad stitching. Try on and check: lapels should lie flat with structure from the double layer and edge interfacing, collar stand should sit evenly, front opening should look clean and blazer-like, vent should drape cleanly.',
+      step: n++, title: 'Finish',
+      detail: '{press} lightly with medium heat and damp cloth. Roll the lapels into position — with jersey fabric they will naturally hold a soft roll without pad stitching. Try on and check: lapels should lie flat, collar should sit evenly, vent should drape cleanly.',
     });
 
     return steps;

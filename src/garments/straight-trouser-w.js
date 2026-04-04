@@ -9,6 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -18,7 +19,7 @@ export default {
   id: 'straight-trouser-w',
   name: 'Straight Trouser (W)',
   category: 'lower',
-  difficulty: 'advanced',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
   measurementDefaults: { inseam: 30, rise: 10 },
@@ -39,9 +40,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+3″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)', reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only',    reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)', reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -70,6 +71,17 @@ export default {
         { value: 'elastic',     label: 'Elastic casing',                      reference: 'chef pant, pull-on'    },
       ],
       default: 'structured',
+    },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1¾″ finished waistband → 3½″ cut)' },
+        { value: 1,    label: '1″ (2″ finished waistband → 4″ cut)' },
+        { value: 1.5,  label: '1½″ (2½″ finished waistband → 5″ cut)' },
+        { value: 2,    label: '2″ (3″ finished waistband → 6″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
     },
     pockets: {
       type: 'select', label: 'Front pockets',
@@ -106,7 +118,7 @@ export default {
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5,  step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5,  step: 0.25, min: 1,   max: 4.5 },
-    cbRaise:  { type: 'number', label: 'CB raise',         default: 0.75, step: 0.25, min: 0,   max: 2   },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.0,  step: 0.25, min: 0,   max: 2   },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -126,7 +138,7 @@ export default {
   },
 
   pieces(m, opts) {
-    const easeVal = opts.ease === 'slim' ? 2 : opts.ease === 'relaxed' ? 4 : 3;
+    const easeVal = opts.ease === 'slim' ? 2.5 : opts.ease === 'relaxed' ? 6 : 4;
     const ease    = easeDistribution(easeVal);
 
     const sa       = parseFloat(opts.sa);
@@ -138,15 +150,32 @@ export default {
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
-    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const baseInseam = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 30);
+    const crotchEase = 1.25; // ease below body rise — prevents fabric pulling tight against crotch
+    const rawRise   = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const rise      = rawRise + crotchEase;
+    const baseInseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
     const inseam = baseInseam - (opts.hemStyle === 'crop' ? 2 : 0);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    const frontHipW   = m.hip / 4 + ease.front + pleatExtra;
-    const backHipW    = m.hip / 4 + ease.back;
+    let frontHipW   = m.hip / 4 + ease.front + 0.5 + pleatExtra;
+    let backHipW    = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontHipW + backHipW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontHipW += perPanel;
+        backHipW += perPanel;
+        console.warn(`[straight-trouser-w] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[straight-trouser-w] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
@@ -160,7 +189,7 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop - inseam reduced 2″' : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat toward side seam` : ''}${opts.hemStyle === 'crop' ? ' · Ankle crop (inseam reduced 2″)' : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam, kneeY, kneeFactor,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
@@ -179,28 +208,32 @@ export default {
       calf: m.calf, seatDepth: m.seatDepth,
     }));
 
-    // Structured/contoured sits at waist; elastic must pass over hips
-    const wbCirc = (opts.waistband === 'elastic') ? m.hip + ease.total + pleatExtra * 2 + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
+    // Elastic waistband matches garment waist opening (sum of panel tops).
+    // Structured/contoured sits at body waist measurement.
+    const garmentWaist = (frontHipW + backHipW) * 2;
+    const wbCirc = (opts.waistband === 'elastic') ? garmentWaist + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
 
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband (Structured)', instruction: 'Cut 1 · Interface · 1.5″ finished · Button + hook-and-eye · 1″ CF overlap', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     } else if (opts.waistband === 'elastic') {
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · 2.5″ cut (1.25″ casing) · Thread 1″ elastic = waist − 1″`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 1) * 2;
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} casing) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     } else {
       pieces.push({ id: 'waistband', name: 'Waistband (Contoured)', instruction: 'Cut 2 (outer + facing) · Interface outer · 1.5″ finished · Curve to match waist · Hook-and-eye', dimensions: { length: wbCirc, width: 3 }, type: 'rectangle', sa });
     }
 
     if (opts.fly === 'zip') {
-      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket' });
+      pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
     }
     if (opts.pockets === 'slant') {
-      pieces.push({ id: 'slant-facing', name: 'Slant Pocket Facing', instruction: 'Cut 2 (1 + 1 mirror — flip fabric for second) · Interface', dimensions: { width: 2, height: 7 }, type: 'pocket' });
-      pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) · Lining fabric', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Interface \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     } else if (opts.pockets === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
     if (opts.backPockets === 'welt2') {
-      pieces.push({ id: 'back-welt', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
+      pieces.push({ id: 'back-welt', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
     }
 
     return pieces;
@@ -217,7 +250,8 @@ export default {
       notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 2 at waistband overlap' });
     }
     if (opts.waistband === 'elastic') {
-      notions.push({ name: 'Elastic 1″', quantity: `${Math.round(m.waist - 1)}″`, notes: 'Non-roll elastic' });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      notions.push({ name: `Elastic ${fmtInches(elasticW)}`, quantity: `${Math.round(m.waist * 0.9)}″`, notes: `Non-roll ${fmtInches(elasticW)} wide elastic (~90% of waist)` });
     }
 
     return buildMaterialsSpec({
@@ -247,14 +281,17 @@ export default {
       steps.push({ step: n++, title: 'Prepare back welt pockets', detail: 'Mark positions 2.5″ below waist, centered. Sew welts, slash, turn, {press}. Attach bags. Whipstitch sides. Bar tack ends.' });
     }
     if (opts.pockets === 'slant') {
-      steps.push({ step: n++, title: 'Prepare slant pockets', detail: 'Interface facing. Sew to front slash {RST}. {clip}, turn, {press}. {understitch}. Attach bag. {baste} edges.' });
+      steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
+        detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
+      steps.push({ step: n++, title: 'Attach pocket to front panel',
+        detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     } else if (opts.pockets === 'side') {
       steps.push({ step: n++, title: 'Prepare side-seam pockets', detail: 'Sew bag pairs together on curved edge. {baste} straight edges to front and back side seam SAs at pocket position.' });
     }
     if (numPleats > 0) {
       steps.push({ step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`, detail: `Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. {baste} at waist. {press} first 5–6″ with steam and {press} cloth. Below hip, allow to drape freely.` });
     }
-    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally - prevents stretching while handling.' });
+    steps.push({ step: n++, title: 'Stay-stitch waist', detail: 'Stitch ⅝″ from waist edge on all pieces directionally to prevent stretching while handling.' });
     if (hasFly) {
       steps.push({ step: n++, title: 'Install invisible zip fly', detail: 'Sew CF seam below fly opening only. Install invisible zipper to right CF opening. Attach fly shield to left CF behind zipper. {topstitch} fly curve from RS at 1″.' });
     } else {
@@ -266,7 +303,7 @@ export default {
     if (opts.waistband === 'structured' || opts.waistband === 'contoured') {
       steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew to trouser waist {RST}. Fold over. Grade SA in layers before turning. {slipstitch} or {edgestitch} inside. Install button and hook-and-eye.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half {WST}. Sew to waist {RST}. Fold to inside, {topstitch} leaving 2″ gap at CB. Thread elastic (waist − 1″). Overlap ends 1″, {zigzag}. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic waistband', detail: 'Fold casing in half {WST}. Sew to waist {RST}. Fold to inside, {topstitch} leaving 2″ gap at CB. Thread elastic (~90% of waist). Overlap ends 1″, {zigzag}. Close gap.' });
     }
     if (opts.crease === 'crease') {
       steps.push({ step: n++, title: '{press} front creases', detail: 'Fold each front leg so the inseam lies exactly on top of the side seam. {press} a sharp crease from waist to hem using heavy steam and a {press} cloth. The crease should run straight down the center of each leg.' });
@@ -293,7 +330,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: 0       });   // waist at center seam
+  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: sideKneeX,    y: kneeY   });
@@ -304,6 +341,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   for (let i = curvePts.length - 2; i >= 1; i--) poly.push({ ...curvePts[i], curve: true });
   if (isBack && cbRaise > 0) poly.push({ x: 0, y: cbRaise }); // CB seam top
 
+  const hasSlash = !isBack && opts?.pockets === 'slant';
+  if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 7);
+
+  const sideIdx = hasSlash ? 2 : 1;
   const saPoly = offsetPolygon(poly, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
     return -sa;
@@ -336,10 +377,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   }
 
   const notches = [
-    { x: hipWidth,     y: hipLineY, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) },
-    { x: -ext,         y: rise,     angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
-    { x: sideKneeX,    y: kneeY,    angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY }) },
-    { x: inseamKneeX,  y: kneeY,    angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
+    { x: hipWidth,     y: hipLineY,        angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) },
+    ...(isBack ? [{ x: hipWidth, y: hipLineY + 0.25, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) }] : []),
+    { x: -ext,         y: rise,            angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) },
+    ...(isBack ? [{ x: -ext, y: rise - 0.25,         angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) }] : []),
+    { x: sideKneeX,    y: kneeY,           angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY }) },
+    { x: inseamKneeX,  y: kneeY,           angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
   ];
 
   return {

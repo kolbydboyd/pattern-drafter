@@ -9,8 +9,9 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+  sleeveCapCurve,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W  = 1.5;
@@ -190,11 +191,22 @@ export default {
     // Notch marks — front bodice
     const frontShoulderMidX = neckW + shoulderW / 2;
     const frontShoulderMidY = slopeDrop / 2;
+    // Arc-length notches: single = front, double = back; ~3.25″ from underarm
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: panelW, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
-      { x: panelW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Bust dart matchpoint notches at side seam
     if (bustDarts.length > 0) {
@@ -206,8 +218,8 @@ export default {
     const backNotches = [
       { x: frontShoulderMidX, y: frontShoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: panelW, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
-      { x: panelW, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     // Front panels split at CF + placket extension
@@ -239,32 +251,69 @@ export default {
     const skirtBackW  = hipHalf / 2;
 
     function buildSkirtPanel(id, name, isBack, panelW) {
+      const waistDip = 0.375;
       let poly;
+
+      // Back panel: curved waist (horizontal tangent at fold for smooth unfold)
+      let waistPts;
+      if (isBack) {
+        const waistCp = {
+          p0: { x: 0,            y: waistDip },
+          p1: { x: panelW * 0.4, y: waistDip },
+          p2: { x: panelW * 0.8, y: 0 },
+          p3: { x: panelW,       y: 0 },
+        };
+        waistPts = sc(waistCp, 12);
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+      }
+
       if (opts.skirtShape === 'aline') {
         const flare = 4.0;
-        const fh = flare / 2;
-        poly = [
-          { x: fh,           y: 0       },
-          { x: fh + panelW,  y: 0       },
-          { x: panelW + fh + flare / 2, y: adjSkirtL },
-          { x: 0,            y: adjSkirtL },
-        ];
+        if (isBack) {
+          // Fold at CB (left edge) must be vertical — all flare to side seam
+          poly = [...waistPts,
+            { x: panelW + flare, y: adjSkirtL },
+            { x: 0,              y: adjSkirtL },
+          ];
+        } else {
+          const fh = flare / 2;
+          poly = [
+            { x: fh,              y: 0       },
+            { x: fh + panelW,     y: 0       },
+            { x: panelW + flare,  y: adjSkirtL },
+            { x: 0,               y: adjSkirtL },
+          ];
+        }
       } else if (opts.skirtShape === 'gathered') {
         const gatheredW = panelW * 1.5;
-        poly = [
-          { x: 0,          y: 0          },
-          { x: gatheredW,  y: 0          },
-          { x: gatheredW,  y: adjSkirtL  },
-          { x: 0,          y: adjSkirtL  },
-        ];
+        if (isBack) {
+          poly = [...waistPts,
+            { x: gatheredW, y: adjSkirtL },
+            { x: 0,         y: adjSkirtL },
+          ];
+        } else {
+          poly = [
+            { x: 0,          y: 0          },
+            { x: gatheredW,  y: 0          },
+            { x: gatheredW,  y: adjSkirtL  },
+            { x: 0,          y: adjSkirtL  },
+          ];
+        }
       } else {
-        // straight
-        poly = [
-          { x: 0,       y: 0          },
-          { x: panelW,  y: 0          },
-          { x: panelW,  y: adjSkirtL  },
-          { x: 0,       y: adjSkirtL  },
-        ];
+        if (isBack) {
+          poly = [...waistPts,
+            { x: panelW, y: adjSkirtL },
+            { x: 0,      y: adjSkirtL },
+          ];
+        } else {
+          poly = [
+            { x: 0,       y: 0          },
+            { x: panelW,  y: 0          },
+            { x: panelW,  y: adjSkirtL  },
+            { x: 0,       y: adjSkirtL  },
+          ];
+        }
       }
 
       const gatherNote = opts.skirtShape === 'gathered' ? ' · Gather waist edge to match bodice waist width' : '';
@@ -319,52 +368,63 @@ export default {
     if (opts.collar === 'point') {
       const standLen = collarLen, standH = 1.25;
       const collarH  = 2.5;
-      pieces.push({ id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 (self + interfacing) · ${fmtInches(standLen)} long × ${fmtInches(standH * 2)} cut`, dimensions: { length: standLen, width: standH * 2 }, type: 'pocket' });
-      pieces.push({ id: 'collar-leaf',  name: 'Collar Leaf',  instruction: `Cut 2 (self + interfacing) · Point at CF · ${fmtInches(collarLen)} long × ${fmtInches(collarH + sa)} cut (including SA)`, dimensions: { length: collarLen, width: collarH + sa }, type: 'pocket' });
+      pieces.push({ id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 (self + interfacing) · ${fmtInches(standLen)} long × ${fmtInches(standH * 2)} cut`, dimensions: { length: standLen, width: standH * 2 }, type: 'pocket', sa });
+      pieces.push({ id: 'collar-leaf',  name: 'Collar Leaf',  instruction: `Cut 2 (self + interfacing) · Point at CF · ${fmtInches(collarLen)} long × ${fmtInches(collarH + sa)} cut (including SA)`, dimensions: { length: collarLen, width: collarH + sa }, type: 'pocket', sa });
     } else if (opts.collar === 'camp') {
-      pieces.push({ id: 'collar-revere', name: 'Camp / Revere Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 3.5″ cut · Folds back to create lapel at CF`, dimensions: { length: collarLen, width: 3.5 }, type: 'pocket' });
+      pieces.push({ id: 'collar-revere', name: 'Camp / Revere Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 3.5″ cut · Folds back to create lapel at CF`, dimensions: { length: collarLen, width: 3.5 }, type: 'pocket', sa });
     } else {
-      pieces.push({ id: 'collar-band', name: 'Mandarin Band Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 2.5″ cut (1.25″ finished)`, dimensions: { length: collarLen, width: 2.5 }, type: 'pocket' });
+      pieces.push({ id: 'collar-band', name: 'Mandarin Band Collar', instruction: `Cut 2 (self + interfacing) · ${fmtInches(collarLen)} long × 2.5″ cut (1.25″ finished)`, dimensions: { length: collarLen, width: 2.5 }, type: 'pocket', sa });
     }
 
     // Front facing
-    pieces.push({ id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (self + interfacing) · ${fmtInches(FACING_W)} wide × ${fmtInches(torsoLen)} long · Attach at CF edge (button/buttonhole extension)`, dimensions: { length: torsoLen, width: FACING_W }, type: 'pocket' });
+    pieces.push({ id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (self + interfacing) · ${fmtInches(FACING_W)} wide × ${fmtInches(torsoLen)} long · Attach at CF edge (button/buttonhole extension)`, dimensions: { length: torsoLen, width: FACING_W }, type: 'pocket', sa });
 
     // Sleeve
     if (opts.sleeve !== 'sleeveless') {
       const SLEEVE_LENGTHS = { short: 9, roll: 17, long: 26 };
       const slvLen  = SLEEVE_LENGTHS[opts.sleeve] || 9;
       const effArmToElbow = m.armToElbow || (slvLen * 0.45);
-      const slvW    = (m.bicep || 13) / 2 + easeVal * 0.15 + 0.5;
-      const slvPoly = [{ x:0, y:0 }, { x:slvW*2, y:0 }, { x:slvW*2, y:slvLen }, { x:0, y:slvLen }];
-      const slvBB   = bb(slvPoly);
-      const capW = slvW * 2;
-      const capH = 0;
+      const slvFullWidth = (m.bicep || 13) + 2;
+      const capH = armholeDepth * (opts.fit === 'fitted' ? 0.60 : 0.55);
+      const capCp = sleeveCapCurve(m.bicep || 13, capH, slvFullWidth);
+      const capPts = sc(capCp, 32);
+
+      const slvPoly = [];
+      for (const p of capPts) {
+        slvPoly.push({ ...p, y: p.y + capH });
+      }
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete slvPoly[0].curve;
+      delete slvPoly[capPts.length - 1].curve;
+      slvPoly.push({ x: slvFullWidth, y: capH + slvLen });
+      slvPoly.push({ x: 0, y: capH + slvLen });
+
+      const slvBB = bb(slvPoly);
       const sleeveNotches = [
-        { x: capW / 2, y: 0, angle: -90 },
-        { x: capW * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: capW / 2, y: 0 }) },
-        { x: capW * 0.75, y: capH * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capH }) },
+        { x: slvFullWidth / 2, y: 0, angle: -90 },
+        { x: slvFullWidth * 0.25, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: slvFullWidth / 2, y: 0 }) },
+        { x: slvFullWidth * 0.75, y: capH * 0.5, angle: edgeAngle({ x: slvFullWidth / 2, y: 0 }, { x: slvFullWidth, y: capH }) },
       ];
       pieces.push({
         id: 'sleeve', name: `${opts.sleeve === 'roll' ? 'Roll-up' : opts.sleeve === 'long' ? 'Long' : 'Short'} Sleeve`,
         instruction: `Cut 2 (mirror L & R)${opts.sleeve === 'roll' ? ' · Tab and button to hold roll-up position' : ''}`,
         type: 'sleeve', polygon: slvPoly, path: pp(slvPoly),
-        width: slvBB.width, height: slvBB.height, capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvW * 2, sa, hem,
-        dims: [{ label: fmtInches(slvW * 2) + ' width', x1: 0, y1: -0.4, x2: slvW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        width: slvBB.width, height: slvBB.height, capHeight: capH, sleeveLength: slvLen, sleeveWidth: slvFullWidth, sa, hem,
+        dims: [{ label: fmtInches(slvFullWidth) + ' width', x1: 0, y1: -0.4, x2: slvFullWidth, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
         notches: sleeveNotches,
       });
     } else {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · 2″ wide · Follows armhole curve', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     }
 
     // Belt/sash
     if (opts.belt === 'sash') {
       const sashLen = (m.waist || 28) * 3 + 20;
-      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket' });
-      pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket' });
+      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', grainAngle: 45, sa });
+      pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket', sa });
     } else if (opts.belt === 'belt') {
       const beltLen = (m.waist || 28) + 10;
-      pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket' });
+      pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket', sa });
     }
 
     return pieces;
@@ -387,12 +447,12 @@ export default {
       needle: 'universal-75',
       stitches: ['straight-2.5', 'zigzag-small'],
       notes: [
-        'Stay-stitch neckline and waist seam immediately after cutting - both bias areas will stretch before assembly',
+        'Stay-stitch neckline and waist seam immediately after cutting. Both bias areas will stretch before assembly',
         'Womenswear convention: buttons attach on LEFT front, buttonholes on RIGHT front (as worn)',
         opts.skirtShape === 'gathered' ? 'Gather skirt waist: two rows of long basting stitch, draw up bobbin threads evenly, pin to bodice waist, stitch' : 'Stay-stitch skirt waist edge before attaching to bodice to prevent stretching',
         opts.bustDart === 'yes' ? 'Bust dart: fold RS together, sew side seam to apex, {press} downward' : '',
         opts.belt !== 'none' ? 'Belt loops: fold strip in thirds lengthwise, {edgestitch} both long edges, cut to 2″ sections' : '',
-        'French seams for side seams give a clean interior - worth doing on lighter fabrics',
+        'French seams for side seams give a clean interior; worth doing on lighter fabrics',
       ].filter(Boolean),
     });
   },
