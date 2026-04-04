@@ -16,6 +16,7 @@ import campShirt     from './camp-shirt.js';
 import crewneck      from './crewneck.js';
 import hoodie        from './hoodie.js';
 import cropJacket    from './crop-jacket.js';
+import athleticFormalJacket from './athletic-formal-jacket.js';
 import denimJacket   from './denim-jacket.js';
 import wideLegTrouserW   from './wide-leg-trouser-w.js';
 import straightTrouserW  from './straight-trouser-w.js';
@@ -42,6 +43,7 @@ const GARMENTS = {
   'crewneck':             crewneck,
   'hoodie':               hoodie,
   'crop-jacket':          cropJacket,
+  'athletic-formal-jacket': athleticFormalJacket,
   'denim-jacket':         denimJacket,
   'wide-leg-trouser-w':   wideLegTrouserW,
   'straight-trouser-w':   straightTrouserW,
