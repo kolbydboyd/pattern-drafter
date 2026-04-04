@@ -276,6 +276,9 @@ export default {
       { x: sideX, y: armholeY, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      // Collar/facing assembly notches
+      { x: 0, y: NECK_DEPTH_FRONT, angle: 90 },       // CF neckline — matches under collar CF end
+      { x: -PLACKET_W, y: breakPointY, angle: 180 },   // break point — matches facing break point
     ];
 
     const backNotches = [
@@ -326,11 +329,11 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
-        // Roll line: break point (CF edge) → shoulder roll (neckline)
+        // Roll line: break point (CF placket edge) → CF neckline point
         // The lapel folds back along this line when worn
         rollLine: opts.collar !== 'shawl' ? {
           from: { x: -PLACKET_W, y: breakPointY },
-          to:   { x: neckW, y: 0 },
+          to:   { x: 0, y: NECK_DEPTH_FRONT },
           label: 'roll line',
         } : undefined,
         dims: [
@@ -393,6 +396,13 @@ export default {
         underShrink: 0.02,
       });
 
+      // Notch positions for collar-to-facing/panel assembly
+      const collarW = opts.collar === 'peak' ? 3.5 : 3;
+      const ucCFEnd = upperCollar[upperCollar.length - 2];  // CF end of upper collar
+      const ucCBMid = { x: 0, y: collarW / 2 };            // CB fold midpoint
+      const lcCFEnd = underCollar[underCollar.length - 2];
+      const lcCBMid = { x: 0, y: (collarW / 1.02) / 2 };
+
       pieces.push({
         id: 'upper-collar',
         name: 'Upper Collar',
@@ -401,22 +411,31 @@ export default {
         polygon: upperCollar,
         path: polyToPathStr(upperCollar),
         width: standLength,
-        height: opts.collar === 'peak' ? 3.5 : 3,
+        height: collarW,
         isBack: false,
         sa,
+        notches: [
+          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches facing gorge
+          { x: ucCBMid.x, y: ucCBMid.y, angle: 180 },  // CB fold — alignment mark
+        ],
       });
 
       pieces.push({
         id: 'under-collar',
         name: 'Under Collar',
-        instruction: 'Cut 1 on fold (CB) · 2% smaller than upper collar for seam roll · Interface with knit fusible',
+        instruction: 'Cut 2 (mirror at CB) · Bias cut · 2% smaller than upper collar for seam roll · Interface with knit fusible',
         type: 'bodice',
+        isCutOnFold: false,
         polygon: underCollar,
         path: polyToPathStr(underCollar),
         width: standLength / 1.02,
-        height: (opts.collar === 'peak' ? 3.5 : 3) / 1.02,
+        height: collarW / 1.02,
         isBack: false,
         sa,
+        notches: [
+          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches front panel neckline
+          { x: lcCBMid.x, y: lcCBMid.y, angle: 180 },  // CB seam — alignment mark
+        ],
       });
 
       // ── FRONT FACING + LAPEL ────────────────────────────────────────
@@ -508,6 +527,10 @@ export default {
           to:   { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y },
           label: 'roll line',
         },
+        notches: [
+          { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },  // gorge — matches upper collar CF
+          { x: 0, y: breakPointY, angle: 180 },                                     // break point — matches front panel
+        ],
         width: facingBB.maxX - facingBB.minX,
         height: facingBB.maxY - facingBB.minY,
         isBack: false,
