@@ -35,7 +35,7 @@ import {
 } from '../src/lib/email-templates.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM   = process.env.FROM_EMAIL || 'hello@peoplespatterns.com';
+const FROM   = process.env.FROM_EMAIL || "People's Patterns <hello@peoplespatterns.com>";
 
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 export async function sendEmail(type, to, data = {}) {
