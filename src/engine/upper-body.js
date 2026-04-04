@@ -602,6 +602,228 @@ export function yokeSplit(armholeBezier, yokeY, steps = 32) {
   return null;
 }
 
+// ── Lapel system ────────────────────────────────────────────────────────
+
+/**
+ * Peak lapel outline — generates the lapel extension + gorge point for
+ * a front panel. The lapel folds back from the break point, and the
+ * gorge line angles upward toward the shoulder (peak direction).
+ *
+ * Standard conventions (Aldrich, Muller & Sohn):
+ *   - Break point sits 0–0.5″ above the top button
+ *   - Lapel width measured perpendicular to the roll line: 3–4″
+ *   - Gorge angle from horizontal: 40–60° (higher = more upward peak)
+ *   - Collar stand height: 1.25″
+ *   - Peak tip extends 0.5–1.5″ above the gorge line
+ *
+ * Local frame
+ *   Origin  CF neckline point (where the neckline meets CF)
+ *   x+      toward CF (negative = extension beyond CF into the lapel)
+ *   y+      downward
+ *
+ * The caller positions the returned points relative to their panel.
+ *
+ * @param {Object} params
+ * @param {number} params.neckDepthFront  - Front neckline depth from shoulder baseline (in)
+ * @param {number} params.breakPointY     - Y of break point from shoulder baseline (in), typically at top button
+ * @param {number} params.lapelWidth      - Width of lapel measured perpendicular to roll line (in), typically 3–4
+ * @param {number} [params.gorgeAngle=50] - Gorge angle in degrees from horizontal (40–60)
+ * @param {number} [params.peakExtension=1.0] - How far the peak tip extends above gorge (in)
+ * @param {number} [params.collarStand=1.25]  - Height of collar stand (in)
+ * @returns {{
+ *   lapelPoints: Array<{x:number, y:number}>,
+ *   gorgePoint: {x:number, y:number},
+ *   peakTip: {x:number, y:number},
+ *   breakPoint: {x:number, y:number},
+ * }}
+ */
+export function peakLapelCurve({
+  neckDepthFront,
+  breakPointY,
+  lapelWidth = 3.5,
+  gorgeAngle = 50,
+  peakExtension = 1.0,
+  collarStand = 1.25,
+}) {
+  // Break point: where the lapel starts folding back, at CF
+  const breakPoint = { x: 0, y: breakPointY };
+
+  // Gorge point: where the collar meets the lapel on the neckline edge.
+  // Sits at the front neckline depth level, offset inward by the collar stand.
+  const gorgePoint = {
+    x: collarStand,
+    y: neckDepthFront,
+  };
+
+  // Peak tip: the highest point of the lapel, extending above the gorge.
+  // The gorge angle determines the direction; peak lapels angle upward.
+  const gorgeRad = gorgeAngle * Math.PI / 180;
+  const peakTip = {
+    x: gorgePoint.x - Math.cos(gorgeRad) * peakExtension,
+    y: gorgePoint.y - Math.sin(gorgeRad) * peakExtension,
+  };
+
+  // Lapel outer edge: from break point to peak tip.
+  // The outer edge bows outward from CF by lapelWidth at its widest point
+  // (roughly midway between break point and gorge).
+  const midY = (breakPointY + gorgePoint.y) / 2;
+  const lapelOuterMid = { x: -lapelWidth, y: midY };
+
+  // The lapel outline runs: breakPoint → outer edge → peakTip → gorgePoint
+  const lapelPoints = [
+    breakPoint,
+    { x: -lapelWidth * 0.7, y: breakPointY * 0.9 },  // lower outer curve
+    lapelOuterMid,                                     // widest point
+    { x: -lapelWidth * 0.85, y: (midY + gorgePoint.y) / 2 }, // upper outer
+    peakTip,                                           // peak tip
+    gorgePoint,                                        // gorge
+  ];
+
+  return { lapelPoints, gorgePoint, peakTip, breakPoint };
+}
+
+/**
+ * Notched lapel outline — generates the lapel extension + gorge point.
+ * A notched lapel has a V-shaped notch where collar meets lapel,
+ * with the lapel pointing outward/slightly downward rather than upward.
+ *
+ * Standard conventions:
+ *   - Gorge angle from horizontal: 25–40° (lower = more horizontal notch)
+ *   - Notch depth: 0.5–1″ (the V-cut between collar and lapel)
+ *   - Lapel width: 2.5–3.5″
+ *
+ * @param {Object} params
+ * @param {number} params.neckDepthFront  - Front neckline depth (in)
+ * @param {number} params.breakPointY     - Y of break point (in)
+ * @param {number} params.lapelWidth      - Width of lapel (in), typically 2.5–3.5
+ * @param {number} [params.gorgeAngle=30] - Gorge angle in degrees from horizontal
+ * @param {number} [params.notchDepth=0.75] - Depth of the V-notch (in)
+ * @param {number} [params.collarStand=1.25] - Height of collar stand (in)
+ * @returns {{
+ *   lapelPoints: Array<{x:number, y:number}>,
+ *   gorgePoint: {x:number, y:number},
+ *   notchInner: {x:number, y:number},
+ *   notchOuter: {x:number, y:number},
+ *   breakPoint: {x:number, y:number},
+ * }}
+ */
+export function notchedLapelCurve({
+  neckDepthFront,
+  breakPointY,
+  lapelWidth = 3,
+  gorgeAngle = 30,
+  notchDepth = 0.75,
+  collarStand = 1.25,
+}) {
+  const breakPoint = { x: 0, y: breakPointY };
+
+  // Gorge point at neckline level
+  const gorgePoint = {
+    x: collarStand,
+    y: neckDepthFront,
+  };
+
+  // Notch geometry: the gorge line runs from gorgePoint outward at gorgeAngle.
+  // The notch is cut into the junction, creating an inner and outer notch point.
+  const gorgeRad = gorgeAngle * Math.PI / 180;
+
+  // Notch outer: where the collar's outer edge meets the notch
+  const notchOuter = {
+    x: gorgePoint.x - Math.cos(gorgeRad) * notchDepth,
+    y: gorgePoint.y - Math.sin(gorgeRad) * notchDepth,
+  };
+
+  // Notch inner: the lapel's tip at the notch, slightly offset from gorge
+  // The lapel tip extends outward perpendicular to the gorge line
+  const perpRad = gorgeRad - Math.PI / 2; // perpendicular to gorge
+  const notchInner = {
+    x: gorgePoint.x + Math.cos(perpRad) * notchDepth * 0.6,
+    y: gorgePoint.y + Math.sin(perpRad) * notchDepth * 0.6,
+  };
+
+  // Lapel outer edge
+  const midY = (breakPointY + gorgePoint.y) / 2;
+
+  const lapelPoints = [
+    breakPoint,
+    { x: -lapelWidth * 0.6, y: breakPointY * 0.92 }, // lower outer curve
+    { x: -lapelWidth, y: midY },                      // widest point
+    { x: -lapelWidth * 0.7, y: (midY + notchInner.y) / 2 }, // upper outer
+    notchInner,                                        // lapel tip at notch
+    gorgePoint,                                        // gorge junction
+    notchOuter,                                        // collar side of notch
+  ];
+
+  return { lapelPoints, gorgePoint, notchInner, notchOuter, breakPoint };
+}
+
+/**
+ * Shawl collar outline — continuous collar + lapel piece with no notch.
+ * The collar flows from CB around the neck, over the shoulder, and rolls
+ * into the lapel without any seam break. Cut on fold at CB.
+ *
+ * The returned polygon represents one half (CB fold to CF break point).
+ *
+ * @param {Object} params
+ * @param {number} params.neckArc         - Half neckline arc, CB to CF (in)
+ * @param {number} params.collarWidth     - Total collar width at back (in), typically 3–4
+ * @param {number} params.lapelWidth      - Width at the lapel/break point (in), typically 3–5
+ * @param {number} params.breakPointY     - Y of break point from shoulder baseline (in)
+ * @param {number} params.neckDepthFront  - Front neckline depth (in)
+ * @param {number} [params.collarStand=1.25] - Height of collar stand (in)
+ * @returns {{
+ *   shawlPoly: Array<{x:number, y:number}>,
+ *   rollLine: Array<{x:number, y:number}>,
+ * }}
+ */
+export function shawlCollarCurve({
+  neckArc,
+  collarWidth = 3.5,
+  lapelWidth = 4,
+  breakPointY,
+  neckDepthFront,
+  collarStand = 1.25,
+}) {
+  // The shawl collar is drafted flat as a curved rectangle.
+  // Inner edge follows the neckline arc. Outer edge is wider by collarWidth,
+  // widening to lapelWidth at the CF end.
+
+  // 5 points along the collar, from CB fold to CF break point
+  const steps = 5;
+  const innerEdge = [];
+  const outerEdge = [];
+
+  for (let i = 0; i <= steps; i++) {
+    const frac = i / steps;
+    const x = neckArc * frac;
+    const innerY = 0; // inner edge (neckline seam) runs along y=0
+
+    // Collar width transitions from collarWidth at CB to lapelWidth at CF
+    const widthHere = collarWidth + (lapelWidth - collarWidth) * frac;
+
+    // Outer edge has a gentle curve — bows outward slightly at back
+    const bowDepth = collarWidth * 0.06;
+    const bow = bowDepth * Math.sin(Math.PI * frac * 0.7);
+
+    innerEdge.push({ x, y: innerY });
+    outerEdge.push({ x, y: -(widthHere + bow) });
+  }
+
+  // Polygon: inner edge (CB→CF) then outer edge reversed (CF→CB)
+  const shawlPoly = [
+    ...innerEdge,
+    ...outerEdge.reverse(),
+  ];
+
+  // Roll line at stand height
+  const rollLine = [
+    { x: 0, y: -collarStand },
+    { x: neckArc, y: -collarStand },
+  ];
+
+  return { shawlPoly, rollLine };
+}
+
 // ── Collar system ────────────────────────────────────────────────────────
 
 /**

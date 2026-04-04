@@ -24,9 +24,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5″)',    reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+2.5″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+4″)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
       ],
       default: 'regular',
     },
@@ -41,12 +41,12 @@ export default {
     liner: {
       type: 'select', label: 'Mesh liner',
       values: [
-        { value: 'yes', label: 'Yes - front & back mesh panels',  reference: 'athletic, brief-style' },
+        { value: 'yes', label: 'Yes, front & back mesh panels',  reference: 'athletic, brief-style' },
         { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
       ],
       default: 'yes',
     },
-    frontExt: { type: 'number', label: 'Front crotch ext', default: 1.25, step: 0.25, min: 0.5, max: 2.5 },
+    frontExt: { type: 'number', label: 'Front crotch ext', default: 1.75, step: 0.25, min: 0.5, max: 2.5 },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.0,  step: 0.25, min: 1,   max: 3.5 },
     riseStyle: {
       type: 'select', label: 'Rise style',
@@ -60,7 +60,7 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
-    cbRaise:  { type: 'number', label: 'CB raise',         default: 0.5,  step: 0.25, min: 0,   max: 1.5 },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.0,  step: 0.25, min: 0,   max: 2.0 },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -89,11 +89,27 @@ export default {
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
-    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff);
-    const inseam    = m.outseam ? Math.max(1, m.outseam - rise) : (m.inseam || 5);
+    const crotchEase = 0.75; // ease below body rise — prevents fabric pulling tight against crotch
+    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff + crotchEase);
+    const inseam    = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 5);
 
-    const frontW = m.hip / 4 + ease.front;
-    const backW  = m.hip / 4 + ease.back;
+    let frontW = m.hip / 4 + ease.front;
+    let backW  = m.hip / 4 + ease.back;
+
+    // Thigh ease check
+    if (m.thigh) {
+      const patternThigh = (frontW + backW + frontExt + backExt) * 2;
+      const minThigh = m.thigh * 2 + 3;
+      if (patternThigh < minThigh) {
+        const perPanel = (minThigh - patternThigh) / 4;
+        frontW += perPanel;
+        backW += perPanel;
+        console.warn(`[swim-trunks] Thigh ease insufficient (${(patternThigh - m.thigh * 2).toFixed(1)}″) — widened panels by ${perPanel.toFixed(2)}″ each`);
+      } else if (patternThigh - m.thigh * 2 < 2) {
+        console.warn(`[swim-trunks] Thigh ease is tight: ${(patternThigh - m.thigh * 2).toFixed(1)}″ (recommend ≥ 2″)`);
+      }
+    }
+
     const H      = rise + inseam;
 
     const pieces = [];
@@ -131,7 +147,7 @@ export default {
     }
 
     // ── WAISTBAND (drawstring only — no elastic) ──
-    const wbLen   = m.hip + ease.total + sa * 2;
+    const wbLen   = (frontW + backW) * 2 + sa * 2;
     const wbWidth = 3;   // 1.5″ finished
     pieces.push({
       id: 'waistband',
@@ -149,6 +165,7 @@ export default {
         instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
         dimensions: { width: 6.5, height: 7 },
         type: 'pocket',
+        sa,
       });
     }
 
@@ -224,9 +241,9 @@ export default {
     });
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width) - do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.`,
     });
-    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams - stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
+    steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },
@@ -240,7 +257,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
-  poly.push({ x: 0,     y: 0       });
+  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });
@@ -263,8 +280,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 
   // Notch marks: hip level on side seam, crotch junction
   const notches = [
-    { x: width, y: rise, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
-    { x: -ext,  y: rise, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+    { x: width, y: rise,        angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
+    ...(isBack ? [{ x: width, y: rise + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),
+    { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
+    ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
   ];
 
   return {
