@@ -5,7 +5,7 @@
  * Flare amount controls how much wider the hem is than the hip.
  */
 
-import { fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -112,14 +112,30 @@ export default {
     }
 
     function buildPanel(id, name, isBack) {
-      // Trapezoid: waist narrower than hem, sides angled
-      const flarePerSide = flareAmt / 2;
-      const poly = [
-        { x: flarePerSide,        y: 0 },   // waist left
-        { x: flarePerSide + hipW, y: 0 },   // waist right (hip-width at waist)
-        { x: hemW,                y: L },   // hem right
-        { x: 0,                   y: L },   // hem left
-      ];
+      // Fold at CF/CB (left edge) must be vertical — all flare to side seam
+      const waistDip = 0.375;
+      let poly;
+
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: hipW * 0.4, y: waistDip },
+          { x: hipW * 0.8, y: 0 }, { x: hipW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        poly = [...waistPts,
+          { x: hipW + flareAmt, y: L },
+          { x: 0,               y: L },
+        ];
+      } else {
+        poly = [
+          { x: 0,               y: 0 },
+          { x: hipW,            y: 0 },
+          { x: hipW + flareAmt, y: L },
+          { x: 0,               y: L },
+        ];
+      }
 
       const dartNote = dartW > 0
         ? `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`
@@ -127,19 +143,21 @@ export default {
 
       // Hip level ~ 7″ below waist; interpolate side seam x at that y
       const hipY = 7;
-      const sideHipX = flarePerSide + hipW + (hemW - flarePerSide - hipW) * (hipY / L);
+      const sideHipX = hipW + flareAmt * (hipY / L);
       // Notches: hip on side seam, dart endpoints, CF/CB at waist
+      const sideSeamEnd = { x: hipW + flareAmt, y: L };
+      const sideSeamStart = { x: hipW, y: 0 };
       const notches = [
         // Hip level on side seam
-        { x: sideHipX, y: hipY, angle: edgeAngle(poly[1], poly[2]) },
-        ...(isBack ? [{ x: sideHipX, y: hipY + 0.25, angle: edgeAngle(poly[1], poly[2]) }] : []),
+        { x: sideHipX, y: hipY, angle: edgeAngle(sideSeamStart, sideSeamEnd) },
+        ...(isBack ? [{ x: sideHipX, y: hipY + 0.25, angle: edgeAngle(sideSeamStart, sideSeamEnd) }] : []),
         // CF/CB mark at waist center
-        { x: flarePerSide + hipW / 2, y: 0, angle: -90 },
+        { x: hipW / 2, y: 0, angle: -90 },
       ];
       // Dart endpoint notches (at bottom of each dart)
       if (dartW > 0) {
-        const d1x = flarePerSide + hipW * 0.25;
-        const d2x = flarePerSide + hipW * 0.75;
+        const d1x = hipW * 0.25;
+        const d2x = hipW * 0.75;
         notches.push({ x: d1x, y: dartL, angle: -90 });
         notches.push({ x: d2x, y: dartL, angle: -90 });
       }
@@ -156,10 +174,10 @@ export default {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${opts.closure === 'zip' && !isBack ? ' · Leave left side seam open for invisible zip' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: hemW, height: L, isBack, sa, hem, notches, edgeAllowances,
+        width: hipW + flareAmt, height: L, isBack, sa, hem, notches, edgeAllowances,
         dims: [
-          { label: fmtInches(hipW) + ' at hip', x1: flarePerSide, y1: -0.5, x2: flarePerSide + hipW, y2: -0.5, type: 'h' },
-          { label: fmtInches(hemW) + ' at hem', x1: 0, y1: L + 0.5, x2: hemW, y2: L + 0.5, type: 'h' },
+          { label: fmtInches(hipW) + ' at hip', x1: 0, y1: -0.5, x2: hipW, y2: -0.5, type: 'h' },
+          { label: fmtInches(hipW + flareAmt) + ' at hem', x1: 0, y1: L + 0.5, x2: hipW + flareAmt, y2: L + 0.5, type: 'h' },
         ],
       };
     }

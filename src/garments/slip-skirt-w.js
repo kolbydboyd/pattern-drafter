@@ -5,7 +5,7 @@
  * Two darts per panel to absorb waist-hip differential.
  */
 
-import { fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -98,16 +98,37 @@ export default {
 
     const L = m.skirtLength || 28;
 
+    function pp(poly) {
+      let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
+      for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`;
+      return d + ' Z';
+    }
+
     // Simple rectangle panel: straight sides, width = hipW, height = L
     // Waist edge is narrower than hip (darts handle the shaping)
     function buildPanel(name, id) {
-      const poly = [
-        { x: 0,    y: 0 },
-        { x: hipW, y: 0 },
-        { x: hipW, y: L },
-        { x: 0,    y: L },
-      ];
-      const path = `M 0 0 L ${hipW.toFixed(2)} 0 L ${hipW.toFixed(2)} ${L.toFixed(2)} L 0 ${L.toFixed(2)} Z`;
+      const isBack = id === 'skirt-back';
+      const waistDip = 0.375;
+      let poly;
+
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: hipW * 0.4, y: waistDip },
+          { x: hipW * 0.8, y: 0 }, { x: hipW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        poly = [...waistPts, { x: hipW, y: L }, { x: 0, y: L }];
+      } else {
+        poly = [
+          { x: 0,    y: 0 },
+          { x: hipW, y: 0 },
+          { x: hipW, y: L },
+          { x: 0,    y: L },
+        ];
+      }
+      const path = pp(poly);
 
       // Dart annotations as dimensions (visual only — rendered as note)
       const dims = [

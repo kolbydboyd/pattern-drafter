@@ -5,7 +5,7 @@
  * Waistband, closure, dart, and lining code reused from slip-skirt.
  */
 
-import { fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -111,26 +111,48 @@ export default {
     const dartW        = Math.max(0.25, Math.min(dartPerUnit, 0.75));
     const dartL        = 4.0;
 
+    function pp(poly) {
+      let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
+      for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(2)} ${poly[i].y.toFixed(2)}`;
+      return d + ' Z';
+    }
+
     function buildPanel(name, id) {
-      // Tapered trapezoid: wide at waist (hipW), narrow at hem (hemW)
-      // The taper is distributed equally on both sides
-      const sideOffset = (hipW - hemW) / 2;
-      const poly = [
-        { x: 0,    y: 0 },    // waist left
-        { x: hipW, y: 0 },    // waist right
-        { x: hipW - sideOffset, y: L },   // hem right
-        { x: sideOffset,        y: L },   // hem left
-      ];
-      const path = `M 0 0 L ${hipW.toFixed(2)} 0 L ${(hipW - sideOffset).toFixed(2)} ${L.toFixed(2)} L ${sideOffset.toFixed(2)} ${L.toFixed(2)} Z`;
+      // Fold at CF/CB (left edge) must be vertical — all taper to side seam
+      const isBack = id === 'skirt-back';
+      const waistDip = 0.375;
+      let poly;
+
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: hipW * 0.4, y: waistDip },
+          { x: hipW * 0.8, y: 0 }, { x: hipW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        poly = [...waistPts,
+          { x: hemW, y: L },
+          { x: 0,    y: L },
+        ];
+      } else {
+        poly = [
+          { x: 0,    y: 0 },
+          { x: hipW, y: 0 },
+          { x: hemW, y: L },
+          { x: 0,    y: L },
+        ];
+      }
 
       const dartNote = dartCount === 2
         ? `${dartCount} darts · ${fmtInches(dartW)} × ${fmtInches(dartL)} · spaced at ¼ and ¾ of waist`
         : `1 dart · ${fmtInches(dartW)} × ${fmtInches(dartL)} · centered`;
 
       const hipY = 7;
+      const sideAngle = edgeAngle({ x: hipW, y: 0 }, { x: hemW, y: L });
       const notches = [
-        { x: hipW, y: hipY, angle: edgeAngle({ x: hipW, y: 0 }, { x: hipW - sideOffset, y: L }) },
-        ...(id === 'skirt-back' ? [{ x: hipW, y: hipY + 0.25, angle: edgeAngle({ x: hipW, y: 0 }, { x: hipW - sideOffset, y: L }) }] : []),
+        { x: hipW, y: hipY, angle: sideAngle },
+        ...(isBack ? [{ x: hipW, y: hipY + 0.25, angle: sideAngle }] : []),
         { x: hipW / 2, y: 0, angle: -90 },
       ];
       if (dartCount === 2) {
@@ -154,12 +176,12 @@ export default {
           opts.closure === 'zip' && id === 'skirt-back' ? 'Split at CB for zip — add ⅝″ SA at CB seam' : '',
           dartNote,
         ].filter(Boolean).join(' · '),
-        type: 'bodice', polygon: poly, path,
+        type: 'bodice', polygon: poly, path: pp(poly),
         width: hipW, height: L,
-        isBack: id === 'skirt-back', sa, hem, notches, edgeAllowances,
+        isBack, sa, hem, notches, edgeAllowances,
         dims: [
           { label: fmtInches(hipW) + ' hip width', x1: 0, y1: -0.5, x2: hipW, y2: -0.5, type: 'h' },
-          { label: fmtInches(hemW) + ' hem width', x1: sideOffset, y1: L + 0.8, x2: hipW - sideOffset, y2: L + 0.8, type: 'h', color: '#b8963e' },
+          { label: fmtInches(hemW) + ' hem width', x1: 0, y1: L + 0.8, x2: hemW, y2: L + 0.8, type: 'h', color: '#b8963e' },
           { label: fmtInches(L) + ' length', x: hipW + 0.8, y1: 0, y2: L, type: 'v' },
         ],
       };
