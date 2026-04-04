@@ -258,7 +258,7 @@ export default {
     } else if (opts.sleeves === 'flutter') {
       // Flutter: curved rectangle that drapes — wider at hem than at armhole
       const flutterW = armholeDepth * 1.5;
-      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket', sa });
+      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket', grainAngle: 45, sa });
     }
 
     if (opts.closure === 'zip') {

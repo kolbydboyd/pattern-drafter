@@ -720,6 +720,7 @@ function _generate() {
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>
           <tr><td>Finished</td><td>${fmtInches(piece.dimensions.width / 2)}</td></tr>
+          ${piece.grainAngle === 45 ? '<tr><td>Grain</td><td>Cut on bias (45°)</td></tr>' : ''}
         </table></div>`;
     } else if (piece.type === 'pocket') {
       const pd = piece.dimensions;
@@ -756,6 +757,11 @@ function _generate() {
           pSvg += `<line x1="${lx2}" y1="${pry}" x2="${lx2}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.6" stroke-dasharray="3,2"/>`;
           pSvg += `<line x1="${lxC}" y1="${pry}" x2="${lxC}" y2="${pry + prH}" stroke="${mc}" stroke-width="0.3" stroke-dasharray="2,3"/>`;
         }
+      }
+      // Bias grainline indicator inside the mini SVG
+      if (piece.grainAngle === 45) {
+        pSvg += `<line x1="${prx + 4}" y1="${pry + prH - 4}" x2="${prx + prW - 4}" y2="${pry + 4}" stroke="#2c2a26" stroke-width="0.6" stroke-dasharray="3,2"/>`;
+        pSvg += `<text x="${prx + prW / 2}" y="${pry + prH / 2 + 3}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">BIAS</text>`;
       }
       pSvg += '</svg>';
       piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>

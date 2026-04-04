@@ -19,7 +19,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
-  peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve,
+  peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve, twoPartSleeve,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, offsetPolygon } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -234,23 +234,28 @@ export default {
     }
     backPoly.push({ x: 0, y: NECK_DEPTH_BACK });
 
-    // ── SLEEVE ───────────────────────────────────────────────────────────
+    // ── TWO-PIECE SLEEVE ──────────────────────────────────────────────────
+    // Top sleeve (outer arm) + under sleeve (inner arm) for tailored arm hang.
+    // Knit fabric: lower cap height, less ease, slight elbow bend.
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
-    const sleeveEase = totalEase * 0.2;
-    const slvWidth   = m.bicep / 2 + sleeveEase;
-    // Knit fabrics need less cap ease — use lower cap height ratio
-    const capHeight  = armholeDepth * (opts.fit === 'oversized' ? 0.50 : 0.55);
-    const capCp      = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-    const capPts     = sampleCurve(capCp, 16);
-    const sleevePoly = [];
-    for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capHeight });
-    // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
-    delete sleevePoly[0].curve;
-    delete sleevePoly[capPts.length - 1].curve;
-    // Slight taper toward wrist for jacket sleeve
-    const wristW = (m.wrist || m.bicep * 0.75) / 2 + 0.5;
-    sleevePoly.push({ x: slvWidth + wristW, y: capHeight + slvLength });
-    sleevePoly.push({ x: slvWidth - wristW, y: capHeight + slvLength });
+    const frontArmArc = arcLength(frontArmPts);
+    const backArmArc  = arcLength(backArmPts);
+    const armholeArc  = frontArmArc + backArmArc;
+
+    const sleeveResult = twoPartSleeve({
+      bicep: m.bicep,
+      sleeveLength: slvLength,
+      armToElbow: effArmToElbow,
+      wrist: m.wrist || m.bicep * 0.55,
+      armholeArc,
+      capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
+      sleeveBend: 8,          // slight elbow bend (less than structured denim)
+      bicepEase: 0.15,
+      capHeightRatio: 0.40,   // lower cap for knit
+    });
+    const topSlvBB   = bbox(sleeveResult.topSleeve);
+    const underSlvBB = bbox(sleeveResult.underSleeve);
+    const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(sleeveResult.capArc - armholeArc)} (${sleeveResult.iterations} iter)`;
 
     // ── COLLAR ───────────────────────────────────────────────────────────
     // Button positions for lapel break point calculation
@@ -276,6 +281,9 @@ export default {
       { x: sideX, y: armholeY, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      // Collar/facing assembly notches
+      { x: 0, y: NECK_DEPTH_FRONT, angle: 90 },       // CF neckline — matches under collar CF end
+      { x: -PLACKET_W, y: breakPointY, angle: 180 },   // break point — matches facing break point
     ];
 
     const backNotches = [
@@ -289,27 +297,8 @@ export default {
       backNotches.push({ x: 0, y: torsoLen - ventLen, angle: 180 }); // vent top mark
     }
 
-    const capW = slvWidth * 2;
-    const sleeveNotches = [
-      { x: capW / 2, y: 0, angle: -90 },
-      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
-      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
-    ];
-
-    // ── SLEEVE CAP / ARMHOLE VALIDATION ──────────────────────────────────
-    const frontArmArc = arcLength(frontArmPts);
-    const backArmArc  = arcLength(backArmPts);
-    const armholeArc  = frontArmArc + backArmArc;
-    const capArc      = arcLength(capPts);
-    const capEase     = capArc - armholeArc;
-    if (capEase < 0.25 || capEase > 2.5) {
-      console.warn(`[athletic-formal-jacket] Sleeve cap ease: ${capEase.toFixed(2)}″ (expected 0.25–2.5″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
-    }
-    const capEaseNote = `Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
-
     const frontBB  = bbox(frontPoly);
     const backBB   = bbox(backPoly);
-    const sleeveBB = bbox(sleevePoly);
 
     // ── PIECES ───────────────────────────────────────────────────────────
     const pieces = [
@@ -326,11 +315,11 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
-        // Roll line: break point (CF edge) → shoulder roll (neckline)
+        // Roll line: break point (CF placket edge) → CF neckline point
         // The lapel folds back along this line when worn
         rollLine: opts.collar !== 'shawl' ? {
           from: { x: -PLACKET_W, y: breakPointY },
-          to:   { x: neckW, y: 0 },
+          to:   { x: 0, y: NECK_DEPTH_FRONT },
           label: 'roll line',
         } : undefined,
         dims: [
@@ -359,23 +348,39 @@ export default {
         ],
       },
       {
-        id: 'sleeve',
-        name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · Cap top, set into armhole · ${capEaseNote}`,
+        id: 'top-sleeve',
+        name: 'Top Sleeve (Outer)',
+        instruction: `Cut 2 (mirror L & R) · Outer arm · Carries the full cap crown · ${capEaseNote}`,
         type: 'sleeve',
-        polygon: sleevePoly,
-        path: polyToPathStr(sleevePoly),
-        width: sleeveBB.maxX - sleeveBB.minX,
-        height: sleeveBB.maxY - sleeveBB.minY,
-        capHeight,
+        polygon: sleeveResult.topSleeve,
+        path: polyToPathStr(sleeveResult.topSleeve),
+        width: topSlvBB.maxX - topSlvBB.minX,
+        height: topSlvBB.maxY - topSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
         sleeveLength: slvLength,
-        sleeveWidth: slvWidth * 2,
+        sleeveWidth: sleeveResult.topSleeveWidth,
         sa, hem,
-        notches: sleeveNotches,
         dims: [
-          { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvWidth * 2, y2: capHeight + 0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
-          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
+          { label: fmtInches(sleeveResult.topSleeveWidth) + ' top width', x1: topSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: topSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: topSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+        ],
+      },
+      {
+        id: 'under-sleeve',
+        name: 'Under Sleeve (Inner)',
+        instruction: 'Cut 2 (mirror L & R) · Inner arm · Joins top sleeve at front and back seams',
+        type: 'sleeve',
+        polygon: sleeveResult.underSleeve,
+        path: polyToPathStr(sleeveResult.underSleeve),
+        width: underSlvBB.maxX - underSlvBB.minX,
+        height: underSlvBB.maxY - underSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.underSleeveWidth,
+        sa, hem,
+        dims: [
+          { label: fmtInches(sleeveResult.underSleeveWidth) + ' under width', x1: underSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: underSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: underSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
         ],
       },
     ];
@@ -393,6 +398,13 @@ export default {
         underShrink: 0.02,
       });
 
+      // Notch positions for collar-to-facing/panel assembly
+      const collarW = opts.collar === 'peak' ? 3.5 : 3;
+      const ucCFEnd = upperCollar[upperCollar.length - 2];  // CF end of upper collar
+      const ucCBMid = { x: 0, y: collarW / 2 };            // CB fold midpoint
+      const lcCFEnd = underCollar[underCollar.length - 2];
+      const lcCBMid = { x: 0, y: (collarW / 1.02) / 2 };
+
       pieces.push({
         id: 'upper-collar',
         name: 'Upper Collar',
@@ -401,22 +413,32 @@ export default {
         polygon: upperCollar,
         path: polyToPathStr(upperCollar),
         width: standLength,
-        height: opts.collar === 'peak' ? 3.5 : 3,
+        height: collarW,
         isBack: false,
         sa,
+        notches: [
+          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches facing gorge
+          { x: ucCBMid.x, y: ucCBMid.y, angle: 180 },  // CB fold — alignment mark
+        ],
       });
 
       pieces.push({
         id: 'under-collar',
         name: 'Under Collar',
-        instruction: 'Cut 1 on fold (CB) · 2% smaller than upper collar for seam roll · Interface with knit fusible',
+        instruction: 'Cut 2 (mirror at CB) · Bias cut · 2% smaller than upper collar for seam roll · Interface with knit fusible',
         type: 'bodice',
+        isCutOnFold: false,
+        grainAngle: 45,
         polygon: underCollar,
         path: polyToPathStr(underCollar),
         width: standLength / 1.02,
-        height: (opts.collar === 'peak' ? 3.5 : 3) / 1.02,
+        height: collarW / 1.02,
         isBack: false,
         sa,
+        notches: [
+          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches front panel neckline
+          { x: lcCBMid.x, y: lcCBMid.y, angle: 180 },  // CB seam — alignment mark
+        ],
       });
 
       // ── FRONT FACING + LAPEL ────────────────────────────────────────
@@ -447,9 +469,11 @@ export default {
       const facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
 
       // Facing strip: break → CF hem → facing inner hem → facing inner top
+      // Tapers from FACING_W (3″) at hem to ~2″ at shoulder/neckline
+      const FACING_TOP_W = 2.0;
       facingPoly.push({ x: 0, y: torsoLen });
       facingPoly.push({ x: FACING_W, y: torsoLen });
-      facingPoly.push({ x: FACING_W, y: NECK_DEPTH_FRONT });
+      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
 
       // Per-edge SA: use ⅜″ on the narrow lapel edges to reduce overlap
       const lapelSa = 0.375;
@@ -508,6 +532,10 @@ export default {
           to:   { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y },
           label: 'roll line',
         },
+        notches: [
+          { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },  // gorge — matches upper collar CF
+          { x: 0, y: breakPointY, angle: 180 },                                     // break point — matches front panel
+        ],
         width: facingBB.maxX - facingBB.minX,
         height: facingBB.maxY - facingBB.minY,
         isBack: false,
@@ -584,7 +612,8 @@ export default {
 
     // ── SLEEVE CUFF ─────────────────────────────────────────────────────
     if (opts.sleeveCuff === 'rib') {
-      const cuffLen = wristW * 2 * 0.85;
+      const wristCirc = (m.wrist || m.bicep * 0.55) * 1.4;
+      const cuffLen = wristCirc * 0.85;
       pieces.push({
         id: 'sleeve-rib-cuff',
         name: 'Sleeve Rib Cuff',
@@ -595,21 +624,91 @@ export default {
       });
     }
 
+    // ── BACK NECK FACING ────────────────────────────────────────────────
+    // Shaped piece that finishes the back neckline between the front facings.
+    // Follows the back neckline curve, 2.5″ wide. Cut 1 on fold at CB.
+    const BACK_FACING_W = 2.5;
+    const backFacingPoly = [];
+    // Outer edge: neckline curve (same as back panel neckline)
+    const neckBackForFacing = [...backNeckPts].reverse();
+    for (const p of neckBackForFacing) backFacingPoly.push({ ...p, x: neckW - p.x });
+    delete backFacingPoly[0].curve;
+    delete backFacingPoly[backFacingPoly.length - 1].curve;
+    // Inner edge: offset 2.5″ below neckline
+    backFacingPoly.push({ x: shoulderPtX, y: slopeDrop + BACK_FACING_W });
+    backFacingPoly.push({ x: 0, y: NECK_DEPTH_BACK + BACK_FACING_W });
+    const backFacingBB = bbox(backFacingPoly);
+
+    pieces.push({
+      id: 'back-neck-facing',
+      name: 'Back Neck Facing',
+      instruction: `Cut 1 on fold (CB) · Interface with knit fusible · ${fmtInches(BACK_FACING_W)} wide · Joins front facings at shoulder seams`,
+      type: 'bodice',
+      polygon: backFacingPoly,
+      path: polyToPathStr(backFacingPoly),
+      width: backFacingBB.maxX - backFacingBB.minX,
+      height: backFacingBB.maxY - backFacingBB.minY,
+      isBack: true,
+      sa,
+    });
+
     // ── LINING ──────────────────────────────────────────────────────────
     if (opts.lining === 'half') {
+      // Back lining: follows back panel from shoulder to 4″ below armhole
+      const liningCutoff = armholeY + 4;
+      const backLiningPoly = [];
+      for (const p of backPoly) {
+        if (p.y <= liningCutoff) backLiningPoly.push({ x: p.x, y: p.y });
+      }
+      // Close the bottom edge
+      if (backLiningPoly.length > 0) {
+        const lastX = backLiningPoly[backLiningPoly.length - 1].x;
+        backLiningPoly.push({ x: lastX, y: liningCutoff });
+        backLiningPoly.push({ x: 0, y: liningCutoff });
+      }
+      const backLiningBB = bbox(backLiningPoly);
+
       pieces.push({
         id: 'lining-back',
         name: 'Back Lining (Upper)',
-        instruction: 'Cut 1 on fold (CB) · Extends from shoulder to 4″ below armhole · Jersey or tricot lining',
-        type: 'pocket',
-        dimensions: { width: backW, height: armholeY + 4 },
+        instruction: `Cut 1 on fold (CB) · Extends from shoulder to ${fmtInches(liningCutoff)} below baseline · Jersey or tricot lining`,
+        type: 'bodice',
+        polygon: backLiningPoly,
+        path: polyToPathStr(backLiningPoly),
+        width: backLiningBB.maxX - backLiningBB.minX,
+        height: backLiningBB.maxY - backLiningBB.minY,
+        isBack: true,
+        sa,
+      });
+
+      // Sleeve lining: follows top sleeve shape
+      pieces.push({
+        id: 'lining-top-sleeve',
+        name: 'Top Sleeve Lining',
+        instruction: 'Cut 2 (mirror L & R) · Outer arm lining · Jersey or tricot',
+        type: 'sleeve',
+        polygon: sleeveResult.topSleeve,
+        path: polyToPathStr(sleeveResult.topSleeve),
+        width: topSlvBB.maxX - topSlvBB.minX,
+        height: topSlvBB.maxY - topSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.topSleeveWidth,
+        sa, hem,
       });
       pieces.push({
-        id: 'lining-sleeve',
-        name: 'Sleeve Lining',
-        instruction: 'Cut 2 (mirror L & R) · Full sleeve length · Jersey or tricot lining',
-        type: 'pocket',
-        dimensions: { width: slvWidth * 2, height: slvLength + capHeight },
+        id: 'lining-under-sleeve',
+        name: 'Under Sleeve Lining',
+        instruction: 'Cut 2 (mirror L & R) · Inner arm lining · Jersey or tricot',
+        type: 'sleeve',
+        polygon: sleeveResult.underSleeve,
+        path: polyToPathStr(sleeveResult.underSleeve),
+        width: underSlvBB.maxX - underSlvBB.minX,
+        height: underSlvBB.maxY - underSlvBB.minY,
+        capHeight: sleeveResult.capHeight,
+        sleeveLength: slvLength,
+        sleeveWidth: sleeveResult.underSleeveWidth,
+        sa, hem,
       });
     }
 

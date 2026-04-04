@@ -18,6 +18,7 @@ import campShirt     from './camp-shirt.js';
 import crewneck      from './crewneck.js';
 import hoodie        from './hoodie.js';
 import cropJacket    from './crop-jacket.js';
+import athleticFormalJacket from './athletic-formal-jacket.js';
 import denimJacket   from './denim-jacket.js';
 import cargoWorkPants from './cargo-work-pants.js';
 import wideLegTrouserW   from './wide-leg-trouser-w.js';
@@ -36,7 +37,6 @@ import tankTop           from './tank-top.js';
 import circleSkirtW      from './circle-skirt-w.js';
 import pencilSkirtW      from './pencil-skirt-w.js';
 import leggings          from './leggings.js';
-import athleticFormalJacket   from './athletic-formal-jacket.js';
 import athleticFormalTrousers from './athletic-formal-trousers.js';
 import tshirtDressW          from './tshirt-dress-w.js';
 import slipDressW            from './slip-dress-w.js';
@@ -60,6 +60,7 @@ const GARMENTS = {
   'crewneck':             crewneck,
   'hoodie':               hoodie,
   'crop-jacket':          cropJacket,
+  'athletic-formal-jacket': athleticFormalJacket,
   'denim-jacket':         denimJacket,
   'cargo-work-pants':   cargoWorkPants,
   'wide-leg-trouser-w':   wideLegTrouserW,
@@ -78,7 +79,6 @@ const GARMENTS = {
   'circle-skirt-w':       circleSkirtW,
   'pencil-skirt-w':       pencilSkirtW,
   'leggings':             leggings,
-  'athletic-formal-jacket':   athleticFormalJacket,
   'athletic-formal-trousers': athleticFormalTrousers,
   'tshirt-dress-w':           tshirtDressW,
   'slip-dress-w':             slipDressW,

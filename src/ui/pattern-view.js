@@ -135,15 +135,31 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
 }
 
 /**
- * Render a grainline arrow: dashed vertical line with solid arrowheads at both ends.
+ * Render a grainline arrow: dashed line with solid arrowheads at both ends.
+ * @param {number} gx    – SVG x center
+ * @param {number} gy1   – SVG y top
+ * @param {number} gy2   – SVG y bottom
+ * @param {number} [labelY] – SVG y for label
+ * @param {number} [angleDeg=0] – rotation in degrees (0 = vertical, 45 = bias)
  */
-function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2) {
+function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2, angleDeg = 0) {
   const ah = 5;  // arrowhead height
   const aw = 3;  // arrowhead half-width
-  return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
+  const mx = gx, my = (gy1 + gy2) / 2;
+  const label = angleDeg === 45 ? 'BIAS' : 'GRAIN';
+  if (angleDeg === 0) {
+    return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
+      <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
+      <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
+      <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>`;
+  }
+  // Rotated grainline: draw the same line + arrows, rotated around center
+  return `<g transform="rotate(${angleDeg},${mx.toFixed(1)},${my.toFixed(1)})">
+    <line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
     <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
-    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">GRAIN</text>`;
+    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>
+  </g>`;
 }
 
 /**
@@ -428,7 +444,7 @@ export function renderPanelSVG(piece) {
       return `<path d="${hp}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
     })()}
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
-    ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
+    ${grainlineSVG(gx, gy1, gy2, grainLabelY, piece.grainAngle || 0)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
@@ -577,7 +593,7 @@ export function renderGenericPieceSVG(piece) {
     })()}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
-      : grainlineSVG(gx, gy1, gy2)}
+      : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
     ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
       // Roll/fold line annotation (e.g. lapel break line)
       piece.rollLine ? (() => {
