@@ -52,6 +52,8 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - Run `npm run build` to catch errors
 - Note any Supabase schema changes needed
 - Update `ROADMAP.md` if the change affects project status
+- Update `CHANGELOG.md` for each change
+- Create a pull request, fix all conflicts
 
 ## Current State
 
