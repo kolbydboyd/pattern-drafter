@@ -1718,15 +1718,23 @@ function buildMeasureStep() {
       getMeasurementProfiles(_wizUser.id).then(({ data: remoteProfiles }) => {
         if (!remoteProfiles?.length) return;
         const local = loadProfiles();
+        const localById = new Map(local.filter(p => p.id).map(p => [p.id, p]));
         const localNames = new Set(local.map(p => p.name));
-        let added = false;
+        let changed = false;
         for (const rp of remoteProfiles) {
-          if (!localNames.has(rp.name) && rp.measurements) {
-            local.push({ name: rp.name, measurements: rp.measurements });
-            added = true;
+          if (rp.archived || !rp.measurements) continue;
+          const flat = { id: rp.id, name: rp.name, ...rp.measurements };
+          const existing = localById.get(rp.id);
+          if (existing) {
+            const idx = local.indexOf(existing);
+            local[idx] = flat;
+            changed = true;
+          } else if (!localNames.has(rp.name)) {
+            local.push(flat);
+            changed = true;
           }
         }
-        if (added) {
+        if (changed) {
           localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
           refreshProfileDropdown();
         }
@@ -1744,7 +1752,7 @@ function buildMeasureStep() {
       }
       const { data: remoteProfiles } = await getMeasurementProfiles(user.id);
       if (remoteProfiles?.length) {
-        const local = remoteProfiles.map(rp => ({ name: rp.name, measurements: rp.measurements }));
+        const local = remoteProfiles.map(rp => ({ id: rp.id, name: rp.name, ...rp.measurements }));
         localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
       }
       refreshProfileDropdown();
