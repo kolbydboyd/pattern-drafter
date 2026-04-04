@@ -8,19 +8,25 @@
 <meta id="pp-og-title" property="og:title" content="Learn to Sew | People's Patterns">
 <meta id="pp-og-desc" property="og:description" content="Guides on measuring, printing, and sewing custom-fit patterns.">
 <meta property="og:type" content="website">
-<meta id="pp-canonical" rel="canonical" href="https://peoplespatterns.com/learn">
+<link id="pp-canonical" rel="canonical" href="https://peoplespatterns.com/learn">
 <meta name="robots" content="index, follow">
 <script id="pp-jsonld" type="application/ld+json">{}</script>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
 <link rel="stylesheet" href="/src/ui/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body data-page="learn">
+<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
 <header class="hdr"><h1 id="hdr-logo"><a href="/" style="text-decoration:none;color:inherit;">People's Patterns</a></h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
     <a href="/patterns">Patterns</a>
@@ -28,6 +34,7 @@
     <a href="/pricing">Pricing</a>
     <a href="/about">About</a>
     <a href="/faq">FAQ</a>
+    <a href="/tester">Tester</a>
   </nav>
   <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
@@ -47,6 +54,7 @@
     <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
     <a class="hdr-nav-m-link" href="/about">About</a>
     <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -64,6 +72,10 @@
     <a class="land-footer-link" href="/pricing">Pricing</a>
     <a class="land-footer-link" href="/about">About</a>
     <a class="land-footer-link" href="/faq">FAQ</a>
+    <a class="land-footer-link" href="/tester">Tester</a>
+    <a class="land-footer-link" href="/submit-make">Share Your Make</a>
+    <a class="land-footer-link" href="/affiliate">Affiliate</a>
+    <a class="land-footer-link" href="/redeem">Redeem</a>
     <a class="land-footer-link" href="/terms">Terms</a>
     <a class="land-footer-link" href="/privacy">Privacy</a>
   </span>
@@ -76,7 +88,6 @@
     <a class="social-icon" href="https://facebook.com/peoplespatterns" target="_blank" rel="noopener" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16 2c-7.732 0-14 6.268-14 14 0 6.566 4.52 12.075 10.618 13.588v-9.31h-2.887v-4.278h2.887v-1.843c0-4.765 2.156-6.974 6.835-6.974.887 0 2.417.174 3.043.348v3.878c-.33-.035-.904-.052-1.617-.052-2.296 0-3.183.87-3.183 3.13v1.513h4.573l-.786 4.278h-3.787v9.619C25.48 29.163 30 23.566 30 16c0-7.732-6.268-14-14-14z"/></svg></a>
     <a class="social-icon" href="https://etsy.com/shop/PeoplesPatterns" target="_blank" rel="noopener" aria-label="Etsy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M7 5v22h18v-3.5H13v-5.5h10v-4H13V8.5h12V5z"/></svg></a>
   </div>
-</footer>
 
 <script type="module" src="/src/ui/learn-page.js"></script>
 </body>

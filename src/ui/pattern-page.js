@@ -1,24 +1,19 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Pattern detail page — handles /patterns/[garment-id]
 
+import '../analytics.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
-import { initAuthModal } from './auth-modal.js';
+import { renderMakesGallery, extractTesters, renderAsSeenOn } from './real-makes.js';
+
+// Shared page functionality (theme, hamburger, logo, auth, analytics inject)
+import './page.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
-// ── Dark-mode (shared with other pages) ──────────────────────────────────────
-const THEME_KEY = 'pp-theme';
-const savedTheme = localStorage.getItem(THEME_KEY);
-if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-document.getElementById('theme-btn')?.addEventListener('click', () => {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
-});
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-initAuthModal();
+let _wishlistSet = new Set();
+let _purchasedSet = new Set();
+let _currentUser = null;
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
@@ -134,6 +129,9 @@ const relatedCards = related.map(g => {
   const p = PATTERN_PRICES[g.id];
   return `
     <a href="/patterns/${g.id}" class="pat-pg-related-card">
+      <div class="pat-pg-listing-img">
+        <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+      </div>
       <div class="pat-pg-related-name">${g.name}</div>
       <div class="pat-pg-related-meta">
         <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
@@ -157,7 +155,8 @@ root.innerHTML = `
   <div class="pat-pg-hero">
     <div class="pat-pg-photo-wrap">
       <div class="pat-pg-photo-placeholder">
-        <span class="pat-pg-photo-coming">Photos coming soon</span>
+        <img src="/garment-illustrations/${garmentId}.svg" alt="${garment.name} illustration" class="pat-pg-hero-illustration" width="160" height="200">
+        <span class="pat-pg-maker-cta">Be the first featured maker<br><a href="/tester" class="pat-pg-maker-link">Apply to test this pattern &rarr;</a></span>
       </div>
     </div>
 
@@ -171,10 +170,12 @@ root.innerHTML = `
 
       <p class="pat-pg-tagline">Custom-fit sewing pattern drafted to your exact measurements.</p>
 
-      <a href="/?step=1&garment=${garmentId}" class="btn-primary pat-pg-generate-btn">
+      <a href="/?step=1&garment=${garmentId}" class="btn-primary pat-pg-generate-btn pat-pg-generate-lg">
         Generate This Pattern
       </a>
       <p class="pat-pg-generate-note">Enter your measurements and customize. Preview before you buy.</p>
+      <p class="pat-pg-fit-summary">This pattern drafts ${(garment.measurements || []).length} measurements directly from your body. No size chart approximation.</p>
+      <div id="pat-pg-as-seen-on" style="display:none"></div>
       <p class="pat-pg-sewists-count" id="pat-pg-sewists-count"></p>
     </div>
   </div>
@@ -200,12 +201,7 @@ root.innerHTML = `
     </table>
   </section>` : ''}
 
-  <section class="pat-pg-section pat-pg-section-placeholder">
-    <h2 class="pat-pg-section-title">Sewn Samples</h2>
-    <div class="pat-pg-photos-placeholder">
-      <p>Photos coming soon. Want to be featured? Share your make with <a href="https://instagram.com/peoplespatterns" target="_blank" rel="noopener">@peoplespatterns</a>.</p>
-    </div>
-  </section>
+  <section class="pat-pg-section" id="pat-pg-makes-gallery" style="display:none"></section>
 
   <section class="pat-pg-section pat-pg-section-placeholder">
     <h2 class="pat-pg-section-title">Customer Reviews</h2>
@@ -223,6 +219,18 @@ root.innerHTML = `
 
 </div>`;
 
+// ── Real Makes gallery + "As seen on" attribution ───────────────────────────
+(async function loadMakes() {
+  const galleryEl = document.getElementById('pat-pg-makes-gallery');
+  const asSeenEl = document.getElementById('pat-pg-as-seen-on');
+  if (!galleryEl) return;
+  const makes = await renderMakesGallery(galleryEl, { garmentId, limit: 12 });
+  if (makes.length && asSeenEl) {
+    const testers = extractTesters(makes);
+    renderAsSeenOn(asSeenEl, testers);
+  }
+})();
+
 // ── Per-garment sewist count ──────────────────────────────────────────────────
 (function loadGarmentCount() {
   const el = document.getElementById('pat-pg-sewists-count');
@@ -236,8 +244,64 @@ root.innerHTML = `
 })();
 
 // ── Pattern listing (no garment ID given) ─────────────────────────────────────
-function renderPatternListing() {
+
+async function _loadUserData() {
+  try {
+    const { getUser } = await import('../lib/auth.js');
+    const { getWishlist, getPurchases } = await import('../lib/db.js');
+    const { user } = await getUser();
+    _currentUser = user || null;
+    if (_currentUser) {
+      const [wishRes, purchRes] = await Promise.all([
+        getWishlist(_currentUser.id),
+        getPurchases(_currentUser.id),
+      ]);
+      _wishlistSet = new Set((wishRes.data || []).map(r => r.garment_id));
+      _purchasedSet = new Set((purchRes.data || []).map(p => p.garment_id));
+      return;
+    }
+  } catch { _currentUser = null; }
+  // Guest or error fallback
+  try {
+    const stored = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    _wishlistSet = new Set(stored);
+  } catch { _wishlistSet = new Set(); }
+  _purchasedSet = new Set();
+}
+
+async function _toggleWishlist(garmentId, heartBtn) {
+  const isOn = _wishlistSet.has(garmentId);
+  if (_currentUser) {
+    const { addToWishlist, removeFromWishlist } = await import('../lib/db.js');
+    if (isOn) {
+      await removeFromWishlist(_currentUser.id, garmentId);
+      _wishlistSet.delete(garmentId);
+    } else {
+      await addToWishlist(_currentUser.id, garmentId);
+      _wishlistSet.add(garmentId);
+    }
+  } else {
+    if (isOn) { _wishlistSet.delete(garmentId); }
+    else      { _wishlistSet.add(garmentId); }
+    localStorage.setItem('wishlist', JSON.stringify([..._wishlistSet]));
+  }
+  heartBtn.classList.toggle('gmt-heart--on', _wishlistSet.has(garmentId));
+  heartBtn.setAttribute('aria-pressed', String(_wishlistSet.has(garmentId)));
+}
+
+function _attachHeartHandlers(container) {
+  container.querySelectorAll('.gmt-heart').forEach(hBtn => {
+    hBtn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      _toggleWishlist(hBtn.dataset.garment, hBtn);
+    });
+  });
+}
+
+async function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
+  await _loadUserData();
   const allGarments = Object.values(GARMENTS);
 
   function isWomenswear(g) { return g.id.endsWith('-w'); }
@@ -245,13 +309,19 @@ function renderPatternListing() {
   function buildCards(list) {
     return list.map(g => {
       const p = PATTERN_PRICES[g.id];
+      const wishlisted = _wishlistSet.has(g.id);
+      const owned = _purchasedSet.has(g.id);
       return `
         <a href="/patterns/${g.id}" class="pat-pg-listing-card">
+          <div class="pat-pg-listing-img">
+            <img src="/garment-illustrations/${g.id}.svg" alt="${g.name}" width="80" height="100" loading="lazy">
+          </div>
           <div class="pat-pg-listing-name">${g.name}</div>
           <div class="pat-pg-listing-meta">
             <span class="pat-pg-diff-badge pat-pg-diff-${g.difficulty}">${g.difficulty || ''}</span>
-            ${p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
+            ${owned ? `<span class="pat-pg-owned-badge">Owned</span>` : p ? `<span class="pat-pg-related-price">$${(p.cents / 100).toFixed(0)}</span>` : ''}
           </div>
+          <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${g.id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
         </a>`;
     }).join('');
   }
@@ -267,6 +337,8 @@ function renderPatternListing() {
       <div class="pat-pg-listing-grid" id="pat-listing-grid">${buildCards(allGarments)}</div>
     </div>`;
 
+  _attachHeartHandlers(root);
+
   root.querySelectorAll('.filter-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       root.querySelectorAll('.filter-tab').forEach(b => {
@@ -279,7 +351,9 @@ function renderPatternListing() {
       const filtered = filter === 'all' ? allGarments
         : filter === 'womenswear' ? allGarments.filter(isWomenswear)
         : allGarments.filter(g => !isWomenswear(g));
-      document.getElementById('pat-listing-grid').innerHTML = buildCards(filtered);
+      const grid = document.getElementById('pat-listing-grid');
+      grid.innerHTML = buildCards(filtered);
+      _attachHeartHandlers(grid);
     });
   });
 }

@@ -7,16 +7,22 @@
 <meta name="description" content="Privacy policy for People's Patterns. How we handle your data and measurements.">
 <link rel="canonical" href="https://peoplespatterns.com/privacy">
 <meta name="robots" content="index, follow">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
 <link rel="stylesheet" href="/src/ui/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body data-page="privacy">
+<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
 <header class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
     <a href="/patterns">Patterns</a>
@@ -24,6 +30,7 @@
     <a href="/pricing">Pricing</a>
     <a href="/about">About</a>
     <a href="/faq">FAQ</a>
+    <a href="/tester">Tester</a>
   </nav>
   <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
@@ -52,6 +59,7 @@
     <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
     <a class="hdr-nav-m-link" href="/about">About</a>
     <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -73,6 +81,9 @@
           <li>Purchase history (which patterns you have bought and when)</li>
           <li>Payment information (processed by Stripe; we never see or store your card number)</li>
           <li>Fit feedback (if you choose to submit it after sewing a pattern)</li>
+          <li>Photos and captions (if you submit a make via the tester program or Share Your Make form)</li>
+          <li>Affiliate data (referral code, click tracking via 30-day cookie, commission earnings)</li>
+          <li>Marketing preferences (email opt-in status for welcome sequence and weekly digest)</li>
           <li>Basic usage data (which garments you view, browser type, general location)</li>
         </ul>
       </div>
@@ -118,19 +129,27 @@
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">6. Email communications</h2>
+        <h2 class="pg-h2">6. Photos and user-submitted content</h2>
+        <p class="pg-p">If you upload photos via the tester program or Share Your Make form, images are stored in Supabase Storage. Photos are publicly visible once approved by an admin. You can request removal of your photos at any time by contacting us. We do not extract metadata (EXIF data) from uploaded photos.</p>
+      </div>
+
+      <div class="pg-section">
+        <h2 class="pg-h2">7. Email communications</h2>
         <p class="pg-p">We send the following emails:</p>
         <ul class="pg-ul">
           <li>Account confirmation (required)</li>
           <li>Purchase confirmation and download link (required, transactional)</li>
           <li>Fit feedback request, one time per purchase (you can opt out in account settings)</li>
+          <li>Welcome sequence (5 emails over 2 weeks after signup, if you opted in)</li>
+          <li>Weekly digest with new articles and pattern drops (if you opted in, unsubscribe any time)</li>
+          <li>Abandoned pattern reminders (if you used a free credit but haven't purchased, one time)</li>
           <li>New pattern announcements (only if you opted in, unsubscribe any time)</li>
         </ul>
-        <p class="pg-p">We do not send unsolicited marketing email.</p>
+        <p class="pg-p">We do not send unsolicited marketing email. All marketing emails require opt-in and include an unsubscribe link.</p>
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">7. Third-party services</h2>
+        <h2 class="pg-h2">8. Third-party services</h2>
         <ul class="pg-ul">
           <li><strong>Supabase</strong>: stores your account data and measurement profiles (supabase.com)</li>
           <li><strong>Stripe</strong>: processes payments. We never see your card number. Your body measurements are never sent to Stripe - only your garment choice and order total. (stripe.com)</li>
@@ -142,7 +161,7 @@
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">8. Data retention</h2>
+        <h2 class="pg-h2">9. Data retention</h2>
         <ul class="pg-ul">
           <li>Account data: retained until you delete your account</li>
           <li>Measurement profiles: retained until you delete them</li>
@@ -152,7 +171,7 @@
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">9. Your rights</h2>
+        <h2 class="pg-h2">10. Your rights</h2>
         <p class="pg-p">You can at any time:</p>
         <ul class="pg-ul">
           <li>Download all your data (email us)</li>
@@ -164,29 +183,48 @@
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">10. California residents (CCPA)</h2>
+        <h2 class="pg-h2">11. California residents (CCPA)</h2>
         <p class="pg-p">We do not sell personal information. You have the right to know what data we collect, request deletion, and opt out of any sale (we don't sell data so this is a non-issue). Contact us to exercise these rights.</p>
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">11. European users (GDPR)</h2>
+        <h2 class="pg-h2">12. European users (GDPR)</h2>
         <p class="pg-p">Our legal basis for processing your data is contract performance (we need your measurements to generate your pattern) and legitimate interest (improving fit accuracy). You have the right to access, correct, and delete your data. Contact <a href="mailto:hello@peoplespatterns.com">hello@peoplespatterns.com</a>.</p>
       </div>
 
       <div class="pg-section">
-        <h2 class="pg-h2">12. Contact</h2>
+        <h2 class="pg-h2">13. Contact</h2>
         <p class="pg-p"><a href="mailto:hello@peoplespatterns.com">hello@peoplespatterns.com</a><br>People's Patterns<br>peoplespatterns.com</p>
       </div>
     </div>
   </main>
-  <footer class="land-footer">
+<footer class="land-footer">
+
     <span class="land-footer-copy">&copy; 2026 People's Patterns</span>
+
     <span class="land-footer-legal">
+
       <a class="land-footer-link" href="/patterns">Patterns</a>
+
       <a class="land-footer-link" href="/learn">Learn</a>
+
       <a class="land-footer-link" href="/pricing">Pricing</a>
+
       <a class="land-footer-link" href="/about">About</a>
+
       <a class="land-footer-link" href="/faq">FAQ</a>
+
+      <a class="land-footer-link" href="/tester">Tester</a>
+
+      <a class="land-footer-link" href="/submit-make">Share Your Make</a>
+
+      <a class="land-footer-link" href="/affiliate">Affiliate</a>
+
+      <a class="land-footer-link" href="/redeem">Redeem</a>
+
+      <a class="land-footer-link" href="/terms">Terms</a>
+
+      <a class="land-footer-link" href="/privacy">Privacy</a>
       <a class="land-footer-link" href="/terms">Terms</a>
       <a class="land-footer-link" href="/privacy">Privacy</a>
     </span>

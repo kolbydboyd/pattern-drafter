@@ -7,10 +7,15 @@
 <meta name="description" content="Frequently asked questions about People's Patterns. How to take measurements, print patterns, choose garments, and get the best fit.">
 <link rel="canonical" href="https://peoplespatterns.com/faq">
 <meta name="robots" content="index, follow">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
 <link rel="stylesheet" href="/src/ui/styles.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +33,7 @@
     { "@type": "Question", "name": "What is included with each pattern?", "acceptedAnswer": { "@type": "Answer", "text": "Every pattern includes: print-ready tiled PDF (US Letter and A4), full materials list with fabric type and yardage, stitch and notions guide, step-by-step construction instructions, and a scale verification page. All drafted to your exact measurements." } },
     { "@type": "Question", "name": "How do I print the pattern?", "acceptedAnswer": { "@type": "Answer", "text": "After purchase, you download a tiled PDF sized to standard printer paper (US Letter, A4, or Tabloid). Print at 100% scale; never fit to page. Each page includes a 2x2 inch verification square to confirm your print is the right scale, plus registration crosshairs to align the pages when taping them together. Full assembly instructions are included on page 2 of every PDF." } },
     { "@type": "Question", "name": "How do I assemble the printed pages?", "acceptedAnswer": { "@type": "Answer", "text": "Each tile page has scissors cut lines on the edges and crosshair alignment marks. Cut along the scissors line on the incoming tile, align the crosshairs with the adjacent tile, and tape from the back. A numbered tile map is included showing how the pages fit together. Full instructions are on page 2 of every PDF." } },
-    { "@type": "Question", "name": "What paper size should I use?", "acceptedAnswer": { "@type": "Answer", "text": "US Letter (8.5x11 inches) works for most home printers in the US. A4 works for most international printers. Tabloid (11x17 inches) reduces the number of pages significantly if your printer supports it. A0 prints on a single large sheet at any copy shop  - no taping required." } },
+    { "@type": "Question", "name": "What paper size should I use?", "acceptedAnswer": { "@type": "Answer", "text": "US Letter (8.5x11 inches) works for most home printers in the US. A4 works for most international printers. Tabloid (11x17 inches) reduces the number of pages significantly if your printer supports it. A0 prints on a single large sheet at any copy shop, or use it as a projector file - no taping required." } },
     { "@type": "Question", "name": "Can I re-download a pattern I already purchased?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, any time, from your account under My Patterns. Your purchase is permanent and includes unlimited re-downloads." } },
     { "@type": "Question", "name": "What if the pattern doesn't fit?", "acceptedAnswer": { "@type": "Answer", "text": "Fit issues are usually caused by measurement errors. Update your measurements in your profile and re-download  - re-generation is included with every purchase at no extra charge. Reply to your purchase confirmation email and we will help troubleshoot." } },
     { "@type": "Question", "name": "Do you offer refunds?", "acceptedAnswer": { "@type": "Answer", "text": "If you are unsatisfied with a pattern within 30 days and have not downloaded it, contact us for a full refund. Because patterns are generated to your specific measurements, we cannot offer refunds after a pattern has been downloaded. If you experience a technical issue preventing download, contact us and we will resolve it." } },
@@ -40,6 +45,7 @@
 </script>
 </head>
 <body data-page="faq">
+<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
 <header class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
     <a href="/patterns">Patterns</a>
@@ -47,6 +53,7 @@
     <a href="/pricing">Pricing</a>
     <a href="/about">About</a>
     <a href="/faq">FAQ</a>
+    <a href="/tester">Tester</a>
   </nav>
   <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
@@ -75,6 +82,7 @@
     <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
     <a class="hdr-nav-m-link" href="/about">About</a>
     <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -119,11 +127,11 @@
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false">What paper size should I use?</button>
-          <div class="faq-a"><p>US Letter (8.5×11″) works for most home printers in the US. A4 works for most international printers. Tabloid (11×17″) reduces the number of pages significantly if your printer supports it. A0 prints on a single large sheet at any copy shop  - no taping required.</p></div>
+          <div class="faq-a"><p>US Letter (8.5×11″) works for most home printers in the US. A4 works for most international printers. Tabloid (11×17″) reduces the number of pages significantly if your printer supports it. A0 prints on a single large sheet at any copy shop, or use it as a projector file - no taping required.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false">Can I print at a copy shop?</button>
-          <div class="faq-a"><p>Yes. The PDF works at any print shop. For US Letter or A4 tiled patterns, any standard printer works. For A0 single-sheet output, most FedEx Office and Staples locations can print large format for a few dollars per sheet.</p></div>
+          <div class="faq-a"><p>Yes. The PDF works at any print shop. For US Letter or A4 tiled patterns, any standard printer works. For A0 single-sheet output, most FedEx Office and Staples locations can print large format for a few dollars per sheet. The same A0 file also works with pattern projectors.</p></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" aria-expanded="false">What if the pattern doesn't fit?</button>
@@ -185,14 +193,33 @@
       <p class="pg-p" style="margin-top:48px;font-size:.7rem">Still have a question? Email us at <!--email_off--><a href="mailto:hello@peoplespatterns.com">hello@peoplespatterns.com</a><!--/email_off-->. We read every one.</p>
     </div>
   </main>
-  <footer class="land-footer">
+<footer class="land-footer">
+
     <span class="land-footer-copy">&copy; 2026 People's Patterns</span>
+
     <span class="land-footer-legal">
+
       <a class="land-footer-link" href="/patterns">Patterns</a>
+
       <a class="land-footer-link" href="/learn">Learn</a>
+
       <a class="land-footer-link" href="/pricing">Pricing</a>
+
       <a class="land-footer-link" href="/about">About</a>
+
       <a class="land-footer-link" href="/faq">FAQ</a>
+
+      <a class="land-footer-link" href="/tester">Tester</a>
+
+      <a class="land-footer-link" href="/submit-make">Share Your Make</a>
+
+      <a class="land-footer-link" href="/affiliate">Affiliate</a>
+
+      <a class="land-footer-link" href="/redeem">Redeem</a>
+
+      <a class="land-footer-link" href="/terms">Terms</a>
+
+      <a class="land-footer-link" href="/privacy">Privacy</a>
       <a class="land-footer-link" href="/terms">Terms</a>
       <a class="land-footer-link" href="/privacy">Privacy</a>
     </span>
