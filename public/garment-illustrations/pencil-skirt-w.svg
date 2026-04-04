@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- waistband -->
+  <path d="M52,40 L108,40 L108,50 L52,50 Z"/>
+  <!-- fitted body tapering to knee -->
+  <path d="M52,50 L48,140 Q48,170 56,186 L104,186 Q112,170 112,140 L108,50"/>
+  <!-- back vent/slit -->
+  <line x1="80" y1="160" x2="80" y2="186"/>
+  <!-- waist darts -->
+  <line x1="66" y1="50" x2="68" y2="72"/>
+  <line x1="70" y1="50" x2="68" y2="72"/>
+  <line x1="90" y1="50" x2="92" y2="72"/>
+  <line x1="94" y1="50" x2="92" y2="72"/>
+  <!-- zipper line on back -->
+  <line x1="80" y1="40" x2="80" y2="72" stroke-dasharray="3 3"/>
+</svg>

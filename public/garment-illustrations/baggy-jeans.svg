@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- waistband (low-rise, sits lower) -->
+  <path d="M46,44 L114,44 L114,54 L46,54 Z"/>
+  <!-- belt loops -->
+  <rect x="58" y="41" width="5" height="8" rx="1"/>
+  <rect x="97" y="41" width="5" height="8" rx="1"/>
+  <rect x="78" y="41" width="5" height="8" rx="1"/>
+  <!-- legs: wide, baggy silhouette with volume -->
+  <path d="M46,54 L32,194 L72,194 L80,96 L88,194 L128,194 L114,54"/>
+  <line x1="80" y1="54" x2="80" y2="96"/>
+  <!-- fly -->
+  <path d="M80,54 Q76,66 80,72"/>
+  <!-- front slant pockets -->
+  <path d="M50,56 Q58,68 68,62"/>
+  <path d="M110,56 Q102,68 92,62"/>
+  <!-- coin pocket -->
+  <rect x="50" y="60" width="10" height="8" rx="1"/>
+  <!-- rivet dots -->
+  <circle cx="52" cy="66" r="1.2"/>
+  <circle cx="68" cy="62" r="1.2"/>
+  <circle cx="108" cy="66" r="1.2"/>
+  <circle cx="92" cy="62" r="1.2"/>
+  <!-- topstitching lines along outseam -->
+  <line x1="40" y1="90" x2="32" y2="194" stroke-dasharray="4 3"/>
+  <line x1="120" y1="90" x2="128" y2="194" stroke-dasharray="4 3"/>
+  <!-- stacking creases at hem -->
+  <path d="M36,178 Q52,174 68,178" stroke-dasharray="3 4"/>
+  <path d="M92,178 Q108,174 124,178" stroke-dasharray="3 4"/>
+  <path d="M34,186 Q50,182 70,186" stroke-dasharray="3 4"/>
+  <path d="M90,186 Q110,182 126,186" stroke-dasharray="3 4"/>
+</svg>

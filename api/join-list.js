@@ -2,6 +2,10 @@
 // Adds an email to the newsletter list and sends a welcome email via Resend
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
+import { rateLimit } from './_rate-limit.js';
+import { enqueueWelcomeSequence } from './email-opt-in.js';
+
+const limiter = rateLimit({ windowMs: 60_000, max: 5 });
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -9,6 +13,7 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  if (limiter(req, res)) return;
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -20,19 +25,25 @@ export default async function handler(req, res) {
 
   const normalized = email.trim().toLowerCase();
 
-  // Upsert into newsletter table — ignore duplicates
+  // Upsert into newsletter table with marketing opt-in
   const { error: dbErr } = await supabase
     .from('newsletter')
-    .upsert({ email: normalized }, { onConflict: 'email', ignoreDuplicates: true });
+    .upsert(
+      { email: normalized, marketing_opt_in: true },
+      { onConflict: 'email', ignoreDuplicates: false },
+    );
 
   if (dbErr) {
     console.error('Newsletter upsert failed:', dbErr);
     return res.status(500).json({ error: 'Could not save email' });
   }
 
-  // Send welcome email using the shared template (fire-and-forget)
-  sendEmail('WELCOME', normalized, {})
-    .catch(err => console.error('Welcome email failed:', err));
+  // Send Day 0 welcome email and enqueue the full welcome sequence
+  sendEmail('WELCOME_SEQUENCE_DAY_0', normalized, {})
+    .catch(err => console.error('Welcome Day 0 email failed:', err));
+
+  enqueueWelcomeSequence(normalized)
+    .catch(err => console.error('Welcome sequence enqueue failed:', err));
 
   res.status(200).json({ ok: true });
 }
