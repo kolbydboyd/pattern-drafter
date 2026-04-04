@@ -670,13 +670,15 @@ export function peakLapelCurve({
   const lapelOuterMid = { x: -lapelWidth, y: midY };
 
   // The lapel outline runs: breakPoint → outer edge → peakTip → gorgePoint
+  // Points between widest point and break must create distinct turn angles —
+  // near-parallel edges cause offsetPolygon miter explosions. Keeping just
+  // one clean turn at the widest point and one on the upper edge avoids this.
   const lapelPoints = [
     breakPoint,
-    { x: -lapelWidth * 0.7, y: breakPointY * 0.9 },  // lower outer curve
-    lapelOuterMid,                                     // widest point
+    lapelOuterMid,                                      // widest point
     { x: -lapelWidth * 0.85, y: (midY + gorgePoint.y) / 2 }, // upper outer
-    peakTip,                                           // peak tip
-    gorgePoint,                                        // gorge
+    peakTip,                                            // peak tip
+    gorgePoint,                                         // gorge
   ];
 
   return { lapelPoints, gorgePoint, peakTip, breakPoint };

@@ -466,7 +466,7 @@ export function renderGenericPieceSVG(piece) {
   }
 
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
-  const saPoly = offsetPolygon(polygon, (i, a, b) => {
+  const saPoly = piece.saPolygon || offsetPolygon(polygon, (i, a, b) => {
     if (edgeAllowances && edgeAllowances[i]) return -edgeAllowances[i].sa;
     // Fold edge: both endpoints at x = minX — no SA, the fold is not a seam
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
@@ -578,7 +578,17 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}
+    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
+      // Roll/fold line annotation (e.g. lapel break line)
+      piece.rollLine ? (() => {
+        const r = piece.rollLine;
+        const a = toSVG(r.from), b = toSVG(r.to);
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const angle = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+        return `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
+          <text x="${mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#4a8a5a" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${mx.toFixed(1)},${(my - 4).toFixed(1)})">${r.label || 'roll line'}</text>`;
+      })() : ''
+    }
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
