@@ -503,7 +503,10 @@ html:has(#landing:not([style*="display:none"])),body:has(#landing:not([style*="d
 .acct-meas-chip-lbl{color:var(--mid)}
 .acct-meas-chip-val{color:var(--gold);font-weight:600;font-family:'IBM Plex Mono',monospace}
 .acct-edit-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.acct-edit-lbl{width:60px;font-size:.78rem;color:var(--mid);flex-shrink:0}
+.acct-edit-lbl{width:140px;font-size:.78rem;color:var(--mid);flex-shrink:0}
+.acct-edit-cat-heading{font-family:'Fraunces',serif;font-size:.82rem;font-weight:400;color:var(--gold);margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)}
+.acct-edit-cat-heading:first-child{margin-top:4px}
+.acct-edit-optional{font-size:.6rem;color:var(--mid);font-style:italic}
 .acct-btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--mid)}
 .acct-btn-ghost:hover{border-color:var(--gold);color:var(--text)}
 .acct-profile-actions{display:flex;gap:6px}

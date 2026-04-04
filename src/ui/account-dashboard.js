@@ -1,4 +1,5 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
+import { MEASUREMENTS } from '../engine/measurements.js';
 import { getUser, signOut, getSession } from '../lib/auth.js';
 import {
   getMeasurementProfiles, saveMeasurementProfile,
@@ -112,16 +113,16 @@ async function _showSection(section) {
 
 // ── 1. My Measurements ────────────────────────────────────────────────────────
 function _keyMeasHtml(m) {
-  const fields = [
-    { key: 'chest', label: 'Chest' },
-    { key: 'waist', label: 'Waist' },
-    { key: 'hip',   label: 'Hip'   },
-  ];
-  const chips = fields
-    .filter(f => m[f.key])
-    .map(f => `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">${f.label}</span><span class="acct-meas-chip-val">${m[f.key]}"</span></span>`)
+  const chips = Object.entries(MEASUREMENTS)
+    .filter(([key]) => m[key] != null)
+    .map(([key, def]) =>
+      `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">${def.label}</span><span class="acct-meas-chip-val">${m[key]}"</span></span>`)
     .join('');
-  return chips ? `<div class="acct-meas-chips">${chips}</div>` : '';
+  const heightChip = m.height
+    ? `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">Height</span><span class="acct-meas-chip-val">${m.height}"</span></span>`
+    : '';
+  const all = heightChip + chips;
+  return all ? `<div class="acct-meas-chips">${all}</div>` : '';
 }
 
 async function _renderMeasurements(main, user) {
@@ -240,19 +241,39 @@ async function _renderMeasurements(main, user) {
 }
 
 function _showEditProfileModal(user, profileId, currentName, currentMeas) {
-  const EDIT_FIELDS = [
-    { key: 'chest',  label: 'Chest'  },
-    { key: 'waist',  label: 'Waist'  },
-    { key: 'hip',    label: 'Hip'    },
-    { key: 'inseam', label: 'Inseam' },
-    { key: 'height', label: 'Height' },
+  const categories = [
+    { heading: 'Upper Body', items: [] },
+    { heading: 'Lower Body', items: [] },
+    { heading: 'Full Body',  items: [] },
   ];
-  const fieldsHtml = EDIT_FIELDS.map(f => `
-    <div class="acct-edit-row">
-      <label class="acct-edit-lbl">${f.label}</label>
-      <input class="acct-input acct-edit-meas" type="number" data-key="${f.key}"
-        value="${currentMeas[f.key] ?? ''}" placeholder="inches" step="0.25" min="0">
-    </div>`).join('');
+  const catMap = { upper: categories[0], lower: categories[1], full: categories[2] };
+  for (const [key, def] of Object.entries(MEASUREMENTS)) {
+    const cat = catMap[def.category];
+    if (cat) cat.items.push({ key, ...def });
+  }
+
+  let fieldsHtml = '';
+  if (currentMeas.height) {
+    fieldsHtml += `
+      <div class="acct-edit-row">
+        <label class="acct-edit-lbl">Height</label>
+        <input class="acct-input acct-edit-meas" type="number" data-key="height"
+          value="${currentMeas.height ?? ''}" placeholder="inches" step="0.5" min="0">
+      </div>`;
+  }
+  for (const cat of categories) {
+    if (!cat.items.length) continue;
+    fieldsHtml += `<div class="acct-edit-cat-heading">${cat.heading}</div>`;
+    fieldsHtml += cat.items.map(f => {
+      const optTag = f.optional ? ' <span class="acct-edit-optional">(optional)</span>' : '';
+      return `
+      <div class="acct-edit-row" title="${f.instruction}">
+        <label class="acct-edit-lbl">${f.label}${optTag}</label>
+        <input class="acct-input acct-edit-meas" type="number" data-key="${f.key}"
+          value="${currentMeas[f.key] ?? ''}" placeholder="inches" step="${f.step}" min="${f.min}" max="${f.max}">
+      </div>`;
+    }).join('');
+  }
 
   const { overlay, close } = _showModal({
     title: 'Edit Profile',
