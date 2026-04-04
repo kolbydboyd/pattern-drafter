@@ -358,6 +358,7 @@ export default {
         id: 'binding-strip', name: 'Top Binding Strip',
         instruction: `Cut 1 (on bias) · ${fmtInches(bindLen)} long × 2½″ wide · Encloses top raw edge`,
         type: 'rectangle',
+        grainAngle: 45,
         dimensions: { length: bindLen, width: 2.5 },
         sa: 0,
       });
