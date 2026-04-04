@@ -17,6 +17,18 @@ import {
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 
+// ── Sync profile to wizard localStorage so dropdown stays current ─────────────
+const PROFILES_KEY = 'pd-profiles';
+function _syncProfileToLocal(id, name, measurements) {
+  try {
+    const local = JSON.parse(localStorage.getItem(PROFILES_KEY)) || [];
+    const idx = local.findIndex(p => p.id === id || p.name === name);
+    const flat = { id, name, ...measurements };
+    if (idx >= 0) local[idx] = flat; else local.push(flat);
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+  } catch { /* best effort */ }
+}
+
 // ── Toast feedback ────────────────────────────────────────────────────────────
 function _showToast(msg) {
   const t = document.createElement('div');
@@ -205,11 +217,12 @@ async function _renderMeasurements(main, user) {
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
-    const { error } = await saveMeasurementProfile(user.id, name, {});
+    const { data: created, error } = await saveMeasurementProfile(user.id, name, {});
     btn.disabled = false;
     btn.textContent = orig;
 
     if (error) { alert('Could not save profile: ' + error.message); return; }
+    if (created) _syncProfileToLocal(created.id, name, {});
     if (nameInput) nameInput.value = '';
     _showToast('Profile created');
     setTimeout(() => _showSection('measurements'), 900);
@@ -323,6 +336,7 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
     }
     saveBtn.disabled = false; saveBtn.textContent = 'Save';
     if (error) { alert('Could not save: ' + error.message); return; }
+    _syncProfileToLocal(profileId, name, newMeas);
 
     // Log measurement deltas for data tracking
     if (measChanged) {
