@@ -420,7 +420,7 @@ export default {
     // Belt/sash
     if (opts.belt === 'sash') {
       const sashLen = (m.waist || 28) * 3 + 20;
-      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', sa });
+      pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', grainAngle: 45, sa });
       pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket', sa });
     } else if (opts.belt === 'belt') {
       const beltLen = (m.waist || 28) + 10;

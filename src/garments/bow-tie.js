@@ -69,18 +69,20 @@ export default {
     // Bow body
     pieces.push({
       id: 'bow-body', name: 'Bow Body',
-      instruction: `Cut 1 · ${fmtInches(bowCutL)} long × ${fmtInches(bowCutW)} wide · Fold in half lengthwise {WST}, sew long edge, turn, {press} with seam centered on back`,
+      instruction: `Cut 1 on bias · ${fmtInches(bowCutL)} long × ${fmtInches(bowCutW)} wide · Fold in half lengthwise {WST}, sew long edge, turn, {press} with seam centered on back`,
       type: 'rectangle',
       dimensions: { length: bowCutL, width: bowCutW },
+      grainAngle: 45,
       sa,
     });
 
     // Center knot wrap
     pieces.push({
       id: 'knot-wrap', name: 'Center Knot',
-      instruction: `Cut 1 · ${fmtInches(knotL)} long × ${fmtInches(knotW)} wide · Fold in thirds lengthwise, {press} · Wraps around gathered center of bow`,
+      instruction: `Cut 1 on bias · ${fmtInches(knotL)} long × ${fmtInches(knotW)} wide · Fold in thirds lengthwise, {press} · Wraps around gathered center of bow`,
       type: 'rectangle',
       dimensions: { length: knotL, width: knotW },
+      grainAngle: 45,
       sa: 0,
     });
 

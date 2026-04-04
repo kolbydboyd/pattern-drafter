@@ -426,6 +426,7 @@ export default {
         instruction: 'Cut 2 (mirror at CB) · Bias cut · 2% smaller than upper collar for seam roll · Interface with knit fusible',
         type: 'bodice',
         isCutOnFold: false,
+        grainAngle: 45,
         polygon: underCollar,
         path: polyToPathStr(underCollar),
         width: standLength / 1.02,
