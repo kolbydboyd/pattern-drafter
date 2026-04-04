@@ -181,8 +181,8 @@ export default {
       });
     }
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric or lining \xb7 Visible pocket front \xb7 {serge} before attaching' }));
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric or lining \xb7 Visible pocket front \xb7 {serge} before attaching' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });

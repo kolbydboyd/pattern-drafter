@@ -226,8 +226,8 @@ export default {
       pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {serge} edge', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
     }
     if (opts.pockets === 'slant') {
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Interface \xb7 Visible pocket front' }));
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Interface \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 7, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     } else if (opts.pockets === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Lining fabric', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
