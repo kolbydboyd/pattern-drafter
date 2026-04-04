@@ -120,7 +120,7 @@ export default {
     // For jogger: taper to ~55% of panel width at hem (similar to slim shape)
     const shape = isJogger ? { knee: 0.82, hem: 0.58 } : { knee: 1.0, hem: 1.0 };
 
-    let frontW = m.hip / 4 + easeFront;
+    let frontW = m.hip / 4 + easeFront + 0.5;
     let backW  = m.hip / 4 + easeBack;
 
     // Thigh ease check

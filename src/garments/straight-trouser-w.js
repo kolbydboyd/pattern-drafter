@@ -150,15 +150,16 @@ export default {
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
-    const crotchEase = 0.75; // ease below body rise — prevents fabric pulling tight against crotch
-    const rise      = parseFloat(opts.riseOverride) || (baseRise + riseOff + crotchEase);
+    const crotchEase = 1.25; // ease below body rise — prevents fabric pulling tight against crotch
+    const rawRise   = parseFloat(opts.riseOverride) || (baseRise + riseOff);
+    const rise      = rawRise + crotchEase;
     const baseInseam = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 30);
     const inseam = baseInseam - (opts.hemStyle === 'crop' ? 2 : 0);
 
     const numPleats  = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const pleatExtra = numPleats * PLEAT_DEPTH;
 
-    let frontHipW   = m.hip / 4 + ease.front + pleatExtra;
+    let frontHipW   = m.hip / 4 + ease.front + 0.5 + pleatExtra;
     let backHipW    = m.hip / 4 + ease.back;
 
     // Thigh ease check
