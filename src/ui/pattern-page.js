@@ -3,6 +3,7 @@
 
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+import { initAuthModal } from './auth-modal.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
@@ -15,6 +16,9 @@ document.getElementById('theme-btn')?.addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
   localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
 });
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+initAuthModal();
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');

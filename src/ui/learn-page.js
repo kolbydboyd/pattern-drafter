@@ -2,6 +2,7 @@
 // Learn / blog page — handles /learn and /learn/[slug]
 
 import { ARTICLES } from '../content/articles.js';
+import { initAuthModal } from './auth-modal.js';
 
 const SITE_URL = 'https://peoplespatterns.com';
 const CATEGORY_LABELS = {
@@ -21,6 +22,9 @@ document.getElementById('theme-btn')?.addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
   localStorage.setItem(THEME_KEY, isDark ? '' : 'dark');
 });
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+initAuthModal();
 
 // ── Routing ───────────────────────────────────────────────────────────────────
 const pathParts = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');

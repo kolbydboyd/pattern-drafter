@@ -196,10 +196,14 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-footer .social-icon{color:var(--mid)}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
 .wiz-footer{margin-top:auto}
-/* Header nav links (pricing, patterns, learn pages) */
-.hdr-nav{display:flex;gap:20px;align-items:center;margin-left:auto}
-.hdr-link{font-family:'IBM Plex Mono',monospace;font-size:.67rem;letter-spacing:.5px;text-transform:uppercase;color:var(--hdr-text);text-decoration:none;opacity:.7;transition:opacity .15s}
-.hdr-link:hover{opacity:1;color:var(--gold)}
+/* Active page highlight in header nav */
+body[data-page="patterns"] #hdr-nav-desktop a[href="/patterns"],
+body[data-page="learn"] #hdr-nav-desktop a[href="/learn"],
+body[data-page="pricing"] #hdr-nav-desktop a[href="/pricing"],
+body[data-page="about"] #hdr-nav-desktop a[href="/about"],
+body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
+/* Footer margin-top for pages using flexbox layout */
+.land-footer{margin-top:auto}
 /* Frictionless signup error */
 .free-signup-err{font-size:.72rem;color:var(--accent);line-height:1.4;margin-top:4px}
 .email-gate-form input[type=password]{padding:8px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--ibg);font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text);outline:none}
