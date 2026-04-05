@@ -28,7 +28,7 @@ const root     = document.getElementById('pattern-page-root');
 if (!garment) {
   // Show all-patterns listing if no ID given, else 404
   if (!garmentId) {
-    renderPatternListing();
+    renderPatternListing().catch(() => {});
   } else {
     root.innerHTML = `
       <div class="pat-pg-notfound">
@@ -249,12 +249,19 @@ async function _loadUserData() {
   try {
     const { getUser } = await import('../lib/auth.js');
     const { getWishlist, getPurchases } = await import('../lib/db.js');
-    const { user } = await getUser();
+
+    // Timeout to prevent hanging if Supabase is slow or session is degraded
+    const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+
+    const { user } = await Promise.race([getUser(), timeout(6000)]);
     _currentUser = user || null;
     if (_currentUser) {
-      const [wishRes, purchRes] = await Promise.all([
-        getWishlist(_currentUser.id),
-        getPurchases(_currentUser.id),
+      const [wishRes, purchRes] = await Promise.race([
+        Promise.all([
+          getWishlist(_currentUser.id),
+          getPurchases(_currentUser.id),
+        ]),
+        timeout(6000),
       ]);
       _wishlistSet = new Set((wishRes.data || []).map(r => r.garment_id));
       _purchasedSet = new Set((purchRes.data || []).map(p => p.garment_id));
@@ -301,7 +308,6 @@ function _attachHeartHandlers(container) {
 
 async function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
-  await _loadUserData();
   const allGarments = Object.values(GARMENTS);
 
   function isWomenswear(g) { return g.id.endsWith('-w'); }
@@ -326,6 +332,20 @@ async function renderPatternListing() {
     }).join('');
   }
 
+  let _activeFilter = 'all';
+
+  function _renderGrid() {
+    const filtered = _activeFilter === 'all' ? allGarments
+      : _activeFilter === 'womenswear' ? allGarments.filter(isWomenswear)
+      : allGarments.filter(g => !isWomenswear(g));
+    const grid = document.getElementById('pat-listing-grid');
+    if (grid) {
+      grid.innerHTML = buildCards(filtered);
+      _attachHeartHandlers(grid);
+    }
+  }
+
+  // Render the grid immediately (without user data) so the page is never blank
   root.innerHTML = `
     <div class="pat-pg-wrap">
       <h1 class="pat-pg-listing-title">All Patterns</h1>
@@ -347,13 +367,12 @@ async function renderPatternListing() {
       });
       btn.classList.add('filter-tab-active');
       btn.setAttribute('aria-selected', 'true');
-      const filter = btn.dataset.filter;
-      const filtered = filter === 'all' ? allGarments
-        : filter === 'womenswear' ? allGarments.filter(isWomenswear)
-        : allGarments.filter(g => !isWomenswear(g));
-      const grid = document.getElementById('pat-listing-grid');
-      grid.innerHTML = buildCards(filtered);
-      _attachHeartHandlers(grid);
+      _activeFilter = btn.dataset.filter;
+      _renderGrid();
     });
   });
+
+  // Load user data in background and re-render with owned/wishlist badges
+  await _loadUserData();
+  _renderGrid();
 }
