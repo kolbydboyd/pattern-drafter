@@ -79,12 +79,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://peoplespatterns.com/patterns/baggy-shorts</loc>
-    <lastmod>2026-04-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://peoplespatterns.com/patterns/straight-jeans</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
@@ -97,7 +91,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://peoplespatterns.com/patterns/baggy-shorts</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://peoplespatterns.com/patterns/chinos</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/874-work-pants</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -127,6 +133,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://peoplespatterns.com/patterns/button-up</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://peoplespatterns.com/patterns/crewneck</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
@@ -145,7 +157,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://peoplespatterns.com/patterns/athletic-formal-jacket</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://peoplespatterns.com/patterns/denim-jacket</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/cargo-work-pants</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -211,13 +235,37 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://peoplespatterns.com/patterns/cargo-work-pants</loc>
+    <loc>https://peoplespatterns.com/patterns/apron</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://peoplespatterns.com/patterns/athletic-formal-jacket</loc>
+    <loc>https://peoplespatterns.com/patterns/bow-tie</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/tank-top</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/circle-skirt-w</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/pencil-skirt-w</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/leggings</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -254,6 +302,18 @@
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/tote-bag</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/linen-shirt</loc>
+    <lastmod>2026-04-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/chambray-work-shirt</loc>
     <lastmod>2026-04-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

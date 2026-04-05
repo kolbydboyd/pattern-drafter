@@ -792,7 +792,9 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 /* ── Pattern detail page ── */
 .pat-pg-root{min-height:calc(100vh - 64px - 56px);display:flex;flex-direction:column}
 .pat-pg-wrap{max-width:1080px;margin:0 auto;padding:48px 20px 64px;flex:1;width:100%}
-.pat-pg-breadcrumb{font-size:.78rem;color:var(--mid);margin-bottom:24px;display:flex;gap:6px;align-items:center}
+.pat-pg-breadcrumb{font-size:.78rem;color:var(--mid);margin-bottom:24px}
+.pat-pg-breadcrumb ol{display:flex;gap:6px;align-items:center;list-style:none;margin:0;padding:0}
+.pat-pg-breadcrumb li::before{content:"/";margin-right:6px;color:var(--mid)}.pat-pg-breadcrumb li:first-child::before{content:none;margin-right:0}
 .pat-pg-breadcrumb a{color:var(--mid);text-decoration:none}.pat-pg-breadcrumb a:hover{color:var(--text)}
 .pat-pg-hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:48px;align-items:start}
 @media(max-width:640px){.pat-pg-hero{grid-template-columns:1fr}}

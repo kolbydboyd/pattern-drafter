@@ -4,6 +4,7 @@
 import '../analytics.js';
 import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+import SEO_DESCRIPTIONS from '../garments/seo-descriptions.js';
 import { renderMakesGallery, extractTesters, renderAsSeenOn } from './real-makes.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
@@ -144,12 +145,12 @@ const relatedCards = related.map(g => {
 root.innerHTML = `
 <div class="pat-pg-wrap">
 
-  <nav class="pat-pg-breadcrumb">
-    <a href="/">Home</a>
-    <span>/</span>
-    <a href="/patterns">Patterns</a>
-    <span>/</span>
-    <span>${garment.name}</span>
+  <nav class="pat-pg-breadcrumb" aria-label="Breadcrumb">
+    <ol>
+      <li><a href="/">Home</a></li>
+      <li><a href="/patterns">Patterns</a></li>
+      <li>${garment.name}</li>
+    </ol>
   </nav>
 
   <div class="pat-pg-hero">
@@ -168,7 +169,7 @@ root.innerHTML = `
 
       <h1 class="pat-pg-name">${garment.name}</h1>
 
-      <p class="pat-pg-tagline">Custom-fit sewing pattern drafted to your exact measurements.</p>
+      <p class="pat-pg-tagline">${SEO_DESCRIPTIONS[garmentId]?.pageIntro || 'Custom-fit sewing pattern drafted to your exact measurements.'}</p>
 
       <a href="/?step=1&garment=${garmentId}" class="btn-primary pat-pg-generate-btn pat-pg-generate-lg">
         Generate This Pattern
