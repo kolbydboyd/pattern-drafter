@@ -9,7 +9,7 @@ import swimTrunks   from './swim-trunks.js';
 import pleatedShorts from './pleated-shorts.js';
 import straightJeans from './straight-jeans.js';
 import chinos        from './chinos.js';
-import dickies874    from './dickies-874.js';
+import workPants874  from './874-work-pants.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
 import tee           from './tee.js';
@@ -36,7 +36,7 @@ const GARMENTS = {
   'pleated-shorts':       pleatedShorts,
   'straight-jeans':       straightJeans,
   'chinos':               chinos,
-  'dickies-874':          dickies874,
+  '874-work-pants':       workPants874,
   'pleated-trousers':     pleatedTrousers,
   'sweatpants':           sweatpants,
   'tee':                  tee,

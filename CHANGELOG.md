@@ -6,7 +6,7 @@ All notable changes are documented here, newest first.
 
 ## [0.8.1] — 2026-04-05
 
-### New garment: Dickies 874 Original Work Pants
+### New garment: 874 Work Pants
 - Based on chinos module with 874-specific adaptations
 - High rise default (+1.5", 11.5" effective), relaxed fit (+6" ease), slight taper (0.95/0.90 knee/hem ratios)
 - 1.75" finished waistband with hook-and-eye + button closure, +2" overlap

@@ -1,6 +1,6 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
- * Dickies 874 Original Work Pants - iconic workwear trousers.
+ * 874 Work Pants - classic American workwear trousers.
  * High rise (11.5" default), relaxed fit (+6" ease), slight taper.
  * Slant front pockets, welt back pockets x2 with button, zip fly.
  * Hook-and-eye + button waistband closure, 1.75" finished waistband.
@@ -19,8 +19,8 @@ import { buildMaterialsSpec } from '../engine/materials.js';
 const LEG_874 = { knee: 0.95, hem: 0.90 };
 
 export default {
-  id: 'dickies-874',
-  name: 'Dickies 874 Work Pants',
+  id: '874-work-pants',
+  name: '874 Work Pants',
   category: 'lower',
   difficulty: 'advanced',
   priceTier: 'core',
