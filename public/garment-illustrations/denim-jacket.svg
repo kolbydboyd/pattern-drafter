@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- collar -->
+  <path d="M66,36 L74,50 L80,42 L86,50 L94,36"/>
+  <path d="M72,36 L80,28 L88,36"/>
+  <!-- body + sleeves -->
+  <path d="M66,36 L38,56 L34,126 L52,126 L52,152 L108,152 L108,126 L128,126 L122,56 L94,36"/>
+  <!-- center button placket -->
+  <line x1="80" y1="42" x2="80" y2="152"/>
+  <!-- buttons -->
+  <circle cx="80" cy="62" r="2"/>
+  <circle cx="80" cy="82" r="2"/>
+  <circle cx="80" cy="102" r="2"/>
+  <circle cx="80" cy="122" r="2"/>
+  <circle cx="80" cy="142" r="2"/>
+  <!-- back yoke line -->
+  <path d="M56,62 Q80,56 104,62"/>
+  <!-- left chest flap pocket -->
+  <rect x="56" y="72" width="20" height="16" rx="1"/>
+  <line x1="56" y1="72" x2="76" y2="72"/>
+  <circle cx="66" cy="70" r="1.2"/>
+  <!-- right chest flap pocket -->
+  <rect x="84" y="72" width="20" height="16" rx="1"/>
+  <line x1="84" y1="72" x2="104" y2="72"/>
+  <circle cx="94" cy="70" r="1.2"/>
+  <!-- sleeve cuffs -->
+  <rect x="34" y="118" width="18" height="10" rx="2"/>
+  <rect x="108" y="118" width="20" height="10" rx="2"/>
+  <!-- waist tabs -->
+  <rect x="52" y="144" width="10" height="8" rx="1"/>
+  <rect x="98" y="144" width="10" height="8" rx="1"/>
+</svg>
