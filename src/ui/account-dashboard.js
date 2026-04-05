@@ -1,4 +1,5 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
+import { MEASUREMENTS } from '../engine/measurements.js';
 import { getUser, signOut, getSession } from '../lib/auth.js';
 import {
   getMeasurementProfiles, saveMeasurementProfile,
@@ -10,8 +11,23 @@ import {
   getDaysUntilDeletion,
   getWishlist, removeFromWishlist,
   getSubscription, getTotalCredits,
+  logMeasurementDelta,
+  getTesterApplication, getTesterAssignments, getTesterSubmissions,
+  updateTesterAssignment, getTesterProfile,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
+
+// ── Sync profile to wizard localStorage so dropdown stays current ─────────────
+const PROFILES_KEY = 'pd-profiles';
+function _syncProfileToLocal(id, name, measurements) {
+  try {
+    const local = JSON.parse(localStorage.getItem(PROFILES_KEY)) || [];
+    const idx = local.findIndex(p => p.id === id || p.name === name);
+    const flat = { id, name, ...measurements };
+    if (idx >= 0) local[idx] = flat; else local.push(flat);
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
+  } catch { /* best effort */ }
+}
 
 // ── Toast feedback ────────────────────────────────────────────────────────────
 function _showToast(msg) {
@@ -49,7 +65,9 @@ export function openAccountDashboard(section = 'measurements') {
               <button class="acct-nav-item" data-section="wishlist">Wishlist</button>
               <button class="acct-nav-item" data-section="subscription">Subscription</button>
               <button class="acct-nav-item" data-section="orders">Orders</button>
-              <button class="acct-nav-item" data-section="giftcards">Gift Cards</button>
+              <button class="acct-nav-item" data-section="giftcards">Gift Cards & Codes</button>
+              <button class="acct-nav-item" data-section="tester">Tester Program</button>
+              <button class="acct-nav-item" data-section="affiliate">Affiliate</button>
               <button class="acct-nav-item" data-section="settings">Account Settings</button>
             </nav>
             <button class="acct-close-btn" id="acct-close">✕ Close</button>
@@ -98,6 +116,8 @@ async function _showSection(section) {
     case 'subscription': await _renderSubscription(main, user); break;
     case 'orders':       await _renderOrders(main, user); break;
     case 'giftcards':    await _renderGiftCards(main, user); break;
+    case 'tester':       await _renderTester(main, user); break;
+    case 'affiliate':    await _renderAffiliate(main, user); break;
     case 'settings':     await _renderSettings(main, user); break;
     default:             main.innerHTML = `<p class="acct-empty">Unknown section.</p>`;
   }
@@ -105,16 +125,16 @@ async function _showSection(section) {
 
 // ── 1. My Measurements ────────────────────────────────────────────────────────
 function _keyMeasHtml(m) {
-  const fields = [
-    { key: 'chest', label: 'Chest' },
-    { key: 'waist', label: 'Waist' },
-    { key: 'hip',   label: 'Hip'   },
-  ];
-  const chips = fields
-    .filter(f => m[f.key])
-    .map(f => `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">${f.label}</span><span class="acct-meas-chip-val">${m[f.key]}"</span></span>`)
+  const chips = Object.entries(MEASUREMENTS)
+    .filter(([key]) => m[key] != null)
+    .map(([key, def]) =>
+      `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">${def.label}</span><span class="acct-meas-chip-val">${m[key]}"</span></span>`)
     .join('');
-  return chips ? `<div class="acct-meas-chips">${chips}</div>` : '';
+  const heightChip = m.height
+    ? `<span class="acct-meas-chip"><span class="acct-meas-chip-lbl">Height</span><span class="acct-meas-chip-val">${m.height}"</span></span>`
+    : '';
+  const all = heightChip + chips;
+  return all ? `<div class="acct-meas-chips">${all}</div>` : '';
 }
 
 async function _renderMeasurements(main, user) {
@@ -184,16 +204,25 @@ async function _renderMeasurements(main, user) {
     const name = nameInput?.value.trim();
     if (!name) { nameInput?.focus(); return; }
 
+    // Check for duplicate name among active and archived profiles
+    const allProfiles = [...active, ...archived];
+    if (allProfiles.some(p => p.name === name)) {
+      alert(`A profile named "${name}" already exists. Please choose a different name.`);
+      nameInput.focus(); nameInput.select();
+      return;
+    }
+
     const btn = document.getElementById('acct-add-profile-btn');
     const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Saving…';
 
-    const { error } = await saveMeasurementProfile(user.id, name, {});
+    const { data: created, error } = await saveMeasurementProfile(user.id, name, {});
     btn.disabled = false;
     btn.textContent = orig;
 
     if (error) { alert('Could not save profile: ' + error.message); return; }
+    if (created) _syncProfileToLocal(created.id, name, {});
     if (nameInput) nameInput.value = '';
     _showToast('Profile created');
     setTimeout(() => _showSection('measurements'), 900);
@@ -225,19 +254,39 @@ async function _renderMeasurements(main, user) {
 }
 
 function _showEditProfileModal(user, profileId, currentName, currentMeas) {
-  const EDIT_FIELDS = [
-    { key: 'chest',  label: 'Chest'  },
-    { key: 'waist',  label: 'Waist'  },
-    { key: 'hip',    label: 'Hip'    },
-    { key: 'inseam', label: 'Inseam' },
-    { key: 'height', label: 'Height' },
+  const categories = [
+    { heading: 'Upper Body', items: [] },
+    { heading: 'Lower Body', items: [] },
+    { heading: 'Full Body',  items: [] },
   ];
-  const fieldsHtml = EDIT_FIELDS.map(f => `
-    <div class="acct-edit-row">
-      <label class="acct-edit-lbl">${f.label}</label>
-      <input class="acct-input acct-edit-meas" type="number" data-key="${f.key}"
-        value="${currentMeas[f.key] ?? ''}" placeholder="inches" step="0.25" min="0">
-    </div>`).join('');
+  const catMap = { upper: categories[0], lower: categories[1], full: categories[2] };
+  for (const [key, def] of Object.entries(MEASUREMENTS)) {
+    const cat = catMap[def.category];
+    if (cat) cat.items.push({ key, ...def });
+  }
+
+  let fieldsHtml = '';
+  if (currentMeas.height) {
+    fieldsHtml += `
+      <div class="acct-edit-row">
+        <label class="acct-edit-lbl">Height</label>
+        <input class="acct-input acct-edit-meas" type="number" data-key="height"
+          value="${currentMeas.height ?? ''}" placeholder="inches" step="0.5" min="0">
+      </div>`;
+  }
+  for (const cat of categories) {
+    if (!cat.items.length) continue;
+    fieldsHtml += `<div class="acct-edit-cat-heading">${cat.heading}</div>`;
+    fieldsHtml += cat.items.map(f => {
+      const optTag = f.optional ? ' <span class="acct-edit-optional">(optional)</span>' : '';
+      return `
+      <div class="acct-edit-row" title="${f.instruction}">
+        <label class="acct-edit-lbl">${f.label}${optTag}</label>
+        <input class="acct-input acct-edit-meas" type="number" data-key="${f.key}"
+          value="${currentMeas[f.key] ?? ''}" placeholder="inches" step="${f.step}" min="${f.min}" max="${f.max}">
+      </div>`;
+    }).join('');
+  }
 
   const { overlay, close } = _showModal({
     title: 'Edit Profile',
@@ -255,6 +304,18 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
   overlay.querySelector('#edit-prof-save').addEventListener('click', async () => {
     const name = overlay.querySelector('#edit-profile-name').value.trim();
     if (!name) { overlay.querySelector('#edit-profile-name').focus(); return; }
+
+    // Check for duplicate name if renamed (exclude this profile)
+    if (name !== currentName) {
+      const { data: allProfiles } = await getMeasurementProfiles(user.id);
+      const dup = (allProfiles || []).find(p => p.name === name && p.id !== profileId);
+      if (dup) {
+        alert(`A profile named "${name}" already exists. Please choose a different name.`);
+        overlay.querySelector('#edit-profile-name').focus();
+        return;
+      }
+    }
+
     const newMeas = { ...currentMeas };
     overlay.querySelectorAll('.acct-edit-meas').forEach(el => {
       const v = parseFloat(el.value);
@@ -275,6 +336,22 @@ function _showEditProfileModal(user, profileId, currentName, currentMeas) {
     }
     saveBtn.disabled = false; saveBtn.textContent = 'Save';
     if (error) { alert('Could not save: ' + error.message); return; }
+    _syncProfileToLocal(profileId, name, newMeas);
+
+    // Log measurement deltas for data tracking
+    if (measChanged) {
+      const deltas = {};
+      const allKeys = new Set([...Object.keys(currentMeas), ...Object.keys(newMeas)]);
+      for (const k of allKeys) {
+        const o = currentMeas[k] ?? null;
+        const n = newMeas[k] ?? null;
+        if (o !== n) deltas[k] = { old: o, new: n };
+      }
+      if (Object.keys(deltas).length) {
+        logMeasurementDelta(user.id, profileId, deltas);
+      }
+    }
+
     close();
 
     if (measChanged) {
@@ -316,7 +393,7 @@ function _showRegenAllBanner(user, profileId, profileName, newMeas) {
         await fetch('/api/regenerate-pattern', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({ garmentId: p.garment_id, userId: user.id, purchaseId: p.id, measurements: newMeas, opts: {} }),
+          body: JSON.stringify({ garmentId: p.garment_id, purchaseId: p.id, measurements: newMeas, opts: {} }),
         });
         done++;
       } catch { /* skip failed */ }
@@ -473,7 +550,14 @@ async function _renderPatterns(main, user, tab = 'active') {
           a0.href = json.a0DownloadUrl; a0.download = `${garmentId}-pattern-a0.pdf`;
           document.body.appendChild(a0); a0.click(); a0.remove();
         }, 800);
-        _showToast('Letter PDF + A0 copy-shop file downloading');
+        if (json.projectorDownloadUrl) {
+          setTimeout(() => {
+            const pj = document.createElement('a');
+            pj.href = json.projectorDownloadUrl; pj.download = `${garmentId}-pattern-projector.pdf`;
+            document.body.appendChild(pj); pj.click(); pj.remove();
+          }, 1600);
+        }
+        _showToast('Letter PDF + A0 + projector files downloading');
       } else {
         _showToast('Download started');
       }
@@ -506,6 +590,29 @@ async function _renderPatterns(main, user, tab = 'active') {
       const meas  = JSON.parse(card?.dataset.measurements || '{}');
       const profName = card?.dataset.profileName || '';
       _showRegenModal(user, garmentId, purchaseId, meas, profName, () => _renderPatterns(main, user, tab));
+    });
+  });
+
+  // A0 upsell button
+  main.querySelectorAll('.pat-a0-upsell-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = 'Redirecting\u2026';
+      try {
+        const { session } = await getSession();
+        const res = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: btn.dataset.purchaseId, userId: user.id }),
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) { _showToast(json.error || 'Checkout failed'); btn.disabled = false; btn.textContent = 'Add A0 (+$4)'; return; }
+        window.location.href = json.url;
+      } catch {
+        _showToast('Could not start checkout. Try again.');
+        btn.disabled = false;
+        btn.textContent = 'Add A0 (+$4)';
+      }
     });
   });
 
@@ -671,8 +778,12 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         ? `<button class="acct-btn-xs pat-feedback-btn pat-feedback-done" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">Fit: submitted ✓</button>`
         : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
       : '';
+    const a0Btn = !p.a0_addon
+      ? `<button class="acct-btn-xs pat-a0-upsell-btn" data-purchase-id="${p.id}">Add A0 (+$4)</button>`
+      : '';
     actionHtml = `
       <button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>
+      ${a0Btn}
       <button class="acct-btn-sm pat-regen-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-generate</button>
       ${fbBtn}
       <div class="pat-overflow-wrap">
@@ -798,9 +909,11 @@ function _showRegenModal(user, garmentId, purchaseId, measurements, profileName,
   confirmBtn.addEventListener('click', async () => {
     confirmBtn.disabled = true; confirmBtn.textContent = 'Generating…';
     try {
+      const { session } = await getSession();
       const res  = await fetch('/api/regenerate-pattern', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garmentId, userId: user.id, purchaseId, measurements, opts: {} }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ garmentId, purchaseId, measurements, opts: {} }),
       });
       const json = await res.json();
       if (!res.ok || json.error) {
@@ -868,10 +981,10 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
 // ── Fit Feedback modal ────────────────────────────────────────────────────────
 function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
   const OVERALL_OPTS = [
-    { value: 'perfect',          label: 'Perfect - no changes needed' },
-    { value: 'good',             label: 'Good - minor tweaks only' },
-    { value: 'needs_adjustment', label: 'Needs adjustment - a few areas off' },
-    { value: 'poor',             label: 'Poor - significant fitting issues' },
+    { value: 'perfect',          label: 'Perfect, no changes needed' },
+    { value: 'good',             label: 'Good, minor tweaks only' },
+    { value: 'needs_adjustment', label: 'Needs adjustment, a few areas off' },
+    { value: 'poor',             label: 'Poor, significant fitting issues' },
   ];
   const AREA_OPTS = [
     { key: 'chest_fit',  label: 'Chest'    },
@@ -965,7 +1078,7 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
 
 // ── Wardrobe progress (shown at the top of My Patterns) ──────────────────────
 const WARDROBE_CATEGORIES = [
-  { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts'] },
+  { key: 'shorts',    label: 'Shorts',    icon: '🩳', garments: ['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
   { key: 'pants',     label: 'Pants',     icon: '👖', garments: ['straight-jeans','chinos','pleated-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w'] },
   { key: 'tops',      label: 'Tops',      icon: '👕', garments: ['tee','camp-shirt','crewneck','hoodie','crop-jacket','denim-jacket','button-up-w','shell-blouse-w','fitted-tee-w'] },
   { key: 'skirts',    label: 'Skirts',    icon: '🌂', garments: ['slip-skirt-w','a-line-skirt-w'] },
@@ -1100,8 +1213,8 @@ async function _renderSubscription(main, user) {
       ${canceledNote}
       <p style="font-size:.9rem;margin:0 0 12px">Subscribe for monthly pattern credits at the best per-pattern price.</p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="acct-btn" id="acct-sub-club">Club — $12/mo (1 credit)</button>
-        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe — $24/mo (3 credits)</button>
+        <button class="acct-btn" id="acct-sub-club">Club · $12/mo (1 credit)</button>
+        <button class="acct-btn" id="acct-sub-wardrobe">Wardrobe · $24/mo (3 credits)</button>
       </div>
     </div>`;
   }
@@ -1111,8 +1224,8 @@ async function _renderSubscription(main, user) {
     <p style="font-size:.9rem;font-weight:600;margin:0 0 8px">Buy a bundle</p>
     <p style="font-size:.85rem;color:var(--muted,#8a857d);margin:0 0 12px">Credits never expire. Use on any pattern, any tier.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule — $29</button>
-      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe — $49</button>
+      <button class="acct-btn" id="acct-bundle-3">3-Pattern Capsule · $29</button>
+      <button class="acct-btn" id="acct-bundle-5">5-Pattern Wardrobe · $49</button>
     </div>
   </div>`;
 
@@ -1209,25 +1322,41 @@ async function _renderOrders(main, user) {
   main.innerHTML = html;
 }
 
-// ── 5. Gift Cards ─────────────────────────────────────────────────────────────
+// ── 5. Gift Cards & Codes ─────────────────────────────────────────────────────
 async function _renderGiftCards(main, user) {
-  const { data, error } = await supabase
-    .from('gift_cards')
-    .select('*')
-    .eq('redeemed_by', user.id);
+  const [gcRes, rcRes] = await Promise.all([
+    supabase.from('gift_cards').select('*').eq('redeemed_by', user.id),
+    supabase.from('redemption_codes').select('*').eq('redeemed_by', user.id),
+  ]);
 
-  let html = `<h2 class="acct-section-title">Gift Cards</h2>`;
+  let html = `<h2 class="acct-section-title">Gift Cards & Codes</h2>`;
 
-  if (!error && data?.length) {
-    html += `<div class="acct-gc-list">`;
-    for (const gc of data) {
+  // ── Redeemed gift cards ──
+  const giftCards = gcRes.data ?? [];
+  if (giftCards.length) {
+    html += `<h3 class="acct-sub-title">Gift Cards</h3><div class="acct-gc-list">`;
+    for (const gc of giftCards) {
       html += `<div class="acct-gc-row">Code: <strong>${gc.code}</strong> · $${(gc.amount_cents / 100).toFixed(2)} · Redeemed ${new Date(gc.redeemed_at).toLocaleDateString()}</div>`;
     }
     html += `</div>`;
-  } else {
-    html += `<p class="acct-empty">No gift cards on your account.</p>`;
   }
 
+  // ── Redeemed pattern codes ──
+  const redeemCodes = rcRes.data ?? [];
+  if (redeemCodes.length) {
+    html += `<h3 class="acct-sub-title">Pattern Codes</h3><div class="acct-gc-list">`;
+    for (const rc of redeemCodes) {
+      const garmentName = rc.garment_id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      html += `<div class="acct-gc-row">Code: <strong>${rc.code}</strong> · ${garmentName} · Redeemed ${new Date(rc.redeemed_at).toLocaleDateString()}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (!giftCards.length && !redeemCodes.length) {
+    html += `<p class="acct-empty">No gift cards or codes on your account.</p>`;
+  }
+
+  // ── Redeem gift card ──
   html += `<div class="acct-gc-redeem">
     <h3 class="acct-sub-title">Redeem a gift card</h3>
     <div class="acct-gc-row-input">
@@ -1237,8 +1366,20 @@ async function _renderGiftCards(main, user) {
     <p class="acct-gc-msg" id="gc-msg"></p>
   </div>`;
 
+  // ── Redeem pattern code ──
+  html += `<div class="acct-gc-redeem">
+    <h3 class="acct-sub-title">Redeem a pattern code</h3>
+    <p class="acct-empty" style="margin-bottom:8px">Have a code from an Etsy or Craftsy pattern? Enter it to get a made-to-measure version.</p>
+    <div class="acct-gc-row-input">
+      <input class="acct-input" type="text" id="rc-code-input" placeholder="PP-XXXX-XXXX" style="text-transform:uppercase;letter-spacing:1px">
+      <button class="acct-btn-sm" id="rc-redeem-btn">Redeem</button>
+    </div>
+    <p class="acct-gc-msg" id="rc-msg"></p>
+  </div>`;
+
   main.innerHTML = html;
 
+  // ── Gift card handler ──
   document.getElementById('gc-redeem-btn')?.addEventListener('click', async () => {
     const code = document.getElementById('gc-code-input')?.value.trim().toUpperCase();
     const msg  = document.getElementById('gc-msg');
@@ -1255,9 +1396,218 @@ async function _renderGiftCards(main, user) {
     msg.className = 'acct-gc-msg acct-success';
     _showSection('giftcards');
   });
+
+  // ── Pattern code handler ──
+  document.getElementById('rc-redeem-btn')?.addEventListener('click', async () => {
+    const code = document.getElementById('rc-code-input')?.value.trim().toUpperCase();
+    const msg  = document.getElementById('rc-msg');
+    if (!code) return;
+    msg.textContent = 'Checking…'; msg.className = 'acct-gc-msg';
+
+    try {
+      const res = await fetch('/api/validate-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (!data.valid) {
+        msg.textContent = 'Invalid or already redeemed code.';
+        msg.className = 'acct-gc-msg acct-error';
+        return;
+      }
+      // Store in sessionStorage and redirect to wizard
+      sessionStorage.setItem('redemptionCode', code);
+      sessionStorage.setItem('redemptionGarment', data.garmentId);
+      sessionStorage.setItem('redemptionGarmentName', data.garmentName);
+      window.location.href = `/?step=2&garment=${data.garmentId}&redeem=1`;
+    } catch {
+      msg.textContent = 'Something went wrong. Please try again.';
+      msg.className = 'acct-gc-msg acct-error';
+    }
+  });
 }
 
-// ── 6. Account Settings ───────────────────────────────────────────────────────
+// ── 6. Affiliate Dashboard ────────────────────────────────────────────────────
+async function _renderAffiliate(main, user) {
+  const session = await getSession();
+  const token = session?.access_token;
+
+  if (!token) {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Sign in to view your affiliate dashboard.</p>`;
+    return;
+  }
+
+  let data;
+  try {
+    const res = await fetch('/api/affiliate-dashboard', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    data = await res.json();
+  } catch {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Could not load affiliate data. Please try again.</p>`;
+    return;
+  }
+
+  // Not an affiliate yet
+  if (!data.affiliate) {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty" style="margin-bottom:16px;">You're not signed up as an affiliate yet.</p>
+      <p style="font-size:14px;color:var(--fg-muted, #777);margin-bottom:20px;">Earn 30% commission on every sale you refer. Share your unique link with your audience and get paid monthly via PayPal.</p>
+      <a href="/affiliate" class="btn-pricing" style="display:inline-block;text-decoration:none;">Become an Affiliate</a>`;
+    return;
+  }
+
+  // Pending
+  if (data.affiliate.status === 'pending') {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:24px;text-align:center;">
+        <p style="font-size:16px;font-weight:600;margin:0 0 8px;">Application Under Review</p>
+        <p style="font-size:14px;color:var(--fg-muted, #777);margin:0;">We're reviewing your application for the code <strong style="font-family:'IBM Plex Mono',monospace;">${data.affiliate.code}</strong>. You'll receive an email once you're approved (usually within 48 hours).</p>
+      </div>`;
+    return;
+  }
+
+  // Rejected or paused
+  if (data.affiliate.status !== 'active') {
+    main.innerHTML = `<h2 class="acct-section-title">Affiliate Program</h2>
+      <p class="acct-empty">Your affiliate account is currently ${data.affiliate.status}. Contact us at hello@peoplespatterns.com for details.</p>`;
+    return;
+  }
+
+  // Active affiliate dashboard
+  const s = data.stats;
+  const link = `https://peoplespatterns.com/?ref=${data.affiliate.code}`;
+  const rate = Math.round(data.affiliate.commissionRate * 100);
+
+  let html = `<h2 class="acct-section-title">Affiliate Dashboard</h2>`;
+
+  // Referral link box
+  html += `
+    <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:20px;margin-bottom:20px;">
+      <p style="font-size:13px;font-weight:600;margin:0 0 8px;">Your Referral Link</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" readonly value="${link}" id="aff-link-input" style="flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--border, #d0cdc7);border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--bg, #f5f3ef);color:var(--fg, #2c2a26);">
+        <button id="aff-copy-btn" class="btn-pricing" style="padding:10px 20px;font-size:13px;white-space:nowrap;">Copy Link</button>
+      </div>
+      <p style="margin:8px 0 0;font-size:12px;color:var(--fg-muted, #888);">Code: <strong>${data.affiliate.code}</strong> | Commission rate: ${rate}%</p>
+    </div>`;
+
+  // Stats cards
+  html += `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:12px;margin-bottom:20px;">
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Clicks</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.totalClicks}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Conversions</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.totalConversions}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Conv. Rate</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">${s.conversionRate}%</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Total Earned</p>
+        <p style="font-size:24px;font-weight:700;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;color:var(--gold, #c9a96e);">$${(s.totalEarnedCents / 100).toFixed(2)}</p>
+      </div>
+    </div>`;
+
+  // Earnings breakdown
+  html += `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:12px;margin-bottom:24px;">
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:14px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Pending</p>
+        <p style="font-size:18px;font-weight:600;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">$${(s.pendingCents / 100).toFixed(2)}</p>
+      </div>
+      <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:14px;text-align:center;">
+        <p style="font-size:12px;color:var(--fg-muted, #888);margin:0;">Paid</p>
+        <p style="font-size:18px;font-weight:600;margin:4px 0 0;font-family:'IBM Plex Mono',monospace;">$${(s.paidCents / 100).toFixed(2)}</p>
+      </div>
+    </div>`;
+
+  // PayPal email
+  html += `
+    <div style="background:var(--card, #fff);border:1px solid var(--border, #e0ddd6);border-radius:8px;padding:16px;margin-bottom:24px;">
+      <p style="font-size:13px;font-weight:600;margin:0 0 4px;">PayPal Email for Payouts</p>
+      <p style="font-size:14px;margin:0;color:var(--fg-muted, #777);">${data.affiliate.paypalEmail || 'Not set - contact hello@peoplespatterns.com to add one'}</p>
+    </div>`;
+
+  // Recent conversions table
+  if (data.recentConversions && data.recentConversions.length > 0) {
+    html += `<h3 style="font-size:15px;font-weight:600;margin:0 0 12px;">Recent Conversions</h3>
+      <div style="overflow-x:auto;margin-bottom:24px;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border, #e0ddd6);">
+              <th style="text-align:left;padding:8px;font-weight:600;">Date</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Sale</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Commission</th>
+              <th style="text-align:center;padding:8px;font-weight:600;">Status</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    for (const c of data.recentConversions) {
+      const date = new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const statusColor = c.status === 'paid' ? '#4a8a5a' : c.status === 'approved' ? 'var(--gold, #c9a96e)' : 'var(--fg-muted, #888)';
+      html += `<tr style="border-bottom:1px solid var(--border, #e0ddd6);">
+        <td style="padding:8px;">${date}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;">$${(c.order_total_cents / 100).toFixed(2)}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;">$${(c.commission_cents / 100).toFixed(2)}</td>
+        <td style="text-align:center;padding:8px;"><span style="font-size:11px;font-weight:600;text-transform:uppercase;color:${statusColor};">${c.status}</span></td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  // Monthly breakdown
+  const months = Object.entries(data.monthly || {}).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 6);
+  if (months.length > 0) {
+    html += `<h3 style="font-size:15px;font-weight:600;margin:0 0 12px;">Monthly Breakdown</h3>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border, #e0ddd6);">
+              <th style="text-align:left;padding:8px;font-weight:600;">Month</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Conversions</th>
+              <th style="text-align:right;padding:8px;font-weight:600;">Earned</th>
+            </tr>
+          </thead>
+          <tbody>`;
+    for (const [month, d] of months) {
+      html += `<tr style="border-bottom:1px solid var(--border, #e0ddd6);">
+        <td style="padding:8px;">${month}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;">${d.conversions}</td>
+        <td style="text-align:right;padding:8px;font-family:'IBM Plex Mono',monospace;font-weight:600;">$${(d.earnedCents / 100).toFixed(2)}</td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+  }
+
+  main.innerHTML = html;
+
+  // Copy link button
+  const copyBtn = document.getElementById('aff-copy-btn');
+  const linkInput = document.getElementById('aff-link-input');
+  if (copyBtn && linkInput) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(linkInput.value).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+      }).catch(() => {
+        linkInput.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy Link'; }, 2000);
+      });
+    });
+  }
+}
+
+// ── 7. Account Settings ───────────────────────────────────────────────────────
 async function _renderSettings(main, user) {
   let html = `<h2 class="acct-section-title">Account Settings</h2>
     <div class="acct-settings-group">
@@ -1315,5 +1665,326 @@ async function _renderSettings(main, user) {
     if (!confirm('Are you absolutely sure? All purchases and saved profiles will be lost.')) return;
     // Supabase admin delete requires service role key — show instructions instead
     alert('To fully delete your account, email hello@peoplespatterns.com with the subject "Delete my account".\n\nWe\'ll process your request within 48 hours.');
+  });
+}
+
+// ── Tester Program ───────────────────────────────────────────────────────────
+
+const TESTER_FIT_AREAS = [
+  { key: 'waist_fit',  label: 'Waist' },
+  { key: 'hip_fit',    label: 'Hip' },
+  { key: 'chest_fit',  label: 'Chest' },
+  { key: 'shoulder',   label: 'Shoulder' },
+  { key: 'armhole',    label: 'Armhole' },
+  { key: 'thigh_fit',  label: 'Thigh' },
+  { key: 'length',     label: 'Length' },
+  { key: 'rise_fit',   label: 'Rise' },
+  { key: 'sleeve_fit', label: 'Sleeve' },
+];
+const TESTER_FIT_OPTIONS = ['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a'];
+
+async function _renderTester(main, user) {
+  const [appRes, assignRes, subRes, profileRes] = await Promise.all([
+    getTesterApplication(user.id),
+    getTesterAssignments(user.id),
+    getTesterSubmissions(user.id),
+    getTesterProfile(user.id),
+  ]);
+
+  const app         = appRes.data;
+  const assignments = assignRes.data ?? [];
+  const submissions = subRes.data ?? [];
+  const isTester    = profileRes.data?.is_tester ?? false;
+
+  let html = `<h2 class="acct-section-title">Tester Program</h2>`;
+
+  // ── Not a tester yet ───────────────────────────────────────────────────────
+  if (!isTester) {
+    if (app?.status === 'pending') {
+      html += `
+        <div class="tester-dash-status tester-dash-pending">
+          <strong>Application pending</strong>
+          <p>We review applications weekly. You'll receive an email when we've decided.</p>
+        </div>`;
+    } else if (app?.status === 'rejected') {
+      html += `
+        <div class="tester-dash-status tester-dash-rejected">
+          <strong>Application not accepted</strong>
+          <p>You can re-apply from the <a href="/tester#apply" class="acct-link">tester page</a>.</p>
+        </div>`;
+    } else {
+      html += `
+        <div class="tester-dash-status">
+          <p>You're not enrolled in the tester program yet.</p>
+          <a href="/tester#apply" class="acct-btn-sm" style="display:inline-block;text-decoration:none;margin-top:8px">Apply Now</a>
+        </div>`;
+    }
+    main.innerHTML = html;
+    return;
+  }
+
+  // ── Active tester dashboard ────────────────────────────────────────────────
+  html += `<div class="tester-dash-status tester-dash-approved"><strong>Active Tester</strong></div>`;
+
+  // Assignments
+  const active    = assignments.filter(a => a.status === 'assigned' || a.status === 'in_progress');
+  const completed = assignments.filter(a => a.status === 'submitted' || a.status === 'featured');
+  const expired   = assignments.filter(a => a.status === 'expired');
+
+  if (active.length) {
+    html += `<h3 class="acct-sub-title">Current Assignments</h3>`;
+    html += `<div class="tester-assign-list">`;
+    for (const a of active) {
+      const name   = a.garment_id.replace(/-/g, ' ');
+      const due    = new Date(a.due_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const daysLeft = Math.max(0, Math.ceil((new Date(a.due_at) - Date.now()) / (1000 * 60 * 60 * 24)));
+      html += `
+      <div class="tester-assign-card" data-id="${a.id}" data-garment="${a.garment_id}">
+        <div class="tester-assign-info">
+          <span class="tester-assign-name">${name}</span>
+          <span class="tester-assign-meta">Due ${due} (${daysLeft} day${daysLeft !== 1 ? 's' : ''} left)</span>
+        </div>
+        <div class="tester-assign-actions">
+          ${a.status === 'assigned' ? `<button class="acct-btn-xs tester-start-btn" data-id="${a.id}">Start</button>` : ''}
+          <button class="acct-btn-sm tester-submit-btn" data-id="${a.id}" data-garment="${a.garment_id}">Submit Feedback</button>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    html += `<p class="acct-empty">No active assignments. We'll email you when a new one is ready.</p>`;
+  }
+
+  if (completed.length) {
+    html += `<h3 class="acct-sub-title" style="margin-top:24px">Completed</h3>`;
+    html += `<div class="tester-assign-list">`;
+    for (const a of completed) {
+      const name    = a.garment_id.replace(/-/g, ' ');
+      const sub     = submissions.find(s => s.assignment_id === a.id);
+      const badge   = a.status === 'featured' ? '<span class="tester-badge-featured">Featured</span>' : '<span class="tester-badge-submitted">Submitted</span>';
+      html += `
+      <div class="tester-assign-card tester-assign-done">
+        <div class="tester-assign-info">
+          <span class="tester-assign-name">${name}</span>
+          ${badge}
+          ${sub ? `<span class="tester-assign-meta">Fit: ${sub.overall_fit.replace(/_/g, ' ')}</span>` : ''}
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+
+  if (expired.length) {
+    html += `<details class="acct-archived" style="margin-top:16px"><summary>Expired (${expired.length})</summary><div class="tester-assign-list">`;
+    for (const a of expired) {
+      const name = a.garment_id.replace(/-/g, ' ');
+      html += `<div class="tester-assign-card tester-assign-dim"><span class="tester-assign-name">${name}</span> <span class="tester-assign-meta">Expired</span></div>`;
+    }
+    html += `</div></details>`;
+  }
+
+  main.innerHTML = html;
+
+  // ── Bind start buttons ─────────────────────────────────────────────────────
+  main.querySelectorAll('.tester-start-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      btn.disabled = true; btn.textContent = 'Starting...';
+      await updateTesterAssignment(btn.dataset.id, user.id, { status: 'in_progress', started_at: new Date().toISOString() });
+      _showToast('Assignment started');
+      _showSection('tester');
+    });
+  });
+
+  // ── Bind submit buttons ────────────────────────────────────────────────────
+  main.querySelectorAll('.tester-submit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _showTesterFeedbackModal(user, btn.dataset.id, btn.dataset.garment);
+    });
+  });
+}
+
+function _showTesterFeedbackModal(user, assignmentId, garmentId) {
+  const garmentName = garmentId.replace(/-/g, ' ');
+
+  const fitAreasHtml = TESTER_FIT_AREAS.map(area => `
+    <div class="tester-fit-row">
+      <label class="tester-fit-label">${area.label}</label>
+      <select class="tester-fit-select" data-area="${area.key}">
+        ${TESTER_FIT_OPTIONS.map(o => `<option value="${o}">${o.replace(/_/g, ' ')}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
+  const { overlay, close } = _showModal({
+    title: `Feedback: ${garmentName}`,
+    body: `
+      <div class="tester-feedback-form" id="tester-feedback-form">
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Overall Fit *</label>
+          <select id="tfb-overall" class="tester-fit-select" required>
+            <option value="">Select</option>
+            <option value="perfect">Perfect</option>
+            <option value="good">Good</option>
+            <option value="needs_adjustment">Needs Adjustment</option>
+            <option value="poor">Poor</option>
+          </select>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fit by Area</label>
+          <div class="tester-fit-grid">${fitAreasHtml}</div>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Difficulty (1-5) *</label>
+          <input type="number" id="tfb-difficulty" min="1" max="5" value="3" class="acct-input" style="width:80px">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Instructions Clarity (1-5) *</label>
+          <input type="number" id="tfb-clarity" min="1" max="5" value="3" class="acct-input" style="width:80px">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Would Sew Again?</label>
+          <label class="tester-check-inline"><input type="checkbox" id="tfb-again" checked> Yes</label>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fit Notes</label>
+          <textarea id="tfb-fit-notes" class="acct-input" rows="3" placeholder="Describe any fit issues..."></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Construction Notes</label>
+          <textarea id="tfb-construction" class="acct-input" rows="3" placeholder="How were the instructions? Any confusing steps?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Fabric Used</label>
+          <input type="text" id="tfb-fabric" class="acct-input" placeholder="e.g. Cotton twill, 8oz denim">
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Modifications Made</label>
+          <textarea id="tfb-mods" class="acct-input" rows="2" placeholder="Any changes you made to the pattern?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Tips for Other Sewists</label>
+          <textarea id="tfb-tips" class="acct-input" rows="2" placeholder="Anything you wish you knew before starting?"></textarea>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Photos</label>
+          <p style="font-size:.72rem;color:var(--mid);margin-bottom:6px">Upload up to 10 photos (JPEG, PNG, WebP). Max 10 MB each.</p>
+          <input type="file" id="tfb-photos" accept="image/jpeg,image/png,image/webp" multiple class="acct-input">
+          <div id="tfb-photo-preview" class="tester-photo-preview"></div>
+        </div>
+
+        <div class="tester-fb-field" style="border-top:1px solid var(--bdr);padding-top:12px;margin-top:8px">
+          <label class="tester-check-inline"><input type="checkbox" id="tfb-consent"> I consent to having my photos featured on the site and social media</label>
+        </div>
+
+        <div class="tester-fb-field">
+          <label class="acct-edit-lbl">Social Handle (for credit)</label>
+          <input type="text" id="tfb-social" class="acct-input" placeholder="@yourhandle">
+        </div>
+      </div>`,
+    buttons: `<button class="acct-btn-sm" id="tfb-save">Submit Feedback</button>
+              <button class="acct-btn-sm acct-btn-ghost" id="tfb-cancel">Cancel</button>`,
+  });
+
+  overlay.querySelector('#tfb-cancel').addEventListener('click', close);
+
+  // Photo preview
+  const photoInput = overlay.querySelector('#tfb-photos');
+  photoInput?.addEventListener('change', () => {
+    const preview = overlay.querySelector('#tfb-photo-preview');
+    preview.innerHTML = '';
+    for (const file of photoInput.files) {
+      if (file.size > 10 * 1024 * 1024) { alert(`${file.name} exceeds 10 MB limit`); continue; }
+      const img = document.createElement('img');
+      img.className = 'tester-photo-thumb';
+      img.src = URL.createObjectURL(file);
+      preview.appendChild(img);
+    }
+  });
+
+  // Submit
+  overlay.querySelector('#tfb-save').addEventListener('click', async () => {
+    const overall = overlay.querySelector('#tfb-overall').value;
+    if (!overall) { alert('Please select overall fit.'); return; }
+
+    const saveBtn = overlay.querySelector('#tfb-save');
+    saveBtn.disabled = true; saveBtn.textContent = 'Uploading...';
+
+    const { session } = await getSession();
+    if (!session) { alert('Please sign in.'); return; }
+    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` };
+
+    // Upload photos first
+    const photoFiles = photoInput?.files || [];
+    const uploadedPaths = [];
+    const uploadedCaptions = [];
+
+    for (const file of photoFiles) {
+      if (file.size > 10 * 1024 * 1024) continue;
+      try {
+        // Get signed URL
+        const urlResp = await fetch('/api/tester-upload', {
+          method: 'POST', headers,
+          body: JSON.stringify({ fileName: file.name, contentType: file.type, assignmentId }),
+        });
+        const urlData = await urlResp.json();
+        if (!urlResp.ok) { console.error('upload URL error:', urlData.error); continue; }
+
+        // Upload the file
+        await fetch(urlData.signedUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+        uploadedPaths.push(urlData.publicUrl);
+        uploadedCaptions.push(file.name);
+      } catch (e) {
+        console.error('photo upload error:', e);
+      }
+    }
+
+    saveBtn.textContent = 'Saving...';
+
+    // Collect fit areas
+    const fitAreas = {};
+    overlay.querySelectorAll('.tester-fit-select[data-area]').forEach(sel => {
+      fitAreas[sel.dataset.area] = sel.value;
+    });
+
+    const payload = {
+      assignmentId,
+      overallFit:          overall,
+      fitAreas,
+      difficultyRating:    parseInt(overlay.querySelector('#tfb-difficulty').value) || 3,
+      instructionsClarity: parseInt(overlay.querySelector('#tfb-clarity').value) || 3,
+      wouldSewAgain:       overlay.querySelector('#tfb-again').checked,
+      fitNotes:            overlay.querySelector('#tfb-fit-notes').value,
+      constructionNotes:   overlay.querySelector('#tfb-construction').value,
+      fabricUsed:          overlay.querySelector('#tfb-fabric').value,
+      modifications:       overlay.querySelector('#tfb-mods').value,
+      tips:                overlay.querySelector('#tfb-tips').value,
+      photos:              uploadedPaths,
+      photoCaptions:       uploadedCaptions,
+      featureConsent:      overlay.querySelector('#tfb-consent').checked,
+      socialHandle:        overlay.querySelector('#tfb-social').value,
+    };
+
+    try {
+      const resp = await fetch('/api/tester-submit', { method: 'POST', headers, body: JSON.stringify(payload) });
+      const result = await resp.json();
+      if (!resp.ok) { alert(result.error || 'Could not save feedback'); saveBtn.disabled = false; saveBtn.textContent = 'Submit Feedback'; return; }
+
+      close();
+      _showToast('Feedback submitted — thank you!');
+      _showSection('tester');
+    } catch (e) {
+      console.error('tester submit error:', e);
+      alert('Network error — please try again.');
+      saveBtn.disabled = false; saveBtn.textContent = 'Submit Feedback';
+    }
   });
 }

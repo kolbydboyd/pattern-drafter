@@ -30,8 +30,8 @@ export default {
     length: {
       type: 'select', label: 'Jacket length',
       values: [
-        { value: 'crop', label: 'Crop - at waist (torso length)' },
-        { value: 'hip',  label: 'Hip - +4″ below waist'          },
+        { value: 'crop', label: 'Crop, at waist (torso length)' },
+        { value: 'hip',  label: 'Hip, +4″ below waist'          },
       ],
       default: 'crop',
     },
@@ -194,15 +194,17 @@ export default {
     const backSideX = shoulderPtX + backChestDepth;
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
-      { x: backSideX, y: armholeY, angle: 0 },
+      { x: backSideX, y: armholeY,        angle: 0 },  // double notch = back
+      { x: backSideX, y: armholeY + 0.25, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
       { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
     ];
 
     const sleeveNotches = [
-      { x: slvTopW, y: 0, angle: -90 },
-      { x: slvTopW * 0.5, y: 0, angle: -90 },
-      { x: slvTopW * 1.5, y: 0, angle: -90 },
+      { x: slvTopW,          y: 0, angle: -90 },  // crown → shoulder seam
+      { x: slvTopW * 0.5,    y: 0, angle: -90 },  // front quarter (single)
+      { x: slvTopW * 1.5,    y: 0, angle: -90 },  // back quarter (double)
+      { x: slvTopW * 1.5 + 0.25, y: 0, angle: -90 },
     ];
 
     const frontBB  = bbox(frontPoly);
@@ -278,6 +280,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
         type: 'pocket',
         dimensions: { width: FACING_W, height: facingH },
+        sa,
       },
       {
         id: 'hip-pocket',
@@ -285,6 +288,7 @@ export default {
         instruction: `Cut 2 · Position at hip level ${fmtInches(opts.length === 'hip' ? 8 : 4)}″ from hem on front panels · Bar tack top corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
+        sa,
       },
     ];
 
@@ -295,6 +299,7 @@ export default {
         instruction: 'Cut 1 · Left chest, 2.5″ below neckline · Pencil slot: 1.5″ wide section at top, divided by topstitching',
         type: 'pocket',
         dimensions: { width: 5, height: 6 },
+        sa,
       });
     }
 
@@ -308,9 +313,9 @@ export default {
     ];
 
     if (opts.closure === 'button') {
-      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter - +1 spare' });
+      notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter (+1 spare)' });
     } else {
-      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps - size 24 or 20' });
+      notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps (size 24 or 20)' });
     }
 
     return buildMaterialsSpec({

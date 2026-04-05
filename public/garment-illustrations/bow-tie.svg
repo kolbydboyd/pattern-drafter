@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- left wing -->
+  <path d="M24,76 Q24,60 40,60 L68,80 L68,120 L40,140 Q24,140 24,124 Z"/>
+  <!-- right wing -->
+  <path d="M136,76 Q136,60 120,60 L92,80 L92,120 L120,140 Q136,140 136,124 Z"/>
+  <!-- center knot -->
+  <path d="M68,80 Q76,76 80,76 Q84,76 92,80 L92,120 Q84,124 80,124 Q76,124 68,120 Z"/>
+  <!-- fold detail on wings -->
+  <path d="M34,80 Q48,96 40,112" stroke-dasharray="4 3"/>
+  <path d="M126,80 Q112,96 120,112" stroke-dasharray="4 3"/>
+  <!-- neck band -->
+  <path d="M68,96 Q56,88 48,80 Q40,72 36,64"/>
+  <path d="M92,96 Q104,88 112,80 Q120,72 124,64"/>
+</svg>
