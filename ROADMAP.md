@@ -828,6 +828,177 @@ not yet covered, it has higher catalog value.
 
 ---
 
+### Style variants plan - one base module, many catalog cards
+
+PR #120 introduced a `variants` array on garment exports. Each variant gets
+its own catalog listing, URL, pricing entry, and pre-filled defaults while
+sharing the same `pieces()`, `construction()`, and engine math. The variant
+expansion in `index.js` creates standalone registry entries so downstream
+code (routing, checkout, DB, analytics) treats variant IDs as regular garments.
+
+**How it works:**
+```js
+variants: [
+  {
+    id: 'linen-shirt',           // becomes its own garment ID
+    name: 'Linen Shirt',         // catalog card title
+    defaults: { fit: 'relaxed', pocket: 'none' },  // pre-selected options
+    fabrics: ['linen', 'linen-light'],              // materials override
+  },
+]
+```
+
+**Why this matters for catalog growth:**
+- One base module can power 2-5 catalog cards without duplicating code
+- Each card feels like a distinct product to the customer
+- Reduces engineering cost per "new pattern" by 70-80%
+- A/B testable: which variant names/defaults convert better?
+- Supports the "1 pattern per week" post-launch cadence
+
+**Principles:**
+1. Variants should feel like genuinely different garments, not just color swaps
+2. Each variant changes at least 2-3 options (fit, pockets, fabric, length, etc.)
+3. Variant names use approachable style language, not technical terms
+4. Base module remains accessible for users who want full control
+5. Variants can have unique construction notes (e.g., linen-specific pre-wash)
+
+---
+
+#### Existing garments - variant opportunities
+
+| Base module | Variant name | Key defaults | Fabrics | Notes |
+|---|---|---|---|---|
+| **tee** | Classic Crew Tee | crew neck, short sleeve, standard fit | cotton jersey | the default |
+| | Oversized Tee | crew neck, short sleeve, oversized +10" | heavyweight jersey | streetwear/trend |
+| | Muscle Tee | crew neck, no sleeve (cut off), relaxed | slub jersey | gym/casual |
+| | Longline Tee | crew neck, short sleeve, extended length +4" | drapey jersey | streetwear layering |
+| **camp-shirt** | Camp Collar Shirt | camp collar, short sleeve, relaxed | rayon, viscose | the default |
+| | Vacation Shirt | camp collar, short sleeve, relaxed, pocket | rayon print | Hawaiian-style rename |
+| **button-up** | Linen Shirt | point collar, relaxed, no pocket | linen | **already in PR #120** |
+| | Chambray Work Shirt | point collar, standard, dual pockets | chambray, twill | **already in PR #120** |
+| | Band Collar Shirt | band/mandarin, standard, no pocket | cotton poplin | minimalist, Nehru-style |
+| | Oxford Shirt | point collar, standard, single pocket | oxford cloth | preppy classic |
+| **button-up-w** | Poplin Blouse | point collar, fitted, single pocket | cotton poplin | office staple |
+| | Linen Tunic | band collar, relaxed, tunic length | linen | summer layering |
+| **fitted-tee-w** | Basic Fitted Tee | crew, short sleeve, standard | cotton jersey | the default |
+| | Scoop Neck Tee | scoop, short sleeve, standard | modal jersey | everyday casual |
+| | Long Sleeve Fitted Tee | crew, long sleeve, standard | cotton/spandex | layering staple |
+| **shell-blouse-w** | Silk Shell | crew, sleeveless, fitted | silk, crepe | office under-blazer |
+| | Woven Tank | scoop, sleeveless, relaxed | linen, voile | summer casual |
+| **hoodie** | Classic Hoodie | pullover, kangaroo pocket, standard | french terry | the default |
+| | Zip-Up Hoodie | full zip, split pockets, standard | french terry | everyday jacket |
+| | Cropped Hoodie | pullover, kangaroo pocket, cropped length | fleece | trend/athleisure |
+| **crewneck** | Crewneck Sweatshirt | crew, standard fit | french terry | the default |
+| | Raglan Sweatshirt | raglan sleeve, relaxed | french terry | retro/sporty feel |
+| **sweatpants** | Classic Sweatpants | straight leg, elastic cuff | fleece | the default |
+| | Tapered Joggers | tapered, rib cuff, slim | french terry | athleisure (can replace separate jogger module) |
+| **straight-jeans** | Classic Straight Jeans | mid-rise, straight, 5-pocket | denim 12 oz | the default |
+| | Slim Jeans | mid-rise, slim taper, 5-pocket | stretch denim | modern slim fit |
+| | High-Rise Jeans | high-rise, straight, 5-pocket | rigid denim | vintage/mom jeans |
+| **chinos** | Classic Chinos | mid-rise, straight, slant pockets | cotton twill | the default |
+| | Slim Chinos | mid-rise, slim taper, slant pockets | stretch twill | modern slim |
+| **cargo-shorts** | Cargo Shorts | standard, cargo pockets | cotton twill | the default |
+| | Hiking Shorts | standard, cargo pockets, gusset | ripstop nylon | MYOG/outdoor crossover |
+| **gym-shorts** | Gym Shorts | elastic, lined, 5" inseam | performance knit | the default |
+| | Running Shorts | elastic, split side, 3" inseam | ultralight mesh | athletic |
+| | Basketball Shorts | elastic, side stripe, 9" inseam | performance mesh | sport-specific |
+| **swim-trunks** | Board Shorts | elastic, 7" inseam | board short fabric | surf style |
+| | Swim Trunks | elastic, mesh lined, 5" inseam | swim fabric | classic |
+| **crop-jacket** | Cropped Jacket | standard, zip front | cotton twill | the default |
+| | Trucker Crop | button front, chest pockets | denim | denim crop |
+| **denim-jacket** | Denim Trucker Jacket | standard, button, chest pockets | denim 12 oz | the default |
+| | Lightweight Denim Jacket | standard, button, no lining | denim 8 oz | summer weight |
+| **wide-leg-trouser-w** | Wide-Leg Trousers | high-rise, wide, invisible zip | crepe, wool | the default |
+| | Linen Wide-Legs | high-rise, wide, relaxed | linen | summer staple |
+| **straight-trouser-w** | Straight Trouser | mid-rise, straight, invisible zip | wool blend | office default |
+| | Cigarette Pants | high-rise, slim taper, cropped | stretch gabardine | can replace separate module |
+| **easy-pant-w** | Easy Pant | elastic, straight, relaxed | linen, rayon | the default |
+| | Lounge Pant | elastic, wide, very relaxed | modal jersey | home/lounge |
+| **a-line-skirt-w** | A-Line Skirt | standard, invisible zip, knee | cotton, linen | the default |
+| | Denim A-Line | standard, topstitched, knee | denim | casual/workwear |
+| **slip-skirt-w** | Slip Skirt | bias-cut, invisible zip, midi | satin, crepe | the default |
+| | Satin Midi Skirt | bias-cut, invisible zip, midi | silk satin | elevated/occasion |
+| **shirt-dress-w** | Shirt Dress | button front, collar, belted | cotton poplin | the default |
+| | Linen Shirt Dress | button front, band collar, relaxed | linen | summer version |
+| **wrap-dress-w** | Wrap Dress | true wrap, V-neck, knee | jersey, crepe | the default |
+| | Maxi Wrap Dress | true wrap, V-neck, floor-length | rayon | summer/resort |
+
+#### New garments - variant plan
+
+Each new base module below should ship with 2-3 variants from day one.
+Variants are listed in recommended build order (highest-value first).
+
+| Base module | Variants (each = separate catalog card) | Variant defaults summary |
+|---|---|---|
+| **circle-skirt** | Circle Skirt (full, knee), Mini Circle Skirt (full, short), Midi Circle Skirt (half-circle, mid-calf) | circle fraction + length combos |
+| **pencil-skirt** | Pencil Skirt (classic knee), Long Pencil Skirt (midi), Denim Pencil Skirt (denim, topstitched) | length + fabric |
+| **pajama-pants** | Flannel PJ Pants (flannel, straight), Satin Sleep Pants (satin, straight), Lounge Pants (jersey, tapered) | fabric + leg shape |
+| **joggers** | French Terry Joggers (standard, cuffed), Performance Joggers (athletic, tapered), Fleece Joggers (heavyweight, relaxed) | fabric + fit |
+| **tank-top** | Classic Tank (crew binding, standard), Racerback Tank (racerback cut), Cropped Tank (shortened, wide straps) | neckline + length |
+| **leggings** | Full-Length Leggings (ankle), Capri Leggings (mid-calf), Bike Shorts (mid-thigh) | length only - same module |
+| **tee-dress-w** | T-Shirt Dress (knee, short sleeve), Maxi T-Shirt Dress (floor, short sleeve), Long-Sleeve Dress (knee, long sleeve) | length + sleeve |
+| **shift-dress-w** | Shift Dress (sleeveless, knee), Linen Shift (sleeveless, relaxed, linen), Shift Tunic (sleeved, hip-length) | sleeve + length + fabric |
+| **sundress-w** | Sundress (gathered, straps, knee), Maxi Sundress (gathered, straps, floor), Tiered Sundress (3 tiers, straps) | skirt treatment + length |
+| **robe** | Fleece Robe (floor, fleece, shawl collar), Cotton Robe (knee, cotton, kimono), Silk Dressing Gown (floor, silk, shawl) | fabric + length + collar |
+| **bralette-w** | Triangle Bralette (triangle cups, lace), Scoop Bralette (scooped, jersey), Longline Bralette (extended band, mesh) | cup shape + fabric + band |
+| **underwear-w** | Bikini Briefs (low-rise), High-Waist Briefs (full coverage), Boyshorts (mid-thigh coverage) | rise + coverage |
+| **boxer-briefs** | Classic Boxer Briefs (mid-thigh), Trunks (shorter leg), Long Boxer Briefs (above-knee) | inseam length |
+| **bomber-jacket** | Satin Bomber (satin, quilted lining), Cotton Bomber (twill, unlined), Varsity Bomber (wool body, contrast sleeves) | fabric + lining |
+| **cardigan** | Classic Cardigan (V-neck, buttons), Open Cardigan (no closure, relaxed), Cropped Cardigan (shortened, buttons) | closure + length |
+| **wrap-top-w** | Wrap Blouse (woven, 3/4 sleeve), Wrap Tee (jersey, short sleeve), Cache-Coeur Top (woven, puff sleeve) | fabric + sleeve |
+| **jumpsuit-w** | Wide-Leg Jumpsuit (woven, wide, belted), Utility Jumpsuit (twill, pockets, zip), Lounge Jumpsuit (jersey, relaxed) | fabric + fit + closure |
+| **overalls** | Denim Overalls (denim, buckle, 5-pocket), Linen Overalls (linen, button straps, relaxed), Short Overalls (denim, shorts) | fabric + strap + length |
+| **scrubs** | Classic Scrubs (V-neck, straight leg), Modern Scrubs (jogger leg, zip pocket), Slim Scrubs (tapered, fitted) | leg shape + pocket style |
+| **puffer-jacket** | Quilted Puffer (horizontal channels), Diamond Puffer (diagonal channels), Puffer Vest (sleeveless) | quilting pattern + sleeves |
+| **shacket** | Flannel Shacket (plaid flannel, relaxed), Corduroy Shacket (cord, standard), Wool Shacket (wool blend, structured) | fabric |
+| **polo** | Classic Polo (pique, standard), Performance Polo (athletic, moisture-wick), Oversized Polo (relaxed, rugby-weight) | fabric + fit |
+| **pajama-set** | Flannel PJ Set (flannel, piped), Cotton PJ Set (broadcloth, classic), Satin PJ Set (satin, luxe) | fabric + trim |
+| **swimsuit-w** | One-Piece Swimsuit (scoop, full), High-Cut Swimsuit (high leg, scoop), Square-Neck Swimsuit (square neck, full) | neckline + leg cut |
+| **bikini-w** | Triangle Bikini (triangle top, classic bottom), High-Waist Bikini (bralette top, high-waist bottom), Sporty Bikini (racerback, boyshort) | top shape + bottom style |
+
+#### Catalog card count projection
+
+| Phase | Base modules | Avg variants | Catalog cards | Notes |
+|---|---|---|---|---|
+| Current (pre-variants) | 24 | 1 | 24 | no variants yet |
+| After PR #120 | 25 | 1.1 | 27 | button-up + 2 variants |
+| After existing garment variants | 24 | 2.5 | ~60 | variants on existing modules, no new code |
+| Month 1 new modules + variants | 30 | 2.5 | ~75 | 6 new base modules x ~3 variants each |
+| Month 3 | 40 | 2.5 | ~100 | 100-card catalog milestone |
+| Month 6 | 55 | 3.0 | ~165 | broad coverage across all categories |
+| Year 1 | 70+ | 3.0 | ~210+ | competitive with major indie pattern companies |
+
+**The variant system is the single biggest catalog growth multiplier.** Adding variants
+to existing modules is the fastest path to a 60+ card catalog with zero new engine work.
+
+#### Implementation priority
+
+**Phase A - Variant-ize existing modules (no new code, massive catalog growth):**
+- [ ] tee: Classic Crew, Oversized, Muscle Tee, Longline (4 cards from 1)
+- [ ] hoodie: Classic, Zip-Up, Cropped (3 cards)
+- [ ] straight-jeans: Classic, Slim, High-Rise (3 cards)
+- [ ] chinos: Classic, Slim (2 cards)
+- [ ] gym-shorts: Gym, Running, Basketball (3 cards)
+- [ ] fitted-tee-w: Basic, Scoop, Long-Sleeve (3 cards)
+- [ ] wrap-dress-w: Wrap Dress, Maxi Wrap (2 cards)
+- [ ] shirt-dress-w: Shirt Dress, Linen Shirt Dress (2 cards)
+- [ ] sweatpants: Classic, Tapered Joggers (2 cards - may replace jogger module)
+- [ ] straight-trouser-w: Straight, Cigarette Pants (2 cards)
+- Result: 24 base modules -> ~50 catalog cards with NO new garment code
+
+**Phase B - New modules ship with variants from day one:**
+- [ ] Every new module in the build order must define 2-3 variants
+- [ ] Variant names vetted for SEO (what do people search for?)
+- [ ] Variant fabric lists populated with affiliate-linked materials
+- [ ] Variant thumbnails on catalog page (rendered previews when 2D plan renderer is ready)
+
+**Phase C - Data-driven variant creation:**
+- [ ] PostHog: track which options users change most per base module
+- [ ] Popular option combos that differ from defaults = candidate for a new variant
+- [ ] A/B test variant names and default combos for conversion
+
+---
+
 ### Body type selector - children's sizing without new modules
 
 Every garment module already accepts any measurement values. A "body
