@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.2] - 2026-04-05
+
+### Fix patterns page load failure
+- Patterns listing page now renders the grid immediately instead of waiting for user data (auth, purchases, wishlist) to load first. Owned badges and wishlist hearts update once user data arrives.
+- Added 6 second timeout to Supabase calls in `_loadUserData()` so the page cannot hang indefinitely if auth or DB requests stall.
+- Added `.catch()` to the `renderPatternListing()` call to prevent unhandled promise rejections from leaving the page blank.
+
+---
+
 ## [0.12.1] - 2026-04-05
 
 ### Email verification flow
