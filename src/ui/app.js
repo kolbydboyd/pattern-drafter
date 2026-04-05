@@ -69,7 +69,7 @@ let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 const GARMENT_CATEGORIES = [
   { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','baggy-jeans','chinos','pleated-trousers','athletic-formal-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
   { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
-  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','linen-shirt','chambray-work-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
   { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','wrap-dress-w','tshirt-dress-w','slip-dress-w','a-line-dress-w','sundress-w'] },
   { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','athletic-formal-jacket'] },
@@ -331,18 +331,20 @@ function buildInputs() {
     html += `</details>`;
   }
 
-  // Options
+  // Options (variant defaults override base defaults when present)
+  const variantDefaults = g._variantDefaults || {};
   html += `<hr class="dv"><h2>Options</h2>`;
   for (const [key, opt] of Object.entries(g.options)) {
+    const effectiveDefault = key in variantDefaults ? variantDefaults[key] : opt.default;
     if (opt.type === 'select') {
       html += `<div class="f"><label>${opt.label}</label><select id="o-${key}">
         ${opt.values.map(v =>
-          `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
+          `<option value="${v.value}" ${v.value == effectiveDefault ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
         ).join('')}
       </select></div>`;
     } else if (opt.type === 'number') {
       html += `<div class="f"><label>${opt.label}</label>
-        <input type="number" id="o-${key}" value="${opt.default}" step="${opt.step || 0.25}"></div>`;
+        <input type="number" id="o-${key}" value="${effectiveDefault}" step="${opt.step || 0.25}"></div>`;
     }
   }
 
@@ -451,6 +453,8 @@ function readInputs() {
     else if (opt.type === 'number') opts[key] = parseFloat(el.value);
     else opts[key] = el.value;
   }
+  // Inject variant fabric override so materials() uses the right fabric list
+  if (g._variantFabrics) opts._fabrics = g._variantFabrics;
   return { m, opts };
 }
 
@@ -650,9 +654,10 @@ function resetToDefaults() {
     const el = document.getElementById(`m-${mId}`);
     if (el) el.value = '';
   }
+  const resetDefaults = g._variantDefaults || {};
   for (const [key, opt] of Object.entries(g.options)) {
     const el = document.getElementById(`o-${key}`);
-    if (el) el.value = opt.default;
+    if (el) el.value = key in resetDefaults ? resetDefaults[key] : opt.default;
   }
   if (currentStep === 4) generate();
 }
@@ -1801,16 +1806,18 @@ function buildOptionsStep() {
       <p class="wiz-form-desc">${g.name}: adjust fit and style options</p>
     </div>`;
 
+  const wizVariantDefaults = g._variantDefaults || {};
   for (const [key, opt] of Object.entries(g.options)) {
+    const wizDefault = key in wizVariantDefaults ? wizVariantDefaults[key] : opt.default;
     if (opt.type === 'select') {
       html += `<div class="f"><label>${opt.label}</label><select id="wz-o-${key}">
         ${opt.values.map(v =>
-          `<option value="${v.value}" ${v.value == opt.default ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
+          `<option value="${v.value}" ${v.value == wizDefault ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
         ).join('')}
       </select></div>`;
     } else if (opt.type === 'number') {
       html += `<div class="f"><label>${opt.label}</label>
-        <input type="number" id="wz-o-${key}" value="${opt.default}" step="${opt.step || 0.25}"></div>`;
+        <input type="number" id="wz-o-${key}" value="${wizDefault}" step="${opt.step || 0.25}"></div>`;
     }
   }
 
