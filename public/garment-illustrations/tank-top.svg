@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- scoop neckline -->
+  <path d="M62,48 Q80,38 98,48"/>
+  <!-- shoulder straps -->
+  <line x1="62" y1="48" x2="54" y2="42"/>
+  <line x1="98" y1="48" x2="106" y2="42"/>
+  <!-- back neckline hint -->
+  <path d="M54,42 Q80,50 106,42" stroke-dasharray="4 3"/>
+  <!-- armholes deep scoop -->
+  <path d="M54,42 L44,56 Q42,80 48,92"/>
+  <path d="M106,42 L116,56 Q118,80 112,92"/>
+  <!-- body -->
+  <path d="M48,92 L48,176 L112,176 L112,92"/>
+  <!-- hem -->
+  <line x1="48" y1="176" x2="112" y2="176"/>
+  <!-- side seam detail -->
+  <line x1="48" y1="168" x2="48" y2="176"/>
+  <line x1="112" y1="168" x2="112" y2="176"/>
+</svg>

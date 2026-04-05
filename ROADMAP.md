@@ -64,7 +64,62 @@ manufacturer has this. It becomes a licensable asset.
 
 ---
 
-## Immediate — Launch Blockers
+## Market Research - Gen Z & Men's Demand
+
+_Research completed 2026-03-31. Sources: Fortune, CNN, MR PORTER,
+Complex, Gitnux, Tapstitch, Printful, Google Trends, Depop,
+Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
+
+### Key Stats
+- Millennials + Gen Z = **60% of new sewers**
+- Custom clothing market: **$60B in 2025, projected $149.5B by 2035** (9.56% CAGR)
+- No widely adopted automated MTM platform exists for home sewists - **we have no direct competitor at scale**
+- Online pattern sales up 25% since 2019
+- TikTok: ~3M #sewing posts; #boyswhosew at 53.4M views
+- 45% increase in male crafting participation over 5 years
+- Sweet spot pricing $8-16/pattern (our $9-19 is on target)
+
+### Why People Sew (ranked)
+1. **Fit** - 68% prefer oversized but standard sizing doesn't deliver; online return rates 20-30% (poor fit)
+2. **Cost** - quality clothing increasingly unaffordable; custom shirt $20-40 in fabric vs $100+ retail
+3. **Sustainability** - 73% willing to pay more for sustainable; #ThriftFlip 3B+ TikTok views
+4. **Self-expression** - mass-produced feels generic; DIY content gets 3x more engagement than brand content
+5. **Screen fatigue** - analog hobby to get off phones
+6. **Social currency** - making clothes is a flex showing skill, creativity, and values
+
+### Gen Z Aesthetics Driving Demand (ranked)
+| Aesthetic | Key Garments | Status |
+|---|---|---|
+| Y2K Revival | Slip dresses, corset tops, low-rise, bold prints | Peak popularity |
+| Coquette / Romantic | Corset tops, babydoll dresses, lace, bows | Very strong |
+| Gorpcore / Utility | Cargo pants, utility jackets, quarter-zips | Evergreen |
+| Cottagecore | Flowy dresses, puff sleeves, midi skirts | Sustained/mature |
+| Quiet Luxury | Clean trousers, simple blazers, tonal | Rising |
+| Office Siren | Pencil skirts, blazers, slinky office-wear | Growing (workforce entry) |
+| Gender-Fluid | Oversized silhouettes, elastic waists | Growing strongly |
+
+### Men's Aesthetics Driving Demand (ranked)
+| Aesthetic | Key Garments | Status |
+|---|---|---|
+| Workwear / Heritage | Chore coats, worker trousers, denim, overshirts | HIGHEST demand |
+| Quiet Luxury | Unstructured blazers, clean trousers, neutral tones | Dominant macro-trend |
+| Streetwear | Bombers, hoodies, joggers, varsity, oversized | Evergreen for Gen Z |
+| Elevated Athleisure | Tailored joggers, zip fleeces, gym-to-work | $257B market |
+| Y2K / Retro Revival | Baggy jeans, vintage sportswear, oversized | Strong with 18-25 |
+| Relaxed Tailoring | Wider silhouettes replacing slim-fit | Growing for 2026 |
+
+### Men's MTM Opportunity
+- **Rise is the #1 MTM value prop for men** - standard sizing only provides waist + inseam, ignoring rise, thigh, hip. Rise CANNOT be fixed by a tailor.
+- **Athletic builds**: 95% of off-the-rack doesn't accommodate muscular proportions
+- **Short men (under 5'8")**: ~30% of US men, essentially ignored by the industry
+- **Plus-size (XL+)**: 34.1% of US men overweight, only 12% of market serves them
+- **67% of men** don't know their correct waist size
+- Men's formalwear = 60% of custom orders in North America
+- Men's suits market: $19.57B in 2026; custom suit adoption up 38%
+
+---
+
+## Immediate - Launch Blockers
 
 - [ ] **Sew 6 launch muslins** (the actual critical path)
   - [ ] Cargo Shorts
@@ -184,10 +239,10 @@ measure → generate → print → tile → cut → sew → finished
 
 _Research references: Aldrich (Metric Pattern Cutting for Women's Wear, 6th ed.), Armstrong (Patternmaking for Fashion Design, 6th ed.), Bunka Fashion College (Fundamentals of Garment Design), FreeSewing.org, ASTM D5585/D6192/D6458 body measurement standards, Beverly Johnson (lingerie), Cloth Habit, Orange Lingerie, Jalie, Style Arc._
 
-### Current catalog: 24 garments
+### Current catalog: 38 garments
 
-**Men's/unisex:** tee, camp shirt, crewneck, hoodie, straight jeans, chinos, pleated trousers, sweatpants, cargo shorts, gym shorts, pleated shorts, swim trunks, crop jacket, denim jacket
-**Women's:** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, shirt dress, wrap dress
+**Men's/unisex:** tee, camp shirt, button-up (+ linen shirt, chambray work shirt variants), crewneck, hoodie, straight jeans, baggy jeans, chinos, 874 work pants, pleated trousers, sweatpants, cargo shorts, baggy shorts, gym shorts, pleated shorts, swim trunks, crop jacket, athletic formal jacket, denim jacket, cargo work pants, apron, bow tie, tank top, tote bag
+**Women's:** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, circle skirt, pencil skirt, shirt dress, wrap dress, T-shirt dress, slip dress, A-line dress, sundress, leggings, athletic formal trousers
 
 ### New Modules (one validated per week post-launch)
 Validation = code + muslin + fit confirmed
@@ -437,6 +492,9 @@ These require moderate new engine functions or garment-specific logic.
 | Face mask | outer panel x2, lining panel x2, nose wire, elastic ear loops | nose-to-chin, ear-to-ear (across face) | cotton woven (quilting weight). Lining: cotton. Nose wire: aluminum strip 4" | snug to face with elastic tension | contoured: 2 shaped panels sewn at center (concave curve at nose). Filter pocket between layers. Elastic at 70-75% of ear-loop measurement. FreeSewing: florence | SA 3/8", elastic 1/4" or 1/8", nose wire in channel |
 | Flower girl dress | front bodice, back bodice, full skirt (gathered or circle), sash, optional tulle overlay | chest, waist, shoulder, desired length, height | cotton, satin, tulle, organza (3-6 oz) | +2" chest, +1" waist | children's bodice block + gathered or circle skirt. Sash at waist. Tulle overlay: 2-3 layers. Button/zip at CB. Petticoat for volume | SA 1/2", hem 1", CB button or zip, tulle raw-edge (doesn't fray) |
 | Egg gathering apron | front panel with 8-12 deep pockets, ties at waist | N/A (one-size or custom waist) | cotton, canvas, denim (5-8 oz) | N/A | front panel ~18x20" with 8-12 pocketed pouches (each ~4x4" opening). Ties at waist. Homesteading/cottagecore niche | SA 5/8", pockets reinforced at openings |
+| Skort | front skirt overlay, back shorts panels x2, waistband | waist, hip, rise, desired length | cotton twill, performance knit, linen (5-8 oz) | waist +1", hip +2-3" | skirt front panel overlaps shorts back. Biarritz skort is an indie bestseller. Athletic + casual crossover | SA 5/8", elastic or zip waist |
+| Quilted vest / gilet | front x2, back, quilted (shell+batting), lining, stand collar or hood, zip | chest, shoulder, neck, torso length | ripstop nylon + batting (3-6 oz shell). Lining: poly taffeta | +4-6" chest | gorpcore layering trend. Same as puffer jacket minus sleeves. Armhole 1" deeper | separating zip, binding at armhole |
+| "Mom & Me" curated bundles | adult + child versions of same garment, sold as bundle | adult + child measurements | matched fabric | per garment | no new engine work - uses body type selector. Bundle pricing. Social media gold | bundle discount pricing |
 
 ---
 
@@ -571,6 +629,38 @@ underBelly         - below belly, above pubic bone
 - Laptop sleeve, book sleeve, dog bandana, zippered pouch, water bottle sling
 - Bikepacking frame bag (custom to bike frame - signature parametric product)
 - Bench cushion (custom dimensions)
+
+### Research-backed marketing angles
+
+_From 2026-03-31 market research._
+
+**Lead messaging:**
+- "Pants that actually fit YOUR body" - strongest MTM value prop across all demographics
+- Men's angle: "Rise-customized pants - the measurement no other brand addresses"
+- Athletic fit as explicit option - serve the fitness community directly
+- "Finally, men's patterns that don't look like your dad's wardrobe" - modern styling differentiator
+
+**Channels:**
+- Target TikTok first - 3M+ sewing posts, #boyswhosew 53.4M views, sewing videos getting 11M+ views
+- Free pattern as acquisition funnel (every major indie brand does this - Mood has 490+ free patterns)
+- Seed 50-100 free downloads to sewists with 5k-50k followers
+
+**Differentiators to emphasize:**
+- Gender-inclusive sizing (measurements, not gendered size charts)
+- Plus-size support above XXL/46" chest - the entire men's market ignores this
+- Short/tall proportional adjustment - not just length changes, full proportional redesign
+- Sustainability angle: make what you need, not fast fashion
+
+**Underserved segments to target:**
+- Athletic/muscular builds (95% of off-the-rack doesn't fit)
+- Short men under 5'8" (~30% of US men, essentially ignored)
+- Plus-size men above XXL (34% of men, 12% of market)
+- Gen Z men wanting unique/OOAK garments
+
+**Competitive positioning:**
+- Top indie brands Gen Z follows: Friday Pattern Company, Closet Core, Megan Nielsen, Helen's Closet, Papercut Patterns, Merchant & Mills - all use standard sizing
+- Big 4 (Simplicity, McCall's, Butterick, Vogue) are slow to adapt to trend cycles
+- No MTM brand combines modern/trending styling with true custom-fit - we own this gap
 
 ### MYOG Push (Month 2-3)
 - [ ] Tote, crossbody - list on r/myog immediately

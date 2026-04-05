@@ -1,5 +1,18 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-// Minimal JS for static pages (FAQ, Terms, Privacy) — theme toggle only.
+// Shared JS for static pages (FAQ, Terms, Privacy, etc.) — theme toggle + auth.
+
+import { initAuthModal } from './auth-modal.js';
+
+import { inject } from '@vercel/analytics';
+import '../analytics.js';
+import { onUserChange, getCurrentUser } from './auth-modal.js';
+import GARMENTS from '../garments/index.js';
+
+inject();
+
+// Inject dynamic garment count on pages that reference it
+const countEl = document.getElementById('about-garment-count');
+if (countEl) countEl.textContent = Object.keys(GARMENTS).length;
 
 function getSavedTheme() {
   try { return localStorage.getItem('theme'); } catch { return null; }
@@ -43,6 +56,15 @@ document.addEventListener('click', e => {
     mobileNav.classList.remove('open');
   }
 });
+// ── Promo banner (logged-out only) ────────────────────────────────────────────
+const _promoBanner = document.getElementById('promo-banner');
+function _updateBanner(user) {
+  if (!_promoBanner) return;
+  _promoBanner.style.display = user ? 'none' : '';
+}
+_updateBanner(getCurrentUser());
+onUserChange(_updateBanner);
+
 document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = !isDark;
@@ -50,3 +72,6 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
   applyTheme(next);
   mobileNav?.classList.remove('open');
 });
+
+// Auth modal (sign in / account UI in header)
+initAuthModal();

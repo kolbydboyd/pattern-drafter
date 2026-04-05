@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const NECK_STYLES = {
@@ -42,7 +42,7 @@ export default {
     closure: {
       type: 'select', label: 'Back closure',
       values: [
-        { value: 'pullover', label: 'Pullover - no zip'             },
+        { value: 'pullover', label: 'Pullover, no zip'             },
         { value: 'zip',      label: 'Invisible zip at center back' },
       ],
       default: 'pullover',
@@ -180,11 +180,22 @@ export default {
     const shoulderMidY = slopeDrop / 2;
     const backSideX = shoulderPtX + backChestDepth;
 
+    // Arc-length armhole notches: single = front, double = back
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: sideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Bust dart matchpoint notches at side seam
     if (bustDarts.length > 0) {
@@ -196,8 +207,8 @@ export default {
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
-      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     const frontBB = bb(frontPoly), backBB = bb(backPoly);
@@ -212,16 +223,16 @@ export default {
       },
       {
         id: 'bodice-back', name: 'Back Body',
-        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip - add ⅝″ SA at CB' : ''}`,
+        instruction: `Cut 1 on fold (CB)${opts.closure === 'zip' ? ' · Split at CB for invisible zip. Add ⅝″ SA at CB' : ''}`,
         type: 'bodice', polygon: backPoly, path: pp(backPoly),
         width: backBB.width, height: backBB.height, isBack: true, sa, hem, notches: backNotches,
         dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
       },
-      { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket' },
+      { id: 'neck-facing', name: 'Neckline Facing', instruction: 'Cut 2 (front + back) · Interface · Follows neckline curve, 2.5″ wide · Join at shoulder seams', dimensions: { length: m.neck + 1, width: 2.5 }, type: 'pocket', sa },
     ];
 
     if (opts.sleeves === 'sleeveless') {
-      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · Follows armhole curve, 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket' });
+      pieces.push({ id: 'armhole-facing', name: 'Armhole Facing', instruction: 'Cut 4 (2 front + 2 back) · Interface · Follows armhole curve, 2″ wide', dimensions: { width: armholeDepth + 1, height: 2 }, type: 'pocket', sa });
     } else if (opts.sleeves === 'cap' || opts.sleeves === 'short') {
       const slvLen = opts.sleeves === 'cap' ? 3.5 : 9;
       const slvW   = (m.bicep || 13) / 2 + easeVal * 0.15;
@@ -247,11 +258,11 @@ export default {
     } else if (opts.sleeves === 'flutter') {
       // Flutter: curved rectangle that drapes — wider at hem than at armhole
       const flutterW = armholeDepth * 1.5;
-      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'flutter-sleeve', name: 'Flutter Sleeve', instruction: 'Cut 2 (mirror L & R) · Bias grain for drape · Curved outer edge gathers slightly at attachment', dimensions: { width: flutterW, height: 8 }, type: 'pocket', grainAngle: 45, sa });
     }
 
     if (opts.closure === 'zip') {
-      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ - install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket' });
+      pieces.push({ id: 'cb-zip', name: 'Center Back Zipper', instruction: `Invisible zip · ${Math.ceil(torsoLen * 0.6)}″ - install before sewing CB seam`, dimensions: { width: 1, height: Math.ceil(torsoLen * 0.6) }, type: 'pocket', sa });
     }
 
     return pieces;

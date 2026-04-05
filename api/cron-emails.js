@@ -180,6 +180,171 @@ async function sendFitFeedbackRequest() {
   return sent;
 }
 
+// ── trigger 5: welcome sequence drip ─────────────────────────────────────────
+
+const STEP_TO_TYPE = [
+  'WELCOME_SEQUENCE_DAY_0',
+  'WELCOME_SEQUENCE_DAY_2',
+  'WELCOME_SEQUENCE_DAY_5',
+  'WELCOME_SEQUENCE_DAY_9',
+  'WELCOME_SEQUENCE_DAY_13',
+];
+
+async function sendWelcomeSequenceDrip() {
+  const now = new Date().toISOString();
+
+  const { data: due } = await supabase
+    .from('welcome_sequence')
+    .select('id, user_id, email, step')
+    .is('sent_at', null)
+    .lte('scheduled_for', now)
+    .limit(100);
+
+  let sent = 0;
+  for (const row of due ?? []) {
+    const emailType = STEP_TO_TYPE[row.step];
+    if (!emailType) continue;
+    if (await alreadySent(row.user_id, emailType)) continue;
+
+    try {
+      await sendEmail(emailType, row.email, {});
+      await supabase
+        .from('welcome_sequence')
+        .update({ sent_at: now })
+        .eq('id', row.id);
+      if (row.user_id) {
+        await logEmail(row.user_id, row.email, emailType);
+      }
+      sent++;
+    } catch (err) {
+      console.error(`${emailType} failed for ${row.email}:`, err.message);
+    }
+  }
+  return sent;
+}
+
+// ── trigger 6: weekly digest (Sundays only) ─────────────────────────────────
+
+async function sendWeeklyDigest() {
+  // Only run on Sundays
+  if (new Date().getDay() !== 0) return 'skipped (not Sunday)';
+
+  // Get last digest state
+  const { data: state } = await supabase
+    .from('digest_state')
+    .select('id, last_sent_at')
+    .limit(1)
+    .single();
+
+  // Import articles to find new ones
+  let ARTICLES;
+  try {
+    const mod = await import('../src/content/articles.js');
+    ARTICLES = mod.ARTICLES || mod.default || [];
+  } catch {
+    return 'skipped (articles import failed)';
+  }
+
+  const lastSent = state?.last_sent_at ? new Date(state.last_sent_at) : new Date(0);
+  const newArticles = ARTICLES.filter(a =>
+    a.datePublished && new Date(a.datePublished) > lastSent
+  );
+
+  if (newArticles.length === 0) return 'skipped (no new articles)';
+
+  // Get opted-in subscribers
+  const { data: subscribers } = await supabase
+    .from('newsletter')
+    .select('email')
+    .eq('marketing_opt_in', true);
+
+  let sent = 0;
+  const articleData = newArticles.map(a => ({
+    title: a.title,
+    slug: a.slug,
+    description: a.description || '',
+  }));
+
+  for (const sub of subscribers ?? []) {
+    try {
+      await sendEmail('WEEKLY_DIGEST', sub.email, {
+        articles: articleData,
+        testerCalls: [],
+      });
+      sent++;
+    } catch (err) {
+      console.error(`WEEKLY_DIGEST failed for ${sub.email}:`, err.message);
+    }
+  }
+
+  // Update digest state
+  if (state?.id) {
+    await supabase
+      .from('digest_state')
+      .update({
+        last_sent_at: new Date().toISOString(),
+        last_article_slugs: newArticles.map(a => a.slug),
+      })
+      .eq('id', state.id);
+  }
+
+  return sent;
+}
+
+// ── trigger 7: abandoned pattern reminders (opted-in, 3-7 days) ─────────────
+
+async function sendAbandonedPatternReminders() {
+  const cutoff    = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+  const cutoffOld = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  // Find users who used their free credit 3-7 days ago
+  const { data: freePurchases } = await supabase
+    .from('purchases')
+    .select('user_id, garment_id, purchased_at')
+    .eq('amount_cents', 0)
+    .gte('purchased_at', cutoffOld)
+    .lte('purchased_at', cutoff);
+
+  let sent = 0;
+  for (const p of freePurchases ?? []) {
+    if (!p.user_id) continue;
+
+    // Check if user has marketing opt-in
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('marketing_opt_in')
+      .eq('id', p.user_id)
+      .single();
+    if (!profile?.marketing_opt_in) continue;
+
+    // Skip if they've made a paid purchase
+    const { count: paidCount } = await supabase
+      .from('purchases')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', p.user_id)
+      .gt('amount_cents', 0);
+    if ((paidCount ?? 0) > 0) continue;
+
+    if (await alreadySent(p.user_id, 'ABANDONED_PATTERN_REMINDER', p.garment_id)) continue;
+
+    const email = await getUserEmail(p.user_id);
+    if (!email) continue;
+
+    const garmentName = p.garment_id.replace(/-/g, ' ');
+    try {
+      await sendEmail('ABANDONED_PATTERN_REMINDER', email, {
+        garmentName,
+        patternUrl: `${SITE_URL}/?step=1&garment=${p.garment_id}`,
+      });
+      await logEmail(p.user_id, email, 'ABANDONED_PATTERN_REMINDER', p.garment_id);
+      sent++;
+    } catch (err) {
+      console.error(`ABANDONED_PATTERN_REMINDER failed for ${email}:`, err.message);
+    }
+  }
+  return sent;
+}
+
 // ── handler ────────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -194,19 +359,25 @@ export default async function handler(req, res) {
     sendPurchasedNotDownloaded(),
     sendPostPurchaseSewHelp(),
     sendFitFeedbackRequest(),
+    sendWelcomeSequenceDrip(),
+    sendWeeklyDigest(),
+    sendAbandonedPatternReminders(),
   ]);
 
-  const [gnp, pnd, sew, fit] = results.map(r =>
+  const [gnp, pnd, sew, fit, drip, digest, abandon] = results.map(r =>
     r.status === 'fulfilled' ? r.value : `error: ${r.reason?.message}`
   );
 
-  console.log(`[cron-emails] generatedNotPurchased=${gnp} purchasedNotDownloaded=${pnd} sewHelp=${sew} fitFeedback=${fit}`);
+  console.log(`[cron-emails] generatedNotPurchased=${gnp} purchasedNotDownloaded=${pnd} sewHelp=${sew} fitFeedback=${fit} welcomeDrip=${drip} weeklyDigest=${digest} abandonedReminder=${abandon}`);
 
   res.status(200).json({
     ok: true,
-    generatedNotPurchased:   gnp,
-    purchasedNotDownloaded:  pnd,
-    postPurchaseSewHelp:     sew,
-    fitFeedbackRequest:      fit,
+    generatedNotPurchased:      gnp,
+    purchasedNotDownloaded:     pnd,
+    postPurchaseSewHelp:        sew,
+    fitFeedbackRequest:         fit,
+    welcomeSequenceDrip:        drip,
+    weeklyDigest:               digest,
+    abandonedPatternReminder:   abandon,
   });
 }
