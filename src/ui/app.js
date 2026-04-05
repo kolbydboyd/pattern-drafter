@@ -2011,6 +2011,11 @@ else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
   if (el) renderMakesGallery(el, { limit: 8 });
 })();
 
+// Inject live garment count into landing page placeholders
+document.querySelectorAll('.js-pattern-count').forEach(el => {
+  el.textContent = Object.keys(GARMENTS).length;
+});
+
 // Pattern generation counter — fetch once and display
 (function loadPatternCount() {
   const el = document.getElementById('land-pattern-count');
