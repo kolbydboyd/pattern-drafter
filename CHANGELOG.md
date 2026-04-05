@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.1] - 2026-04-05
+
+### Email verification flow
+- After signup, users now see a "Check your email" verification screen instead of being immediately logged in.
+- Unverified users (no `email_confirmed_at`) are blocked from appearing signed in via `onAuthStateChange` and session restore.
+- `onAuthStateChange` callback now receives the Supabase event type for more precise auth state handling.
+- Added `.auth-verify`, `.auth-verify-icon`, `.auth-verify-text`, `.auth-verify-hint`, and `.auth-btn-secondary` CSS classes.
+
+---
+
 ## [0.12.0] - 2026-04-03
 
 ### Email marketing system (code complete, not yet live)

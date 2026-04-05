@@ -3,10 +3,11 @@ import { signUp, signIn, signOut, getUser, onAuthStateChange, resetPassword } fr
 import { trackEvent, identifyUser } from '../analytics.js';
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let _modalState    = 'login';   // 'login' | 'signup'
+let _modalState    = 'login';   // 'login' | 'signup' | 'verify'
 let _trigger       = 'header';  // 'header' | 'save-profile' | 'download'
 let _pendingAction = null;      // function to call after successful auth
 let _authUser      = null;
+let _awaitingVerification = false; // true after signup, cleared on verified sign-in
 
 // ── Auth state broadcast ──────────────────────────────────────────────────────
 const _listeners = [];
@@ -14,13 +15,25 @@ export function onUserChange(fn) { _listeners.push(fn); }
 function _broadcast(user) { _authUser = user; _listeners.forEach(fn => fn(user)); }
 
 // Subscribe to Supabase session changes on module load
-onAuthStateChange(user => {
+onAuthStateChange((user, event) => {
+  // After signup, Supabase may fire a session event before email is confirmed.
+  // Don't treat unverified users as fully signed in.
+  if (user && !user.email_confirmed_at) {
+    _awaitingVerification = true;
+    return;
+  }
+  // User just confirmed their email and signed in
+  if (_awaitingVerification && user?.email_confirmed_at) {
+    _awaitingVerification = false;
+  }
   _broadcast(user);
   updateHeaderAuth(user);
 });
 
 // Restore session on page load — identify returning users for analytics
 getUser().then(({ user }) => {
+  // Don't restore session for unverified users
+  if (user && !user.email_confirmed_at) return;
   _broadcast(user);
   updateHeaderAuth(user);
   if (user) identifyUser(user.id, { email: user.email });
@@ -130,12 +143,38 @@ function _signupHTML(err) {
     </p>`;
 }
 
+function _verifyHTML(email) {
+  return `
+    <div class="auth-verify">
+      <div class="auth-verify-icon">✉</div>
+      <h2 class="auth-context-title" id="auth-heading">Check your email</h2>
+      <p class="auth-verify-text">
+        We sent a confirmation link to <strong>${email}</strong>.
+        Click the link in that email to verify your account.
+      </p>
+      <p class="auth-verify-hint">
+        Didn't receive it? Check your spam folder or try signing up again.
+      </p>
+      <button class="auth-btn auth-btn-secondary" id="auth-back-login">Back to Sign In</button>
+    </div>`;
+}
+
 function _renderBody(state, err) {
   const body = document.getElementById('auth-modal-body');
   if (!body) return;
+  if (state === 'verify') {
+    body.innerHTML = _verifyHTML(_verifyEmail || '');
+    document.getElementById('auth-back-login')?.addEventListener('click', () => {
+      _modalState = 'login';
+      _renderBody('login');
+    });
+    return;
+  }
   body.innerHTML = state === 'signup' ? _signupHTML(err) : _loginHTML(err);
   _wireForm();
 }
+
+let _verifyEmail = '';
 
 function _wireForm() {
   document.getElementById('auth-toggle')?.addEventListener('click', e => {
@@ -174,15 +213,13 @@ function _wireForm() {
         _renderBody('signup', 'Password must be at least 8 characters.');
         return;
       }
-      const { error } = await signUp(email, pass);
+      const { data, error } = await signUp(email, pass);
       if (error) { _renderBody('signup', error.message); return; }
       trackEvent('account_created');
-      document.getElementById('auth-modal-body').innerHTML = `
-        <p class="auth-success" style="text-align:center;margin-top:16px">
-          Account created! You have <strong>1 free pattern download</strong> waiting.<br>
-          Check your email to confirm your address, then sign in below.
-        </p>`;
-      setTimeout(() => { _modalState = 'login'; _renderBody('login'); }, 2500);
+      _awaitingVerification = true;
+      _verifyEmail = email;
+      _modalState = 'verify';
+      _renderBody('verify');
     } else {
       const { data, error } = await signIn(email, pass);
       if (error) { _renderBody('login', error.message); return; }
