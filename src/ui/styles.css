@@ -441,6 +441,12 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .auth-legal{font-size:.55rem;color:var(--light);text-align:center;margin-top:12px;line-height:1.5}
 .auth-error{font-size:.78rem;color:var(--accent);background:rgba(200,68,68,.08);border:1px solid rgba(200,68,68,.2);border-radius:3px;padding:7px 10px;margin-bottom:14px}
 .auth-success{font-size:.78rem;color:var(--sa);background:rgba(74,138,90,.1);border:1px solid rgba(74,138,90,.25);border-radius:3px;padding:8px 10px;margin-bottom:14px;line-height:1.5}
+.auth-verify{text-align:center;padding:16px 0}
+.auth-verify-icon{font-size:2.5rem;margin-bottom:12px}
+.auth-verify-text{font-size:.85rem;color:var(--text);line-height:1.6;margin:12px 0}
+.auth-verify-hint{font-size:.72rem;color:var(--mid);line-height:1.5;margin:16px 0 20px}
+.auth-btn-secondary{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.auth-btn-secondary:hover{background:rgba(194,163,100,.1);filter:none}
 
 /* ── Header auth ── */
 .hdr-auth{display:flex;align-items:center;gap:8px}
