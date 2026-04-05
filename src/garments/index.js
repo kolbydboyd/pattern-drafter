@@ -11,6 +11,7 @@ import straightJeans from './straight-jeans.js';
 import baggyJeans    from './baggy-jeans.js';
 import baggyShorts   from './baggy-shorts.js';
 import chinos        from './chinos.js';
+import workPants874  from './874-work-pants.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
 import tee           from './tee.js';
@@ -53,6 +54,7 @@ const GARMENTS = {
   'baggy-jeans':          baggyJeans,
   'baggy-shorts':         baggyShorts,
   'chinos':               chinos,
+  '874-work-pants':       workPants874,
   'pleated-trousers':     pleatedTrousers,
   'sweatpants':           sweatpants,
   'tee':                  tee,

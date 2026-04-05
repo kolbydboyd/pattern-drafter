@@ -4,6 +4,21 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.3] - 2026-04-05
+
+### New garment: 874 Work Pants
+- Based on chinos module with 874-specific adaptations
+- High rise default (+1.5", 11.5" effective), relaxed fit (+6" ease), slight taper (0.95/0.90 knee/hem ratios)
+- 1.75" finished waistband with hook-and-eye + button closure, +2" overlap
+- 7 tunnel belt loops (1" finished width)
+- Double-stitch + edge finish seam construction throughout
+- Center crease option (default on) with pressing instructions
+- Era option: classic (pre-2010 heavier USA-made twill) vs modern (current lighter blend)
+- Slant front pockets, welt back pockets with button
+
+---
+
+
 ## [0.12.2] - 2026-04-05
 
 ### Fix patterns page load failure
