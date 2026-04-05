@@ -1,0 +1,362 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
+/**
+ * SEO descriptions and FAQ content for each garment.
+ * Used by the build-time pre-rendering script and pattern-page.js.
+ */
+
+const SEO_DESCRIPTIONS = {
+  'cargo-shorts': {
+    metaDescription: 'Draft a custom-fit cargo shorts sewing pattern from your exact measurements. Patch pockets, adjustable inseam, and relaxed fit - all sized to your body. Tiled PDF included.',
+    pageIntro: 'Roomy cargo shorts with patch pockets, drafted to your waist, hip, and inseam measurements. Choose your inseam length and pocket placement for a pair that fits exactly how you want.',
+    faq: [
+      { q: 'What fabric works best for cargo shorts?', a: 'Medium-weight cotton twill, canvas, or ripstop are ideal. A fabric with some body holds the pocket shape well.' },
+      { q: 'How much ease is built into the pattern?', a: 'The cargo shorts include generous wearing ease for a relaxed fit. Your exact waist, hip, and thigh measurements are used as the starting point.' },
+    ],
+  },
+  'gym-shorts': {
+    metaDescription: 'Generate a custom-fit gym shorts sewing pattern built to your measurements. Elastic waist, side pockets, and adjustable inseam length. Beginner-friendly tiled PDF.',
+    pageIntro: 'Simple elastic-waist gym shorts drafted to your waist and hip measurements. A great beginner project with minimal pieces and a comfortable, relaxed fit.',
+    faq: [
+      { q: 'Can I use knit fabric for gym shorts?', a: 'Yes - athletic knits, jersey, or woven fabrics like nylon and polyester all work well. The elastic waist accommodates stretch and non-stretch fabrics.' },
+      { q: 'How do I choose the right inseam length?', a: 'The pattern lets you set your preferred inseam. A 5-inch inseam hits mid-thigh, while 7-9 inches sits closer to the knee.' },
+    ],
+  },
+  'swim-trunks': {
+    metaDescription: 'Create custom-fit swim trunks from your exact body measurements. Elastic waistband, mesh liner option, and adjustable length. Beginner-friendly sewing pattern as tiled PDF.',
+    pageIntro: 'Swim trunks drafted to your waist and hip measurements with an elastic waistband. Choose your preferred length and customize the fit for a pair that stays comfortable in and out of the water.',
+    faq: [
+      { q: 'What fabric should I use for swim trunks?', a: 'Board short fabric (polyester or nylon with a DWR finish) is the standard choice. Look for fabric with 2-way stretch for comfort.' },
+      { q: 'Do I need a serger to sew swim trunks?', a: 'A serger gives the cleanest finish on swimwear fabric, but you can use a zigzag stitch or stretch stitch on a regular sewing machine.' },
+    ],
+  },
+  'pleated-shorts': {
+    metaDescription: 'Draft custom-fit pleated shorts from your body measurements. Single or double front pleats, tailored waistband, and zip fly. Tiled PDF sewing pattern.',
+    pageIntro: 'Tailored pleated shorts with a structured waistband, drafted from your waist, hip, and rise measurements. Front pleats add room through the thigh for a polished, comfortable fit.',
+    faq: [
+      { q: 'What is the difference between single and double pleats?', a: 'Single pleats give a cleaner, more modern look. Double pleats add more room through the thigh and hip for a traditional, relaxed silhouette.' },
+      { q: 'What fabric weight works for pleated shorts?', a: 'Medium-weight wovens like linen, cotton twill, or tropical wool hold the pleat shape and drape well.' },
+    ],
+  },
+  'straight-jeans': {
+    metaDescription: 'Generate a custom-fit straight jeans sewing pattern from your exact measurements. Five-pocket styling, zip fly, and straight leg. Tiled PDF with construction guide.',
+    pageIntro: 'Classic five-pocket straight jeans drafted to your waist, hip, rise, inseam, and thigh measurements. Every panel is sized to your body for a true personal fit.',
+    faq: [
+      { q: 'What weight of denim should I use?', a: 'A 10-12 oz denim is the sweet spot for everyday jeans - sturdy enough for structure, light enough to sew on a home machine.' },
+      { q: 'Do I need a special needle for denim?', a: 'Yes - use a denim/jeans needle (size 90/14 or 100/16) and a longer stitch length (3.0-3.5mm) for clean seams through thick layers.' },
+    ],
+  },
+  'chinos': {
+    metaDescription: 'Create custom-fit chinos from your body measurements. Flat-front, slash pockets, and a clean tapered leg. Tiled PDF sewing pattern with full instructions.',
+    pageIntro: 'Flat-front chinos drafted from your waist, hip, rise, and inseam. Slash pockets and a tapered leg give a modern silhouette, all sized to your measurements.',
+    faq: [
+      { q: 'What fabric works best for chinos?', a: 'Cotton twill in a 7-10 oz weight is the classic choice. Stretch cotton twill (with 2-3% elastane) adds comfort.' },
+      { q: 'How is the fit different from jeans?', a: 'Chinos have a slightly cleaner construction with flat-felled or serged seams instead of traditional jean topstitching, and a slimmer, tapered leg.' },
+    ],
+  },
+  'pleated-trousers': {
+    metaDescription: 'Draft custom-fit pleated trousers from your exact measurements. Single or double pleats, tailored waistband, and full-length leg. Tiled PDF sewing pattern.',
+    pageIntro: 'Tailored pleated trousers drafted from your waist, hip, rise, and inseam measurements. Front pleats and a structured waistband create a refined silhouette sized exactly to your body.',
+    faq: [
+      { q: 'What fabric is best for pleated trousers?', a: 'Wool suiting, wool-blend, or tropical wool for year-round wear. Linen and cotton twill also work well for warmer months.' },
+      { q: 'Are pleated trousers hard to sew?', a: 'They require precision at the waistband and fly, but the construction is straightforward once those steps are mastered. Rated as a tailored-level project.' },
+    ],
+  },
+  'sweatpants': {
+    metaDescription: 'Generate custom-fit sweatpants from your exact measurements. Elastic waist, ribbed cuffs, and a relaxed tapered leg. Tiled PDF sewing pattern.',
+    pageIntro: 'Relaxed sweatpants with an elastic waistband and ribbed cuffs, drafted to your waist, hip, and inseam. A comfortable everyday pant that fits your body, not a size chart.',
+    faq: [
+      { q: 'What fabric do I need for sweatpants?', a: 'French terry or fleece-back jersey in a medium weight. You will also need ribbing for the waistband and cuffs.' },
+      { q: 'Do I need a serger?', a: 'A serger makes knit construction faster, but a sewing machine with a stretch stitch or zigzag works fine.' },
+    ],
+  },
+  'tee': {
+    metaDescription: 'Create a custom-fit t-shirt sewing pattern from your exact measurements. Crew neck, v-neck, or scoop - choose your neckline and sleeve length. Beginner-friendly tiled PDF.',
+    pageIntro: 'A classic t-shirt drafted to your chest, shoulder, neck, and sleeve measurements. Choose your neckline style and sleeve length for a tee that fits your body perfectly.',
+    faq: [
+      { q: 'What type of knit fabric works for a t-shirt?', a: 'Cotton jersey is the most popular choice. Look for a fabric with about 25% stretch across the grain for a comfortable fit.' },
+      { q: 'Can a beginner sew a t-shirt?', a: 'Yes - the t-shirt is one of the best beginner garment projects. It has few pieces, simple construction, and teaches you how to work with knit fabric.' },
+    ],
+  },
+  'camp-shirt': {
+    metaDescription: 'Draft a custom-fit camp shirt sewing pattern from your measurements. Relaxed fit, convertible collar, and short sleeves. Tiled PDF with construction instructions.',
+    pageIntro: 'A relaxed-fit camp collar shirt drafted to your chest, shoulder, and torso measurements. The convertible collar and straight hem create a casual, boxy silhouette.',
+    faq: [
+      { q: 'What fabric is best for a camp shirt?', a: 'Lightweight wovens like rayon, linen, cotton lawn, or chambray drape well and suit the relaxed camp shirt silhouette.' },
+      { q: 'What makes a camp collar different from a regular collar?', a: 'A camp collar (also called a revere collar) lays flat and open, with no stand or band. It creates a relaxed, notched-lapel look.' },
+    ],
+  },
+  'crewneck': {
+    metaDescription: 'Generate a custom-fit crewneck sweatshirt sewing pattern from your measurements. Ribbed cuffs and hem, set-in sleeves, and relaxed fit. Tiled PDF pattern.',
+    pageIntro: 'A classic crewneck sweatshirt drafted to your chest, shoulder, and sleeve measurements. Ribbed cuffs, collar, and hem band for a clean, comfortable finish.',
+    faq: [
+      { q: 'What fabric works for a crewneck sweatshirt?', a: 'French terry or fleece-back sweatshirt fleece in a medium to heavy weight. You will also need ribbing for the neckband, cuffs, and hem.' },
+      { q: 'How much ease does the crewneck have?', a: 'The pattern includes standard sweatshirt ease for a relaxed fit. Your chest and shoulder measurements are used as the starting point, with ease added for comfort.' },
+    ],
+  },
+  'hoodie': {
+    metaDescription: 'Create a custom-fit hoodie sewing pattern from your exact measurements. Kangaroo pocket, drawstring hood, and ribbed cuffs. Tiled PDF with full instructions.',
+    pageIntro: 'A pullover hoodie with a kangaroo pocket and drawstring hood, drafted to your chest, shoulder, and sleeve measurements. Every panel is sized to your body.',
+    faq: [
+      { q: 'What fabric do I need for a hoodie?', a: 'Medium to heavy weight sweatshirt fleece or French terry. You will also need ribbing for cuffs and hem, plus a drawstring cord for the hood.' },
+      { q: 'Is sewing a hoodie difficult?', a: 'The hoodie is rated as a tailored-level project due to the hood construction and kangaroo pocket. Comfortable handling knit fabrics is recommended.' },
+    ],
+  },
+  'crop-jacket': {
+    metaDescription: 'Draft a custom-fit crop jacket sewing pattern from your measurements. Cropped length, front closure, and tailored fit. Tiled PDF sewing pattern.',
+    pageIntro: 'A cropped jacket drafted to your chest, shoulder, and torso measurements. The shortened body and tailored seams create a modern silhouette that pairs well with high-waisted bottoms.',
+    faq: [
+      { q: 'What fabric works for a crop jacket?', a: 'Medium-weight wovens with body work best - denim, twill, canvas, or wool melton. A lining fabric is recommended for a clean interior finish.' },
+      { q: 'Where does the crop length hit?', a: 'The jacket is drafted to sit at or just above the natural waist. Your torso length measurement determines the exact placement.' },
+    ],
+  },
+  'denim-jacket': {
+    metaDescription: 'Generate a custom-fit denim jacket sewing pattern from your exact measurements. Classic trucker styling with chest pockets and a tailored fit. Tiled PDF pattern.',
+    pageIntro: 'A classic denim jacket with trucker-style yoke and chest pockets, drafted to your chest, shoulder, and arm measurements. Tailored construction for a jacket that fits like it was made for you - because it was.',
+    faq: [
+      { q: 'What weight of denim should I use?', a: 'A 10-12 oz denim gives the right structure for a jacket. Heavier weights (14 oz+) are harder to sew through multiple layers on a home machine.' },
+      { q: 'Do I need special equipment?', a: 'A denim needle (90/14 or 100/16), heavy-duty thread, and a walking foot are recommended. A hammer or clapper helps flatten thick seams.' },
+    ],
+  },
+  'wide-leg-trouser-w': {
+    metaDescription: 'Create custom-fit wide-leg trousers from your measurements. High waist, flowing leg, and flattering drape. Tiled PDF sewing pattern for women.',
+    pageIntro: 'Wide-leg trousers drafted to your waist, hip, rise, and inseam measurements. A high waistband and flowing leg create a flattering, comfortable silhouette sized exactly to your body.',
+    faq: [
+      { q: 'What fabric drapes well for wide-leg trousers?', a: 'Rayon twill, crepe, linen, or lightweight wool all create beautiful drape. Avoid stiff fabrics that will add bulk to the wide leg.' },
+      { q: 'How wide is the leg opening?', a: 'The leg width is proportional to your hip measurement and designed for a balanced, flattering silhouette. The pattern drafts the width automatically based on your body.' },
+    ],
+  },
+  'straight-trouser-w': {
+    metaDescription: 'Draft custom-fit straight trousers from your exact measurements. Clean lines, flat front, and a versatile straight leg. Tiled PDF sewing pattern for women.',
+    pageIntro: 'Straight-leg trousers drafted to your waist, hip, rise, and inseam measurements. A flat front and clean lines make these a wardrobe workhorse that fits your body perfectly.',
+    faq: [
+      { q: 'How do straight trousers differ from wide-leg?', a: 'Straight trousers follow the line of the leg without flaring or tapering, creating a more structured and versatile silhouette.' },
+      { q: 'What fabric is best for work trousers?', a: 'Wool suiting, ponte, or cotton twill with a small amount of stretch all work well for trousers that need to look polished and feel comfortable.' },
+    ],
+  },
+  'easy-pant-w': {
+    metaDescription: 'Generate a custom-fit easy pant sewing pattern from your measurements. Elastic waist, relaxed fit, and simple construction. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'An elastic-waist pant drafted to your waist and hip measurements. Simple pull-on construction makes this a perfect beginner project that still fits beautifully.',
+    faq: [
+      { q: 'What makes this an "easy" pant?', a: 'The elastic waistband eliminates the need for a fly, waistband facing, or buttonhole. Fewer pieces and simpler construction make it a great first pants project.' },
+      { q: 'What fabrics work for easy pants?', a: 'Knits like ponte or French terry, or drapey wovens like rayon and linen. The elastic waist works with both stretch and non-stretch fabrics.' },
+    ],
+  },
+  'button-up-w': {
+    metaDescription: 'Create a custom-fit button-up shirt sewing pattern from your measurements. Tailored bust darts, collar stand, and button placket. Tiled PDF for women.',
+    pageIntro: 'A tailored button-up shirt drafted to your bust, shoulder, and waist measurements. Bust darts, a fitted waist, and a proper collar stand create a polished fit sized to your body.',
+    faq: [
+      { q: 'Is sewing a button-up shirt difficult?', a: 'The button-up is rated as a tailored-level project. The collar, placket, and buttonholes require precision, but the included instructions walk through each step.' },
+      { q: 'What fabric should I use?', a: 'Shirting-weight cotton (poplin, broadcloth, or oxford cloth) is the classic choice. Chambray and lightweight linen also work well.' },
+    ],
+  },
+  'shell-blouse-w': {
+    metaDescription: 'Draft a custom-fit shell blouse sewing pattern from your measurements. Sleeveless, clean neckline, and darted fit. Tiled PDF sewing pattern for women.',
+    pageIntro: 'A sleeveless shell blouse drafted to your bust, shoulder, and waist measurements. Clean lines and a darted fit make it perfect layered under a blazer or worn on its own.',
+    faq: [
+      { q: 'What is a shell blouse?', a: 'A shell is a sleeveless, fitted top with a simple neckline - a wardrobe staple that works under jackets, cardigans, or on its own in warm weather.' },
+      { q: 'What fabric works for a shell blouse?', a: 'Lightweight wovens like silk, crepe de chine, cotton voile, or rayon challis all drape beautifully for a shell blouse.' },
+    ],
+  },
+  'fitted-tee-w': {
+    metaDescription: 'Generate a custom-fit fitted tee sewing pattern from your measurements. Shaped side seams, feminine fit, and multiple neckline options. Beginner-friendly tiled PDF.',
+    pageIntro: 'A fitted t-shirt with shaped side seams, drafted to your bust, waist, and shoulder measurements. Choose your neckline and sleeve length for a tee that flatters your figure.',
+    faq: [
+      { q: 'How is this different from the unisex t-shirt?', a: 'The fitted tee includes bust darts or shaping and tapered side seams for a closer, more feminine fit. It uses bust and waist measurements instead of just chest.' },
+      { q: 'What knit fabric should I use?', a: 'Cotton jersey with 25-50% stretch across the grain is ideal. Cotton-lycra blends give a smoother, more fitted look.' },
+    ],
+  },
+  'slip-skirt-w': {
+    metaDescription: 'Create a custom-fit slip skirt sewing pattern from your measurements. Bias-cut drape, elastic waist, and adjustable length. Beginner-friendly tiled PDF.',
+    pageIntro: 'A bias-cut slip skirt drafted to your waist and hip measurements. The bias grain creates a fluid drape that skims the body, and the elastic waist makes construction simple.',
+    faq: [
+      { q: 'What fabric creates the best drape for a slip skirt?', a: 'Satin, crepe, silk charmeuse, or rayon all drape beautifully on the bias. Avoid stiff fabrics - the bias cut needs a fabric that flows.' },
+      { q: 'How much extra fabric does bias cutting require?', a: 'Bias-cut garments use more fabric than straight-grain. The materials list in your pattern PDF calculates the exact yardage needed for your measurements.' },
+    ],
+  },
+  'a-line-skirt-w': {
+    metaDescription: 'Draft a custom-fit A-line skirt sewing pattern from your measurements. Flattering flare, waistband, and adjustable length. Tiled PDF sewing pattern for women.',
+    pageIntro: 'An A-line skirt drafted to your waist and hip measurements. The gentle flare from waist to hem flatters every figure, and every dimension is sized to your body.',
+    faq: [
+      { q: 'What makes an A-line skirt flattering?', a: 'The A-line shape follows the body at the waist and hip, then flares gently to the hem. This creates a balanced silhouette that works for most body types.' },
+      { q: 'What length options are available?', a: 'You set the skirt length based on your preference - above the knee, knee-length, or midi. The pattern drafts to your exact specification.' },
+    ],
+  },
+  'shirt-dress-w': {
+    metaDescription: 'Generate a custom-fit shirt dress sewing pattern from your measurements. Button front, collar, waist shaping, and full skirt. Tiled PDF for women.',
+    pageIntro: 'A button-front shirt dress drafted to your bust, waist, and hip measurements. Collar, cuffs, and waist shaping create a polished, wear-anywhere dress sized to your body.',
+    faq: [
+      { q: 'What fabric works for a shirt dress?', a: 'Cotton poplin, chambray, linen, or rayon twill - any light to medium-weight woven with a soft hand. The dress benefits from fabric that holds a collar shape.' },
+      { q: 'How complex is this pattern?', a: 'The shirt dress is rated as a tailored-level project. It combines a fitted bodice with collar, placket, and buttonholes. Comfortable sewing skills are recommended.' },
+    ],
+  },
+  'wrap-dress-w': {
+    metaDescription: 'Create a custom-fit wrap dress sewing pattern from your measurements. True wrap front, waist tie, and adjustable fit. Tiled PDF sewing pattern for women.',
+    pageIntro: 'A true wrap dress drafted to your bust, waist, and hip measurements. The wrap front adjusts to your body, and the waist tie creates a flattering, comfortable fit.',
+    faq: [
+      { q: 'What fabric is best for a wrap dress?', a: 'Drapey wovens like rayon, jersey, or matte crepe work beautifully. The wrap construction benefits from fabric that flows and ties easily.' },
+      { q: 'Will the wrap stay closed?', a: 'The pattern includes an interior tie point that anchors the wrap securely, plus the exterior waist tie. This prevents gapping and keeps the dress in place.' },
+    ],
+  },
+  'baggy-jeans': {
+    metaDescription: 'Draft custom-fit baggy jeans from your exact measurements. Relaxed through the hip and thigh with a wide straight leg. Five-pocket styling. Tiled PDF sewing pattern.',
+    pageIntro: 'Baggy jeans with a relaxed fit through the hip and thigh, drafted to your waist, hip, rise, and inseam measurements. Five-pocket construction with a wide straight leg.',
+    faq: [
+      { q: 'How baggy are the baggy jeans?', a: 'The pattern adds extra ease through the hip, thigh, and leg for a noticeably relaxed fit. Your measurements still anchor the proportions so nothing looks oversized.' },
+      { q: 'What denim weight works best?', a: 'A 10-12 oz denim balances drape and structure. Lighter weights (8 oz) give a softer hand; heavier weights (14 oz) hold a stiffer shape.' },
+    ],
+  },
+  'baggy-shorts': {
+    metaDescription: 'Generate custom-fit baggy shorts (jorts) from your measurements. Relaxed fit, wide leg, and five-pocket styling. Tiled PDF sewing pattern.',
+    pageIntro: 'Baggy denim shorts (jorts) drafted to your waist, hip, and inseam measurements. A relaxed, wide-leg silhouette with five-pocket construction.',
+    faq: [
+      { q: 'What length do the baggy shorts hit?', a: 'You set the inseam length. A longer inseam (8-10 inches) gives the classic baggy jort look, while shorter works for a more casual cut.' },
+      { q: 'Can I use non-denim fabric?', a: 'Yes - cotton twill, canvas, or any medium-weight woven fabric works well for the baggy shorts silhouette.' },
+    ],
+  },
+  '874-work-pants': {
+    metaDescription: 'Create custom-fit 874-style work pants from your exact measurements. Straight leg, tunnel belt loops, and durable construction. Tiled PDF sewing pattern.',
+    pageIntro: 'Classic straight-leg work pants drafted to your waist, hip, rise, and inseam measurements. Tunnel belt loops and a structured waistband for a timeless workwear silhouette.',
+    faq: [
+      { q: 'What fabric should I use for work pants?', a: 'Heavy cotton twill (8-10 oz) or poly-cotton blend gives the right weight and durability. A stiff hand holds the straight-leg shape.' },
+      { q: 'How do these differ from chinos?', a: 'Work pants have a straighter, roomier leg, tunnel belt loops instead of sewn-on loops, and heavier construction designed for durability over polish.' },
+    ],
+  },
+  'button-up': {
+    metaDescription: 'Draft a custom-fit button-up shirt sewing pattern from your measurements. Collar stand, button placket, and tailored fit. Tiled PDF with construction guide.',
+    pageIntro: 'A classic button-up shirt drafted to your chest, shoulder, neck, and sleeve measurements. Collar stand, button placket, and optional chest pocket for a shirt that fits your body.',
+    faq: [
+      { q: 'What fabric works for a button-up shirt?', a: 'Shirting-weight cotton (poplin, broadcloth, oxford cloth) is the standard. Chambray, linen, and flannel are popular alternatives.' },
+      { q: 'Is this pattern difficult?', a: 'The button-up requires precision at the collar, placket, and buttonholes. The included step-by-step instructions guide you through each detail.' },
+    ],
+  },
+  'athletic-formal-jacket': {
+    metaDescription: 'Generate a custom-fit athletic formal jacket sewing pattern from your measurements. Structured shoulders, clean lines, and sport-tailored fit. Tiled PDF pattern.',
+    pageIntro: 'An athletic formal jacket that blends sport structure with tailored finishing, drafted to your chest, shoulder, and arm measurements. Structured shoulders and a fitted waist for a sharp silhouette.',
+    faq: [
+      { q: 'What fabric works for an athletic formal jacket?', a: 'Wool suiting, ponte, or technical wovens with some body. A fusible interfacing on the front panels adds structure.' },
+      { q: 'Do I need to line this jacket?', a: 'A lining is recommended for a clean interior finish and smooth wear over shirts. The pattern includes lining pieces.' },
+    ],
+  },
+  'cargo-work-pants': {
+    metaDescription: 'Create custom-fit cargo work pants from your exact measurements. Cargo pockets, reinforced construction, and a straight leg. Tiled PDF sewing pattern.',
+    pageIntro: 'Cargo work pants with large cargo pockets, drafted to your waist, hip, rise, and inseam measurements. Reinforced construction built for durability and a functional fit.',
+    faq: [
+      { q: 'How many pockets do the cargo work pants have?', a: 'The pattern includes front slash pockets, back welt pockets, and large bellows cargo pockets on each leg - plenty of storage for tools and everyday carry.' },
+      { q: 'What fabric is durable enough for work pants?', a: 'Heavy cotton twill (10-12 oz), duck canvas, or poly-cotton blends give the weight and durability needed for workwear.' },
+    ],
+  },
+  'apron': {
+    metaDescription: 'Draft a custom-fit apron sewing pattern from your measurements. Full coverage, adjustable neck strap, and front pockets. Beginner-friendly tiled PDF.',
+    pageIntro: 'A full-coverage apron drafted to your torso measurements with a front pocket and adjustable ties. A quick, satisfying beginner project that makes a great gift.',
+    faq: [
+      { q: 'What fabric is best for an apron?', a: 'Medium-weight cotton, linen, canvas, or denim are all durable and washable. Waxed canvas adds water resistance for kitchen use.' },
+      { q: 'How long does it take to sew an apron?', a: 'An apron is one of the fastest garment projects - most sewists can complete one in 1-2 hours, making it a great project for a single afternoon.' },
+    ],
+  },
+  'bow-tie': {
+    metaDescription: 'Create a custom-fit bow tie sewing pattern from your neck measurement. Self-tie, adjustable strap, and multiple width options. Beginner-friendly tiled PDF.',
+    pageIntro: 'A self-tie bow tie drafted to your neck circumference. Choose your width and style for a bow tie that fits perfectly and ties with a satisfying handmade knot.',
+    faq: [
+      { q: 'What fabric works for a bow tie?', a: 'Silk, cotton shirting, linen, or wool suiting all work well. Lightweight to medium-weight fabrics with a crisp hand tie the best knots.' },
+      { q: 'Is this a pre-tied or self-tie bow tie?', a: 'This is a self-tie bow tie with an adjustable neck strap. The pattern includes instructions for tying a classic bow tie knot.' },
+    ],
+  },
+  'tank-top': {
+    metaDescription: 'Generate a custom-fit tank top sewing pattern from your measurements. Scoop neck, racerback or standard straps, and relaxed fit. Beginner-friendly tiled PDF.',
+    pageIntro: 'A tank top drafted to your chest, shoulder, and torso measurements. Choose your strap style and neckline depth for a comfortable, custom-fit layering piece.',
+    faq: [
+      { q: 'What fabric should I use for a tank top?', a: 'Cotton jersey or a cotton-modal blend with good stretch and recovery. Lightweight knits with 25%+ stretch across the grain work best.' },
+      { q: 'Can a beginner sew a tank top?', a: 'Yes - the tank top is one of the simplest garment projects. Few pattern pieces and straightforward construction make it perfect for learning knit sewing.' },
+    ],
+  },
+  'circle-skirt-w': {
+    metaDescription: 'Draft a custom-fit circle skirt sewing pattern from your measurements. Full circle, half circle, or quarter circle options. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'A circle skirt drafted to your waist measurement with your choice of fullness. The circular construction creates a flowing, twirl-worthy skirt sized exactly to your body.',
+    faq: [
+      { q: 'What is the difference between full, half, and quarter circle?', a: 'A full circle skirt uses the most fabric and has the most dramatic flare. Half circle is a practical everyday fullness. Quarter circle is more fitted and uses less fabric.' },
+      { q: 'What fabric drapes best for a circle skirt?', a: 'Lightweight fabrics like rayon, chiffon, or cotton lawn create the most fluid drape. Medium-weight cotton holds more structure.' },
+    ],
+  },
+  'pencil-skirt-w': {
+    metaDescription: 'Create a custom-fit pencil skirt sewing pattern from your measurements. Fitted silhouette, back vent, and waistband. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'A pencil skirt drafted to your waist, hip, and desired length measurements. The fitted silhouette follows your curves with a back vent for ease of movement.',
+    faq: [
+      { q: 'What fabric works for a pencil skirt?', a: 'Suiting fabric, ponte, or cotton twill with a small amount of stretch. The fitted silhouette benefits from fabric that holds its shape and recovers well.' },
+      { q: 'Do I need a lining?', a: 'A lining is optional but recommended for woven fabrics. It prevents the skirt from clinging and gives a more polished finish.' },
+    ],
+  },
+  'leggings': {
+    metaDescription: 'Generate custom-fit leggings from your exact measurements. High or mid waist, full or cropped length, and a second-skin fit. Beginner-friendly tiled PDF.',
+    pageIntro: 'Leggings drafted to your waist, hip, inseam, and thigh measurements. A true custom fit that moves with your body, not against it.',
+    faq: [
+      { q: 'What fabric do I need for leggings?', a: 'A 4-way stretch knit with good recovery is essential - cotton-lycra, nylon-spandex, or performance knit. The fabric should stretch at least 50% and snap back.' },
+      { q: 'Do I need a serger for leggings?', a: 'A serger gives the most professional finish, but a sewing machine with a stretch stitch or narrow zigzag works well for leggings.' },
+    ],
+  },
+  'athletic-formal-trousers': {
+    metaDescription: 'Draft custom-fit athletic formal trousers from your measurements. Tapered leg, stretch waistband, and sport-tailored construction. Tiled PDF sewing pattern.',
+    pageIntro: 'Athletic formal trousers that combine a tailored look with sport comfort, drafted to your waist, hip, and inseam. A tapered leg and structured waistband bridge the gap between gym and office.',
+    faq: [
+      { q: 'What fabric works for athletic formal trousers?', a: 'Technical suiting with stretch, ponte, or performance twill. Look for fabrics that hold a crease but move with you.' },
+      { q: 'How do these differ from regular trousers?', a: 'The athletic formal cut has more room through the thigh and a tapered leg, designed for athletic builds. The waistband includes stretch for comfort.' },
+    ],
+  },
+  'tshirt-dress-w': {
+    metaDescription: 'Create a custom-fit t-shirt dress sewing pattern from your measurements. Relaxed fit, knit construction, and adjustable length. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'A t-shirt dress drafted to your bust, waist, and hip measurements. The relaxed knit construction makes this a comfortable, easy-wearing dress you can sew in an afternoon.',
+    faq: [
+      { q: 'What knit fabric works for a t-shirt dress?', a: 'Cotton jersey, cotton-modal, or rayon jersey with good drape. A medium-weight knit with 25%+ stretch gives the best results.' },
+      { q: 'How does the fit compare to a regular tee?', a: 'The t-shirt dress uses the same shoulder and bust fit as the fitted tee, extended to your chosen dress length with optional waist shaping.' },
+    ],
+  },
+  'slip-dress-w': {
+    metaDescription: 'Generate a custom-fit slip dress sewing pattern from your measurements. Bias-cut body, spaghetti straps, and fluid drape. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'A bias-cut slip dress drafted to your bust, waist, and hip measurements. Spaghetti straps and a fluid silhouette that skims the body for an effortless, elegant look.',
+    faq: [
+      { q: 'What fabric gives the best slip dress drape?', a: 'Silk charmeuse, satin-back crepe, or rayon are the classic choices. Any lightweight fabric that flows on the bias will work beautifully.' },
+      { q: 'Is bias cutting difficult?', a: 'Bias cutting requires a bit more care when laying out and cutting, but the construction itself is straightforward. The pattern guides you through the process.' },
+    ],
+  },
+  'a-line-dress-w': {
+    metaDescription: 'Draft a custom-fit A-line dress sewing pattern from your measurements. Fitted bodice, flared skirt, and flattering proportions. Tiled PDF for women.',
+    pageIntro: 'An A-line dress drafted to your bust, waist, and hip measurements. A fitted bodice flows into a gently flared skirt for a universally flattering silhouette.',
+    faq: [
+      { q: 'What makes an A-line dress flattering?', a: 'The A-line shape skims the body at the bust and waist, then gradually widens to the hem. This balanced silhouette works well for nearly every body type.' },
+      { q: 'What fabric is best for an A-line dress?', a: 'Medium-weight cotton, linen, or ponte for structure. Lighter fabrics like rayon or chambray give a softer drape.' },
+    ],
+  },
+  'sundress-w': {
+    metaDescription: 'Create a custom-fit sundress sewing pattern from your measurements. Adjustable straps, relaxed fit, and breezy construction. Beginner-friendly tiled PDF for women.',
+    pageIntro: 'A breezy sundress drafted to your bust and waist measurements. Adjustable straps and a relaxed fit make this an easy warm-weather staple you can sew quickly.',
+    faq: [
+      { q: 'What fabric is best for a sundress?', a: 'Lightweight cottons (lawn, voile, poplin), rayon, or linen are ideal. Breathable fabrics keep you cool and give the relaxed drape a sundress needs.' },
+      { q: 'Is this a good beginner project?', a: 'Yes - the sundress has simple construction with few pieces, making it a great project for building confidence with woven garments.' },
+    ],
+  },
+  'tote-bag': {
+    metaDescription: 'Draft a custom-sized tote bag sewing pattern. Adjustable dimensions, interior pocket, and sturdy construction. Beginner-friendly tiled PDF.',
+    pageIntro: 'A tote bag pattern with customizable dimensions and sturdy construction. Choose your size and add an interior pocket for a functional, handmade bag.',
+    faq: [
+      { q: 'What fabric works for a tote bag?', a: 'Canvas, duck cloth, denim, or waxed cotton are all durable choices. Medium to heavy-weight wovens hold the bag shape best.' },
+      { q: 'Do I need special equipment?', a: 'A standard sewing machine handles most tote bag fabrics. Use a denim or heavy-duty needle (90/14+) for canvas and denim.' },
+    ],
+  },
+  'linen-shirt': {
+    metaDescription: 'Generate a custom-fit linen shirt sewing pattern from your measurements. Relaxed fit, natural texture, and breezy construction. Tiled PDF with full instructions.',
+    pageIntro: 'A relaxed linen shirt drafted to your chest, shoulder, and sleeve measurements. Designed to showcase the natural texture and drape of linen with a comfortable, unfussy fit.',
+    faq: [
+      { q: 'Does linen shrink?', a: 'Yes - always pre-wash and dry your linen before cutting. Expect 3-5% shrinkage on the first wash. The pattern accounts for your finished measurements.' },
+      { q: 'How do I handle linen fraying?', a: 'Linen frays freely at cut edges. Serge or zigzag your seam allowances, or use French seams for a clean enclosed finish.' },
+    ],
+  },
+  'chambray-work-shirt': {
+    metaDescription: 'Create a custom-fit chambray work shirt from your exact measurements. Chest pockets, reinforced yoke, and durable construction. Tiled PDF sewing pattern.',
+    pageIntro: 'A chambray work shirt with chest pockets and a reinforced yoke, drafted to your chest, shoulder, and arm measurements. Classic workwear construction meets a custom fit.',
+    faq: [
+      { q: 'What is chambray?', a: 'Chambray is a plain-weave cotton fabric with a colored warp and white weft, giving it a softer look than denim. It is lighter weight and more breathable.' },
+      { q: 'How is this different from the button-up shirt?', a: 'The chambray work shirt has workwear-inspired details: chest pockets, a reinforced back yoke, and slightly roomier proportions for layering and movement.' },
+    ],
+  },
+};
+
+export default SEO_DESCRIPTIONS;

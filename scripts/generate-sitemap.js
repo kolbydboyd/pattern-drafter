@@ -8,24 +8,14 @@ import { writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { ARTICLES } from '../src/content/articles.js';
+import GARMENTS from '../src/garments/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const TODAY = new Date().toISOString().slice(0, 10);
 
-// ── Garment IDs (must match src/garments/index.js) ────────────────────────────
-const GARMENT_IDS = [
-  'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts', 'baggy-shorts',
-  'straight-jeans', 'baggy-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
-  'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
-  'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
-  'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
-  'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
-  'cargo-work-pants',
-  'athletic-formal-jacket', 'athletic-formal-trousers',
-  'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
-  'tote-bag',
-];
+// ── Garment IDs (derived from source registry) ──────────────────────────────
+const GARMENT_IDS = Object.keys(GARMENTS);
 
 // ── Published articles (datePublished <= today) ───────────────────────────────
 const PUBLISHED = ARTICLES.filter(a => !a.datePublished || a.datePublished <= TODAY);
