@@ -1,0 +1,42 @@
+# People's Patterns
+
+> Made-to-measure sewing patterns, generated in the browser from your body measurements.
+
+People's Patterns is a web application at https://peoplespatterns.com that generates custom-fit sewing patterns using parametric drafting - the same math taught in fashion design schools, but using your exact body measurements instead of standard sizes.
+
+## How it works
+
+1. Enter your body measurements (bust, waist, hip, rise, inseam, shoulder, sleeve)
+2. Choose a garment from the catalog (83 patterns across shorts, pants, shirts, dresses, skirts, jackets, accessories)
+3. Customize fit and style options (slim/regular/relaxed, pocket style, closure type, length)
+4. The engine drafts a pattern to your exact dimensions
+5. Download a print-ready tiled PDF for home printing or copy shop
+
+## Pricing
+
+- Simple tier: $9 (beginner-friendly - elastic waists, minimal shaping)
+- Core tier: $14 (wardrobe staples - standard closures, moderate shaping)
+- Tailored tier: $19 (detailed construction - pleats, darts, linings)
+- Bundles: 3-pattern capsule $29, 5-pattern wardrobe $49
+- Memberships: Club $12/mo (1 credit), Wardrobe $24/mo (3 credits)
+- First pattern is free with a free account. No credit card required.
+
+## Key differentiators
+
+- No size charts. Every pattern is drafted to your exact measurements.
+- No alterations needed. The pattern accounts for your body, not a statistical average.
+- Instant delivery. Patterns generate in seconds, not days.
+- Unlimited re-downloads. Update measurements and re-generate at no extra charge.
+- 83 garment patterns covering menswear, womenswear, and unisex.
+
+## Contact
+
+- Website: https://peoplespatterns.com
+- Email: hello@peoplespatterns.com
+- Instagram: @peoplespatterns
+- YouTube: @peoplespatterns
+
+## More information
+
+For the full catalog, FAQ, and detailed documentation, see llms-full.txt:
+https://peoplespatterns.com/llms-full.txt
