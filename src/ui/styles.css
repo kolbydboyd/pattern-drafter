@@ -195,7 +195,6 @@ details.adv-meas summary:hover{color:var(--text)}
 .land-footer .social-icons{flex:1;justify-content:flex-end}
 .land-footer .social-icon{color:var(--mid)}
 [data-theme='dark'] .land-footer .social-icon{color:var(--mid)}
-.wiz-footer{margin-top:auto}
 /* Header nav links (pricing, patterns, learn pages) */
 .hdr-nav{display:flex;gap:20px;align-items:center;margin-left:auto}
 .hdr-link{font-family:'IBM Plex Mono',monospace;font-size:.67rem;letter-spacing:.5px;text-transform:uppercase;color:var(--hdr-text);text-decoration:none;opacity:.7;transition:opacity .15s}
