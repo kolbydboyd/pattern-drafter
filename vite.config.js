@@ -37,6 +37,7 @@ export default defineConfig({
         learn:     resolve(__dirname, 'learn.html'),
         pricing:   resolve(__dirname, 'pricing.html'),
         about:     resolve(__dirname, 'about.html'),
+        admin:     resolve(__dirname, 'admin.html'),
       },
     },
   },
