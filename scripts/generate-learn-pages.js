@@ -2,11 +2,12 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Generates pre-rendered HTML pages for the /learn listing and each article.
 // Runs AFTER vite build so it can use dist/learn.html as the template.
+// Fetches articles from Supabase if available, falling back to static files.
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { ARTICLES } from '../src/content/articles.js';
+import { ARTICLES as STATIC_ARTICLES } from '../src/content/articles.js';
 import GARMENTS from '../src/garments/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -16,6 +17,42 @@ const SITE_URL = 'https://peoplespatterns.com';
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const template = readFileSync(resolve(DIST, 'learn.html'), 'utf8');
+
+// ── Fetch articles (Supabase first, static fallback) ─────────────────────────
+async function loadArticles() {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+  if (url && key) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(url, key);
+      const { data, error } = await supabase
+        .from('articles')
+        .select('slug, title, description, category, tags, youtube_id, date_published, faq_schema, body')
+        .order('date_published', { ascending: false });
+
+      if (!error && data?.length) {
+        const articles = data.map(a => ({
+          slug:          a.slug,
+          title:         a.title,
+          description:   a.description,
+          category:      a.category,
+          tags:          a.tags || [],
+          youtubeId:     a.youtube_id || null,
+          datePublished: a.date_published,
+          faqSchema:     a.faq_schema || [],
+          body:          a.body,
+        }));
+        console.log(`  fetched ${articles.length} articles from Supabase`);
+        return articles;
+      }
+    } catch (err) {
+      console.log(`  Supabase unavailable (${err.message}), using static articles`);
+    }
+  }
+  return STATIC_ARTICLES;
+}
 
 const CATEGORY_LABELS = {
   'getting-started': 'Getting Started',
@@ -29,8 +66,10 @@ const CATEGORY_LABELS = {
   'vs':              'Comparisons',
 };
 
-const PUBLISHED = ARTICLES.filter(a => !a.datePublished || a.datePublished <= TODAY);
 const GARMENT_COUNT = Object.keys(GARMENTS).length;
+
+// PUBLISHED is set in main() after loading articles
+let PUBLISHED = [];
 
 // ══════════════════════════════════════════════════════════════════════════════
 // 1. LISTING PAGE — dist/learn/index.html
@@ -205,16 +244,23 @@ function generateArticle(article) {
 // Run
 // ══════════════════════════════════════════════════════════════════════════════
 
-generateListing();
-for (const article of PUBLISHED) {
-  generateArticle(article);
+async function main() {
+  const ARTICLES = await loadArticles();
+  PUBLISHED = ARTICLES.filter(a => !a.datePublished || a.datePublished <= TODAY);
+
+  generateListing();
+  for (const article of PUBLISHED) {
+    generateArticle(article);
+  }
+
+  const futureCount = ARTICLES.length - PUBLISHED.length;
+  console.log(`learn pages generated: 1 listing + ${PUBLISHED.length} articles -> dist/learn/*/index.html`);
+  if (futureCount > 0) {
+    console.log(`  (${futureCount} articles scheduled for future publication, not yet pre-rendered)`);
+  }
 }
 
-const futureCount = ARTICLES.length - PUBLISHED.length;
-console.log(`learn pages generated: 1 listing + ${PUBLISHED.length} articles -> dist/learn/*/index.html`);
-if (futureCount > 0) {
-  console.log(`  (${futureCount} articles scheduled for future publication, not yet pre-rendered)`);
-}
+main();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function escHtml(s) {
