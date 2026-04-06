@@ -9,7 +9,7 @@ import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } f
 import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
-import { renderPanelSVG, renderGenericPieceSVG, addWatermark, removeWatermarks } from './pattern-view.js';
+import { renderPanelSVG, renderGenericPieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
@@ -67,7 +67,7 @@ let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','tapered-joggers','wide-leg-trouser-w','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','soloist-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','tapered-joggers','wide-leg-trouser-w','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
   { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','running-shorts','basketball-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
   { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','oversized-tee','muscle-tee','longline-tee','pocket-tee','tank-top','racerback-tank','cropped-tank','camp-shirt','vacation-shirt','linen-shirt','chambray-work-shirt','crewneck','raglan-sweatshirt','hoodie','zip-hoodie','oversized-hoodie','fitted-tee-w','scoop-tee-w','long-sleeve-fitted-tee-w','cropped-tee-w','button-up-w','poplin-blouse-w','linen-tunic-w','shell-blouse-w','woven-tank-w'] },
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w','mini-circle-skirt-w','midi-circle-skirt-w'] },
@@ -774,6 +774,13 @@ function _generate() {
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
           ${pSa > 0 ? `<tr><td>SA</td><td>${fmtInches(pSa)}</td></tr>` : ''}
+        </table></div>`;
+    } else if (piece.type === 'template') {
+      const svg = renderTemplateSVG(piece);
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>${svg}
+        <table class="dt">
+          <tr><td>Width</td><td>${fmtInches(piece.width)}</td></tr>
+          <tr><td>Height</td><td>${fmtInches(piece.height)}</td></tr>
         </table></div>`;
     }
   }
