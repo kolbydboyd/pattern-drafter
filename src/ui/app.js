@@ -67,13 +67,13 @@ let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','baggy-jeans','chinos','pleated-trousers','athletic-formal-trousers','sweatpants','wide-leg-trouser-w','straight-trouser-w','easy-pant-w','leggings'] },
-  { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
-  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','tank-top','camp-shirt','linen-shirt','chambray-work-shirt','crewneck','hoodie','fitted-tee-w','button-up-w','shell-blouse-w'] },
-  { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w'] },
-  { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','wrap-dress-w','tshirt-dress-w','slip-dress-w','a-line-dress-w','sundress-w'] },
-  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','athletic-formal-jacket'] },
-  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','tapered-joggers','wide-leg-trouser-w','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
+  { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','running-shorts','basketball-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','oversized-tee','muscle-tee','longline-tee','pocket-tee','tank-top','racerback-tank','cropped-tank','camp-shirt','vacation-shirt','linen-shirt','chambray-work-shirt','crewneck','raglan-sweatshirt','hoodie','zip-hoodie','oversized-hoodie','fitted-tee-w','scoop-tee-w','long-sleeve-fitted-tee-w','cropped-tee-w','button-up-w','poplin-blouse-w','linen-tunic-w','shell-blouse-w','woven-tank-w'] },
+  { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w','mini-circle-skirt-w','midi-circle-skirt-w'] },
+  { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','linen-shirt-dress-w','wrap-dress-w','maxi-wrap-dress-w','tshirt-dress-w','long-sleeve-tee-dress-w','maxi-tee-dress-w','slip-dress-w','maxi-slip-dress-w','a-line-dress-w','midi-aline-dress-w','sundress-w','maxi-sundress-w','tiered-sundress-w'] },
+  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','lightweight-denim-jacket','athletic-formal-jacket'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag','market-tote','beach-tote'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══

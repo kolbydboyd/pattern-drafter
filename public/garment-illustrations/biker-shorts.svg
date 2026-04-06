@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- biker shorts: high waist, mid-thigh, compression fit -->
+  <path d="M48,30 L112,30 L112,48 L48,48 Z"/>
+  <path d="M64,30 Q80,36 96,30"/>
+  <path d="M48,48 L54,130 L76,130 L80,82 L84,130 L106,130 L112,48"/>
+  <line x1="80" y1="48" x2="80" y2="82"/>
+  <line x1="52" y1="70" x2="54" y2="130" stroke-dasharray="5 5"/>
+  <line x1="108" y1="70" x2="106" y2="130" stroke-dasharray="5 5"/>
+</svg>

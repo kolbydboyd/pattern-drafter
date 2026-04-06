@@ -649,4 +649,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'market-tote', name: 'Market Tote', defaults: { preset: 'large', bottomStyle: 'boxed-corners', closure: 'none', interfacing: 'light', lined: 'yes' } },
+    { id: 'beach-tote', name: 'Beach Tote', defaults: { preset: 'large', bottomStyle: 'flat', closure: 'none', interfacing: 'none', lined: 'no' } },
+  ],
 };

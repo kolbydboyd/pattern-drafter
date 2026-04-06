@@ -350,4 +350,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'poplin-blouse-w', name: 'Poplin Blouse', defaults: { collar: 'point', fit: 'semifitted', bustDart: 'yes', sleeve: 'long', cuff: 'barrel' }, fabrics: ['cotton-poplin'] },
+    { id: 'linen-tunic-w', name: 'Linen Tunic', defaults: { collar: 'band', fit: 'relaxed', length: 'tunic', sleeve: 'three_quarter', cuff: 'none' }, fabrics: ['linen'] },
+  ],
 };

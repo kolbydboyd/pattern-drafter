@@ -4,7 +4,7 @@
 // Runs AFTER vite build so it can use dist/patterns.html as the template.
 // Run: node scripts/generate-pattern-pages.js
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import GARMENTS from '../src/garments/index.js';
@@ -24,6 +24,15 @@ const missing = Object.keys(GARMENTS).filter(id => !SEO_DESCRIPTIONS[id]);
 if (missing.length) {
   console.warn(`⚠  Missing SEO descriptions for: ${missing.join(', ')}`);
   console.warn('   Add entries to src/garments/seo-descriptions.js for full SEO coverage.');
+}
+
+// Warn about garments missing SVG illustrations
+const missingSvg = Object.keys(GARMENTS).filter(
+  id => !existsSync(resolve(ROOT, 'public', 'garment-illustrations', `${id}.svg`))
+);
+if (missingSvg.length) {
+  console.warn(`\u26A0  Missing SVG illustrations for: ${missingSvg.join(', ')}`);
+  console.warn('   Add files to public/garment-illustrations/ for catalog card images.');
 }
 
 let generated = 0;

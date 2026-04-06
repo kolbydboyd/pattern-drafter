@@ -310,4 +310,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'lounge-pant-w', name: 'Lounge Pant', defaults: { legShape: 'wide', waistband: 'elastic', riseStyle: 'mid' } },
+  ],
 };

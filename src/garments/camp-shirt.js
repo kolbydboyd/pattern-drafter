@@ -474,4 +474,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'vacation-shirt', name: 'Vacation Shirt', defaults: { collar: 'camp', sleeveStyle: 'short', fit: 'relaxed', chestPocket: 'patch' } },
+  ],
 };

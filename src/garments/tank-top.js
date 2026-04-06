@@ -316,4 +316,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'racerback-tank', name: 'Racerback Tank', defaults: { strap: 'racerback', fit: 'fitted' } },
+    { id: 'cropped-tank', name: 'Cropped Tank', defaults: { strap: 'wide', hemStyle: 'straight', fit: 'relaxed' } },
+  ],
 };

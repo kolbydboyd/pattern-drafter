@@ -389,4 +389,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'midi-aline-dress-w', name: 'Midi A-Line Dress', defaults: { length: 'midi', sleeve: 'short' } },
+  ],
 };

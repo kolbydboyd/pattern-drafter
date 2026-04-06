@@ -349,4 +349,10 @@ export default {
     steps.push({ step: n++, title: 'Finish', detail: '{press} lightly. Neckband should lie flat and not gap.' });
     return steps;
   },
+
+  variants: [
+    { id: 'scoop-tee-w', name: 'Scoop Neck Tee', defaults: { neckline: 'scoop', fit: 'fitted', sleeve: 'short' } },
+    { id: 'long-sleeve-fitted-tee-w', name: 'Long Sleeve Fitted Tee', defaults: { neckline: 'crew', sleeve: 'long', fit: 'fitted' } },
+    { id: 'cropped-tee-w', name: 'Cropped Tee', defaults: { neckline: 'crew', fit: 'fitted', length: 'cropped' } },
+  ],
 };

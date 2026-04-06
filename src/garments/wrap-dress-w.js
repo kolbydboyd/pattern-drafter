@@ -428,4 +428,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'maxi-wrap-dress-w', name: 'Maxi Wrap Dress', defaults: { length: 'maxi', sleeve: 'long' } },
+  ],
 };

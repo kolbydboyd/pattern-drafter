@@ -289,5 +289,10 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     ],
     notches, crotchBezier: ccp,
     crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel',
-  };
+  
+  variants: [
+    { id: 'capri-leggings', name: 'Capri Leggings', defaults: { length: 'capri' } },
+    { id: 'biker-shorts', name: 'Biker Shorts', defaults: { length: 'shorts', waistHeight: 'high' } },
+  ],
+};
 }

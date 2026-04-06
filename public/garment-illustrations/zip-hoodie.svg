@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- zip hoodie: hood + full center zip + split pockets -->
+  <path d="M60,48 Q60,26 80,24 Q100,26 100,48"/>
+  <path d="M58,52 L28,70 L28,132 L50,132 L50,170 L110,170 L110,132 L132,132 L132,70 L102,52"/>
+  <path d="M68,52 L74,62"/>
+  <path d="M92,52 L86,62"/>
+  <!-- center zip line -->
+  <line x1="80" y1="62" x2="80" y2="170" stroke-dasharray="3 3"/>
+  <!-- zip pull -->
+  <rect x="78" y="62" width="4" height="6" rx="1"/>
+  <rect x="28" y="126" width="22" height="8" rx="3"/>
+  <rect x="122" y="126" width="22" height="8" rx="3"/>
+  <rect x="50" y="162" width="60" height="8" rx="3"/>
+  <!-- split pockets instead of kangaroo -->
+  <path d="M56,120 L56,142 L76,142 L76,120"/>
+  <path d="M84,120 L84,142 L104,142 L104,120"/>
+</svg>

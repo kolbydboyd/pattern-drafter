@@ -705,4 +705,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'lightweight-denim-jacket', name: 'Lightweight Denim Jacket', defaults: { fit: 'relaxed', length: 'hip' } },
+  ],
 };

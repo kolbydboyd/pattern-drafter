@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- poplin blouse: point collar, semifitted with bust darts, long sleeves with cuffs -->
+  <path d="M68,44 L74,60 L80,52 L86,60 L92,44"/>
+  <path d="M68,44 L44,58 L38,130 L52,130 L54,170 L106,170 L108,130 L122,130 L116,58 L92,44"/>
+  <line x1="80" y1="52" x2="80" y2="170"/>
+  <circle cx="80" cy="76" r="2"/>
+  <circle cx="80" cy="96" r="2"/>
+  <circle cx="80" cy="116" r="2"/>
+  <circle cx="80" cy="136" r="2"/>
+  <!-- bust darts -->
+  <path d="M60,82 L64,100"/>
+  <path d="M100,82 L96,100"/>
+  <rect x="38" y="122" width="14" height="10" rx="2"/>
+  <rect x="108" y="122" width="14" height="10" rx="2"/>
+</svg>

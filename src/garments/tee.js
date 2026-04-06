@@ -572,4 +572,11 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'oversized-tee', name: 'Oversized Tee', defaults: { fit: 'oversized', hemStyle: 'straight' } },
+    { id: 'muscle-tee', name: 'Muscle Tee', defaults: { fit: 'relaxed', sleeveStyle: 'short', hemStyle: 'straight' } },
+    { id: 'longline-tee', name: 'Longline Tee', defaults: { fit: 'relaxed', hemStyle: 'shirttail' } },
+    { id: 'pocket-tee', name: 'Pocket Tee', defaults: { fit: 'standard', chestPocket: 'patch' } },
+  ],
 };

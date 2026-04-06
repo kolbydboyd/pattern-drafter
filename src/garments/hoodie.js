@@ -580,4 +580,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'zip-hoodie', name: 'Zip-Up Hoodie', defaults: { frontStyle: 'fullzip', fit: 'standard' } },
+    { id: 'oversized-hoodie', name: 'Oversized Hoodie', defaults: { frontStyle: 'pullover', fit: 'oversized' } },
+  ],
 };
