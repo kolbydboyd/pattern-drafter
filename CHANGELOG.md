@@ -4,6 +4,18 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.6] - 2026-04-06
+
+### New
+- Standalone fit feedback page at /feedback with interactive body map
+- Email feedback links now point to /feedback instead of account dashboard
+- Email quick select options (perfect, adjusted, wip) pre fill the overall fit dropdown
+- API now auto looks up purchase when only garmentId is provided
+- Body map added to general customer feedback modal (My Patterns tab)
+- API accepts new body map zone keys: neck_fit, sleeve_fit, rise_fit
+
+---
+
 ## [0.12.5] - 2026-04-06
 
 ### Improved
