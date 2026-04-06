@@ -22,3 +22,6 @@ peoples-patterns-brand-kit/
 pins/images/
 pins/samples/
 pins/manifest.json
+
+# Generated Etsy listing images
+etsy-output/
