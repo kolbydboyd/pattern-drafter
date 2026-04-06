@@ -1027,4 +1027,143 @@ export const ARTICLES_GARMENTS = [
 
 <p class="learn-cta-inline">Ready for your perfect fit? <a href="/patterns">Start with a free pattern &#8594;</a></p>`,
   },
+  {
+    slug: 'how-to-sew-a-hoodie-custom-fit',
+    title: 'How to Sew a Hoodie: Custom Fit Guide for Home Sewists',
+    description: 'Step-by-step guide to sewing a hoodie from a custom made-to-measure pattern. Covers fabric selection, hood construction, ribbing, and fit troubleshooting.',
+    category: 'garments',
+    tags: ['hoodie sewing', 'sew a hoodie', 'custom fit hoodie', 'sweatshirt knit', 'fleece sewing', 'made-to-measure hoodie'],
+    youtubeId: null,
+    datePublished: '2026-08-20',
+    faqSchema: [
+      { question: 'What fabric is best for sewing a hoodie?', answer: 'French terry (sweatshirt knit) at 280-320 gsm is the most versatile choice for a hoodie. It has a looped interior that traps warmth without being too heavy. Mid-weight fleece (200-280 gsm) works well for colder-weather hoodies. Avoid thin jersey, which lacks the body and warmth expected from a hoodie.' },
+      { question: 'What needle size should I use to sew a hoodie?', answer: 'Use a ballpoint or stretch needle in size 90/14 for most sweatshirt knit and French terry fabrics. The ballpoint tip pushes between the knit loops instead of piercing them, preventing skipped stitches and fabric damage. Move up to 100/16 for heavier fleece.' },
+      { question: 'Do I need a serger to sew a hoodie?', answer: 'No. A standard sewing machine with a stretch stitch or narrow zigzag (1.5-2mm wide, 2.5mm long) handles all the seams in a hoodie. A serger creates cleaner interior seam finishes, but the garment is fully sewable without one.' },
+      { question: 'How do I keep the hood from stretching out of shape?', answer: 'Stay-stitch the front opening of the hood immediately after cutting, before handling the piece. Use a 3/8-inch seam allowance and sew just inside the seamline. This stabilizes the curved edge and prevents the bias portions from distorting.' },
+      { question: 'How much fabric do I need to sew a hoodie?', answer: 'Most adult hoodie patterns require 2.5 to 3 yards of 60-inch-wide sweatshirt knit or fleece. Taller individuals or those adding a full kangaroo pocket should add an extra quarter yard. Ribbing for cuffs, waistband, and hood edge typically comes in separate strips -- budget one yard of ribbing fabric or 12-inch-wide ribbing yardage.' },
+    ],
+    body: `<p>A well-fitting hoodie is one of the most-worn garments in any wardrobe, and also one of the most disappointing to buy off the rack. Shoulders that fall too low, a body that is too boxy or too narrow, sleeves that stop two inches short of your wrists -- these are the fit problems that a <strong>custom hoodie pattern</strong> eliminates entirely. With a made-to-measure pattern drafted from your measurements, you cut straight to a garment that fits your actual body.</p>
+
+<p>This guide walks through every stage of sewing a hoodie: fabric selection, tools, construction sequence, and troubleshooting. It is written for sewists who have made a few garments and are comfortable with their machine, but new to knit fabrics or hoodies specifically.</p>
+
+<h2>Choosing Fabric for a Hoodie</h2>
+
+<p>Hoodie fabric must do two things: stretch enough to pull over your head and move with you, and recover well enough to hold its shape after repeated wear and washing. These requirements point to specific fabric types.</p>
+
+<h3>French Terry (Sweatshirt Knit)</h3>
+
+<p>French terry is the standard hoodie fabric. It has a smooth face and a looped, textured reverse side. The loops trap air for warmth without excessive bulk. Look for a weight of <strong>280 to 320 gsm</strong>. Below 250 gsm feels thin and lacks structure; above 350 gsm becomes difficult to sew through at multiple layers (like the hood seam or kangaroo pocket edges). A fabric with roughly 50 percent cotton and 50 percent polyester or a 60/40 blend gives the best combination of breathability, shape retention, and durability.</p>
+
+<h3>Mid-Weight Fleece</h3>
+
+<p>Antipill fleece at <strong>200 to 280 gsm</strong> makes a warmer, loftier hoodie. Fleece does not fray, so raw-edge seam finishes are acceptable on the inside. It has less natural drape than French terry, which makes it feel more structured. Avoid stretch fleece with four-way stretch -- it is difficult to control and is better suited to activewear.</p>
+
+<h3>What to Avoid</h3>
+
+<p>Lightweight jersey (under 200 gsm) lacks the body that makes a hoodie look intentional rather than saggy. Very heavy, bonded fleece (over 400 gsm) creates too much bulk at the hood seam and cuffs. Avoid fabrics with very low stretch recovery -- pull the fabric crosswise, release it, and check that it springs back to its original width. If it stays stretched, it will bag out at the elbows and seat after a few wears.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Swatches of French terry and mid-weight fleece fabric showing their texture differences">[ Image: Two fabric swatches side by side -- French terry with its looped reverse, and smooth-faced fleece ]</div><figcaption>French terry (left) and mid-weight fleece (right): both are good hoodie fabrics with different drape and texture.</figcaption></figure>
+
+<h2>Notions and Tools</h2>
+
+<p>Gather these before you start:</p>
+
+<ul>
+<li><strong>Ballpoint or stretch needle, size 90/14</strong> -- Essential for knit fabrics. Replace the needle if it has been used for more than 8 hours of sewing.</li>
+<li><strong>Polyester thread</strong> -- Polyester thread stretches slightly, which prevents seams from popping under stress. Avoid 100 percent cotton thread for knit garments.</li>
+<li><strong>Ribbing fabric</strong> -- For cuffs, waistband, and optionally the hood edge. Ribbing has much greater stretch recovery than the body fabric. Buy 1 yard of 60-inch-wide ribbing or a precut ribbing pack.</li>
+<li><strong>Drawstring cord</strong> -- Braided cotton or polyester cord, 3/8 to 1/2 inch diameter. Cut at least 60 inches for a standard adult hood.</li>
+<li><strong>Cord stops or toggles (optional)</strong> -- One pair per hoodie.</li>
+<li><strong>Pressing cloth</strong> -- Protect the face of fleece and French terry from direct iron contact, which can flatten the texture permanently.</li>
+</ul>
+
+<h2>Taking Measurements for a Custom Hoodie</h2>
+
+<p>The <a href="/patterns/hoodie">People's Patterns hoodie</a> uses these measurements to draft the body, sleeves, and hood:</p>
+
+<ul>
+<li><strong>Chest</strong> -- Around the fullest part of the chest, arms relaxed at sides.</li>
+<li><strong>Waist</strong> -- At the natural waistline. The hoodie adds ease, so this sets the waistband diameter.</li>
+<li><strong>Shoulder width</strong> -- Across the back, from shoulder point to shoulder point. This is the measurement most commercial patterns get wrong for athletic builds -- getting it right eliminates the drooping shoulder seam.</li>
+<li><strong>Sleeve length</strong> -- From shoulder point to wrist, arm slightly bent. Measure over the bend of the elbow rather than with a straight arm.</li>
+<li><strong>Body length</strong> -- From the highest point of the shoulder to the desired hem. Hip-length hoodies land at or just below the hip; cropped versions end at or above the natural waist.</li>
+<li><strong>Head circumference</strong> -- Around the widest part of the head, just above the ears. This controls hood width and ease.</li>
+</ul>
+
+<p>Double-check shoulder width and sleeve length -- these two measurements account for the majority of fit complaints in hoodies. See our guide to <a href="/learn/how-to-measure-yourself">how to take body measurements</a> if you are unsure of technique.</p>
+
+<h2>Construction Sequence</h2>
+
+<p>Work through the hoodie in this order: hood first, then body pieces, then assembly, then finishing details. Building the hood first lets you check its fit before committing it to the body.</p>
+
+<h3>Step 1: Cut and Stay-Stitch</h3>
+
+<p>Cut all pieces with the fabric grain running vertically (lengthwise) unless the pattern specifies otherwise. Stay-stitch the curved front opening of the hood pieces at 3/8 inch from the edge immediately after cutting. This single step prevents the most common hoodie construction problem: a hood front opening that stretches and distorts before you can finish it.</p>
+
+<h3>Step 2: Sew the Hood</h3>
+
+<p>Join the two hood panels along the center back seam. Use a stretch stitch or a narrow zigzag (1.5 mm wide, 2.5 mm long) throughout the entire garment. Press the seam to one side. If you want a flatter interior, topstitch the seam allowance down with a twin needle or a second row of zigzag.</p>
+
+<p>If your hoodie has a drawstring channel, fold and press the hood front facing to the inside before attaching the hood to the body. Stitch the channel at 3/8 inch and 1 inch from the folded edge, leaving a 1-inch opening at each side seam to thread the cord through later.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Two hood panels being joined at the center back seam, showing the curved seam and stay stitching">[ Image: Hood panels pinned together at the center back seam, with stay stitching visible along the front opening curve ]</div><figcaption>Sew the two hood panels together first, then stay-stitch the front opening to prevent stretch distortion.</figcaption></figure>
+
+<h3>Step 3: Sew Shoulder Seams</h3>
+
+<p>Join the front body to the back body at the shoulders. For stable shoulder seams that will not stretch out of shape, lay a strip of clear elastic or a narrow strip of selvage cut from a woven fabric along the seam as you sew. This is called stay tape and it is standard practice on knit garments. Alternatively, use a short straight stitch rather than a stretch stitch for the shoulder seam only -- knit fabric barely stretches in the lengthwise direction, so the shoulder seam rarely needs the extra give.</p>
+
+<h3>Step 4: Set the Sleeves</h3>
+
+<p>Attach sleeves flat (before sewing the side seams) rather than in the round. Match the sleeve cap notch to the shoulder seam, pin in place, and sew with a stretch stitch. Press the seam toward the sleeve. Sewing sleeves flat keeps the sleeve cap control much easier and reduces the chance of puckering at the cap.</p>
+
+<h3>Step 5: Sew Side Seams and Underarm Seams</h3>
+
+<p>Fold the hoodie so the front and back match at the sides. Sew from the bottom hem edge up through the underarm point and down through the sleeve to the cuff edge in one continuous seam. This eliminates a potential weak point at the underarm. Clip the seam allowance at the underarm curve to allow it to lie flat, then press.</p>
+
+<h3>Step 6: Kangaroo Pocket (Optional)</h3>
+
+<p>Cut the pocket piece on the bias if your pattern calls for it -- this gives the pocket opening a slight curve that follows the hand's natural entry angle. Interface the top edge of the pocket opening with a lightweight, sew-in knit interfacing to stabilize it without adding stiffness. Fold the top edge under, edgestitch, then pin the pocket to the front of the hoodie body, aligning the placement marks. Sew around the bottom and side edges of the pocket with a stretch stitch and backstitch at the pocket corners to reinforce the stress points.</p>
+
+<h3>Step 7: Attach the Hood</h3>
+
+<p>Stay-stitch the neckline of the body at 3/8 inch. Match the center back of the hood to the center back of the body, right sides together. Pin the hood to the neckline, distributing any ease evenly. The hood front edges should stop exactly at the center front of the garment body. Sew with a stretch stitch. Press the seam toward the body and topstitch if desired.</p>
+
+<h3>Step 8: Cuffs, Waistband, and Hood Edge Ribbing</h3>
+
+<p>Cut ribbing pieces at 80 percent of the circumference they need to cover. This 20 percent negative ease creates the snug, gathered effect that holds cuffs and waistbands in place. Fold each ribbing piece in half lengthwise, right sides out, and sew the short ends together to form a loop. Divide the loop into quarters and mark with pins. Divide the cuff opening into quarters and mark. Pin the ribbing to the cuff, matching quarter marks, and sew while slightly stretching the ribbing to match the cuff circumference. The same method applies to the waistband and the hood face edge if your pattern includes ribbing there.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Ribbing being attached to a hoodie cuff, showing the stretching technique to match circumferences">[ Image: Ribbing loop being stretched to match the cuff opening circumference as it is sewn in place ]</div><figcaption>Attach ribbing at 80 percent of the cuff circumference, stretching as you sew for even distribution.</figcaption></figure>
+
+<h3>Step 9: Drawstring and Finishing</h3>
+
+<p>Thread the drawstring cord through the hood channel using a large safety pin attached to one end. Exit through both channel openings at the front. Tie a simple overhand knot at each end, or attach cord stops. Press the finished hoodie using a pressing cloth to avoid matting the fabric surface. Give particular attention to the hood, waistband, and cuffs where multiple layers of seam allowance converge.</p>
+
+<h2>Troubleshooting Common Fit Issues</h2>
+
+<p><strong>Shoulders fall off the shoulder point:</strong> This indicates the shoulder width measurement is too large, or the pattern added too much ease. For the next version, subtract 1/2 inch from shoulder width and compare the new pattern to the old.</p>
+
+<p><strong>Sleeves too short after washing:</strong> Fleece and French terry can shrink 3 to 5 percent in the first wash. Pre-wash and tumble dry your fabric before cutting. If you did not pre-wash, add 1 to 1.5 inches to the sleeve length measurement on the next version to compensate.</p>
+
+<p><strong>Hood sits too flat on the head (no volume):</strong> Head circumference may be underestimated. Measure again and add 1 inch of ease. The hood should have enough room to fit over the head with a few inches of clearance -- it should not hug the skull.</p>
+
+<p><strong>Waistband rolls or folds:</strong> The ribbing was cut too short (negative ease too extreme). For a waistband, 80 to 85 percent of body circumference is the right range. If the waistband is ribbing that is 2 inches or wider, err toward 85 percent.</p>
+
+<p><strong>Seams pop after first wear:</strong> You used a straight stitch on a stretch seam. Switch to a stretch stitch or narrow zigzag. If you are using a serger, the four-thread safety stitch is ideal for hoodie seams.</p>
+
+<h2>Custom Fit Advantages</h2>
+
+<p>A <a href="/patterns/hoodie">made-to-measure hoodie pattern</a> means you dial in shoulder width, body length, sleeve length, and hood size to match your body rather than a generic size chart. For tall sewists, this alone eliminates the midriff gap at the waistband. For broader shoulders, it eliminates the tension lines across the upper back. The construction is the same regardless -- the difference is that every dimension starts from your actual measurements.</p>
+
+<p>Once you have sewn one hoodie and confirmed the fit, the pattern becomes a template. Future hoodies in different colors, weights, or with design variations (zip-front, pullover, cropped) all start from a proven foundation. This is the real advantage of made-to-measure: your time goes into sewing, not fitting.</p>
+
+<section class="faq"><h2>Frequently Asked Questions</h2>
+<div class="faq-item"><h3>What fabric is best for sewing a hoodie?</h3><p>French terry (sweatshirt knit) at 280-320 gsm is the most versatile choice for a hoodie. It has a looped interior that traps warmth without being too heavy. Mid-weight fleece (200-280 gsm) works well for colder-weather hoodies. Avoid thin jersey, which lacks the body and warmth expected from a hoodie.</p></div>
+<div class="faq-item"><h3>What needle size should I use to sew a hoodie?</h3><p>Use a ballpoint or stretch needle in size 90/14 for most sweatshirt knit and French terry fabrics. The ballpoint tip pushes between the knit loops instead of piercing them, preventing skipped stitches and fabric damage. Move up to 100/16 for heavier fleece.</p></div>
+<div class="faq-item"><h3>Do I need a serger to sew a hoodie?</h3><p>No. A standard sewing machine with a stretch stitch or narrow zigzag (1.5-2mm wide, 2.5mm long) handles all the seams in a hoodie. A serger creates cleaner interior seam finishes, but the garment is fully sewable without one.</p></div>
+<div class="faq-item"><h3>How do I keep the hood from stretching out of shape?</h3><p>Stay-stitch the front opening of the hood immediately after cutting, before handling the piece. Use a 3/8-inch seam allowance and sew just inside the seamline. This stabilizes the curved edge and prevents the bias portions from distorting.</p></div>
+<div class="faq-item"><h3>How much fabric do I need to sew a hoodie?</h3><p>Most adult hoodie patterns require 2.5 to 3 yards of 60-inch-wide sweatshirt knit or fleece. Taller individuals or those adding a full kangaroo pocket should add an extra quarter yard. Ribbing for cuffs, waistband, and hood edge typically comes in separate strips -- budget one yard of ribbing fabric or 12-inch-wide ribbing yardage.</p></div>
+</section>
+
+<p class="learn-cta-inline">Ready to sew your perfect hoodie? <a href="/patterns/hoodie">Generate your custom pattern &#8594;</a></p>`,
+  },
 ];
