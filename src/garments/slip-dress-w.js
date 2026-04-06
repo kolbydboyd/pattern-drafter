@@ -257,4 +257,8 @@ export default {
     steps.push({ step: n++, title: 'Finish', detail: '{press} all seams. Hang overnight before final hem — bias-cut fabric drops over time.' });
     return steps;
   },
+
+  variants: [
+    { id: 'maxi-slip-dress-w', name: 'Maxi Slip Dress', defaults: { length: 'maxi', skirtShape: 'aline' } },
+  ],
 };

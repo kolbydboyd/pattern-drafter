@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- market tote: large, boxed corners, lined -->
+  <path d="M48,18 L48,72"/>
+  <path d="M54,18 L54,72"/>
+  <path d="M106,18 L106,72"/>
+  <path d="M112,18 L112,72"/>
+  <path d="M48,18 Q51,10 54,18"/>
+  <path d="M106,18 Q109,10 112,18"/>
+  <rect x="28" y="72" width="104" height="110" rx="3"/>
+  <!-- boxed corner lines -->
+  <line x1="28" y1="168" x2="44" y2="168"/>
+  <line x1="44" y1="168" x2="44" y2="182"/>
+  <line x1="116" y1="168" x2="132" y2="168"/>
+  <line x1="116" y1="168" x2="116" y2="182"/>
+  <line x1="32" y1="78" x2="128" y2="78" stroke-dasharray="4 3" stroke-width="1"/>
+  <rect x="44" y="72" width="12" height="12" stroke-width="1"/>
+  <line x1="44" y1="72" x2="56" y2="84" stroke-width="0.8"/>
+  <line x1="56" y1="72" x2="44" y2="84" stroke-width="0.8"/>
+  <rect x="104" y="72" width="12" height="12" stroke-width="1"/>
+  <line x1="104" y1="72" x2="116" y2="84" stroke-width="0.8"/>
+  <line x1="116" y1="72" x2="104" y2="84" stroke-width="0.8"/>
+</svg>

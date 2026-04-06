@@ -398,5 +398,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
     crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
-  };
+  
+  variants: [
+    { id: 'cigarette-pants-w', name: 'Cigarette Pants', defaults: { ease: 'slim', riseStyle: 'high', hemStyle: 'crop' } },
+  ],
+};
 }

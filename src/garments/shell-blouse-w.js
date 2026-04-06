@@ -315,4 +315,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'woven-tank-w', name: 'Woven Tank', defaults: { neckline: 'round', sleeves: 'sleeveless', fit: 'relaxed' } },
+  ],
 };

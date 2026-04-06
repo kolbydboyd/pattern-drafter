@@ -445,4 +445,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'raglan-sweatshirt', name: 'Raglan Sweatshirt', defaults: { sleeveType: 'raglan', fit: 'standard' } },
+  ],
 };

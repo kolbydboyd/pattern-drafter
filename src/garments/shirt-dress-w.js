@@ -495,4 +495,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'linen-shirt-dress-w', name: 'Linen Shirt Dress', defaults: { collar: 'band', fit: 'relaxed', sleeve: 'roll', belt: 'sash', length: 'midi' }, fabrics: ['linen', 'linen-light'] },
+  ],
 };

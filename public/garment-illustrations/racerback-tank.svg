@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- racerback: straps converge between shoulder blades -->
+  <path d="M62,48 Q80,38 98,48"/>
+  <!-- racerback straps converging -->
+  <line x1="62" y1="48" x2="72" y2="36"/>
+  <line x1="98" y1="48" x2="88" y2="36"/>
+  <path d="M72,36 Q80,34 88,36"/>
+  <!-- deeper armhole for racerback -->
+  <path d="M62,48 L42,62 Q38,86 44,98"/>
+  <path d="M98,48 L118,62 Q122,86 116,98"/>
+  <path d="M44,98 L44,176 L116,176 L116,98"/>
+</svg>

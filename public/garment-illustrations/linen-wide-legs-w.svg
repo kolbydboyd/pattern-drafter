@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- linen wide-legs: elastic waist (no belt loops), high rise, wide -->
+  <path d="M36,30 L124,30 L124,48 L36,48 Z"/>
+  <path d="M50,30 Q80,36 110,30"/>
+  <line x1="36" y1="40" x2="124" y2="40" stroke-dasharray="3 3"/>
+  <path d="M36,48 L26,196 L76,196 L80,88 L84,196 L134,196 L124,48"/>
+  <line x1="80" y1="48" x2="80" y2="88"/>
+</svg>

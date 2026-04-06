@@ -288,4 +288,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'mini-circle-skirt-w', name: 'Mini Circle Skirt', defaults: { fullness: 'full', waistband: 'elastic', closure: 'pullover' } },
+    { id: 'midi-circle-skirt-w', name: 'Midi Circle Skirt', defaults: { fullness: 'half', waistband: 'structured', closure: 'zip' } },
+  ],
 };

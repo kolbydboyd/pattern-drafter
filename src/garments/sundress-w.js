@@ -303,4 +303,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'maxi-sundress-w', name: 'Maxi Sundress', defaults: { length: 'maxi', strap: 'tie' } },
+    { id: 'tiered-sundress-w', name: 'Tiered Sundress', defaults: { skirtStyle: 'tiered', length: 'midi' } },
+  ],
 };

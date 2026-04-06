@@ -284,4 +284,9 @@ export default {
     steps.push({ step: n++, title: 'Finish', detail: '{press} lightly. No waist seam means this dress hangs from the shoulders — adjust length as needed before hemming.' });
     return steps;
   },
+
+  variants: [
+    { id: 'long-sleeve-tee-dress-w', name: 'Long Sleeve Tee Dress', defaults: { sleeve: 'long', length: 'knee' } },
+    { id: 'maxi-tee-dress-w', name: 'Maxi Tee Dress', defaults: { sleeve: 'short', length: 'maxi' } },
+  ],
 };

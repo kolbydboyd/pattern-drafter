@@ -354,5 +354,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
     darts, type: 'panel', opts,
-  };
+  
+  variants: [
+    { id: 'slim-jeans', name: 'Slim Jeans', defaults: { ease: 'slim', legShape: 'slim' } },
+    { id: 'high-rise-jeans', name: 'High-Rise Jeans', defaults: { riseStyle: 'high', legShape: 'straight' } },
+  ],
+};
 }
