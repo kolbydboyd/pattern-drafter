@@ -4,7 +4,7 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.5] - 2026-04-06
+## [0.12.7] - 2026-04-06
 
 ### SEO and crawlability improvements
 - Pre-render /patterns listing page at build time with full catalog content, category sections, pricing, and ItemList JSON-LD schema
@@ -14,6 +14,30 @@ All notable changes are documented here, newest first.
 - Add all landing pages to sitemap with priority 0.7-0.8
 - Update build chain to run new pre-render scripts after vite build
 - Add Vercel rewrites for landing pages
+- Build-time sitemap and learn page pre-render now fetch articles from Supabase (with static fallback)
+
+---
+
+## [0.12.6] - 2026-04-06
+
+### New
+- Standalone fit feedback page at /feedback with interactive body map
+- Email feedback links now point to /feedback instead of account dashboard
+- Email quick select options (perfect, adjusted, wip) pre fill the overall fit dropdown
+- API now auto looks up purchase when only garmentId is provided
+- Body map added to general customer feedback modal (My Patterns tab)
+- API accepts new body map zone keys: neck_fit, sleeve_fit, rise_fit
+
+---
+
+## [0.12.5] - 2026-04-06
+
+### Improved
+- Tester feedback modal now uses an interactive SVG body map instead of dropdown selects for fit rating
+- Clickable body zones with color coded fit status (perfect, too tight, too loose, too long, too short)
+- Front/back view toggle to rate all body areas
+- Per zone notes and "adjusted after sewing" checkbox
+- New reusable body map widget in src/ui/body-map.js
 
 ---
 

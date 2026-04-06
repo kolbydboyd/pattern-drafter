@@ -169,7 +169,7 @@ async function sendFitFeedbackRequest() {
       await sendEmail('FIT_FEEDBACK_REQUEST', email, {
         garmentName:  p.garment_id.replace(/-/g, ' '),
         purchaseDate: p.purchased_at,
-        feedbackUrl:  `${SITE_URL}/account?tab=projects&feedback=${p.garment_id}`,
+        feedbackUrl:  `${SITE_URL}/feedback?garment=${p.garment_id}`,
       });
       await logEmail(p.user_id, email, 'FIT_FEEDBACK_REQUEST', p.garment_id);
       sent++;

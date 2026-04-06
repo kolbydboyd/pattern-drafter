@@ -69,6 +69,7 @@
     { "source": "/pin-preview", "destination": "/pin-preview.html" },
     { "source": "/affiliate", "destination": "/affiliate.html" },
     { "source": "/submit-make", "destination": "/submit-make.html" },
+    { "source": "/feedback", "destination": "/feedback.html" },
     { "source": "/made-to-measure-sewing-patterns", "destination": "/about.html" },
     { "source": "/custom-sewing-patterns-from-measurements", "destination": "/about.html" },
     { "source": "/made-to-measure-mens-sewing-patterns", "destination": "/about.html" },

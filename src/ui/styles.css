@@ -1125,6 +1125,33 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .tester-photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .tester-photo-thumb{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--bdr)}
 
+/* ── Body map widget ─────────────────────────────────────────────────────── */
+.body-map{font-family:'IBM Plex Mono',monospace}
+.body-map-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.body-map-view-toggle{display:flex;gap:4px}
+.body-map-count{font-size:.72rem;color:var(--mid);letter-spacing:.4px}
+.body-map-content{display:flex;gap:16px;flex-wrap:wrap}
+.body-map-svg-wrap{flex:0 0 auto}
+.body-map-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.body-map-legend-item{display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--mid)}
+.body-map-legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.body-map-detail{flex:1;min-width:200px;background:var(--ibg);border:1px solid var(--bdr);border-radius:6px;padding:14px}
+.body-map-detail-empty{display:flex;align-items:center;justify-content:center;min-height:180px}
+.body-map-detail-title{font-size:.85rem;font-weight:600;color:var(--text)}
+.body-map-detail-sub{font-size:.65rem;color:var(--mid);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.body-map-fit-options{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.body-map-fit-btn{padding:4px 9px;border:1px solid var(--bdr);border-radius:3px;background:transparent;font-family:'IBM Plex Mono',monospace;font-size:.68rem;cursor:pointer;transition:border-color .15s,background .15s}
+.body-map-fit-btn:hover{border-color:var(--gold)}
+.body-map-fit-btn.active{color:#fff;font-weight:500}
+.body-map-check{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text);cursor:pointer;margin-bottom:4px}
+.body-map-check input{accent-color:var(--gold)}
+.body-map-zone ellipse{transition:fill-opacity .15s,stroke .15s}
+.body-map-zone:hover ellipse{fill-opacity:0.35;stroke:var(--gold)}
+
+/* ── Feedback page ───────────────────────────────────────────────────────── */
+.feedback-page{max-width:700px;margin:0 auto;padding:24px 20px 60px}
+.feedback-form .f select,.feedback-form .f textarea{width:100%;padding:8px 10px;border:1px solid var(--bdr);border-radius:4px;background:var(--ibg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.83rem}
+
 /* ── Email opt-in card ── */
 .email-optin-card{background:var(--card);border:1px solid var(--bdr);border-radius:8px;padding:20px 24px;margin-top:16px;text-align:center}
 .email-optin-title{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin:0 0 6px}
