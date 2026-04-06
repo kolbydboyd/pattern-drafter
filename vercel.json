@@ -63,6 +63,7 @@
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" },
     { "source": "/pricing", "destination": "/pricing.html" },
+    { "source": "/admin", "destination": "/admin.html" },
     { "source": "/redeem", "destination": "/redeem.html" },
     { "source": "/tester", "destination": "/tester.html" },
     { "source": "/pin-preview", "destination": "/pin-preview.html" },

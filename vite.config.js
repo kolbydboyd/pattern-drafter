@@ -39,6 +39,7 @@ export default defineConfig({
         learn:     resolve(__dirname, 'learn.html'),
         pricing:   resolve(__dirname, 'pricing.html'),
         about:     resolve(__dirname, 'about.html'),
+        admin:     resolve(__dirname, 'admin.html'),
         redeem:    resolve(__dirname, 'redeem.html'),
         tester:    resolve(__dirname, 'tester.html'),
         'pin-preview': resolve(__dirname, 'pin-preview.html'),
