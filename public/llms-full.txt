@@ -1,0 +1,133 @@
+# People's Patterns - Full Documentation
+
+> Made-to-measure sewing patterns, generated in the browser from your body measurements.
+
+Website: https://peoplespatterns.com
+
+## What is People's Patterns?
+
+People's Patterns is a web application that generates custom-fit sewing patterns using parametric drafting. Instead of choosing a standard size (S, M, L, XL) and then altering the pattern to fit, you enter your actual body measurements and the engine drafts a pattern to your exact dimensions. The result is a print-ready tiled PDF you can print at home on any printer.
+
+The engine uses the same drafting formulas taught in fashion design schools and professional pattern-making courses. The difference is that it uses your numbers instead of a size chart.
+
+## How parametric drafting works
+
+Traditional sewing patterns are graded from a single base size. If your body doesn't match the proportions of that base, you need to make alterations - sometimes extensively. Parametric drafting skips this entirely.
+
+When you enter your measurements, the engine:
+1. Takes your bust, waist, hip, rise, inseam, shoulder width, and sleeve length
+2. Applies garment-specific drafting formulas (dart placement, curve calculations, seam allowances)
+3. Adds the appropriate ease based on your selected fit (slim, regular, or relaxed)
+4. Generates individual pattern pieces with grain lines, notches, fold lines, and construction markings
+5. Tiles the pieces onto standard printer paper with alignment marks
+
+Every pattern is generated fresh. There is no grading between sizes - your body IS the size.
+
+## Catalog (83 patterns)
+
+### Simple tier - $9
+Beginner-friendly builds with elastic waists and minimal shaping.
+
+Menswear: Gym Shorts, Swim Trunks, T-Shirt, Oversized Tee, Muscle Tee, Longline Tee, Pocket Tee, Running Shorts, Basketball Shorts, Tank Top, Racerback Tank, Cropped Tank
+Womenswear: Fitted Tee, Scoop Neck Tee, Long Sleeve Fitted Tee, Cropped Tee, Slip Skirt, Circle Skirt, Mini Circle Skirt, Midi Circle Skirt, Pencil Skirt, Easy Pant, Lounge Pant, Leggings, Capri Leggings, Biker Shorts, T-Shirt Dress, Slip Dress, Sundress, Long Sleeve Tee Dress, Maxi Tee Dress, Maxi Slip Dress, Maxi Sundress, Tiered Sundress
+Unisex/Accessories: Apron, Bow Tie, Tote Bag, Market Tote, Beach Tote
+
+### Core tier - $14
+Everyday wardrobe staples with standard closures and moderate shaping.
+
+Menswear: Cargo Shorts, Straight Jeans, Baggy Jeans, Baggy Shorts (Jorts), Slim Jeans, High-Rise Jeans, Chinos, Slim Chinos, Camp Shirt, Button-Up Shirt, Linen Shirt, Chambray Work Shirt, Vacation Shirt
+Womenswear: A-Line Skirt, Straight Trouser, Wide-Leg Trouser, Cigarette Pants, Linen Wide-Legs, Shell Blouse, Woven Tank
+Unisex: Sweatpants, Tapered Joggers, Crewneck Sweatshirt, Raglan Sweatshirt, Athletic Formal Trousers
+
+### Tailored tier - $19
+Detailed construction with pleats, darts, linings, and precision fit.
+
+Menswear: Pleated Shorts, Pleated Trousers, Cargo Work Pants, Denim Jacket, Lightweight Denim Jacket, Crop Jacket, Athletic Formal Jacket
+Womenswear: Button-Up Shirt, Poplin Blouse, Linen Tunic, Shirt Dress, Linen Shirt Dress, Wrap Dress, Maxi Wrap Dress, A-Line Dress, Midi A-Line Dress
+Unisex: Hoodie, Zip-Up Hoodie, Oversized Hoodie
+
+### Bundles
+- 3-Pattern Capsule: $29 (any 3 patterns, mix tiers)
+- 5-Pattern Wardrobe: $49 (any 5 patterns)
+- Beach Day (menswear): $39 - Swim Trunks, Camp Shirt, Cargo Shorts, Tote Bag
+- Weekend Casual (menswear): $34 - Chinos, T-Shirt, Denim Jacket
+- Athleisure (unisex): $34 - Sweatpants, Hoodie, Gym Shorts
+- Tailored Essentials (menswear): $42 - Pleated Trousers, Camp Shirt, Crop Jacket
+- Cozy Weekend (unisex): $25 - Sweatpants, Crewneck Sweatshirt, T-Shirt
+- Summer Capsule (womenswear): $25 - Sundress, Fitted Tee, Tote Bag
+- Office Ready (womenswear): $34 - Straight Trouser, Button-Up Shirt, Pencil Skirt
+- Date Night (womenswear): $29 - Wrap Dress, Crop Jacket
+
+### Memberships
+- Club: $12/month or $120/year - 1 pattern credit per month
+- Wardrobe: $24/month or $240/year - 3 pattern credits per month
+
+## What's included with each pattern
+
+- Print-ready tiled PDF (US Letter and A4 paper sizes)
+- Scale verification page (2x2 inch test square)
+- Numbered tile map showing assembly order
+- Full materials list with fabric type, yardage, and notions
+- Step-by-step construction instructions
+- Seam allowances included on all pieces
+- Grain line arrows, notches, and fold indicators
+- A0/projector file available as an add-on ($4)
+
+## Frequently Asked Questions
+
+### What is a made-to-measure pattern?
+A made-to-measure pattern is drafted to your exact body measurements, not a standard size. You enter your measurements once, and the engine generates a pattern that accounts for your actual waist, hip, inseam, chest, and other dimensions.
+
+### How is this different from a regular sewing pattern?
+Most sewing patterns are drafted for a statistical average body in standard sizes. If your measurements don't match that average, you need to make alterations. People's Patterns skips that step entirely. Every pattern is generated fresh from your measurements.
+
+### Is it free to try?
+Yes. Generating and viewing patterns is completely free - no account needed. When you're ready to download a print-ready PDF, create a free account and your first pattern download is on us. No credit card required.
+
+### How accurate is the fit?
+Patterns use parametric drafting formulas - the same math taught in pattern-making courses. For most body proportions, the fit will be very close out of the box. We always recommend cutting a muslin (test garment in cheap fabric) first, which is standard practice even with professionally drafted patterns.
+
+### What if the pattern doesn't fit?
+Fit issues are usually caused by measurement errors. Update your measurements in your profile and re-download - re-generation is included with every purchase at no extra charge.
+
+### Can I re-download a pattern I already purchased?
+Yes, any time, from your account. Your purchase is permanent and includes unlimited re-downloads.
+
+### How do I print the pattern?
+Download the tiled PDF, open in Adobe Acrobat Reader (not a browser), print at 100% scale with "Fit to Page" OFF. Each page includes a 2x2 inch test square to verify scale, plus crosshair marks to align pages when taping.
+
+### Is there a subscription option?
+Yes. Club ($12/month) includes 1 pattern credit per month. Wardrobe ($24/month) includes 3 credits per month. You can also buy individual patterns without a subscription.
+
+### Can I use these patterns commercially?
+Personal use is included with every purchase. Commercial licenses start at $49/pattern. Contact hello@peoplespatterns.com.
+
+### Do you have patterns for kids?
+Not yet - kids patterns are on the roadmap. Sign up for the newsletter to be notified.
+
+## Body measurements used
+
+The following measurements are used across the pattern catalog:
+- Bust/Chest: fullest part, tape level all around
+- Waist: natural waistline (bend sideways to find the crease)
+- Hip: widest part of hips and seat
+- Rise/Crotch depth: waist to chair seat while sitting
+- Inseam: crotch to floor along inside of leg
+- Shoulder width: shoulder point to shoulder point across back
+- Sleeve length: shoulder point to wrist bone with elbow bent
+
+Measurements are saved to your profile and used for every future pattern automatically.
+
+## Links
+
+- Homepage: https://peoplespatterns.com
+- Pattern catalog: https://peoplespatterns.com/patterns
+- Pricing: https://peoplespatterns.com/pricing
+- Learn/Blog: https://peoplespatterns.com/learn
+- FAQ: https://peoplespatterns.com/faq
+- About: https://peoplespatterns.com/about
+- Email: hello@peoplespatterns.com
+- Instagram: https://instagram.com/peoplespatterns
+- YouTube: https://youtube.com/@peoplespatterns
+- TikTok: https://tiktok.com/@peoplespatternsofficial
+- Pinterest: https://pinterest.com/peoplespatterns

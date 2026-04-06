@@ -5,6 +5,7 @@
  * Only accessible to the admin email via Supabase RLS + client-side gate.
  */
 import { getUser } from '../lib/auth.js';
+import { ARTICLES } from '../content/articles.js';
 import {
   getGarmentCatalog, updateGarment,
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
@@ -756,6 +757,118 @@ function renderMarket() {
   `;
 }
 
+// ── Section: Article Tracker ─────────────────────────────────────────────────
+
+function renderArticleTracker() {
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const published = ARTICLES.filter(a => a.datePublished && a.datePublished <= TODAY);
+  const scheduled = ARTICLES.filter(a => a.datePublished && a.datePublished > TODAY);
+
+  // Group scheduled by month
+  const byMonth = {};
+  for (const a of scheduled) {
+    const month = a.datePublished.slice(0, 7);
+    if (!byMonth[month]) byMonth[month] = [];
+    byMonth[month].push(a);
+  }
+
+  // Estimate word count from body HTML
+  const wordCount = (html) => {
+    if (!html) return 0;
+    return html.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+  };
+
+  const totalWords = ARTICLES.reduce((sum, a) => sum + wordCount(a.body), 0);
+
+  // Category breakdown
+  const byCat = {};
+  for (const a of ARTICLES) {
+    const cat = a.category || 'uncategorized';
+    if (!byCat[cat]) byCat[cat] = { total: 0, live: 0 };
+    byCat[cat].total++;
+    if (a.datePublished && a.datePublished <= TODAY) byCat[cat].live++;
+  }
+
+  const articleRow = (a, showDate) => {
+    const wc = wordCount(a.body);
+    const isLive = a.datePublished && a.datePublished <= TODAY;
+    const hasFaq = !!(a.faqSchema && a.faqSchema.length);
+    const statusColor = isLive ? 'var(--sa)' : 'var(--gold)';
+    const statusLabel = isLive ? 'live' : a.datePublished || 'no date';
+    return `<tr>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <a href="/learn/${a.slug}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${a.title}</a>
+      </td>
+      <td><span style="display:inline-block;padding:1px 6px;border-radius:3px;font-size:.65rem;background:${statusColor};color:#fff;font-weight:600">${statusLabel}</span></td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${wc.toLocaleString()}</td>
+      <td style="text-align:center">${hasFaq ? '<span title="Has FAQ schema" style="color:var(--sa)">FAQ</span>' : ''}</td>
+      <td style="font-size:.72rem;color:var(--mid)">${a.category || ''}</td>
+    </tr>`;
+  };
+
+  return `
+    <h2 class="adm-section-title">Article Tracker</h2>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+      <div class="adm-roadmap-card" style="flex:1;min-width:120px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--text)">${ARTICLES.length}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Total articles</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:120px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--sa)">${published.length}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Live now</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:120px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--gold)">${scheduled.length}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Scheduled</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:120px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--text)">${Math.round(totalWords / 1000)}k</div>
+        <div style="font-size:.72rem;color:var(--mid)">Total words</div>
+      </div>
+    </div>
+
+    <div class="adm-roadmap-card" style="margin-bottom:16px">
+      <h3>Category breakdown</h3>
+      <table class="adm-table" style="font-size:.78rem">
+        <thead><tr><th>Category</th><th style="text-align:right">Live</th><th style="text-align:right">Scheduled</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>
+          ${Object.entries(byCat).map(([cat, c]) => `<tr>
+            <td>${cat}</td>
+            <td style="text-align:right">${c.live}</td>
+            <td style="text-align:right">${c.total - c.live}</td>
+            <td style="text-align:right">${c.total}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    ${Object.keys(byMonth).length ? `
+    <div class="adm-roadmap-card" style="margin-bottom:16px">
+      <h3>Upcoming schedule</h3>
+      ${Object.entries(byMonth).sort(([a],[b]) => a.localeCompare(b)).map(([month, articles]) => `
+        <div style="margin-bottom:12px">
+          <div style="font-weight:600;font-size:.83rem;margin-bottom:4px">${month} (${articles.length} articles)</div>
+          <table class="adm-table" style="font-size:.75rem">
+            <thead><tr><th>Title</th><th>Date</th><th style="text-align:right">Words</th><th>FAQ</th><th>Category</th></tr></thead>
+            <tbody>${articles.sort((a,b) => a.datePublished.localeCompare(b.datePublished)).map(a => articleRow(a, true)).join('')}</tbody>
+          </table>
+        </div>
+      `).join('')}
+    </div>` : ''}
+
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text);padding:8px 0">All articles (${published.length} live)</summary>
+      <div class="adm-roadmap-card">
+        <table class="adm-table" style="font-size:.75rem">
+          <thead><tr><th>Title</th><th>Status</th><th style="text-align:right">Words</th><th>FAQ</th><th>Category</th></tr></thead>
+          <tbody>${ARTICLES.sort((a,b) => (a.datePublished||'9').localeCompare(b.datePublished||'9')).map(a => articleRow(a, true)).join('')}</tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
 // ── Section: Content & Marketing ─────────────────────────────────────────────
 
 const PIPELINE_STATUSES = ['idea', 'script', 'shot-list', 'filming', 'editing', 'uploaded'];
@@ -890,6 +1003,10 @@ function renderContent(pipeline) {
   ];
 
   return `
+    ${renderArticleTracker()}
+
+    <hr style="border:none;border-top:1px solid var(--bdr);margin:32px 0">
+
     <h2 class="adm-section-title">Content Pipeline</h2>
 
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
