@@ -68,14 +68,14 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'IFTTT_WEBHOOK_KEY not configured' });
   }
 
-  // Get all pins that are due and haven't been posted
+  // Get all pins that are due: pending OR failed with < 3 retries
   const now = new Date().toISOString();
   const { data: duePins, error: fetchErr } = await supabase
     .from('pinterest_pins')
     .select('*')
     .lte('scheduled_at', now)
     .is('posted_at', null)
-    .eq('ifttt_status', 'pending')
+    .or('ifttt_status.eq.pending,ifttt_status.eq.retry')
     .order('scheduled_at', { ascending: true })
     .limit(10); // Process max 10 per run to stay within function timeout
 
@@ -129,15 +129,19 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error(`Error posting ${pin.pin_id}:`, err.message);
 
+      const retries = (pin.retry_count || 0) + 1;
+      const maxRetries = 3;
+
       await supabase
         .from('pinterest_pins')
         .update({
-          ifttt_status:  'error',
+          ifttt_status:  retries >= maxRetries ? 'error' : 'retry',
           error_message: err.message,
+          retry_count:   retries,
         })
         .eq('id', pin.id);
 
-      results.push({ pin_id: pin.pin_id, status: 'error', error: err.message });
+      results.push({ pin_id: pin.pin_id, status: retries >= maxRetries ? 'error' : 'retry', error: err.message, retries });
     }
   }
 
