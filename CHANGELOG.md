@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.4] - 2026-04-06
+
+### Fixed
+- Cron email schedule changed from 9 AM UTC (4 AM Eastern) to 2 PM UTC (10 AM Eastern) so users stop receiving emails at 4 AM
+
+---
+
 ## [0.12.3] - 2026-04-05
 
 ### New garment: 874 Work Pants
