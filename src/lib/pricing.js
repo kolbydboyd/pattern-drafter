@@ -83,13 +83,13 @@ const GARMENT_TIERS = {
   'woven-tank-w':               'core',
   'cigarette-pants-w':          'core',
   'linen-wide-legs-w':          'core',
-  'long-sleeve-tee-dress-w':    'core',
-  'maxi-tee-dress-w':           'core',
-  'maxi-slip-dress-w':          'core',
-  'maxi-sundress-w':            'core',
-  'tiered-sundress-w':          'core',
-  'market-tote':                'core',
-  'beach-tote':                 'core',
+  'long-sleeve-tee-dress-w':    'simple',
+  'maxi-tee-dress-w':           'simple',
+  'maxi-slip-dress-w':          'simple',
+  'maxi-sundress-w':            'simple',
+  'tiered-sundress-w':          'simple',
+  'market-tote':                'simple',
+  'beach-tote':                 'simple',
   // tailored — $19
   'pleated-shorts':   'tailored',
   'pleated-trousers': 'tailored',
@@ -112,11 +112,11 @@ const GARMENT_TIERS = {
   'linen-tunic-w':              'tailored',
   'lightweight-denim-jacket':   'tailored',
   // dresses
-  'tshirt-dress-w':  'core',
-  'slip-dress-w':    'core',
+  'tshirt-dress-w':  'simple',
+  'slip-dress-w':    'simple',
   'a-line-dress-w':  'tailored',
-  'sundress-w':      'core',
-  'tote-bag':        'core',
+  'sundress-w':      'simple',
+  'tote-bag':        'simple',
 };
 
 // Garment display labels (used in checkout, emails, UI)
