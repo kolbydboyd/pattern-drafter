@@ -4,6 +4,20 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.7] - 2026-04-06
+
+### SEO and crawlability improvements
+- Pre-render /patterns listing page at build time with full catalog content, category sections, pricing, and ItemList JSON-LD schema
+- Pre-render /learn listing and all article detail pages at build time with Article, FAQPage, BreadcrumbList, and CollectionPage JSON-LD schemas
+- Add 5 SEO landing pages targeting high-intent search queries: made-to-measure-sewing-patterns, custom-sewing-patterns-from-measurements, made-to-measure-mens-sewing-patterns, made-to-measure-womens-sewing-patterns, how-made-to-measure-sewing-patterns-work
+- Update robots.txt to explicitly allow AI search crawlers (OAI-SearchBot, ChatGPT-User, Applebot-Extended, ClaudeBot, PerplexityBot, anthropic-ai, Bytespider) and disallow /admin
+- Add all landing pages to sitemap with priority 0.7-0.8
+- Update build chain to run new pre-render scripts after vite build
+- Add Vercel rewrites for landing pages
+- Build-time sitemap and learn page pre-render now fetch articles from Supabase (with static fallback)
+
+---
+
 ## [0.12.6] - 2026-04-06
 
 ### New

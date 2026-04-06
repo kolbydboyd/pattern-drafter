@@ -4,7 +4,8 @@
 
 import './page.js';
 import { createBodyMap } from './body-map.js';
-import { getSession, getCurrentUser, onUserChange } from './auth-modal.js';
+import { getSession } from '../lib/auth.js';
+import { getCurrentUser, onUserChange } from './auth-modal.js';
 
 const root = document.getElementById('feedback-root');
 const params = new URLSearchParams(window.location.search);
