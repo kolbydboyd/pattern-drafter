@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- button-up shirt: point collar with stand, button placket, back yoke -->
+  <path d="M68,40 L74,54 L80,46 L86,54 L92,40"/>
+  <path d="M72,40 L80,32 L88,40"/>
+  <!-- body + sleeves -->
+  <path d="M68,40 L42,56 L38,128 L54,128 L54,170 L106,170 L106,128 L122,128 L118,56 L92,40"/>
+  <!-- center button placket -->
+  <line x1="80" y1="46" x2="80" y2="170"/>
+  <!-- buttons -->
+  <circle cx="80" cy="66" r="2"/>
+  <circle cx="80" cy="86" r="2"/>
+  <circle cx="80" cy="106" r="2"/>
+  <circle cx="80" cy="126" r="2"/>
+  <circle cx="80" cy="146" r="2"/>
+  <circle cx="80" cy="162" r="2"/>
+  <!-- back yoke line -->
+  <path d="M58,62 Q80,56 102,62"/>
+  <!-- barrel cuffs -->
+  <rect x="38" y="120" width="16" height="10" rx="2"/>
+  <rect x="106" y="120" width="16" height="10" rx="2"/>
+</svg>
