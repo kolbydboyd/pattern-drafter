@@ -343,6 +343,11 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'running-shorts', name: 'Running Shorts', defaults: { ease: 'slim', liner: 'mesh' } },
+    { id: 'basketball-shorts', name: 'Basketball Shorts', defaults: { ease: 'relaxed' } },
+  ],
 };
 
 
@@ -409,10 +414,5 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
     crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel',
     opts,
-  
-  variants: [
-    { id: 'running-shorts', name: 'Running Shorts', defaults: { ease: 'slim', liner: 'mesh' } },
-    { id: 'basketball-shorts', name: 'Basketball Shorts', defaults: { ease: 'relaxed' } },
-  ],
-};
+  };
 }

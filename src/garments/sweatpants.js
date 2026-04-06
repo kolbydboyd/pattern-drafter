@@ -291,6 +291,10 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'tapered-joggers', name: 'Tapered Joggers', defaults: { legStyle: 'jogger', ease: 'regular' } },
+  ],
 };
 
 
@@ -363,9 +367,5 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
     crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
-  
-  variants: [
-    { id: 'tapered-joggers', name: 'Tapered Joggers', defaults: { legStyle: 'jogger', ease: 'regular' } },
-  ],
-};
+  };
 }
