@@ -1166,4 +1166,160 @@ export const ARTICLES_GARMENTS = [
 
 <p class="learn-cta-inline">Ready to sew your perfect hoodie? <a href="/patterns/hoodie">Generate your custom pattern &#8594;</a></p>`,
   },
+  {
+    slug: 'how-to-sew-sweatpants-custom-fit',
+    title: 'How to Sew Sweatpants: Custom Fit Guide for Every Body',
+    description: 'Learn how to sew sweatpants with a made-to-measure pattern. Covers fabric weights, elastic waistbands, cuffs, and fit troubleshooting from rise to ankle.',
+    category: 'garments',
+    tags: ['sew sweatpants', 'sweatpants pattern', 'custom fit sweatpants', 'french terry sewing', 'elastic waistband', 'made-to-measure pants'],
+    youtubeId: null,
+    datePublished: '2026-08-22',
+    faqSchema: [
+      { question: 'What fabric is best for sewing sweatpants?', answer: 'French terry at 280 to 320 gsm is the top choice for sweatpants. It is warm without being heavy, comfortable against skin, and stable enough to hold a clean leg shape. Mid-weight fleece (200 to 280 gsm) works well for colder-weather versions. Avoid lightweight jersey under 200 gsm, which lacks the body and structure that sweatpants need to hang correctly.' },
+      { question: 'What needle size should I use to sew sweatpants?', answer: 'Use a ballpoint or stretch needle in size 90/14 for French terry and mid-weight fleece. The ballpoint tip slides between knit loops rather than piercing them, preventing skipped stitches. For heavier fleece over 300 gsm, move up to 100/16.' },
+      { question: 'How do I get the crotch curve right on sweatpants?', answer: 'The crotch curve is determined by your rise measurement (waist to chair seat while seated) and your hip circumference. A made-to-measure pattern calculates the curve mathematically. When sewing, use a stretch stitch or a narrow zigzag (1.5 mm wide, 2.5 mm long) and clip into the seam allowance at the deepest point of the curve after sewing to help it lie flat.' },
+      { question: 'How wide should the elastic waistband be for sweatpants?', answer: 'A 1-inch-wide (2.5 cm) elastic is standard for most sweatpants. It is wide enough to distribute pressure across the waistline without folding or rolling. For a drawstring-style waistband, use 3/4-inch elastic inside the casing with a separate drawstring cord threaded through.' },
+      { question: 'How much fabric do I need to sew sweatpants?', answer: 'Most adult sweatpants patterns require 2 to 2.5 yards of 60-inch-wide French terry or fleece. Taller individuals or those making wide-leg versions should add an extra half yard. Ribbing for ankle cuffs requires about 1/4 yard of ribbing fabric or a pack of pre-cut ribbing strips.' },
+    ],
+    body: `<p>Sweatpants are the most-worn bottoms in many wardrobes, yet they are almost universally purchased off the rack, where sizing guesses at your rise, thigh, and inseam all at once. The result is pants that fit at the waist but bag at the knee, or pants that work in the leg but pull across the hips. Sewing your own sweatpants from a made-to-measure pattern fixes all of this in a single afternoon.</p>
+
+<p>This guide covers everything you need to sew sweatpants that actually fit: fabric selection by weight and fiber, the five measurements that matter most, a construction sequence that sidesteps the most common mistakes, and troubleshooting for the fit problems that show up on the first wear.</p>
+
+<h2>Choosing Fabric for Sweatpants</h2>
+
+<p>The fabric determines how your sweatpants look, feel, and hold their shape over time. Three fabric categories work well, each with a different result.</p>
+
+<h3>French Terry (Sweatshirt Knit)</h3>
+
+<p>French terry is the standard for sweatpants. Its smooth face and looped reverse make it comfortable against skin, warm without overheating, and stable enough to hold a clean silhouette at the knee and hem. Target a weight of <strong>280 to 320 gsm</strong>. Below 250 gsm, the fabric lacks the body to hang well in the leg. Above 350 gsm, it becomes stiff and difficult to sew through at the crotch seam where multiple layers converge.</p>
+
+<p>A 60 to 40 cotton-to-polyester blend is the most common and practical choice. Pure cotton French terry feels softer but is heavier when wet and takes longer to dry. Polyester-dominant blends are more durable and pill-resistant but feel less natural against skin.</p>
+
+<h3>Mid-Weight Fleece</h3>
+
+<p>Antipill fleece at <strong>200 to 280 gsm</strong> makes a warmer, loftier pair of sweatpants. It does not fray, so you can leave raw-edge interior seams without finishing them. Fleece has less drape than French terry, which means it holds a more structured shape at the cuff and thigh. Stick to two-way stretch fleece and avoid four-way stretch versions, which are difficult to control while sewing.</p>
+
+<h3>Heavyweight Cotton Knit</h3>
+
+<p>Heavyweight cotton interlock at <strong>300 to 380 gsm</strong> produces sweatpants with a more substantial, less athletic feel. It has excellent drape, takes dye beautifully, and is the fabric of choice for elevated loungewear. The trade-off is cost -- quality heavyweight cotton knit runs $12 to $20 per yard -- and the need for careful preshrinking since cotton knit can shrink 5 to 8 percent in the first wash.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Three sweatpants fabric swatches -- French terry, mid-weight fleece, and heavyweight cotton interlock">[ Image: Side-by-side swatches of French terry, fleece, and cotton interlock showing texture and drape differences ]</div><figcaption>Left to right: French terry (most common), mid-weight antipill fleece (warmest), heavyweight cotton interlock (most elevated drape).</figcaption></figure>
+
+<h2>Notions and Tools</h2>
+
+<p>Gather these before cutting:</p>
+
+<ul>
+<li><strong>Ballpoint or stretch needle, size 90/14</strong> -- Required for knit fabrics. Replace it after 8 hours of sewing time; a dull needle skips stitches on knits before any other fabric type.</li>
+<li><strong>Polyester thread</strong> -- Has slight stretch, which prevents seam popping when you sit or move. All-purpose polyester thread in a matching color works for every seam.</li>
+<li><strong>1-inch non-roll elastic</strong> -- For the waistband. Non-roll elastic has vertical ribbing that prevents it from twisting inside the casing. Measure your preferred waistline circumference and subtract 2 to 3 inches for the working length.</li>
+<li><strong>Drawstring cord (optional)</strong> -- Braided cotton or polyester cord, 3/8 inch diameter. Cut at least 60 inches for a standard adult waistband.</li>
+<li><strong>Ribbing for ankle cuffs (optional)</strong> -- If your pattern includes ankle cuffs rather than a turned hem. Buy 1/4 yard of ribbing or a pre-cut pack.</li>
+<li><strong>Pressing cloth</strong> -- Protect the face of fleece and French terry from direct iron contact, which flattens the loops permanently.</li>
+</ul>
+
+<h2>Five Measurements That Drive Fit</h2>
+
+<p>Sweatpants have fewer pieces than most trousers, but the fit depends on five specific measurements being accurate. The <a href="/patterns/sweatpants">People's Patterns sweatpants generator</a> uses all five to draft the front panel, back panel, crotch curve, and leg taper simultaneously.</p>
+
+<ul>
+<li><strong>Waist circumference</strong> -- At your natural waistline, not where you plan to wear the pants. The pattern will add the right ease for a comfortable elastic waistband. If you want the waistband to sit lower on your hips, take an additional hip measurement at the desired waist-drop point.</li>
+<li><strong>Hip circumference</strong> -- Around the fullest part of the seat, feet together. This determines the width of the seat and the curve of the crotch seam. An accurate hip measurement is the single biggest factor in whether the crotch fits or pulls.</li>
+<li><strong>Rise</strong> -- From your natural waistline, down through the crotch, to the chair seat while seated. Sit on a hard chair, place the end of the tape at your waist center front, run it between your legs and up to your waist center back. This measurement sets the total crotch depth and is the reason commercial sweatpants have a crotch that hits too high or sags too low for most bodies.</li>
+<li><strong>Inseam</strong> -- From the crotch point to the floor (or to the ankle for cuffed styles). Measure with bare feet or the shoes you plan to wear with the finished pants.</li>
+<li><strong>Thigh circumference</strong> -- Around the fullest part of the upper thigh, as high as possible without going into the crotch. This sets the width at the top of the leg and determines how much ease you have when sitting and walking.</li>
+</ul>
+
+<p>If you are unsure how to take any of these measurements, the <a href="/learn/how-to-measure-yourself">body measurement guide</a> covers each one with detail on tape position and common errors.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Diagram showing the five sweatpants measurements on a body outline with tape placement indicators">[ Image: Illustrated body outline with arrows showing waist, hip, rise, inseam, and thigh measurement positions ]</div><figcaption>These five measurements determine every dimension of your sweatpants pattern. Double-check rise and thigh -- they are the most commonly mis-measured.</figcaption></figure>
+
+<h2>Preshrinking Fabric</h2>
+
+<p>Pre-wash and tumble dry your fabric before cutting, using the same heat setting you plan to use going forward. French terry can shrink 3 to 5 percent; heavyweight cotton knit can shrink up to 8 percent. Skipping this step means your finished sweatpants shrink shorter and tighter after the first wash, undoing the precision of a made-to-measure pattern.</p>
+
+<p>After drying, steam-press the fabric from the reverse side using a pressing cloth. This removes wrinkles caused by the dryer and slightly relaxes the knit back to its resting tension before you lay the pattern pieces on it.</p>
+
+<h2>Cutting and Marking</h2>
+
+<p>Fold your fabric lengthwise with right sides together and selvages aligned. Lay the front and back panels with the grainline (indicated on the pattern) parallel to the selvage. Pin or weight the pattern pieces in place -- knit fabric can shift under the weight of heavy pattern paper, especially when cutting long leg pieces.</p>
+
+<p>Cut with a rotary cutter and mat rather than scissors if you have them. Rotary cutting on knit fabric is faster and more accurate because it does not require lifting the fabric off the cutting surface. Use a new blade -- a dull rotary blade drags the knit loops and creates ragged edges.</p>
+
+<p>Mark the crotch notches, pocket placement lines, and waistband fold lines with chalk or a marking pen that disappears with water or heat. Do not use a tracing wheel on French terry -- the loops prevent clean lines.</p>
+
+<h2>Construction Sequence</h2>
+
+<p>Build the sweatpants in this order to avoid awkward re-handling of large pieces and to catch fit problems early.</p>
+
+<h3>Step 1: Sew the Inseams</h3>
+
+<p>Sew the front crotch seam (connecting the two front panels at the center front) and the back crotch seam (connecting the two back panels at the center back) before joining the legs together. This is the flat-construction method: you handle flat panels rather than trying to sew inside a circular tube. Use a stretch stitch or a narrow zigzag set to 1.5 mm wide and 2.5 mm long for all seams. Backstitch or tie off thread ends at the top of both crotch seams -- this is a high-stress point.</p>
+
+<h3>Step 2: Join Front to Back at the Crotch</h3>
+
+<p>With front and back panels right sides together, sew the curved crotch seam from the front waist through the seat and up to the back waist in one continuous pass. Use a 5/8-inch seam allowance unless your pattern specifies otherwise. After sewing, clip into the seam allowance at the deepest point of the curve (just at the crotch) with small snips every 1/2 inch. Do not clip all the way to the stitching line -- stop about 1/8 inch short. These clips allow the seam to spread and lie flat when the pants are on the body.</p>
+
+<p>For maximum durability at the crotch seam, sew a second row of stitching inside the seam allowance, 1/4 inch from the first. This reinforcement is invisible from the outside but significantly extends the life of the garment at its highest-stress point.</p>
+
+<h3>Step 3: Sew the Leg Seams</h3>
+
+<p>Fold each leg so the front and back panels align at the side seam (outseam). Sew from the waist down to the hem opening. Press the seam toward the back panel. Repeat for the other leg.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Two sweatpants panels being sewn at the crotch seam, showing the curved seam and clipping technique">[ Image: Front and back panels joined at the crotch seam, with clip marks visible along the curve ]</div><figcaption>Clipping the crotch seam allowance after sewing lets the seam spread and sit flat on the body without pulling.</figcaption></figure>
+
+<h3>Step 4: Add Pockets (Optional)</h3>
+
+<p>Side-seam pockets are the easiest option for sweatpants. Cut two pocket bag pieces from the same fabric or from a lighter-weight jersey (this reduces bulk at the pocket opening). Sandwich each pocket bag piece between the front and back panels before sewing the side seam. Sew the side seam from the waist down to the pocket opening point, then continue from the bottom of the pocket opening down to the hem. Stitch around the pocket bag, trim the curves, and press toward the front panel.</p>
+
+<p>If your pattern includes a front patch pocket, apply it before assembling the panels. Interface the top edge of the pocket with a lightweight sew-in knit interfacing and topstitch the top fold before attaching.</p>
+
+<h3>Step 5: Elastic Waistband</h3>
+
+<p>Two waistband options work well for sweatpants: a simple turned-and-stitched casing or a separate waistband piece. Both produce clean results.</p>
+
+<p><strong>Turned casing method:</strong> Press the top edge of the pants body under by 1/4 inch. Fold over again to the desired waistband depth (typically 1.25 to 1.5 inches for 1-inch elastic) and pin in place. Stitch close to the bottom fold, leaving a 2-inch opening at the center back. Thread the elastic through using a large safety pin, overlap the ends by 1 inch, and sew them together in a box-X pattern. Stitch the opening closed.</p>
+
+<p><strong>Separate waistband method:</strong> Cut a waistband strip at the waist circumference plus 1 inch (for seam allowances) by twice the desired finished width plus seam allowances. Fold right sides together lengthwise and sew the short ends to form a loop. Fold the loop in half lengthwise with wrong sides together and divide it into four equal quarters. Divide the pants waist opening into four equal quarters. Pin the waistband to the pants, matching quarter marks, and sew while slightly stretching the waistband to match the waist opening circumference. This method creates a neater finish and eliminates the stitching-through-all-layers look of the turned casing.</p>
+
+<p>For a drawstring waistband, sew two vertical buttonholes at the center front of the casing before threading the elastic. Insert the drawstring cord alongside the elastic so both can be adjusted independently. Use cord stops at each end of the drawstring.</p>
+
+<h3>Step 6: Ankle Cuffs or Hem</h3>
+
+<p><strong>Ribbing cuffs:</strong> Cut ribbing strips at 80 percent of the ankle circumference by twice the desired cuff depth plus 1/2 inch for seam allowances. Fold each strip in half lengthwise with right sides out and sew the short ends together to form a loop. Divide the loop into quarters and mark. Divide the ankle opening into quarters and mark. Pin the cuff to the ankle with right sides together, matching quarter marks, and sew while stretching the cuff to match the ankle circumference. The 20 percent negative ease creates the gathering effect that keeps the cuff snug without binding.</p>
+
+<p><strong>Straight hem:</strong> For a clean straight hem rather than cuffed ankles, press the hem allowance under by 3/4 inch, then turn under again and edgestitch with a twin needle or a stretch stitch. A twin needle creates a professional-looking topstitched hem with two parallel rows of stitching on the face and a zigzag on the reverse, matching exactly how manufactured sweatpants hems look.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Ribbing being attached to sweatpants ankle opening, showing the stretching technique as it is sewn">[ Image: Ribbing cuff being stretched to match the ankle circumference as it is sewn, with quarter-mark pins visible ]</div><figcaption>Ribbing cuffs attach at 80 percent of the ankle circumference. The negative ease creates the snug, gathered look.</figcaption></figure>
+
+<h2>Troubleshooting Common Fit Issues</h2>
+
+<p><strong>Crotch seam pulls or rides up:</strong> The rise measurement is likely too short. Measure again while seated on a hard chair. If the existing pants are wearable, you can add a gusset (a small diamond-shaped inset at the crotch point) to deepen the crotch without cutting a new pair.</p>
+
+<p><strong>Baggy seat:</strong> The back hip ease is too generous. Check your hip measurement -- a common error is measuring with legs apart or relaxed posture rather than standing with feet together. For the next version, reduce the hip measurement by 1/2 inch and compare the pattern pieces.</p>
+
+<p><strong>Tight across the thighs:</strong> The thigh circumference measurement was too small, or insufficient ease was added. A made-to-measure pattern like the <a href="/patterns/sweatpants">People's Patterns sweatpants</a> adds the correct ease automatically. If using your own pattern, add 2 to 3 inches of ease to the thigh measurement for comfortable pull-on pants.</p>
+
+<p><strong>Waistband rolls or folds over:</strong> Non-roll elastic was not used, or the elastic is too lightweight for the fabric weight. Replace with a 1-inch non-roll elastic and check that the casing is only slightly wider than the elastic -- excessive casing width allows the elastic to rotate inside and bunch.</p>
+
+<p><strong>Seams pop at the crotch or thighs:</strong> A straight stitch was used on these seams. Knit fabric stretches on every movement; a straight stitch does not. Restitch with a stretch stitch or narrow zigzag. For the crotch specifically, add the double-row reinforcement described in Step 2.</p>
+
+<p><strong>Legs twist toward the front:</strong> The fabric was not cut perfectly on grain. The grainline arrow on the pattern piece must be parallel to the selvage edge. Even a small angle causes the leg to spiral as the fabric recovers its natural tension.</p>
+
+<h2>Custom Fit Advantages for Sweatpants</h2>
+
+<p>The fit problems that make most off-the-rack sweatpants unwearable -- a crotch that rides up, a waistband that digs in, legs that balloon or constrict at the thigh -- all trace back to the same cause: the pattern was built for a statistical average, not your body. A made-to-measure pattern uses your actual rise, hip, thigh, and inseam to draft pieces that match your geometry.</p>
+
+<p>Once you have sewn a first pair and confirmed the fit, the pattern becomes a template. Every future pair -- different colors, fabric weights, or silhouettes (jogger cuffs vs straight hem, pockets vs no pockets) -- starts from a proven foundation that fits. See the full <a href="/patterns">pattern collection</a> for other lounge and activewear options, including the <a href="/patterns/crewneck">crewneck sweatshirt</a> for a matching set.</p>
+
+<section class="faq"><h2>Frequently Asked Questions</h2>
+<div class="faq-item"><h3>What fabric is best for sewing sweatpants?</h3><p>French terry at 280 to 320 gsm is the top choice for sweatpants. It is warm without being heavy, comfortable against skin, and stable enough to hold a clean leg shape. Mid-weight fleece (200 to 280 gsm) works well for colder-weather versions. Avoid lightweight jersey under 200 gsm, which lacks the body and structure that sweatpants need to hang correctly.</p></div>
+<div class="faq-item"><h3>What needle size should I use to sew sweatpants?</h3><p>Use a ballpoint or stretch needle in size 90/14 for French terry and mid-weight fleece. The ballpoint tip slides between knit loops rather than piercing them, preventing skipped stitches. For heavier fleece over 300 gsm, move up to 100/16.</p></div>
+<div class="faq-item"><h3>How do I get the crotch curve right on sweatpants?</h3><p>The crotch curve is determined by your rise measurement (waist to chair seat while seated) and your hip circumference. A made-to-measure pattern calculates the curve mathematically. When sewing, use a stretch stitch or a narrow zigzag (1.5 mm wide, 2.5 mm long) and clip into the seam allowance at the deepest point of the curve after sewing to help it lie flat.</p></div>
+<div class="faq-item"><h3>How wide should the elastic waistband be for sweatpants?</h3><p>A 1-inch-wide (2.5 cm) elastic is standard for most sweatpants. It is wide enough to distribute pressure across the waistline without folding or rolling. For a drawstring-style waistband, use 3/4-inch elastic inside the casing with a separate drawstring cord threaded through.</p></div>
+<div class="faq-item"><h3>How much fabric do I need to sew sweatpants?</h3><p>Most adult sweatpants patterns require 2 to 2.5 yards of 60-inch-wide French terry or fleece. Taller individuals or those making wide-leg versions should add an extra half yard. Ribbing for ankle cuffs requires about 1/4 yard of ribbing fabric or a pack of pre-cut ribbing strips.</p></div>
+</section>
+
+<p class="learn-cta-inline">Ready to sew your perfect sweatpants? <a href="/patterns/sweatpants">Generate your custom pattern &#8594;</a></p>`,
+  },
 ];
