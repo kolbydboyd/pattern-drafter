@@ -614,6 +614,7 @@ export function renderGenericPieceSVG(piece) {
 /**
  * Render a vinyl/template piece (bone outlines etc.) as an SVG string.
  * Piece must have: polygon (array of {x,y} in inches), width, height, name.
+ * Supports compound paths via piece.svgPath (fill-rule:evenodd for holes).
  * Renders as a filled silhouette with a download link for Cricut SVG export.
  */
 export function renderTemplateSVG(piece) {
@@ -632,25 +633,43 @@ export function renderTemplateSVG(piece) {
   const ox = sc(mL - minX);
   const oy = sc(mT - minY);
 
-  // Build path
-  const pts = polygon.map(p => ({ x: ox + sc(p.x), y: oy + sc(p.y) }));
-  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-  for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
-  d += ' Z';
+  // Build display path — use svgPath (compound with holes) if available, else polygon
+  let d;
+  if (piece.svgPath) {
+    // Scale the svgPath from inches to SVG units with offset
+    d = piece.svgPath.replace(/([0-9.-]+)\s+([0-9.-]+)/g, (_, xStr, yStr) => {
+      const x = ox + sc(parseFloat(xStr));
+      const y = oy + sc(parseFloat(yStr));
+      return `${x.toFixed(1)} ${y.toFixed(1)}`;
+    });
+  } else {
+    const pts = polygon.map(p => ({ x: ox + sc(p.x), y: oy + sc(p.y) }));
+    d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+    d += ' Z';
+  }
 
-  // Build standalone SVG for download (inches, no margins)
-  const dlPts = polygon.map(p => ({ x: p.x - minX, y: p.y - minY }));
-  let dlD = `M ${dlPts[0].x.toFixed(3)} ${dlPts[0].y.toFixed(3)}`;
-  for (let i = 1; i < dlPts.length; i++) dlD += ` L ${dlPts[i].x.toFixed(3)} ${dlPts[i].y.toFixed(3)}`;
-  dlD += ' Z';
-  const dlSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pW.toFixed(3)}in" height="${pH.toFixed(3)}in" viewBox="0 0 ${pW.toFixed(3)} ${pH.toFixed(3)}"><path d="${dlD}" fill="#000" stroke="none"/></svg>`;
+  // Build standalone SVG for Cricut download (inch units, no margins)
+  let dlD;
+  if (piece.svgPath) {
+    // Shift svgPath so min corner is at origin
+    dlD = piece.svgPath.replace(/([0-9.-]+)\s+([0-9.-]+)/g, (_, xStr, yStr) => {
+      return `${(parseFloat(xStr) - minX).toFixed(3)} ${(parseFloat(yStr) - minY).toFixed(3)}`;
+    });
+  } else {
+    const dlPts = polygon.map(p => ({ x: p.x - minX, y: p.y - minY }));
+    dlD = `M ${dlPts[0].x.toFixed(3)} ${dlPts[0].y.toFixed(3)}`;
+    for (let i = 1; i < dlPts.length; i++) dlD += ` L ${dlPts[i].x.toFixed(3)} ${dlPts[i].y.toFixed(3)}`;
+    dlD += ' Z';
+  }
+  const dlSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pW.toFixed(3)}in" height="${pH.toFixed(3)}in" viewBox="0 0 ${pW.toFixed(3)} ${pH.toFixed(3)}"><path d="${dlD}" fill="#000" fill-rule="evenodd" stroke="none"/></svg>`;
   const blob = new Blob([dlSvg], { type: 'image/svg+xml' });
   const dlUrl = URL.createObjectURL(blob);
 
   return `<svg xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 ${svgW} ${svgH}"
       style="max-width:${Math.min(svgW, 500)}px;display:block;margin:0 auto;background:var(--bg,#fff)">
-    <path d="${d}" fill="var(--text,#2c2a26)" stroke="var(--text,#2c2a26)" stroke-width="0.5"/>
+    <path d="${d}" fill="var(--text,#2c2a26)" fill-rule="evenodd" stroke="var(--text,#2c2a26)" stroke-width="0.5"/>
     <text x="${svgW / 2}" y="${svgH - 30}" font-family="IBM Plex Mono" font-size="13" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${name}</text>
     <text x="${svgW / 2}" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555" text-anchor="middle">${fmtInches(pW)} × ${fmtInches(pH)}</text>
   </svg>

@@ -778,12 +778,19 @@ function renderTemplateSVG(piece, { compact = false } = {}) {
   const hIn = M + pH + M;
   const ox = M - minX, oy = M - minY;
 
-  // Build path in DPI units
-  let d = `M ${((ox + polygon[0].x) * DPI).toFixed(1)} ${((oy + polygon[0].y) * DPI).toFixed(1)}`;
-  for (let i = 1; i < polygon.length; i++) {
-    d += ` L ${((ox + polygon[i].x) * DPI).toFixed(1)} ${((oy + polygon[i].y) * DPI).toFixed(1)}`;
+  // Build path in DPI units — use svgPath (compound with holes) if available
+  let d;
+  if (piece.svgPath) {
+    d = piece.svgPath.replace(/([0-9.-]+)\s+([0-9.-]+)/g, (_, xStr, yStr) => {
+      return `${((ox + parseFloat(xStr)) * DPI).toFixed(1)} ${((oy + parseFloat(yStr)) * DPI).toFixed(1)}`;
+    });
+  } else {
+    d = `M ${((ox + polygon[0].x) * DPI).toFixed(1)} ${((oy + polygon[0].y) * DPI).toFixed(1)}`;
+    for (let i = 1; i < polygon.length; i++) {
+      d += ` L ${((ox + polygon[i].x) * DPI).toFixed(1)} ${((oy + polygon[i].y) * DPI).toFixed(1)}`;
+    }
+    d += ' Z';
   }
-  d += ' Z';
 
   const cx = (M + pW / 2) * DPI;
 
@@ -793,7 +800,7 @@ function renderTemplateSVG(piece, { compact = false } = {}) {
     svg: `<svg xmlns="http://www.w3.org/2000/svg"
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
-      <path d="${d}" fill="#2c2a26" stroke="#2c2a26" stroke-width="1"/>
+      <path d="${d}" fill="#2c2a26" fill-rule="evenodd" stroke="#2c2a26" stroke-width="1"/>
       <text x="${cx}" y="${(M - 0.08) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
