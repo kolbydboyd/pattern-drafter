@@ -119,33 +119,43 @@ INSERT INTO garment_catalog (id, name, category, difficulty, tier, dev_status) V
   ('slip-skirt-w',       'Slip Skirt (W)',        'skirt',  'beginner',     0, 'code-complete'),
   ('a-line-skirt-w',     'A-Line Skirt (W)',      'skirt',  'beginner',     0, 'code-complete'),
   ('shirt-dress-w',      'Shirt Dress (W)',       'dress',  'intermediate', 0, 'code-complete'),
-  ('wrap-dress-w',       'Wrap Dress (W)',        'dress',  'intermediate', 0, 'code-complete')
+  ('wrap-dress-w',       'Wrap Dress (W)',        'dress',  'intermediate', 0, 'code-complete'),
+  ('baggy-jeans',        'Baggy Jeans',           'lower',  'intermediate', 0, 'code-complete'),
+  ('baggy-shorts',       'Baggy Shorts',          'lower',  'beginner',     0, 'code-complete'),
+  ('874-work-pants',     '874 Work Pants',        'lower',  'intermediate', 0, 'code-complete'),
+  ('button-up',          'Button-Up (M)',         'upper',  'intermediate', 0, 'code-complete'),
+  ('athletic-formal-jacket','Athletic Formal Jacket','upper','expert',      0, 'code-complete'),
+  ('cargo-work-pants',   'Cargo Work Pants',      'lower',  'intermediate', 0, 'code-complete'),
+  ('athletic-formal-trousers','Athletic Formal Trousers','lower','intermediate',0,'code-complete'),
+  ('tshirt-dress-w',     'T-Shirt Dress (W)',     'dress',  'beginner',     0, 'code-complete'),
+  ('slip-dress-w',       'Slip Dress (W)',        'dress',  'beginner',     0, 'code-complete'),
+  ('a-line-dress-w',     'A-Line Dress (W)',      'dress',  'intermediate', 0, 'code-complete'),
+  ('sundress-w',         'Sundress (W)',          'dress',  'intermediate', 0, 'code-complete'),
+  ('apron',              'Apron',                 'accessory','beginner',    0, 'code-complete'),
+  ('bow-tie',            'Bow Tie',               'accessory','beginner',    0, 'code-complete'),
+  ('tank-top',           'Tank Top',              'upper',  'beginner',     0, 'code-complete'),
+  ('circle-skirt-w',     'Circle Skirt (W)',      'skirt',  'beginner',     0, 'code-complete'),
+  ('pencil-skirt-w',     'Pencil Skirt (W)',      'skirt',  'beginner',     0, 'code-complete'),
+  ('leggings',           'Leggings',              'lower',  'beginner',     0, 'code-complete'),
+  ('tote-bag',           'Tote Bag',              'bag',    'beginner',     0, 'code-complete')
 ON CONFLICT (id) DO NOTHING;
 
 -- ── Seed data: planned garments from roadmap ─────────────────────────────────
 
--- Tier 1
+-- Tier 1 (items already built moved to tier 0 above)
 INSERT INTO garment_catalog (id, name, category, difficulty, tier, engine_needs, freesewing_ref) VALUES
-  ('circle-skirt',   'Circle Skirt',        'skirt',     'beginner', 1, 'ring-sector math (reuse curved waistband v2)', 'sandy'),
-  ('pencil-skirt',   'Pencil Skirt',        'skirt',     'beginner', 1, 'straight panels + back vent/kick pleat', 'penelope'),
-  ('tank-top',       'Tank Top / A-Shirt',  'upper',     'beginner', 1, 'sleeveless bodice, wide straps', 'aaron'),
   ('boxer-briefs',   'Boxer Briefs',        'underwear', 'beginner', 1, 'small panels, elastic waist, knit', 'bruce'),
-  ('leggings',       'Leggings',            'lower',     'beginner', 1, 'knit stretch panels, elastic waist', 'lily, lumina'),
-  ('apron',          'Apron',               'accessory', 'beginner', 1, 'flat rectangle + ties, no fitting', 'albert'),
-  ('bow-tie',        'Bow Tie',             'accessory', 'beginner', 1, 'flat pattern, no fitting', 'benjamin'),
   ('flat-cap',       'Flat Cap',            'accessory', 'beginner', 1, 'crown + brim panels', 'florent')
 ON CONFLICT (id) DO NOTHING;
 
 -- Tier 2
 INSERT INTO garment_catalog (id, name, category, difficulty, tier, engine_needs, freesewing_ref) VALUES
-  ('sundress',          'Sundress',                  'dress',    'intermediate', 2, 'bodice + gathered/A-line skirt, straps', 'sophie'),
   ('knit-dress',        'Knit Dress',                'dress',    'intermediate', 2, 'stretch bodice + straight/A-line skirt', 'onyx'),
   ('draped-top',        'Draped Top',                'upper',    'intermediate', 2, 'drape cowl neckline geometry', 'diana'),
   ('overalls',          'Overalls',                  'full-body','intermediate', 2, 'bib front, suspender straps, trouser base', 'opal'),
   ('romper',            'Romper',                    'full-body','intermediate', 2, 'bodice + shorts, single garment', 'otis'),
   ('wrap-pants',        'Wrap Pants',                'lower',    'intermediate', 2, 'overlap panels, tie waist', 'waralee'),
   ('cycling-shorts',    'Cycling Shorts',            'lower',    'intermediate', 2, 'high-stretch panels, chamois pad', 'cornelius'),
-  ('button-up-m',       'Classic Button-Up Shirt (M)','upper',   'intermediate', 2, 'collar stand, yoke, sleeve placket', 'simon'),
   ('waistcoat',         'Waistcoat / Vest',          'upper',    'intermediate', 2, 'front panels + back, welt pockets', 'wahid'),
   ('quarter-zip',       'Quarter-Zip Pullover',      'upper',    'intermediate', 2, 'half-placket, stand collar', NULL),
   ('swimshirt',         'Swimshirt / Rash Guard',    'upper',    'intermediate', 2, 'knit, raglan or set-in, UPF fabric', 'shelly'),
@@ -165,7 +175,6 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Tier 4
 INSERT INTO garment_catalog (id, name, category, difficulty, tier, engine_needs) VALUES
-  ('tote-bag',            'Tote Bag',               'bag',       'beginner',     4, 'MYOG gateway pattern, huge Etsy demand'),
   ('crossbody-bag',       'Crossbody Bag',          'bag',       'beginner',     4, 'adjustable strap, zipper'),
   ('messenger-bag',       'Messenger Bag',          'bag',       'intermediate', 4, 'flap, buckle, laptop sleeve'),
   ('duffle-bag',          'Duffle Bag',             'bag',       'intermediate', 4, 'cylinder geometry, handles, zipper'),

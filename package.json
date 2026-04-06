@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.js && vite build",
+    "build": "node scripts/generate-sitemap.js && vite build && node scripts/generate-pattern-pages.js",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -17,11 +17,11 @@
     "@sparticuz/chromium-min": "^143.0.4",
     "@stripe/stripe-js": "^9.0.0",
     "@supabase/supabase-js": "^2.100.1",
+    "@vercel/analytics": "^2.0.1",
     "html-pdf-node": "^1.0.8",
     "posthog-js": "^1.364.1",
     "puppeteer-core": "^24.40.0",
     "resend": "^6.9.4",
-    "stripe": "^21.0.1",
-    "tmux": "^1.0.0"
+    "stripe": "^21.0.1"
   }
 }

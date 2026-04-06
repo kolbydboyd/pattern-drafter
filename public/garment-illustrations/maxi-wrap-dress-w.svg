@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- maxi wrap dress: floor-length + long sleeves (vs knee-length short sleeve) -->
+  <path d="M68,36 L80,58 L92,36"/>
+  <path d="M68,36 L44,52 L34,112 L50,112 Q56,140 36,196 L124,196 Q104,140 110,112 L126,112 L116,52 L92,36"/>
+  <path d="M80,58 Q68,100 50,112"/>
+  <path d="M34,112 Q50,122 58,116"/>
+  <path d="M126,112 Q110,122 102,116"/>
+</svg>

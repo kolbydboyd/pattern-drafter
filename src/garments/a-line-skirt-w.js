@@ -5,14 +5,14 @@
  * Flare amount controls how much wider the hem is than the hip.
  */
 
-import { fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
   id: 'a-line-skirt-w',
   name: 'A-Line Skirt (W)',
   category: 'lower',
-  difficulty: 'beginner',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['waist', 'hip', 'skirtLength'],
   measurementDefaults: { skirtLength: 26 },
@@ -34,6 +34,16 @@ export default {
         { value: 'elastic',    label: 'Elastic casing (1″)',             reference: 'chef pant, pull-on'    },
       ],
       default: 'structured',
+    },
+    elasticWidth: {
+      type: 'select', label: 'Elastic width',
+      values: [
+        { value: 0.75, label: '¾″ (1½″ finished casing → 3″ cut)' },
+        { value: 1,    label: '1″ (1¾″ finished casing → 3½″ cut)' },
+        { value: 1.5,  label: '1½″ (2¼″ finished casing → 4½″ cut)' },
+      ],
+      default: 1,
+      showWhen: { waistband: 'elastic' },
     },
     closure: {
       type: 'select', label: 'Closure',
@@ -62,7 +72,7 @@ export default {
     lining: {
       type: 'select', label: 'Lining',
       values: [
-        { value: 'yes', label: 'Yes - full lining' },
+        { value: 'yes', label: 'Yes, full lining' },
         { value: 'no',  label: 'No'                },
       ],
       default: 'no',
@@ -102,14 +112,30 @@ export default {
     }
 
     function buildPanel(id, name, isBack) {
-      // Trapezoid: waist narrower than hem, sides angled
-      const flarePerSide = flareAmt / 2;
-      const poly = [
-        { x: flarePerSide,        y: 0 },   // waist left
-        { x: flarePerSide + hipW, y: 0 },   // waist right (hip-width at waist)
-        { x: hemW,                y: L },   // hem right
-        { x: 0,                   y: L },   // hem left
-      ];
+      // Fold at CF/CB (left edge) must be vertical — all flare to side seam
+      const waistDip = 0.375;
+      let poly;
+
+      if (isBack) {
+        // Curved waist at CB (horizontal tangent at fold for smooth unfold)
+        const waistPts = sampleBezier(
+          { x: 0, y: waistDip }, { x: hipW * 0.4, y: waistDip },
+          { x: hipW * 0.8, y: 0 }, { x: hipW, y: 0 }, 12
+        ).map(p => ({ ...p, curve: true }));
+        delete waistPts[0].curve;
+        delete waistPts[waistPts.length - 1].curve;
+        poly = [...waistPts,
+          { x: hipW + flareAmt, y: L },
+          { x: 0,               y: L },
+        ];
+      } else {
+        poly = [
+          { x: 0,               y: 0 },
+          { x: hipW,            y: 0 },
+          { x: hipW + flareAmt, y: L },
+          { x: 0,               y: L },
+        ];
+      }
 
       const dartNote = dartW > 0
         ? `2 darts · ${fmtInches(dartW)} wide × ${fmtInches(dartL)} long · at ¼ and ¾ of waist edge`
@@ -117,18 +143,21 @@ export default {
 
       // Hip level ~ 7″ below waist; interpolate side seam x at that y
       const hipY = 7;
-      const sideHipX = flarePerSide + hipW + (hemW - flarePerSide - hipW) * (hipY / L);
+      const sideHipX = hipW + flareAmt * (hipY / L);
       // Notches: hip on side seam, dart endpoints, CF/CB at waist
+      const sideSeamEnd = { x: hipW + flareAmt, y: L };
+      const sideSeamStart = { x: hipW, y: 0 };
       const notches = [
         // Hip level on side seam
-        { x: sideHipX, y: hipY, angle: edgeAngle(poly[1], poly[2]) },
+        { x: sideHipX, y: hipY, angle: edgeAngle(sideSeamStart, sideSeamEnd) },
+        ...(isBack ? [{ x: sideHipX, y: hipY + 0.25, angle: edgeAngle(sideSeamStart, sideSeamEnd) }] : []),
         // CF/CB mark at waist center
-        { x: flarePerSide + hipW / 2, y: 0, angle: -90 },
+        { x: hipW / 2, y: 0, angle: -90 },
       ];
       // Dart endpoint notches (at bottom of each dart)
       if (dartW > 0) {
-        const d1x = flarePerSide + hipW * 0.25;
-        const d2x = flarePerSide + hipW * 0.75;
+        const d1x = hipW * 0.25;
+        const d2x = hipW * 0.75;
         notches.push({ x: d1x, y: dartL, angle: -90 });
         notches.push({ x: d2x, y: dartL, angle: -90 });
       }
@@ -145,10 +174,10 @@ export default {
         id, name,
         instruction: `Cut 1 on fold (${isBack ? 'CB' : 'CF'})${opts.closure === 'zip' && !isBack ? ' · Leave left side seam open for invisible zip' : ''} · ${dartNote}`,
         type: 'bodice', polygon: poly, path: pp(poly),
-        width: hemW, height: L, isBack, sa, hem, notches, edgeAllowances,
+        width: hipW + flareAmt, height: L, isBack, sa, hem, notches, edgeAllowances,
         dims: [
-          { label: fmtInches(hipW) + ' at hip', x1: flarePerSide, y1: -0.5, x2: flarePerSide + hipW, y2: -0.5, type: 'h' },
-          { label: fmtInches(hemW) + ' at hem', x1: 0, y1: L + 0.5, x2: hemW, y2: L + 0.5, type: 'h' },
+          { label: fmtInches(hipW) + ' at hip', x1: 0, y1: -0.5, x2: hipW, y2: -0.5, type: 'h' },
+          { label: fmtInches(hipW + flareAmt) + ' at hem', x1: 0, y1: L + 0.5, x2: hipW + flareAmt, y2: L + 0.5, type: 'h' },
         ],
       };
     }
@@ -163,27 +192,29 @@ export default {
     if (opts.waistband === 'structured') {
       pieces.push({ id: 'waistband', name: 'Waistband', instruction: `Cut 2 (self + interfacing) · ${fmtInches(wbCirc)} long × 3.5″ cut (1.5″ finished + SA) · Interface fully`, dimensions: { length: wbCirc, width: 3.5 }, type: 'rectangle', sa });
     } else {
-      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × 2.5″ cut · Fold over 1″ elastic (waist − 1″)`, dimensions: { length: wbCirc, width: 2.5 }, type: 'rectangle', sa });
+      const elasticW = parseFloat(opts.elasticWidth) || 1;
+      const wbWidth = (elasticW + 0.75) * 2;
+      pieces.push({ id: 'waistband', name: 'Elastic Casing', instruction: `Cut 1 · ${fmtInches(wbCirc)} long × ${fmtInches(wbWidth)} cut · Fold over ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     }
 
     if (opts.closure === 'zip') {
       const zipLen = Math.ceil(L * 0.45);
-      pieces.push({ id: 'side-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Left side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket' });
+      pieces.push({ id: 'side-zip', name: 'Invisible Zip', instruction: `${zipLen}″ invisible zip · Left side seam`, dimensions: { width: 1, height: zipLen }, type: 'pocket', sa });
     }
 
     if (opts.pockets === 'yes') {
-      pieces.push({ id: 'pocket-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Attach bag to front and back side seam SAs at hip level', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push({ id: 'pocket-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Attach bag to front and back side seam SAs at hip level', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
 
     if (opts.hem === 'faced') {
       // Facing strip follows the curved hem
       const hemCirc = hemW * 2;
-      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · {understitch} and {press} to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket' });
+      pieces.push({ id: 'hem-facing', name: 'Hem Facing', instruction: `Cut 2 (front + back) · Interface · Follows hem curve · 2.5″ wide · {understitch} and {press} to WS`, dimensions: { length: hemCirc * 0.5 + 1, width: 2.5 }, type: 'pocket', sa });
     }
 
     if (opts.lining === 'yes') {
-      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
-      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: 'Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only', type: 'pocket', dimensions: { width: 1, height: 1 } });
+      pieces.push({ id: 'lining-front', name: 'Lining Front', instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 }, sa });
+      pieces.push({ id: 'lining-back',  name: 'Lining Back',  instruction: `Cut 1 on fold · USE MAIN SKIRT PANEL AS TEMPLATE - trace the panel shape, shorten ¾″ from hem edge · Float free at hem, tack to side seams only · ${fmtInches(hemW)} × ${fmtInches(L - 0.75)}`, type: 'pocket', dimensions: { width: hemW, height: L - 0.75 }, sa });
     }
 
     return pieces;
@@ -242,7 +273,7 @@ export default {
     if (opts.waistband === 'structured') {
       steps.push({ step: n++, title: 'Attach waistband', detail: 'Interface waistband. Sew one long edge to waist {RST}, matching CF/CB. Grade SA. {press} up. Fold over, {press} under ⅝″ on inner edge. {edgestitch} or {slipstitch} inner edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, {topstitch} leaving 2″ gap. Thread elastic (waist − 1″). Overlap 1″, {zigzag}. Close gap.' });
+      steps.push({ step: n++, title: 'Attach elastic casing', detail: 'Fold casing in half lengthwise {WST}. Sew to waist {RST}. Fold inside, {topstitch} leaving 2″ gap. Thread elastic (~90% of waist). Overlap 1″, {zigzag}. Close gap.' });
     }
 
     if (opts.lining === 'yes') {
@@ -252,7 +283,7 @@ export default {
     if (opts.hem === 'faced') {
       steps.push({ step: n++, title: 'Attach hem facing', detail: 'Join front and back hem facing at side seams. Interface. Sew to hem edge {RST}. Grade SA. {clip} curves every ½″. {understitch}. {press} facing to WS. {slipstitch} facing edge to WS.' });
     } else {
-      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem - mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
+      steps.push({ step: n++, title: 'Hang and hem', detail: 'Hang skirt 24 hours on a hanger before marking the hem. Mark level from floor with a skirt marker. Trim to even hem allowance. Fold up, {press}, {slipstitch} or {edgestitch}.' });
     }
 
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire skirt with a pressing cloth. Check side seams are pressed open and darts lie flat.' });

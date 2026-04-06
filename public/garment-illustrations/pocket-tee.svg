@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- pocket tee: standard tee + chest patch pocket -->
+  <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60 L96,72 Q80,78 64,72 Z"/>
+  <path d="M64,60 Q80,50 96,60"/>
+  <rect x="58" y="88" width="16" height="14" rx="1"/>
+</svg>

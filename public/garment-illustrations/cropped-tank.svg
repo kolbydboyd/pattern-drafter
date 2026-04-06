@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- cropped tank: wide straps, shorter body -->
+  <path d="M62,58 Q80,48 98,58"/>
+  <line x1="62" y1="58" x2="52" y2="50"/>
+  <line x1="98" y1="58" x2="108" y2="50"/>
+  <path d="M52,50 Q80,58 108,50" stroke-dasharray="4 3"/>
+  <path d="M52,50 L42,64 Q40,84 46,96"/>
+  <path d="M108,50 L118,64 Q120,84 114,96"/>
+  <!-- shorter body -->
+  <path d="M46,96 L46,144 L114,144 L114,96"/>
+</svg>
