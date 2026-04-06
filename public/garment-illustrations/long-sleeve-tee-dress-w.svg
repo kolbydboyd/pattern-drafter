@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- long sleeve tee dress: tee dress silhouette + long sleeves -->
+  <path d="M56,48 L32,68 L32,130 L48,130 L52,180 Q80,184 108,180 L112,130 L128,130 L128,68 L104,48 L96,60 Q80,66 64,60 Z"/>
+  <path d="M64,48 Q80,38 96,48"/>
+</svg>

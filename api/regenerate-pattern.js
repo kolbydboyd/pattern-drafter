@@ -52,8 +52,20 @@ async function generatePDF(html) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { garmentId, userId, purchaseId, measurements, opts } = req.body;
-  if (!garmentId || !userId || !purchaseId) {
+  // Authenticate user server-side from the Authorization header.
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(403).json({ error: 'Not authorized' });
+  }
+  const token = authHeader.slice(7);
+  const { data: { user: authUser }, error: authErr } = await supabase.auth.getUser(token);
+  if (authErr || !authUser) {
+    return res.status(403).json({ error: 'Not authorized' });
+  }
+  const userId = authUser.id;
+
+  const { garmentId, purchaseId, measurements, opts } = req.body;
+  if (!garmentId || !purchaseId) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 

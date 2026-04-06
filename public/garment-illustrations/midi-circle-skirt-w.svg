@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- midi circle skirt: half circle, structured waistband, longer -->
+  <path d="M56,40 L104,40 L104,50 L56,50 Z"/>
+  <path d="M56,50 Q42,110 38,186 L122,186 Q118,110 104,50"/>
+  <!-- fewer fold lines (half circle = less fullness) -->
+  <path d="M64,56 Q58,116 52,186" stroke-dasharray="5 5"/>
+  <path d="M96,56 Q102,116 108,186" stroke-dasharray="5 5"/>
+  <path d="M80,50 Q80,116 80,186" stroke-dasharray="5 5"/>
+</svg>

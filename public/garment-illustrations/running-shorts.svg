@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- running shorts: slimmer, shorter, with side split hint -->
+  <path d="M46,52 L114,52 L114,66 L46,66 Z"/>
+  <path d="M56,52 Q80,56 104,52"/>
+  <path d="M46,66 L44,96 L76,96 L80,78 L84,96 L116,96 L114,66"/>
+  <line x1="80" y1="66" x2="80" y2="78"/>
+  <!-- side split marks -->
+  <line x1="44" y1="86" x2="46" y2="96"/>
+  <line x1="116" y1="86" x2="114" y2="96"/>
+</svg>

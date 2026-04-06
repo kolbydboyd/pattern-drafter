@@ -28,7 +28,7 @@
     "@type": "Organization",
     "name": "People's Patterns",
     "url": "https://peoplespatterns.com",
-    "logo": "https://peoplespatterns.com/favicon.svg",
+    "logo": "https://peoplespatterns.com/P-favicon.png",
     "description": "Made-to-measure sewing patterns generated from your body measurements.",
     "sameAs": [
       "https://instagram.com/peoplespatterns",
@@ -51,21 +51,20 @@
   }
 ]
 </script>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="/P-favicon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<script
+  src="https://js.sentry-cdn.com/e53fad22c0758cdeaa33fd9603970881.min.js"
+  crossorigin="anonymous"
+></script>
+<script>try{var t=localStorage.getItem("theme");document.documentElement.setAttribute("data-theme",t||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"))}catch(e){}</script>
 <link rel="stylesheet" href="/src/ui/styles.css">
 </head>
 <body>
-<div class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
-  <nav id="hdr-nav-desktop">
-    <a href="/patterns">Patterns</a>
-    <a href="/learn">Learn</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/faq">FAQ</a>
-  </nav>
+<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
+<header class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
   <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
       <defs>
@@ -92,13 +91,17 @@
   <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <nav id="hdr-nav-mobile">
   <div id="hdr-nav-m-auth-wrap"></div>
+  <button class="hdr-cta hdr-cta-mobile" id="hdr-cta-btn-m">Get Your Pattern</button>
   <div class="hdr-nav-m-links">
     <a class="hdr-nav-m-link" href="/">Home</a>
     <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
-    <a class="hdr-nav-m-link" href="/learn">Learn</a>
+    <a class="hdr-nav-m-link" href="#how-it-works" id="nav-how-it-works-m">How It Works</a>
     <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
+    <div class="hdr-nav-m-divider"></div>
+    <a class="hdr-nav-m-link" href="/learn">Learn</a>
     <a class="hdr-nav-m-link" href="/about">About</a>
     <a class="hdr-nav-m-link" href="/faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m">
@@ -107,42 +110,273 @@
     </button>
   </div>
   </nav>
-</div>
+</header>
 
 <!-- ═══ LANDING ═══ -->
 <div id="landing">
-  <div class="land-hero">
-    <div class="land-logo-block">
-      <span class="land-logo-p">People's</span>
-      <span class="land-logo-pat">PATTERNS</span>
+
+  <!-- ── Section 1: Hero ── -->
+  <section class="lp-section lp-hero">
+    <div class="lp-hero-text">
+      <h1 class="lp-hero-h1">Sewing patterns that actually fit your body</h1>
+      <p class="lp-hero-sub land-tagline">Enter 5 measurements. Get a custom PDF pattern drafted just for you <strong>in seconds</strong>. <strong>No size charts.</strong> <strong>No alterations.</strong> Start sewing today.</p>
+      <p class="lp-proof-line"><span class="js-pattern-count">37</span> patterns · Every body · First-try fit</p>
+      <button class="land-cta" id="get-started-btn">Get Your Pattern</button>
+      <p class="lp-cta-sub">Takes 5 minutes · Instant download</p>
+      <p class="land-pattern-count" id="land-pattern-count"></p>
     </div>
-    <p class="land-tagline">made-to-measure sewing patterns</p>
-    <div class="land-features">
-      <div class="land-feat">
-        <div class="land-feat-num">01</div>
-        <div class="land-feat-title">Pick your garment</div>
-        <p class="land-feat-desc">Choose from pants, shorts, tops, skirts, dresses and more. New patterns added regularly.</p>
+    <div class="lp-hero-visual" aria-hidden="true">
+      <svg viewBox="0 0 320 280" fill="none" xmlns="http://www.w3.org/2000/svg" class="lp-hero-svg">
+        <!-- Tape measure -->
+        <rect x="30" y="80" width="80" height="20" rx="4" stroke="var(--gold)" stroke-width="2"/>
+        <line x1="40" y1="80" x2="40" y2="92" stroke="var(--gold)" stroke-width="1.5"/>
+        <line x1="50" y1="80" x2="50" y2="88" stroke="var(--gold)" stroke-width="1"/>
+        <line x1="60" y1="80" x2="60" y2="92" stroke="var(--gold)" stroke-width="1.5"/>
+        <line x1="70" y1="80" x2="70" y2="88" stroke="var(--gold)" stroke-width="1"/>
+        <line x1="80" y1="80" x2="80" y2="92" stroke="var(--gold)" stroke-width="1.5"/>
+        <line x1="90" y1="80" x2="90" y2="88" stroke="var(--gold)" stroke-width="1"/>
+        <line x1="100" y1="80" x2="100" y2="92" stroke="var(--gold)" stroke-width="1.5"/>
+        <!-- Arrow -->
+        <path d="M130 90 L155 90" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M150 85 L157 90 L150 95" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Screen -->
+        <rect x="170" y="50" width="100" height="80" rx="6" stroke="var(--gold)" stroke-width="2"/>
+        <rect x="200" y="135" width="40" height="6" rx="2" fill="var(--bdr)"/>
+        <!-- Pattern lines on screen -->
+        <path d="M185 70 Q210 65 220 80 Q230 95 250 90" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+        <path d="M185 80 Q210 75 220 90 Q230 105 250 100" stroke="var(--bdr)" stroke-width="1" fill="none" stroke-dasharray="3 2"/>
+        <!-- Arrow -->
+        <path d="M220 155 L220 175" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/>
+        <path d="M215 170 L220 177 L225 170" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- PDF document -->
+        <rect x="190" y="190" width="60" height="75" rx="4" stroke="var(--gold)" stroke-width="2"/>
+        <path d="M210 190 L210 205 L225 205" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+        <line x1="200" y1="220" x2="240" y2="220" stroke="var(--bdr)" stroke-width="1"/>
+        <line x1="200" y1="230" x2="235" y2="230" stroke="var(--bdr)" stroke-width="1"/>
+        <line x1="200" y1="240" x2="230" y2="240" stroke="var(--bdr)" stroke-width="1"/>
+        <line x1="200" y1="250" x2="225" y2="250" stroke="var(--bdr)" stroke-width="1"/>
+        <!-- Labels -->
+        <text x="70" y="120" text-anchor="middle" font-size="11" fill="var(--mid)" font-family="IBM Plex Mono, monospace">Measure</text>
+        <text x="220" y="155" text-anchor="middle" font-size="11" fill="var(--mid)" font-family="IBM Plex Mono, monospace">Draft</text>
+        <text x="220" y="280" text-anchor="middle" font-size="11" fill="var(--mid)" font-family="IBM Plex Mono, monospace">Sew</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Social proof — shown by A/B test "social-proof-variant" -->
+  <section class="land-proof" id="land-proof" style="display:none" aria-label="Real sewists, real fits">
+    <p class="land-proof-label">Real Sewists, Real Fits</p>
+    <div class="land-proof-grid">
+      <div class="land-proof-card" data-proof="size-inclusive">
+        <div class="land-proof-img" aria-label="Early tester preview photo">
+          <div class="land-proof-placeholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect width="48" height="48" rx="6" fill="var(--ibg)"/><path d="M24 18a5 5 0 110 10 5 5 0 010-10zM14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="land-proof-soon">early tester preview</span>
+          </div>
+        </div>
+        <p class="land-proof-quote">"I'm a 2X and nothing ever fits off the rack. This pattern nailed my measurements on the first try."</p>
+        <span class="land-proof-attr">Size 2X tester. First make.</span>
       </div>
-      <div class="land-feat">
-        <div class="land-feat-num">02</div>
-        <div class="land-feat-title">Enter your measurements</div>
-        <p class="land-feat-desc">A flexible tape and five minutes is all you need. We guide you through every measurement.</p>
+      <div class="land-proof-card" data-proof="petite">
+        <div class="land-proof-img" aria-label="Early tester preview photo">
+          <div class="land-proof-placeholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect width="48" height="48" rx="6" fill="var(--ibg)"/><path d="M24 18a5 5 0 110 10 5 5 0 010-10zM14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="land-proof-soon">early tester preview</span>
+          </div>
+        </div>
+        <p class="land-proof-quote">"At 5'1" I always have to alter everything. These patterns came out right the first time. No hacking needed."</p>
+        <span class="land-proof-attr">Petite sewist. 5'1".</span>
       </div>
-      <div class="land-feat">
-        <div class="land-feat-num">03</div>
-        <div class="land-feat-title">Print and sew</div>
-        <p class="land-feat-desc">Download a tiled PDF sized to your printer. Cut, tape, and start sewing the same day.</p>
+      <div class="land-proof-card" data-proof="beginner">
+        <div class="land-proof-img" aria-label="Early tester preview photo">
+          <div class="land-proof-placeholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect width="48" height="48" rx="6" fill="var(--ibg)"/><path d="M24 18a5 5 0 110 10 5 5 0 010-10zM14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="land-proof-soon">early tester preview</span>
+          </div>
+        </div>
+        <p class="land-proof-quote">"My second sewing project ever and the pants actually fit my body. The instructions made it doable."</p>
+        <span class="land-proof-attr">Beginner sewist.</span>
+      </div>
+      <div class="land-proof-card" data-proof="tall-curvy">
+        <div class="land-proof-img" aria-label="Early tester preview photo">
+          <div class="land-proof-placeholder">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true"><rect width="48" height="48" rx="6" fill="var(--ibg)"/><path d="M24 18a5 5 0 110 10 5 5 0 010-10zM14 38c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="var(--bdr)" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="land-proof-soon">early tester preview</span>
+          </div>
+        </div>
+        <p class="land-proof-quote">"Tall and curvy. Every pattern company ignores one or the other. This one just asked for my numbers and delivered."</p>
+        <span class="land-proof-attr">5'11". Self-described curvy.</span>
       </div>
     </div>
-    <button class="land-cta" id="get-started-btn">Get Started</button>
-    <p class="land-pattern-count" id="land-pattern-count"></p>
-    <div class="land-email-section" id="newsletter-section">
-      <p class="land-email-label">Get notified when new patterns drop</p>
-      <div class="land-email-row">
-        <input type="email" id="land-email-input" placeholder="you@example.com" autocomplete="email">
-        <button class="land-email-btn" id="land-email-btn">Join</button>
+  </section>
+
+  <!-- ── Section 2: Problem / Agitate / Solution ── -->
+  <section class="lp-section lp-problem">
+    <h2 class="lp-heading">Standard patterns never fit real bodies</h2>
+    <p>You pick your closest size, follow the instructions perfectly, and still end up with <strong>gaping waistbands</strong>, <strong>pulling across the bust</strong>, or hems that drag.</p>
+    <p>You waste fabric, spend hours on alterations, and feel frustrated with both the pattern and your own body.</p>
+    <p>People's Patterns fixes that. Every pattern is generated from <strong>your exact measurements</strong>, not an average size chart. No grading between sizes. No guesswork. Just your body, your pattern, ready in seconds.</p>
+  </section>
+
+  <!-- ── Section 3: How It Works ── -->
+  <section class="lp-section lp-steps" id="how-it-works">
+    <h2 class="lp-heading">Get your perfect-fit pattern in minutes</h2>
+    <div class="lp-steps-grid">
+      <div class="lp-step-card">
+        <div class="lp-step-num">1</div>
+        <h3 class="lp-step-title">Pick your garment</h3>
+        <p class="lp-step-desc">Choose from <span class="js-pattern-count">37</span> everyday styles: tops, pants, dresses, skirts, and more.</p>
+      </div>
+      <div class="lp-step-card">
+        <div class="lp-step-num">2</div>
+        <h3 class="lp-step-title">Enter 5 measurements</h3>
+        <p class="lp-step-desc">Use a tape measure and follow the simple on-screen guide. Takes about 5 minutes.</p>
+      </div>
+      <div class="lp-step-card">
+        <div class="lp-step-num">3</div>
+        <h3 class="lp-step-title">Download and sew</h3>
+        <p class="lp-step-desc">Your custom tiled PDF appears instantly. Print at home, cut, and sew the same day.</p>
       </div>
     </div>
+    <button class="land-cta lp-cta-btn" aria-label="Get Your Pattern">Get Your Pattern</button>
+  </section>
+
+  <!-- ── Section 3b: Featured Patterns ── -->
+  <section class="lp-section lp-featured">
+    <h2 class="lp-heading">Popular patterns</h2>
+    <div class="lp-featured-grid">
+      <a href="/?step=1&garment=cargo-shorts" class="lp-featured-card">
+        <img src="/garment-illustrations/cargo-shorts.svg" alt="Cargo Shorts" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Cargo Shorts</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-intermediate">Intermediate</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=a-line-skirt-w" class="lp-featured-card">
+        <img src="/garment-illustrations/a-line-skirt-w.svg" alt="A-Line Skirt" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">A-Line Skirt</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-beginner">Beginner</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=camp-shirt" class="lp-featured-card">
+        <img src="/garment-illustrations/camp-shirt.svg" alt="Camp Shirt" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Camp Shirt</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-intermediate">Intermediate</span> $14</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+      <a href="/?step=1&garment=wrap-dress-w" class="lp-featured-card">
+        <img src="/garment-illustrations/wrap-dress-w.svg" alt="Wrap Dress" width="120" height="150" loading="lazy">
+        <span class="lp-featured-name">Wrap Dress</span>
+        <span class="lp-featured-meta"><span class="lp-featured-diff diff-advanced">Advanced</span> $19</span>
+        <span class="lp-featured-btn">Generate This Pattern</span>
+      </a>
+    </div>
+    <p style="text-align:center;margin-top:16px"><a href="/patterns" style="color:var(--gold);font-size:.82rem">View all <span class="js-pattern-count">37</span> patterns &rarr;</a></p>
+  </section>
+
+  <!-- ── Section 4: Benefits ── -->
+  <section class="lp-section lp-benefits">
+    <h2 class="lp-heading">Why sewists choose People's Patterns</h2>
+    <ul class="lp-benefits-list">
+      <li>Built from your real measurements, not a generic size chart</li>
+      <li>True custom fit on the <strong>first try</strong> for any body</li>
+      <li>Instant delivery. Ready <strong>in seconds</strong></li>
+      <li>Beginner-friendly instructions and material lists included</li>
+      <li>Works with any fabric you already own</li>
+      <li>No more wasted time or fabric on alterations</li>
+    </ul>
+  </section>
+
+  <!-- ── Section 5: Founder Story ── -->
+  <section class="lp-section lp-founder">
+    <div class="lp-founder-card">
+      <h2 class="lp-heading">Why I built this</h2>
+      <p>I sewed a garment from an AI-generated pattern. The fit was off and the instructions were terrible. So I tried drafting my own pattern from scratch. Turns out, pattern drafting is a mountain of math and it takes forever. All I wanted was a pair of shorts that fit me perfectly, made from good fabric, without spending a fortune.</p>
+      <p>So I built the engine behind People's Patterns. It uses the same parametric drafting formulas that professional pattern makers rely on, but you get your pattern <strong>in seconds</strong> and at a price that makes sense for home sewists.</p>
+      <p>I sew every pattern myself before it ships. If it doesn't fit after you sew it correctly, I will personally help you fix it or refund you. No questions asked.</p>
+    </div>
+  </section>
+
+  <!-- ── Section 6: Guarantee ── -->
+  <section class="lp-section lp-guarantee">
+    <svg class="lp-guarantee-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M24 4L6 12v12c0 11.1 7.68 21.48 18 24 10.32-2.52 18-12.9 18-24V12L24 4z" stroke="var(--gold)" stroke-width="2.5" fill="none"/>
+      <path d="M16 24l6 6 10-12" stroke="var(--gold)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2 class="lp-heading">Personal fit guarantee</h2>
+    <p><strong>If the pattern doesn't fit after you sew it correctly, I will personally help you adjust it or refund you. No questions asked.</strong></p>
+    <p class="lp-guarantee-fine">Covers the pattern drafting and instructions. Does not cover inaccurate measurements or sewing mistakes.</p>
+    <p class="lp-cta-sub">Secure checkout · Instant download · You're covered</p>
+  </section>
+
+  <!-- ── Section 6b: Why People's Patterns ── -->
+  <section class="lp-section">
+    <h2 class="lp-heading">How we compare</h2>
+    <div class="lp-compare">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th class="cmp-us">People's Patterns</th>
+            <th>Ditto / Apostrophe</th>
+            <th>Big 4 (Simplicity, McCall's)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Custom fit to your body</td><td class="cmp-check">Yes - from your measurements</td><td>Limited adjustments</td><td class="cmp-x">Standard sizes only</td></tr>
+          <tr><td>Delivery</td><td class="cmp-check">Instant PDF</td><td>Ships in days</td><td>Ships or print-at-home</td></tr>
+          <tr><td>Price range</td><td class="cmp-check">$9 - $19</td><td>$20 - $40+</td><td>$10 - $25 (sale prices vary)</td></tr>
+          <tr><td>Size range</td><td class="cmp-check">Any body - no size chart</td><td>Limited size range</td><td>2 - 30+, graded</td></tr>
+          <tr><td>Alterations needed</td><td class="cmp-check">Minimal - drafted to you</td><td>Some adjustment</td><td>Often significant</td></tr>
+          <tr><td>Instructions included</td><td class="cmp-check">Full step-by-step</td><td>Varies</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Section 7: FAQ Accordion ── -->
+  <section class="lp-section lp-faq">
+    <h2 class="lp-heading">Common questions</h2>
+    <div class="faq-accordion" id="lp-faq-accordion">
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">How accurate is the fit?</button>
+        <div class="faq-a"><p>Patterns are generated using parametric drafting formulas, the same math taught in pattern-making courses. For most body proportions, the fit will be very close on the first try. We always recommend cutting a muslin (test garment in cheap fabric) first. If something is off, update your measurements and regenerate for free.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">What measurements do I need?</button>
+        <div class="faq-a"><p>Most patterns need around 5 core measurements: chest or bust, waist, hips, inseam, and one or two lengths. The exact set depends on the garment. Each measurement has an on-screen guide showing you exactly where to place the tape.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Do I need special software or a big printer?</button>
+        <div class="faq-a"><p>No. Every pattern downloads as a tiled PDF sized for a standard home printer (US Letter or A4). Print at 100% scale, trim the edges, and tape the pages together. Each PDF includes a scale-check square and a numbered tile map so assembly is straightforward.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Is this good for beginners?</button>
+        <div class="faq-a"><p>Yes. Every pattern includes a full materials list, fabric recommendations, stitch settings, and numbered construction steps written in plain language. Beginner-friendly patterns are marked. The T-Shirt and A-Line Skirt are great starting points.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false">Can I use the pattern for multiple garments?</button>
+        <div class="faq-a"><p>Yes. Once you purchase a pattern, you can print it as many times as you like and sew as many garments as you want from it. The pattern is yours to keep.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Section 8: Final CTA ── -->
+  <section class="lp-final-cta">
+    <h2 class="lp-final-cta-heading">Ready for clothes that actually fit?</h2>
+    <button class="land-cta lp-cta-btn" aria-label="Get Your Pattern">Get Your Pattern</button>
+  </section>
+
+  <!-- ── Real Makes (UGC gallery, shown via JS) ── -->
+  <section id="real-makes-home" style="display:none"></section>
+
+  <!-- ── Newsletter ── -->
+  <div class="lp-section lp-newsletter" id="newsletter-section">
+    <p class="land-email-label">Weekly fit tips + new pattern drops</p>
+    <div class="land-email-row">
+      <input type="email" id="land-email-input" placeholder="you@example.com" autocomplete="email">
+      <button class="land-email-btn" id="land-email-btn">Join</button>
+    </div>
+    <p class="land-email-sub">One email a week, max. Unsubscribe any time.</p>
   </div>
 </div>
 
@@ -170,8 +404,13 @@
   <span class="land-footer-legal">
     <a class="land-footer-link" href="/patterns">Patterns</a>
     <a class="land-footer-link" href="/learn">Learn</a>
-    <a class="land-footer-link" href="/faq">FAQ</a>
     <a class="land-footer-link" href="/pricing">Pricing</a>
+    <a class="land-footer-link" href="/about">About</a>
+    <a class="land-footer-link" href="/faq">FAQ</a>
+    <a class="land-footer-link" href="/tester">Tester</a>
+    <a class="land-footer-link" href="/submit-make">Share Your Make</a>
+    <a class="land-footer-link" href="/affiliate">Affiliate</a>
+    <a class="land-footer-link" href="/redeem">Redeem</a>
     <a class="land-footer-link" href="/terms">Terms</a>
     <a class="land-footer-link" href="/privacy">Privacy</a>
   </span>

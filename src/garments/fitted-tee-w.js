@@ -9,7 +9,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const SLEEVE_LENGTHS = { short: 7, cap: 3, three_quarter: 17, long: 24 };
@@ -25,7 +25,7 @@ export default {
   id: 'fitted-tee-w',
   name: 'Fitted Tee (W)',
   category: 'upper',
-  difficulty: 'intermediate',
+  difficulty: 'beginner',
   priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
   measurementDefaults: { sleeveLength: 7 },
@@ -202,11 +202,22 @@ export default {
     const shoulderMidY = slopeDrop / 2;
     const backSideX = shoulderPtX + backChestDepth;
 
+    // Arc-length notches: single = front, double = back; ~3.25″ from underarm
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: sideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Bust dart matchpoint notches at side seam
     if (bustDarts.length > 0) {
@@ -218,20 +229,32 @@ export default {
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
-      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     const capW = slvWidth * 2;
-    const sleeveNotches = opts.sleeve === 'cap' ? [
-      { x: capW / 2, y: 0, angle: -90 },
-      { x: capW * 0.25, y: 0, angle: -90 },
-      { x: capW * 0.75, y: 0, angle: -90 },
-    ] : [
-      { x: capW / 2, y: 0, angle: -90 },
-      { x: capW * 0.25, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: capW / 2, y: 0 }) },
-      { x: capW * 0.75, y: capHeight * 0.5, angle: edgeAngle({ x: capW / 2, y: 0 }, { x: capW, y: capHeight }) },
-    ];
+    let sleeveNotches;
+    if (opts.sleeve === 'cap') {
+      sleeveNotches = [
+        { x: capW / 2, y: 0, angle: -90 },
+        { x: capW * 0.25, y: 0, angle: -90 },
+        { x: capW * 0.75, y: 0, angle: -90 },
+      ];
+    } else {
+      const capMidIdx      = Math.floor(capPts.length / 2);
+      const backCapPts     = capPts.slice(0, capMidIdx + 1);
+      const frontCapPtsRev = [...capPts.slice(capMidIdx)].reverse();
+      const backCapNotch1  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC);
+      const backCapNotch2  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC + 0.25);
+      const frontCapNotch  = ptAtArcLen(frontCapPtsRev, FRONT_NOTCH_ARC);
+      sleeveNotches = [
+        { x: capW / 2, y: 0, angle: -90 },
+        { x: backCapNotch1.x,  y: backCapNotch1.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+        { x: backCapNotch2.x,  y: backCapNotch2.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+        { x: frontCapNotch.x,  y: frontCapNotch.y  + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
+      ];
+    }
 
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
     let capEaseNote = '';
@@ -294,7 +317,7 @@ export default {
       needle: 'ballpoint-75',
       stitches: ['stretch', 'overlock', 'coverstitch', 'zigzag-med'],
       notes: [
-        'Ballpoint 75/11 or 80/12 - prevents snags on fine jersey',
+        'Ballpoint 75/11 or 80/12 (prevents snags on fine jersey)',
         'Stretch stitch or serger for all seams - no straight stitch',
         'Neckband at 80% of neckline opening: slightly snugger than unisex tee for a clean, flat finish',
         opts.bustDart === 'yes' ? 'Bust dart on knit: fold RS together, sew from side seam toward bust apex - knit does not ravel so no need to {clip}' : 'Knit stretches to accommodate shape - bust darts optional on fitted styles',
@@ -321,9 +344,15 @@ export default {
     if (opts.hemStyle === 'banded') {
       steps.push({ step: n++, title: 'Attach hem band', detail: 'Fold hem band in half {WST}. Divide into quarters, pin to body hem. Stretch to fit. Stretch stitch or {serge}.' });
     } else {
-      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? ' - {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
+      steps.push({ step: n++, title: 'Hem body and sleeves', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}${opts.hemStyle === 'shirttail' ? '. {clip} curves at sides' : ''}. Twin needle from RS in one pass. Or {serge} edge and fold.` });
     }
     steps.push({ step: n++, title: 'Finish', detail: '{press} lightly. Neckband should lie flat and not gap.' });
     return steps;
   },
+
+  variants: [
+    { id: 'scoop-tee-w', name: 'Scoop Neck Tee', defaults: { neckline: 'scoop', fit: 'fitted', sleeve: 'short' } },
+    { id: 'long-sleeve-fitted-tee-w', name: 'Long Sleeve Fitted Tee', defaults: { neckline: 'crew', sleeve: 'long', fit: 'fitted' } },
+    { id: 'cropped-tee-w', name: 'Cropped Tee', defaults: { neckline: 'crew', fit: 'fitted', length: 'cropped' } },
+  ],
 };

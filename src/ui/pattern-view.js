@@ -135,15 +135,31 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
 }
 
 /**
- * Render a grainline arrow: dashed vertical line with solid arrowheads at both ends.
+ * Render a grainline arrow: dashed line with solid arrowheads at both ends.
+ * @param {number} gx    – SVG x center
+ * @param {number} gy1   – SVG y top
+ * @param {number} gy2   – SVG y bottom
+ * @param {number} [labelY] – SVG y for label
+ * @param {number} [angleDeg=0] – rotation in degrees (0 = vertical, 45 = bias)
  */
-function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2) {
+function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2, angleDeg = 0) {
   const ah = 5;  // arrowhead height
   const aw = 3;  // arrowhead half-width
-  return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
+  const mx = gx, my = (gy1 + gy2) / 2;
+  const label = angleDeg === 45 ? 'BIAS' : 'GRAIN';
+  if (angleDeg === 0) {
+    return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
+      <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
+      <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
+      <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>`;
+  }
+  // Rotated grainline: draw the same line + arrows, rotated around center
+  return `<g transform="rotate(${angleDeg},${mx.toFixed(1)},${my.toFixed(1)})">
+    <line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
     <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
-    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">GRAIN</text>`;
+    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>
+  </g>`;
 }
 
 /**
@@ -254,28 +270,24 @@ export function renderPanelSVG(piece) {
 
   // Pocket indicators
   let pocketSVG = '';
-  if (!isBack && opts?.frontPocket === 'slant') {
-    // Slash opening: from waist 3.5″ inward from side seam → side seam 6″ below waist
-    const slashX1 = ox + sc(width - 3.5);  // waist entry point
-    const slashY1 = oy;
-    const slashX2 = ox + sc(width);         // side seam exit point
+  if (!isBack && (opts?.frontPocket === 'slant' || opts?.pockets === 'slant')) {
+    // The front panel is now cut at the slash line (diagonal edge is part of the piece outline).
+    // Show the pocket bag area as a dashed reference overlay.
+    const slashX2 = ox + sc(width);         // side seam at slash exit
     const slashY2 = oy + sc(6);
-    // Pocket bag: ~7″ wide × ~7″ deep behind and below the slash
     const bagL = ox + sc(width - 7);        // left edge of bag
-    const bagB = oy + sc(9.5);             // bottom of bag (7″ up to slash + 2.5″ deeper extension)
-    // Bag outline path (dashed): top along waist → left side → bottom → curve to side seam → slash closes shape
-    pocketSVG += `<path d="M ${slashX1} ${slashY1} L ${bagL} ${slashY1} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <line x1="${slashX1}" y1="${slashY1}" x2="${slashX2}" y2="${slashY2}" stroke="#8a4a4a" stroke-width="1"/>
-      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">slant pocket</text>`;
+    const bagB = oy + sc(11.5);             // bottom of bag
+    pocketSVG += `<path d="M ${bagL} ${oy} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="none"/>
+      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
-  if (!isBack && opts?.frontPocket === 'side') {
-    // Two tick marks on the side seam showing the pocket opening span.
-    // Standard placement: starts 2″ below waist, extends 6.5″ down.
+  if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
+    // Side-seam pocket: D-shaped bag extending inward from side seam.
+    // Opening: 6.5″ along the side seam, starting 2″ below waist.
     const pTop = 2;
     const pBot = 2 + 6.5; // 8.5″ below waist
+    const bagInset = 7; // bag extends 7″ inward from side seam
 
     // Interpolate the side seam (right edge) x coordinate at a given y.
-    // Polygon right-side edges: index 1 (side waist) → 2 (side hip) → 3 (side knee) → 4 (side hem).
     function sideSeamXatY(ty) {
       for (let i = 1; i <= 4; i++) {
         const a = polygon[i], b = polygon[i + 1];
@@ -285,27 +297,24 @@ export function renderPanelSVG(piece) {
           return a.x + (ty - a.y) / (b.y - a.y) * (b.x - a.x);
         }
       }
-      return width; // fallback to hip width
+      return width;
     }
 
     const sxTop = sideSeamXatY(pTop);
     const sxBot = sideSeamXatY(pBot);
+    const col = '#8a4a4a';
 
     const txTop = ox + sc(sxTop), tyTop = oy + sc(pTop);
     const txBot = ox + sc(sxBot), tyBot = oy + sc(pBot);
-    const tickLen = sc(0.35); // tick extends 0.35″ inward from side seam
-    const col = '#8a4a4a';
+    const bagL = ox + sc(sxTop - bagInset); // left edge of bag
+    const midY = (tyTop + tyBot) / 2;
 
-    // Top tick mark
-    pocketSVG += `<line x1="${(txTop - tickLen).toFixed(1)}" y1="${tyTop.toFixed(1)}" x2="${txTop.toFixed(1)}" y2="${tyTop.toFixed(1)}" stroke="${col}" stroke-width="1.2"/>`;
-    // Bottom tick mark
-    pocketSVG += `<line x1="${(txBot - tickLen).toFixed(1)}" y1="${tyBot.toFixed(1)}" x2="${txBot.toFixed(1)}" y2="${tyBot.toFixed(1)}" stroke="${col}" stroke-width="1.2"/>`;
-    // Dashed bracket along the seam between the two ticks
-    pocketSVG += `<line x1="${txTop.toFixed(1)}" y1="${tyTop.toFixed(1)}" x2="${txBot.toFixed(1)}" y2="${tyBot.toFixed(1)}" stroke="${col}" stroke-width="0.8" stroke-dasharray="3,3"/>`;
-    // Label: "pocket opening" — rotated 90°, positioned outside the cut line
-    const labelX = ox + sc(sxTop + sa + 0.3);
-    const labelMidY = (tyTop + tyBot) / 2;
-    pocketSVG += `<text x="${labelX.toFixed(1)}" y="${labelMidY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}" text-anchor="middle" transform="rotate(90,${labelX.toFixed(1)},${labelMidY.toFixed(1)})">pocket opening</text>`;
+    // D-shaped bag outline: straight along side seam, curved inward
+    pocketSVG += `<path d="M ${txTop.toFixed(1)} ${tyTop.toFixed(1)} L ${bagL.toFixed(1)} ${tyTop.toFixed(1)} Q ${(bagL - sc(1)).toFixed(1)} ${midY.toFixed(1)} ${bagL.toFixed(1)} ${tyBot.toFixed(1)} L ${txBot.toFixed(1)} ${tyBot.toFixed(1)}" stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>`;
+    // Solid line along the pocket opening on the side seam
+    pocketSVG += `<line x1="${txTop.toFixed(1)}" y1="${tyTop.toFixed(1)}" x2="${txBot.toFixed(1)}" y2="${tyBot.toFixed(1)}" stroke="${col}" stroke-width="1"/>`;
+    // Label
+    pocketSVG += `<text x="${(bagL + 2).toFixed(1)}" y="${(midY + 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">side pocket</text>`;
   }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
@@ -329,7 +338,7 @@ export function renderPanelSVG(piece) {
     pleatSVG += `
     <line x1="${px1.toFixed(1)}" y1="${py1.toFixed(1)}" x2="${px1.toFixed(1)}" y2="${py2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
     <line x1="${px2.toFixed(1)}" y1="${py1.toFixed(1)}" x2="${px2.toFixed(1)}" y2="${py2.toFixed(1)}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="${midX.toFixed(1)}" y="${(py2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">pleat</text>`;
+    <text x="${midX.toFixed(1)}" y="${(py2 + 9).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">${p.label || 'pleat'}</text>`;
   }
 
   // Dart V-lines (back panel waist darts)
@@ -435,7 +444,7 @@ export function renderPanelSVG(piece) {
       return `<path d="${hp}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
     })()}
     <line x1="${ox-sc(ext+.4)}" y1="${cLineY}" x2="${ox+sc(width+.2)}" y2="${cLineY}" stroke="#e8e4dc" stroke-width=".4" stroke-dasharray="5,4"/>
-    ${grainlineSVG(gx, gy1, gy2, grainLabelY)}
+    ${grainlineSVG(gx, gy1, gy2, grainLabelY, piece.grainAngle || 0)}
     ${dimsSVG}${labelsSVG}${pocketSVG}${pleatSVG}${dartSVG}${notchSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}
     <text x="${ox+sc(width/2)}" y="${svgH - 56}" font-family="IBM Plex Mono" font-size="9" fill="var(--accent,#c44)" text-anchor="middle">← CENTER (curve) · · · · · SIDE (straight) →</text>
     <text x="${ox+sc(width/2)}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${piece.name} × 2 (mirror)</text>
@@ -473,7 +482,7 @@ export function renderGenericPieceSVG(piece) {
   }
 
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
-  const saPoly = offsetPolygon(polygon, (i, a, b) => {
+  const saPoly = piece.saPolygon || offsetPolygon(polygon, (i, a, b) => {
     if (edgeAllowances && edgeAllowances[i]) return -edgeAllowances[i].sa;
     // Fold edge: both endpoints at x = minX — no SA, the fold is not a seam
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
@@ -584,8 +593,18 @@ export function renderGenericPieceSVG(piece) {
     })()}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
-      : grainlineSVG(gx, gy1, gy2)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}
+      : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
+    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
+      // Roll/fold line annotation (e.g. lapel break line)
+      piece.rollLine ? (() => {
+        const r = piece.rollLine;
+        const a = toSVG(r.from), b = toSVG(r.to);
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const angle = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+        return `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
+          <text x="${mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#4a8a5a" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${mx.toFixed(1)},${(my - 4).toFixed(1)})">${r.label || 'roll line'}</text>`;
+      })() : ''
+    }
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>

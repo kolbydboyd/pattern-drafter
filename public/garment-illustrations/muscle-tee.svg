@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- muscle tee: cut-off sleeves (raw edge), relaxed body -->
+  <path d="M52,58 L44,72 L52,80 L52,170 L108,170 L108,80 L116,72 L108,58 L98,68 Q80,74 62,68 Z"/>
+  <path d="M62,58 Q80,48 98,58"/>
+  <!-- raw edge marks on sleeves -->
+  <line x1="44" y1="72" x2="46" y2="74" stroke-dasharray="2 2"/>
+  <line x1="116" y1="72" x2="114" y2="74" stroke-dasharray="2 2"/>
+</svg>
