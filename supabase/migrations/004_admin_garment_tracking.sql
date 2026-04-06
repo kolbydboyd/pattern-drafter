@@ -65,12 +65,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'admin_read_fit_feedback') THEN
-    CREATE POLICY admin_read_fit_feedback ON fit_feedback
-      FOR SELECT USING (auth.jwt() ->> 'email' = 'kolbyboyd970@gmail.com');
-  END IF;
-END $$;
+-- fit_feedback table does not exist yet; add admin policy when it's created
 
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'admin_read_profiles') THEN

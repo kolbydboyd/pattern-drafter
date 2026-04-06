@@ -167,11 +167,15 @@ export async function getFunnelStats() {
 // ── Fit feedback (all users) ─────────────────────────────────────────────────
 
 export async function getAllFitFeedback() {
-  const { data, error } = await supabase
-    .from('fit_feedback')
-    .select('*, purchases(garment_id, display_name)')
-    .order('created_at', { ascending: false });
-  return { data: data ?? [], error };
+  // fit_feedback table may not exist yet — fail gracefully
+  try {
+    const { data, error } = await supabase
+      .from('fit_feedback')
+      .select('*, purchases(garment_id, display_name)')
+      .order('created_at', { ascending: false });
+    if (error?.code === '42P01') return { data: [], error: null }; // table doesn't exist
+    return { data: data ?? [], error };
+  } catch { return { data: [], error: null }; }
 }
 
 // ── Popular garments ─────────────────────────────────────────────────────────
