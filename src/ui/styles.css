@@ -1206,6 +1206,14 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 [data-theme='dark'] .adm-badge--fit-tested{background:#352a1a;color:#d0a060}
 [data-theme='dark'] .adm-badge--adjustments-needed{background:#3a1a1a;color:#e08080}
 [data-theme='dark'] .adm-badge--approved{background:#1a4a3a;color:#90e0c0}
+.adm-badge--implemented{border:2px solid var(--gold);background:transparent;color:var(--gold)}
+.adm-badge--needs-impl{border:2px dashed var(--mid);background:transparent;color:var(--mid)}
+.adm-pattern-chip{display:inline-block;font-size:.65rem;padding:1px 5px;border-radius:3px;border:1px solid var(--bdr);background:var(--ibg);margin:1px;white-space:nowrap}
+.adm-chip--simple{border-left:3px solid var(--gold)}
+.adm-chip--core{border-left:3px solid #6a8a9a}
+.adm-chip--tailored{border-left:3px solid #8a6aaa}
+[data-theme='dark'] .adm-chip--core{border-left-color:#7ab0d0}
+[data-theme='dark'] .adm-chip--tailored{border-left-color:#a090d0}
 
 .adm-photos{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .adm-photo-wrap{position:relative;display:inline-block}

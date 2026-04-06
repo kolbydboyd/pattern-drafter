@@ -5,6 +5,7 @@
  * Only accessible to the admin email via Supabase RLS + client-side gate.
  */
 import { getUser } from '../lib/auth.js';
+import { BUNDLES, PATTERN_PRICES } from '../lib/pricing.js';
 import {
   getGarmentCatalog, updateGarment,
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
@@ -1046,6 +1047,211 @@ function wireChecklists() {
 // ── Section: Pricing ──────────────────────────────────────────────────────────
 
 function renderPricing() {
+  // ── Build bundle tracker data ────────────────────────────────────────────
+  const existingBundles = Object.entries(BUNDLES).map(([id, b]) => ({
+    id,
+    name: b.label,
+    description: b.description,
+    type: b.curated ? 'curated' : 'mix-and-match',
+    category: b.category || 'any',
+    patterns: b.garmentIds || [],
+    patternCount: b.patternCount,
+    priceCents: b.cents,
+    retailCents: b.retailCents || null,
+    status: 'implemented',
+  }));
+
+  const suggestedBundles = [
+    {
+      id: 'beginner-starter',
+      name: 'Beginner Starter Pack',
+      description: 'All Simple-tier base patterns. Elastic waists, minimal shaping, ideal first makes.',
+      type: 'skill-level',
+      category: 'unisex',
+      patterns: ['gym-shorts', 'swim-trunks', 'tee', 'fitted-tee-w', 'slip-skirt-w', 'easy-pant-w', 'apron', 'bow-tie', 'tank-top', 'circle-skirt-w', 'pencil-skirt-w', 'leggings'],
+      patternCount: 12,
+      priceCents: 5900,
+      retailCents: 10800,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'level-up',
+      name: 'Level-Up Pack',
+      description: 'Graduate from beginner. Core patterns that introduce zippers, collars, and shaping.',
+      type: 'skill-level',
+      category: 'unisex',
+      patterns: ['cargo-shorts', 'straight-jeans', 'camp-shirt', 'a-line-skirt-w'],
+      patternCount: 4,
+      priceCents: 3900,
+      retailCents: 5600,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'all-tops',
+      name: 'All Tops Bundle',
+      description: 'Every upper-body base pattern: tees, shirts, sweatshirts, jackets.',
+      type: 'category',
+      category: 'unisex',
+      patterns: ['tee', 'fitted-tee-w', 'tank-top', 'camp-shirt', 'button-up', 'crewneck', 'hoodie', 'shell-blouse-w', 'button-up-w', 'crop-jacket', 'denim-jacket', 'athletic-formal-jacket'],
+      patternCount: 12,
+      priceCents: 7900,
+      retailCents: 16800,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'all-bottoms',
+      name: 'All Bottoms Bundle',
+      description: 'Every lower-body base pattern: shorts, jeans, trousers, skirts, leggings.',
+      type: 'category',
+      category: 'unisex',
+      patterns: ['gym-shorts', 'swim-trunks', 'cargo-shorts', 'baggy-shorts', 'pleated-shorts', 'straight-jeans', 'baggy-jeans', 'chinos', 'sweatpants', 'pleated-trousers', 'easy-pant-w', 'straight-trouser-w', 'wide-leg-trouser-w', 'slip-skirt-w', 'a-line-skirt-w', 'circle-skirt-w', 'pencil-skirt-w', 'leggings', 'cargo-work-pants', 'athletic-formal-trousers'],
+      patternCount: 20,
+      priceCents: 9900,
+      retailCents: 26200,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'complete-womenswear',
+      name: 'Complete Womenswear',
+      description: 'All womenswear base patterns: tops, skirts, trousers, dresses.',
+      type: 'category',
+      category: 'womenswear',
+      patterns: ['fitted-tee-w', 'easy-pant-w', 'slip-skirt-w', 'a-line-skirt-w', 'straight-trouser-w', 'wide-leg-trouser-w', 'shell-blouse-w', 'button-up-w', 'circle-skirt-w', 'pencil-skirt-w', 'shirt-dress-w', 'wrap-dress-w', 'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w'],
+      patternCount: 16,
+      priceCents: 8900,
+      retailCents: 22200,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'all-dresses',
+      name: 'All Dresses',
+      description: 'Every dress base pattern in the catalog.',
+      type: 'category',
+      category: 'womenswear',
+      patterns: ['shirt-dress-w', 'wrap-dress-w', 'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w'],
+      patternCount: 6,
+      priceCents: 4900,
+      retailCents: 8600,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'summer-essentials',
+      name: 'Summer Essentials',
+      description: 'Warm-weather patterns: shorts, swim trunks, tee, camp shirt, sundress, tote.',
+      type: 'seasonal',
+      category: 'unisex',
+      patterns: ['gym-shorts', 'swim-trunks', 'tee', 'camp-shirt', 'sundress-w', 'tote-bag'],
+      patternCount: 6,
+      priceCents: 3900,
+      retailCents: 6800,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'fall-layers',
+      name: 'Fall Layering',
+      description: 'Layer up: crewneck, hoodie, denim jacket, jeans, chinos.',
+      type: 'seasonal',
+      category: 'unisex',
+      patterns: ['crewneck', 'hoodie', 'denim-jacket', 'straight-jeans', 'chinos'],
+      patternCount: 5,
+      priceCents: 5500,
+      retailCents: 8000,
+      status: 'needs-implementation',
+    },
+    {
+      id: 'his-hers-basics',
+      name: 'His & Hers Basics',
+      description: 'Matching basics for two: T-Shirt + Fitted Tee, Gym Shorts + Easy Pant, Sweatpants.',
+      type: 'matching',
+      category: 'unisex',
+      patterns: ['tee', 'fitted-tee-w', 'gym-shorts', 'easy-pant-w', 'sweatpants'],
+      patternCount: 5,
+      priceCents: 3500,
+      retailCents: 5000,
+      status: 'needs-implementation',
+      note: 'Requires two measurement profiles at checkout',
+    },
+    {
+      id: 'full-catalog',
+      name: 'Full Catalog (All 42 Base Patterns)',
+      description: 'Every base pattern in the shop. The ultimate value for serious sewists.',
+      type: 'mega',
+      category: 'unisex',
+      patterns: 'all',
+      patternCount: 42,
+      priceCents: 19900,
+      retailCents: 54600,
+      status: 'needs-implementation',
+    },
+  ];
+
+  const allBundles = [...existingBundles, ...suggestedBundles];
+  const implCount = allBundles.filter(b => b.status === 'implemented').length;
+  const needsCount = allBundles.filter(b => b.status === 'needs-implementation').length;
+
+  function bundleStatusBadge(status) {
+    if (status === 'implemented') return '<span class="adm-badge adm-badge--implemented">[ok] implemented</span>';
+    return '<span class="adm-badge adm-badge--needs-impl">[--] needs implementation</span>';
+  }
+
+  function patternChips(patterns) {
+    if (patterns === 'all') return '<span style="font-size:.68rem;color:var(--mid);font-style:italic">all base patterns</span>';
+    if (!patterns || patterns.length === 0) return '<span style="font-size:.68rem;color:var(--mid);font-style:italic">user-selected (any)</span>';
+    return patterns.map(id => {
+      const p = PATTERN_PRICES[id];
+      const label = p?.label || id;
+      const tierCls = p?.tier || '';
+      return `<span class="adm-pattern-chip adm-chip--${tierCls}" title="${tierCls} - $${p ? (p.cents / 100).toFixed(0) : '?'}">${label}</span>`;
+    }).join(' ');
+  }
+
+  function savings(bundle) {
+    if (!bundle.retailCents || !bundle.priceCents) return '';
+    const pct = Math.round((1 - bundle.priceCents / bundle.retailCents) * 100);
+    return `<span style="font-size:.68rem;color:var(--mid)">Save ${pct}% vs individual (${money(bundle.retailCents)} retail)</span>`;
+  }
+
+  // Group bundles by type
+  const typeLabels = {
+    'mix-and-match': 'Mix & Match',
+    'curated': 'Curated (Live)',
+    'skill-level': 'Skill Level',
+    'category': 'Category',
+    'seasonal': 'Seasonal',
+    'matching': 'Matching',
+    'mega': 'Full Catalog',
+  };
+  const typeOrder = ['mix-and-match', 'curated', 'skill-level', 'category', 'seasonal', 'matching', 'mega'];
+  const grouped = {};
+  for (const b of allBundles) {
+    if (!grouped[b.type]) grouped[b.type] = [];
+    grouped[b.type].push(b);
+  }
+
+  const bundleHtml = typeOrder
+    .filter(type => grouped[type])
+    .map(type => `
+      <h3 style="font-size:.78rem;font-weight:600;color:var(--gold);margin:20px 0 8px;border-bottom:1px solid var(--bdr);padding-bottom:4px">${typeLabels[type] || type} (${grouped[type].length})</h3>
+      ${grouped[type].map(b => `
+        <div class="adm-roadmap-card" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <div>
+              <strong>${b.name}</strong>
+              ${b.category !== 'any' ? `<span style="font-size:.65rem;color:var(--mid);margin-left:6px">${b.category}</span>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="adm-gold" style="font-weight:600;font-size:.9rem">${money(b.priceCents)}</span>
+              ${bundleStatusBadge(b.status)}
+            </div>
+          </div>
+          <p style="font-size:.72rem;color:var(--mid);margin:0 0 6px">${b.description}</p>
+          <div style="font-size:.72rem;margin-bottom:4px"><strong>${b.patternCount}</strong> patterns: ${patternChips(b.patterns)}</div>
+          ${savings(b)}
+          ${b.note ? `<div style="font-size:.68rem;color:var(--mid);font-style:italic;margin-top:4px">Note: ${b.note}</div>` : ''}
+        </div>
+      `).join('')}
+    `).join('');
+
   return `
     <h2 class="adm-section-title">Pricing Structure</h2>
 
@@ -1074,6 +1280,16 @@ function renderPricing() {
         </tbody>
       </table>
     </div>
+
+    <h2 class="adm-section-title" style="margin-top:32px">Bundle Tracker</h2>
+    <div class="adm-stat-grid" style="margin-bottom:20px">
+      <div class="adm-stat"><div class="adm-stat-label">Total Bundles</div><div class="adm-stat-val">${allBundles.length}</div></div>
+      <div class="adm-stat"><div class="adm-stat-label">Implemented</div><div class="adm-stat-val">${implCount}</div></div>
+      <div class="adm-stat"><div class="adm-stat-label">Needs Impl.</div><div class="adm-stat-val">${needsCount}</div></div>
+    </div>
+    ${bundleHtml}
+
+    <h2 class="adm-section-title" style="margin-top:32px">Membership & Revenue</h2>
 
     <div class="adm-roadmap-card">
       <h3>Planned Membership Tiers (Phase 3)</h3>
