@@ -334,15 +334,28 @@ async function renderPatternListing() {
   }
 
   let _activeFilter = 'all';
+  let _searchQuery = '';
 
   function _renderGrid() {
-    const filtered = _activeFilter === 'all' ? allGarments
+    let filtered = _activeFilter === 'all' ? allGarments
       : _activeFilter === 'womenswear' ? allGarments.filter(isWomenswear)
       : allGarments.filter(g => !isWomenswear(g));
+    if (_searchQuery) {
+      const q = _searchQuery.toLowerCase();
+      filtered = filtered.filter(g =>
+        g.name.toLowerCase().includes(q) ||
+        (g.category || '').toLowerCase().includes(q) ||
+        (g.difficulty || '').toLowerCase().includes(q)
+      );
+    }
     const grid = document.getElementById('pat-listing-grid');
+    const empty = document.getElementById('pat-listing-empty');
     if (grid) {
       grid.innerHTML = buildCards(filtered);
       _attachHeartHandlers(grid);
+    }
+    if (empty) {
+      empty.style.display = filtered.length === 0 ? 'block' : 'none';
     }
   }
 
@@ -350,11 +363,15 @@ async function renderPatternListing() {
   root.innerHTML = `
     <div class="pat-pg-wrap">
       <h1 class="pat-pg-listing-title">All Patterns</h1>
-      <div class="filter-tabs" role="tablist">
-        <button class="filter-tab filter-tab-active" data-filter="all" role="tab" aria-selected="true">All</button>
-        <button class="filter-tab" data-filter="menswear" role="tab" aria-selected="false">Menswear</button>
-        <button class="filter-tab" data-filter="womenswear" role="tab" aria-selected="false">Womenswear</button>
+      <div class="pat-pg-listing-toolbar">
+        <div class="filter-tabs" role="tablist">
+          <button class="filter-tab filter-tab-active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="filter-tab" data-filter="menswear" role="tab" aria-selected="false">Menswear</button>
+          <button class="filter-tab" data-filter="womenswear" role="tab" aria-selected="false">Womenswear</button>
+        </div>
+        <input type="search" id="pat-listing-search" class="pat-pg-search" placeholder="Search patterns..." aria-label="Search patterns">
       </div>
+      <p id="pat-listing-empty" class="pat-pg-listing-empty" style="display:none">No patterns match your search.</p>
       <div class="pat-pg-listing-grid" id="pat-listing-grid">${buildCards(allGarments)}</div>
     </div>`;
 
@@ -371,6 +388,12 @@ async function renderPatternListing() {
       _activeFilter = btn.dataset.filter;
       _renderGrid();
     });
+  });
+
+  const searchInput = document.getElementById('pat-listing-search');
+  searchInput.addEventListener('input', () => {
+    _searchQuery = searchInput.value.trim();
+    _renderGrid();
   });
 
   // Load user data in background and re-render with owned/wishlist badges
