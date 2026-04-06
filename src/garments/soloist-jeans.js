@@ -5,432 +5,384 @@
  * Delegates jeans construction to straight-jeans.js, then appends parametric
  * bone template pieces (pelvis, femur, knee, tibia) sized to body measurements
  * for Cricut/vinyl cutting.
+ *
+ * Bone shapes are defined as normalized coordinates (0-1) and scaled to body
+ * dimensions. Compound paths with fill-rule:evenodd create holes (obturator
+ * foramina in the pelvis, intercondylar notch in femur).
  */
 
-import { sampleBezier, polyToPath } from '../engine/geometry.js';
-import { buildMaterialsSpec } from '../engine/materials.js';
+import { polyToPath } from '../engine/geometry.js';
 import straightJeans from './straight-jeans.js';
 
 // ── Bone geometry helpers ────────────────────────────────────────────────────
 
 /**
- * Sample a cubic Bezier and return polygon points.
- * Wraps engine sampleBezier which takes {x,y} control points.
+ * Scale normalized [0-1] coordinate pairs to actual dimensions.
+ * @param {Array<[number,number]>} pts  — normalized [x, y] pairs
+ * @param {number} w — actual width in inches
+ * @param {number} h — actual height in inches
+ * @param {number} ox — x offset (default 0)
+ * @param {number} oy — y offset (default 0)
  */
-function bezierPoints(p0, p1, p2, p3, steps = 24) {
-  return sampleBezier(p0, p1, p2, p3, steps);
+function scale(pts, w, h, ox = 0, oy = 0) {
+  return pts.map(([x, y]) => ({ x: ox + x * w, y: oy + y * h }));
 }
 
 /**
- * Mirror a polygon horizontally around x = cx.
+ * Mirror normalized points horizontally (flip x around 0.5).
  */
-function mirrorX(poly, cx) {
-  return poly.map(p => ({ x: 2 * cx - p.x, y: p.y }));
+function mirrorNorm(pts) {
+  return pts.map(([x, y]) => [1 - x, y]);
 }
 
 /**
- * Concatenate multiple point arrays into one closed polygon.
+ * Build an SVG path `d` string from one or more polygons.
+ * First polygon is the outer boundary, rest are holes.
+ * Use with fill-rule:evenodd — holes wound in opposite direction.
  */
-function concat(...arrs) {
-  return arrs.flat();
+function compoundPath(polys) {
+  return polys.map(poly => {
+    let d = `M ${poly[0].x.toFixed(3)} ${poly[0].y.toFixed(3)}`;
+    for (let i = 1; i < poly.length; i++) d += ` L ${poly[i].x.toFixed(3)} ${poly[i].y.toFixed(3)}`;
+    return d + ' Z';
+  }).join(' ');
 }
+
+// ── Normalized bone shapes ───────────────────────────────────────────────────
+// All coordinates in [0-1] range, defining right half of symmetric shapes.
+// Shapes are intentionally bold and graphic, matching the Soloist aesthetic.
+
+// Front pelvis — RIGHT HALF outer boundary (clockwise from top-center).
+// x: 0 = center, 1 = outer edge; y: 0 = top (waist), 1 = bottom (crotch)
+const PELVIS_FRONT_RIGHT = [
+  [0.10, 0.05],   // top near center (sacral crest)
+  [0.16, 0.00],   // iliac crest start
+  [0.24, 0.00],   // crest inner
+  [0.34, 0.00],   // crest mid
+  [0.46, 0.02],   // crest outer
+  [0.56, 0.04],   // approaching ASIS
+  [0.66, 0.08],   // ASIS
+  [0.76, 0.13],   // outer upper
+  [0.84, 0.19],   // outer slope
+  [0.90, 0.26],   // widest upper area
+  [0.95, 0.34],   // widest approach
+  [1.00, 0.43],   // widest point
+  [0.98, 0.50],   // narrowing
+  [0.94, 0.56],   // hip socket approach
+  [0.88, 0.61],   // acetabulum upper rim
+  [0.82, 0.58],   // socket indentation
+  [0.78, 0.56],   // socket deepest
+  [0.76, 0.60],   // socket lower rim
+  [0.78, 0.66],   // below socket
+  [0.78, 0.72],   // ischial tuberosity
+  [0.74, 0.78],   // ischium descending
+  [0.68, 0.84],   // ischium lower
+  [0.60, 0.89],   // pubic ramus
+  [0.50, 0.94],   // approaching pubis
+  [0.40, 0.97],   // near symphysis
+  [0.30, 1.00],   // pubic tubercle
+  [0.22, 0.98],   // superior pubic ramus
+  [0.16, 0.93],   // inner lower
+  [0.12, 0.84],   // inner ascending
+  [0.10, 0.72],   // inner mid-lower
+  [0.09, 0.58],   // sacral lower
+  [0.09, 0.42],   // sacral mid
+  [0.09, 0.28],   // sacral upper
+  [0.10, 0.15],   // inner upper
+];
+
+// Front pelvis — RIGHT HALF obturator foramen (hole), counter-clockwise.
+const PELVIS_FRONT_HOLE_RIGHT = [
+  [0.32, 0.36],   // top-left of hole
+  [0.40, 0.33],   // top
+  [0.50, 0.34],   // top-right
+  [0.58, 0.38],   // right upper
+  [0.64, 0.44],   // right
+  [0.66, 0.52],   // right lower
+  [0.64, 0.60],   // bottom-right
+  [0.58, 0.66],   // bottom
+  [0.50, 0.70],   // bottom center
+  [0.40, 0.72],   // bottom-left
+  [0.32, 0.68],   // left lower
+  [0.26, 0.60],   // left
+  [0.24, 0.52],   // left upper
+  [0.26, 0.44],   // closing
+];
+
+// Back pelvis — RIGHT HALF outer boundary. Broader sacrum, no obturator holes visible.
+const PELVIS_BACK_RIGHT = [
+  [0.12, 0.08],   // top near center
+  [0.18, 0.00],   // crest start
+  [0.28, 0.00],   // crest inner
+  [0.40, 0.00],   // crest mid
+  [0.52, 0.03],   // crest outer
+  [0.64, 0.08],   // outer crest
+  [0.76, 0.15],   // outer slope
+  [0.86, 0.24],   // widest upper
+  [0.94, 0.35],   // widest approach
+  [0.98, 0.44],   // widest point
+  [0.96, 0.54],   // narrowing
+  [0.90, 0.62],   // posterior hip area
+  [0.82, 0.70],   // greater sciatic notch area
+  [0.72, 0.78],   // ischium upper
+  [0.62, 0.84],   // ischium
+  [0.50, 0.90],   // descending
+  [0.38, 0.95],   // pubic ramus
+  [0.26, 0.98],   // near center bottom
+  [0.18, 1.00],   // bottom center
+  [0.14, 0.95],   // inner lower
+  [0.11, 0.86],   // sacral lower
+  [0.10, 0.74],   // sacral mid-lower
+  [0.09, 0.60],   // sacral mid
+  [0.09, 0.44],   // sacral upper
+  [0.10, 0.28],   // iliac inner
+  [0.12, 0.16],   // inner upper
+];
+
+// Back pelvis sacral foramen hole (right side)
+const PELVIS_BACK_HOLE_RIGHT = [
+  [0.28, 0.34],
+  [0.36, 0.30],
+  [0.46, 0.32],
+  [0.56, 0.36],
+  [0.62, 0.44],
+  [0.64, 0.52],
+  [0.62, 0.62],
+  [0.56, 0.70],
+  [0.46, 0.74],
+  [0.36, 0.72],
+  [0.28, 0.66],
+  [0.22, 0.56],
+  [0.22, 0.46],
+  [0.24, 0.38],
+];
+
+// Femur — full outline (not half — asymmetric due to neck angle)
+// x: 0-1 full width; y: 0 = top (head), 1 = bottom (condyles)
+const FEMUR_OUTLINE = [
+  // Ball head (top, offset medially)
+  [0.20, 0.06],   // head left
+  [0.20, 0.03],   // head top-left
+  [0.24, 0.01],   // head top approach
+  [0.30, 0.00],   // head top-left
+  [0.36, 0.00],   // head top-right
+  [0.42, 0.01],   // head top approach right
+  [0.46, 0.03],   // head top-right
+  [0.46, 0.06],   // head right
+  // Neck — smooth transition to trochanter
+  [0.48, 0.07],   // neck upper
+  [0.52, 0.08],   // neck mid
+  [0.56, 0.09],   // neck lower
+  [0.60, 0.09],   // neck-trochanter start
+  // Greater trochanter (lateral bump)
+  [0.66, 0.08],   // trochanter approach
+  [0.72, 0.08],   // trochanter top
+  [0.78, 0.09],   // trochanter upper
+  [0.82, 0.11],   // trochanter peak
+  [0.84, 0.14],   // trochanter outer
+  [0.82, 0.17],   // trochanter descending
+  [0.78, 0.19],   // trochanter lower
+  [0.72, 0.20],   // trochanter base
+  // Shaft — right (lateral) side, gentle bow
+  [0.68, 0.23],   // upper shaft
+  [0.66, 0.28],   // shaft
+  [0.65, 0.35],   // mid-upper shaft
+  [0.64, 0.43],   // shaft
+  [0.63, 0.52],   // mid shaft
+  [0.63, 0.60],   // shaft
+  [0.63, 0.68],   // mid-lower shaft
+  [0.64, 0.75],   // shaft widening
+  [0.66, 0.80],   // lower shaft
+  // Lateral condyle (right bottom)
+  [0.70, 0.84],   // condyle top
+  [0.76, 0.87],   // condyle outer upper
+  [0.82, 0.90],   // condyle outer
+  [0.86, 0.93],   // condyle peak
+  [0.88, 0.96],   // condyle lower
+  [0.86, 0.99],   // condyle bottom approach
+  [0.80, 1.00],   // condyle bottom
+  [0.70, 1.00],   // condyle inner edge
+  // Intercondylar notch
+  [0.60, 0.97],   // notch right
+  [0.54, 0.95],   // notch right-center
+  [0.50, 0.94],   // notch center (deepest)
+  [0.46, 0.95],   // notch left-center
+  [0.40, 0.97],   // notch left
+  // Medial condyle (left bottom)
+  [0.30, 1.00],   // condyle inner edge
+  [0.20, 1.00],   // condyle bottom
+  [0.14, 0.99],   // condyle bottom approach
+  [0.12, 0.96],   // condyle lower
+  [0.14, 0.93],   // condyle peak
+  [0.18, 0.90],   // condyle outer
+  [0.24, 0.87],   // condyle outer upper
+  [0.30, 0.84],   // condyle top
+  // Shaft — left (medial) side
+  [0.34, 0.80],   // lower shaft
+  [0.36, 0.75],   // shaft
+  [0.37, 0.68],   // mid-lower shaft
+  [0.37, 0.60],   // shaft
+  [0.37, 0.52],   // mid shaft
+  [0.36, 0.43],   // shaft
+  [0.35, 0.35],   // mid-upper shaft
+  [0.34, 0.28],   // shaft
+  [0.32, 0.23],   // upper shaft
+  // Left side up to neck
+  [0.30, 0.20],   // lesser trochanter
+  [0.27, 0.17],   // medial upper
+  [0.24, 0.14],   // medial neck
+  [0.22, 0.11],   // neck base
+  [0.20, 0.08],   // neck to head
+];
+
+// Knee joint — patella shape (symmetric)
+const KNEE_OUTLINE = [
+  [0.50, 0.00],   // top center
+  [0.58, 0.01],   // top right-center
+  [0.66, 0.04],   // top right
+  [0.74, 0.09],   // upper right
+  [0.82, 0.16],   // right upper
+  [0.88, 0.24],   // right
+  [0.94, 0.34],   // right mid
+  [1.00, 0.46],   // widest right
+  [0.98, 0.56],   // lower right upper
+  [0.94, 0.66],   // lower right
+  [0.88, 0.76],   // bottom right approach
+  [0.80, 0.84],   // bottom right
+  [0.72, 0.90],   // bottom right inner
+  [0.62, 0.96],   // bottom near-right
+  [0.50, 1.00],   // bottom center
+  [0.38, 0.96],   // bottom near-left
+  [0.28, 0.90],   // bottom left inner
+  [0.20, 0.84],   // bottom left
+  [0.12, 0.76],   // lower left
+  [0.06, 0.66],   // lower left upper
+  [0.02, 0.56],   // left lower
+  [0.00, 0.46],   // widest left
+  [0.06, 0.34],   // left mid
+  [0.12, 0.24],   // left upper
+  [0.18, 0.16],   // upper left
+  [0.26, 0.09],   // top left
+  [0.34, 0.04],   // top left-center
+  [0.42, 0.01],   // top near-left
+];
+
+// Tibia — full outline (symmetric, wider at top, tapers at ankle)
+const TIBIA_OUTLINE = [
+  // Tibial plateau (wide top)
+  [0.12, 0.00],   // plateau left
+  [0.24, 0.00],   // plateau left-mid
+  [0.38, 0.00],   // plateau left-center
+  [0.50, 0.01],   // plateau center
+  [0.62, 0.00],   // plateau right-center
+  [0.76, 0.00],   // plateau right-mid
+  [0.88, 0.00],   // plateau right
+  // Right side — plateau curves to shaft
+  [0.92, 0.02],   // right upper
+  [0.94, 0.04],   // right tuberosity
+  [0.92, 0.07],   // right narrowing
+  [0.86, 0.11],   // narrowing
+  [0.80, 0.16],   // upper shaft
+  // Right shaft — gentle taper down
+  [0.76, 0.22],   // shaft upper
+  [0.72, 0.30],   // shaft
+  [0.68, 0.40],   // shaft mid-upper
+  [0.66, 0.48],   // shaft
+  [0.64, 0.55],   // shaft mid
+  [0.62, 0.64],   // shaft
+  [0.60, 0.72],   // shaft lower
+  [0.58, 0.80],   // approaching ankle
+  // Right ankle (medial malleolus)
+  [0.58, 0.86],   // ankle approach
+  [0.59, 0.90],   // ankle upper
+  [0.62, 0.94],   // malleolus bump
+  [0.62, 0.98],   // malleolus lower
+  [0.58, 1.00],   // ankle bottom right
+  [0.50, 1.00],   // ankle bottom center
+  // Left ankle
+  [0.42, 1.00],   // ankle bottom left
+  [0.38, 0.98],   // left malleolus lower
+  [0.38, 0.94],   // left malleolus
+  [0.41, 0.90],   // left ankle upper
+  [0.42, 0.86],   // left ankle approach
+  // Left shaft — taper up
+  [0.42, 0.80],   // left lower shaft
+  [0.40, 0.72],   // left shaft lower
+  [0.38, 0.64],   // left shaft
+  [0.36, 0.55],   // left shaft mid
+  [0.34, 0.48],   // left shaft
+  [0.32, 0.40],   // left shaft mid-upper
+  [0.28, 0.30],   // left shaft
+  [0.24, 0.22],   // left shaft upper
+  // Left side — upper
+  [0.20, 0.16],   // left upper shaft
+  [0.14, 0.11],   // narrowing
+  [0.08, 0.07],   // left narrowing
+  [0.06, 0.04],   // left tuberosity
+  [0.08, 0.02],   // left upper
+];
 
 // ── Parametric bone generators ───────────────────────────────────────────────
-// All dimensions in inches, derived from body measurements.
-// Each returns { polygon: [{x,y},...], width, height }.
 
-/**
- * Front pelvis — stylized iliac wings + hip sockets.
- * Width spans both legs (full hip width at waistband level).
- * @param {number} hipW  — half-hip panel width (hip/4 + ease)
- * @param {number} rise  — crotch rise
- */
 function buildFrontPelvis(hipW, rise) {
-  // Pelvis spans roughly from waist to mid-thigh area
-  const W = hipW * 2;        // full width for both sides
-  const H = rise * 0.85;     // pelvis height relative to rise
-  const cx = W / 2;
+  const W = hipW * 2;
+  const H = rise * 0.85;
+  const hw = W / 2;
 
-  // Right iliac wing (stylized) — built from Bezier curves
-  // Top crest sweeping outward
-  const crestOuter = bezierPoints(
-    { x: cx + 0.3, y: 0.3 },
-    { x: cx + W * 0.15, y: -0.2 },
-    { x: cx + W * 0.35, y: 0.1 },
-    { x: cx + W * 0.45, y: H * 0.18 },
-    16
-  );
+  // Build full outer boundary: left half (mirrored) + right half
+  const rightOuter = scale(PELVIS_FRONT_RIGHT, hw, H, hw, 0);
+  const leftOuter = scale(mirrorNorm(PELVIS_FRONT_RIGHT), hw, H, 0, 0).reverse();
+  const outerPoly = [...leftOuter, ...rightOuter.slice(1)];
 
-  // Outer edge curving down to hip socket
-  const outerDown = bezierPoints(
-    { x: cx + W * 0.45, y: H * 0.18 },
-    { x: cx + W * 0.48, y: H * 0.35 },
-    { x: cx + W * 0.44, y: H * 0.52 },
-    { x: cx + W * 0.38, y: H * 0.62 },
-    12
-  );
+  // Build hole polygons (opposite winding for evenodd fill)
+  const rightHole = scale(PELVIS_FRONT_HOLE_RIGHT, hw, H, hw, 0).reverse();
+  const leftHole = scale(mirrorNorm(PELVIS_FRONT_HOLE_RIGHT), hw, H, 0, 0);
 
-  // Hip socket (acetabulum) — indentation
-  const hipSocket = bezierPoints(
-    { x: cx + W * 0.38, y: H * 0.62 },
-    { x: cx + W * 0.32, y: H * 0.68 },
-    { x: cx + W * 0.28, y: H * 0.72 },
-    { x: cx + W * 0.33, y: H * 0.78 },
-    10
-  );
+  const svgPath = compoundPath([outerPoly, rightHole, leftHole]);
 
-  // Ischium curving down and inward
-  const ischium = bezierPoints(
-    { x: cx + W * 0.33, y: H * 0.78 },
-    { x: cx + W * 0.36, y: H * 0.88 },
-    { x: cx + W * 0.28, y: H * 0.96 },
-    { x: cx + W * 0.18, y: H },
-    12
-  );
-
-  // Pubic symphysis — curves inward to center
-  const pubis = bezierPoints(
-    { x: cx + W * 0.18, y: H },
-    { x: cx + W * 0.1, y: H * 0.97 },
-    { x: cx + W * 0.04, y: H * 0.92 },
-    { x: cx, y: H * 0.88 },
-    10
-  );
-
-  // Inner edge — sacral area up to top center
-  const innerUp = bezierPoints(
-    { x: cx, y: H * 0.88 },
-    { x: cx + 0.15, y: H * 0.5 },
-    { x: cx + 0.2, y: H * 0.25 },
-    { x: cx + 0.3, y: 0.3 },
-    12
-  );
-
-  // Right half
-  const rightHalf = concat(crestOuter, outerDown.slice(1), hipSocket.slice(1), ischium.slice(1), pubis.slice(1), innerUp.slice(1));
-
-  // Mirror for left half
-  const leftHalf = mirrorX(rightHalf, cx).reverse();
-
-  // Combine into full pelvis
-  const polygon = concat(leftHalf, rightHalf.slice(1));
-
-  return {
-    polygon,
-    width: W,
-    height: H,
-  };
+  return { polygon: outerPoly, svgPath, width: W, height: H };
 }
 
-/**
- * Back pelvis — sacrum + rear iliac view (simpler, mask-like).
- */
 function buildBackPelvis(hipW, rise) {
   const W = hipW * 2;
   const H = rise * 0.75;
-  const cx = W / 2;
+  const hw = W / 2;
 
-  // Right side — broader, flatter iliac wing
-  const crestOuter = bezierPoints(
-    { x: cx + 0.2, y: 0.5 },
-    { x: cx + W * 0.12, y: 0 },
-    { x: cx + W * 0.32, y: 0.15 },
-    { x: cx + W * 0.42, y: H * 0.22 },
-    14
-  );
+  const rightOuter = scale(PELVIS_BACK_RIGHT, hw, H, hw, 0);
+  const leftOuter = scale(mirrorNorm(PELVIS_BACK_RIGHT), hw, H, 0, 0).reverse();
+  const outerPoly = [...leftOuter, ...rightOuter.slice(1)];
 
-  const outerDown = bezierPoints(
-    { x: cx + W * 0.42, y: H * 0.22 },
-    { x: cx + W * 0.45, y: H * 0.4 },
-    { x: cx + W * 0.42, y: H * 0.58 },
-    { x: cx + W * 0.35, y: H * 0.68 },
-    12
-  );
+  const rightHole = scale(PELVIS_BACK_HOLE_RIGHT, hw, H, hw, 0).reverse();
+  const leftHole = scale(mirrorNorm(PELVIS_BACK_HOLE_RIGHT), hw, H, 0, 0);
 
-  const lowerCurve = bezierPoints(
-    { x: cx + W * 0.35, y: H * 0.68 },
-    { x: cx + W * 0.28, y: H * 0.8 },
-    { x: cx + W * 0.18, y: H * 0.92 },
-    { x: cx + W * 0.1, y: H },
-    12
-  );
+  const svgPath = compoundPath([outerPoly, rightHole, leftHole]);
 
-  const toCenter = bezierPoints(
-    { x: cx + W * 0.1, y: H },
-    { x: cx + W * 0.05, y: H * 0.95 },
-    { x: cx + 0.15, y: H * 0.82 },
-    { x: cx, y: H * 0.75 },
-    10
-  );
-
-  // Sacrum central notch
-  const sacrum = bezierPoints(
-    { x: cx, y: H * 0.75 },
-    { x: cx + 0.1, y: H * 0.45 },
-    { x: cx + 0.15, y: H * 0.2 },
-    { x: cx + 0.2, y: 0.5 },
-    10
-  );
-
-  const rightHalf = concat(crestOuter, outerDown.slice(1), lowerCurve.slice(1), toCenter.slice(1), sacrum.slice(1));
-  const leftHalf = mirrorX(rightHalf, cx).reverse();
-  const polygon = concat(leftHalf, rightHalf.slice(1));
-
-  return { polygon, width: W, height: H };
+  return { polygon: outerPoly, svgPath, width: W, height: H };
 }
 
-/**
- * Femur — thigh bone with ball head and condyles at knee.
- * @param {number} length — femur length (upper leg)
- * @param {number} thickness — bone shaft width, proportional to thigh
- */
 function buildFemur(length, thickness) {
-  const W = thickness * 3.5;   // total width including ball head and condyles
+  // Width = 4x thickness for bold proportions (head + shaft + condyles)
+  const W = thickness * 5;
   const H = length;
-  const cx = W / 2;
-  const shaft = thickness;
-  const half = shaft / 2;
+  const outerPoly = scale(FEMUR_OUTLINE, W, H);
 
-  const points = [];
-
-  // Ball head (top, femoral head) — round knob
-  const headR = thickness * 0.9;
-  const headCx = cx - thickness * 0.3;  // offset medially
-  const headTop = 0;
-  // Draw ball head as a semicircle approximation
-  const headLeft = bezierPoints(
-    { x: headCx, y: headTop + headR },
-    { x: headCx - headR, y: headTop + headR },
-    { x: headCx - headR, y: headTop },
-    { x: headCx, y: headTop },
-    12
-  );
-  const headRight = bezierPoints(
-    { x: headCx, y: headTop },
-    { x: headCx + headR, y: headTop },
-    { x: headCx + headR, y: headTop + headR },
-    { x: headCx, y: headTop + headR },
-    12
-  );
-
-  // Neck — narrows from head to greater trochanter
-  const neckBottom = headR * 2.2;
-  const neck = bezierPoints(
-    { x: headCx + headR * 0.5, y: headTop + headR },
-    { x: cx + half + thickness * 0.6, y: neckBottom * 0.5 },
-    { x: cx + half + thickness * 0.5, y: neckBottom * 0.7 },
-    { x: cx + half + thickness * 0.2, y: neckBottom },
-    10
-  );
-
-  // Greater trochanter — bump on lateral side
-  const trochanter = bezierPoints(
-    { x: cx + half + thickness * 0.2, y: neckBottom },
-    { x: cx + half + thickness * 0.7, y: neckBottom + thickness * 0.2 },
-    { x: cx + half + thickness * 0.7, y: neckBottom + thickness * 0.8 },
-    { x: cx + half, y: neckBottom + thickness * 1.2 },
-    10
-  );
-
-  // Shaft — right side going down (slight lateral bow)
-  const shaftStart = neckBottom + thickness * 1.2;
-  const shaftEnd = H - thickness * 2.5;
-  const rightShaft = bezierPoints(
-    { x: cx + half, y: shaftStart },
-    { x: cx + half + thickness * 0.15, y: shaftStart + (shaftEnd - shaftStart) * 0.3 },
-    { x: cx + half + thickness * 0.1, y: shaftStart + (shaftEnd - shaftStart) * 0.7 },
-    { x: cx + half + thickness * 0.3, y: shaftEnd },
-    16
-  );
-
-  // Lateral condyle (bottom right)
-  const condyleW = thickness * 1.1;
-  const condyleH = thickness * 1.5;
-  const latCondyle = bezierPoints(
-    { x: cx + half + thickness * 0.3, y: shaftEnd },
-    { x: cx + condyleW + half * 0.3, y: H - condyleH },
-    { x: cx + condyleW + half * 0.3, y: H },
-    { x: cx + thickness * 0.15, y: H },
-    12
-  );
-
-  // Intercondylar notch (bottom center)
-  const notch = bezierPoints(
-    { x: cx + thickness * 0.15, y: H },
-    { x: cx + thickness * 0.05, y: H - thickness * 0.4 },
-    { x: cx - thickness * 0.05, y: H - thickness * 0.4 },
-    { x: cx - thickness * 0.15, y: H },
-    8
-  );
-
-  // Medial condyle (bottom left)
-  const medCondyle = bezierPoints(
-    { x: cx - thickness * 0.15, y: H },
-    { x: cx - condyleW - half * 0.3, y: H },
-    { x: cx - condyleW - half * 0.3, y: H - condyleH },
-    { x: cx - half - thickness * 0.3, y: shaftEnd },
-    12
-  );
-
-  // Left shaft going up
-  const leftShaft = bezierPoints(
-    { x: cx - half - thickness * 0.3, y: shaftEnd },
-    { x: cx - half - thickness * 0.1, y: shaftStart + (shaftEnd - shaftStart) * 0.7 },
-    { x: cx - half - thickness * 0.15, y: shaftStart + (shaftEnd - shaftStart) * 0.3 },
-    { x: cx - half, y: shaftStart },
-    16
-  );
-
-  // Left side up to neck
-  const leftNeck = bezierPoints(
-    { x: cx - half, y: shaftStart },
-    { x: cx - half - thickness * 0.1, y: neckBottom },
-    { x: headCx - headR * 0.3, y: headTop + headR * 1.2 },
-    { x: headCx - headR * 0.5, y: headTop + headR },
-    10
-  );
-
-  const polygon = concat(
-    headLeft, headRight.slice(1),
-    neck.slice(1), trochanter.slice(1), rightShaft.slice(1),
-    latCondyle.slice(1), notch.slice(1), medCondyle.slice(1),
-    leftShaft.slice(1), leftNeck.slice(1)
-  );
-
-  return { polygon, width: W, height: H };
+  return { polygon: outerPoly, svgPath: compoundPath([outerPoly]), width: W, height: H };
 }
 
-/**
- * Knee joint — patella/condyle connector piece.
- * @param {number} thickness — proportional to thigh
- */
 function buildKnee(thickness) {
-  const W = thickness * 3.2;
-  const H = thickness * 2.5;
-  const cx = W / 2;
+  const W = thickness * 4;
+  const H = thickness * 2.8;
+  const outerPoly = scale(KNEE_OUTLINE, W, H);
 
-  // Rounded patella shape
-  const top = bezierPoints(
-    { x: cx - W * 0.35, y: H * 0.35 },
-    { x: cx - W * 0.3, y: 0 },
-    { x: cx + W * 0.3, y: 0 },
-    { x: cx + W * 0.35, y: H * 0.35 },
-    14
-  );
-
-  const rightSide = bezierPoints(
-    { x: cx + W * 0.35, y: H * 0.35 },
-    { x: cx + W * 0.45, y: H * 0.5 },
-    { x: cx + W * 0.42, y: H * 0.75 },
-    { x: cx + W * 0.32, y: H },
-    10
-  );
-
-  const bottom = bezierPoints(
-    { x: cx + W * 0.32, y: H },
-    { x: cx + W * 0.1, y: H * 0.85 },
-    { x: cx - W * 0.1, y: H * 0.85 },
-    { x: cx - W * 0.32, y: H },
-    10
-  );
-
-  const leftSide = bezierPoints(
-    { x: cx - W * 0.32, y: H },
-    { x: cx - W * 0.42, y: H * 0.75 },
-    { x: cx - W * 0.45, y: H * 0.5 },
-    { x: cx - W * 0.35, y: H * 0.35 },
-    10
-  );
-
-  const polygon = concat(top, rightSide.slice(1), bottom.slice(1), leftSide.slice(1));
-
-  return { polygon, width: W, height: H };
+  return { polygon: outerPoly, svgPath: compoundPath([outerPoly]), width: W, height: H };
 }
 
-/**
- * Tibia — shin bone from knee to ankle.
- * @param {number} length — lower leg length
- * @param {number} thickness — bone shaft width
- */
 function buildTibia(length, thickness) {
-  const W = thickness * 3;
+  const W = thickness * 4;
   const H = length;
-  const cx = W / 2;
-  const half = thickness / 2;
+  const outerPoly = scale(TIBIA_OUTLINE, W, H);
 
-  // Tibial plateau (wide top)
-  const plateauW = thickness * 1.4;
-  const plateauTop = bezierPoints(
-    { x: cx - plateauW, y: 0 },
-    { x: cx - plateauW * 0.5, y: -thickness * 0.15 },
-    { x: cx + plateauW * 0.5, y: -thickness * 0.15 },
-    { x: cx + plateauW, y: 0 },
-    10
-  );
-
-  // Right side — plateau to shaft
-  const rightPlateau = bezierPoints(
-    { x: cx + plateauW, y: 0 },
-    { x: cx + plateauW, y: thickness * 0.6 },
-    { x: cx + half + thickness * 0.2, y: thickness * 1.5 },
-    { x: cx + half + thickness * 0.15, y: thickness * 2.5 },
-    10
-  );
-
-  // Right shaft (slight triangular taper)
-  const shaftTopY = thickness * 2.5;
-  const shaftBotY = H - thickness * 1.5;
-  const rightShaft = bezierPoints(
-    { x: cx + half + thickness * 0.15, y: shaftTopY },
-    { x: cx + half + thickness * 0.05, y: shaftTopY + (shaftBotY - shaftTopY) * 0.3 },
-    { x: cx + half * 0.6, y: shaftTopY + (shaftBotY - shaftTopY) * 0.7 },
-    { x: cx + half * 0.5, y: shaftBotY },
-    14
-  );
-
-  // Medial malleolus (inner ankle bump) — right side at bottom
-  const rightAnkle = bezierPoints(
-    { x: cx + half * 0.5, y: shaftBotY },
-    { x: cx + half * 0.6, y: H - thickness * 0.5 },
-    { x: cx + half * 0.4, y: H },
-    { x: cx, y: H },
-    8
-  );
-
-  // Left ankle
-  const leftAnkle = bezierPoints(
-    { x: cx, y: H },
-    { x: cx - half * 0.5, y: H },
-    { x: cx - half * 0.8, y: H - thickness * 0.5 },
-    { x: cx - half * 0.5, y: shaftBotY },
-    8
-  );
-
-  // Left shaft
-  const leftShaft = bezierPoints(
-    { x: cx - half * 0.5, y: shaftBotY },
-    { x: cx - half * 0.6, y: shaftTopY + (shaftBotY - shaftTopY) * 0.7 },
-    { x: cx - half - thickness * 0.05, y: shaftTopY + (shaftBotY - shaftTopY) * 0.3 },
-    { x: cx - half - thickness * 0.15, y: shaftTopY },
-    14
-  );
-
-  // Left plateau
-  const leftPlateau = bezierPoints(
-    { x: cx - half - thickness * 0.15, y: shaftTopY },
-    { x: cx - half - thickness * 0.2, y: thickness * 1.5 },
-    { x: cx - plateauW, y: thickness * 0.6 },
-    { x: cx - plateauW, y: 0 },
-    10
-  );
-
-  const polygon = concat(
-    plateauTop, rightPlateau.slice(1), rightShaft.slice(1),
-    rightAnkle.slice(1), leftAnkle.slice(1), leftShaft.slice(1),
-    leftPlateau.slice(1)
-  );
-
-  return { polygon, width: W, height: H };
+  return { polygon: outerPoly, svgPath: compoundPath([outerPoly]), width: W, height: H };
 }
 
 // ── Module ───────────────────────────────────────────────────────────────────
@@ -446,14 +398,12 @@ export default {
 
   options: {
     ...straightJeans.options,
-    // Lock defaults to match the Soloist silhouette
     ease:     { ...straightJeans.options.ease,     default: 'regular'  },
     legShape: { ...straightJeans.options.legShape, default: 'straight' },
     riseStyle:{ ...straightJeans.options.riseStyle, default: 'mid'     },
   },
 
   pieces(m, opts) {
-    // Get all standard jeans pieces
     const jeansPieces = straightJeans.pieces(m, opts);
 
     // ── Derive bone dimensions from body measurements ──
@@ -465,10 +415,10 @@ export default {
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
     const rise      = (parseFloat(opts.riseOverride) || (baseRise + riseOff)) + 1.25;
 
-    const hipW      = hip / 4 + 2;  // approximate panel width
-    const upperLeg  = inseam * 0.55; // femur length (waist-to-knee proportion)
-    const lowerLeg  = inseam * 0.45; // tibia length (knee-to-ankle)
-    const boneThick = thigh / 16;    // shaft thickness proportional to thigh
+    const hipW      = hip / 4 + 2;
+    const upperLeg  = inseam * 0.55;
+    const lowerLeg  = inseam * 0.45;
+    const boneThick = thigh / 14;   // bolder: /14 instead of /16
 
     // ── Generate bone templates ──
     const frontPelvis = buildFrontPelvis(hipW, rise);
@@ -477,13 +427,13 @@ export default {
     const knee        = buildKnee(boneThick);
     const tibia       = buildTibia(lowerLeg, boneThick);
 
-    // Append bone template pieces
     jeansPieces.push({
       type: 'template',
       id: 'bone-front-pelvis',
       name: 'Front Pelvis (vinyl)',
       instruction: 'Cut 1 from white HTV. Mirror is built in. Align top edge to waistband seam, center on front.',
       polygon: frontPelvis.polygon,
+      svgPath: frontPelvis.svgPath,
       path: polyToPath(frontPelvis.polygon),
       width: frontPelvis.width,
       height: frontPelvis.height,
@@ -495,6 +445,7 @@ export default {
       name: 'Back Pelvis (vinyl)',
       instruction: 'Cut 1 from white HTV. Mirror is built in. Align top edge to waistband seam, center on back.',
       polygon: backPelvis.polygon,
+      svgPath: backPelvis.svgPath,
       path: polyToPath(backPelvis.polygon),
       width: backPelvis.width,
       height: backPelvis.height,
@@ -506,6 +457,7 @@ export default {
       name: 'Femur (vinyl)',
       instruction: 'Cut 2 from white HTV (1 + 1 mirror). Position below pelvis, centered on thigh.',
       polygon: femur.polygon,
+      svgPath: femur.svgPath,
       path: polyToPath(femur.polygon),
       width: femur.width,
       height: femur.height,
@@ -517,6 +469,7 @@ export default {
       name: 'Knee Joint (vinyl)',
       instruction: 'Cut 2 from white HTV (1 + 1 mirror). Center on knee between femur and tibia.',
       polygon: knee.polygon,
+      svgPath: knee.svgPath,
       path: polyToPath(knee.polygon),
       width: knee.width,
       height: knee.height,
@@ -528,6 +481,7 @@ export default {
       name: 'Tibia (vinyl)',
       instruction: 'Cut 2 from white HTV (1 + 1 mirror). Position below knee, centered on shin.',
       polygon: tibia.polygon,
+      svgPath: tibia.svgPath,
       path: polyToPath(tibia.polygon),
       width: tibia.width,
       height: tibia.height,
@@ -538,7 +492,6 @@ export default {
 
   materials(m, opts) {
     const base = straightJeans.materials(m, opts);
-    // Add HTV vinyl to the notions
     base.notions = base.notions || [];
     base.notions.push(
       { name: 'White HTV vinyl', quantity: '2 yards', notes: 'Heat transfer vinyl for skeleton print. Siser Easyweed or equivalent.' },
