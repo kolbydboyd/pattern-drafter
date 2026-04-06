@@ -31,6 +31,12 @@ const STATIC_PAGES = [
   { loc: '/tester',   priority: '0.7', changefreq: 'weekly'  },
   { loc: '/pricing',  priority: '0.8', changefreq: 'monthly' },
   { loc: '/about',    priority: '0.5', changefreq: 'monthly' },
+  // SEO landing pages
+  { loc: '/made-to-measure-sewing-patterns',          priority: '0.8', changefreq: 'monthly' },
+  { loc: '/custom-sewing-patterns-from-measurements', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/made-to-measure-mens-sewing-patterns',     priority: '0.8', changefreq: 'monthly' },
+  { loc: '/made-to-measure-womens-sewing-patterns',   priority: '0.8', changefreq: 'monthly' },
+  { loc: '/how-made-to-measure-sewing-patterns-work', priority: '0.7', changefreq: 'monthly' },
 ];
 
 const BASE = 'https://peoplespatterns.com';

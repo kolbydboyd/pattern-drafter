@@ -52,6 +52,9 @@ manufacturer has this. It becomes a licensable asset.
 - [x] FAQ page with schema markup
 - [x] Pricing page
 - [x] Sitemap generation
+- [x] Pre-rendered /patterns and /learn pages for crawler visibility
+- [x] SEO landing pages for high-intent queries
+- [x] AI crawler access (robots.txt: OAI-SearchBot, ChatGPT-User, ClaudeBot, etc.)
 - [x] Per-edge seam allowances on launch patterns
 - [x] Bust dart geometry on 4 womenswear tops
 - [x] Polygon sanitizer (dedup, collinear removal, CW winding)
