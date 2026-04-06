@@ -909,16 +909,16 @@ function renderReference() {
       <table class="adm-table">
         <thead><tr><th>Platform</th><th>Handle</th></tr></thead>
         <tbody>
-          <tr><td class="bold">Instagram</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">Threads</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">Facebook</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">Pinterest</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">Etsy</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">TikTok Shop</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">TikTok</td><td>@peoplespatternsofficial</td></tr>
-          <tr><td class="bold">YouTube</td><td>@peoplespatterns</td></tr>
-          <tr><td class="bold">Reddit</td><td>u/peoplespatterns</td></tr>
-          <tr><td class="bold">Newsletter</td><td>hello@peoplespatterns.com</td></tr>
+          <tr><td class="bold">Instagram</td><td><a href="https://instagram.com/peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">Threads</td><td><a href="https://threads.net/@peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">Facebook</td><td><a href="https://facebook.com/peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">Pinterest</td><td><a href="https://pinterest.com/peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">Etsy</td><td><a href="https://etsy.com/shop/peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">TikTok Shop</td><td><a href="https://tiktok.com/@peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">TikTok</td><td><a href="https://tiktok.com/@peoplespatternsofficial" target="_blank" style="color:var(--gold)">@peoplespatternsofficial</a></td></tr>
+          <tr><td class="bold">YouTube</td><td><a href="https://youtube.com/@peoplespatterns" target="_blank" style="color:var(--gold)">@peoplespatterns</a></td></tr>
+          <tr><td class="bold">Reddit</td><td><a href="https://reddit.com/user/peoplespatterns" target="_blank" style="color:var(--gold)">u/peoplespatterns</a></td></tr>
+          <tr><td class="bold">Newsletter</td><td><a href="mailto:hello@peoplespatterns.com" style="color:var(--gold)">hello@peoplespatterns.com</a></td></tr>
         </tbody>
       </table>
     </div>
