@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- beach tote: large, flat bottom, unlined, lightweight -->
+  <path d="M48,18 L48,72"/>
+  <path d="M54,18 L54,72"/>
+  <path d="M106,18 L106,72"/>
+  <path d="M112,18 L112,72"/>
+  <path d="M48,18 Q51,10 54,18"/>
+  <path d="M106,18 Q109,10 112,18"/>
+  <!-- bag body (slightly wider/taller for beach) -->
+  <rect x="24" y="72" width="112" height="116" rx="3"/>
+  <!-- flat bottom (no boxed corners) -->
+  <line x1="24" y1="188" x2="136" y2="188"/>
+  <!-- wave pattern hint for beach theme -->
+  <path d="M34,140 Q46,136 58,140 Q70,144 82,140 Q94,136 106,140 Q118,144 126,140" stroke-dasharray="4 3" stroke-width="1"/>
+</svg>

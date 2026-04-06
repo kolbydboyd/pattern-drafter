@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- maxi sundress: floor-length gathered skirt with tie straps -->
+  <path d="M70,12 L64,36"/>
+  <path d="M90,12 L96,36"/>
+  <path d="M60,36 Q72,48 80,50 Q88,48 100,36"/>
+  <path d="M60,36 L56,44 L54,98 Q80,102 106,98 L104,44 L100,36"/>
+  <path d="M54,98 L38,196 L122,196 L106,98"/>
+  <!-- gather lines on longer skirt -->
+  <path d="M46,146 Q80,152 114,146"/>
+  <path d="M42,172 Q80,178 118,172"/>
+</svg>

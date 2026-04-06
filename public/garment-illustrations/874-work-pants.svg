@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- 874 work pants: wide straight leg, tunnel belt loops, center crease -->
+  <path d="M40,34 L120,34 L120,50 L40,50 Z"/>
+  <!-- tunnel belt loops -->
+  <rect x="50" y="31" width="4" height="10" rx="0.5"/>
+  <rect x="68" y="31" width="4" height="10" rx="0.5"/>
+  <rect x="88" y="31" width="4" height="10" rx="0.5"/>
+  <rect x="106" y="31" width="4" height="10" rx="0.5"/>
+  <!-- wide straight legs -->
+  <path d="M40,50 L36,194 L76,194 L80,90 L84,194 L124,194 L120,50"/>
+  <line x1="80" y1="50" x2="80" y2="90"/>
+  <!-- center creases -->
+  <line x1="56" y1="60" x2="56" y2="194" stroke-dasharray="6 4"/>
+  <line x1="102" y1="60" x2="102" y2="194" stroke-dasharray="6 4"/>
+</svg>

@@ -10,7 +10,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // ── Sleeve length presets ────────────────────────────────────────────────────
@@ -363,25 +363,43 @@ export default {
     const armQuarterTop = slopeDrop + armholeDepth * 0.25;  // top quarter for sleeve cap match
     const armQuarterBot = slopeDrop + armholeDepth * 0.75;  // underarm quarter
 
+    // Arc-length notches: single = front, double = back; ~3.25″ from underarm
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmholePts].reverse();
+    const backArmPtsRev  = [...backArmholePts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + halfShoulder, y: frontNotchPt.y + slopeDrop };
+    const backNotch1Bodice = { x: backNotch1Pt.x + halfShoulder, y: backNotch1Pt.y + slopeDrop };
+    const backNotch2Bodice = { x: backNotch2Pt.x + halfShoulder, y: backNotch2Pt.y + slopeDrop };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: halfShoulder, y: slopeDrop }) },
-      { x: panelW,       y: chestNotchY,  angle: 0 },  // chest on side seam (pointing right)
-      { x: halfShoulder + chestDepth * 0.3, y: armQuarterTop, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
-      { x: panelW - 0.2, y: armQuarterBot, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: panelW,       y: chestNotchY,  angle: 0 },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: halfShoulder, y: slopeDrop }) },
       { x: panelW,       y: chestNotchY,  angle: 0 },
-      { x: halfShoulder + backChestDepth * 0.3, y: armQuarterTop, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
-      { x: panelW - 0.2, y: armQuarterBot, angle: edgeAngle({ x: halfShoulder, y: slopeDrop }, { x: panelW, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
-    // Sleeve notches: center cap at top, quarter notches at underarm
+    // Sleeve notches: center cap at top, arc-length notches on cap curve
     const slvCapMidX = slvFullWidth / 2;
-    const slvCapMinY = Math.min(...sleevePoly.map(p => p.y));
+    const capW = slvFullWidth;
+    const capMidIdx      = Math.floor(capPts.length / 2);
+    const backCapPts     = capPts.slice(0, capMidIdx + 1);
+    const frontCapPtsRev = [...capPts.slice(capMidIdx)].reverse();
+    const backCapNotch1  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC);
+    const backCapNotch2  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC + 0.25);
+    const frontCapNotch  = ptAtArcLen(frontCapPtsRev, FRONT_NOTCH_ARC);
     const sleeveNotches = [
-      { x: slvCapMidX,    y: slvCapMinY,   angle: -90 },  // center cap notch (pointing up)
-      { x: slvFullWidth * 0.25, y: capHeight, angle: edgeAngle({ x: 0, y: capHeight }, { x: slvFullWidth * 0.25, y: capHeight * 0.5 }) },
-      { x: slvFullWidth * 0.75, y: capHeight, angle: edgeAngle({ x: slvFullWidth, y: capHeight }, { x: slvFullWidth * 0.75, y: capHeight * 0.5 }) },
+      { x: capW / 2, y: 0, angle: -90 },
+      { x: backCapNotch1.x,  y: backCapNotch1.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      { x: backCapNotch2.x,  y: backCapNotch2.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+      { x: frontCapNotch.x,  y: frontCapNotch.y  + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
     ];
 
     const pieces = [
@@ -464,6 +482,7 @@ export default {
         instruction: 'Cut 1 · Position at left chest · Interface if desired',
         type: 'pocket',
         dimensions: { width: 4, height: 5 },
+        sa,
       });
     }
 
@@ -473,7 +492,7 @@ export default {
   materials(m, opts) {
     const isLong = opts.sleeveStyle === 'long' || opts.sleeveStyle === 'three_quarter';
     const notions = [
-      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband - high recovery stretch' },
+      { name: 'Rib knit', quantity: '0.25 yard', notes: 'For neckband (high recovery stretch)' },
     ];
     if (isLong) {
       notions.push({ name: 'Rib knit (extra)', quantity: '0.5 yard', notes: 'For sleeve cuffs if desired' });
@@ -543,14 +562,21 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem body',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? ' - clipping curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))}, {press}${opts.hemStyle === 'shirttail' ? '. Clip curve at sides as needed' : ''}. Twin needle from RS or fold under raw edge and {zigzag} stitch.`,
     });
 
     steps.push({
       step: n++, title: 'Finish',
-      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on - neckband should sit flat and not gap.',
+      detail: '{press} with damp cloth on cotton/steam setting (check fabric care). Try on. Neckband should sit flat and not gap.',
     });
 
     return steps;
   },
+
+  variants: [
+    { id: 'oversized-tee', name: 'Oversized Tee', defaults: { fit: 'oversized', hemStyle: 'straight' } },
+    { id: 'muscle-tee', name: 'Muscle Tee', defaults: { fit: 'relaxed', sleeveStyle: 'short', hemStyle: 'straight' } },
+    { id: 'longline-tee', name: 'Longline Tee', defaults: { fit: 'relaxed', hemStyle: 'shirttail' } },
+    { id: 'pocket-tee', name: 'Pocket Tee', defaults: { fit: 'standard', chestPocket: 'patch' } },
+  ],
 };

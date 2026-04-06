@@ -8,7 +8,7 @@
 
 const BODY_BLOCKS = {
   'lower-body': [
-    'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts',
+    'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts', 'baggy-shorts',
     'straight-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
     'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
   ],

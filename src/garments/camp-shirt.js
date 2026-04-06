@@ -11,7 +11,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
@@ -27,7 +27,7 @@ export default {
   id: 'camp-shirt',
   name: 'Camp Shirt',
   category: 'upper',
-  difficulty: 'advanced',
+  difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
   measurementDefaults: { sleeveLength: 26 },
@@ -264,17 +264,28 @@ export default {
     const armQBot      = slopeDrop + armholeDepth * 0.75;
     const shoulderAngle = edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop });
 
+    // Arc-length armhole notches: single = front, double = back
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: shoulderAngle },
-      { x: sideX,        y: chestNotchY,  angle: 0 },
-      { x: shoulderPtX + chestDepth * 0.3, y: armQTop, angle: shoulderAngle },
-      { x: sideX - 0.2, y: armQBot, angle: shoulderAngle },
+      { x: sideX,        y: armholeY,     angle: 0 },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: shoulderAngle },
-      { x: backSideX,    y: chestNotchY,  angle: 0 },
-      { x: shoulderPtX + backChestDepth * 0.3, y: armQTop, angle: shoulderAngle },
-      { x: backSideX - 0.2, y: armQBot, angle: shoulderAngle },
+      { x: backSideX,    y: armholeY,     angle: 0 },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
     const slvMidX = slvTopW;
     const sleeveNotches = [
@@ -359,6 +370,7 @@ export default {
         instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(placketH)} long`,
         type: 'pocket',
         dimensions: { width: PLACKET_W + 0.5, height: placketH },
+        sa,
       },
     ];
 
@@ -369,6 +381,7 @@ export default {
         instruction: 'Cut 1 · Position at left chest 2.5″ below neckline, 1.5″ from placket · Interface if desired',
         type: 'pocket',
         dimensions: { width: 4, height: 5 },
+        sa,
       });
     }
 
@@ -381,7 +394,7 @@ export default {
     const isLong   = opts.sleeveStyle === 'long';
 
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) - +1 spare` },
+      { name: 'Buttons', quantity: `${btnCount + 1}`, notes: `${fmtInches(btnDiam)} (shirt buttons) +1 spare` },
       { ref: 'interfacing-light', quantity: '0.5 yard (collar + placket facings)' },
     ];
 
@@ -461,4 +474,8 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'vacation-shirt', name: 'Vacation Shirt', defaults: { collar: 'camp', sleeveStyle: 'short', fit: 'relaxed', chestPocket: 'patch' } },
+  ],
 };

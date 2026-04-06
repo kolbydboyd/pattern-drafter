@@ -9,7 +9,7 @@ import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W = 1.5;
@@ -210,11 +210,22 @@ export default {
     const shoulderMidY = slopeDrop / 2;
     const backSideX = shoulderPtX + backChestDepth;
 
+    // Arc-length notches: single = front, double = back; ~3.25″ from underarm
+    const FRONT_NOTCH_ARC = 3.25;
+    const BACK_NOTCH_ARC  = 3.25;
+    const frontArmPtsRev = [...frontArmPts].reverse();
+    const backArmPtsRev  = [...backArmPts].reverse();
+    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
+
     const frontNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: sideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
+      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
     ];
     // Bust dart matchpoint notches at side seam
     if (bustDarts.length > 0) {
@@ -226,8 +237,8 @@ export default {
     const backNotches = [
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
-      { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
-      { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
+      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
 
     const sleeveNotches = [
@@ -274,15 +285,15 @@ export default {
       },
       { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: fallH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
       { id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 · Interface one · ${fmtInches(collarLen)} long × ${fmtInches(standH * 2 + sa * 2)} cut (${fmtInches(standH)} finished stand) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: standH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
-      { id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(torsoLen - NECK_DEPTH_FRONT)} long`, dimensions: { width: PLACKET_W + 0.5, height: torsoLen - NECK_DEPTH_FRONT }, type: 'pocket' },
+      { id: 'front-facing', name: 'Front Facing', instruction: `Cut 2 (L & R) · Interface · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(torsoLen - NECK_DEPTH_FRONT)} long`, dimensions: { width: PLACKET_W + 0.5, height: torsoLen - NECK_DEPTH_FRONT }, type: 'pocket', sa },
     ];
 
     if (opts.backDetail === 'yoke') {
-      pieces.push({ id: 'back-yoke', name: 'Back Yoke', instruction: 'Cut 2 (outer + lining) · Interface outer · Horizontal across upper back', dimensions: { length: backW * 2 + 1, width: yokeH + sa * 2 }, type: 'pocket' });
+      pieces.push({ id: 'back-yoke', name: 'Back Yoke', instruction: 'Cut 2 (outer + lining) · Interface outer · Horizontal across upper back', dimensions: { length: backW * 2 + 1, width: yokeH + sa * 2 }, type: 'pocket', sa });
     }
     if (opts.sleeve === 'long' && opts.cuff !== 'none') {
       const cuffH = opts.cuff === 'french' ? 5 : 2.5;
-      pieces.push({ id: 'cuff', name: opts.cuff === 'french' ? 'French Cuff' : 'Barrel Cuff', instruction: `Cut 4 (2 outer + 2 facing) · Interface outer · ${fmtInches(m.wrist + 1)} long × ${fmtInches(cuffH + sa * 2)} cut · 1 button per cuff${opts.cuff === 'french' ? ' (or cufflinks)' : ''}`, dimensions: { length: m.wrist + 1, width: cuffH + sa * 2 }, type: 'pocket' });
+      pieces.push({ id: 'cuff', name: opts.cuff === 'french' ? 'French Cuff' : 'Barrel Cuff', instruction: `Cut 4 (2 outer + 2 facing) · Interface outer · ${fmtInches(m.wrist + 1)} long × ${fmtInches(cuffH + sa * 2)} cut · 1 button per cuff${opts.cuff === 'french' ? ' (or cufflinks)' : ''}`, dimensions: { length: m.wrist + 1, width: cuffH + sa * 2 }, type: 'pocket', sa });
     }
 
     return pieces;
@@ -291,7 +302,7 @@ export default {
   materials(m, opts) {
     const btnCount = parseInt(opts.buttons) || 7;
     const notions = [
-      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons - +1 spare, +2 per cuff if applicable' },
+      { name: 'Buttons', quantity: `${btnCount + (opts.sleeve === 'long' && opts.cuff !== 'none' ? 3 : 0) + 1}`, notes: '½″ shirt buttons (+1 spare, +2 per cuff if applicable)' },
       { ref: 'interfacing-light', quantity: '0.75 yard (collar + stand + facings + cuffs)' },
     ];
     return buildMaterialsSpec({
@@ -339,4 +350,9 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'poplin-blouse-w', name: 'Poplin Blouse', defaults: { collar: 'point', fit: 'semifitted', bustDart: 'yes', sleeve: 'long', cuff: 'barrel' }, fabrics: ['cotton-poplin'] },
+    { id: 'linen-tunic-w', name: 'Linen Tunic', defaults: { collar: 'band', fit: 'relaxed', length: 'tunic', sleeve: 'three_quarter', cuff: 'none' }, fabrics: ['linen'] },
+  ],
 };

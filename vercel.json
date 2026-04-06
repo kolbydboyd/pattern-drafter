@@ -5,6 +5,10 @@
       "memory": 1024,
       "maxDuration": 60
     },
+    "api/regenerate-pattern.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    },
     "api/stripe-webhook.js": {
       "memory": 256
     },
@@ -19,8 +23,34 @@
     },
     "api/join-list.js": {
       "memory": 256
+    },
+    "api/validate-code.js": {
+      "memory": 256
+    },
+    "api/redeem-code.js": {
+      "memory": 256
+    },
+    "api/affiliate-apply.js": {
+      "memory": 256
+    },
+    "api/affiliate-click.js": {
+      "memory": 256
+    },
+    "api/affiliate-dashboard.js": {
+      "memory": 256
     }
   },
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "statusCode": 301 },
+    { "source": "/patterns.html", "destination": "/patterns", "statusCode": 301 },
+    { "source": "/learn.html", "destination": "/learn", "statusCode": 301 },
+    { "source": "/faq.html", "destination": "/faq", "statusCode": 301 },
+    { "source": "/pricing.html", "destination": "/pricing", "statusCode": 301 },
+    { "source": "/about.html", "destination": "/about", "statusCode": 301 },
+    { "source": "/terms.html", "destination": "/terms", "statusCode": 301 },
+    { "source": "/privacy.html", "destination": "/privacy", "statusCode": 301 },
+    { "source": "/tester.html", "destination": "/tester", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/faq", "destination": "/faq.html" },
     { "source": "/terms", "destination": "/terms.html" },
@@ -32,9 +62,19 @@
     { "source": "/about", "destination": "/about.html" },
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/learn/:slug", "destination": "/learn.html" },
-    { "source": "/pricing", "destination": "/pricing.html" }
+    { "source": "/pricing", "destination": "/pricing.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/redeem", "destination": "/redeem.html" },
+    { "source": "/tester", "destination": "/tester.html" },
+    { "source": "/pin-preview", "destination": "/pin-preview.html" },
+    { "source": "/affiliate", "destination": "/affiliate.html" },
+    { "source": "/submit-make", "destination": "/submit-make.html" }
   ],
   "crons": [
-    { "path": "/api/cron-emails", "schedule": "0 9 * * *" }
+    { "path": "/api/cron-emails", "schedule": "0 9 * * *" },
+    { "path": "/api/cron-pinterest", "schedule": "0 0 * * *" },
+    { "path": "/api/cron-sitemap", "schedule": "0 6 * * *" },
+    { "path": "/api/cron-images", "schedule": "0 7 * * *" },
+    { "path": "/api/cron-links", "schedule": "30 7 * * *" }
   ]
 }

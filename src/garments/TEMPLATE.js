@@ -3,6 +3,12 @@
  * TEMPLATE.js — canonical reference for adding new garment modules.
  * DO NOT import this file in index.js — it is documentation only.
  *
+ * CHECKLIST for new garments:
+ * 1. Create the garment module in src/garments/
+ * 2. Register it in src/garments/index.js
+ * 3. Add pricing tier in src/lib/pricing.js
+ * 4. Add SEO entry in src/garments/seo-descriptions.js (metaDescription, pageIntro, faq)
+ *
  * KNOWN BUGS TO AVOID:
  * - Never divide calf or ankle measurements by 4 — use / 2 + 0.5
  * - Never use easeDistribution().front directly as panel width
