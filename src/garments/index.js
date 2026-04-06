@@ -47,6 +47,7 @@ import slipDressW            from './slip-dress-w.js';
 import aLineDressW           from './a-line-dress-w.js';
 import sundressW             from './sundress-w.js';
 import toteBag             from './tote-bag.js';
+import soloistJeans        from './soloist-jeans.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -91,6 +92,7 @@ const GARMENTS = {
   'a-line-dress-w':           aLineDressW,
   'sundress-w':               sundressW,
   'tote-bag':               toteBag,
+  'soloist-jeans':          soloistJeans,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────

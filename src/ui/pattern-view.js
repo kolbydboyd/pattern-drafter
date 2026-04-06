@@ -612,6 +612,52 @@ export function renderGenericPieceSVG(piece) {
 }
 
 /**
+ * Render a vinyl/template piece (bone outlines etc.) as an SVG string.
+ * Piece must have: polygon (array of {x,y} in inches), width, height, name.
+ * Renders as a filled silhouette with a download link for Cricut SVG export.
+ */
+export function renderTemplateSVG(piece) {
+  const { polygon, width, height, name } = piece;
+  if (!polygon || !polygon.length) return '';
+
+  // Compute bounding box from polygon
+  const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const pW = maxX - minX, pH = maxY - minY;
+
+  const mL = 1.5, mT = 1.5, mR = 1.5, mB = 3;
+  const svgW = sc(mL + pW + mR);
+  const svgH = sc(mT + pH + mB);
+  const ox = sc(mL - minX);
+  const oy = sc(mT - minY);
+
+  // Build path
+  const pts = polygon.map(p => ({ x: ox + sc(p.x), y: oy + sc(p.y) }));
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
+  d += ' Z';
+
+  // Build standalone SVG for download (inches, no margins)
+  const dlPts = polygon.map(p => ({ x: p.x - minX, y: p.y - minY }));
+  let dlD = `M ${dlPts[0].x.toFixed(3)} ${dlPts[0].y.toFixed(3)}`;
+  for (let i = 1; i < dlPts.length; i++) dlD += ` L ${dlPts[i].x.toFixed(3)} ${dlPts[i].y.toFixed(3)}`;
+  dlD += ' Z';
+  const dlSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${pW.toFixed(3)}in" height="${pH.toFixed(3)}in" viewBox="0 0 ${pW.toFixed(3)} ${pH.toFixed(3)}"><path d="${dlD}" fill="#000" stroke="none"/></svg>`;
+  const blob = new Blob([dlSvg], { type: 'image/svg+xml' });
+  const dlUrl = URL.createObjectURL(blob);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 ${svgW} ${svgH}"
+      style="max-width:${Math.min(svgW, 500)}px;display:block;margin:0 auto;background:var(--bg,#fff)">
+    <path d="${d}" fill="var(--text,#2c2a26)" stroke="var(--text,#2c2a26)" stroke-width="0.5"/>
+    <text x="${svgW / 2}" y="${svgH - 30}" font-family="IBM Plex Mono" font-size="13" fill="var(--text,#2c2a26)" text-anchor="middle" font-weight="500">${name}</text>
+    <text x="${svgW / 2}" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555" text-anchor="middle">${fmtInches(pW)} × ${fmtInches(pH)}</text>
+  </svg>
+  <a href="${dlUrl}" download="${(piece.id || 'template').replace(/\s+/g, '-')}.svg" style="display:block;text-align:center;margin:6px 0 0;font-size:0.75rem;font-family:'IBM Plex Mono',monospace;color:var(--link,#2c6fce)">Download SVG for Cricut</a>`;
+}
+
+/**
  * Append a tiled diagonal watermark to a live SVG DOM element.
  * Call after the SVG is in the DOM.
  * @param {SVGElement} svgEl

@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.8] - 2026-04-06
+
+### New
+- Soloist Jeans garment module with parametric skeleton bone vinyl templates
+- Bone templates (pelvis front/back, femur, knee, tibia) scale with body measurements (hip, inseam, thigh, rise)
+- New 'template' piece type for vinyl/applique cut guides in both browser preview and PDF output
+- Browser preview includes per-bone SVG download links for direct Cricut import
+- Materials list includes HTV vinyl and application instructions
+
+---
+
 ## [0.12.7] - 2026-04-06
 
 ### SEO and crawlability improvements

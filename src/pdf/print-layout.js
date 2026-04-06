@@ -760,6 +760,53 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   };
 }
 
+/**
+ * Render a vinyl/template piece (bone outlines etc.) at 1:1 scale.
+ * Returns { svg, wIn, hIn }.
+ */
+function renderTemplateSVG(piece, { compact = false } = {}) {
+  const { polygon, width, height, name } = piece;
+  if (!polygon || !polygon.length) return null;
+
+  const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const pW = maxX - minX, pH = maxY - minY;
+
+  const M = compact ? 0.3 : MARGIN;
+  const wIn = M + pW + M;
+  const hIn = M + pH + M;
+  const ox = M - minX, oy = M - minY;
+
+  // Build path in DPI units
+  let d = `M ${((ox + polygon[0].x) * DPI).toFixed(1)} ${((oy + polygon[0].y) * DPI).toFixed(1)}`;
+  for (let i = 1; i < polygon.length; i++) {
+    d += ` L ${((ox + polygon[i].x) * DPI).toFixed(1)} ${((oy + polygon[i].y) * DPI).toFixed(1)}`;
+  }
+  d += ' Z';
+
+  const cx = (M + pW / 2) * DPI;
+
+  return {
+    wIn,
+    hIn,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg"
+        width="${wIn * DPI}" height="${hIn * DPI}"
+        viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
+      <path d="${d}" fill="#2c2a26" stroke="#2c2a26" stroke-width="1"/>
+      <text x="${cx}" y="${(M - 0.08) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
+        fill="#2c2a26" text-anchor="middle">${name}</text>
+      <text x="${cx}" y="${(M + pH / 2) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
+        fill="#fff" text-anchor="middle">${fmtInches(pW)} \xd7 ${fmtInches(pH)}</text>
+      ${!compact && piece.instruction ? `<text x="${cx}" y="${(M + pH + 0.3) * DPI}"
+        font-family="'IBM Plex Mono',monospace" font-size="9"
+        fill="#666" text-anchor="middle">${piece.instruction}</text>` : ''}
+    </svg>`,
+  };
+}
+
 // ── Registration crosshair ─────────────────────────────────────────────────
 
 function crosshair(x, y, size = 14, label = '', alignLabel = false) {
@@ -945,6 +992,7 @@ function renderPiece(piece) {
   else if (piece.type === 'bodice' || piece.type === 'sleeve')  return renderBodiceOrSleeveSVG(piece);
   else if (piece.type === 'rectangle')                          return renderRectSVG(piece);
   else if (piece.type === 'pocket')                             return renderPocketSVG(piece);
+  else if (piece.type === 'template')                           return renderTemplateSVG(piece);
   return null;
 }
 
@@ -962,6 +1010,9 @@ function renderPieceCompact(piece) {
   }
   if (piece.type === 'pocket') {
     return renderPocketSVG(piece, { compact: true });
+  }
+  if (piece.type === 'template') {
+    return renderTemplateSVG(piece, { compact: true });
   }
   return null;
 }
@@ -2136,6 +2187,20 @@ function extractPiecePaths(piece) {
     const rW = W * DPI, rH = H * DPI;
     const cutD = `M ${rx} ${ry} h ${rW} v ${rH} h ${-rW} Z`;
     return { cutD, stitchD: cutD, wIn, hIn, ox: MARGIN, oy: MARGIN, piece };
+  }
+  if (piece.type === 'template') {
+    const { polygon } = piece;
+    if (!polygon || !polygon.length) return null;
+    const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const pW = maxX - minX, pH = maxY - minY;
+    const wIn = MARGIN + pW + MARGIN, hIn = MARGIN + pH + MARGIN;
+    const ox = MARGIN - minX, oy = MARGIN - minY;
+    let cutD = `M ${((ox + polygon[0].x) * DPI).toFixed(1)} ${((oy + polygon[0].y) * DPI).toFixed(1)}`;
+    for (let i = 1; i < polygon.length; i++) cutD += ` L ${((ox + polygon[i].x) * DPI).toFixed(1)} ${((oy + polygon[i].y) * DPI).toFixed(1)}`;
+    cutD += ' Z';
+    return { cutD, stitchD: cutD, wIn, hIn, ox, oy, piece };
   }
   return null;
 }
