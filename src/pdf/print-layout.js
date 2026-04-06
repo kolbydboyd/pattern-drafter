@@ -13,6 +13,7 @@
 
 import { fmtInches, offsetPolygon } from '../engine/geometry.js';
 import { MEASUREMENTS } from '../engine/measurements.js';
+import { SIZE_LINE_STYLES } from '../engine/grading.js';
 
 // ── Paper size registry ────────────────────────────────────────────────────
 const PAPER_SIZES = {
@@ -1344,6 +1345,456 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 `;
 }
 
+// ── Graded (multi-size) layout for Etsy ───────────────────────────────────
+
+/**
+ * Build a cover page for a graded (multi-size) pattern.
+ * Shows a size chart table instead of individual measurements.
+ */
+function buildGradedCoverPage(garment, sizeChart, opts, redemptionCode) {
+  const measKeys = garment.measurements;
+
+  // Size chart header row
+  const thCells = measKeys.map(id => {
+    const def = MEASUREMENTS[id];
+    return `<th>${def ? def.label : id}</th>`;
+  }).join('');
+
+  // Size chart body rows
+  const sizeRows = sizeChart.map((row, i) => {
+    const style = SIZE_LINE_STYLES[i] || SIZE_LINE_STYLES[0];
+    const cells = measKeys.map(key => {
+      const val = key === 'chest' && row.bust !== undefined ? (row.bust ?? row.chest) : row[key];
+      return `<td>${val !== undefined ? fmtInches(val) : '-'}</td>`;
+    }).join('');
+    return `<tr><td><strong>${row.label}</strong> (US ${row.us})</td>${cells}<td>${style.label}</td></tr>`;
+  }).join('');
+
+  const optRows = Object.entries(opts).map(([k, v]) => {
+    const label = k.replace(/([A-Z])/g, ' $1').trim();
+    return `<tr><td>${label}</td><td>${v}</td></tr>`;
+  }).join('');
+
+  const date = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+  });
+
+  const redeemHtml = redemptionCode
+    ? `<div class="cover-redeem">
+        <strong>FREE custom-fit upgrade!</strong> Visit
+        <a href="https://peoplespatterns.com/redeem">peoplespatterns.com/redeem</a>
+        and enter code: <strong>${redemptionCode}</strong>
+        to get this pattern drafted to YOUR exact body measurements.
+      </div>`
+    : '';
+
+  return `<div class="page cover-page">
+    <div class="cover-body">
+      <div class="cover-brand">People\u2019s Patterns</div>
+      <div class="cover-title">${garment.name}</div>
+      <div class="cover-sub">Sewing Pattern \xb7 Sizes ${sizeChart[0].label}\u2013${sizeChart[sizeChart.length - 1].label} \xb7 Print at 100% \xb7 Do not scale to fit</div>
+      <div>
+        <h3 class="sect-head">Size Chart (Body Measurements)</h3>
+        <table class="ptable">
+          <thead><tr><th>Size</th>${thCells}<th>Line style</th></tr></thead>
+          <tbody>${sizeRows}</tbody>
+        </table>
+      </div>
+      <div class="cover-cols" style="margin-top:0.15in">
+        <div class="cover-col">
+          <h3 class="sect-head">Pattern Options</h3>
+          <table class="ptable">
+            <thead><tr><th>Option</th><th>Setting</th></tr></thead>
+            <tbody>${optRows}</tbody>
+          </table>
+        </div>
+        <div class="cover-col">
+          <h3 class="sect-head">How to Assemble</h3>
+          <ol style="font-size:9pt;line-height:1.7;color:#444;padding-left:1.2em">
+            <li>Print at <strong>100% scale</strong></li>
+            <li>Verify the scale squares on page 2</li>
+            <li>Each size uses a different line style (see chart above)</li>
+            <li>Identify your size, cut along that line style</li>
+            <li>Assemble tiles per the tile map on page 2</li>
+          </ol>
+        </div>
+      </div>
+      ${redeemHtml}
+    </div>
+    <div class="cover-foot">Drafted ${date} \xb7 People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</div>
+  </div>`;
+}
+
+/**
+ * Compute the cut-line polygon path for a piece, offset within a shared
+ * coordinate system.  Works for panel, bodice, sleeve, rectangle, and pocket types.
+ *
+ * Returns { cutD, stitchD, wIn, hIn, ox, oy, piece } where cutD and stitchD
+ * are SVG path `d` strings, and ox/oy are the piece-local origin offsets.
+ */
+function extractPiecePaths(piece) {
+  if (piece.type === 'panel') {
+    const { polygon, saPolygon, width, height, ext, sa } = piece;
+    const mL = ext + MARGIN, mT = MARGIN;
+    const mR = (sa || 0.5) + MARGIN, mB = MARGIN;
+    const wIn = mL + width + mR, hIn = mT + height + mB;
+    const ox = mL, oy = mT;
+    return {
+      cutD: polyPath(polygon, ox, oy),
+      stitchD: polyPath(saPolygon, ox, oy),
+      wIn, hIn, ox, oy, piece,
+    };
+  }
+  if (piece.type === 'bodice' || piece.type === 'sleeve') {
+    const { polygon, sa = 0.5 } = piece;
+    const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const pW = maxX - minX, pH = maxY - minY;
+    const wIn = MARGIN + pW + MARGIN, hIn = MARGIN + pH + MARGIN;
+    const ox = MARGIN - minX, oy = MARGIN - minY;
+    const cutOnFold = piece.type !== 'sleeve' && piece.isCutOnFold !== false;
+    const ea = piece.edgeAllowances;
+    const saPoints = offsetPolygon(polygon, (i, a, b) => {
+      if (ea && ea[i]) return -ea[i].sa;
+      if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
+      return -sa;
+    });
+    function pts2d(pts) {
+      let d = `M ${(ox + pts[0].x) * DPI} ${(oy + pts[0].y) * DPI}`;
+      for (let i = 1; i < pts.length; i++) d += ` L ${(ox + pts[i].x) * DPI} ${(oy + pts[i].y) * DPI}`;
+      return d + ' Z';
+    }
+    return { cutD: pts2d(polygon), stitchD: pts2d(saPoints), wIn, hIn, ox, oy, piece };
+  }
+  if (piece.type === 'rectangle') {
+    const { dimensions, sa } = piece;
+    const W = dimensions.length, H = dimensions.width;
+    const wIn = MARGIN + W + MARGIN, hIn = MARGIN + H + MARGIN;
+    const rx = MARGIN * DPI, ry = MARGIN * DPI;
+    const rW = W * DPI, rH = H * DPI;
+    const saOff = (sa || 0.625) * DPI;
+    // Cut line = SA rect, stitch line = inner rect
+    const cutD = `M ${rx - saOff} ${ry - saOff} h ${rW + saOff * 2} v ${rH + saOff * 2} h ${-(rW + saOff * 2)} Z`;
+    const stitchD = `M ${rx} ${ry} h ${rW} v ${rH} h ${-rW} Z`;
+    return { cutD, stitchD, wIn, hIn, ox: MARGIN, oy: MARGIN, piece };
+  }
+  if (piece.type === 'pocket') {
+    const { dimensions } = piece;
+    const W = dimensions.length ?? dimensions.width;
+    const H = dimensions.height ?? dimensions.width;
+    const wIn = MARGIN + W + MARGIN, hIn = MARGIN + H + MARGIN;
+    const rx = MARGIN * DPI, ry = MARGIN * DPI;
+    const rW = W * DPI, rH = H * DPI;
+    const cutD = `M ${rx} ${ry} h ${rW} v ${rH} h ${-rW} Z`;
+    return { cutD, stitchD: cutD, wIn, hIn, ox: MARGIN, oy: MARGIN, piece };
+  }
+  return null;
+}
+
+/**
+ * Render a single piece at all graded sizes, overlaid on the same SVG.
+ *
+ * Strategy: render the LARGEST size fully (annotations, grainlines, text,
+ * notches) using the standard renderer. Then for each size, extract just the
+ * cut-line and stitch-line polygons and draw them with a distinct stroke style.
+ * A size label is placed at the top-right of each cut path.
+ *
+ * Returns { svg, wIn, hIn } using the largest size as the bounding box.
+ */
+function renderGradedPieceSVG(piecesPerSize) {
+  // Render the largest size fully for annotations
+  const largest = piecesPerSize[piecesPerSize.length - 1];
+  if (!largest) return null;
+  const baseSVG = renderPiece(largest);
+  if (!baseSVG) return null;
+
+  const wIn = baseSVG.wIn;
+  const hIn = baseSVG.hIn;
+
+  // Extract the inner content of the base SVG (strip outer <svg> tags)
+  const baseContent = baseSVG.svg
+    .replace(/<svg[^>]*>/, '')
+    .replace(/<\/svg>\s*$/, '');
+
+  // Build graded overlay paths for each size
+  let gradedPaths = '';
+  for (let si = 0; si < piecesPerSize.length; si++) {
+    const piece = piecesPerSize[si];
+    if (!piece) continue;
+
+    const paths = extractPiecePaths(piece);
+    if (!paths) continue;
+
+    const style = SIZE_LINE_STYLES[si] || SIZE_LINE_STYLES[0];
+    const dashAttr = style.dash ? ` stroke-dasharray="${style.dash}"` : '';
+
+    // Cut line for this size
+    gradedPaths += `<path d="${paths.cutD}" stroke="#000" stroke-width="1.5" fill="none"${dashAttr}/>`;
+
+    // Size label at top-right of the piece bounding box
+    const labelX = paths.wIn * DPI - MARGIN * DPI;
+    const labelY = MARGIN * DPI * 0.6;
+    const sizeChart = piecesPerSize._sizeChart;
+    const label = sizeChart ? sizeChart[si]?.label : `S${si}`;
+    gradedPaths += `<text x="${labelX}" y="${labelY}"
+      font-family="'IBM Plex Mono',monospace" font-size="9" font-weight="600"
+      fill="#000" text-anchor="end">${label}</text>`;
+  }
+
+  return {
+    wIn,
+    hIn,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg"
+        width="${wIn * DPI}" height="${hIn * DPI}"
+        viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
+      ${gradedPaths}
+      ${baseContent}
+    </svg>`,
+  };
+}
+
+/**
+ * Build tile pages for a graded piece (all sizes overlaid).
+ * Uses the same tiling logic as single-size but with graded SVG.
+ */
+function buildGradedTilePages(piecesPerSize, pieceIdx, totalPieces, PW, PH, OV) {
+  // Use the largest size's piece for layout calculations
+  const largest = piecesPerSize[piecesPerSize.length - 1];
+  if (!largest) return '';
+
+  const graded = renderGradedPieceSVG(piecesPerSize);
+  if (!graded) return '';
+
+  const { svg, wIn, hIn } = graded;
+
+  const layout = computeTileLayout(wIn, hIn, largest, PW, PH, OV);
+  const { landscape, tPW, tPH, TX, TY, cols, rows, shiftX, effectiveW } = layout;
+
+  let pages = '';
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      let offsetX = -(col * TX * DPI) + shiftX * DPI;
+      let offsetY = -(row * TY * DPI);
+
+      if (cols === 1 && rows === 1) {
+        const contentW = (tPW - 2 * SM) * DPI;
+        const contentH = (tPH - 2 * SM) * DPI;
+        offsetX = Math.max(0, Math.round((contentW - effectiveW * DPI) / 2));
+        offsetY = Math.max(0, Math.round((contentH - hIn * DPI) / 2));
+      }
+
+      let overlapSvgs = '';
+      if (col > 0) overlapSvgs += overlapZoneSVG('left', tPW, tPH, SM, OV);
+      if (row > 0) overlapSvgs += overlapZoneSVG('top',  tPW, tPH, SM, OV);
+
+      const rA   = String.fromCharCode(65 + row);
+      const rB   = String.fromCharCode(65 + row + 1);
+      const ovX  = px(SM + OV);
+      const ovY  = px(SM + OV);
+      const tlX  = col > 0 ? ovX : px(SM);
+      const tlY  = row > 0 ? ovY : px(SM);
+      const trY  = row > 0 ? ovY : px(SM);
+      const blX  = col > 0 ? ovX : px(SM);
+      const chSVG = `<svg xmlns="http://www.w3.org/2000/svg"
+          style="position:absolute;top:0;left:0;width:${tPW}in;height:${tPH}in;
+                 pointer-events:none;z-index:10;overflow:visible">
+        ${crosshair(tlX,           tlY,           14, `${rA}${col}`,     col > 0 || row > 0)}
+        ${crosshair(px(tPW - SM),  trY,           14, `${rA}${col + 1}`, row > 0           )}
+        ${crosshair(blX,           px(tPH - SM),  14, `${rB}${col}`,     col > 0           )}
+        ${crosshair(px(tPW - SM),  px(tPH - SM),  14, `${rB}${col + 1}`, false             )}
+      </svg>`;
+
+      const ruler = rulerStrip(tPW, SM);
+
+      const tileId    = `${row + 1}-${col + 1}`;
+      const gridLabel = `${rows}\xd7${cols}`;
+      const orientTag = landscape ? ' \xb7 LANDSCAPE' : '';
+      const orientCls = landscape ? ' landscape-tile' : '';
+
+      pages += `<div class="page tile-page${orientCls}" style="width:${tPW}in;height:${tPH}in">
+        <div class="tile-clip" style="width:${tPW - 2 * SM}in;height:${tPH - 2 * SM}in">
+          <div style="position:absolute;left:${offsetX}px;top:${offsetY}px;
+                      width:${effectiveW * DPI}px;height:${hIn * DPI}px">
+            ${svg}
+          </div>
+        </div>
+        ${overlapSvgs}
+        ${chSVG}
+        ${ruler}
+        ${(col === 0 && row === 0) ? `<svg xmlns="http://www.w3.org/2000/svg"
+          style="position:absolute;bottom:${SM + 0.15}in;right:${SM + 0.15}in;width:1.4in;height:1.4in;
+                 pointer-events:none;z-index:12;overflow:visible">
+          <rect x="4" y="4" width="${DPI}" height="${DPI}" fill="none" stroke="#000" stroke-width="1"/>
+          <line x1="4" y1="${4 + DPI / 2}" x2="${4 + DPI}" y2="${4 + DPI / 2}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
+          <line x1="${4 + DPI / 2}" y1="4" x2="${4 + DPI / 2}" y2="${4 + DPI}" stroke="#000" stroke-width="0.4" stroke-dasharray="3,3"/>
+          <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="7" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
+        </svg>` : ''}
+        <div class="tile-footer">
+          <span class="tf-name">${largest.name} \u2014 tile ${tileId} of ${gridLabel} pages</span>
+          <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
+          <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 all sizes${orientTag} \xb7 \xbe\u2033 overlap</span>
+        </div>
+      </div>`;
+    }
+  }
+
+  return pages;
+}
+
+// ── Projector layout ──────────────────────────────────────────────────────
+
+/**
+ * Build a projector-format layout: single custom-sized page with all pieces
+ * at 1:1 scale, thick lines, calibration grid, no tiling.
+ *
+ * @param {Object} garment
+ * @param {Array} pieces - output of garment.pieces(m, opts)
+ * @param {Object} measurements
+ * @param {Object} opts
+ * @returns {string} Complete HTML document
+ */
+function buildProjectorPage(garment, pieces, measurements, opts, sizeLabel) {
+  // Render all pieces and calculate total bounding box
+  const renderedPieces = [];
+  for (const p of pieces) {
+    const rendered = renderPiece(p);
+    if (!rendered) continue;
+    renderedPieces.push({ piece: p, ...rendered });
+  }
+
+  if (renderedPieces.length === 0) return '';
+
+  // Simple row layout: place pieces left-to-right, wrapping rows
+  const GAP = 2; // inches between pieces
+  const MARGIN_PROJ = 1; // 1 inch = ~2.5cm margin (industry standard min 2.5cm)
+  const MAX_ROW_W = 80; // max row width in inches before wrapping
+
+  let curX = MARGIN_PROJ, curY = MARGIN_PROJ, rowH = 0;
+  const placed = [];
+
+  for (const { piece, svg, wIn, hIn } of renderedPieces) {
+    if (curX + wIn > MAX_ROW_W && curX > MARGIN_PROJ) {
+      curX = MARGIN_PROJ;
+      curY += rowH + GAP;
+      rowH = 0;
+    }
+    placed.push({ piece, svg, wIn, hIn, x: curX, y: curY });
+    curX += wIn + GAP;
+    rowH = Math.max(rowH, hIn);
+  }
+
+  const totalW = Math.max(...placed.map(p => p.x + p.wIn)) + MARGIN_PROJ;
+  const totalH = Math.max(...placed.map(p => p.y + p.hIn)) + MARGIN_PROJ;
+
+  // Thicken all strokes for projector visibility (3pt cut, 1.5pt stitch)
+  // Replace inline stroke-width values in each piece's SVG
+  const pieceSvgs = placed.map(({ svg, wIn, hIn, x, y }) => {
+    const thickSvg = svg
+      .replace(/stroke-width="1.5"/g, 'stroke-width="3"')    // cut lines: 1.5 -> 3pt
+      .replace(/stroke-width="0.8"/g, 'stroke-width="1.5"')  // stitch/guide lines: 0.8 -> 1.5pt
+      .replace(/stroke-width="0.6"/g, 'stroke-width="1.2"')  // fold/grain lines
+      .replace(/font-size="8"/g,  'font-size="14"')           // labels larger for distance
+      .replace(/font-size="10"/g, 'font-size="16"')
+      .replace(/font-size="12"/g, 'font-size="18"')
+      .replace(/font-size="14"/g, 'font-size="22"');
+    return `<div style="position:absolute;left:${x * DPI}px;top:${y * DPI}px;
+                 width:${wIn * DPI}px;height:${hIn * DPI}px">${thickSvg}</div>`;
+  }).join('');
+
+  // ── Calibration grid: dual-unit (4-inch + 10cm) ────────────────────────
+  const gridSize4in = 4 * DPI;
+  const gridSize10cm = (10 / 2.54) * DPI; // ~377.95 px
+  const totalWpx = totalW * DPI;
+  const totalHpx = totalH * DPI;
+
+  let calibGrid = '';
+
+  // 4-inch grid (light gray, dashed)
+  for (let gx = 0; gx <= totalWpx; gx += gridSize4in) {
+    calibGrid += `<line x1="${gx}" y1="0" x2="${gx}" y2="${totalHpx}" stroke="#ccc" stroke-width="0.3" stroke-dasharray="8,8"/>`;
+  }
+  for (let gy = 0; gy <= totalHpx; gy += gridSize4in) {
+    calibGrid += `<line x1="0" y1="${gy}" x2="${totalWpx}" y2="${gy}" stroke="#ccc" stroke-width="0.3" stroke-dasharray="8,8"/>`;
+  }
+
+  // 10cm grid (light blue, dotted - distinct from inch grid)
+  for (let gx = 0; gx <= totalWpx; gx += gridSize10cm) {
+    calibGrid += `<line x1="${gx.toFixed(1)}" y1="0" x2="${gx.toFixed(1)}" y2="${totalHpx}" stroke="#aad" stroke-width="0.3" stroke-dasharray="3,6"/>`;
+  }
+  for (let gy = 0; gy <= totalHpx; gy += gridSize10cm) {
+    calibGrid += `<line x1="0" y1="${gy.toFixed(1)}" x2="${totalWpx}" y2="${gy.toFixed(1)}" stroke="#aad" stroke-width="0.3" stroke-dasharray="3,6"/>`;
+  }
+
+  // Calibration square: 4 inches (industry standard)
+  const calSq = 4 * DPI;
+  const calX = 0.5 * DPI, calY = 0.5 * DPI;
+  calibGrid += `<rect x="${calX}" y="${calY}" width="${calSq}" height="${calSq}" fill="none" stroke="#000" stroke-width="2.5"/>`;
+  calibGrid += `<line x1="${calX}" y1="${calY + calSq / 2}" x2="${calX + calSq}" y2="${calY + calSq / 2}" stroke="#000" stroke-width="0.5" stroke-dasharray="4,4"/>`;
+  calibGrid += `<line x1="${calX + calSq / 2}" y1="${calY}" x2="${calX + calSq / 2}" y2="${calY + calSq}" stroke="#000" stroke-width="0.5" stroke-dasharray="4,4"/>`;
+  calibGrid += `<text x="${calX + calSq / 2}" y="${calY + calSq + 20}" font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="600" fill="#000" text-anchor="middle">4" x 4" calibration square</text>`;
+
+  // 10cm calibration square (next to the inch one)
+  const cal10cm = gridSize10cm;
+  const cal10X = calX + calSq + 0.5 * DPI;
+  calibGrid += `<rect x="${cal10X}" y="${calY}" width="${cal10cm.toFixed(1)}" height="${cal10cm.toFixed(1)}" fill="none" stroke="#000" stroke-width="2.5"/>`;
+  calibGrid += `<line x1="${cal10X}" y1="${calY + cal10cm / 2}" x2="${cal10X + cal10cm}" y2="${calY + cal10cm / 2}" stroke="#000" stroke-width="0.5" stroke-dasharray="4,4"/>`;
+  calibGrid += `<line x1="${cal10X + cal10cm / 2}" y1="${calY}" x2="${cal10X + cal10cm / 2}" y2="${calY + cal10cm}" stroke="#000" stroke-width="0.5" stroke-dasharray="4,4"/>`;
+  calibGrid += `<text x="${(cal10X + cal10cm / 2).toFixed(1)}" y="${(calY + cal10cm + 20).toFixed(1)}" font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="600" fill="#000" text-anchor="middle">10 x 10 cm calibration square</text>`;
+
+  // Grid legend (bottom-left)
+  const legY = totalHpx - 40;
+  calibGrid += `<text x="${MARGIN_PROJ * DPI}" y="${legY}" font-family="'IBM Plex Mono',monospace" font-size="11" fill="#999">Grid: gray dashed = 4" | blue dotted = 10 cm</text>`;
+
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // NOTE: Cut-on-fold pieces are rendered as half-pieces with fold indicators,
+  // matching the print layout. Full unfolding (mirroring the polygon) is a
+  // future enhancement that requires engine-level polygon mirroring.
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${garment.name}${sizeLabel ? ` - Size ${sizeLabel}` : ''} \u2014 Projector Pattern</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#fff; }
+.projector-page {
+  width:${totalW}in; height:${totalH}in;
+  position:relative; background:#fff;
+}
+.projector-pieces { position:absolute; top:0; left:0; width:100%; height:100%; z-index:2; }
+.projector-grid {
+  position:absolute; top:0; left:0;
+  pointer-events:none; z-index:1;
+}
+.projector-header {
+  position:absolute; top:0.3in; right:0.5in;
+  font-family:'IBM Plex Mono',monospace; font-size:16pt;
+  color:#888; z-index:5;
+}
+</style>
+</head>
+<body>
+<div class="projector-page">
+  <svg class="projector-grid" xmlns="http://www.w3.org/2000/svg"
+       width="${totalWpx}" height="${totalHpx}"
+       viewBox="0 0 ${totalWpx} ${totalHpx}">
+    ${calibGrid}
+  </svg>
+  <div class="projector-pieces">
+    ${pieceSvgs}
+  </div>
+  <div class="projector-header">
+    ${garment.name}${sizeLabel ? ` \xb7 Size ${sizeLabel}` : ''} \xb7 People\u2019s Patterns \xb7 ${date}
+  </div>
+</div>
+</body>
+</html>`;
+}
+
 // ── Main export ────────────────────────────────────────────────────────────
 
 /**
@@ -1421,4 +1872,238 @@ ${preamblePages}
 ${tilePages}
 </body>
 </html>`;
+}
+
+/**
+ * Generate a graded (multi-size) printable HTML document for Etsy listings.
+ * All sizes are overlaid on the same pattern pieces with distinct line styles.
+ *
+ * @param {Object} gradingResult - output of gradeGarment() from grading.js
+ * @param {Object} materials     - output of garment.materials(m, opts) (use middle size)
+ * @param {Array}  instructions  - output of garment.instructions(m, opts)
+ * @param {string} [paperSize]   - key from PAPER_SIZES, default 'letter'
+ * @param {string} [redemptionCode] - optional code to print on cover page
+ * @returns {string} Complete HTML document
+ */
+// DESIGN DECISION: Per-size files instead of toggleable PDF layers.
+//
+// Tiled print PDF: all sizes overlaid with distinct line styles (industry standard).
+// Projector files: one file per size via generateGradedProjectorLayouts().
+// Buyer downloads only the size they need for projecting.
+//
+// Toggleable PDF layers (OCG) would require cpdf ($300 license), PyMuPDF (AGPL),
+// or reportlab (Python). Deferred until Etsy revenue justifies the investment.
+// See memory: reference_pdf_layers.md for tool/cost details.
+export function generateGradedPrintLayout(gradingResult, materials, instructions, paperSize = 'letter', redemptionCode) {
+  const { sizeChart, gradedPieces, garment, opts } = gradingResult;
+  const size = PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
+  const PW = size.w;
+  const PH = size.h;
+  const OV = 0.75;
+
+  // Use the largest size's pieces for the tile map and materials page
+  const largestPieces = gradedPieces[gradedPieces.length - 1].pieces;
+
+  // Build preamble with graded cover page
+  const preamblePages = buildGradedCoverPage(garment, sizeChart, opts, redemptionCode)
+    + buildScalePage(largestPieces, PW, PH, OV)
+    + buildMaterialsPage(materials)
+    + buildInstructionsPage(instructions);
+
+  // Build tile pages with all sizes overlaid
+  // Group pieces by piece name/index across sizes
+  const pieceCount = largestPieces.length;
+  let tilePages = '';
+
+  for (let pi = 0; pi < pieceCount; pi++) {
+    const piecesPerSize = gradedPieces.map(gp => gp.pieces[pi]);
+    // Attach size chart so renderGradedPieceSVG can read labels
+    piecesPerSize._sizeChart = sizeChart;
+    tilePages += buildGradedTilePages(piecesPerSize, pi, pieceCount, PW, PH, OV);
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${garment.name} \u2014 Graded Pattern ${sizeChart[0].label}\u2013${sizeChart[sizeChart.length - 1].label} (${size.label})</title>
+<style>${buildCSS(PW, PH)}
+.cover-redeem {
+  margin-top:0.2in; padding:0.15in 0.2in;
+  background:#f7f5f0; border:1px solid #e0ddd8; border-radius:4px;
+  font-size:9pt; color:#555; line-height:1.6;
+}
+.cover-redeem strong { color:#2c2a26; }
+.cover-redeem a { color:#2c2a26; }
+</style>
+</head>
+<body>
+${preamblePages}
+${tilePages}
+</body>
+</html>`;
+}
+
+/**
+ * Generate a projector-format HTML document for a single size.
+ * Single custom-sized page, all pieces at 1:1, calibration grid, thick lines.
+ *
+ * For graded Etsy patterns: call this once per size to produce separate
+ * projector files (e.g. "T-Shirt - Projector - Size M.pdf"). Buyers
+ * download only the size they need.
+ *
+ * @param {Object} garment
+ * @param {Array}  pieces - output of garment.pieces(m, opts) for one size
+ * @param {Object} measurements
+ * @param {Object} opts
+ * @param {string} [sizeLabel] - e.g. "M (8-10)" for graded patterns
+ * @returns {string} Complete HTML document
+ */
+export function generateProjectorLayout(garment, pieces, measurements, opts, sizeLabel) {
+  return buildProjectorPage(garment, pieces, measurements, opts, sizeLabel);
+}
+
+/**
+ * Generate projector files for ALL graded sizes.
+ * Returns an array of { sizeLabel, html } objects, one per size.
+ * Each html string is a complete projector-format document for that size.
+ *
+ * @param {Object} gradingResult - output of gradeGarment()
+ * @returns {Array<{ sizeLabel: string, us: string, html: string }>}
+ */
+export function generateGradedProjectorLayouts(gradingResult) {
+  const { sizeChart, gradedPieces, garment, opts } = gradingResult;
+  return gradedPieces.map((gp, i) => ({
+    sizeLabel: sizeChart[i].label,
+    us: sizeChart[i].us,
+    html: buildProjectorPage(garment, gp.pieces, gp.measurements, opts, `${sizeChart[i].label} (US ${sizeChart[i].us})`),
+  }));
+}
+
+/**
+ * Generate per-size tiled print layouts for ALL graded sizes.
+ * Returns an array of { sizeLabel, html } objects, one per size.
+ * Each is a complete tiled print document for that single size -
+ * same format as generatePrintLayout() but with a size-specific cover page.
+ *
+ * Etsy download bundle includes these so sewists can print only their size
+ * without wading through overlaid multi-size pieces.
+ *
+ * @param {Object} gradingResult - output of gradeGarment()
+ * @param {string} [paperSize] - 'letter' or 'a4'
+ * @param {string} [redemptionCode]
+ * @returns {Array<{ sizeLabel: string, us: string, html: string }>}
+ */
+export function generateGradedTiledLayouts(gradingResult, paperSize = 'letter', redemptionCode) {
+  const { sizeChart, gradedPieces, garment, opts } = gradingResult;
+  return gradedPieces.map((gp, i) => {
+    const materials    = garment.materials(gp.measurements, opts);
+    const instructions = garment.instructions(gp.measurements, opts);
+    const sizeLabel    = `${sizeChart[i].label} (US ${sizeChart[i].us})`;
+
+    const size = PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
+    const PW = size.w, PH = size.h, OV = 0.75;
+
+    // Single-size cover page with this size's measurements highlighted
+    const measRows = garment.measurements.map(id => {
+      const def = MEASUREMENTS[id];
+      const val = gp.measurements[id];
+      return `<tr><td>${def ? def.label : id}</td><td>${val !== undefined ? fmtInches(val) : '-'}</td></tr>`;
+    }).join('');
+
+    const optRows = Object.entries(opts).map(([k, v]) => {
+      const label = k.replace(/([A-Z])/g, ' $1').trim();
+      return `<tr><td>${label}</td><td>${v}</td></tr>`;
+    }).join('');
+
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    const redeemHtml = redemptionCode
+      ? `<div class="cover-redeem">
+          <strong>FREE custom-fit upgrade!</strong> Visit
+          <a href="https://peoplespatterns.com/redeem">peoplespatterns.com/redeem</a>
+          and enter code: <strong>${redemptionCode}</strong>
+        </div>`
+      : '';
+
+    const coverPage = `<div class="page cover-page">
+      <div class="cover-body">
+        <div class="cover-brand">People\u2019s Patterns</div>
+        <div class="cover-title">${garment.name} \u2014 Size ${sizeLabel}</div>
+        <div class="cover-sub">Sewing Pattern \xb7 Print at 100% \xb7 Do not scale to fit</div>
+        <div class="cover-cols">
+          <div class="cover-col">
+            <h3 class="sect-head">Body Measurements (Size ${sizeChart[i].label})</h3>
+            <table class="ptable">
+              <thead><tr><th>Measurement</th><th>Value</th></tr></thead>
+              <tbody>${measRows}</tbody>
+            </table>
+          </div>
+          <div class="cover-col">
+            <h3 class="sect-head">Pattern Options</h3>
+            <table class="ptable">
+              <thead><tr><th>Option</th><th>Setting</th></tr></thead>
+              <tbody>${optRows}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="cover-how">
+          <h3 class="sect-head">How to Assemble</h3>
+          <ol>
+            <li>Print at <strong>100% scale</strong> \u2014 never \u201cfit to page\u201d or \u201cshrink to margins\u201d</li>
+            <li>Verify the 2\xd72 inch and 5\xd75 cm squares on page 2 measure exactly right</li>
+            <li>Assemble in the order shown on the tile map (page 2)</li>
+            <li>Cut along the \u2702 scissors line at each overlap edge</li>
+            <li>Align \u2295 crosshairs, tape from the back</li>
+          </ol>
+        </div>
+        ${redeemHtml}
+      </div>
+      <div class="cover-foot">Drafted ${date} \xb7 Size ${sizeLabel} \xb7 People\u2019s Patterns \xb7 peoplespatterns.com</div>
+    </div>`;
+
+    const preamble = coverPage
+      + buildScalePage(gp.pieces, PW, PH, OV)
+      + buildMaterialsPage(materials)
+      + buildInstructionsPage(instructions);
+
+    // Standard single-size tile pages
+    const largePieces = [], smallQueue = [];
+    for (const p of gp.pieces) {
+      const compactRendered = renderPieceCompact(p);
+      if (compactRendered) {
+        const layout = computeTileLayout(compactRendered.wIn, compactRendered.hIn, p, PW, PH, OV);
+        if (layout.cols === 1 && layout.rows === 1) {
+          smallQueue.push({ rendered: compactRendered, piece: p });
+          continue;
+        }
+      }
+      largePieces.push(p);
+    }
+    const tilePages = largePieces.map((p, pi) => buildTilePages(p, pi, gp.pieces.length, PW, PH, OV)).join('')
+      + buildNestedSmallPages(smallQueue, PW, PH);
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${garment.name} \u2014 Size ${sizeLabel} (${size.label})</title>
+<style>${buildCSS(PW, PH)}
+.cover-redeem {
+  margin-top:0.2in; padding:0.15in 0.2in;
+  background:#f7f5f0; border:1px solid #e0ddd8; border-radius:4px;
+  font-size:9pt; color:#555; line-height:1.6;
+}
+.cover-redeem strong { color:#2c2a26; }
+.cover-redeem a { color:#2c2a26; }
+</style>
+</head>
+<body>
+${preamble}
+${tilePages}
+</body>
+</html>`;
+
+    return { sizeLabel: sizeChart[i].label, us: sizeChart[i].us, html };
+  });
 }
