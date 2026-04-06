@@ -12,7 +12,7 @@ const supabase = createClient(
 
 const VALID_OVERALL   = new Set(['perfect', 'good', 'needs_adjustment', 'poor']);
 const VALID_AREA_VALS = new Set(['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a']);
-const AREA_KEYS       = ['waist_fit', 'hip_fit', 'length', 'shoulder', 'armhole', 'chest_fit', 'thigh_fit'];
+const AREA_KEYS       = ['waist_fit', 'hip_fit', 'length', 'shoulder', 'armhole', 'chest_fit', 'thigh_fit', 'neck_fit', 'sleeve_fit', 'rise_fit'];
 
 export default async function handler(req, res) {
   if (limiter(req, res)) return;
@@ -25,10 +25,10 @@ export default async function handler(req, res) {
   const { data: { user }, error: authErr } = await supabase.auth.getUser(token);
   if (authErr || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { purchaseId, garmentId, overallFit, specificFeedback = {}, notes = '', profileId = null } = req.body ?? {};
+  let { purchaseId, garmentId, overallFit, specificFeedback = {}, notes = '', profileId = null } = req.body ?? {};
 
   // Validate required fields
-  if (!purchaseId || !garmentId) return res.status(400).json({ error: 'purchaseId and garmentId required' });
+  if (!garmentId) return res.status(400).json({ error: 'garmentId required' });
   if (!VALID_OVERALL.has(overallFit))  return res.status(400).json({ error: 'Invalid overallFit value' });
 
   // Sanitize specific feedback
@@ -36,6 +36,20 @@ export default async function handler(req, res) {
   for (const key of AREA_KEYS) {
     const val = specificFeedback[key];
     if (val && VALID_AREA_VALS.has(val)) cleanSpecific[key] = val;
+  }
+
+  // If no purchaseId provided, look up the most recent purchase for this garment
+  if (!purchaseId) {
+    const { data: found } = await supabase
+      .from('purchases')
+      .select('id, profile_id')
+      .eq('user_id', user.id)
+      .eq('garment_id', garmentId)
+      .order('purchased_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (!found) return res.status(404).json({ error: 'No purchase found for this garment' });
+    purchaseId = found.id;
   }
 
   // Verify user owns this purchase

@@ -68,7 +68,8 @@
     { "source": "/tester", "destination": "/tester.html" },
     { "source": "/pin-preview", "destination": "/pin-preview.html" },
     { "source": "/affiliate", "destination": "/affiliate.html" },
-    { "source": "/submit-make", "destination": "/submit-make.html" }
+    { "source": "/submit-make", "destination": "/submit-make.html" },
+    { "source": "/feedback", "destination": "/feedback.html" }
   ],
   "crons": [
     { "path": "/api/cron-emails", "schedule": "0 14 * * *" },

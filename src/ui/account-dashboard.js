@@ -981,47 +981,24 @@ function _showDeleteForeverModal(user, purchaseId, garmentName, onSuccess) {
 
 // ── Fit Feedback modal ────────────────────────────────────────────────────────
 function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess) {
-  const OVERALL_OPTS = [
-    { value: 'perfect',          label: 'Perfect, no changes needed' },
-    { value: 'good',             label: 'Good, minor tweaks only' },
-    { value: 'needs_adjustment', label: 'Needs adjustment, a few areas off' },
-    { value: 'poor',             label: 'Poor, significant fitting issues' },
-  ];
-  const AREA_OPTS = [
-    { key: 'chest_fit',  label: 'Chest'    },
-    { key: 'waist_fit',  label: 'Waist'    },
-    { key: 'hip_fit',    label: 'Hip'      },
-    { key: 'length',     label: 'Length'   },
-    { key: 'shoulder',   label: 'Shoulder' },
-    { key: 'armhole',    label: 'Armhole'  },
-    { key: 'thigh_fit',  label: 'Thigh'    },
-  ];
-  const AREA_VALS = ['perfect', 'too_tight', 'too_loose', 'too_long', 'too_short', 'n/a'];
-
-  const overallSelect = `<select class="acct-input" id="fb-overall">
-    <option value="">Select overall fit…</option>
-    ${OVERALL_OPTS.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}
-  </select>`;
-
-  const areaRows = AREA_OPTS.map(area => `
-    <div class="acct-edit-row">
-      <label class="acct-edit-lbl" style="width:72px">${area.label}</label>
-      <select class="acct-input fb-area-select" data-key="${area.key}">
-        <option value="">-</option>
-        ${AREA_VALS.map(v => `<option value="${v}">${v.replace(/_/g, ' ')}</option>`).join('')}
-      </select>
-    </div>`).join('');
+  let feedbackBodyMap = null;
 
   const { overlay, close } = _showModal({
     title: `How did your ${garmentName} fit?`,
     body: `
       <div style="margin-bottom:14px">
         <label class="acct-edit-lbl" style="width:auto;display:block;margin-bottom:6px;font-size:.78rem;color:var(--mid)">Overall fit</label>
-        ${overallSelect}
+        <select class="acct-input" id="fb-overall">
+          <option value="">Select overall fit…</option>
+          <option value="perfect">Perfect, no changes needed</option>
+          <option value="good">Good, minor tweaks only</option>
+          <option value="needs_adjustment">Needs adjustment, a few areas off</option>
+          <option value="poor">Poor, significant fitting issues</option>
+        </select>
       </div>
       <div style="margin-bottom:14px">
         <p style="font-size:.75rem;color:var(--mid);margin:0 0 8px">Specific areas <span style="opacity:.6">(optional)</span></p>
-        ${areaRows}
+        <div id="fb-body-map-container"></div>
       </div>
       <div>
         <label class="acct-edit-lbl" style="width:auto;display:block;margin-bottom:6px;font-size:.78rem;color:var(--mid)">Notes <span style="opacity:.6">(optional)</span></label>
@@ -1033,15 +1010,19 @@ function _showFeedbackModal(user, purchaseId, garmentId, garmentName, onSuccess)
               <button class="acct-btn-sm acct-btn-ghost" id="fb-cancel-btn">Cancel</button>`,
   });
 
+  // Mount body map widget
+  const fbBmContainer = overlay.querySelector('#fb-body-map-container');
+  if (fbBmContainer) {
+    feedbackBodyMap = createBodyMap();
+    fbBmContainer.appendChild(feedbackBodyMap.el);
+  }
+
   overlay.querySelector('#fb-cancel-btn').addEventListener('click', close);
   overlay.querySelector('#fb-submit-btn').addEventListener('click', async () => {
     const overallFit = overlay.querySelector('#fb-overall').value;
     if (!overallFit) { overlay.querySelector('#fb-overall').focus(); return; }
 
-    const specificFeedback = {};
-    overlay.querySelectorAll('.fb-area-select').forEach(sel => {
-      if (sel.value) specificFeedback[sel.dataset.key] = sel.value;
-    });
+    const specificFeedback = feedbackBodyMap ? feedbackBodyMap.getData() : {};
     const notes = overlay.querySelector('#fb-notes').value.trim();
 
     const submitBtn = overlay.querySelector('#fb-submit-btn');
