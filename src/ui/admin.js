@@ -13,6 +13,7 @@ import {
   getRevenueStats, getRevenueByGarment,
   getFunnelStats, getAllFitFeedback, getPopularGarments,
   getContentPipeline, createContentItem, updateContentItem, deleteContentItem,
+  getPinterestPinStats,
 } from '../lib/admin-db.js';
 
 const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
@@ -107,7 +108,7 @@ async function render(user) {
   if (user) _adminUser = user;
   root.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--mid);font-size:.83rem;">Loading dashboard...</div>';
 
-  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes] = await Promise.all([
+  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes, pinStatsRes] = await Promise.all([
     getGarmentCatalog(),
     getRevenueStats(),
     getFunnelStats(),
@@ -115,6 +116,7 @@ async function render(user) {
     getPopularGarments(),
     getAllPhotos(),
     getContentPipeline(_adminUser.id),
+    getPinterestPinStats(),
   ]);
 
   const catalog = catalogRes.data;
@@ -124,6 +126,7 @@ async function render(user) {
   const popular = popularRes.data;
   const allPhotos = photosRes.data;
   const pipeline = pipelineRes.data;
+  const pinStats = pinStatsRes.data;
 
   const photosByGarment = {};
   for (const p of allPhotos) {
@@ -181,7 +184,7 @@ async function render(user) {
     <div id="adm-s-build-order" hidden>${renderBuildOrder(catalog)}</div>
     <div id="adm-s-pricing" hidden>${renderPricing()}</div>
     <div id="adm-s-market" hidden>${renderMarket()}</div>
-    <div id="adm-s-content" hidden>${renderContent(pipeline)}</div>
+    <div id="adm-s-content" hidden>${renderContent(pipeline, pinStats)}</div>
     <div id="adm-s-reference" hidden>${renderReference()}</div>
   `;
 
@@ -951,7 +954,77 @@ function renderPipelineItem(item) {
     </div>`;
 }
 
-function renderContent(pipeline) {
+function renderPinTracker(pinStats) {
+  if (!pinStats || pinStats.length === 0) {
+    return `
+      <h2 class="adm-section-title">Pinterest Pins</h2>
+      <p style="color:var(--mid);font-size:.83rem">No pin data found. Run <code>node scripts/seed-pinterest-pins.mjs</code> to populate.</p>
+    `;
+  }
+
+  const now = new Date().toISOString();
+  const posted = pinStats.filter(p => p.ifttt_status === 'success').length;
+  const pending = pinStats.filter(p => p.ifttt_status === 'pending' && p.scheduled_at <= now).length;
+  const scheduled = pinStats.filter(p => p.ifttt_status === 'pending' && p.scheduled_at > now).length;
+  const failed = pinStats.filter(p => p.ifttt_status === 'error').length;
+  const retrying = pinStats.filter(p => p.ifttt_status === 'retry').length;
+  const noImage = pinStats.filter(p => !p.ifttt_status || p.ifttt_status === 'pending').length;
+
+  // Board breakdown
+  const byBoard = {};
+  for (const p of pinStats) {
+    if (!byBoard[p.board]) byBoard[p.board] = { posted: 0, pending: 0, error: 0 };
+    if (p.ifttt_status === 'success') byBoard[p.board].posted++;
+    else if (p.ifttt_status === 'error' || p.ifttt_status === 'retry') byBoard[p.board].error++;
+    else byBoard[p.board].pending++;
+  }
+
+  return `
+    <h2 class="adm-section-title">Pinterest Pins</h2>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+      <div class="adm-roadmap-card" style="flex:1;min-width:100px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--text)">${pinStats.length}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Total pins</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:100px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--sa)">${posted}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Posted</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:100px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--gold)">${pending + scheduled}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Queued</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:100px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;${failed > 0 ? 'color:#e05858' : 'color:var(--mid)'}">${failed}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Failed</div>
+      </div>
+      ${retrying > 0 ? `<div class="adm-roadmap-card" style="flex:1;min-width:100px;text-align:center">
+        <div style="font-size:2rem;font-weight:700;color:var(--gold)">${retrying}</div>
+        <div style="font-size:.72rem;color:var(--mid)">Retrying</div>
+      </div>` : ''}
+    </div>
+
+    <details style="margin-bottom:16px">
+      <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text);padding:8px 0">Board breakdown</summary>
+      <div class="adm-roadmap-card">
+        <table class="adm-table" style="font-size:.78rem">
+          <thead><tr><th>Board</th><th style="text-align:right">Posted</th><th style="text-align:right">Queued</th><th style="text-align:right">Failed</th></tr></thead>
+          <tbody>
+            ${Object.entries(byBoard).sort(([a],[b]) => a.localeCompare(b)).map(([board, c]) => `<tr>
+              <td>${board}</td>
+              <td style="text-align:right">${c.posted}</td>
+              <td style="text-align:right">${c.pending}</td>
+              <td style="text-align:right;${c.error > 0 ? 'color:#e05858' : ''}">${c.error}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
+function renderContent(pipeline, pinStats) {
   const statusCounts = {};
   for (const s of PIPELINE_STATUSES) statusCounts[s] = 0;
   for (const item of pipeline) statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
@@ -1005,6 +1078,10 @@ function renderContent(pipeline) {
 
   return `
     ${renderArticleTracker()}
+
+    <hr style="border:none;border-top:1px solid var(--bdr);margin:32px 0">
+
+    ${renderPinTracker(pinStats)}
 
     <hr style="border:none;border-top:1px solid var(--bdr);margin:32px 0">
 
@@ -1132,10 +1209,13 @@ function wireContentPipeline(pipeline) {
 }
 
 async function reloadContentTab() {
-  const res = await getContentPipeline(_adminUser.id);
+  const [res, pinRes] = await Promise.all([
+    getContentPipeline(_adminUser.id),
+    getPinterestPinStats(),
+  ]);
   const container = root.querySelector('#adm-s-content');
   if (container) {
-    container.innerHTML = renderContent(res.data);
+    container.innerHTML = renderContent(res.data, pinRes.data);
     wireContentPipeline(res.data);
     wireChecklists();
   }

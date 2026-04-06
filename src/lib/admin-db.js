@@ -178,6 +178,18 @@ export async function getAllFitFeedback() {
   } catch { return { data: [], error: null }; }
 }
 
+// ── Pinterest pin stats ──────────────────────────────────────────────────────
+
+export async function getPinterestPinStats() {
+  try {
+    const { data, error } = await supabase
+      .from('pinterest_pins')
+      .select('ifttt_status, posted_at, scheduled_at, board, pin_id');
+    if (error?.code === '42P01') return { data: [], error: null };
+    return { data: data ?? [], error };
+  } catch { return { data: [], error: null }; }
+}
+
 // ── Content pipeline ─────────────────────────────────────────────────────────
 
 export async function getContentPipeline(userId, filters = {}) {
