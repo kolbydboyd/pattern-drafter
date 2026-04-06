@@ -393,6 +393,10 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    { id: 'linen-wide-legs-w', name: 'Linen Wide-Legs', defaults: { ease: 'wide', riseStyle: 'high', waistband: 'elastic' }, fabrics: ['linen'] },
+  ],
 };
 
 
@@ -470,9 +474,5 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
     crotchBezierSA: insetCrotchBezier(ccp, sa), type: 'panel', opts,
-  
-  variants: [
-    { id: 'linen-wide-legs-w', name: 'Linen Wide-Legs', defaults: { ease: 'wide', riseStyle: 'high', waistband: 'elastic' }, fabrics: ['linen'] },
-  ],
-};
+  };
 }
