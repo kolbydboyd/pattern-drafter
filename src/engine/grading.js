@@ -157,3 +157,129 @@ export function buildSizeChartTable(garment) {
     return entry;
   });
 }
+
+/**
+ * Generate a plain-text README for the Etsy download bundle.
+ * Explains what each file is, how to pick a size, and includes
+ * the redemption code for a free custom-fit upgrade.
+ *
+ * @param {Object} garment - garment module
+ * @param {Object} gradingResult - output of gradeGarment()
+ * @param {string} [redemptionCode] - optional code for custom-fit upgrade
+ * @returns {string} Plain text README content
+ */
+export function generateBundleReadme(garment, gradingResult, redemptionCode) {
+  const { sizeChart, gender } = gradingResult;
+  const sizes = sizeChart;
+  const sizeRange = `${sizes[0].label}-${sizes[sizes.length - 1].label}`;
+
+  // Build size chart as aligned text table
+  const measKeys = garment.measurements;
+  const headers = ['Size', 'US', ...measKeys];
+  const rows = sizes.map(row => {
+    const vals = measKeys.map(key => {
+      const v = key === 'chest' && row.bust !== undefined ? (row.bust ?? row.chest) : row[key];
+      return v !== undefined ? String(v) : '-';
+    });
+    return [row.label, row.us, ...vals];
+  });
+
+  // Pad columns
+  const colWidths = headers.map((h, ci) =>
+    Math.max(h.length, ...rows.map(r => r[ci].length))
+  );
+  const pad = (s, w) => s + ' '.repeat(Math.max(0, w - s.length));
+  const headerLine = headers.map((h, i) => pad(h, colWidths[i])).join('  ');
+  const divider = colWidths.map(w => '-'.repeat(w)).join('  ');
+  const tableRows = rows.map(r => r.map((c, i) => pad(c, colWidths[i])).join('  ')).join('\n');
+
+  const redeemSection = redemptionCode ? `
+----------------------------------------------------------------------
+FREE CUSTOM-FIT UPGRADE
+----------------------------------------------------------------------
+
+Want this pattern drafted to YOUR exact body measurements - for free?
+
+1. Visit: https://peoplespatterns.com/redeem
+2. Enter code: ${redemptionCode}
+3. Create a free account and enter your measurements
+4. Download a pattern made just for your body
+
+This code never expires.
+` : '';
+
+  return `======================================================================
+${garment.name} - Sewing Pattern
+Sizes ${sizeRange} (${gender === 'womens' ? "Women's" : "Men's/Unisex"})
+People's Patterns - peoplespatterns.com
+======================================================================
+
+
+WHAT'S IN THIS DOWNLOAD
+----------------------------------------------------------------------
+
+This download contains your pattern in multiple formats so you can
+print or project whichever way works best for you.
+
+
+FOR PRINTING AT HOME (tiled):
+
+  ${garment.name} - All Sizes - Tiled Letter.pdf
+    All sizes overlaid on the same pages. Each size uses a different
+    line style (solid, dashed, dotted, etc.). Find your size on the
+    cover page chart, note the line style, and cut along that line.
+
+  ${garment.name} - Size [XS/S/M/L/XL/2XL/3XL] - Tiled Letter.pdf
+    Single-size files - only the lines for that one size. Cleaner to
+    read, less paper wasted. Pick your size and print just that file.
+
+
+FOR PROJECTOR CUTTING:
+
+  ${garment.name} - Size [XS/S/M/L/XL/2XL/3XL] - Projector.pdf
+    One file per size, full-scale, no tiling. Open in Pattern Projector
+    (free, patternprojector.com) or your preferred projector app.
+    Includes 4-inch and 10cm calibration squares.
+
+
+EVERY FILE INCLUDES:
+  - Cover page with measurements and size chart
+  - Scale verification squares (2x2 inch + 5x5 cm)
+  - Tile assembly map (tiled files only)
+  - Materials and fabric guide
+  - Step-by-step construction instructions
+  - Seam allowances included on all pieces
+
+
+HOW TO FIND YOUR SIZE
+----------------------------------------------------------------------
+
+Measure your body and compare to the chart below. If you're between
+sizes, size up - it's easier to take in than let out.
+
+All measurements in inches.
+
+${headerLine}
+${divider}
+${tableRows}
+${redeemSection}
+
+PRINTING TIPS
+----------------------------------------------------------------------
+
+- Print at 100% scale. NEVER select "fit to page" or "shrink to fit"
+- Verify the scale squares on page 2 before cutting any fabric
+- Use plain paper (not glossy) for best cutting accuracy
+- Tape tiles from the back after aligning the crosshair marks
+
+
+NEED HELP?
+----------------------------------------------------------------------
+
+Email: hello@peoplespatterns.com
+Instagram: @peoplespatterns
+Website: peoplespatterns.com
+
+Thank you for supporting indie pattern design!
+`;
+}
