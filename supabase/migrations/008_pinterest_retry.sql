@@ -4,3 +4,9 @@
 
 alter table pinterest_pins
   add column if not exists retry_count integer not null default 0;
+
+-- Add public read policy (missing from 004_pinterest_pins.sql)
+-- Required for admin dashboard to fetch pin stats via Supabase client.
+create policy if not exists "Public read pinterest_pins"
+  on pinterest_pins for select
+  using (true);

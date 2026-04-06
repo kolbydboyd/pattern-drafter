@@ -1076,17 +1076,31 @@ function renderContent(pipeline, pinStats) {
     ]},
   ];
 
-  return `
-    ${renderArticleTracker()}
+  // ── Summary bar (always visible) ──────────────────────────────────────────
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const articlesLive = ARTICLES.filter(a => a.datePublished && a.datePublished <= TODAY).length;
+  const articlesScheduled = ARTICLES.length - articlesLive;
+  const pinsPosted = pinStats.filter(p => p.ifttt_status === 'success').length;
+  const pinsQueued = pinStats.length - pinsPosted - pinStats.filter(p => p.ifttt_status === 'error').length;
+  const pinsFailed = pinStats.filter(p => p.ifttt_status === 'error' || p.ifttt_status === 'retry').length;
+  const videosTotal = pipeline.length;
+  const videosUploaded = pipeline.filter(p => p.status === 'uploaded').length;
 
-    <hr style="border:none;border-top:1px solid var(--bdr);margin:32px 0">
+  // Needs attention items
+  const alerts = [];
+  if (pinsFailed > 0) alerts.push(`${pinsFailed} pin${pinsFailed > 1 ? 's' : ''} failed`);
+  const overduePins = pinStats.filter(p => p.ifttt_status === 'pending' && p.scheduled_at <= new Date().toISOString()).length;
+  if (overduePins > 0) alerts.push(`${overduePins} pin${overduePins > 1 ? 's' : ''} overdue`);
 
-    ${renderPinTracker(pinStats)}
+  const subTabs = [
+    { id: 'c-articles', label: 'Articles', badge: `${articlesLive}/${ARTICLES.length}` },
+    { id: 'c-pins', label: 'Pins', badge: `${pinsPosted}/${pinStats.length}` },
+    { id: 'c-videos', label: 'Videos', badge: `${videosUploaded}/${videosTotal}` },
+    { id: 'c-checklist', label: 'Checklist' },
+  ];
 
-    <hr style="border:none;border-top:1px solid var(--bdr);margin:32px 0">
-
-    <h2 class="adm-section-title">Content Pipeline</h2>
-
+  // ── Videos sub-tab content ─────────────────────────────────────────────────
+  const videosContent = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
       <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
         ${PIPELINE_STATUSES.map(s => `<span style="font-size:.72rem;color:var(--mid)">${s}: <strong>${statusCounts[s]}</strong></span>`).join('')}
@@ -1101,35 +1115,90 @@ function renderContent(pipeline, pinStats) {
       </select>
       <button class="adm-btn" id="adm-pipe-new">+ New</button>
     </div>
-
     <div id="adm-pipeline-list">
       ${pipeline.length === 0
         ? '<p style="color:var(--mid);font-size:.83rem;text-align:center;padding:24px 0">No content items yet. Click "+ New" to add one.</p>'
         : pipeline.map(item => renderPipelineItem(item)).join('')}
+    </div>`;
+
+  // ── Checklist sub-tab content ──────────────────────────────────────────────
+  const checklistContent = checklistSections.map(s => `
+    <div class="adm-roadmap-card">
+      <h3>${s.title}</h3>
+      <ul class="adm-checklist" data-checklist>
+        ${s.items.map(item => `
+          <li>
+            <span class="adm-check${checklist[item.key] ? ' adm-check--done' : ''}" data-check="${item.key}">${checklist[item.key] ? '&#10003;' : ''}</span>
+            <span${checklist[item.key] ? ' style="text-decoration:line-through;color:var(--mid)"' : ''}>${item.label}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+
+  return `
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <div class="adm-roadmap-card" style="flex:1;min-width:140px;text-align:center;padding:16px">
+        <div style="font-size:1.6rem;font-weight:700;color:var(--sa)">${articlesLive}</div>
+        <div style="font-size:.7rem;color:var(--mid)">articles live</div>
+        <div style="font-size:.7rem;color:var(--gold);margin-top:2px">${articlesScheduled} scheduled</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:140px;text-align:center;padding:16px">
+        <div style="font-size:1.6rem;font-weight:700;color:var(--sa)">${pinsPosted}</div>
+        <div style="font-size:.7rem;color:var(--mid)">pins posted</div>
+        <div style="font-size:.7rem;color:var(--gold);margin-top:2px">${pinsQueued} queued</div>
+      </div>
+      <div class="adm-roadmap-card" style="flex:1;min-width:140px;text-align:center;padding:16px">
+        <div style="font-size:1.6rem;font-weight:700;color:${videosUploaded > 0 ? 'var(--sa)' : 'var(--mid)'}">${videosUploaded}</div>
+        <div style="font-size:.7rem;color:var(--mid)">videos uploaded</div>
+        <div style="font-size:.7rem;color:var(--gold);margin-top:2px">${videosTotal - videosUploaded} in progress</div>
+      </div>
+      ${alerts.length ? `<div class="adm-roadmap-card" style="flex:1;min-width:140px;text-align:center;padding:16px;border-left:3px solid #e05858">
+        <div style="font-size:1.6rem;font-weight:700;color:#e05858">${alerts.length}</div>
+        <div style="font-size:.7rem;color:var(--mid)">needs attention</div>
+        <div style="font-size:.7rem;color:#e05858;margin-top:2px">${alerts.join(', ')}</div>
+      </div>` : ''}
     </div>
 
-    <details style="margin-top:32px">
-      <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text);padding:8px 0">Marketing Checklist</summary>
-      ${checklistSections.map(s => `
-        <div class="adm-roadmap-card">
-          <h3>${s.title}</h3>
-          <ul class="adm-checklist" data-checklist>
-            ${s.items.map(item => `
-              <li>
-                <span class="adm-check${checklist[item.key] ? ' adm-check--done' : ''}" data-check="${item.key}">${checklist[item.key] ? '&#10003;' : ''}</span>
-                <span${checklist[item.key] ? ' style="text-decoration:line-through;color:var(--mid)"' : ''}>${item.label}</span>
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-      `).join('')}
-    </details>
+    <nav class="adm-content-subtabs" style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--bdr)">
+      ${subTabs.map((t, i) => `<button class="adm-content-subtab${i === 0 ? ' adm-content-subtab--active' : ''}" data-content-tab="${t.id}" style="
+        padding:10px 20px;font-size:.8rem;font-weight:600;background:none;border:none;
+        color:${i === 0 ? 'var(--gold)' : 'var(--mid)'};cursor:pointer;
+        border-bottom:2px solid ${i === 0 ? 'var(--gold)' : 'transparent'};
+        transition:all .15s;font-family:inherit;
+      ">${t.label}${t.badge ? ` <span style="font-size:.65rem;font-weight:400;opacity:.7">${t.badge}</span>` : ''}</button>`).join('')}
+    </nav>
+
+    <div id="adm-content-sub-c-articles">${renderArticleTracker()}</div>
+    <div id="adm-content-sub-c-pins" hidden>${renderPinTracker(pinStats)}</div>
+    <div id="adm-content-sub-c-videos" hidden>${videosContent}</div>
+    <div id="adm-content-sub-c-checklist" hidden>${checklistContent}</div>
   `;
 }
 
 // ── Wire content pipeline ───────────────────────────────────────────────────
 
+function wireContentSubTabs() {
+  root.querySelectorAll('.adm-content-subtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.dataset.contentTab;
+      // Update active tab style
+      root.querySelectorAll('.adm-content-subtab').forEach(b => {
+        const isActive = b.dataset.contentTab === tabId;
+        b.classList.toggle('adm-content-subtab--active', isActive);
+        b.style.color = isActive ? 'var(--gold)' : 'var(--mid)';
+        b.style.borderBottom = isActive ? '2px solid var(--gold)' : '2px solid transparent';
+      });
+      // Show/hide panels
+      root.querySelectorAll('[id^="adm-content-sub-"]').forEach(panel => {
+        panel.hidden = panel.id !== `adm-content-sub-${tabId}`;
+      });
+    });
+  });
+}
+
 function wireContentPipeline(pipeline) {
+  wireContentSubTabs();
   // Toggle detail panels
   root.querySelectorAll('.adm-pipeline-card').forEach(card => {
     card.addEventListener('click', () => {
