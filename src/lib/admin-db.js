@@ -178,6 +178,50 @@ export async function getAllFitFeedback() {
   } catch { return { data: [], error: null }; }
 }
 
+// ── Content pipeline ─────────────────────────────────────────────────────────
+
+export async function getContentPipeline(userId, filters = {}) {
+  let q = supabase
+    .from('content_pipeline')
+    .select('*')
+    .eq('user_id', userId)
+    .order('updated_at', { ascending: false });
+
+  if (filters.status) q = q.eq('status', filters.status);
+  if (filters.platform) q = q.eq('platform', filters.platform);
+
+  const { data, error } = await q;
+  return { data: data ?? [], error };
+}
+
+export async function createContentItem(userId, fields) {
+  const { data, error } = await supabase
+    .from('content_pipeline')
+    .insert({ user_id: userId, ...fields })
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function updateContentItem(id, fields) {
+  fields.updated_at = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('content_pipeline')
+    .update(fields)
+    .eq('id', id)
+    .select()
+    .single();
+  return { data, error };
+}
+
+export async function deleteContentItem(id) {
+  const { error } = await supabase
+    .from('content_pipeline')
+    .delete()
+    .eq('id', id);
+  return { error };
+}
+
 // ── Popular garments ─────────────────────────────────────────────────────────
 
 export async function getPopularGarments() {

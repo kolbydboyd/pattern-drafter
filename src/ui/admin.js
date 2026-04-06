@@ -10,6 +10,7 @@ import {
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
   getRevenueStats, getRevenueByGarment,
   getFunnelStats, getAllFitFeedback, getPopularGarments,
+  getContentPipeline, createContentItem, updateContentItem, deleteContentItem,
 } from '../lib/admin-db.js';
 
 const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
@@ -93,21 +94,25 @@ async function init() {
     root.innerHTML = '<p style="text-align:center;padding:60px 0;color:var(--mid)">Not authorized.</p>';
     return;
   }
-  render();
+  render(user);
 }
 
 // ── Main render ──────────────────────────────────────────────────────────────
 
-async function render() {
+let _adminUser = null;
+
+async function render(user) {
+  if (user) _adminUser = user;
   root.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--mid);font-size:.83rem;">Loading dashboard...</div>';
 
-  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes] = await Promise.all([
+  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes] = await Promise.all([
     getGarmentCatalog(),
     getRevenueStats(),
     getFunnelStats(),
     getAllFitFeedback(),
     getPopularGarments(),
     getAllPhotos(),
+    getContentPipeline(_adminUser.id),
   ]);
 
   const catalog = catalogRes.data;
@@ -116,6 +121,7 @@ async function render() {
   const feedback = feedbackRes.data;
   const popular = popularRes.data;
   const allPhotos = photosRes.data;
+  const pipeline = pipelineRes.data;
 
   const photosByGarment = {};
   for (const p of allPhotos) {
@@ -173,7 +179,7 @@ async function render() {
     <div id="adm-s-build-order" hidden>${renderBuildOrder(catalog)}</div>
     <div id="adm-s-pricing" hidden>${renderPricing()}</div>
     <div id="adm-s-market" hidden>${renderMarket()}</div>
-    <div id="adm-s-content" hidden>${renderContent()}</div>
+    <div id="adm-s-content" hidden>${renderContent(pipeline)}</div>
     <div id="adm-s-reference" hidden>${renderReference()}</div>
   `;
 
@@ -181,6 +187,7 @@ async function render() {
   wireLaunchTracker(launchMuslins);
   wireCatalog(catalog);
   wireChecklists();
+  wireContentPipeline(pipeline);
 }
 
 // ── Nav tabs ─────────────────────────────────────────────────────────────────
@@ -751,9 +758,92 @@ function renderMarket() {
 
 // ── Section: Content & Marketing ─────────────────────────────────────────────
 
-function renderContent() {
+const PIPELINE_STATUSES = ['idea', 'script', 'shot-list', 'filming', 'editing', 'uploaded'];
+const PIPELINE_PLATFORMS = ['youtube', 'tiktok', 'instagram', 'pinterest', 'facebook', 'other'];
+
+function pipelineBadge(status) {
+  const colors = {
+    'idea': 'var(--mid)', 'script': 'var(--gold)', 'shot-list': '#6a8a9a',
+    'filming': '#b87333', 'editing': '#8a6aaa', 'uploaded': 'var(--sa)',
+  };
+  const bg = colors[status] || 'var(--mid)';
+  return `<span style="display:inline-block;padding:2px 8px;border-radius:3px;font-size:.7rem;background:${bg};color:#fff;font-weight:600">${status}</span>`;
+}
+
+function platformIcon(platform) {
+  const labels = { youtube: 'YT', tiktok: 'TT', instagram: 'IG', pinterest: 'PIN', facebook: 'FB', other: '--' };
+  return `<span style="display:inline-block;padding:2px 6px;border-radius:3px;font-size:.65rem;background:var(--bdr);color:var(--text);font-weight:600;margin-right:6px">${labels[platform] || platform}</span>`;
+}
+
+function renderPipelineItem(item) {
+  const isUploaded = item.status === 'uploaded';
+  return `
+    <div class="adm-roadmap-card adm-pipeline-card" data-pipeline-id="${item.id}" style="cursor:pointer;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${platformIcon(item.platform)}
+        <strong style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.title}</strong>
+        ${pipelineBadge(item.status)}
+        ${isUploaded && item.url ? `<a href="${item.url}" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gold)" onclick="event.stopPropagation()">view</a>` : ''}
+        ${isUploaded && item.views != null ? `<span style="font-size:.7rem;color:var(--mid)">${item.views} views</span>` : ''}
+      </div>
+    </div>
+    <div class="adm-pipeline-detail" data-detail-for="${item.id}" hidden>
+      <div class="adm-roadmap-card" style="margin-bottom:16px;border-left:3px solid var(--gold)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <label style="font-size:.75rem;color:var(--mid)">Title
+            <input type="text" class="adm-input" data-pipe-field="title" value="${(item.title || '').replace(/"/g, '&quot;')}" style="width:100%;margin-top:2px">
+          </label>
+          <div style="display:flex;gap:8px">
+            <label style="font-size:.75rem;color:var(--mid);flex:1">Platform
+              <select class="adm-select" data-pipe-field="platform" style="width:100%;margin-top:2px">
+                ${PIPELINE_PLATFORMS.map(p => `<option value="${p}"${p === item.platform ? ' selected' : ''}>${p}</option>`).join('')}
+              </select>
+            </label>
+            <label style="font-size:.75rem;color:var(--mid);flex:1">Status
+              <select class="adm-select" data-pipe-field="status" style="width:100%;margin-top:2px">
+                ${PIPELINE_STATUSES.map(s => `<option value="${s}"${s === item.status ? ' selected' : ''}>${s}</option>`).join('')}
+              </select>
+            </label>
+          </div>
+        </div>
+        <label style="font-size:.75rem;color:var(--mid)">Description
+          <textarea class="adm-input" data-pipe-field="description" rows="2" style="width:100%;margin-top:2px;resize:vertical">${item.description || ''}</textarea>
+        </label>
+        <label style="font-size:.75rem;color:var(--mid);margin-top:8px;display:block">Script
+          <textarea class="adm-input" data-pipe-field="script" rows="6" style="width:100%;margin-top:2px;resize:vertical;font-size:.78rem">${item.script || ''}</textarea>
+        </label>
+        <label style="font-size:.75rem;color:var(--mid);margin-top:8px;display:block">Shot List
+          <textarea class="adm-input" data-pipe-field="shot_list" rows="4" style="width:100%;margin-top:2px;resize:vertical;font-size:.78rem">${item.shot_list || ''}</textarea>
+        </label>
+        <label style="font-size:.75rem;color:var(--mid);margin-top:8px;display:block">URL (final upload link)
+          <input type="url" class="adm-input" data-pipe-field="url" value="${(item.url || '').replace(/"/g, '&quot;')}" style="width:100%;margin-top:2px" placeholder="https://youtube.com/watch?v=...">
+        </label>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <label style="font-size:.75rem;color:var(--mid);flex:1">Views
+            <input type="number" class="adm-input" data-pipe-field="views" value="${item.views ?? ''}" style="width:100%;margin-top:2px" min="0">
+          </label>
+          <label style="font-size:.75rem;color:var(--mid);flex:1">Likes
+            <input type="number" class="adm-input" data-pipe-field="likes" value="${item.likes ?? ''}" style="width:100%;margin-top:2px" min="0">
+          </label>
+          <label style="font-size:.75rem;color:var(--mid);flex:1">Comments
+            <input type="number" class="adm-input" data-pipe-field="comments" value="${item.comments ?? ''}" style="width:100%;margin-top:2px" min="0">
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;justify-content:space-between">
+          <button class="adm-btn" data-pipe-save="${item.id}">Save</button>
+          <button class="adm-btn adm-btn--danger" data-pipe-delete="${item.id}" style="background:transparent;color:var(--mid);border:1px solid var(--bdr);font-size:.72rem">Delete</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderContent(pipeline) {
+  const statusCounts = {};
+  for (const s of PIPELINE_STATUSES) statusCounts[s] = 0;
+  for (const item of pipeline) statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+
   const checklist = getChecklist();
-  const sections = [
+  const checklistSections = [
     { title: 'Phase 1 - Pre-Launch Content', items: [
       { key: 'c-sample-photos', label: 'Add sewn sample photos to pattern pages (biggest trust signal)' },
       { key: 'c-measure-video', label: 'Film "how to measure yourself" video (#1 content asset)' },
@@ -800,21 +890,137 @@ function renderContent() {
   ];
 
   return `
-    <h2 class="adm-section-title">Content & Marketing</h2>
-    ${sections.map(s => `
-      <div class="adm-roadmap-card">
-        <h3>${s.title}</h3>
-        <ul class="adm-checklist" data-checklist>
-          ${s.items.map(item => `
-            <li>
-              <span class="adm-check${checklist[item.key] ? ' adm-check--done' : ''}" data-check="${item.key}">${checklist[item.key] ? '&#10003;' : ''}</span>
-              <span${checklist[item.key] ? ' style="text-decoration:line-through;color:var(--mid)"' : ''}>${item.label}</span>
-            </li>
-          `).join('')}
-        </ul>
+    <h2 class="adm-section-title">Content Pipeline</h2>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
+        ${PIPELINE_STATUSES.map(s => `<span style="font-size:.72rem;color:var(--mid)">${s}: <strong>${statusCounts[s]}</strong></span>`).join('')}
       </div>
-    `).join('')}
+      <select id="adm-pipe-filter-status" class="adm-select" style="font-size:.75rem">
+        <option value="">All statuses</option>
+        ${PIPELINE_STATUSES.map(s => `<option value="${s}">${s}</option>`).join('')}
+      </select>
+      <select id="adm-pipe-filter-platform" class="adm-select" style="font-size:.75rem">
+        <option value="">All platforms</option>
+        ${PIPELINE_PLATFORMS.map(p => `<option value="${p}">${p}</option>`).join('')}
+      </select>
+      <button class="adm-btn" id="adm-pipe-new">+ New</button>
+    </div>
+
+    <div id="adm-pipeline-list">
+      ${pipeline.length === 0
+        ? '<p style="color:var(--mid);font-size:.83rem;text-align:center;padding:24px 0">No content items yet. Click "+ New" to add one.</p>'
+        : pipeline.map(item => renderPipelineItem(item)).join('')}
+    </div>
+
+    <details style="margin-top:32px">
+      <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--text);padding:8px 0">Marketing Checklist</summary>
+      ${checklistSections.map(s => `
+        <div class="adm-roadmap-card">
+          <h3>${s.title}</h3>
+          <ul class="adm-checklist" data-checklist>
+            ${s.items.map(item => `
+              <li>
+                <span class="adm-check${checklist[item.key] ? ' adm-check--done' : ''}" data-check="${item.key}">${checklist[item.key] ? '&#10003;' : ''}</span>
+                <span${checklist[item.key] ? ' style="text-decoration:line-through;color:var(--mid)"' : ''}>${item.label}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `).join('')}
+    </details>
   `;
+}
+
+// ── Wire content pipeline ───────────────────────────────────────────────────
+
+function wireContentPipeline(pipeline) {
+  // Toggle detail panels
+  root.querySelectorAll('.adm-pipeline-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.pipelineId;
+      const detail = root.querySelector(`[data-detail-for="${id}"]`);
+      if (detail) detail.hidden = !detail.hidden;
+    });
+  });
+
+  // New item
+  const newBtn = root.querySelector('#adm-pipe-new');
+  if (newBtn) {
+    newBtn.addEventListener('click', async () => {
+      newBtn.disabled = true;
+      const { error } = await createContentItem(_adminUser.id, { title: 'Untitled video' });
+      if (error) { toast('Error creating item'); newBtn.disabled = false; return; }
+      toast('Created');
+      await reloadContentTab();
+    });
+  }
+
+  // Save buttons
+  root.querySelectorAll('[data-pipe-save]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.pipeSave;
+      const detail = root.querySelector(`[data-detail-for="${id}"]`);
+      if (!detail) return;
+      const fields = {};
+      detail.querySelectorAll('[data-pipe-field]').forEach(el => {
+        const key = el.dataset.pipeField;
+        if (el.type === 'number') {
+          fields[key] = el.value === '' ? null : parseInt(el.value, 10);
+        } else {
+          fields[key] = el.value;
+        }
+      });
+      btn.disabled = true;
+      const { error } = await updateContentItem(id, fields);
+      if (error) { toast('Error saving'); btn.disabled = false; return; }
+      toast('Saved');
+      await reloadContentTab();
+    });
+  });
+
+  // Delete buttons
+  root.querySelectorAll('[data-pipe-delete]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this content item?')) return;
+      btn.disabled = true;
+      const { error } = await deleteContentItem(btn.dataset.pipeDelete);
+      if (error) { toast('Error deleting'); btn.disabled = false; return; }
+      toast('Deleted');
+      await reloadContentTab();
+    });
+  });
+
+  // Filters
+  const filterStatus = root.querySelector('#adm-pipe-filter-status');
+  const filterPlatform = root.querySelector('#adm-pipe-filter-platform');
+  function applyFilters() {
+    const status = filterStatus?.value || '';
+    const platform = filterPlatform?.value || '';
+    root.querySelectorAll('.adm-pipeline-card').forEach(card => {
+      const id = card.dataset.pipelineId;
+      const item = pipeline.find(p => p.id === id);
+      if (!item) return;
+      const show = (!status || item.status === status) && (!platform || item.platform === platform);
+      card.style.display = show ? '' : 'none';
+      const detail = root.querySelector(`[data-detail-for="${id}"]`);
+      if (detail && !show) detail.hidden = true;
+    });
+  }
+  if (filterStatus) filterStatus.addEventListener('change', applyFilters);
+  if (filterPlatform) filterPlatform.addEventListener('change', applyFilters);
+}
+
+async function reloadContentTab() {
+  const res = await getContentPipeline(_adminUser.id);
+  const container = root.querySelector('#adm-s-content');
+  if (container) {
+    container.innerHTML = renderContent(res.data);
+    wireContentPipeline(res.data);
+    wireChecklists();
+  }
 }
 
 // ── Wire checklists ──────────────────────────────────────────────────────────
