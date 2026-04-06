@@ -16,6 +16,7 @@ import {
   updateTesterAssignment, getTesterProfile,
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
+import { createBodyMap } from './body-map.js';
 
 // ── Sync profile to wizard localStorage so dropdown stays current ─────────────
 const PROFILES_KEY = 'pd-profiles';
@@ -1806,13 +1807,8 @@ async function _renderTester(main, user) {
 function _showTesterFeedbackModal(user, assignmentId, garmentId) {
   const garmentName = garmentId.replace(/-/g, ' ');
 
-  const fitAreasHtml = TESTER_FIT_AREAS.map(area => `
-    <div class="tester-fit-row">
-      <label class="tester-fit-label">${area.label}</label>
-      <select class="tester-fit-select" data-area="${area.key}">
-        ${TESTER_FIT_OPTIONS.map(o => `<option value="${o}">${o.replace(/_/g, ' ')}</option>`).join('')}
-      </select>
-    </div>`).join('');
+  // Body map widget will be mounted after modal renders
+  let bodyMapWidget = null;
 
   const { overlay, close } = _showModal({
     title: `Feedback: ${garmentName}`,
@@ -1831,7 +1827,7 @@ function _showTesterFeedbackModal(user, assignmentId, garmentId) {
 
         <div class="tester-fb-field">
           <label class="acct-edit-lbl">Fit by Area</label>
-          <div class="tester-fit-grid">${fitAreasHtml}</div>
+          <div id="tfb-body-map-container"></div>
         </div>
 
         <div class="tester-fb-field">
@@ -1896,6 +1892,13 @@ function _showTesterFeedbackModal(user, assignmentId, garmentId) {
 
   overlay.querySelector('#tfb-cancel').addEventListener('click', close);
 
+  // Mount body map widget
+  const bmContainer = overlay.querySelector('#tfb-body-map-container');
+  if (bmContainer) {
+    bodyMapWidget = createBodyMap();
+    bmContainer.appendChild(bodyMapWidget.el);
+  }
+
   // Photo preview
   const photoInput = overlay.querySelector('#tfb-photos');
   photoInput?.addEventListener('change', () => {
@@ -1949,11 +1952,8 @@ function _showTesterFeedbackModal(user, assignmentId, garmentId) {
 
     saveBtn.textContent = 'Saving...';
 
-    // Collect fit areas
-    const fitAreas = {};
-    overlay.querySelectorAll('.tester-fit-select[data-area]').forEach(sel => {
-      fitAreas[sel.dataset.area] = sel.value;
-    });
+    // Collect fit areas from body map widget
+    const fitAreas = bodyMapWidget ? bodyMapWidget.getData() : {};
 
     const payload = {
       assignmentId,

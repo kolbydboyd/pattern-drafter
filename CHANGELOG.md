@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.5] - 2026-04-06
+
+### Improved
+- Tester feedback modal now uses an interactive SVG body map instead of dropdown selects for fit rating
+- Clickable body zones with color coded fit status (perfect, too tight, too loose, too long, too short)
+- Front/back view toggle to rate all body areas
+- Per zone notes and "adjusted after sewing" checkbox
+- New reusable body map widget in src/ui/body-map.js
+
+---
+
 ## [0.12.4] - 2026-04-06
 
 ### Fixed
