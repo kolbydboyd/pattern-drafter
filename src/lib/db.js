@@ -227,6 +227,63 @@ export async function getTotalCredits(userId) {
   };
 }
 
+// ── Community Garments ────────────────────────────────────────────────────────
+
+/**
+ * Submit a user-measured garment to the community library.
+ *
+ * @param {{ userId, garmentType, brand, style, sizeLabel, flatLay, finished }} opts
+ *   flatLay  — raw flat-lay readings (half-circumferences); the DB stores both for reference.
+ *   finished — fully-converted circumference measurements (flat-lay × 2 where applicable).
+ *              Pass null to let the migration default; the UI always passes finished.
+ */
+export async function submitCommunityGarment({ userId, garmentType, brand, style, sizeLabel, flatLay, finished }) {
+  const { data, error } = await supabase
+    .from('community_garments')
+    .insert({
+      submitted_by:       userId ?? null,
+      garment_type:       garmentType,
+      brand:              brand   ?? null,
+      style:              style   ?? null,
+      size_label:         sizeLabel,
+      measurement_method: 'flat-lay',
+      measurements:       finished ?? flatLay,
+      raw_flat_lay:       flatLay ?? null,
+    })
+    .select('id')
+    .single();
+  return { data, error };
+}
+
+/**
+ * Fetch approved community garment submissions for a garment type.
+ *
+ * @param {string} garmentType
+ * @param {number} limit
+ * @returns {{ data: Array, error }}
+ */
+export async function getCommunityGarments(garmentType, limit = 30) {
+  const { data, error } = await supabase
+    .from('community_garments')
+    .select('id, brand, style, size_label, measurements, helpful_count, created_at')
+    .eq('garment_type', garmentType)
+    .eq('approved', true)
+    .order('helpful_count', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return { data, error };
+}
+
+/**
+ * Increment the helpful_count on a community garment entry.
+ *
+ * @param {string} entryId - UUID of the community_garments row
+ */
+export async function markCommunityGarmentHelpful(entryId) {
+  const { error } = await supabase.rpc('increment_helpful_count', { row_id: entryId });
+  return { error };
+}
+
 // ── Wishlist ──────────────────────────────────────────────────────────────────
 
 export async function getWishlist(userId) {

@@ -4,6 +4,28 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.11] - 2026-04-08
+
+### New
+- Fit Reference Library: users can reference a brand/size they know fits to auto-set ease
+- `src/lib/fit-library/` module with profiles, brand data, and derivation API
+- 15 curated brand entries (Levi's 501/511/550, Abercrombie women's/men's, Wrangler, Dockers, J.Crew, Uniqlo, Hanes, Gildan, Champion) covering jeans, chinos, tees, hoodies, sweatshirts
+- "Measure a garment" flat-lay path: enter across-measurements, ×2 conversion is automatic
+- Community submissions: users can submit their own garment measurements to Supabase
+- Community tab in fit reference UI shows approved submissions sorted by helpfulness
+- Supabase migration `010_community_garments.sql` with RLS and increment helper function
+- Ease snapping: derived numeric ease snaps to nearest named profile (slim/regular/relaxed/oversized) — works with all existing garment modules, no changes required
+- Stretch detection: warns when reference garment implies stretch fabric and clamps to minimum woven ease
+
+### Architecture
+- `GARMENT_TYPE_MAP` maps all 70+ garment IDs to fit-library types
+- `FLAT_LAY_FIELDS` defines measurement fields + circumference flag per type
+- `FIT_PROFILES` defines named profiles per garment type with canonical ease values
+- `_fitEaseOverride` module state in app.js is injected into opts by readInputs()
+- Clears automatically when garment selection changes
+
+---
+
 ## [0.12.10] - 2026-04-08
 
 ### Improved

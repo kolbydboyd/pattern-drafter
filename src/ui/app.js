@@ -14,12 +14,17 @@ import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { initAuthModal, openAuthModal, getCurrentUser, onUserChange } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits, submitCommunityGarment, getCommunityGarments } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import { getSession, signIn } from '../lib/auth.js';
 import { checkAndSetAffiliateCookie } from '../lib/affiliate.js';
+import {
+  getGarmentType, getBrandsForType, getSizesForBrand, getFinishedMeasurements,
+  FLAT_LAY_FIELDS, deriveEaseFromBrand, deriveEaseFromFlatLay, deriveEaseFromCommunity,
+  formatEaseSummary,
+} from '../lib/fit-library/index.js';
 
 // Check for affiliate referral on every page load
 checkAndSetAffiliateCookie();
@@ -65,6 +70,8 @@ let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
+// Fit-library state: set when user applies a reference garment, cleared on garment change
+let _fitEaseOverride = null; // { snappedValue, optionKey } — applied in readInputs()
 
 const GARMENT_CATEGORIES = [
   { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','soloist-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','tapered-joggers','wide-leg-trouser-w','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
@@ -383,6 +390,7 @@ function buildInputs() {
   });
   document.getElementById('garment-select').addEventListener('change', e => {
     currentGarment = e.target.value;
+    _fitEaseOverride = null; // reset fit reference when garment changes
     _syncGarmentUrl(currentGarment);
     buildInputs();
     generate();
@@ -455,6 +463,12 @@ function readInputs() {
   }
   // Inject variant fabric override so materials() uses the right fabric list
   if (g._variantFabrics) opts._fabrics = g._variantFabrics;
+  // Inject fit-library ease override when the user has applied a reference garment.
+  // This sets the primary ease/fit option to the snapped profile value so garment
+  // modules pick it up without any changes to their pieces() functions.
+  if (_fitEaseOverride?.snappedValue && _fitEaseOverride?.optionKey) {
+    opts[_fitEaseOverride.optionKey] = _fitEaseOverride.snappedValue;
+  }
   return { m, opts };
 }
 
@@ -1807,12 +1821,71 @@ function buildMeasureStep() {
 function buildOptionsStep() {
   const g = GARMENTS[currentGarment];
   const el = document.getElementById('wiz-step-3');
+  const garmentType = getGarmentType(currentGarment);
+  const flatLayDef  = garmentType ? FLAT_LAY_FIELDS[garmentType] : null;
+  const brands      = garmentType ? getBrandsForType(garmentType) : [];
+
   let html = `<div class="wiz-form-wrap">
     <div class="wiz-form-header">
       <h2 class="wiz-form-title">Customize</h2>
       <p class="wiz-form-desc">${g.name}: adjust fit and style options</p>
     </div>`;
 
+  // ── Fit Reference section ────────────────────────────────────────────────
+  // Only show if this garment type is in the fit library
+  if (garmentType && flatLayDef) {
+    const hasBrands = brands.length > 0;
+    html += `<details class="adv-meas" id="wz-fit-ref">
+      <summary>Reference a garment you own for fit</summary>
+      <div class="fit-ref-body">
+        <div class="fit-ref-tabs" role="tablist">
+          ${hasBrands ? `<button class="fit-ref-tab active" data-tab="brand" role="tab">Brand / size</button>` : ''}
+          <button class="fit-ref-tab${hasBrands ? '' : ' active'}" data-tab="measure" role="tab">Measure a garment</button>
+          <button class="fit-ref-tab" data-tab="community" role="tab">Community</button>
+        </div>
+
+        ${hasBrands ? `
+        <div class="fit-ref-panel" id="frp-brand">
+          <p class="fit-ref-hint">Select a brand and size you know fits you well. We will calculate the ease and apply it to your pattern.</p>
+          <div class="f">
+            <label>Brand</label>
+            <select id="wz-fit-brand">
+              <option value="">- choose brand -</option>
+              ${brands.map(b => `<option value="${b.key}">${b.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="f" id="wz-fit-size-row" style="display:none">
+            <label>Size</label>
+            <select id="wz-fit-size"><option value="">- choose size -</option></select>
+          </div>
+          <div class="fit-ref-result" id="wz-fit-brand-result"></div>
+          <button class="btn-s" id="wz-fit-brand-apply" style="display:none">Apply to pattern</button>
+        </div>` : ''}
+
+        <div class="fit-ref-panel" id="frp-measure" style="display:none">
+          <p class="fit-ref-hint">Lay your garment flat on a surface. Measure across for circumferences (waist, hip, chest) and multiply by 2. Measure straight for lengths (inseam, rise, sleeve).</p>
+          ${flatLayDef.fields.map(f => `
+          <div class="f">
+            <label>${f.label}${f.circumference ? ' <span class="fit-ref-x2">×2</span>' : ''}</label>
+            <div class="hint">${f.hint}</div>
+            <input type="number" id="wz-fl-${f.id}" placeholder="${f.circumference ? 'half-width' : 'inches'}" step="0.25" min="0">
+          </div>`).join('')}
+          <div class="fit-ref-result" id="wz-fit-measure-result"></div>
+          <div class="fit-ref-action-row">
+            <button class="btn-s" id="wz-fit-measure-apply" style="display:none">Apply to pattern</button>
+            <button class="btn-xs" id="wz-fit-submit-community" style="display:none">Submit to community</button>
+          </div>
+        </div>
+
+        <div class="fit-ref-panel" id="frp-community" style="display:none">
+          <p class="fit-ref-hint">Measurements submitted by other sewists for this garment type.</p>
+          <div id="wz-community-list"><span class="fit-ref-loading">Loading…</span></div>
+        </div>
+      </div>
+    </details>`;
+  }
+
+  // ── Garment options ──────────────────────────────────────────────────────
   const wizVariantDefaults = g._variantDefaults || {};
   for (const [key, opt] of Object.entries(g.options)) {
     const wizDefault = key in wizVariantDefaults ? wizVariantDefaults[key] : opt.default;
@@ -1835,7 +1908,108 @@ function buildOptionsStep() {
 
   el.innerHTML = html;
 
-  // Rise style auto-fill (cross-step: wz-m-rise is in step 2, wz-o-riseStyle/wz-o-riseOverride are here)
+  // ── Fit reference event wiring ───────────────────────────────────────────
+  if (garmentType && flatLayDef) {
+    // Tab switching
+    el.querySelectorAll('.fit-ref-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        el.querySelectorAll('.fit-ref-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        el.querySelectorAll('.fit-ref-panel').forEach(p => { p.style.display = 'none'; });
+        const panel = el.querySelector(`#frp-${tab.dataset.tab}`);
+        if (panel) panel.style.display = '';
+        // Lazy-load community on first open
+        if (tab.dataset.tab === 'community') _loadCommunityList(garmentType);
+      });
+    });
+
+    // Brand dropdown → populate sizes
+    const brandSel = el.querySelector('#wz-fit-brand');
+    if (brandSel) {
+      brandSel.addEventListener('change', () => {
+        const key = brandSel.value;
+        const sizeRow    = el.querySelector('#wz-fit-size-row');
+        const sizeSel    = el.querySelector('#wz-fit-size');
+        const resultEl   = el.querySelector('#wz-fit-brand-result');
+        const applyBtn   = el.querySelector('#wz-fit-brand-apply');
+        if (!key) { sizeRow.style.display = 'none'; resultEl.textContent = ''; applyBtn.style.display = 'none'; return; }
+        const sizes = getSizesForBrand(key);
+        sizeSel.innerHTML = `<option value="">- choose size -</option>${sizes.map(s => `<option>${s}</option>`).join('')}`;
+        sizeRow.style.display = '';
+        resultEl.textContent = '';
+        applyBtn.style.display = 'none';
+      });
+
+      // Size dropdown → derive ease
+      const sizeSel = el.querySelector('#wz-fit-size');
+      if (sizeSel) {
+        sizeSel.addEventListener('change', () => {
+          const brandKey  = brandSel.value;
+          const sizeLabel = sizeSel.value;
+          const resultEl  = el.querySelector('#wz-fit-brand-result');
+          const applyBtn  = el.querySelector('#wz-fit-brand-apply');
+          if (!brandKey || !sizeLabel) { resultEl.textContent = ''; applyBtn.style.display = 'none'; return; }
+          const body   = _readBodyMeasurements();
+          const result = deriveEaseFromBrand(brandKey, sizeLabel, body, garmentType);
+          if (!result) { resultEl.textContent = 'Could not compute ease.'; return; }
+          resultEl.textContent = formatEaseSummary(result);
+          resultEl.className = 'fit-ref-result' + (result.needsStretch ? ' fit-ref-warn' : ' fit-ref-ok');
+          applyBtn.style.display = '';
+          applyBtn._fitResult = result;
+        });
+      }
+
+      // Apply brand result
+      const applyBrandBtn = el.querySelector('#wz-fit-brand-apply');
+      if (applyBrandBtn) {
+        applyBrandBtn.addEventListener('click', () => {
+          _applyFitResult(applyBrandBtn._fitResult);
+        });
+      }
+    }
+
+    // Flat-lay inputs → derive ease on change
+    function _updateMeasureResult() {
+      const flatLay = {};
+      for (const f of flatLayDef.fields) {
+        const v = parseFloat(el.querySelector(`#wz-fl-${f.id}`)?.value);
+        if (!isNaN(v) && v > 0) flatLay[f.id] = v;
+      }
+      const resultEl = el.querySelector('#wz-fit-measure-result');
+      const applyBtn = el.querySelector('#wz-fit-measure-apply');
+      const submitBtn = el.querySelector('#wz-fit-submit-community');
+      if (!Object.keys(flatLay).length) {
+        resultEl.textContent = '';
+        applyBtn.style.display = 'none';
+        submitBtn.style.display = 'none';
+        return;
+      }
+      const body   = _readBodyMeasurements();
+      const result = deriveEaseFromFlatLay(flatLay, body, garmentType);
+      resultEl.textContent = formatEaseSummary(result);
+      resultEl.className = 'fit-ref-result' + (result.needsStretch ? ' fit-ref-warn' : ' fit-ref-ok');
+      applyBtn.style.display = '';
+      submitBtn.style.display = '';
+      applyBtn._fitResult = result;
+      applyBtn._flatLay   = flatLay;
+      submitBtn._flatLay  = flatLay;
+      submitBtn._result   = result;
+    }
+
+    for (const f of flatLayDef.fields) {
+      el.querySelector(`#wz-fl-${f.id}`)?.addEventListener('input', _updateMeasureResult);
+    }
+
+    el.querySelector('#wz-fit-measure-apply')?.addEventListener('click', function () {
+      _applyFitResult(this._fitResult);
+    });
+
+    el.querySelector('#wz-fit-submit-community')?.addEventListener('click', async function () {
+      await _submitToCommunityCb(this._flatLay, this._result, garmentType);
+    });
+  }
+
+  // ── Rise style auto-fill ─────────────────────────────────────────────────
   const riseStyleEl    = document.getElementById('wz-o-riseStyle');
   const riseOverrideEl = document.getElementById('wz-o-riseOverride');
   if (riseStyleEl && riseOverrideEl) {
@@ -1857,6 +2031,112 @@ function buildOptionsStep() {
     trackEvent('pattern_generated', { garment_id: currentGarment, options: opts });
     goToStep(4);
   });
+}
+
+// ── Fit reference helpers ────────────────────────────────────────────────────
+
+/** Read the wizard's current body measurement inputs into a plain object. */
+function _readBodyMeasurements() {
+  const g = GARMENTS[currentGarment];
+  const m = {};
+  for (const mId of g.measurements) {
+    const v = parseFloat(document.getElementById(`wz-m-${mId}`)?.value);
+    if (!isNaN(v) && v > 0) m[mId] = v;
+  }
+  return m;
+}
+
+/**
+ * Apply a fit-library result to the options step UI and store the override
+ * so readInputs() picks it up on generate.
+ */
+function _applyFitResult(result) {
+  if (!result?.snappedValue || !result?.optionKey) return;
+  _fitEaseOverride = { snappedValue: result.snappedValue, optionKey: result.optionKey };
+  // Reflect in the visible select so the user sees what was applied
+  const sel = document.getElementById(`wz-o-${result.optionKey}`);
+  if (sel) sel.value = result.snappedValue;
+  trackEvent('fit_reference_applied', {
+    garment_id: currentGarment,
+    snapped_value: result.snappedValue,
+    numeric_ease: result.numericEase,
+    needs_stretch: result.needsStretch,
+  });
+}
+
+/** Lazy-load approved community garments for this garment type. */
+async function _loadCommunityList(garmentType) {
+  const listEl = document.getElementById('wz-community-list');
+  if (!listEl || listEl.dataset.loaded) return;
+  listEl.dataset.loaded = '1';
+  try {
+    const { data, error } = await getCommunityGarments(garmentType, 30);
+    if (error || !data?.length) {
+      listEl.innerHTML = `<p class="fit-ref-hint">No community submissions yet for this garment type. Be the first to contribute.</p>`;
+      return;
+    }
+    listEl.innerHTML = data.map(row => {
+      const brand   = row.brand ? `${row.brand}${row.style ? ' ' + row.style : ''}` : 'Unknown brand';
+      const summary = Object.entries(row.measurements)
+        .map(([k, v]) => `${k} ${v}"`)
+        .join(', ');
+      return `<div class="fit-ref-community-row" data-id="${row.id}">
+        <div class="fit-ref-community-label">${brand} — Size ${row.size_label}</div>
+        <div class="fit-ref-community-meas">${summary}</div>
+        <button class="btn-xs fit-ref-community-apply" data-id="${row.id}">Apply</button>
+      </div>`;
+    }).join('');
+    // Wire apply buttons
+    listEl.querySelectorAll('.fit-ref-community-apply').forEach(btn => {
+      const row = data.find(r => r.id === btn.dataset.id);
+      btn.addEventListener('click', () => {
+        const body   = _readBodyMeasurements();
+        const result = deriveEaseFromCommunity(row.measurements, body, garmentType);
+        _applyFitResult(result);
+        // Flash feedback
+        const communityResult = document.createElement('div');
+        communityResult.className = 'fit-ref-result fit-ref-ok';
+        communityResult.textContent = formatEaseSummary(result);
+        btn.parentElement.appendChild(communityResult);
+        setTimeout(() => communityResult.remove(), 4000);
+      });
+    });
+  } catch {
+    listEl.innerHTML = `<p class="fit-ref-hint">Could not load community data.</p>`;
+  }
+}
+
+/** Submit flat-lay measurements to the community_garments table. */
+async function _submitToCommunityCb(flatLay, result, garmentType) {
+  const submitBtn = document.getElementById('wz-fit-submit-community');
+  if (!submitBtn) return;
+  const origText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  const user = getCurrentUser();
+  const brand = prompt('Brand name (optional, press OK to skip):') ?? '';
+  const style = prompt('Style name, e.g. "Slim Fit" (optional, press OK to skip):') ?? '';
+  const size  = prompt('Size label, e.g. "M", "32W", "00":') ?? '';
+  if (!size.trim()) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = origText;
+    return;
+  }
+
+  const { error } = await submitCommunityGarment({
+    userId: user?.id ?? null,
+    garmentType,
+    brand: brand.trim() || null,
+    style: style.trim() || null,
+    sizeLabel: size.trim(),
+    flatLay,
+    finished: result?.easePerMeasurement ? null : flatLay, // raw flat-lay; server converts
+  });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = error ? 'Error — try again' : 'Submitted. Thanks!';
+  setTimeout(() => { submitBtn.textContent = origText; }, 3000);
 }
 
 function renderStep4() {
