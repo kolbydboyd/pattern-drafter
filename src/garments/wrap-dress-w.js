@@ -8,7 +8,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
-  sleeveCapCurve,
+  sleeveCapCurve, validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -346,6 +346,7 @@ export default {
       const capH = armholeDepth * (opts.fit === 'relaxed' ? 0.55 : 0.60);
       const capCp = sleeveCapCurve(m.bicep || 13, capH, slvFullWidth);
       const capPts = sc(capCp, 32);
+      validateSleeveSeams('wrap-dress-w', capPts, frontArmPts, backArmPts);
 
       const slvPoly = [];
       for (const p of capPts) {

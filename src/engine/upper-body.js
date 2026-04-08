@@ -345,6 +345,38 @@ export function sleeveCapEase(bicep, capHeight, sleeveWidth, armholeCircumferenc
 }
 
 /**
+ * Validate sleeve cap seam against armhole arc.
+ *
+ * Cap ease — the extra length on the cap vs the armhole — should sit in the
+ * 0.5–3″ range for woven set-in sleeves (0–1.5″ for stretch knits). Logs a
+ * console warning if out of range so problems surface at pattern generation
+ * time without blocking output.
+ *
+ * @param {string} tag               - Garment ID for console messages, e.g. 'tee'
+ * @param {Array<{x,y}>} capPts      - Sleeve cap polyline (sampled bezier points)
+ * @param {Array<{x,y}>} frontArmPts - Front armhole polyline
+ * @param {Array<{x,y}>} backArmPts  - Back armhole polyline
+ * @returns {{ capArc: number, armholeArc: number, capEase: number }}
+ */
+export function validateSleeveSeams(tag, capPts, frontArmPts, backArmPts) {
+  function plen(pts) {
+    let l = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i].x - pts[i-1].x, dy = pts[i].y - pts[i-1].y;
+      l += Math.sqrt(dx * dx + dy * dy);
+    }
+    return l;
+  }
+  const capArc     = plen(capPts);
+  const armholeArc = plen(frontArmPts) + plen(backArmPts);
+  const capEase    = capArc - armholeArc;
+  if (capEase < 0.5 || capEase > 3) {
+    console.warn(`[${tag}] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+  }
+  return { capArc, armholeArc, capEase };
+}
+
+/**
  * Half back-neck width from neck circumference — shoulder-neck junction to CB/CF.
  *
  * Standard block drafting rule: back neck width = neck / 5.

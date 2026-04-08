@@ -281,6 +281,9 @@ export default {
       ? sleeveResult.capArc - armholeArc
       : onePieceCapArc - armholeArc;
     const capArcVal = isTwoPiece ? sleeveResult.capArc : onePieceCapArc;
+    if (capEase < 0.5 || capEase > 3) {
+      console.warn(`[denim-jacket] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArcVal.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+    }
     const capEaseNote = `Cap: ${fmtInches(capArcVal)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
 
     // ── COLLAR ─────────────────────────────────────────────────────────

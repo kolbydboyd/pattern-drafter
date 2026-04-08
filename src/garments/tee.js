@@ -9,6 +9,7 @@
 import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -278,14 +279,7 @@ export default {
     sleevePoly.splice(0, sleevePoly.length, ...dedupPoly(sleevePoly, 'sleeve'));
 
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
-    const frontArmArc = arcLength(frontArmholePts);
-    const backArmArc  = arcLength(curveToPoints(armholeCurve(shoulderW, backChestDepth, armholeDepth, true)));
-    const armholeArc  = frontArmArc + backArmArc;
-    const capArc      = arcLength(capPts);
-    const capEase     = capArc - armholeArc;
-    if (capEase < 0.5 || capEase > 3) {
-      console.warn(`[tee] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
-    }
+    const { capArc, armholeArc, capEase } = validateSleeveSeams('tee', capPts, frontArmholePts, backArmholePts);
     const capEaseNote = `Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
 
     // ── NECKBAND ─────────────────────────────────────────────────────────────

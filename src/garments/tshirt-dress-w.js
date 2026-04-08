@@ -8,6 +8,7 @@
 import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
+  validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -167,6 +168,7 @@ export default {
     } else {
       const capCp  = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
       const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16).map(p => ({ ...p, curve: true }));
+      validateSleeveSeams('tshirt-dress-w', capPts, frontArmPts, backArmPts);
       sleevePoly = capPts.map(p => ({ ...p, y: p.y + capHeight }));
       delete sleevePoly[0].curve;
       delete sleevePoly[capPts.length - 1].curve;

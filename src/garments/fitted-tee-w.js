@@ -8,6 +8,7 @@
 import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -259,15 +260,9 @@ export default {
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
     let capEaseNote = '';
     if (opts.sleeve !== 'cap') {
-      const frontArmArc = arcLength(frontArmPts);
-      const backArmArc  = arcLength(backArmPts);
-      const armholeArc  = frontArmArc + backArmArc;
-      const valCapCp    = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-      const capArc      = arcLength(sampleBezier(valCapCp.p0, valCapCp.p1, valCapCp.p2, valCapCp.p3, 16));
-      const capEase     = capArc - armholeArc;
-      if (capEase < 0.5 || capEase > 3) {
-        console.warn(`[fitted-tee-w] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
-      }
+      const valCapCp  = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
+      const valCapPts = sampleBezier(valCapCp.p0, valCapCp.p1, valCapCp.p2, valCapCp.p3, 16);
+      const { capArc, armholeArc, capEase } = validateSleeveSeams('fitted-tee-w', valCapPts, frontArmPts, backArmPts);
       capEaseNote = ` · Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
     }
 

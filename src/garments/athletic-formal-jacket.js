@@ -255,7 +255,11 @@ export default {
     });
     const topSlvBB   = bbox(sleeveResult.topSleeve);
     const underSlvBB = bbox(sleeveResult.underSleeve);
-    const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(sleeveResult.capArc - armholeArc)} (${sleeveResult.iterations} iter)`;
+    const capEaseVal  = sleeveResult.capArc - armholeArc;
+    if (capEaseVal < 0.5 || capEaseVal > 3) {
+      console.warn(`[athletic-formal-jacket] Sleeve cap ease out of range: ${capEaseVal.toFixed(2)}″ (expected 0.5–3″). Cap: ${sleeveResult.capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+    }
+    const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEaseVal)} (${sleeveResult.iterations} iter)`;
 
     // ── COLLAR ───────────────────────────────────────────────────────────
     // Button positions for lapel break point calculation
