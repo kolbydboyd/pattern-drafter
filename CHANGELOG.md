@@ -4,6 +4,20 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.10] - 2026-04-08
+
+### Improved
+- Bone shapes sourced from anatomical reference SVGs (full shapes, no half+mirror)
+- Simpler bone scaling: normalized path data scaled directly to body dimensions
+- Both pelvis pieces now have accurate obturator foramina (holes) from compound paths
+
+### New
+- Scoop (curved inset) pocket option for all jeans variants (geometry.js, straight-jeans.js)
+- `clipPanelAtScoop`, `buildScoopPocketBacking`, `buildScoopPocketBag` in geometry engine
+- Soloist Jeans defaults to scoop pockets (matching the reference garment)
+
+---
+
 ## [0.12.9] - 2026-04-06
 
 ### New

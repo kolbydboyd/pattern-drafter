@@ -593,3 +593,100 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   );
   return poly;
 }
+
+/**
+ * Clip a front panel polygon at a scoop curve for a curved inset pocket.
+ * Like clipPanelAtSlash but replaces the waist/side-seam corner with a
+ * concave bezier curve instead of a straight diagonal.
+ *
+ * Mutates `poly` in place and returns it.
+ *
+ * @param {Array<{x:number, y:number}>} poly - CW panel polygon
+ * @param {number} waistSideX - x of the waist-at-side-seam vertex
+ * @param {number} scoopInset - how far in from side seam the scoop starts on waist (default 3.5)
+ * @param {number} scoopDepth - how far below waist the scoop meets the side seam (default 6)
+ * @returns {Array<{x:number, y:number}>} the mutated polygon
+ */
+export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth = 6) {
+  let idx = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const d = Math.abs(poly[i].x - waistSideX) + Math.abs(poly[i].y);
+    if (d < bestDist) { bestDist = d; idx = i; }
+  }
+  if (idx < 0 || bestDist > 1) return poly;
+
+  // Concave J-curve from waist (inset) to side seam (depth)
+  const sx = waistSideX - scoopInset;
+  const curvePts = sampleBezier(
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth * 0.45 },
+    { x: waistSideX - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: waistSideX, y: scoopDepth },
+    12,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  poly.splice(idx, 1, ...curvePts);
+  return poly;
+}
+
+/**
+ * Build a scoop pocket backing piece (self-fabric, visible front).
+ * Same shape as slant backing. Extends from waist across full bag width,
+ * down the side seam, then scoops to the bottom.
+ */
+export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const scoopPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    { x: bagWidth, y: 0 },
+    { x: bagWidth, y: scoopDepth },
+    ...scoopPts.slice(1),
+  ];
+
+  return {
+    id: 'scoop-backing',
+    name: 'Scoop Pocket Backing',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
+
+/**
+ * Build a scoop pocket bag piece (lining).
+ * Top edge follows the scoop curve (matching the front panel opening),
+ * bottom edge follows the bag scoop curve.
+ */
+export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
+  // Curved opening edge from (bagWidth - scoopInset, 0) to (bagWidth, scoopDepth)
+  const sx = bagWidth - scoopInset;
+  const openingPts = sampleBezier(
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth * 0.45 },
+    { x: bagWidth - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: bagWidth, y: scoopDepth },
+    12,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'scoop-bag',
+    name: 'Scoop Pocket Bag',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
