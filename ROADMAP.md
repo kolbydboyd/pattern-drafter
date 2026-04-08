@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-03-27 · v0.7.0_
+_Last updated: 2026-04-08 · v0.7.0_
 
 ---
 
@@ -29,7 +29,7 @@ manufacturer has this. It becomes a licensable asset.
 
 ## What's Done
 
-- [x] 23 garment modules built and code-complete
+- [x] 47 garment base modules built and code-complete (43 existing + 4 added 2026-04-08: open-cardigan, chore-coat, wide-leg-trouser-m, henley) — expands to ~95 catalog cards via variants
 - [x] Pattern generation engine working
 - [x] Print layout with tiling and scale verification
 - [x] Single PDF renderer

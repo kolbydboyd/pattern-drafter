@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- shacket: hip-length, relaxed open-front layer, drop shoulder -->
+  <path d="M60,50 L34,56 L30,126 L54,126 L54,168 L106,168 L106,126 L130,126 L126,56 L100,50"/>
+  <path d="M60,50 Q68,42 80,40 Q92,42 100,50"/>
+  <!-- open CF edges -->
+  <line x1="60" y1="50" x2="60" y2="168"/>
+  <line x1="100" y1="50" x2="100" y2="168"/>
+  <!-- patch pockets -->
+  <rect x="62" y="108" width="20" height="22" rx="2"/>
+  <rect x="78" y="108" width="20" height="22" rx="2"/>
+  <!-- drop shoulder -->
+  <line x1="42" y1="56" x2="54" y2="56" stroke-dasharray="3,2"/>
+  <line x1="118" y1="56" x2="106" y2="56" stroke-dasharray="3,2"/>
+</svg>

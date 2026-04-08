@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.12] - 2026-04-08
+
+### New
+- **Open Cardigan / Shacket** (`open-cardigan.js`) — oversized open-front drop-shoulder layer. Back on fold, two separate front panels (open at CF), shallow cap sleeves, optional patch pockets and shawl collar. Hip or mid-thigh length, +7-10″ ease. Variants: Duster Cardigan, Shacket.
+- **Chore Coat / Overshirt** (`chore-coat.js`) — boxy hip-length woven overshirt with set-in sleeves and button placket (+1.5″ CF extension). Camp or band collar, chest flap pockets, lower patch pockets, optional barrel cuffs. +6-9″ ease. Variants: Linen Overshirt, Canvas Work Coat.
+- **Wide-Leg Trouser (M)** (`wide-leg-trouser-m.js`) — men's version of the existing wide-leg trouser. Same `buildPanel()` geometry and crotch curve math as the women's version; adjusted defaults for men's proportions (10″ rise, +4″ ease, flat front, smaller crotch extensions). Variant: Pleated Trouser (M).
+- **Henley** (`henley.js`) — crew-neck top with 3-button vertical placket at CF. Bodice geometry identical to `tee.js`. Adds a separate placket facing piece (2.5″ × 7.5″, cut 4). Works in woven or knit. Variant: Long Sleeve Henley.
+- 10 new SVG illustrations: `open-cardigan`, `chore-coat`, `wide-leg-trouser-m`, `henley`, plus 6 variant illustrations.
+- SEO descriptions for all 10 new catalog entries.
+- Base module count: 43 → 47. Total catalog entries (including variants): ~81 → ~91.
+
+---
+
 ## [0.12.11] - 2026-04-08
 
 ### New

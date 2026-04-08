@@ -48,6 +48,10 @@ import aLineDressW           from './a-line-dress-w.js';
 import sundressW             from './sundress-w.js';
 import toteBag             from './tote-bag.js';
 import soloistJeans        from './soloist-jeans.js';
+import openCardigan        from './open-cardigan.js';
+import choreCoat           from './chore-coat.js';
+import wideLegTrouserM     from './wide-leg-trouser-m.js';
+import henley              from './henley.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -93,6 +97,10 @@ const GARMENTS = {
   'sundress-w':               sundressW,
   'tote-bag':               toteBag,
   'soloist-jeans':          soloistJeans,
+  'open-cardigan':          openCardigan,
+  'chore-coat':             choreCoat,
+  'wide-leg-trouser-m':     wideLegTrouserM,
+  'henley':                 henley,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────
