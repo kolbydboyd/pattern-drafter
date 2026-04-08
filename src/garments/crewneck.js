@@ -11,6 +11,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -252,14 +253,9 @@ export default {
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
     let capEaseNote = '';
     if (!isRaglan) {
-      const frontArmArc = arcLength(sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false)));
-      const backArmArc  = arcLength(sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true)));
-      const armholeArc  = frontArmArc + backArmArc;
-      const capArc      = arcLength(capPts);
-      const capEase     = capArc - armholeArc;
-      if (capEase < 0.5 || capEase > 3) {
-        console.warn(`[crewneck] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
-      }
+      const valFrontArmPts = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
+      const valBackArmPts  = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
+      const { capArc, armholeArc, capEase } = validateSleeveSeams('crewneck', capPts, valFrontArmPts, valBackArmPts);
       capEaseNote = ` · Sleeve cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
     }
 
