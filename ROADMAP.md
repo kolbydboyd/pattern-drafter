@@ -64,6 +64,7 @@ manufacturer has this. It becomes a licensable asset.
 - [x] Purchase bypass patched (backend PDF authorization)
 - [x] Account dashboard (measurements, patterns, projects, wishlist, orders, gift cards, settings)
 - [x] cm / inch toggle
+- [x] Fit Reference Library (brand/size lookup, flat-lay measurement, community submissions)
 
 ---
 
