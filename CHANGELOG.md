@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.9] - 2026-04-06
+
+### New
+- Search input on patterns listing page. Filters by name, category, and difficulty in real time.
+
+---
+
 ## [0.12.8] - 2026-04-06
 
 ### New
