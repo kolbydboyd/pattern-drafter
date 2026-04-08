@@ -902,4 +902,125 @@ export const ARTICLES_FIT = [
 <p class="learn-cta-inline">Ready for your perfect fit? <a href="/patterns">Start with a free pattern &#x2192;</a></p>
 `,
   },
+
+  {
+    slug:        'kibbe-body-types-proportion-guide-sewers',
+    title:       'Kibbe Body Types Explained: A Proportion Guide for Sewers',
+    description: 'Understand the 13 Kibbe body types and how yin and yang proportion principles apply to choosing silhouettes, ease, and hem lengths when sewing.',
+    category:    'fit',
+    tags:        ['kibbe', 'body-types', 'proportion', 'silhouette', 'fitting', 'body-shape', 'yin-yang'],
+    youtubeId:   null,
+    datePublished: '2026-04-08',
+    faqSchema: [
+      { question: 'What is the Kibbe body type system?', answer: 'The Kibbe system, developed by image consultant David Kibbe in the 1980s, classifies bodies into 13 types based on the balance between yin (curved, soft, compact) and yang (angular, elongated, broad) characteristics in bone structure and flesh distribution. It is used to understand proportional harmony in clothing silhouettes.' },
+      { question: 'How many Kibbe body types are there?', answer: 'The modern Kibbe system has 11 types: Dramatic, Soft Dramatic, Flamboyant Natural, Natural, Soft Natural, Classic, Soft Classic, Theatrical Romantic, Romantic, Flamboyant Gamine, and Soft Gamine. The original 1987 book listed additional sub-types that Kibbe himself later consolidated.' },
+      { question: 'Does Kibbe body type affect how I should take measurements?', answer: 'No. Kibbe is about proportional harmony in silhouette, not about measurement technique. You still take the same circumference and length measurements for pattern drafting. Kibbe concepts are most useful when deciding which garment styles to sew and how to adjust ease and proportion preferences.' },
+      { question: 'Can I use Kibbe principles with made-to-measure patterns?', answer: 'Yes. Made-to-measure patterns ensure the garment fits your actual measurements. Kibbe principles help you choose silhouettes and ease levels that complement your proportions. Use your Kibbe type to choose the garment and configure its options, then use your measurements to generate a pattern that fits exactly.' },
+    ],
+    body: `
+<h2>What Is the Kibbe Body Type System?</h2>
+<p>The Kibbe body type system is a framework developed by image consultant David Kibbe and introduced in his 1987 book "Metamorphosis." It classifies bodies into types based on the balance between two opposite qualities: yin and yang. Yin refers to curved, soft, rounded, and compact characteristics. Yang refers to angular, sharp, elongated, and broad characteristics. Every body sits somewhere on this spectrum, and Kibbe identified 13 distinct types that cover the range of combinations.</p>
+<p>Unlike systems based purely on silhouette shapes like "apple," "pear," or "hourglass," the Kibbe system focuses on the relationship between bone structure and flesh distribution. Two people with the same waist-to-hip ratio can belong to completely different Kibbe types if their bone structure differs. This makes it a more nuanced tool for understanding how clothing silhouettes interact with a specific body.</p>
+<p>For sewers, the Kibbe system is useful for planning garment proportions. Understanding your type gives you a framework for deciding where to place waist seams, how much ease to use, what hem lengths look balanced, and what neckline shapes feel cohesive with the rest of your body's lines.</p>
+
+<h2>Yin and Yang: The Core Concept</h2>
+<p>Before looking at the individual types, it helps to understand what yin and yang mean in the Kibbe context. These terms describe the visual qualities of a body's lines, not its size. A small person can be predominantly yang if they have sharp, angular bone structure. A tall person can carry significant yin if their features and flesh are soft and curved.</p>
+<p><strong>Yang characteristics</strong> include sharp, angular facial features; narrow but long skeletal structure; broad, prominent bones; and a long vertical line. Garments that extend or work with a vertical line tend to suit yang-dominant types.</p>
+<p><strong>Yin characteristics</strong> include rounded, soft facial features; small or delicate bone structure; lush, curved flesh; and a compact vertical line. Garments that define the waist, use soft fabrics, and keep proportions rounded tend to suit yin-dominant types.</p>
+<p>Most bodies are a blend of both. The 13 Kibbe types describe the different ways yin and yang qualities can combine across bone structure and flesh.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Diagram showing yin characteristics (curved, soft, compact) versus yang characteristics (angular, elongated, broad)">[ Image: Two-column diagram contrasting yin and yang qualities in bone structure and flesh, with simple silhouette illustrations ]</div><figcaption>Every body has a unique balance of yin and yang. The Kibbe system maps that balance onto 13 types</figcaption></figure>
+
+<h2>The 13 Kibbe Body Types</h2>
+<p>The 13 types are organized into five families. Within each family, types differ in how much yin or yang modifies the base quality.</p>
+
+<h3>Dramatic Family (Predominantly Yang)</h3>
+<p><strong>Dramatic:</strong> A strong vertical line, angular bone structure, narrow frame, and sharp features. Dramatic types are often tall with little curve in the flesh. Garments that preserve a long, unbroken vertical line work best. Cropped silhouettes or high-contrast horizontal breaks can interrupt the vertical and feel heavy.</p>
+<p><strong>Soft Dramatic:</strong> The same elongated yang structure as Dramatic, but with more yin in the flesh. Soft Dramatics often have a noticeable bust and hip with the same long frame underneath. They benefit from garments that honor the vertical line while accommodating curve.</p>
+
+<h3>Natural Family (Yang with Bluntness)</h3>
+<p><strong>Flamboyant Natural:</strong> A large, angular, broad frame with a long vertical line. Flamboyant Naturals often have wide, prominent shoulders and a relaxed quality to their lines. Stiff, structured garments can feel at odds with the body's inherent ease. Relaxed fitting, draped fabrics, and horizontal design elements at the shoulder work well.</p>
+<p><strong>Natural:</strong> Moderately large bone structure with a blunt, broad quality. Naturals share the relaxed ease of Flamboyant Naturals in a somewhat smaller frame. They have a strong vertical line but less pronounced than the Dramatic types.</p>
+<p><strong>Soft Natural:</strong> Natural bone structure with a yin overlay of soft flesh and gentle curves. Soft Naturals often have a more noticeable waist than other Natural types and can suit softer, more draped fabrics with ease.</p>
+
+<h3>Classic Family (Balanced)</h3>
+<p><strong>Classic:</strong> Moderate, symmetrical, and balanced in all dimensions. Classics tend to have proportions that mirror conventional sizing assumptions closely, which is why standard patterns often fit them better than other types. Tailored garments and structured silhouettes work naturally.</p>
+<p><strong>Soft Classic:</strong> Classic balance with a slight yin tilt. Soft Classics have the same moderate, symmetrical quality but with a touch more curve in the flesh and slightly softer overall lines. They can use slightly drapier fabrics and softer construction details without losing cohesion.</p>
+
+<h3>Gamine Family (Mixed Yin and Yang in a Small Frame)</h3>
+<p><strong>Flamboyant Gamine:</strong> A small, compact frame with sharp, angular yang bone structure. Flamboyant Gamines have a petite vertical line but bold, geometric features that create contrast within a small package. Garments with geometric shapes, sharp lines, and clear waist definition tend to work well.</p>
+<p><strong>Soft Gamine:</strong> A small, compact frame with yin bone structure. Soft Gamines have the same compact vertical line as Flamboyant Gamine but with rounder, softer features. Rounded necklines, soft waist definition, and small-scale prints tend to suit them.</p>
+
+<h3>Romantic Family (Predominantly Yin)</h3>
+<p><strong>Theatrical Romantic:</strong> A small frame with lush curves and mostly yin characteristics, with a slight yang quality in the bone structure. Theatrical Romantics have a compact vertical line with dramatic curves. They tend to suit garments with defined waists, soft fabrics, and elegant construction.</p>
+<p><strong>Romantic:</strong> The most yin type in the system. Romantics have a small, soft, lush frame with pronounced curves throughout. They tend to suit garments that embrace the curve: waist definition, soft drape, and silhouettes that follow the body's natural shape rather than creating a straight line.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Diagram organizing the 13 Kibbe types along a yin-yang spectrum from Romantic through Classic to Dramatic">[ Image: Horizontal spectrum diagram showing all types arranged from most yin (Romantic) on the left through balanced (Classic) in the center to most yang (Dramatic) on the right ]</div><figcaption>The 13 types arranged along the yin-to-yang spectrum</figcaption></figure>
+
+<h2>How Kibbe Principles Apply to Sewing Decisions</h2>
+<p>The most practical value of the Kibbe system for sewers is in making decisions about garment proportion. This includes waist placement, hem length, ease preferences, fabric weight, and design line placement.</p>
+
+<h3>Vertical Line and Waist Placement</h3>
+<p>Yang-dominant types (Dramatic, Natural, and their variants) have a long vertical line as their most prominent feature. Garments that interrupt this line with high-contrast waist seams, cropped lengths, or busy horizontal details can create visual noise. Preserving the vertical line with longer silhouettes, minimal horizontal breaks, and monochromatic combinations lets the body's natural proportions lead.</p>
+<p>Yin-dominant types (Romantic and Theatrical Romantic) have a compact vertical line with curve as their most prominent feature. Garments with clear waist definition, soft draping, and shorter hemlines that keep proportions compact tend to feel harmonious. Long, unbroken vertical lines can overwhelm the yin quality and read as stiff.</p>
+<p>Gamine types have a compact vertical line but also strong contrast between yin and yang within their frame. They tend to suit garments that have clear breaks, contrast details, and balanced proportions within a shorter overall length.</p>
+
+<h3>Ease Preferences and Structure</h3>
+<p>Natural family types have a relaxed, blunt quality to their bone structure. Structured, stiff garments often feel at odds with their body's inherent ease. When sewing for a Natural type, consider fabrics with some drape, slightly more ease than the pattern minimum, and less rigid construction.</p>
+<p>Classic types work well with moderate ease and structured construction. Their balanced proportions accommodate both tailored and relaxed silhouettes without strong preference for either.</p>
+<p>Dramatic types often suit strong, clean silhouettes with minimal fuss. Too much detail or too many competing design lines can feel cluttered on a Dramatic's long, strong frame.</p>
+
+<h3>Hem Lengths and Proportion</h3>
+<p>Hem length is one of the most proportion-sensitive decisions in garment construction. For types with a long vertical line (Dramatic, Soft Dramatic, Flamboyant Natural), longer hems tend to feel natural and proportioned. For types with a compact vertical line (Romantic, Gamine types), shorter hemlines tend to feel more in balance with the body's scale.</p>
+<p>This matters especially when sewing skirts and dresses. A midi-length skirt that feels perfectly proportioned on one body type can feel heavy or unbalanced on another. Knowing your Kibbe type gives you a starting point for choosing hem lengths before you cut the fabric.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Comparison showing how the same midi skirt reads differently on a long-line yang type versus a compact yin type">[ Image: Two figures wearing the same midi skirt. On the yang type, it reads as proportioned and elegant. On the compact yin type, it reads as heavy ]</div><figcaption>The same hem length reads very differently depending on the body's vertical line</figcaption></figure>
+
+<h2>Kibbe Types and Fabric Selection</h2>
+<p>Fabric weight and drape interact with the body in ways that Kibbe principles help predict. Yang-dominant types can carry heavier, more structured fabrics because their bone structure provides a strong underlying line for the fabric to hang from. Stiff fabrics on yin-dominant types can create a rigid silhouette that overrides the body's natural softness.</p>
+<p>Yin-dominant types (Romantic, Theatrical Romantic, Soft Classic) tend to suit fabrics that drape softly and move with the body. Fabrics like rayon, silk, and soft jersey allow the body's curves to show through rather than concealing them. Structured fabrics like canvas or stiff denim can create a boxy silhouette that works against yin qualities.</p>
+<p>Natural types work well with fabrics that have natural texture and some drape: linen, brushed cotton, soft denim, and casual knits. Very stiff or very slippery fabrics can both feel wrong. Fabrics with substance and movement tend to suit them best.</p>
+
+<h2>Finding Your Kibbe Type</h2>
+<p>Kibbe typing is not about measurements. It is about the visual qualities of your bone structure and flesh distribution. A 5'4" person and a 5'9" person can be the same Kibbe type if their proportional characteristics align. Size is not a factor.</p>
+<p>David Kibbe himself has noted that the system is meant to be understood in a mirror, not in a quiz. Online quizzes can be a starting point, but they often oversimplify. The key questions are:</p>
+<ul>
+  <li>Is your bone structure sharp and angular, blunt and broad, or moderate and symmetrical?</li>
+  <li>Is your vertical line long, moderate, or compact?</li>
+  <li>Does your flesh add curve and softness, or does it follow the line of your bones closely?</li>
+  <li>Are your facial features sharp and angular, soft and rounded, or somewhere in between?</li>
+</ul>
+<p>The answers point toward your dominant yin-yang balance and, from there, toward one of the 13 types. Communities dedicated to Kibbe typing offer detailed guides and community support if you want to go deeper.</p>
+
+<h2>Using Kibbe With Made-to-Measure Patterns</h2>
+<p>Kibbe and made-to-measure patterns work well together because they solve different problems. Made-to-measure patterns solve the dimensional problem: circumferences and lengths match your body exactly. Kibbe solves the proportion problem: the silhouette, hem length, ease level, and design lines work with your body's natural proportions.</p>
+<p>A useful approach is to use your Kibbe type to choose which garment to sew and how to configure its options, then use your measurements to generate a pattern that fits. For example, a Flamboyant Natural might choose a relaxed garment with dropped shoulders and a longer hem, then generate that pattern from their actual measurements so the relaxed silhouette drapes correctly on their specific frame.</p>
+<p>A Romantic type might choose garments with defined waists and shorter hemlines, then use their measurements to ensure the waist seam lands at their actual natural waist rather than at the standard pattern's assumed position.</p>
+<p>The two systems address complementary needs. One ensures the garment fits. The other ensures the garment flatters. Together they give you a complete picture of how to build a wardrobe that works for your body.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Workflow showing Kibbe type guiding garment selection and measurements guiding pattern generation">[ Image: Diagram showing two parallel inputs: Kibbe type determines silhouette and options, measurements determine pattern dimensions. Both feed into the generated custom pattern ]</div><figcaption>Kibbe guides what to sew. Measurements determine how it fits</figcaption></figure>
+
+<section class="faq">
+<h2>Frequently Asked Questions</h2>
+<div class="faq-item">
+<h3>What is the Kibbe body type system?</h3>
+<p>The Kibbe system, developed by image consultant David Kibbe in the 1980s, classifies bodies into 13 types based on the balance between yin (curved, soft, compact) and yang (angular, elongated, broad) characteristics in bone structure and flesh distribution. It is used to understand proportional harmony in clothing silhouettes.</p>
+</div>
+<div class="faq-item">
+<h3>How many Kibbe body types are there?</h3>
+<p>The modern Kibbe system has 11 types: Dramatic, Soft Dramatic, Flamboyant Natural, Natural, Soft Natural, Classic, Soft Classic, Theatrical Romantic, Romantic, Flamboyant Gamine, and Soft Gamine. The original 1987 book listed additional sub-types that Kibbe himself later consolidated.</p>
+</div>
+<div class="faq-item">
+<h3>Does Kibbe body type affect how I should take measurements?</h3>
+<p>No. Kibbe is about proportional harmony in silhouette, not about measurement technique. You still take the same circumference and length measurements for pattern drafting. Kibbe concepts are most useful when deciding which garment styles to sew and how to adjust ease and proportion preferences.</p>
+</div>
+<div class="faq-item">
+<h3>Can I use Kibbe principles with made-to-measure patterns?</h3>
+<p>Yes. Made-to-measure patterns ensure the garment fits your actual measurements. Kibbe principles help you choose silhouettes and ease levels that complement your proportions. Use your Kibbe type to choose the garment and configure its options, then use your measurements to generate a pattern that fits exactly.</p>
+</div>
+</section>
+
+<p class="learn-cta-inline">Ready to sew something that fits? <a href="/patterns">Start with a free pattern &#x2192;</a></p>
+`,
+  },
 ];

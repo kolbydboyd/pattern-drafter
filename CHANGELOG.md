@@ -16,13 +16,7 @@ All notable changes are documented here, newest first.
 - Supabase migration `010_community_garments.sql` with RLS and increment helper function
 - Ease snapping: derived numeric ease snaps to nearest named profile (slim/regular/relaxed/oversized) — works with all existing garment modules, no changes required
 - Stretch detection: warns when reference garment implies stretch fabric and clamps to minimum woven ease
-
-### Architecture
-- `GARMENT_TYPE_MAP` maps all 70+ garment IDs to fit-library types
-- `FLAT_LAY_FIELDS` defines measurement fields + circumference flag per type
-- `FIT_PROFILES` defines named profiles per garment type with canonical ease values
-- `_fitEaseOverride` module state in app.js is injected into opts by readInputs()
-- Clears automatically when garment selection changes
+- Kibbe body types proportion guide article in the Fit category of /learn
 
 ---
 
