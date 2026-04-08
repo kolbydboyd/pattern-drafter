@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.11] - 2026-04-08
+
+### New
+- Kibbe body types proportion guide article in the Fit category of /learn
+
+---
+
 ## [0.12.10] - 2026-04-08
 
 ### Improved
