@@ -90,6 +90,7 @@ function relevantOptionalIds(garment) {
   if (has('thigh'))                      { ids.push('calf', 'ankle'); }
   if (has('inseam') || has('hip'))       { ids.push('outseam'); }
   if (has('hip'))                        { ids.push('seatDepth'); }
+  if (has('rise'))                       { ids.push('crotchArc'); }
   if (has('shoulder'))                   { ids.push('crossBack'); }
   if (has('sleeveLength') || has('bicep')) { ids.push('armToElbow'); }
   return [...new Set(ids)];

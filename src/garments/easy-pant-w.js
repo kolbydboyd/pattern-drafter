@@ -89,8 +89,8 @@ export default {
       default: 'straight',
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.5,  step: 0.25, min: 0.5, max: 3   },
-    backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.5,  step: 0.25, min: 1,   max: 4.5 },
-    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.0,  step: 0.25, min: 0,   max: 2   },
+    backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.75, step: 0.25, min: 1,   max: 4.5 },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,   max: 2   },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [

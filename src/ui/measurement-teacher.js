@@ -168,6 +168,21 @@ const DIAGRAMS = {
       `${vArrow(rO + 12, crY, kY, 'to knee')}</svg>`);
   },
 
+  crotchArc: () => {
+    const wY = 28, lO = 20, rO = 110;
+    const arc = `<path d="M${lO},${wY} C 8,62 34,96 65,96 C 96,96 122,62 ${rO},${wY}"
+        fill="none" stroke="${HI_COLOR}" stroke-width="${ARROW_W}"/>
+      <circle cx="${lO}" cy="${wY}" r="3" fill="${HI_COLOR}"/>
+      <circle cx="${rO}" cy="${wY}" r="3" fill="${HI_COLOR}"/>
+      <text x="${lO}" y="${wY - 6}" font-family="'IBM Plex Mono',monospace" font-size="7"
+        fill="${HI_COLOR}" text-anchor="middle">front</text>
+      <text x="${rO}" y="${wY - 6}" font-family="'IBM Plex Mono',monospace" font-size="7"
+        fill="${HI_COLOR}" text-anchor="middle">back</text>
+      <text x="65" y="110" font-family="'IBM Plex Mono',monospace" font-size="8"
+        fill="${HI_COLOR}" text-anchor="middle">crotch arc</text>`;
+    return lowerBodyBase().replace('</svg>', `${arc}</svg>`);
+  },
+
   skirtLength: () => {
     const wY = 28, hmY = 205, lO = 20;
     return lowerBodyBase().replace('</svg>',
