@@ -143,6 +143,14 @@ export const MEASUREMENTS = {
     optional: true,
     min: 4, max: 14, step: 0.25, default: 7,
   },
+  crotchArc: {
+    id: 'crotchArc',
+    label: 'Crotch arc (total rise)',
+    instruction: 'From center-front waist, pass the tape between your legs, and bring it up to center-back waist.',
+    category: 'lower',
+    optional: true,
+    min: 20, max: 45, step: 0.25, default: 27,
+  },
 
   // ── Optional — Upper Body ──
   waistToArmpit: {
