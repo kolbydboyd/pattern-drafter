@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- pleated trouser men's: structured waistband, single pleat, wide leg -->
+  <path d="M38,38 L122,38 L122,50 L38,50 Z"/>
+  <rect x="74" y="35" width="12" height="8" rx="1"/>
+  <path d="M38,50 L28,196 L76,196 L80,90 L84,196 L132,196 L122,50"/>
+  <!-- front pleats -->
+  <line x1="66" y1="50" x2="68" y2="72" stroke-dasharray="3,2"/>
+  <line x1="94" y1="50" x2="92" y2="72" stroke-dasharray="3,2"/>
+  <!-- crease lines -->
+  <line x1="52" y1="50" x2="52" y2="196" stroke-dasharray="4,3"/>
+  <line x1="108" y1="50" x2="108" y2="196" stroke-dasharray="4,3"/>
+  <line x1="80" y1="50" x2="80" y2="90"/>
+  <!-- slant pocket -->
+  <path d="M62,50 L50,70"/>
+  <path d="M98,50 L110,70"/>
+</svg>

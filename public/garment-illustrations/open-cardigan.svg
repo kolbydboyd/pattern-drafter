@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- open cardigan: drop shoulder, open front, hip length -->
+  <!-- body + sleeves (drop shoulder — sleeve seam past natural shoulder) -->
+  <path d="M58,50 L30,56 L26,130 L52,130 L52,168 L108,168 L108,130 L134,130 L130,56 L102,50"/>
+  <!-- open neckline (no collar, open at center) -->
+  <path d="M58,50 Q64,42 80,40 Q96,42 102,50"/>
+  <!-- open CF edges — no buttons, just open -->
+  <line x1="58" y1="50" x2="58" y2="168"/>
+  <line x1="102" y1="50" x2="102" y2="168"/>
+  <!-- patch pockets -->
+  <rect x="60" y="110" width="20" height="22" rx="2"/>
+  <rect x="80" y="110" width="20" height="22" rx="2"/>
+  <!-- drop shoulder indicator (shoulder seam past natural shoulder) -->
+  <line x1="40" y1="56" x2="52" y2="56" stroke-dasharray="3,2"/>
+  <line x1="120" y1="56" x2="108" y2="56" stroke-dasharray="3,2"/>
+</svg>

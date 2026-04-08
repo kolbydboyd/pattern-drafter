@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- duster cardigan: extra long (mid-thigh), oversized, open front, drop shoulder -->
+  <path d="M60,48 L32,54 L28,120 L52,120 L52,192 L108,192 L108,120 L132,120 L128,54 L100,48"/>
+  <path d="M60,48 Q68,40 80,38 Q92,40 100,48"/>
+  <!-- open CF edges -->
+  <line x1="60" y1="48" x2="60" y2="192"/>
+  <line x1="100" y1="48" x2="100" y2="192"/>
+  <!-- patch pockets at hip level -->
+  <rect x="62" y="126" width="20" height="24" rx="2"/>
+  <rect x="78" y="126" width="20" height="24" rx="2"/>
+  <!-- drop shoulder lines -->
+  <line x1="40" y1="54" x2="52" y2="54" stroke-dasharray="3,2"/>
+  <line x1="120" y1="54" x2="108" y2="54" stroke-dasharray="3,2"/>
+</svg>

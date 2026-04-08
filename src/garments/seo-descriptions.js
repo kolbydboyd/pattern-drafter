@@ -398,6 +398,88 @@ const SEO_DESCRIPTIONS = {
   'midi-circle-skirt-w': { metaDescription: 'Generate a custom-fit midi circle skirt sewing pattern. Half circle, structured waistband. Tiled PDF.', pageIntro: 'A half-circle midi skirt with a structured waistband and invisible zip.', faq: [{ q: 'Full vs half circle?', a: 'A half circle has gentler flare, uses less fabric, and hangs closer to the body.' }] },
   'market-tote': { metaDescription: 'Create a custom-fit market tote sewing pattern. Large, lined, boxed corners. Tiled PDF.', pageIntro: 'A large market tote with boxed corners and lining.', faq: [{ q: 'What fabric?', a: 'Canvas, cotton twill, or heavy linen for the outer. Lightweight cotton for lining.' }] },
   'beach-tote': { metaDescription: 'Draft a custom-fit beach tote sewing pattern. Large, unlined, lightweight. Tiled PDF.', pageIntro: 'A large, lightweight beach tote - designed to shake out sand.', faq: [{ q: 'Can I use waterproof fabric?', a: 'Yes - outdoor fabric, PUL, or laminated cotton all work well.' }] },
+
+  // ── New modules (2026-04-08) ──────────────────────────────────────────────
+  'open-cardigan': {
+    metaDescription: 'Draft a custom-fit open cardigan / shacket sewing pattern. Oversized drop-shoulder layer, open front, hip to mid-thigh length. Tiled PDF with full instructions.',
+    pageIntro: 'An oversized open-front layer drafted to your chest, shoulder, and sleeve measurements. Drop shoulder construction, no buttons — designed to drape open. Choose hip or mid-thigh length.',
+    faq: [
+      { q: 'What is a drop shoulder?', a: 'The shoulder seam extends past the natural shoulder point, creating a relaxed silhouette without a traditional armhole curve. It is beginner-friendly to sew.' },
+      { q: 'What fabric works best?', a: 'Medium-weight wovens with good drape: linen, cotton canvas, flannel, or lightweight wool. Avoid stiff fabrics that do not hang well.' },
+    ],
+  },
+  'duster-cardigan': {
+    metaDescription: 'Create a custom-fit duster cardigan sewing pattern. Oversized, mid-thigh length, open front. Tiled PDF.',
+    pageIntro: 'A long, oversized open-front duster drafted from your measurements. Mid-thigh length with drop shoulder construction.',
+    faq: [
+      { q: 'How long is a duster?', a: 'Mid-thigh, roughly 28-34 inches from the shoulder depending on your torso length.' },
+      { q: 'Can I add pockets?', a: 'Yes - the pattern includes optional patch pockets positioned at hip level on each front panel.' },
+    ],
+  },
+  'shacket': {
+    metaDescription: 'Generate a custom-fit shacket sewing pattern. Hip-length shirt-jacket, open front, relaxed fit. Tiled PDF.',
+    pageIntro: 'A hip-length shirt-jacket with a relaxed open-front silhouette. Drop shoulder, patch pockets, no buttons.',
+    faq: [
+      { q: 'What is a shacket?', a: 'A shirt worn as a jacket — hip length, slightly oversized, made in heavier fabric like canvas, flannel, or heavy linen.' },
+      { q: 'Can I wear it as a shirt?', a: 'Yes - its hip length and relaxed proportions work as a shirt layer over a tee.' },
+    ],
+  },
+  'chore-coat': {
+    metaDescription: 'Draft a custom-fit chore coat / overshirt sewing pattern. Boxy hip-length, button front, patch pockets, camp collar. Tiled PDF.',
+    pageIntro: 'A boxy hip-length overshirt drafted to your exact measurements. Button placket, camp or band collar, chest flap pockets and lower patch pockets. Wear it as a shirt or a light jacket.',
+    faq: [
+      { q: 'What is a chore coat?', a: 'A structured hip-length overshirt in heavy workwear fabric — canvas, linen, or flannel. It has the proportions of a jacket but is constructed like a shirt.' },
+      { q: 'What fabric works best?', a: 'Cotton canvas (10-12 oz), medium-weight linen, cotton twill, or lightweight denim. The fabric should have enough body to hold the boxy shape.' },
+    ],
+  },
+  'linen-overshirt': {
+    metaDescription: 'Create a custom-fit linen overshirt sewing pattern. Hip-length, camp collar, chest pockets. Tiled PDF.',
+    pageIntro: 'A relaxed linen overshirt with a camp collar and chest pockets, drafted from your measurements.',
+    faq: [
+      { q: 'What weight of linen?', a: 'Medium-weight linen (5-7 oz) gives the right balance of structure and drape. Pre-wash hot to prevent shrinkage after sewing.' },
+      { q: 'What is a camp collar?', a: 'A flat open collar with no stand — it folds back over the front placket. Common on resort and workwear shirts.' },
+    ],
+  },
+  'canvas-work-coat': {
+    metaDescription: 'Draft a custom-fit canvas work coat sewing pattern. Oversized long coat, band collar, 4 pockets. Tiled PDF.',
+    pageIntro: 'An oversized long canvas work coat with a band collar and four pockets, drafted to your measurements.',
+    faq: [
+      { q: 'Is canvas hard to sew?', a: 'It is stiffer than quilting cotton but sewable on a home machine with a denim needle (90/14) and longer stitch length (3.0 mm).' },
+      { q: 'Does canvas soften after washing?', a: 'Yes - prewash before cutting, and each wash will soften it further.' },
+    ],
+  },
+  'wide-leg-trouser-m': {
+    metaDescription: 'Draft a custom-fit wide-leg trouser sewing pattern for men. Higher rise, full-width leg, clean drape. Tiled PDF with full instructions.',
+    pageIntro: 'Wide-leg trousers drafted to your waist, hip, rise, and inseam. Higher mid-rise with a full-width leg that drapes straight from hip to hem. Flat front default with optional single or double pleats.',
+    faq: [
+      { q: 'How is this different from the women\'s version?', a: 'The men\'s version uses different rise defaults (mid-rise), smaller crotch extensions, and flat front as the default. The leg width and drape math is the same.' },
+      { q: 'What fabric works best?', a: 'Wool suiting or wool blends drape best. Cotton twill, linen, and tencel twill are good warm-weather options.' },
+    ],
+  },
+  'pleated-trouser-m': {
+    metaDescription: 'Generate a custom-fit pleated trouser sewing pattern for men. Single pleat, high rise, structured waistband. Tiled PDF.',
+    pageIntro: 'Pleated dress trousers with a single front pleat, high rise, and structured waistband.',
+    faq: [
+      { q: 'What direction do pleats fold?', a: 'Toward the side seam — this opens toward the center front when seated, adding room.' },
+      { q: 'What fabric is best for pleated trousers?', a: 'Wool suiting or wool crepe for dress trousers. Cotton twill and linen for casual versions.' },
+    ],
+  },
+  'henley': {
+    metaDescription: 'Create a custom-fit Henley shirt sewing pattern. 3-button neckline placket, no collar, relaxed fit. Tiled PDF.',
+    pageIntro: 'A relaxed top with a 3-button vertical placket at the neckline and no collar. Works in woven (linen, poplin, chambray) or knit (jersey, interlock) fabric. Set-in sleeve in long, 3/4, or short length.',
+    faq: [
+      { q: 'What is a Henley?', a: 'A collarless shirt with a partial button placket at the neckline — typically 3-5 buttons. One step up from a plain tee without the formality of a full button-up.' },
+      { q: 'Woven or knit?', a: 'Both work. Woven Henleys (linen, poplin) have a more structured look. Knit Henleys (jersey) are softer and have more ease of movement.' },
+    ],
+  },
+  'long-sleeve-henley': {
+    metaDescription: 'Draft a custom-fit long sleeve Henley sewing pattern. 3-button placket, knit, relaxed fit. Tiled PDF.',
+    pageIntro: 'A long-sleeve relaxed knit Henley with a 3-button placket and no collar.',
+    faq: [
+      { q: 'What knit works best?', a: 'Cotton jersey (5-7 oz) or cotton-modal blend gives the classic Henley feel. Slub jersey adds texture.' },
+      { q: 'Do I need a serger?', a: 'A serger gives the best finish on knit seams, but you can use a stretch stitch or narrow zigzag on a standard machine.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;
