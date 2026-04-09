@@ -11,7 +11,7 @@ All notable changes are documented here, newest first.
 - Fabric sourcing guide: 18 garments with fabric type, weight, yardage, colors (Deep Autumn palette), notions, sewing tips
 - Local Houston store guide (Mood Fabrics, Hobby Lobby, JoAnn, Fabrictopia, Universal Fabric Center)
 - Online store directory (8 curated shops with per-garment recommendations)
-- Measurement profile display: shows admin's saved measurements inline for quick reference
+- Editable measurement profile: fill in, update, and save all body measurements directly from the admin tab (upper body, lower body, full body with optional fields). Creates a new Supabase profile or updates existing one.
 - Pattern shortcut links on every garment card (direct to /patterns/{slug})
 - Accordion expand/collapse and garments vs store guide sub-tab switching
 

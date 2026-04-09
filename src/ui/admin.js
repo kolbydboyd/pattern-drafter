@@ -7,7 +7,8 @@
 import { getUser } from '../lib/auth.js';
 import { BUNDLES, PATTERN_PRICES } from '../lib/pricing.js';
 import { ARTICLES } from '../content/articles.js';
-import { getMeasurementProfiles } from '../lib/db.js';
+import { getMeasurementProfiles, saveMeasurementProfile, updateMeasurementProfile } from '../lib/db.js';
+import { MEASUREMENTS } from '../engine/measurements.js';
 import {
   getGarmentCatalog, updateGarment,
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
@@ -1742,26 +1743,58 @@ function renderFoundersSelect(profiles = []) {
   const activeProfile = profiles[0];
   const m = activeProfile?.measurements ?? {};
 
-  const measurementRows = activeProfile ? [
-    ['Chest', m.chest], ['Waist', m.waist], ['Hip', m.hip],
-    ['Shoulder', m.shoulder], ['Sleeve', m.sleeveLength ?? m.sleeve],
-    ['Inseam', m.inseam], ['Torso', m.torsoLength ?? m.torso],
-    ['Neck', m.neck], ['Thigh', m.thigh], ['Knee', m.knee],
-    ['Rise', m.rise ?? m.crotchDepth],
-  ].filter(([, v]) => v) : [];
+  // Body measurements only (exclude bag/accessory)
+  const bodyMeasurements = Object.values(MEASUREMENTS).filter(def => def.category !== 'accessory');
+  const upperMeasurements = bodyMeasurements.filter(def => def.category === 'upper');
+  const lowerMeasurements = bodyMeasurements.filter(def => def.category === 'lower');
+  const fullMeasurements  = bodyMeasurements.filter(def => def.category === 'full');
+
+  function renderMeasurementInput(def) {
+    const val = m[def.id] ?? '';
+    const opt = def.optional ? ' <span style="font-size:.6rem;color:var(--mid)">(opt)</span>' : '';
+    return `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px" title="${def.instruction}">
+        <label style="font-size:.75rem;width:140px;flex-shrink:0;color:var(--text)">${def.label}${opt}</label>
+        <input type="number" class="adm-fs-meas-input" data-meas-id="${def.id}"
+          value="${val}" min="${def.min}" max="${def.max}" step="${def.step}" placeholder="${def.default}"
+          style="width:80px;font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:4px 6px;border:1px solid var(--bdr);border-radius:3px;background:var(--bg);color:var(--text);text-align:right">
+        <span style="font-size:.7rem;color:var(--mid)">in</span>
+      </div>`;
+  }
 
   return `
     <h2 class="adm-section-title">Founder's Select</h2>
     <p style="font-size:.8rem;color:var(--mid);margin-bottom:20px">Deep Autumn. Flamboyant Natural. Your personal wardrobe system, fabric sourcing guide, and pattern shortcuts.</p>
 
     <div class="adm-roadmap-card" style="margin-bottom:16px">
-      <h3 style="margin-bottom:12px">My Measurement Profile</h3>
-      ${activeProfile ? `
-        <p style="font-size:.78rem;color:var(--mid);margin-bottom:10px"><strong style="color:var(--gold)">${activeProfile.name}</strong> &middot; updated ${new Date(activeProfile.updated_at || activeProfile.created_at).toLocaleDateString()}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-          ${measurementRows.map(([label, val]) => `<span style="font-size:.75rem;font-family:'IBM Plex Mono',monospace;background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:3px 8px">${label}: ${val}"</span>`).join('')}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0">My Measurements</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${activeProfile ? `<span style="font-size:.7rem;color:var(--mid)">Profile: <strong style="color:var(--gold)">${activeProfile.name}</strong></span>` : ''}
+          <button id="adm-fs-save-meas" class="adm-btn" style="font-size:.72rem;padding:4px 14px">Save</button>
         </div>
-      ` : `<p style="font-size:.8rem;color:var(--mid)">No measurement profile saved yet. Create one in your <a href="/account" style="color:var(--gold)">account dashboard</a>.</p>`}
+      </div>
+      <div id="adm-fs-meas-status" style="font-size:.72rem;margin-bottom:8px" hidden></div>
+      ${!activeProfile ? `
+        <div style="margin-bottom:10px">
+          <label style="font-size:.75rem;color:var(--mid);margin-right:6px">Profile name:</label>
+          <input type="text" id="adm-fs-profile-name" value="Kolby" style="font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:4px 6px;border:1px solid var(--bdr);border-radius:3px;background:var(--bg);color:var(--text);width:160px">
+        </div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;border-bottom:1px solid var(--bdr);padding-bottom:4px">Upper Body</div>
+          ${upperMeasurements.map(renderMeasurementInput).join('')}
+        </div>
+        <div>
+          <div style="font-size:.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;border-bottom:1px solid var(--bdr);padding-bottom:4px">Lower Body</div>
+          ${lowerMeasurements.map(renderMeasurementInput).join('')}
+        </div>
+        <div>
+          <div style="font-size:.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;border-bottom:1px solid var(--bdr);padding-bottom:4px">Full Body</div>
+          ${fullMeasurements.map(renderMeasurementInput).join('')}
+        </div>
+      </div>
+      <input type="hidden" id="adm-fs-profile-id" value="${activeProfile?.id ?? ''}">
     </div>
 
     <nav style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--bdr)">
@@ -1847,6 +1880,51 @@ function wireFoundersSelect() {
       if (garments) garments.hidden = view !== 'garments';
       if (stores) stores.hidden = view !== 'stores';
     });
+  });
+
+  // Save / update measurement profile
+  section.querySelector('#adm-fs-save-meas')?.addEventListener('click', async () => {
+    const statusEl = section.querySelector('#adm-fs-meas-status');
+    const profileIdEl = section.querySelector('#adm-fs-profile-id');
+    const profileId = profileIdEl?.value || '';
+    const inputs = section.querySelectorAll('.adm-fs-meas-input');
+    const measurements = {};
+    inputs.forEach(inp => {
+      const val = parseFloat(inp.value);
+      if (!isNaN(val) && val > 0) measurements[inp.dataset.measId] = val;
+    });
+    if (Object.keys(measurements).length === 0) {
+      if (statusEl) { statusEl.hidden = false; statusEl.style.color = 'var(--mid)'; statusEl.textContent = 'Enter at least one measurement.'; }
+      return;
+    }
+    const saveBtn = section.querySelector('#adm-fs-save-meas');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    let result;
+    if (profileId) {
+      result = await updateMeasurementProfile(profileId, measurements);
+    } else {
+      const nameEl = section.querySelector('#adm-fs-profile-name');
+      const name = nameEl?.value?.trim() || 'Kolby';
+      result = await saveMeasurementProfile(_adminUser.id, name, measurements);
+      if (result.data?.id && profileIdEl) {
+        profileIdEl.value = result.data.id;
+        nameEl?.closest('div')?.remove();
+      }
+    }
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
+    if (statusEl) {
+      statusEl.hidden = false;
+      if (result.error) {
+        statusEl.style.color = '#c62828';
+        statusEl.textContent = 'Error: ' + (result.error.message || 'Save failed.');
+      } else {
+        statusEl.style.color = 'var(--gold)';
+        statusEl.textContent = 'Saved ' + Object.keys(measurements).length + ' measurements.';
+        setTimeout(() => { statusEl.hidden = true; }, 3000);
+      }
+    }
   });
 
   // Accordion expand/collapse
