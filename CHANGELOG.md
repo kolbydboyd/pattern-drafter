@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.13] - 2026-04-09
+
+### New
+- Founder's Select tab in admin dashboard with personal wardrobe system
+- Fabric sourcing guide: 18 garments with fabric type, weight, yardage, colors (Deep Autumn palette), notions, sewing tips
+- Local Houston store guide (Mood Fabrics, Hobby Lobby, JoAnn, Fabrictopia, Universal Fabric Center)
+- Online store directory (8 curated shops with per-garment recommendations)
+- Measurement profile display: shows admin's saved measurements inline for quick reference
+- Pattern shortcut links on every garment card (direct to /patterns/{slug})
+- Accordion expand/collapse and garments vs store guide sub-tab switching
+
+---
+
 ## [0.12.12] - 2026-04-08
 
 ### New
