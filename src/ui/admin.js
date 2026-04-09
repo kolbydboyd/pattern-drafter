@@ -1797,6 +1797,33 @@ function renderFoundersSelect(profiles = []) {
       <input type="hidden" id="adm-fs-profile-id" value="${activeProfile?.id ?? ''}">
     </div>
 
+    <div class="adm-roadmap-card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" id="adm-fs-palette-toggle">
+        <h3 style="margin:0;font-size:.88rem">Deep Autumn Color Palette</h3>
+        <span id="adm-fs-palette-chevron" style="font-size:.85rem;color:var(--mid);transition:transform .2s">+</span>
+      </div>
+      <div id="adm-fs-palette-body" hidden style="margin-top:12px">
+        <div style="margin-bottom:10px">
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Neutrals</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${[['Cream','#FFF8E7','#3E2723'],['Charcoal','#3E3E3E','#FFF8E7'],['Chocolate','#3E2723','#FFF8E7'],['Olive','#4A5D23','#FFF8E7']].map(([n,bg,fg]) => `<div style="text-align:center"><div style="width:48px;height:32px;border-radius:4px;background:${bg};border:1px solid var(--bdr)"></div><div style="font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--mid);margin-top:2px">${n}</div><div style="font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--mid)">${bg}</div></div>`).join('')}
+          </div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Core Palette</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${[['Rust','#BF5B21'],['Burgundy','#722F37'],['Terracotta','#C85A3A'],['Mustard','#C4960C'],['Deep Teal','#1A6B5A']].map(([n,bg]) => `<div style="text-align:center"><div style="width:48px;height:32px;border-radius:4px;background:${bg};border:1px solid var(--bdr)"></div><div style="font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--mid);margin-top:2px">${n}</div><div style="font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--mid)">${bg}</div></div>`).join('')}
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Accents</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${[['Warm Gold','#BF6A30'],['Copper','#B36B3E'],['Dark Olive','#2E3D1A']].map(([n,bg]) => `<div style="text-align:center"><div style="width:48px;height:32px;border-radius:4px;background:${bg};border:1px solid var(--bdr)"></div><div style="font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--mid);margin-top:2px">${n}</div><div style="font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--mid)">${bg}</div></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
     <nav style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--bdr)">
       <button class="adm-fs-subtab adm-fs-subtab--active" data-fs-view="garments" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">By Garment (${FS_GARMENTS.length})</button>
       <button class="adm-fs-subtab" data-fs-view="stores" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Store Guide</button>
@@ -1880,6 +1907,15 @@ function wireFoundersSelect() {
       if (garments) garments.hidden = view !== 'garments';
       if (stores) stores.hidden = view !== 'stores';
     });
+  });
+
+  // Color palette toggle
+  section.querySelector('#adm-fs-palette-toggle')?.addEventListener('click', () => {
+    const body = section.querySelector('#adm-fs-palette-body');
+    const chevron = section.querySelector('#adm-fs-palette-chevron');
+    if (!body) return;
+    body.hidden = !body.hidden;
+    if (chevron) chevron.textContent = body.hidden ? '+' : '\u2212';
   });
 
   // Save / update measurement profile
