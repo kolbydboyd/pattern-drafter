@@ -7,6 +7,7 @@
 import { getUser } from '../lib/auth.js';
 import { BUNDLES, PATTERN_PRICES } from '../lib/pricing.js';
 import { ARTICLES } from '../content/articles.js';
+import { getMeasurementProfiles } from '../lib/db.js';
 import {
   getGarmentCatalog, updateGarment,
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
@@ -108,7 +109,7 @@ async function render(user) {
   if (user) _adminUser = user;
   root.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--mid);font-size:.83rem;">Loading dashboard...</div>';
 
-  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes, pinStatsRes] = await Promise.all([
+  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes, pinStatsRes, profilesRes] = await Promise.all([
     getGarmentCatalog(),
     getRevenueStats(),
     getFunnelStats(),
@@ -117,6 +118,7 @@ async function render(user) {
     getAllPhotos(),
     getContentPipeline(_adminUser.id),
     getPinterestPinStats(),
+    getMeasurementProfiles(_adminUser.id),
   ]);
 
   const catalog = catalogRes.data;
@@ -127,6 +129,7 @@ async function render(user) {
   const allPhotos = photosRes.data;
   const pipeline = pipelineRes.data;
   const pinStats = pinStatsRes.data;
+  const myProfiles = profilesRes.data ?? [];
 
   const photosByGarment = {};
   for (const p of allPhotos) {
@@ -155,6 +158,7 @@ async function render(user) {
     { id: 'market', label: 'Market' },
     { id: 'content', label: 'Content' },
     { id: 'reference', label: 'Reference' },
+    { id: 'founders-select', label: "Founder's Select" },
   ];
 
   root.innerHTML = `
@@ -186,6 +190,7 @@ async function render(user) {
     <div id="adm-s-market" hidden>${renderMarket()}</div>
     <div id="adm-s-content" hidden>${renderContent(pipeline, pinStats)}</div>
     <div id="adm-s-reference" hidden>${renderReference()}</div>
+    <div id="adm-s-founders-select" hidden>${renderFoundersSelect(myProfiles)}</div>
   `;
 
   wireNavTabs();
@@ -193,6 +198,7 @@ async function render(user) {
   wireCatalog(catalog);
   wireChecklists();
   wireContentPipeline(pipeline);
+  wireFoundersSelect();
 }
 
 // ── Nav tabs ─────────────────────────────────────────────────────────────────
@@ -1687,6 +1693,178 @@ function renderReference() {
       </ul>
     </div>
   `;
+}
+
+// ── Section: Founder's Select ─────────────────────────────────────────────────
+
+const FS_GARMENTS = [
+  { id: 'camp-shirt', name: 'Camp Shirt (x3-4)', pattern: 'Camp Shirt / Vacation Shirt', slug: 'camp-shirt', fabric: 'Mid-weight linen (5.5-7 oz/yd2) or rayon challis', yardage: '2-2.5 yd', colors: ['Rust solid','Olive solid','Bold warm floral/geometric print','Cream solid'], notions: '5-6 buttons (coconut shell or matte horn), matching thread', tips: 'Rayon challis drapes beautifully for camp shirts but wrinkles less than linen. Pre-wash all fabric before cutting. Linen shrinks 5-10%, rayon challis 3-5%. For prints, go BOLD. Large-scale florals, paisleys, or geometrics. Small prints get lost on an FN frame.', local: [{store:'Mood Fabrics Houston',note:'Best selection of linen solids + rayon challis prints'},{store:'Hobby Lobby',note:'Budget linen blends and rayon challis prints'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Premium linen, huge rayon challis print selection'},{store:'Cali Fabrics',url:'califabrics.com',note:'Great rayon challis prints at good prices'},{store:'Style Maker Fabrics',url:'stylemakerfabrics.com',note:'Curated apparel fabrics, easy to browse by garment type'},{store:'LA Finch Fabrics',url:'lafinchfabrics.com',note:'Deadstock designer rayon and linen at discount'}] },
+  { id: 'oversized-tee', name: 'Oversized Tee (x4-5)', pattern: 'Oversized Tee', slug: 'oversized-tee', fabric: 'Heavyweight cotton jersey (7-10 oz/yd2)', yardage: '1.5-2 yd', colors: ['Burgundy/wine','Cream/off-white','Mustard','Charcoal','Deep teal'], notions: 'Matching thread, ballpoint/jersey needle, twin needle for hems', tips: 'You want HEAVYWEIGHT cotton jersey. 8 oz+ minimum. Thin jersey will cling and look cheap on your frame. Comfort Colors weight (6.1 oz) is the floor. Look for garment-dyed or pigment-dyed jersey for that lived-in look. Use a walking foot or serger for knits.', local: [{store:'Mood Fabrics Houston',note:'Designer jersey knits'},{store:'JoAnn Fabrics',note:'Basic cotton jersey solids, affordable'}], online: [{store:'LA Finch Fabrics',url:'lafinchfabrics.com',note:'Deadstock heavyweight jersey, great colors'},{store:'Raspberry Creek Fabrics',url:'raspberrycreekfabrics.com',note:'Known for quality knits'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Premium cotton jersey'},{store:'Harts Fabric',url:'hartsfabrics.com',note:'Good knit selection, fair prices'}] },
+  { id: 'linen-shirt', name: 'Linen Shirt (x1-2)', pattern: 'Linen Shirt', slug: 'linen-shirt', fabric: 'Mid-weight linen (5.5-7 oz/yd2)', yardage: '2.5-3 yd', colors: ['Terracotta','Dark olive'], notions: '7-8 buttons (natural wood or coconut shell), matching thread', tips: 'Mid-weight linen (IL019 weight) is the sweet spot. Structured enough for a shirt but not stiff. fabrics-store.com has the widest color range of pure linen at reasonable prices. Pre-wash and dry on high heat to get all shrinkage out before cutting.', local: [{store:'Mood Fabrics Houston',note:'Wide range of linen weights and colors'},{store:'Hobby Lobby',note:'Budget linen blends in earth tones'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Largest online linen selection'},{store:'Fabric Store (The)',url:'thefabricstore.com',note:'Premium European linen, beautiful drape'},{store:'fabrics-store.com',url:'fabrics-store.com',note:'Pure linen by the yard, tons of colors, great prices'}] },
+  { id: 'straight-jeans', name: 'Straight Jeans (x2)', pattern: 'Straight Jeans', slug: 'straight-jeans', fabric: '12 oz non-stretch denim or 11 oz stretch denim (2% elastane)', yardage: '3-3.5 yd', colors: ['Medium wash indigo','Dark indigo (raw)'], notions: 'Jeans zipper (7"), jeans button, rivets (optional), topstitch thread (gold/copper), denim needle (16/100), waistband interfacing', tips: 'For your first pair, 11 oz stretch denim is more forgiving to sew and more comfortable. For raw denim, buy dark indigo and let it develop its own wash over time. Use gold/copper topstitch thread. It is a warm-toned detail that matches your Deep Autumn palette. Buy a jeans hardware kit (button + rivets).', local: [{store:'Mood Fabrics Houston',note:'Cone Mills and designer denim'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Best denim selection. Cone Mills, Japanese denim'},{store:'Pacific Blue Denims',url:'pacificbluedenims.com',note:'Specialty denim shop, raw and washed'},{store:'Blackbird Fabrics',url:'blackbirdfabrics.com',note:'Curated denim + jeans hardware kits'},{store:'Threadbare Fabrics',url:'threadbarefabrics.com',note:'Deadstock denim at good prices'}] },
+  { id: 'baggy-jeans', name: 'Baggy Jeans (x1)', pattern: 'Baggy Jeans', slug: 'baggy-jeans', fabric: '12 oz non-stretch denim', yardage: '3.5-4 yd', colors: ['Medium wash indigo'], notions: 'Same as Straight Jeans', tips: 'Non-stretch is better here. The wide leg holds its shape better without elastane. Same hardware and construction as straight jeans. More yardage needed for the wider leg.', local: [{store:'Mood Fabrics Houston',note:'Cone Mills denim'}], online: [{store:'Pacific Blue Denims',url:'pacificbluedenims.com',note:'Wide selection of medium wash'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Designer denim options'}] },
+  { id: 'baggy-shorts', name: 'Baggy Shorts / Jorts (x2)', pattern: 'Baggy Shorts', slug: 'baggy-shorts', fabric: '10-12 oz denim or canvas', yardage: '1.5-2 yd', colors: ['Light wash denim','Olive canvas'], notions: 'Jeans zipper, button, topstitch thread, denim needle', tips: 'For jorts, you can also buy thrifted jeans and cut them. But custom-drafted gives you the right rise and leg width for your body. Canvas jorts in olive are extremely Houston-summer-appropriate.', local: [{store:'Mood Fabrics Houston',note:'Denim and canvas'},{store:'JoAnn Fabrics',note:'Canvas in olive/earth tones'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Light wash denim'},{store:'Big Duck Canvas',url:'bigduckcanvas.com',note:'Canvas by the yard, many weights and colors'}] },
+  { id: 'pleated-trousers', name: 'Pleated Trousers (x1)', pattern: 'Pleated Trousers', slug: 'pleated-trousers', fabric: 'Wool-poly blend suiting (8-10 oz) or heavy cotton twill', yardage: '3-3.5 yd', colors: ['Chocolate brown'], notions: 'Trouser zipper (9"), hook and bar closure, pocketing fabric (cotton), waistband interfacing, matching thread', tips: 'For Houston, a tropical weight wool-poly blend (8 oz) breathes well year-round. Chocolate brown is a Deep Autumn essential. It reads dressier than khaki but warmer than black. Do not skip the pocketing fabric. Use cotton shirting for clean interior pockets.', local: [{store:'Mood Fabrics Houston',note:'Suiting fabrics and wool blends'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Largest suiting selection online'},{store:'B&J Fabrics',url:'bandjfabrics.com',note:'NYC garment district quality, great wool/poly blends'},{store:'Emma One Sock',url:'emmaonesock.com',note:'Curated suiting and bottom-weight fabrics'}] },
+  { id: 'chinos', name: 'Chinos (x1)', pattern: 'Chinos', slug: 'chinos', fabric: 'Cotton twill or stretch cotton twill (7-9 oz)', yardage: '2.5-3 yd', colors: ['Olive'], notions: 'Zipper, button/hook closure, matching thread, waistband interfacing', tips: 'Stretch twill (3% elastane) is more comfortable for daily wear but non-stretch holds its shape better over time. Olive is the most versatile FN chino color. Pairs with every top in your palette.', local: [{store:'Mood Fabrics Houston',note:'Cotton twill in earth tones'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Good twill selection'},{store:'Style Maker Fabrics',url:'stylemakerfabrics.com',note:'Bottom-weight fabrics section'},{store:'Blackbird Fabrics',url:'blackbirdfabrics.com',note:'Curated twill and bottom-weights'}] },
+  { id: 'chambray-work-shirt', name: 'Chambray Work Shirt (x1)', pattern: 'Chambray Work Shirt', slug: 'chambray-work-shirt', fabric: 'Chambray (5-7 oz)', yardage: '2.5-3 yd', colors: ['Classic indigo chambray'], notions: '7-8 buttons (natural or metal snap), matching thread', tips: 'Chambray looks like denim but is much lighter. It is plain-woven, not twill. Perfect shirt-weight fabric for Houston. Robert Kaufman Chambray Union is the gold standard. This is one of the few places where a cooler blue works because the fabric texture warms it up.', local: [{store:'Mood Fabrics Houston',note:'Quality chambray'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Multiple chambray weights'},{store:'Blackbird Fabrics',url:'blackbirdfabrics.com',note:'Good chambray options'}] },
+  { id: 'denim-jacket', name: 'Lightweight Denim Jacket (x1)', pattern: 'Denim Jacket', slug: 'denim-jacket', fabric: '8-10 oz denim', yardage: '3-3.5 yd', colors: ['Medium wash'], notions: 'Metal snaps or buttons, topstitch thread (gold), denim needle, interfacing', tips: '8 oz is ideal. Heavy enough to hold structure but light enough for Houston layering. You will wear this open over tees and camp shirts most of the time, so the fit through the shoulders matters most. Gold topstitch thread keeps it in your warm palette.', local: [{store:'Mood Fabrics Houston',note:'Multiple denim weights'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'8 oz denim in various washes'},{store:'Pacific Blue Denims',url:'pacificbluedenims.com',note:'Lightweight denim specialty'}] },
+  { id: 'open-cardigan', name: 'Open Cardigan / Shacket (x1-2)', pattern: 'Open Cardigan', slug: 'open-cardigan', fabric: 'Heavyweight cotton twill, wool blend, or flannel (10-14 oz)', yardage: '3-4 yd', colors: ['Earth tone patchwork','Solid chocolate or olive wool blend'], notions: 'No closures needed (open front). Matching thread only.', tips: 'This is your highest-impact garment. For the patchwork version, buy 3-4 different wool or flannel remnants in complementary warm tones and piece them together. For a solid version, a boiled wool or heavy cotton canvas in chocolate or olive. No buttons, no zipper. The whole point is that it hangs open.', local: [{store:'Mood Fabrics Houston',note:'Wool blends, heavy cotton, flannel'},{store:'Thrift stores',note:'Buy wool blankets to cut up for patchwork versions'}], online: [{store:'Mood Fabrics',url:'moodfabrics.com',note:'Wool coating, flannel, heavy cotton'},{store:'Fabric Mart',url:'fabricmartfabrics.com',note:'Discount designer woolens and heavy wovens'},{store:'Pendleton Woolen Mill Store',url:'pendleton-usa.com',note:'Iconic wool fabrics, patchwork-worthy'}] },
+  { id: 'crewneck', name: 'Crewneck Sweatshirt (x2)', pattern: 'Crewneck', slug: 'crewneck', fabric: 'French terry (10-12 oz)', yardage: '2-2.5 yd + 0.25 yd ribbing', colors: ['Charcoal','Burgundy'], notions: 'Matching thread, ballpoint needle, ribbing for cuffs/hem/neckband', tips: 'French terry has loops on the inside and a smooth face. It is what good sweatshirts are made of. Buy ribbing separately in a matching color for cuffs and hem. Heavyweight (12 oz+) will hold its shape better and not look flimsy.', local: [{store:'Mood Fabrics Houston',note:'French terry knits'},{store:'JoAnn Fabrics',note:'Basic french terry, limited colors'}], online: [{store:'LA Finch Fabrics',url:'lafinchfabrics.com',note:'Deadstock french terry in unusual colors'},{store:'Raspberry Creek Fabrics',url:'raspberrycreekfabrics.com',note:'Quality french terry'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Premium french terry selection'}] },
+  { id: 'hoodie', name: 'Hoodie (x1)', pattern: 'Oversized Hoodie', slug: 'oversized-hoodie', fabric: 'Heavyweight french terry or fleece-back sweatshirt knit (12-14 oz)', yardage: '2.5-3 yd + 0.25 yd ribbing', colors: ['Olive','Cream'], notions: 'Matching thread, ballpoint needle, ribbing, drawcord, grommets (optional)', tips: 'Go heavyweight. 12 oz minimum. A flimsy hoodie looks cheap. Olive or cream keeps it in the Deep Autumn palette. The oversized version will be more FN-appropriate than the standard fit.', local: [{store:'Mood Fabrics Houston',note:'Sweatshirt fleece and french terry'}], online: [{store:'Raspberry Creek Fabrics',url:'raspberrycreekfabrics.com',note:'Heavy french terry for hoodies'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Fleece-back knits'}] },
+  { id: 'longline-tee', name: 'Longline Tee (x2)', pattern: 'Longline Tee', slug: 'longline-tee', fabric: 'Medium-weight cotton jersey (6-8 oz)', yardage: '2-2.5 yd', colors: ['Cream','Charcoal'], notions: 'Matching thread, ballpoint needle, twin needle for hems', tips: 'Slightly lighter weight than your oversized tees. This is a layering piece that sits under jackets and open shirts. The extended length maintains your vertical line when layered.', local: [{store:'JoAnn Fabrics',note:'Basic jersey'},{store:'Mood Fabrics Houston',note:'Better jersey selection'}], online: [{store:'LA Finch Fabrics',url:'lafinchfabrics.com',note:'Jersey knits in good colors'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Premium jersey'}] },
+  { id: 'cargo-shorts', name: 'Cargo Shorts (x1)', pattern: 'Cargo Shorts', slug: 'cargo-shorts', fabric: 'Cotton canvas or twill (8-10 oz)', yardage: '2-2.5 yd', colors: ['Olive'], notions: 'Zipper, button, matching thread, cargo pocket flap buttons or velcro', tips: 'You literally built People\'s Patterns starting with cargo shorts. This one is sentimental AND practical. Olive canvas, relaxed fit, functional pockets.', local: [{store:'JoAnn Fabrics',note:'Canvas and twill in earth tones'},{store:'Mood Fabrics Houston',note:'Better canvas options'}], online: [{store:'Big Duck Canvas',url:'bigduckcanvas.com',note:'Canvas specialist, many weights'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Cotton canvas'}] },
+  { id: 'sweatpants', name: 'Sweatpants (x1)', pattern: 'Sweatpants', slug: 'sweatpants', fabric: 'French terry (10-12 oz)', yardage: '2.5-3 yd + ribbing', colors: ['Charcoal','Olive'], notions: 'Matching thread, elastic (1" wide), ballpoint needle, ribbing for cuffs', tips: 'Match the fabric to your crewneck sweatshirt for an easy set. Straight leg, not tapered. Tapered shortens your visual line.', local: [{store:'JoAnn Fabrics',note:'Basic french terry'}], online: [{store:'Raspberry Creek Fabrics',url:'raspberrycreekfabrics.com',note:'French terry'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'French terry'}] },
+  { id: 'tank-top', name: 'Tank Top (x2)', pattern: 'Tank Top', slug: 'tank-top', fabric: 'Cotton jersey (5-7 oz)', yardage: '1-1.5 yd', colors: ['Cream','Charcoal'], notions: 'Matching thread, ballpoint needle', tips: 'Base layer under open camp shirts and linen shirts. Keep it simple. Solid colors, nothing competing with the outer layer. Quick beginner sew.', local: [{store:'JoAnn Fabrics',note:'Cotton jersey basics'}], online: [{store:'LA Finch Fabrics',url:'lafinchfabrics.com',note:'Jersey remnants at low prices'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Cotton jersey'}] },
+  { id: 'tote-bag', name: 'Tote Bag (x1)', pattern: 'Tote Bag / Market Tote', slug: 'tote-bag', fabric: 'Waxed canvas or heavy cotton canvas (10-16 oz)', yardage: '1-1.5 yd', colors: ['Tan','Olive'], notions: 'Heavy-duty thread, leather straps (optional), rivets (optional), webbing for handles', tips: 'Waxed canvas is water-resistant and develops a beautiful patina over time. Tan or olive keeps it in palette. A quick, satisfying project to break up garment sewing.', local: [{store:'JoAnn Fabrics',note:'Canvas and webbing'}], online: [{store:'Big Duck Canvas',url:'bigduckcanvas.com',note:'Waxed canvas, heavy canvas, many colors'},{store:'Mood Fabrics',url:'moodfabrics.com',note:'Heavy canvas'},{store:'Tandy Leather',url:'tandyleather.com',note:'Leather strap handles and rivets'}] },
+];
+
+const FS_STORES = {
+  essential: { name: 'Mood Fabrics Houston', address: '3461 W Alabama St, Houston, TX 77027', hours: 'Mon-Fri 9:30-6:30, Sat 10-5, Closed Sunday', note: 'Your #1 stop. 9,000 sq ft, opened Nov 2025. Linen, denim, rayon challis, wool, jersey. They have everything. Go here first for any fabric on this list.' },
+  secondary: [
+    { name: 'Hobby Lobby', note: 'Budget linen blends, basic rayon prints. Good for practice fabric.' },
+    { name: 'JoAnn Fabrics', note: 'Cotton jersey, canvas, twill, basic notions. Reliable for basics.' },
+    { name: 'Fabrictopia', address: '3301 Fondren Rd, Ste O', note: 'Discount fabrics. More formal/specialty focus (satins, lace) but worth checking for deals on basics.' },
+    { name: 'Universal Fabric Center', note: 'Small local shop with some unique finds.' },
+  ],
+  topOnline: [
+    { name: 'Mood Fabrics', url: 'moodfabrics.com', note: 'Largest selection across all fabric types' },
+    { name: 'fabrics-store.com', url: 'fabrics-store.com', note: 'Best pure linen selection and pricing' },
+    { name: 'Cali Fabrics', url: 'califabrics.com', note: 'Rayon challis prints. Camp shirt fabric heaven' },
+    { name: 'LA Finch Fabrics', url: 'lafinchfabrics.com', note: 'Deadstock designer fabrics at 40-60% off' },
+    { name: 'Style Maker Fabrics', url: 'stylemakerfabrics.com', note: 'Curated by garment type. Browse Tops or Pants' },
+    { name: 'Blackbird Fabrics', url: 'blackbirdfabrics.com', note: 'Denim, twill, and hardware kits' },
+    { name: 'Raspberry Creek', url: 'raspberrycreekfabrics.com', note: 'Best for knits. French terry, jersey' },
+    { name: 'Big Duck Canvas', url: 'bigduckcanvas.com', note: 'Canvas and waxed canvas specialist' },
+  ],
+};
+
+function renderFoundersSelect(profiles = []) {
+  const activeProfile = profiles[0];
+  const m = activeProfile?.measurements ?? {};
+
+  const measurementRows = activeProfile ? [
+    ['Chest', m.chest], ['Waist', m.waist], ['Hip', m.hip],
+    ['Shoulder', m.shoulder], ['Sleeve', m.sleeveLength ?? m.sleeve],
+    ['Inseam', m.inseam], ['Torso', m.torsoLength ?? m.torso],
+    ['Neck', m.neck], ['Thigh', m.thigh], ['Knee', m.knee],
+    ['Rise', m.rise ?? m.crotchDepth],
+  ].filter(([, v]) => v) : [];
+
+  return `
+    <h2 class="adm-section-title">Founder's Select</h2>
+    <p style="font-size:.8rem;color:var(--mid);margin-bottom:20px">Deep Autumn. Flamboyant Natural. Your personal wardrobe system, fabric sourcing guide, and pattern shortcuts.</p>
+
+    <div class="adm-roadmap-card" style="margin-bottom:16px">
+      <h3 style="margin-bottom:12px">My Measurement Profile</h3>
+      ${activeProfile ? `
+        <p style="font-size:.78rem;color:var(--mid);margin-bottom:10px"><strong style="color:var(--gold)">${activeProfile.name}</strong> &middot; updated ${new Date(activeProfile.updated_at || activeProfile.created_at).toLocaleDateString()}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          ${measurementRows.map(([label, val]) => `<span style="font-size:.75rem;font-family:'IBM Plex Mono',monospace;background:var(--card);border:1px solid var(--bdr);border-radius:4px;padding:3px 8px">${label}: ${val}"</span>`).join('')}
+        </div>
+      ` : `<p style="font-size:.8rem;color:var(--mid)">No measurement profile saved yet. Create one in your <a href="/account" style="color:var(--gold)">account dashboard</a>.</p>`}
+    </div>
+
+    <nav style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--bdr)">
+      <button class="adm-fs-subtab adm-fs-subtab--active" data-fs-view="garments" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">By Garment (${FS_GARMENTS.length})</button>
+      <button class="adm-fs-subtab" data-fs-view="stores" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Store Guide</button>
+    </nav>
+
+    <div id="adm-fs-garments">
+      ${FS_GARMENTS.map((g, i) => `
+        <div class="adm-roadmap-card adm-fs-card" data-fs-idx="${i}" style="margin-bottom:8px;cursor:pointer">
+          <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--gold);margin-right:8px">#${i + 1}</span>
+              <strong style="font-size:.85rem">${g.name}</strong>
+              <span style="font-size:.72rem;color:var(--mid);margin-left:8px">${g.fabric.split('(')[0].trim()}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <a href="/patterns/${g.slug}" style="font-size:.7rem;color:var(--gold);text-decoration:none;padding:2px 8px;border:1px solid var(--gold);border-radius:3px" onclick="event.stopPropagation()">Pattern &rarr;</a>
+              <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+            </div>
+          </div>
+          <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+              <div style="background:var(--bg);border-radius:4px;padding:6px 8px"><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em">Pattern</div><div style="font-size:.78rem;margin-top:2px">${g.pattern}</div></div>
+              <div style="background:var(--bg);border-radius:4px;padding:6px 8px"><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em">Yardage</div><div style="font-size:.78rem;margin-top:2px">${g.yardage}</div></div>
+            </div>
+            <div style="background:var(--bg);border-radius:4px;padding:6px 8px;margin-bottom:12px"><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em">Fabric</div><div style="font-size:.78rem;margin-top:2px">${g.fabric}</div></div>
+            <div style="margin-bottom:12px"><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Colors</div><div style="display:flex;flex-wrap:wrap;gap:4px">${g.colors.map(c => `<span style="font-size:.72rem;background:var(--text);color:var(--bg);padding:2px 8px;border-radius:12px">${c}</span>`).join('')}</div></div>
+            <div style="margin-bottom:12px"><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Notions</div><div style="font-size:.78rem;line-height:1.5">${g.notions}</div></div>
+            <div style="margin-bottom:12px"><div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Buy Local (Houston)</div>${g.local.map(s => `<div style="padding:4px 0;font-size:.78rem"><strong>${s.store}</strong><span style="color:var(--mid)"> &mdash; ${s.note}</span></div>`).join('')}</div>
+            <div style="margin-bottom:12px"><div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Buy Online</div>${g.online.map(s => `<div style="padding:4px 0;font-size:.78rem;display:flex;justify-content:space-between;align-items:baseline"><div><strong>${s.store}</strong><span style="color:var(--mid)"> &mdash; ${s.note}</span></div><span style="font-size:.68rem;color:var(--gold);white-space:nowrap;margin-left:8px">${s.url}</span></div>`).join('')}</div>
+            <div style="background:var(--card);border-left:3px solid var(--gold);padding:8px 10px;border-radius:0 4px 4px 0"><div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Sewing Tips</div><div style="font-size:.78rem;line-height:1.6">${g.tips}</div></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div id="adm-fs-stores" hidden>
+      <div class="adm-roadmap-card" style="border:2px solid var(--gold);margin-bottom:16px">
+        <div style="font-size:.68rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">YOUR #1 STORE</div>
+        <h3 style="margin:0 0 4px">${FS_STORES.essential.name}</h3>
+        <p style="font-size:.78rem;color:var(--mid);margin:0 0 4px">${FS_STORES.essential.address}</p>
+        <p style="font-size:.72rem;color:var(--mid);margin:0 0 8px">${FS_STORES.essential.hours}</p>
+        <p style="font-size:.8rem;margin:0;line-height:1.5">${FS_STORES.essential.note}</p>
+      </div>
+      <h3 style="font-size:.88rem;margin:20px 0 10px;color:var(--mid)">Other Houston Stores</h3>
+      ${FS_STORES.secondary.map(s => `
+        <div class="adm-roadmap-card" style="margin-bottom:8px">
+          <strong style="font-size:.82rem">${s.name}</strong>
+          ${s.address ? `<span style="font-size:.72rem;color:var(--mid)"> &mdash; ${s.address}</span>` : ''}
+          <div style="font-size:.78rem;color:var(--mid);margin-top:4px">${s.note}</div>
+        </div>
+      `).join('')}
+      <h3 style="font-size:.88rem;margin:20px 0 10px;color:var(--mid)">Top Online Shops</h3>
+      ${FS_STORES.topOnline.map(s => `
+        <div class="adm-roadmap-card" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="flex:1"><strong style="font-size:.82rem">${s.name}</strong><div style="font-size:.78rem;color:var(--mid);margin-top:2px">${s.note}</div></div>
+          <span style="font-size:.7rem;color:var(--gold);background:var(--bg);padding:3px 8px;border-radius:3px;white-space:nowrap;font-weight:600">${s.url}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function wireFoundersSelect() {
+  const section = root.querySelector('#adm-s-founders-select');
+  if (!section) return;
+
+  // Sub-tab switching (garments vs stores)
+  section.querySelectorAll('.adm-fs-subtab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      section.querySelectorAll('.adm-fs-subtab').forEach(b => {
+        b.classList.remove('adm-fs-subtab--active');
+        b.style.color = 'var(--mid)';
+        b.style.borderBottomColor = 'transparent';
+      });
+      btn.classList.add('adm-fs-subtab--active');
+      btn.style.color = 'var(--gold)';
+      btn.style.borderBottomColor = 'var(--gold)';
+      const view = btn.dataset.fsView;
+      const garments = section.querySelector('#adm-fs-garments');
+      const stores = section.querySelector('#adm-fs-stores');
+      if (garments) garments.hidden = view !== 'garments';
+      if (stores) stores.hidden = view !== 'stores';
+    });
+  });
+
+  // Accordion expand/collapse
+  section.addEventListener('click', e => {
+    const card = e.target.closest('.adm-fs-card');
+    if (!card || e.target.closest('a')) return;
+    const body = card.querySelector('.adm-fs-body');
+    const chevron = card.querySelector('.adm-fs-chevron');
+    if (!body) return;
+    const opening = body.hidden;
+    // Close all others
+    section.querySelectorAll('.adm-fs-body').forEach(b => { b.hidden = true; });
+    section.querySelectorAll('.adm-fs-chevron').forEach(c => { c.textContent = '+'; c.style.transform = ''; });
+    if (opening) {
+      body.hidden = false;
+      if (chevron) { chevron.textContent = '\u2212'; chevron.style.transform = 'rotate(0deg)'; }
+    }
+  });
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
