@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.19] - 2026-04-10
+
+### Fixed
+- Back Lower Panel distortion when yoke is enabled (soloist jeans, any jeans with yoke). `splitBackYoke()` was using `hipWidth` for the yoke side seam instead of the correct interpolated x on the waist-to-hip taper line. This made the top of the lower panel too wide and the side seam vertical instead of diagonal.
+- Back Yoke piece now uses `waistWidth` at the waist edge and the correct interpolated x at the yoke seam, matching the original back panel side seam geometry.
+- Curved yoke seam control points now originate from the correct side seam position.
+
+### Added
+- Scoop pocket bag now shows a horizontal fold line at the scoop depth.
+- `renderGenericPieceSVG` now supports `marks` array for fold line indicators on bodice-type pieces.
+
+---
+
 ## [0.12.18] - 2026-04-10
 
 ### Added

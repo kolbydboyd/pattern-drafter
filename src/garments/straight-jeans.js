@@ -528,14 +528,17 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
           polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts } = backPanel;
 
   const yokeSideDepth = 1.5; // yoke at side seam (~1.5″ below waist)
+  // Interpolate the side seam x at yokeSideDepth — original side seam runs
+  // diagonally from (waistWidth, 0) to (hipWidth, hipLineY)
+  const sideXAtYoke = waistWidth + (hipWidth - waistWidth) * (yokeSideDepth / hipLineY);
 
   // ── Yoke seam curve from side seam → CB ────────────────────────────────
   const seamPts = [];
   if (yokeStyle === 'curved') {
-    const p0 = { x: hipWidth, y: yokeSideDepth };
+    const p0 = { x: sideXAtYoke, y: yokeSideDepth };
     const p3 = { x: 0, y: yokeDepthCB };
-    const p1 = { x: hipWidth * 0.6,  y: yokeSideDepth + (yokeDepthCB - yokeSideDepth) * 0.35 };
-    const p2 = { x: hipWidth * 0.25, y: yokeDepthCB   - (yokeDepthCB - yokeSideDepth) * 0.1  };
+    const p1 = { x: sideXAtYoke * 0.6,  y: yokeSideDepth + (yokeDepthCB - yokeSideDepth) * 0.35 };
+    const p2 = { x: sideXAtYoke * 0.25, y: yokeDepthCB   - (yokeDepthCB - yokeSideDepth) * 0.1  };
     const pts = sampleBezier(p0, p1, p2, p3, 16);
     for (let i = 1; i < pts.length - 1; i++) seamPts.push({ ...pts[i], curve: true });
   }
@@ -543,9 +546,9 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
 
   // ── YOKE polygon (clockwise) ──────────────────────────────────────────
   const yokePoly = [];
-  yokePoly.push({ x: 0,        y: -cbRaise       }); // CB waist (raised)
-  yokePoly.push({ x: hipWidth, y: 0               }); // side waist
-  yokePoly.push({ x: hipWidth, y: yokeSideDepth   }); // yoke seam at side
+  yokePoly.push({ x: 0,           y: -cbRaise       }); // CB waist (raised)
+  yokePoly.push({ x: waistWidth,  y: 0               }); // side waist
+  yokePoly.push({ x: sideXAtYoke, y: yokeSideDepth   }); // yoke seam at side
   for (const pt of seamPts) yokePoly.push(pt);
   yokePoly.push({ x: 0,        y: yokeDepthCB     }); // yoke seam at CB
 
@@ -553,7 +556,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   const lowerPoly = [];
   lowerPoly.push({ x: 0,        y: yokeDepthCB    }); // yoke seam at CB
   for (let i = seamPts.length - 1; i >= 0; i--) lowerPoly.push({ ...seamPts[i] });
-  lowerPoly.push({ x: hipWidth, y: yokeSideDepth  }); // yoke seam at side
+  lowerPoly.push({ x: sideXAtYoke, y: yokeSideDepth  }); // yoke seam at side
   // Copy hip → knee → hem → inseam → crotch → crotch curve → CB from original
   for (let i = 2; i < polygon.length; i++) lowerPoly.push({ ...polygon[i] });
 
@@ -565,36 +568,36 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   });
 
   // ── Seam lengths ──────────────────────────────────────────────────────
-  let yokeSeamLen = dist({ x: hipWidth, y: yokeSideDepth }, seamPts[0] || { x: 0, y: yokeDepthCB });
+  let yokeSeamLen = dist({ x: sideXAtYoke, y: yokeSideDepth }, seamPts[0] || { x: 0, y: yokeDepthCB });
   for (let i = 0; i < seamPts.length - 1; i++) yokeSeamLen += dist(seamPts[i], seamPts[i + 1]);
   if (seamPts.length) yokeSeamLen += dist(seamPts[seamPts.length - 1], { x: 0, y: yokeDepthCB });
-  const yokeW = hipWidth;
+  const yokeW = waistWidth;
   const yokeH = yokeDepthCB + cbRaise;
 
   // ── Yoke notches (mid-seam alignment mark) ────────────────────────────
   const seamMidIdx = Math.floor(seamPts.length / 2);
   const seamMidPt  = seamPts.length
     ? seamPts[seamMidIdx]
-    : { x: hipWidth * 0.5, y: (yokeSideDepth + yokeDepthCB) / 2 };
-  const seamEndA = seamPts.length ? seamPts[Math.max(0, seamMidIdx - 1)] : { x: hipWidth, y: yokeSideDepth };
+    : { x: sideXAtYoke * 0.5, y: (yokeSideDepth + yokeDepthCB) / 2 };
+  const seamEndA = seamPts.length ? seamPts[Math.max(0, seamMidIdx - 1)] : { x: sideXAtYoke, y: yokeSideDepth };
   const seamEndB = seamPts.length ? seamPts[Math.min(seamPts.length - 1, seamMidIdx + 1)] : { x: 0, y: yokeDepthCB };
 
   const yokeNotches = [
-    { x: hipWidth, y: yokeSideDepth, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: hipWidth, y: hipLineY }) },
+    { x: sideXAtYoke, y: yokeSideDepth, angle: edgeAngle({ x: waistWidth, y: 0 }, { x: hipWidth, y: hipLineY }) },
     { x: seamMidPt.x, y: seamMidPt.y, angle: edgeAngle(seamEndA, seamEndB) },
     { x: 0, y: yokeDepthCB, angle: 0 },
   ];
 
   // ── Dimensions ────────────────────────────────────────────────────────
   const yokeDims = [
-    { label: fmtInches(yokeW) + ' width',     x1: 0, y1: -cbRaise - 0.5, x2: hipWidth, y2: -cbRaise - 0.5, type: 'h' },
-    { label: fmtInches(yokeH) + ' depth',     x: hipWidth + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
-    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: hipWidth, y2: yokeSideDepth + 0.5, type: 'h', color: '#b8963e' },
+    { label: fmtInches(yokeW) + ' width',     x1: 0, y1: -cbRaise - 0.5, x2: waistWidth, y2: -cbRaise - 0.5, type: 'h' },
+    { label: fmtInches(yokeH) + ' depth',     x: waistWidth + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
+    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: sideXAtYoke, y2: yokeSideDepth + 0.5, type: 'h', color: '#b8963e' },
   ];
 
   // Lower panel inherits most of the original dimensions minus waist width
   const lowerDims = backPanel.dimensions.filter(d => !d.label.includes('waist'));
-  lowerDims.push({ label: fmtInches(yokeSeamLen) + ' yoke seam', x1: 0, y1: yokeDepthCB - 0.5, x2: hipWidth, y2: yokeSideDepth - 0.5, type: 'h', color: '#b8963e' });
+  lowerDims.push({ label: fmtInches(yokeSeamLen) + ' yoke seam', x1: 0, y1: yokeDepthCB - 0.5, x2: sideXAtYoke, y2: yokeSideDepth - 0.5, type: 'h', color: '#b8963e' });
 
   // ── Build pieces ──────────────────────────────────────────────────────
   const yoke = {
@@ -604,12 +607,12 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
     polygon: yokePoly, saPolygon: yokeSaPoly,
     path: polyToPath(yokePoly), saPath: polyToPath(yokeSaPoly),
     dimensions: yokeDims,
-    waistWidth, hipWidth, width: hipWidth, height: yokeH,
+    waistWidth, hipWidth, width: sideXAtYoke, height: yokeH,
     rise, inseam, ext, cbRaise, sa, hem, isBack: true,
     notches: yokeNotches,
     labels: [
-      { text: 'CB',        x: -0.5,           y: yokeDepthCB * 0.4, rotation: -90 },
-      { text: 'SIDE SEAM', x: hipWidth + 0.3,  y: yokeSideDepth * 0.5, rotation: 90 },
+      { text: 'CB',        x: -0.5,             y: yokeDepthCB * 0.4, rotation: -90 },
+      { text: 'SIDE SEAM', x: sideXAtYoke + 0.3, y: yokeSideDepth * 0.5, rotation: 90 },
     ],
     darts: [], type: 'bodice', opts,
   };

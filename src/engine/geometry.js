@@ -689,6 +689,9 @@ export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'h', position: scoopDepth },
+    ],
   };
 }
 
