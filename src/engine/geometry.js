@@ -393,6 +393,7 @@ export function polyToPath(poly) {
  * @returns {string} Formatted string (e.g. "1⅝″", "2″", "3.3″")
  */
 export function fmtInches(val) {
+  if (val == null || isNaN(val)) return '0″';
   if (val < 0) val = -val;
   const whole = Math.floor(val);
   const frac = val - whole;

@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.17] - 2026-04-10
+
+### Fixed
+- `fmtInches()` no longer crashes when called with `undefined` or `NaN`. Returns `"0″"` instead of throwing `s.toFixed is not a function`. This was the direct cause of the "undefined is not an object (evaluating 's.toFixed')" error on all jeans patterns.
+- All jeans modules (`straight-jeans.js`, `baggy-jeans.js`) now fall back to safe defaults for `m.waist` and `m.hip` when measurements are missing or zero.
+- Lower-body overview line in the pattern view now guards `fmtInches` calls behind truthiness checks, matching how upper-body patterns already worked.
+
+---
+
 ## [0.12.16] - 2026-04-10
 
 ### Fixed

@@ -114,10 +114,13 @@ export default {
     const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
-    let frontHipW   = m.hip / 4 + ease.front + 0.5;
-    let backHipW    = m.hip / 4 + ease.back;
-    const frontWaistW = m.waist / 4 + ease.front;
-    const backWaistW  = m.waist / 4 + ease.back;
+    const hip   = m.hip   || 36;
+    const waist = m.waist || 32;
+
+    let frontHipW   = hip / 4 + ease.front + 0.5;
+    let backHipW    = hip / 4 + ease.back;
+    const frontWaistW = waist / 4 + ease.front;
+    const backWaistW  = waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
 
     // Thigh ease check — widen panels if thigh circumference is tight
@@ -170,11 +173,11 @@ export default {
     }
 
     // ── WAISTBAND ──
-    const wbLen = m.waist + ease.total + sa * 2;
+    const wbLen = waist + ease.total + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${m.waist > 36 ? 7 : 6}`,
+      instruction: `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${waist > 36 ? 7 : 6}`,
       dimensions: { length: wbLen, width: 3 },
       type: 'rectangle', sa,
     });
@@ -202,7 +205,7 @@ export default {
 
     // ── BELT LOOPS ──
     // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
-    const beltLoopCount = m.waist > 36 ? 7 : 6;
+    const beltLoopCount = waist > 36 ? 7 : 6;
     pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
 
     return pieces;
@@ -211,7 +214,7 @@ export default {
   materials(m, opts) {
     const notions = [
       { ref: 'interfacing-med', quantity: '0.5 yard (waistband + pocket facings)' },
-      { name: 'Metal zipper', quantity: `${Math.ceil(m.rise * 0.6)}″`, notes: 'YKK #5 metal or equivalent' },
+      { name: 'Metal zipper', quantity: `${Math.ceil((m.rise || 10) * 0.6)}″`, notes: 'YKK #5 metal or equivalent' },
       { name: 'Waistband button', quantity: '1', notes: '¾″ jeans tack button, no-sew' },
       { name: 'Copper rivets', quantity: '5–6', notes: 'At pocket corners and stress points' },
     ];
@@ -289,7 +292,7 @@ export default {
       detail: '{press} loop strips in thirds. {topstitch} both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, {topstitch} top and bottom with a bar tack.',
     });
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at base of front pocket openings and coin pocket sides. Add one at crotch seam junction if fabric is heavy.' });
-    steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
+    steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem) || 1)} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });
 
     return steps;

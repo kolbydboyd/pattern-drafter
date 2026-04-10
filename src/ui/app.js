@@ -721,7 +721,7 @@ function _generate() {
   const isUpper = !isLower;
   const overviewParts = isUpper
     ? [g.name, opts.fit ?? opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.waist ? fmtInches(m.waist) + ' waist' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
-    : [g.name, opts.fit ?? opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
+    : [g.name, opts.fit ?? opts.ease, m.waist ? fmtInches(m.waist) + ' W' : '', m.hip ? fmtInches(m.hip) + ' H' : '', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
   const diffBadge = g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : '';
 
   // ── Pieces pane ──
