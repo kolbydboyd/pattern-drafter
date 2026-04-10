@@ -184,13 +184,14 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      // Facing: self-fabric, extends ~2″ below opening. Visible from outside.
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 8, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      // Facing: self-fabric, extends ~1″ below slash opening (7″ deep). Visible from outside.
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
       // Bag: lining, inner edge on fold. Scoop curve is the back of the pocket.
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 Scoop curve is pocket back' }));
     }
     if (opts.frontPocket === 'scoop') {
-      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 8.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      // Facing: self-fabric, extends ~1″ below scoop opening (7″ deep).
+      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
       pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 Scoop curve is pocket back' }));
     }
     if (opts.frontPocket === 'side') {
