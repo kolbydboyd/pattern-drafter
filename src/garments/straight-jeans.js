@@ -198,7 +198,7 @@ export default {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
     pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
-    pieces.push(buildBackPatchPocket(sa));
+    pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
     // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
@@ -304,11 +304,11 @@ export default {
 
 // ── Back patch pocket (pentagon with pointed bottom) ────────────────────
 
-function buildBackPatchPocket(sa) {
-  const w = 5.5;           // pocket width
-  const sideH = 5;         // straight side height before angling inward
-  const totalH = 6.5;      // total height (top to point)
-  const pointH = totalH - sideH; // 1.5″ angled section
+function buildBackPatchPocket() {
+  const pocketSA = 0.375;     // 3/8″ SA for patch pockets (pressed under)
+  const w = 5.5;              // pocket width
+  const sideH = 5;            // straight side height before angling inward
+  const totalH = 6.5;         // total height (top to point)
 
   // Pentagon: top edge, two straight sides, two angled sides meeting at point
   const poly = [
@@ -319,18 +319,22 @@ function buildBackPatchPocket(sa) {
     { x: 0, y: sideH },        // left side, start of angle
   ];
 
-  const saPoly = offsetPolygon(poly, () => -sa);
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    // Top edge gets 1/2″ SA (double fold for clean finish)
+    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -0.5;
+    return -pocketSA;
+  });
 
   return {
     id: 'back-pocket',
     name: 'Back Patch Pocket',
-    instruction: 'Cut 2 · {press} SA under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
+    instruction: 'Cut 2 · ⅜″ SA sides/bottom, ½″ SA top · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: totalH,
-    sa, type: 'bodice',
+    sa: pocketSA, type: 'bodice',
     isCutOnFold: false,
     dimensions: [
       { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },

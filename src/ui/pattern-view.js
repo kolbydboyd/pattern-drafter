@@ -321,10 +321,29 @@ export function renderPanelSVG(piece) {
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <text x="${cpX-sc(3.5)+3}" y="${cpY+sc(4)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">cargo</text>`;
   }
-  if (isBack && opts?.backPocket && opts.backPocket !== 'none') {
-    const bpX = ox + sc(width * .35), bpY = oy + sc(1.8);
-    pocketSVG += `<rect x="${bpX}" y="${bpY}" width="${sc(3)}" height="${sc(3.5)}" rx="2" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${bpX+2}" y="${bpY+sc(3.5)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">patch pocket</text>`;
+  if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
+    // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
+    const pw = 5.5, psH = 5, ptH = 6.5;
+    // Position: inner edge ~2″ from CB, top ~3″ below waist; tilted ~5°
+    const bpInner = 2, bpTop = 3, tiltDeg = 5;
+    const col = '#8a4a4a';
+    // Pentagon points (local coords, untilted)
+    const ppts = [
+      [0, 0], [pw, 0], [pw, psH], [pw / 2, ptH], [0, psH]
+    ];
+    // Transform: translate to panel position, apply tilt rotation around top-inner corner
+    const rad = tiltDeg * Math.PI / 180;
+    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+    const svgPts = ppts.map(([lx, ly]) => {
+      // Rotate around (0,0) then translate
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      return `${(ox + sc(bpInner + rx)).toFixed(1)},${(oy + sc(bpTop + ry)).toFixed(1)}`;
+    });
+    pocketSVG += `<polygon points="${svgPts.join(' ')}" stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>`;
+    // Label below pocket
+    const lblX = ox + sc(bpInner + pw * 0.3), lblY = oy + sc(bpTop + ptH + 0.8);
+    pocketSVG += `<text x="${lblX.toFixed(1)}" y="${lblY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">patch pocket</text>`;
   }
 
   // Pleat fold lines
