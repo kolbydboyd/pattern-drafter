@@ -624,6 +624,19 @@ export function renderGenericPieceSVG(piece) {
           <text x="${mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#4a8a5a" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${mx.toFixed(1)},${(my - 4).toFixed(1)})">${r.label || 'roll line'}</text>`;
       })() : ''
     }
+    ${(piece.marks || []).map(mk => {
+      const mc = '#4a8a5a';
+      if (mk.type === 'fold' && mk.axis === 'h') {
+        const ly = oy + sc(mk.position);
+        const lx1 = ox + sc(minX), lx2 = ox + sc(maxX);
+        return `<line x1="${lx1}" y1="${ly}" x2="${lx2}" y2="${ly}" stroke="${mc}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      } else if (mk.type === 'fold' && mk.axis === 'v') {
+        const lx = ox + sc(mk.position);
+        const ly1 = oy + sc(minY), ly2 = oy + sc(maxY);
+        return `<line x1="${lx}" y1="${ly1}" x2="${lx}" y2="${ly2}" stroke="${mc}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      }
+      return '';
+    }).join('')}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
