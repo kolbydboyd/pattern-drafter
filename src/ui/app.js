@@ -156,12 +156,19 @@ function loadProfiles() {
   catch { return []; }
 }
 
+// Try wz- prefixed ID first (wizard), then fall back to non-prefixed (generator)
+function _el(id) {
+  return document.getElementById(`wz-${id}`) || document.getElementById(id);
+}
+
 function refreshProfileDropdown() {
-  const sel = document.getElementById('profile-select');
-  if (!sel) return;
   const profiles = loadProfiles();
-  sel.innerHTML = `<option value="">- saved profiles -</option>` +
+  const opts = `<option value="">- saved profiles -</option>` +
     profiles.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+  const sel = document.getElementById('profile-select');
+  if (sel) sel.innerHTML = opts;
+  const wzSel = document.getElementById('wz-profile-select');
+  if (wzSel) wzSel.innerHTML = opts;
 }
 
 async function saveCurrentProfile() {
@@ -169,7 +176,7 @@ async function saveCurrentProfile() {
     openAuthModal('save-profile', () => saveCurrentProfile());
     return;
   }
-  const nameInput = document.getElementById('profile-name-input');
+  const nameInput = _el('profile-name-input');
   const name = nameInput?.value?.trim();
   if (!name) {
     nameInput?.focus();
@@ -179,10 +186,10 @@ async function saveCurrentProfile() {
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
-    m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+    m[mId] = parseFloat(_el(`m-${mId}`)?.value) || 0;
   }
   for (const mId of relevantOptionalIds(g)) {
-    const el = document.getElementById(`m-${mId}`);
+    const el = _el(`m-${mId}`);
     if (!el) continue;
     const raw = el.value.trim();
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
@@ -197,7 +204,7 @@ async function saveCurrentProfile() {
 
     // Overwrite existing profile
     const user = getCurrentUser();
-    const btn  = document.getElementById('save-profile-btn');
+    const btn  = _el('save-profile-btn');
     const orig = btn?.textContent;
     if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
@@ -225,7 +232,7 @@ async function saveCurrentProfile() {
 
   // Save new profile to Supabase
   const user = getCurrentUser();
-  const btn  = document.getElementById('save-profile-btn');
+  const btn  = _el('save-profile-btn');
   const orig = btn?.textContent;
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   const { data: savedProfile, error } = await saveMeasurementProfile(user.id, name, m);
@@ -248,7 +255,7 @@ async function saveCurrentProfile() {
 }
 
 function deleteCurrentProfile() {
-  const sel = document.getElementById('profile-select');
+  const sel = _el('profile-select');
   const name = sel?.value;
   if (!name) return;
   const profiles = loadProfiles().filter(p => p.name !== name);
