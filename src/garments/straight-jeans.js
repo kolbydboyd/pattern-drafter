@@ -184,14 +184,14 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      // Backing (facing): self-fabric, extends ~2″ below opening (depth 8″). Visible from outside.
+      // Facing: self-fabric, extends ~2″ below opening. Visible from outside.
       pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 8, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
-      // Bag (lining): full depth 11.5″ for hand access. Against the body.
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket bag (against body)' }));
+      // Bag: lining, inner edge on fold. Scoop curve is the back of the pocket.
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 Scoop curve is pocket back' }));
     }
     if (opts.frontPocket === 'scoop') {
       pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 8.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
-      pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket bag (against body)' }));
+      pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 Scoop curve is pocket back' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
@@ -613,7 +613,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    darts: [], type: 'bodice', opts,
+    darts: [], type: 'panel', opts,
   };
 
   return { yoke, lower };

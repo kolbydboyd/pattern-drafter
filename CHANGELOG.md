@@ -13,10 +13,9 @@ All notable changes are documented here, newest first.
 
 ### Fixed
 - Belt loop dimensions now show the CUT size (2.25" x 3.5" strip) instead of the finished size. Instruction explains fold-in-thirds construction to reach 0.75" finished width.
-- Back yoke and lower panel now render as `bodice` type (generic polygon renderer) instead of `panel` type, fixing distorted shapes caused by the panel renderer's waist/hip assumptions.
-- Yoke side seam depth increased from 0.5" to 1.5" for correct proportions and clean SA offset geometry.
+- Yoke side seam depth increased from 0.5" to 1.5" for correct proportions and clean SA offset geometry. Yoke renders as `bodice` type. Lower panel stays as `panel` type (retains crotch curve rendering).
 - Back pocket changed from rectangular welt to pentagon-shaped patch pocket (5.5" x 6.5") with pointed bottom. Instructions updated for patch pocket construction with cardboard press template.
-- Front pocket backing (facing) depth reduced from full bag depth to opening + 2" (8" for slant, 8.5" for scoop). Backing is the self-fabric facing visible from outside. Pocket bag (lining) stays at full 11.5" depth for hand access.
+- Front pocket facing depth reduced from full bag depth to opening + 2" (8" for slant, 8.5" for scoop). Facing is the self-fabric visible from outside. Pocket bag (lining) stays at full 11.5" depth with scoop curve, cut on fold at inner edge.
 
 ---
 
