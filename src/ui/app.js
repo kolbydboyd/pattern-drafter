@@ -266,11 +266,14 @@ function applyProfile(name) {
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
     if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
-    const el = document.getElementById(`m-${key}`);
-    if (el) el.value = val;
+    const sp = document.getElementById(`m-${key}`);
+    if (sp) sp.value = val;
+    const wz = document.getElementById(`wz-m-${key}`);
+    if (wz) wz.value = val;
   }
   // Notify listeners (e.g. riseOverride auto-fill) that m-rise may have changed
   document.getElementById('m-rise')?.dispatchEvent(new Event('input'));
+  document.getElementById('wz-m-rise')?.dispatchEvent(new Event('input'));
   if (currentStep === 4) generate();
   // Track last used in Supabase (fire and forget)
   if (profile.id) updateProfileLastUsed(profile.id).catch(() => {});
