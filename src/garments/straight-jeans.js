@@ -162,7 +162,7 @@ export default {
 
     // ── YOKE SPLIT (replaces full back panel with yoke + lower panel) ──
     if (opts.yokeStyle && opts.yokeStyle !== 'none') {
-      const yokeDepthCB = parseFloat(opts.yokeDepth);
+      const yokeDepthCB = parseFloat(opts.yokeDepth) || 4;
       const backIdx = pieces.findIndex(p => p.id === 'back');
       const backPanel = pieces[backIdx];
       const { yoke, lower } = splitBackYoke(backPanel, { yokeStyle: opts.yokeStyle, yokeDepthCB, hipLineY });
