@@ -85,6 +85,7 @@ export default {
     legShape:   { ...straightJeans.options.legShape,    default: 'straight' },
     riseStyle:  { ...straightJeans.options.riseStyle,   default: 'mid'      },
     frontPocket:{ ...straightJeans.options.frontPocket,  default: 'scoop'    },
+    yokeStyle:  { ...straightJeans.options.yokeStyle,   default: 'pointed'  },
   },
 
   pieces(m, opts) {

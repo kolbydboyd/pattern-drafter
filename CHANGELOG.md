@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.14] - 2026-04-10
+
+### New
+- **Back yoke for jeans** — `straight-jeans.js` gains `yokeStyle` (none/pointed/curved) and `yokeDepth` options. When enabled, the full back panel splits into a shaped Back Yoke and Back Lower Panel. Pointed V yoke uses straight-line seam. Curved yoke uses a bezier arc. Yoke seam replaces waist darts. SA, notches, and flat-fell construction instructions included.
+- Soloist Jeans defaults to pointed V yoke (`yokeStyle: 'pointed'`).
+
+---
+
 ## [0.12.13] - 2026-04-09
 
 ### New
