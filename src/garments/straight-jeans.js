@@ -179,8 +179,8 @@ export default {
       type: 'rectangle', sa,
     });
 
-    // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 · Interface · {topstitch} curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
+    // ── FLY SHIELD (J-curve) ──
+    pieces.push(buildFlyShield(rise, sa));
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -188,7 +188,7 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'scoop') {
-      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
+      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
       pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
@@ -198,7 +198,9 @@ export default {
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1¾″ × ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
+    // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
+    const beltLoopCount = m.waist > 36 ? 7 : 6;
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },
@@ -295,6 +297,57 @@ export default {
     { id: 'high-rise-jeans', name: 'High-Rise Jeans', defaults: { riseStyle: 'high', legShape: 'straight' } },
   ],
 };
+
+
+// ── Fly shield with J-curve ──────────────────────────────────────────────
+
+function buildFlyShield(rise, sa) {
+  const w = 2.5;                          // shield width
+  const flyLen = Math.ceil(rise * 0.6);   // fly opening length (~60% of rise)
+  const h = flyLen + 1;                   // shield height: fly length + 1″ below fly base
+  const r = 1.25;                         // J-curve radius at bottom
+
+  // Polygon CW: CF edge (left, straight), top, right edge, J-curve, back to CF
+  const poly = [];
+  poly.push({ x: 0, y: 0 });            // top-left (CF at waist)
+  poly.push({ x: w, y: 0 });            // top-right
+  poly.push({ x: w, y: h - r });        // right edge stops above J-curve
+
+  // J-curve: quarter-circle from right edge to bottom CF
+  const jPts = sampleBezier(
+    { x: w, y: h - r },                  // start: right edge
+    { x: w, y: h - r * 0.45 },           // cp1: pulls down
+    { x: r * 0.45, y: h },               // cp2: pulls across
+    { x: 0, y: h },                      // end: bottom at CF
+    12,
+  );
+  for (let i = 1; i < jPts.length; i++) {
+    poly.push({ ...jPts[i], ...(i < jPts.length - 1 ? { curve: true } : {}) });
+  }
+  // closes back to top-left along CF
+
+  const saPoly = offsetPolygon(poly, () => -sa);
+
+  return {
+    id: 'fly-shield',
+    name: 'Fly Shield',
+    instruction: 'Cut 2 (outer + lining) · Interface outer · Sew {RST}, turn, {press} · {topstitch} J-curve from RS',
+    polygon: poly,
+    saPolygon: saPoly,
+    path: polyToPath(poly),
+    saPath: polyToPath(saPoly),
+    width: w, height: h,
+    sa, type: 'bodice',
+    isCutOnFold: false,
+    dimensions: [
+      { label: fmtInches(w) + ' width',  x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
+      { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
+    ],
+    labels: [
+      { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
+    ],
+  };
+}
 
 
 // ── Panel builder with knee-point leg shaping ─────────────────────────────

@@ -9,6 +9,11 @@ All notable changes are documented here, newest first.
 ### New
 - **Back yoke for jeans** — `straight-jeans.js` gains `yokeStyle` (none/pointed/curved) and `yokeDepth` options. When enabled, the full back panel splits into a shaped Back Yoke and Back Lower Panel. Pointed V yoke uses straight-line seam. Curved yoke uses a bezier arc. Yoke seam replaces waist darts. SA, notches, and flat-fell construction instructions included.
 - Soloist Jeans defaults to pointed V yoke (`yokeStyle: 'pointed'`).
+- **Fly shield J-curve** — Fly shield is now a shaped polygon with a proper quarter-circle J-curve at the bottom instead of a plain rectangle. Height sized to fly opening length (60% of rise + 1"). Cut 2 (outer + lining) with interfacing.
+
+### Fixed
+- Belt loop dimensions now show the CUT size (2.25" x 3.5" strip) instead of the finished size. Instruction explains fold-in-thirds construction to reach 0.75" finished width.
+- Scoop pocket backing depth corrected from 9.5" to 11.5" to match the pocket bag depth.
 
 ---
 
