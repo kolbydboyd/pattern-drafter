@@ -100,11 +100,11 @@ export default {
 
   pieces(m, opts) {
     const ease     = easeDistribution(opts.ease);
-    const sa       = parseFloat(opts.sa);
-    const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
-    const cbRaise  = parseFloat(opts.cbRaise);
+    const sa       = parseFloat(opts.sa)       || 0.625;
+    const hem      = parseFloat(opts.hem)      || 1;
+    const frontExt = parseFloat(opts.frontExt) || 2;
+    const backExt  = parseFloat(opts.backExt)  || 3;
+    const cbRaise  = parseFloat(opts.cbRaise)  || 1.25;
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;

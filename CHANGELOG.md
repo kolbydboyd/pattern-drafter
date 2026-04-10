@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.15] - 2026-04-10
+
+### Fixed
+- Soloist Jeans no longer fails to load. Five unguarded `parseFloat` calls in `straight-jeans.pieces()` (`sa`, `hem`, `frontExt`, `backExt`, `cbRaise`) could return NaN when DOM inputs were absent, corrupting polygon coordinates in `buildPanel()` and `splitBackYoke()`. Added `|| default` fallbacks matching the pattern from the prior `yokeDepth` fix. Straight Jeans is unaffected because it defaults `yokeStyle: 'none'` and never enters the yoke split path.
+
+---
+
 ## [0.12.14] - 2026-04-10
 
 ### New
