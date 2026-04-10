@@ -917,6 +917,7 @@ not yet covered, it has higher catalog value.
 | Shirring / smocking | smocked dress | not yet |
 | Pleats (box, knife) | pleated-shorts, pleated-trousers, pleated skirt | done (shorts/trousers), skirt pending |
 | Yoke (horizontal) | denim-jacket, western shirt, flannel | done |
+| Yoke (back V/curved, jeans) | straight-jeans, soloist-jeans | done |
 | Lining (full garment) | blazer, slip-skirt-w, coat, vest, evening gown | partial (slip skirt) |
 | Bias cut | bias-cut skirt, slip dress, necktie | not yet |
 | Knit / stretch construction | tee, leggings, boxers, bralette, bodycon | partial (tee), full with leggings |

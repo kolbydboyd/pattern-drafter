@@ -324,8 +324,8 @@ export function renderPanelSVG(piece) {
   if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
-    // Position: inner edge ~2″ from CB, top ~3″ below waist; tilted ~5°
-    const bpInner = 2, bpTop = 3, tiltDeg = 5;
+    // Position: inner edge ~2″ from CB, top ~3″ below waist; tilted -5° (outer/side seam edge higher)
+    const bpInner = 2, bpTop = 3, tiltDeg = -5;
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [

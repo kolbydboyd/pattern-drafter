@@ -180,7 +180,7 @@ export default {
     });
 
     // ── FLY SHIELD (J-curve) ──
-    pieces.push(buildFlyShield(rise, sa));
+    pieces.push(buildFlyShield(rise));
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -197,7 +197,7 @@ export default {
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · ⅜″ SA · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa: 0.375 });
     pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
@@ -346,7 +346,8 @@ function buildBackPatchPocket() {
 
 // ── Fly shield with J-curve ──────────────────────────────────────────────
 
-function buildFlyShield(rise, sa) {
+function buildFlyShield(rise) {
+  const shieldSA = 0.25;                  // 1/4″ SA — sewn RST and turned
   const w = 2.5;                          // shield width
   const flyLen = Math.ceil(rise * 0.6);   // fly opening length (~60% of rise)
   const h = flyLen + 1;                   // shield height: fly length + 1″ below fly base
@@ -371,18 +372,22 @@ function buildFlyShield(rise, sa) {
   }
   // closes back to top-left along CF
 
-  const saPoly = offsetPolygon(poly, () => -sa);
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    // CF edge (left side, x≈0): no SA — sits on center front seam
+    if (Math.abs(a.x) < 0.1 && Math.abs(b.x) < 0.1) return 0;
+    return -shieldSA;
+  });
 
   return {
     id: 'fly-shield',
     name: 'Fly Shield',
-    instruction: 'Cut 2 (outer + lining) · Interface outer · Sew {RST}, turn, {press} · {topstitch} J-curve from RS',
+    instruction: 'Cut 2 (outer + lining) · Interface outer · ¼″ SA · Sew {RST}, turn, {press} · {topstitch} J-curve from RS',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: h,
-    sa, type: 'bodice',
+    sa: shieldSA, type: 'bodice',
     isCutOnFold: false,
     dimensions: [
       { label: fmtInches(w) + ' width',  x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
