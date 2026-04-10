@@ -452,11 +452,11 @@ function readInputs() {
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
-    m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+    m[mId] = parseFloat(_el(`m-${mId}`)?.value) || 0;
   }
   // Optional measurements — only include when the user actually entered a value
   for (const mId of relevantOptionalIds(g)) {
-    const el = document.getElementById(`m-${mId}`);
+    const el = _el(`m-${mId}`);
     if (!el) continue;
     const raw = el.value.trim();
     if (raw !== '') {
@@ -466,7 +466,7 @@ function readInputs() {
   }
   const opts = {};
   for (const [key, opt] of Object.entries(g.options)) {
-    const el = document.getElementById(`o-${key}`);
+    const el = _el(`o-${key}`);
     if (!el) continue;
     if (opt.type === 'boolean') opts[key] = el.checked;
     else if (opt.type === 'number') opts[key] = parseFloat(el.value);

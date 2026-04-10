@@ -89,11 +89,11 @@ export default {
     const BAGGY_EASE = { regular: 6, relaxed: 8, oversized: 10 };
     const easeTotal  = BAGGY_EASE[opts.ease] ?? 8;
     const ease       = easeDistribution(easeTotal);
-    const sa       = parseFloat(opts.sa);
-    const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
-    const cbRaise  = parseFloat(opts.cbRaise);
+    const sa       = parseFloat(opts.sa)       || 0.625;
+    const hem      = parseFloat(opts.hem)      || 1.5;
+    const frontExt = parseFloat(opts.frontExt) || 2;
+    const backExt  = parseFloat(opts.backExt)  || 3;
+    const cbRaise  = parseFloat(opts.cbRaise)  || 1.25;
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;

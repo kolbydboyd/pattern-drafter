@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.16] - 2026-04-10
+
+### Fixed
+- All garments now load correctly in the wizard flow. `readInputs()` was reading from side panel inputs (`m-*`, `o-*`) which don't exist when using the wizard. Now uses the `_el()` helper to try wizard inputs (`wz-*`) first. This was the root cause of the "undefined is not an object (evaluating 's.toFixed')" error on straight jeans, baggy jeans, soloist jeans, sweatpants, and other garments.
+- Added `|| default` fallbacks for `parseFloat` calls in `baggy-jeans.js` and `sweatpants.js` for defensive safety.
+
+---
+
 ## [0.12.15] - 2026-04-10
 
 ### Fixed
