@@ -68,6 +68,16 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
+    yokeStyle: {
+      type: 'select', label: 'Back yoke',
+      values: [
+        { value: 'none',    label: 'No yoke (darts only)' },
+        { value: 'pointed', label: 'Pointed V yoke (classic)' },
+        { value: 'curved',  label: 'Curved yoke' },
+      ],
+      default: 'none',
+    },
+    yokeDepth: { type: 'number', label: 'Yoke depth at CB (inches)', default: 4, step: 0.25, min: 2.5, max: 5.5 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,  max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -150,6 +160,15 @@ export default {
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
+    // ── YOKE SPLIT (replaces full back panel with yoke + lower panel) ──
+    if (opts.yokeStyle && opts.yokeStyle !== 'none') {
+      const yokeDepthCB = parseFloat(opts.yokeDepth);
+      const backIdx = pieces.findIndex(p => p.id === 'back');
+      const backPanel = pieces[backIdx];
+      const { yoke, lower } = splitBackYoke(backPanel, { yokeStyle: opts.yokeStyle, yokeDepthCB, hipLineY });
+      pieces.splice(backIdx, 1, yoke, lower);
+    }
+
     // ── WAISTBAND ──
     const wbLen = m.waist + ease.total + sa * 2;
     pieces.push({
@@ -228,10 +247,22 @@ export default {
         : 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     steps.push({ step: n++, title: 'Prepare coin pocket',
       detail: 'Construct coin pocket: sew outer to lining {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} coin pocket to panel edges.' });
-    steps.push({
-      step: n++, title: 'Sew back yoke (if applicable) & join back panels',
-      detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
-    });
+    const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
+    if (hasYoke) {
+      steps.push({
+        step: n++, title: 'Sew back yoke to lower back panels',
+        detail: `Sew back yoke to lower back panel {RST} along the ${opts.yokeStyle === 'pointed' ? 'V-shaped' : 'curved'} yoke seam. Match notches at side seam, midpoint, and CB. {press} SA toward yoke. Trim lower panel SA to \xbc\u2033. Fold yoke SA over the trimmed edge. {topstitch} with gold thread at 3.5mm, two rows visible from RS. Repeat for mirror side.`,
+      });
+      steps.push({
+        step: n++, title: 'Join back panels at CB',
+        detail: 'Join the two yoke+lower-back assemblies at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Join back panels at CB',
+        detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
+      });
+    }
     steps.push({
       step: n++, title: 'Install zip fly',
       detail: 'Interface fly shield. {staystitch} CF seam allowances. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Pin and {topstitch} the fly J-curve from RS using {topstitch} thread. Secure fly shield to inside.',
@@ -373,4 +404,124 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     ],
     darts, type: 'panel', opts,
   };
+}
+
+
+// ── Yoke split for back panel ───────────────────────────────────────────────
+
+function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
+  const { waistWidth, hipWidth, cbRaise, sa, hem, rise, inseam, ext, height,
+          polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts } = backPanel;
+
+  const yokeSideDepth = 0.5; // yoke barely dips below waist at side seam
+
+  // ── Yoke seam curve from side seam → CB ────────────────────────────────
+  const seamPts = [];
+  if (yokeStyle === 'curved') {
+    const p0 = { x: hipWidth, y: yokeSideDepth };
+    const p3 = { x: 0, y: yokeDepthCB };
+    const p1 = { x: hipWidth * 0.6,  y: yokeSideDepth + (yokeDepthCB - yokeSideDepth) * 0.35 };
+    const p2 = { x: hipWidth * 0.25, y: yokeDepthCB   - (yokeDepthCB - yokeSideDepth) * 0.1  };
+    const pts = sampleBezier(p0, p1, p2, p3, 16);
+    for (let i = 1; i < pts.length - 1; i++) seamPts.push({ ...pts[i], curve: true });
+  }
+  // 'pointed': no intermediate points — straight line forms the V
+
+  // ── YOKE polygon (clockwise) ──────────────────────────────────────────
+  const yokePoly = [];
+  yokePoly.push({ x: 0,        y: -cbRaise       }); // CB waist (raised)
+  yokePoly.push({ x: hipWidth, y: 0               }); // side waist
+  yokePoly.push({ x: hipWidth, y: yokeSideDepth   }); // yoke seam at side
+  for (const pt of seamPts) yokePoly.push(pt);
+  yokePoly.push({ x: 0,        y: yokeDepthCB     }); // yoke seam at CB
+
+  // ── LOWER BACK polygon (clockwise) ────────────────────────────────────
+  const lowerPoly = [];
+  lowerPoly.push({ x: 0,        y: yokeDepthCB    }); // yoke seam at CB
+  for (let i = seamPts.length - 1; i >= 0; i--) lowerPoly.push({ ...seamPts[i] });
+  lowerPoly.push({ x: hipWidth, y: yokeSideDepth  }); // yoke seam at side
+  // Copy hip → knee → hem → inseam → crotch → crotch curve → CB from original
+  for (let i = 2; i < polygon.length; i++) lowerPoly.push({ ...polygon[i] });
+
+  // ── SA offset ─────────────────────────────────────────────────────────
+  const yokeSaPoly = offsetPolygon(yokePoly, () => -sa);
+  const lowerSaPoly = offsetPolygon(lowerPoly, (i, a, b) => {
+    if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
+    return -sa;
+  });
+
+  // ── Seam lengths ──────────────────────────────────────────────────────
+  let yokeSeamLen = dist({ x: hipWidth, y: yokeSideDepth }, seamPts[0] || { x: 0, y: yokeDepthCB });
+  for (let i = 0; i < seamPts.length - 1; i++) yokeSeamLen += dist(seamPts[i], seamPts[i + 1]);
+  if (seamPts.length) yokeSeamLen += dist(seamPts[seamPts.length - 1], { x: 0, y: yokeDepthCB });
+  const yokeW = hipWidth;
+  const yokeH = yokeDepthCB + cbRaise;
+
+  // ── Yoke notches (mid-seam alignment mark) ────────────────────────────
+  const seamMidIdx = Math.floor(seamPts.length / 2);
+  const seamMidPt  = seamPts.length
+    ? seamPts[seamMidIdx]
+    : { x: hipWidth * 0.5, y: (yokeSideDepth + yokeDepthCB) / 2 };
+  const seamEndA = seamPts.length ? seamPts[Math.max(0, seamMidIdx - 1)] : { x: hipWidth, y: yokeSideDepth };
+  const seamEndB = seamPts.length ? seamPts[Math.min(seamPts.length - 1, seamMidIdx + 1)] : { x: 0, y: yokeDepthCB };
+
+  const yokeNotches = [
+    { x: hipWidth, y: yokeSideDepth, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: hipWidth, y: hipLineY }) },
+    { x: seamMidPt.x, y: seamMidPt.y, angle: edgeAngle(seamEndA, seamEndB) },
+    { x: 0, y: yokeDepthCB, angle: 0 },
+  ];
+
+  // ── Dimensions ────────────────────────────────────────────────────────
+  const yokeDims = [
+    { label: fmtInches(yokeW) + ' width',     x1: 0, y1: -cbRaise - 0.5, x2: hipWidth, y2: -cbRaise - 0.5, type: 'h' },
+    { label: fmtInches(yokeH) + ' depth',     x: hipWidth + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
+    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: hipWidth, y2: yokeSideDepth + 0.5, type: 'h', color: '#b8963e' },
+  ];
+
+  // Lower panel inherits most of the original dimensions minus waist width
+  const lowerDims = backPanel.dimensions.filter(d => !d.label.includes('waist'));
+  lowerDims.push({ label: fmtInches(yokeSeamLen) + ' yoke seam', x1: 0, y1: yokeDepthCB - 0.5, x2: hipWidth, y2: yokeSideDepth - 0.5, type: 'h', color: '#b8963e' });
+
+  // ── Build pieces ──────────────────────────────────────────────────────
+  const yoke = {
+    id: 'back-yoke',
+    name: 'Back Yoke',
+    instruction: `Cut 2 (mirror L & R) · ${yokeStyle === 'pointed' ? 'Pointed V' : 'Curved'} yoke · Flat-fell to lower back panel`,
+    polygon: yokePoly, saPolygon: yokeSaPoly,
+    path: polyToPath(yokePoly), saPath: polyToPath(yokeSaPoly),
+    dimensions: yokeDims,
+    waistWidth, hipWidth, width: hipWidth, height: yokeH,
+    rise, inseam, ext, cbRaise, sa, hem, isBack: true,
+    notches: yokeNotches,
+    labels: [
+      { text: 'CB',        x: -0.5,           y: yokeDepthCB * 0.4, rotation: -90 },
+      { text: 'SIDE SEAM', x: hipWidth + 0.3,  y: yokeSideDepth * 0.5, rotation: 90 },
+    ],
+    darts: [], type: 'panel', opts,
+  };
+
+  const lower = {
+    id: 'back-lower',
+    name: 'Back Lower Panel',
+    instruction: `Cut 2 (mirror L & R) · Joins to yoke at top · CB raised ${fmtInches(cbRaise)} · Mark knee point`,
+    polygon: lowerPoly, saPolygon: lowerSaPoly,
+    path: polyToPath(lowerPoly), saPath: polyToPath(lowerSaPoly),
+    dimensions: lowerDims,
+    waistWidth, hipWidth, width: hipWidth, height,
+    rise, inseam, ext, cbRaise, sa, hem, isBack: true,
+    notches: [
+      ...yokeNotches,
+      // Keep original notches for hip, crotch, knee alignment
+      ...(origNotches || []),
+    ],
+    crotchBezier,
+    crotchBezierSA,
+    labels: [
+      { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
+      { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
+    ],
+    darts: [], type: 'panel', opts,
+  };
+
+  return { yoke, lower };
 }
