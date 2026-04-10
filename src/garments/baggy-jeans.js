@@ -101,10 +101,13 @@ export default {
     const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 33);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.wide;
 
-    let frontHipW   = m.hip / 4 + ease.front + 0.5;
-    let backHipW    = m.hip / 4 + ease.back;
-    const frontWaistW = m.waist / 4 + ease.front;
-    const backWaistW  = m.waist / 4 + ease.back;
+    const hip   = m.hip   || 36;
+    const waist = m.waist || 32;
+
+    let frontHipW   = hip / 4 + ease.front + 0.5;
+    let backHipW    = hip / 4 + ease.back;
+    const frontWaistW = waist / 4 + ease.front;
+    const backWaistW  = waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
 
     // Thigh ease check — baggy jeans need more room (+5″ minimum)
@@ -150,11 +153,11 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.waist + easeTotal + sa * 2;
+    const wbLen = waist + easeTotal + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold \xb7 Interface \xb7 1\u00BD\u2033 finished \xb7 Belt loops \xd7${m.waist > 36 ? 7 : 6}`,
+      instruction: `Cut 1 on fold \xb7 Interface \xb7 1\u00BD\u2033 finished \xb7 Belt loops \xd7${waist > 36 ? 7 : 6}`,
       dimensions: { length: wbLen, width: 3 },
       type: 'rectangle', sa,
     });
@@ -174,7 +177,7 @@ export default {
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1\u00BE\u2033 \xd7 \u00BE\u2033 finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${waist > 36 ? 7 : 6} strips 1\u00BE\u2033 \xd7 \u00BE\u2033 finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
 
     return pieces;
   },
@@ -182,7 +185,7 @@ export default {
   materials(m, opts) {
     const notions = [
       { ref: 'interfacing-med', quantity: '0.5 yard (waistband + pocket facings)' },
-      { name: 'Metal zipper', quantity: `${Math.ceil(m.rise * 0.6)}\u2033`, notes: 'YKK #5 metal or equivalent' },
+      { name: 'Metal zipper', quantity: `${Math.ceil((m.rise || 10) * 0.6)}\u2033`, notes: 'YKK #5 metal or equivalent' },
       { name: 'Waistband button', quantity: '1', notes: '\u00BE\u2033 jeans tack button, no-sew' },
       { name: 'Copper rivets', quantity: '5\u20136', notes: 'At pocket corners and stress points' },
     ];
