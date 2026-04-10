@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.18] - 2026-04-10
+
+### Added
+- New "Square scoop" front pocket option for all jeans patterns. The pocket opening uses an L-shaped cut (vertical drop, rounded 90-degree corner, horizontal run to side seam) instead of the smooth J-curve of the regular scoop. Available in the Front Pockets dropdown on Straight Jeans, Soloist Jeans, and other jeans variants.
+- Soloist Jeans now defaults to the square scoop pocket style.
+
+---
+
 ## [0.12.17] - 2026-04-10
 
 ### Fixed

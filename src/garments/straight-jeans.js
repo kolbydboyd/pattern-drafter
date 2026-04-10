@@ -10,7 +10,8 @@ import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
   buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash,
-  buildScoopPocketBag, buildScoopPocketBacking, clipPanelAtScoop
+  buildScoopPocketBag, buildScoopPocketBacking, clipPanelAtScoop,
+  buildSquareScoopPocketBag, buildSquareScoopPocketBacking, clipPanelAtSquareScoop
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -47,10 +48,11 @@ export default {
     frontPocket: {
       type: 'select', label: 'Front pockets',
       values: [
-        { value: 'slant', label: 'Slant (western)' },
-        { value: 'scoop', label: 'Scoop (curved)'  },
-        { value: 'side',  label: 'Side seam'       },
-        { value: 'none',  label: 'None'             },
+        { value: 'slant',        label: 'Slant (western)' },
+        { value: 'scoop',        label: 'Scoop (curved)'  },
+        { value: 'square-scoop', label: 'Square scoop'    },
+        { value: 'side',         label: 'Side seam'       },
+        { value: 'none',         label: 'None'            },
       ],
       default: 'slant',
     },
@@ -197,6 +199,10 @@ export default {
       pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
       pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 Scoop curve is pocket back' }));
     }
+    if (opts.frontPocket === 'square-scoop') {
+      pieces.push(buildSquareScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      pieces.push(buildSquareScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Inner edge on fold \xb7 L-shaped opening is pocket back' }));
+    }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
@@ -244,7 +250,7 @@ export default {
       step: n++, title: 'Prepare back patch pockets',
       detail: 'Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on back panels, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.',
     });
-    const isScoop = opts.frontPocket === 'scoop';
+    const isScoop = opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop';
     steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
       detail: isScoop
         ? 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and curved opening open. {clip} the curved seam allowance every \xbd\u2033. Turn right side out so the backing faces outward. {press} flat. {topstitch} \xbc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.'
@@ -441,8 +447,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
 
   const hasSlash = !isBack && opts?.frontPocket === 'slant';
   const hasScoop = !isBack && opts?.frontPocket === 'scoop';
+  const hasSquareScoop = !isBack && opts?.frontPocket === 'square-scoop';
   if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 6);
   if (hasScoop) clipPanelAtScoop(poly, sideWaistX, 3.5, 6);
+  if (hasSquareScoop) clipPanelAtSquareScoop(poly, sideWaistX, 3.5, 6);
 
   // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
   const sideIdx = hasSlash ? 2 : 1;

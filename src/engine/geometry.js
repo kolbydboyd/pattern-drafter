@@ -691,3 +691,125 @@ export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth
     dimensions: { width: bagWidth, height: bagDepth },
   };
 }
+
+// ── Square-scoop pocket (L-shaped opening with rounded corner) ──────────────
+
+/**
+ * Clip a front panel polygon at a square-scoop opening.
+ * Replaces the waist/side-seam corner with an L-shaped polyline:
+ * vertical drop → rounded 90° corner → horizontal run to side seam.
+ *
+ * Mutates `poly` in place and returns it.
+ *
+ * @param {Array<{x:number, y:number}>} poly - CW panel polygon
+ * @param {number} waistSideX - x of the waist-at-side-seam vertex
+ * @param {number} scoopInset - how far in from side seam the opening starts on waist (default 3.5)
+ * @param {number} scoopDepth - how far below waist the opening meets the side seam (default 6)
+ * @param {number} cornerRadius - radius of the rounded corner (default 0.75)
+ * @returns {Array<{x:number, y:number}>} the mutated polygon
+ */
+export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth = 6, cornerRadius = 0.75) {
+  let idx = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const d = Math.abs(poly[i].x - waistSideX) + Math.abs(poly[i].y);
+    if (d < bestDist) { bestDist = d; idx = i; }
+  }
+  if (idx < 0 || bestDist > 1) return poly;
+
+  const sx = waistSideX - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523; // bezier approximation of quarter-circle
+
+  // Quarter-circle from end of vertical to start of horizontal
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const pts = [
+    { x: sx, y: 0 },                // opening start on waist
+    { x: sx, y: scoopDepth - r },   // bottom of vertical segment (arc start)
+    ...arcPts.slice(1, -1),          // arc mid-points (skip endpoints, already covered)
+    { x: sx + r, y: scoopDepth },   // end of arc / start of horizontal
+    { x: waistSideX, y: scoopDepth }, // opening end on side seam
+  ];
+
+  poly.splice(idx, 1, ...pts);
+  return poly;
+}
+
+/**
+ * Build a square-scoop pocket backing piece (self-fabric, visible front).
+ * Same shape as scoop backing: rectangle from waist across full bag width,
+ * down the side seam, then scoop curve at the bottom.
+ */
+export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const scoopPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    { x: bagWidth, y: 0 },
+    { x: bagWidth, y: scoopDepth },
+    ...scoopPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-backing',
+    name: 'Square Scoop Pocket Backing',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
+
+/**
+ * Build a square-scoop pocket bag piece (lining).
+ * Top-right edge follows the L-shaped opening (vertical + rounded corner + horizontal),
+ * bottom edge follows the bag scoop curve.
+ */
+export function buildSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, cornerRadius = 0.75, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523;
+
+  // L-shaped opening edge matching clipPanelAtSquareScoop
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const openingPts = [
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth - r },
+    ...arcPts.slice(1, -1),
+    { x: sx + r, y: scoopDepth },
+    { x: bagWidth, y: scoopDepth },
+  ];
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-bag',
+    name: 'Square Scoop Pocket Bag',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
