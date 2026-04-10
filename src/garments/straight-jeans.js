@@ -3,7 +3,7 @@
  * Straight Jeans — 5-pocket denim with tapered leg shaping.
  * 31 inch default inseam, 10 inch rise.
  * Leg tapers from hip through knee (55% down inseam) to hem per LEG_SHAPES.
- * Zip fly + fly shield, slant front pockets, coin pocket, welt back pockets ×2.
+ * Zip fly + fly shield, slant front pockets, coin pocket, patch back pockets ×2.
  */
 
 import {
@@ -184,18 +184,20 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
+      // Backing (facing): self-fabric, extends ~2″ below opening (depth 8″). Visible from outside.
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 8, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      // Bag (lining): full depth 11.5″ for hand access. Against the body.
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket bag (against body)' }));
     }
     if (opts.frontPocket === 'scoop') {
-      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
-      pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
+      pieces.push(buildScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 8.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      pieces.push(buildScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket bag (against body)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
     pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) · Right front only · {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
-    pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
+    pieces.push(buildBackPatchPocket(sa));
 
     // ── BELT LOOPS ──
     // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
@@ -235,8 +237,8 @@ export default {
     let n = 1;
 
     steps.push({
-      step: n++, title: 'Prepare back welt pockets',
-      detail: 'Mark pocket positions on back panels. Sew bound welts, slash, turn and {press}. Attach pocket bags. Whipstitch bag sides. Bar tack welt ends. {topstitch} welts with 3.5mm gold thread.',
+      step: n++, title: 'Prepare back patch pockets',
+      detail: 'Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on back panels, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.',
     });
     const isScoop = opts.frontPocket === 'scoop';
     steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
@@ -297,6 +299,44 @@ export default {
     { id: 'high-rise-jeans', name: 'High-Rise Jeans', defaults: { riseStyle: 'high', legShape: 'straight' } },
   ],
 };
+
+
+// ── Back patch pocket (pentagon with pointed bottom) ────────────────────
+
+function buildBackPatchPocket(sa) {
+  const w = 5.5;           // pocket width
+  const sideH = 5;         // straight side height before angling inward
+  const totalH = 6.5;      // total height (top to point)
+  const pointH = totalH - sideH; // 1.5″ angled section
+
+  // Pentagon: top edge, two straight sides, two angled sides meeting at point
+  const poly = [
+    { x: 0, y: 0 },            // top-left
+    { x: w, y: 0 },            // top-right
+    { x: w, y: sideH },        // right side, start of angle
+    { x: w / 2, y: totalH },   // bottom center point
+    { x: 0, y: sideH },        // left side, start of angle
+  ];
+
+  const saPoly = offsetPolygon(poly, () => -sa);
+
+  return {
+    id: 'back-pocket',
+    name: 'Back Patch Pocket',
+    instruction: 'Cut 2 · {press} SA under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
+    polygon: poly,
+    saPolygon: saPoly,
+    path: polyToPath(poly),
+    saPath: polyToPath(saPoly),
+    width: w, height: totalH,
+    sa, type: 'bodice',
+    isCutOnFold: false,
+    dimensions: [
+      { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
+      { label: fmtInches(totalH) + ' height', x: w + 0.8, y1: 0, y2: totalH, type: 'v' },
+    ],
+  };
+}
 
 
 // ── Fly shield with J-curve ──────────────────────────────────────────────
@@ -466,7 +506,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   const { waistWidth, hipWidth, cbRaise, sa, hem, rise, inseam, ext, height,
           polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts } = backPanel;
 
-  const yokeSideDepth = 0.5; // yoke barely dips below waist at side seam
+  const yokeSideDepth = 1.5; // yoke at side seam (~1.5″ below waist)
 
   // ── Yoke seam curve from side seam → CB ────────────────────────────────
   const seamPts = [];
@@ -550,7 +590,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
       { text: 'CB',        x: -0.5,           y: yokeDepthCB * 0.4, rotation: -90 },
       { text: 'SIDE SEAM', x: hipWidth + 0.3,  y: yokeSideDepth * 0.5, rotation: 90 },
     ],
-    darts: [], type: 'panel', opts,
+    darts: [], type: 'bodice', opts,
   };
 
   const lower = {
@@ -573,7 +613,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    darts: [], type: 'panel', opts,
+    darts: [], type: 'bodice', opts,
   };
 
   return { yoke, lower };
