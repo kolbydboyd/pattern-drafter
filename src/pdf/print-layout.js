@@ -251,6 +251,19 @@ function renderPocketPlacement(piece, ox, oy) {
     }
   }
 
+  // ── Fly shield outline (front panel, left/CF side) ──
+  if (!isBack) {
+    const flyLen = Math.ceil((rise || 10) * 0.6);
+    const fsX = ox * DPI;
+    const fsY = oy * DPI;
+    const fsW = 2.5 * DPI;
+    const fsH = flyLen * DPI;
+    svg += `<rect x="${fsX}" y="${fsY}" width="${fsW}" height="${fsH}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += `<text x="${fsX + 3}" y="${fsY + fsH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">fly shield (left only)</text>`;
+  }
+
   return svg;
 }
 

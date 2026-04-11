@@ -4,6 +4,22 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.24] - 2026-04-11
+
+### Added
+- Fly shield placement indicator on the front panel pattern piece: dashed rectangle at the CF edge spanning ~60% of the rise, labeled "fly shield (left only)". Visible in both the on-screen pattern view and print layout.
+
+### Changed
+- Rewrote all construction steps in Straight Jeans (and Soloist Jeans, which delegates to it) with detailed, technique-accurate guidance:
+  - **Join back panels at CB**: now covers WST flat-fell for the back rise (two-row topstitch 1/8 inch and 1/4 inch) then RST double-stitch for the crotch curve (two rows, serge/clip, press toward back).
+  - **Install zip fly**: expanded from one sentence to a 10-sub-step sequence covering interface, staystitch, CF join, right zipper tape, left zipper tape, fly shield assembly, baste, J-topstitch, bar tack, and check.
+  - **Sew outseams**: clarified flat-fell direction (toward back) with explicit two-row topstitch detail.
+  - **Sew inseam**: corrected from "continuous seam from hem to hem" to sewing each inseam tube individually (hem to crotch notch), fellling toward front, then joining the crotch seat by turning one leg inside the other with a double-stitched reinforced seam.
+  - **Construct and attach waistband**: added overlap/underlap extension lengths (1-1/4 inch left for buttonhole, 5/8 inch right for button), grade SA, and topstitch detail.
+  - **Belt loops**: split into two correctly ordered steps — "Make belt loop strips" (baste tops to waist SA before waistband is attached) and "Finish belt loops" (flip up, fold and topstitch base, bar tack) after waistband is attached. Removed the previously misplaced single-step.
+
+---
+
 ## [0.12.23] - 2026-04-11
 
 ### Added

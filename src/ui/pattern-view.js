@@ -329,6 +329,15 @@ export function renderPanelSVG(piece) {
     pocketSVG += dm(sx2, sy2);
     pocketSVG += `<text x="${sx2+4}" y="${sy2+4}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
   }
+  // Fly shield placement outline (front panel only)
+  if (!isBack) {
+    const flyLen = Math.ceil(rise * 0.6);
+    const col = '#8a4a4a';
+    pocketSVG += `<rect x="${ox}" y="${oy}" width="${sc(2.5)}" height="${sc(flyLen)}"
+      stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${ox + 3}" y="${oy + sc(flyLen) + 9}"
+        font-family="IBM Plex Mono" font-size="7" fill="${col}">fly shield (left only)</text>`;
+  }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
