@@ -284,35 +284,39 @@ export default {
       });
       steps.push({
         step: n++, title: 'Join back panels at CB',
-        detail: 'Join the two yoke+lower-back assemblies at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
+        detail: 'Flat-fell the back rise seam: place both yoke+back assemblies WST, align the CB rise edges from waist down to where the curved crotch begins. Stitch 5/8\u2033 from the edge. Trim the right-back SA to 3/16\u2033. Wrap the left-back SA over the trimmed edge and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then double-stitch the crotch curve: re-open the panels, join RST along the curved crotch seat from the CB base around to the CF crotch point. Stitch at 5/8\u2033, then a second reinforcement row at 1/2\u2033 inside the first. Trim SA to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
       });
     } else {
       steps.push({
         step: n++, title: 'Join back panels at CB',
-        detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
+        detail: 'Flat-fell the back rise seam: place both back panels WST, align the CB rise edges from waist down to where the curved crotch begins. Stitch 5/8\u2033 from the edge. Open the fabric flat \u2014 both SAs sit upright together on the RS. Trim the right-back SA to 3/16\u2033. Fold the left-back SA over the trimmed edge and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then double-stitch the crotch curve: re-open the panels, join RST along the curved crotch seat from the CB base around to the CF crotch point. Stitch at 5/8\u2033, then a second reinforcement row at 1/2\u2033 inside the first. Trim SA to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
       });
     }
     steps.push({
       step: n++, title: 'Install zip fly',
-      detail: 'Interface fly shield. {staystitch} CF seam allowances. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Pin and {topstitch} the fly J-curve from RS using {topstitch} thread. Secure fly shield to inside.',
+      detail: '1. Interface both fly shield pieces (outer side). 2. {staystitch} both left and right CF edges 3/8\u2033 from the edge to stabilize the curve. 3. Sew the right and left front panels {RST} from the crotch point up to the base of the fly opening. {clip} the curve. {press} SA toward right. 4. RIGHT side: fold the right CF extension to the RS at the fold line, enclosing the SA. {press}. Place the closed zipper face-down on the folded extension, teeth at the fold. Stitch the right zipper tape to the extension only (do not catch the main panel). 5. LEFT side: fold the left CF extension to the WS. {press}. Open the zipper. Place the left tape face-up on the left extension, teeth at the fold. Stitch 1/4\u2033 from the teeth. 6. Fly shield: sew the two shield pieces {RST}, straight CF edge left open. Trim, {clip} the J-curve, turn RS out, {press}. {topstitch} the J-curve at 3/16\u2033 from RS. Place the shield on the left extension WS, straight CF edges aligned, baste together. 7. Close the zipper. Fold everything to RS. Baste the fly layers together from RS to hold position. 8. {topstitch} the J-curve from RS (transfer the J-curve shape from the pattern piece using chalk or a tracing wheel). 9. Bar tack the fly base: 8\u201310 zig-zag stitches at 0mm stitch length across the seam. 10. Check: zipper opens cleanly from RS.',
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at outseam {RST}. {press} toward back. {topstitch} outseam fell: fold back panel SA over front, {topstitch} two rows ⅛″ and ¼″ from seam edge (visible from RS as double {topstitch}).',
+      detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem. Sew at 5/8\u2033. {press} both SAs toward back. Fell: trim the front (underneath) SA to 3/16\u2033, fold back SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Repeat for the other side.',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
-      detail: 'Continuous seam from hem to hem. {clip} crotch curve. Fell toward front: fold front inseam SA over, {press}, {topstitch} from RS.',
+      detail: 'Sew each leg inseam individually: right leg from hem to crotch notch, then left leg from hem to crotch notch, each {RST} at 5/8\u2033. {press} both SAs toward front. Fell: trim the back (underneath) SA to 3/16\u2033, fold front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then join the legs at the crotch seat: turn one leg WS-out and slide it inside the other. Align inseam seams and crotch notches. Sew the curved seat from the right inseam notch around to the left inseam notch at 5/8\u2033. Stitch a second reinforcement row at 1/2\u2033. Trim to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
+    });
+    steps.push({
+      step: n++, title: 'Make belt loop strips',
+      detail: 'Cut 5 belt loop strips on the straight grain, each 1\u00bd\u2033 wide \u00d7 (waistband height + 1\u00bd\u2033) long. {press} each strip in thirds lengthwise (each third \u00bd\u2033 wide). {topstitch} both long edges at 2mm. Trim ends square. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge: one at CB, two on the back (spaced evenly between CB and side seams), and two on the front flanking the fly. The loops hang down into the jeans body at this stage.',
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface waistband. Sew to jeans waist {RST}, matching CB, side seams, CF. Fold over. {topstitch} top and bottom edge with gold {topstitch} thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
+      detail: 'Interface the waistband (full length). Fold the waistband {RST} lengthwise and sew both short ends \u2014 the left end extends ~1\u00bc\u2033 past CF for the overlap (buttonhole end), the right end extends ~\u215d\u2033 for the underlap (button end). {clip} corners, turn RS out, {press}. Pin the bottom WS half of the waistband to the jeans waist RS, matching CB, side seams, CF notch, and fly. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033). Fold the waistband up. Fold the top SA under on the inside and slip-stitch or {topstitch} from RS, catching the inner fold. {topstitch} the waistband top edge and all around the ends with gold {topstitch} thread at 3mm.',
     });
     steps.push({
-      step: n++, title: 'Attach belt loops',
-      detail: '{press} loop strips in thirds. {topstitch} both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, {topstitch} top and bottom with a bar tack.',
+      step: n++, title: 'Finish belt loops',
+      detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
     });
-    steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at base of front pocket openings and coin pocket sides. Add one at crotch seam junction if fabric is heavy.' });
+    steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at both ends of each front pocket opening (waist-seam end and side-seam end, marked on pattern) and at the sides of the coin pocket. Add one at the crotch seam junction if fabric is heavy.' });
     steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem) || 1)} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });
 
