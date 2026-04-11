@@ -587,10 +587,16 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
+  // Interpolate the actual side seam x at slashDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
+    : waistSideX;
+
   // Replace the corner vertex with two slash endpoints
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },    // slash start on waist
-    { x: waistSideX, y: slashDepth },         // slash end on side seam
+    { x: endX, y: slashDepth },               // slash end on actual side seam
   );
   return poly;
 }
@@ -617,6 +623,12 @@ export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth 
   }
   if (idx < 0 || bestDist > 1) return poly;
 
+  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
+    : waistSideX;
+
   // Concave J-curve from waist (inset) to side seam (depth)
   // CP1 vertical → CP2 at same depth as endpoint → horizontal tangent at side seam
   const sx = waistSideX - scoopInset;
@@ -624,7 +636,7 @@ export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth 
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
     { x: waistSideX - scoopInset * 0.3, y: scoopDepth },
-    { x: waistSideX, y: scoopDepth },
+    { x: endX, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
@@ -722,6 +734,12 @@ export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoop
   }
   if (idx < 0 || bestDist > 1) return poly;
 
+  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
+    : waistSideX;
+
   const sx = waistSideX - scoopInset;
   const r = Math.min(cornerRadius, scoopInset, scoopDepth);
   const k = 0.5523; // bezier approximation of quarter-circle
@@ -740,7 +758,7 @@ export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoop
     { x: sx, y: scoopDepth - r },   // bottom of vertical segment (arc start)
     ...arcPts.slice(1, -1),          // arc mid-points (skip endpoints, already covered)
     { x: sx + r, y: scoopDepth },   // end of arc / start of horizontal
-    { x: waistSideX, y: scoopDepth }, // opening end on side seam
+    { x: endX, y: scoopDepth },     // opening end on actual side seam
   ];
 
   poly.splice(idx, 1, ...pts);
