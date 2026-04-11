@@ -684,6 +684,20 @@ export function renderGenericPieceSVG(piece) {
       }
       return '';
     }).join('')}
+    ${(() => {
+      if (piece.id !== 'scoop-backing' && piece.id !== 'square-scoop-backing') return '';
+      const bW = piece.width || 7;
+      const bSA = piece.sa || 0.625;
+      const coinW = 3, coinH = 3.5;
+      const cpX = ox + sc(bW - bSA - coinW);
+      const cpY = oy + sc(bSA);
+      const cpWpx = sc(coinW), cpHpx = sc(coinH);
+      const col = '#8a4a4a';
+      return `<rect x="${cpX.toFixed(1)}" y="${cpY.toFixed(1)}" width="${cpWpx.toFixed(1)}" height="${cpHpx.toFixed(1)}" rx="${sc(0.5).toFixed(1)}"
+        stroke="${col}" stroke-width="0.6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${(cpX + 2).toFixed(1)}" y="${(cpY + cpHpx + 9).toFixed(1)}"
+        font-family="IBM Plex Mono" font-size="7" fill="${col}">coin pocket</text>`;
+    })()}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>

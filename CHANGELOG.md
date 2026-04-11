@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.22] - 2026-04-11
+
+### Added
+- Coin pocket placement indicator on scoop and square-scoop pocket backing pattern pieces: dashed rectangle with drill marks and "coin pocket" label in the upper-right corner, visible in both the on-screen pattern view and print layout.
+- Rounded bottom corners (0.5 inch radius) on coin pocket pattern piece. Corner radius is now supported in `renderPocketSVG` for any pocket piece that declares `cornerRadius`.
+- New construction step in Straight Jeans and Soloist Jeans instructions: attach coin pocket to the right pocket backing before assembling the scoop pocket unit. Replaces the previous generic step that incorrectly directed attaching to the front panel.
+
+---
+
 ## [0.12.21] - 2026-04-11
 
 ### Fixed

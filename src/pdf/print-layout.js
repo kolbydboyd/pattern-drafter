@@ -560,6 +560,22 @@ function renderBodiceOrSleeveSVG(piece) {
             fill="#999">${line}</text>`
         ).join('\n');
       })()}
+      ${(() => {
+        if (piece.id !== 'scoop-backing' && piece.id !== 'square-scoop-backing') return '';
+        const bW = piece.width || 7;
+        const bSA = piece.sa || 0.625;
+        const coinW = 3, coinH = 3.5;
+        const cpX = (ox + bW - bSA - coinW) * DPI;
+        const cpY = (oy + bSA) * DPI;
+        const cpW = coinW * DPI, cpH = coinH * DPI;
+        const crpx = 0.5 * DPI;
+        return `<rect x="${cpX.toFixed(1)}" y="${cpY.toFixed(1)}" width="${cpW.toFixed(1)}" height="${cpH.toFixed(1)}" rx="${crpx.toFixed(1)}"
+          stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>
+        ${drillMark(cpX, cpY)}
+        ${drillMark(cpX + cpW, cpY)}
+        <text x="${(cpX + 3).toFixed(1)}" y="${(cpY + cpH + 10).toFixed(1)}"
+          font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">coin pocket</text>`;
+      })()}
     </svg>`,
   };
 }
@@ -685,9 +701,11 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const cy = (M + H / 2) * DPI;
 
   // SA cut line (outer) + stitch line (inner dashed)
+  const crInner = (piece.cornerRadius || 0) * DPI;
+  const crOuter = ((piece.cornerRadius || 0) + sa) * DPI;
   const saRect = sa > 0
     ? `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-        stroke="#000" stroke-width="1.5" fill="none"/>`
+        rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`
     : '';
   const stitchStroke = sa > 0 ? 'stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"' : 'stroke="#2c2a26" stroke-width="2"';
 
@@ -744,7 +762,7 @@ function renderPocketSVG(piece, { compact = false } = {}) {
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       ${saRect}
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
-        ${stitchStroke} fill="none"/>
+        rx="${crInner}" ${stitchStroke} fill="none"/>
       ${marksSvg}
       <text x="${cx}" y="${(M - 0.08) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
