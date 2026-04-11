@@ -325,7 +325,7 @@ export function renderPanelSVG(piece) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
     // Position: inner edge ~2″ from CB, top ~3″ below waist; tilted -5° (outer/side seam edge higher)
-    const bpInner = 2, bpTop = 3, tiltDeg = -5;
+    const bpTop = 3, tiltDeg = -5;
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [
@@ -334,6 +334,29 @@ export function renderPanelSVG(piece) {
     // Transform: translate to panel position, apply tilt rotation around top-inner corner
     const rad = tiltDeg * Math.PI / 180;
     const cosA = Math.cos(rad), sinA = Math.sin(rad);
+
+    // Clamp pocket so it stays inside the side seam outline
+    function sideSeamXatY(py) {
+      let maxX = 0;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= py && py <= yMax && Math.abs(b.y - a.y) > 0.01) {
+          const x = a.x + (py - a.y) / (b.y - a.y) * (b.x - a.x);
+          if (x > maxX) maxX = x;
+        }
+      }
+      return maxX || width;
+    }
+    let bpInner = 2;
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      const allowed = sideSeamXatY(bpTop + ry) - 0.5 - rx;
+      if (allowed < bpInner) bpInner = allowed;
+    }
+    bpInner = Math.max(0.5, bpInner);
+
     const svgPts = ppts.map(([lx, ly]) => {
       // Rotate around (0,0) then translate
       const rx = lx * cosA - ly * sinA;
