@@ -4,10 +4,36 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.23] - 2026-04-11
+## [0.12.25] - 2026-04-11
 
 ### Fixed
 - Front panel side seam now flows smoothly past the pocket opening on all three pocket styles (slant, scoop, square-scoop). The pocket opening endpoint is now interpolated to land on the actual side seam at the pocket depth, eliminating the kink/notch that appeared where the opening met the tapered side seam.
+
+---
+
+## [0.12.24] - 2026-04-11
+
+### Added
+- Fly shield placement indicator on the front panel pattern piece: dashed rectangle at the CF edge spanning ~60% of the rise, labeled "fly shield (left only)". Visible in both the on-screen pattern view and print layout.
+
+### Changed
+- Rewrote all construction steps in Straight Jeans (and Soloist Jeans, which delegates to it) with detailed, technique-accurate guidance:
+  - **Join back panels at CB**: now covers WST flat-fell for the back rise (two-row topstitch 1/8 inch and 1/4 inch) then RST double-stitch for the crotch curve (two rows, serge/clip, press toward back).
+  - **Install zip fly**: expanded from one sentence to a 10-sub-step sequence covering interface, staystitch, CF join, right zipper tape, left zipper tape, fly shield assembly, baste, J-topstitch, bar tack, and check.
+  - **Sew outseams**: clarified flat-fell direction (toward back) with explicit two-row topstitch detail.
+  - **Sew inseam**: corrected from "continuous seam from hem to hem" to sewing each inseam tube individually (hem to crotch notch), fellling toward front, then joining the crotch seat by turning one leg inside the other with a double-stitched reinforced seam.
+  - **Construct and attach waistband**: added overlap/underlap extension lengths (1-1/4 inch left for buttonhole, 5/8 inch right for button), grade SA, and topstitch detail.
+  - **Belt loops**: split into two correctly ordered steps — "Make belt loop strips" (baste tops to waist SA before waistband is attached) and "Finish belt loops" (flip up, fold and topstitch base, bar tack) after waistband is attached. Removed the previously misplaced single-step.
+
+---
+
+## [0.12.23] - 2026-04-11
+
+### Added
+- Reduced seam allowance (3/8 inch) on the scoop pocket opening curve of fold-over bag pieces via `edgeAllowances`. The J-curve opening edges now carry their own SA that prints narrower than the rest of the bag, matching RTW construction practice. Label "opening" with the 3/8 inch value is rendered alongside the arc on both screen and print.
+- Rivet drill marks on the front panel pattern piece at both endpoints of the scoop pocket opening: where the J-curve meets the waist seam (top) and where it meets the side seam (bottom). Labeled "rivet" on both screen and print.
+- Rivet drill marks on the coin pocket pattern piece at the top-left and top-right corners, with label "bar tack / rivet". Visible in both screen preview (app.js mini SVG) and print PDF.
+- Button/buttonhole mark on the waistband pattern piece: drill mark + circle at the overlap/buttonhole end, labeled "button/buttonhole" in the print layout.
 
 ---
 

@@ -316,6 +316,28 @@ export function renderPanelSVG(piece) {
     // Label
     pocketSVG += `<text x="${(bagL + 2).toFixed(1)}" y="${(midY + 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">side pocket</text>`;
   }
+  if (!isBack && (opts?.frontPocket === 'scoop' || opts?.frontPocket === 'square-scoop')) {
+    const scoopInset = 3.5, scoopDepth = 6;
+    const sx1 = ox + sc(width - scoopInset), sy1 = oy;
+    const sx2 = ox + sc(width),             sy2 = oy + sc(scoopDepth);
+    const col = '#8a4a4a';
+    const dm = (x, y) =>
+      `<line x1="${x-3}" y1="${y}" x2="${x+3}" y2="${y}" stroke="${col}" stroke-width=".8"/>` +
+      `<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+3}" stroke="${col}" stroke-width=".8"/>`;
+    pocketSVG += dm(sx1, sy1);
+    pocketSVG += `<text x="${sx1+4}" y="${sy1+9}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
+    pocketSVG += dm(sx2, sy2);
+    pocketSVG += `<text x="${sx2+4}" y="${sy2+4}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
+  }
+  // Fly shield placement outline (front panel only)
+  if (!isBack) {
+    const flyLen = Math.ceil(rise * 0.6);
+    const col = '#8a4a4a';
+    pocketSVG += `<rect x="${ox}" y="${oy}" width="${sc(2.5)}" height="${sc(flyLen)}"
+      stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${ox + 3}" y="${oy + sc(flyLen) + 9}"
+        font-family="IBM Plex Mono" font-size="7" fill="${col}">fly shield (left only)</text>`;
+  }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
