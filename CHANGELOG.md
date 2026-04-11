@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.23] - 2026-04-11
+
+### Fixed
+- Front panel side seam now flows smoothly past the pocket opening on all three pocket styles (slant, scoop, square-scoop). The pocket opening endpoint is now interpolated to land on the actual side seam at the pocket depth, eliminating the kink/notch that appeared where the opening met the tapered side seam.
+
+---
+
 ## [0.12.22] - 2026-04-11
 
 ### Added
