@@ -557,8 +557,15 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   lowerPoly.push({ x: 0,        y: yokeDepthCB    }); // yoke seam at CB
   for (let i = seamPts.length - 1; i >= 0; i--) lowerPoly.push({ ...seamPts[i] });
   lowerPoly.push({ x: sideXAtYoke, y: yokeSideDepth  }); // yoke seam at side
-  // Copy hip → knee → hem → inseam → crotch → crotch curve → CB from original
-  for (let i = 2; i < polygon.length; i++) lowerPoly.push({ ...polygon[i] });
+  // Copy hip → knee → hem → inseam → crotch → crotch curve from original.
+  // Filter out crotch curve points above the yoke cut and the {0, cbRaise}
+  // structural point (it belongs to the yoke, not the lower panel).
+  for (let i = 2; i < polygon.length; i++) {
+    const pt = polygon[i];
+    if (pt.curve && pt.y < yokeDepthCB) continue;
+    if (!pt.curve && Math.abs(pt.x) < 0.01 && Math.abs(pt.y - cbRaise) < 0.01) continue;
+    lowerPoly.push({ ...pt });
+  }
 
   // ── SA offset ─────────────────────────────────────────────────────────
   const yokeSaPoly = offsetPolygon(yokePoly, () => -sa);
