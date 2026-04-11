@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.21] - 2026-04-11
+
+### Fixed
+- Rear patch pocket vertical placement now scales with seat depth instead of using a fixed 3 inch offset. Pocket is centered on the hip line, matching the industry standard of "centered on the seat."
+- Rear patch pocket no longer crosses the yoke seam on yoke-split back panels. Added top-edge clamping that pushes the pocket down when rotated vertices would breach the diagonal yoke seam.
+
+---
+
 ## [0.12.20] - 2026-04-11
 
 ### Fixed
