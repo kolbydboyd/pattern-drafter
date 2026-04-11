@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.20] - 2026-04-11
+
+### Fixed
+- Rear patch pocket outline no longer extends past the side seam cut line on narrower measurements or yoke-split back panels. Pocket inner offset is now clamped to keep all vertices at least 0.5 inches inside the side seam.
+
+---
+
 ## [0.12.19] - 2026-04-10
 
 ### Fixed
