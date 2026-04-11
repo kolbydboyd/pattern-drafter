@@ -324,18 +324,22 @@ export function renderPanelSVG(piece) {
   if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
-    // Position: inner edge ~2″ from CB, top ~3″ below waist; tilted -5° (outer/side seam edge higher)
-    const bpTop = 3, tiltDeg = -5;
+    const tiltDeg = -5;
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [
       [0, 0], [pw, 0], [pw, psH], [pw / 2, ptH], [0, psH]
     ];
-    // Transform: translate to panel position, apply tilt rotation around top-inner corner
     const rad = tiltDeg * Math.PI / 180;
     const cosA = Math.cos(rad), sinA = Math.sin(rad);
 
-    // Clamp pocket so it stays inside the side seam outline
+    // Derive hipLineY from polygon (vertex with max x = hip point)
+    const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    const hipLineY = hipVertex.y;
+    // Center pocket on the seat: pocket midpoint sits 0.5″ below hip line
+    let bpTop = hipLineY - ptH / 2 + 0.5;
+
+    // ── Side-seam clamping ──
     function sideSeamXatY(py) {
       let maxX = 0;
       for (let i = 0; i < polygon.length; i++) {
@@ -357,8 +361,28 @@ export function renderPanelSVG(piece) {
     }
     bpInner = Math.max(0.5, bpInner);
 
+    // ── Top-edge clamping (prevents pocket crossing yoke seam) ──
+    function topEdgeYatX(px) {
+      let minY = Infinity;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const xMin = Math.min(a.x, b.x), xMax = Math.max(a.x, b.x);
+        if (xMin <= px && px <= xMax && Math.abs(b.x - a.x) > 0.01) {
+          const y = a.y + (px - a.x) / (b.x - a.x) * (b.y - a.y);
+          if (y < minY) minY = y;
+        }
+      }
+      return minY === Infinity ? 0 : minY;
+    }
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      const topY = topEdgeYatX(bpInner + rx);
+      const needed = topY + 0.5 - ry;
+      if (needed > bpTop) bpTop = needed;
+    }
+
     const svgPts = ppts.map(([lx, ly]) => {
-      // Rotate around (0,0) then translate
       const rx = lx * cosA - ly * sinA;
       const ry = lx * sinA + ly * cosA;
       return `${(ox + sc(bpInner + rx)).toFixed(1)},${(oy + sc(bpTop + ry)).toFixed(1)}`;
