@@ -110,6 +110,13 @@ function polyPath(pts, ox, oy) {
   return d + ' Z';
 }
 
+/** SVG path for a rect with square top corners and rounded bottom corners */
+function bottomRoundedPath(x, y, w, h, cr) {
+  const r = Math.min(cr, w / 2, h / 2);
+  if (r <= 0) return `M${x},${y} h${w} v${h} h${-w} Z`;
+  return `M${x},${y} h${w} v${h - r} q0,${r} ${-r},${r} h${-(w - 2 * r)} q${-r},0 ${-r},${-r} Z`;
+}
+
 /** Drill mark (crosshair) for pocket corners — industry standard fabric transfer mark */
 function drillMark(x, y, size = 4) {
   return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}" stroke="#8a4a4a" stroke-width="0.6"/>
@@ -736,8 +743,11 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const crInner = (piece.cornerRadius || 0) * DPI;
   const crOuter = ((piece.cornerRadius || 0) + sa) * DPI;
   const saRect = sa > 0
-    ? `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-        rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`
+    ? (piece.id === 'coin-pocket'
+      ? `<path d="${bottomRoundedPath(rx - saOff, ry - saOff, rW + saOff * 2, rH + saOff * 2, crOuter)}"
+          stroke="#000" stroke-width="1.5" fill="none"/>`
+      : `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
+          rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`)
     : '';
   const stitchStroke = sa > 0 ? 'stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"' : 'stroke="#2c2a26" stroke-width="2"';
 
@@ -793,8 +803,9 @@ function renderPocketSVG(piece, { compact = false } = {}) {
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       ${saRect}
-      <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
-        rx="${crInner}" ${stitchStroke} fill="none"/>
+      ${piece.id === 'coin-pocket'
+        ? `<path d="${bottomRoundedPath(rx, ry, rW, rH, crInner)}" ${stitchStroke} fill="none"/>`
+        : `<rect x="${rx}" y="${ry}" width="${rW}" height="${rH}" rx="${crInner}" ${stitchStroke} fill="none"/>`}
       ${marksSvg}
       ${piece.id === 'coin-pocket'
         ? `${drillMark(rx, ry)}${drillMark(rx + rW, ry)}

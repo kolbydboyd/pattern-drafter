@@ -14,6 +14,7 @@ All notable changes are documented here, newest first.
 - Print layout: last tile page missing for waistband and pocket bag pieces. Root cause was an off-by-one in `computeTileLayout` margin-trim: `contentH/W` was computed as `span - 2*renderMargin + sa` but the SA cut line extends `sa` beyond the polygon on both ends, so the correct formula is `+ 2*sa`. The undercount caused the trim to incorrectly drop the last row or column tile for pieces near the tile-boundary threshold.
 - Print layout: Scale Verification tile map now uses a wider SVG (660px vs 460px) so pieces have more room across the full page width.
 - Print layout: "Important Notes" section on the Materials page now renders in two columns, matching the two-column layout used elsewhere on the page.
+- Print layout: Coin Pocket pattern piece now renders with square top corners and rounded bottom corners, matching the actual construction (top edge is sewn flush to the waist seam; only the bottom is rounded).
 
 ### Changed
 - Soloist Jeans: removed bone/skeleton vinyl template pieces. The garment now uses the straight jeans piece set directly.
