@@ -1565,9 +1565,10 @@ function buildInstructionsPage(instructions, PH) {
   const HEAD_H = 0.55;        // heading + note on first page
   const CONT_HEAD_H = 0.35;   // heading only on continuation pages
   const STEP_GAP = 0.14;      // gap between steps
-  const CHARS_PER_LINE = 85;  // ~chars fitting in detail column at 9pt
-  const LINE_H = 0.135;       // 9pt * 1.55 line-height
+  const CHARS_PER_LINE = 78;  // ~chars fitting in detail column at 10pt monospace (6.94in / ~0.089in/char)
+  const LINE_H = 0.215;       // 10pt * 1.55 line-height = 10/72 * 1.55 ≈ 0.215in
   const TITLE_H = 0.2;        // title line height
+  const SAFETY = 0.2;         // safety buffer against font-metric rounding differences
 
   function estimateStepHeight(s) {
     const detailLines = Math.ceil((s.detail || '').length / CHARS_PER_LINE) || 1;
@@ -1578,7 +1579,7 @@ function buildInstructionsPage(instructions, PH) {
   const pages = [];
   let cur = [];
   let usedH = 0;
-  let availH = PH - PAD * 2 - HEAD_H;
+  let availH = PH - PAD * 2 - HEAD_H - SAFETY;
 
   for (const s of allSteps) {
     const h = estimateStepHeight(s);
@@ -1586,7 +1587,7 @@ function buildInstructionsPage(instructions, PH) {
       pages.push(cur);
       cur = [];
       usedH = 0;
-      availH = PH - PAD * 2 - CONT_HEAD_H;
+      availH = PH - PAD * 2 - CONT_HEAD_H - SAFETY;
     }
     cur.push(s);
     usedH += h;
