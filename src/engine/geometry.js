@@ -649,7 +649,7 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
   return {
     id: 'scoop-backing',
     name: 'Scoop Pocket Backing',
-    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling',
     polygon, sa, hem: sa,
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
@@ -763,7 +763,7 @@ export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, 
   return {
     id: 'square-scoop-backing',
     name: 'Square Scoop Pocket Backing',
-    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling',
     polygon, sa, hem: sa,
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
@@ -814,5 +814,109 @@ export function buildSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoo
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
+
+// ── Fold-over pocket bag builders ────────────────────────────────────────────
+// RTW/professional construction: one lining piece cut on fold at the inner
+// (left) edge. The fold replaces the inner seam; the bottom is finished with
+// a French seam after the pocket is attached to the front panel.
+//
+// Construction sequence:
+//  1. Serge/finish curved bottom edge of self-fabric backing piece.
+//  2. With fold-over bag laid flat (unfolded), place backing WS-to-WS on the
+//     outer half, align top and side-seam edges. Baste top and side edges.
+//     Backing's serged bottom edge hangs free.
+//  3. Align bag+backing unit's opening edge to front panel scoop edge RST.
+//     Sew the opening curve. Clip every 1/2". Turn pocket to WS of panel.
+//     Press. Understitch. Topstitch 1/4" from opening edge.
+//  4. Fold the bag at the fold line RST, bottom edges aligned.
+//     Stitch bottom 3/8" SA. Trim to 1/8". Clip curve. Flip WST.
+//     Stitch again 1/4" from edge (French seam). Press.
+//  5. Baste top and side seam edges of pocket bag to panel SAs.
+
+/**
+ * Build a fold-over scoop pocket bag piece (lining, cut on fold).
+ * Identical polygon to buildScoopPocketBag — the fold is at x = 0 (inner
+ * edge). Cut on fold; when opened flat the piece is 2× as wide.
+ */
+export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const openingPts = sampleBezier(
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth * 0.45 },
+    { x: bagWidth - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: bagWidth, y: scoopDepth },
+    12,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'scoop-bag',
+    name: 'Scoop Pocket Bag (Fold-Over)',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: true,
+    foldEdge: 'left',
+    dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'v', position: 0 },
+    ],
+  };
+}
+
+/**
+ * Build a fold-over square-scoop pocket bag piece (lining, cut on fold).
+ * Identical polygon to buildSquareScoopPocketBag — fold at x = 0 (inner edge).
+ */
+export function buildFoldOverSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, cornerRadius = 0.75, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523;
+
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const openingPts = [
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth - r },
+    ...arcPts.slice(1, -1),
+    { x: sx + r, y: scoopDepth },
+    { x: bagWidth, y: scoopDepth },
+  ];
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-bag',
+    name: 'Square Scoop Pocket Bag (Fold-Over)',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: true,
+    foldEdge: 'left',
+    dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'v', position: 0 },
+    ],
   };
 }
