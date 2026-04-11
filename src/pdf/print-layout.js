@@ -996,7 +996,10 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   const pages_l = tileCnt(wIn, TX_l) * tileCnt(hIn, TY_l);
   // Panel pieces (pants, shorts) are always taller than wide — force portrait so
   // tiles cover more of the long dimension per row and assembly is intuitive.
-  const landscape = piece.type !== 'panel' && pages_l < pages_p;
+  // Tiebreak: if both orientations use the same page count, prefer landscape for
+  // pieces that are wider than tall (e.g. yokes, cuffs) so the long axis spans
+  // the page width and assembly is easier.
+  const landscape = piece.type !== 'panel' && (pages_l < pages_p || (pages_l === pages_p && wIn > hIn));
   const tPW = landscape ? PH : PW;
   const tPH = landscape ? PW : PH;
   const TX  = landscape ? TX_l : TX_p;
@@ -1492,15 +1495,6 @@ function buildMaterialsPage(materials, instructions) {
     ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${expandGlossaryPrint(materials.needle.use || '')}</td></tr>`
     : '';
 
-  const terms = usedGlossaryTerms(instructions, materials);
-  const glossaryHtml = terms.length ? `
-    <div class="print-glossary">
-      <h3 class="sect-head">Glossary</h3>
-      <div class="gl-grid">${terms.map(t =>
-        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
-      ).join('')}</div>
-    </div>` : '';
-
   return `<div class="page mat-page">
     <h2 class="page-head">Materials &amp; Stitch Guide</h2>
     <div class="two-col">
@@ -1529,7 +1523,22 @@ function buildMaterialsPage(materials, instructions) {
         </table>
       </div>
     </div>
-    ${glossaryHtml}
+  </div>`;
+}
+
+/**
+ * Build a standalone glossary page.
+ * Separated from the materials page so it never overflows into the materials
+ * page bottom margin. Returns empty string when no glossary terms are in use.
+ */
+function buildGlossaryPage(materials, instructions) {
+  const terms = usedGlossaryTerms(instructions, materials);
+  if (!terms.length) return '';
+  return `<div class="page mat-page">
+    <h2 class="page-head">Glossary</h2>
+    <div class="gl-grid">${terms.map(t =>
+      `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
+    ).join('')}</div>
   </div>`;
 }
 
@@ -2618,6 +2627,7 @@ ${body}
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
     + buildMaterialsPage(materials, instructions)
+    + buildGlossaryPage(materials, instructions)
     + buildInstructionsPage(instructions, PH);
 
   // ── Pattern piece pages ─────────────────────────────────────────────────
@@ -2704,6 +2714,7 @@ export function generateGradedPrintLayout(gradingResult, materials, instructions
   const preamblePages = buildGradedCoverPage(garment, sizeChart, opts, redemptionCode)
     + buildScalePage(largestPieces, PW, PH, OV)
     + buildMaterialsPage(materials)
+    + buildGlossaryPage(materials, instructions)
     + buildInstructionsPage(instructions);
 
   // Build tile pages with all sizes overlaid
@@ -2861,6 +2872,7 @@ export function generateGradedTiledLayouts(gradingResult, paperSize = 'letter', 
     const preamble = coverPage
       + buildScalePage(gp.pieces, PW, PH, OV)
       + buildMaterialsPage(materials)
+      + buildGlossaryPage(materials, instructions)
       + buildInstructionsPage(instructions);
 
     // Standard single-size tile pages
