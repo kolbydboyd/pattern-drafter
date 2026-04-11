@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.23] - 2026-04-11
+
+### Added
+- Reduced seam allowance (3/8 inch) on the scoop pocket opening curve of fold-over bag pieces via `edgeAllowances`. The J-curve opening edges now carry their own SA that prints narrower than the rest of the bag, matching RTW construction practice. Label "opening" with the 3/8 inch value is rendered alongside the arc on both screen and print.
+- Rivet drill marks on the front panel pattern piece at both endpoints of the scoop pocket opening: where the J-curve meets the waist seam (top) and where it meets the side seam (bottom). Labeled "rivet" on both screen and print.
+- Rivet drill marks on the coin pocket pattern piece at the top-left and top-right corners, with label "bar tack / rivet". Visible in both screen preview (app.js mini SVG) and print PDF.
+- Button/buttonhole mark on the waistband pattern piece: drill mark + circle at the overlap/buttonhole end, labeled "button/buttonhole" in the print layout.
+
+---
+
 ## [0.12.22] - 2026-04-11
 
 ### Added

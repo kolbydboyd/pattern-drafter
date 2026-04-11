@@ -187,6 +187,19 @@ function renderPocketPlacement(piece, ox, oy) {
       text-anchor="middle" transform="rotate(90,${labelX},${labelMidY})">pocket opening</text>`;
   }
 
+  // ── Scoop / Square-scoop pocket (front only) — rivet positions at opening endpoints ──
+  if (!isBack && (opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop')) {
+    const scoopInset = 3.5, scoopDepth = 6;
+    const sx1 = (ox + width - scoopInset) * DPI, sy1 = oy * DPI;
+    const sx2 = (ox + width) * DPI,             sy2 = (oy + scoopDepth) * DPI;
+    svg += drillMark(sx1, sy1);
+    svg += `<text x="${sx1 + 5}" y="${sy1 + 9}"
+      font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">rivet</text>`;
+    svg += drillMark(sx2, sy2);
+    svg += `<text x="${sx2 + 5}" y="${sy2 + 4}"
+      font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">rivet</text>`;
+  }
+
   // ── Cargo pocket (front only) ──
   if (opts.cargo === 'cargo') {
     const cpX = (ox + width) * DPI;
@@ -670,6 +683,12 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
         fill="#666" text-anchor="middle">${instruction}</text>` : ''}
+      ${piece.id === 'waistband'
+        ? `${drillMark(cx, ry + rH)}
+           <circle cx="${cx}" cy="${ry + rH}" r="5" stroke="${PKT_COL}" stroke-width="0.8" fill="none"/>
+           <text x="${cx + 9}" y="${ry + rH + 4}"
+             font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">button/buttonhole</text>`
+        : ''}
     </svg>`,
   };
 }
@@ -764,6 +783,11 @@ function renderPocketSVG(piece, { compact = false } = {}) {
       <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
         rx="${crInner}" ${stitchStroke} fill="none"/>
       ${marksSvg}
+      ${piece.id === 'coin-pocket'
+        ? `${drillMark(rx, ry)}${drillMark(rx + rW, ry)}
+           <text x="${rx + 4}" y="${ry - 5}"
+             font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">bar tack / rivet</text>`
+        : ''}
       <text x="${cx}" y="${(M - 0.08) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>

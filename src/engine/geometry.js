@@ -872,6 +872,12 @@ export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, sc
     marks: [
       { type: 'fold', axis: 'v', position: 0 },
     ],
+    // Opening edges (J-curve, indices 1–12) get 3/8″ SA; fold closure edge gets 0 SA.
+    edgeAllowances: polygon.map((_, i) => {
+      if (i >= 1 && i <= 12) return { sa: 0.375, label: 'opening' };
+      if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
+      return { sa, label: '' };
+    }),
   };
 }
 
@@ -920,5 +926,11 @@ export function buildFoldOverSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3
     marks: [
       { type: 'fold', axis: 'v', position: 0 },
     ],
+    // Opening edges (straight + arc + horizontal to side seam, indices 1–8) get 3/8″ SA.
+    edgeAllowances: polygon.map((_, i) => {
+      if (i >= 1 && i <= 8) return { sa: 0.375, label: 'opening' };
+      if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
+      return { sa, label: '' };
+    }),
   };
 }

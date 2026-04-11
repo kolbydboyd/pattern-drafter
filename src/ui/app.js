@@ -793,6 +793,14 @@ function _generate() {
         pSvg += `<line x1="${prx + 4}" y1="${pry + prH - 4}" x2="${prx + prW - 4}" y2="${pry + 4}" stroke="#2c2a26" stroke-width="0.6" stroke-dasharray="3,2"/>`;
         pSvg += `<text x="${prx + prW / 2}" y="${pry + prH / 2 + 3}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">BIAS</text>`;
       }
+      // Rivet marks at top corners for coin pocket
+      if (piece.id === 'coin-pocket') {
+        const col = '#8a4a4a';
+        const dm2 = (x, y) =>
+          `<line x1="${x-3}" y1="${y}" x2="${x+3}" y2="${y}" stroke="${col}" stroke-width="0.8"/>` +
+          `<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+3}" stroke="${col}" stroke-width="0.8"/>`;
+        pSvg += dm2(prx, pry) + dm2(prx + prW, pry);
+      }
       pSvg += '</svg>';
       piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
         ${pSvg}
