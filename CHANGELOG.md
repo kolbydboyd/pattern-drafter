@@ -8,6 +8,9 @@ All notable changes are documented here, newest first.
 
 ### Fixed
 - Front panel side seam now flows smoothly past the pocket opening on all three pocket styles (slant, scoop, square-scoop). The pocket opening endpoint is now interpolated to land on the actual side seam at the pocket depth, eliminating the kink/notch that appeared where the opening met the tapered side seam.
+- Print overflow: "Construction Order" pages no longer overflow the physical page boundary in browser print preview. Root cause was `LINE_H = 0.135` in `buildInstructionsPage` — a 60% underestimate of the actual rendered line height for `.step-d { font-size:10pt; line-height:1.55 }` (≈ 0.215 in). Updated to `LINE_H = 0.215`, tightened `CHARS_PER_LINE` from 85 to 78, and added a 0.2 in safety buffer to the available height calculation. Each instruction page now packs the correct number of steps.
+- Print overflow: glossary terms moved to a dedicated page (`buildGlossaryPage`) so the Materials page stays within one physical page and the glossary never overflows the bottom margin. Glossary page is omitted when no terms are in use.
+- Print layout: wide pieces (yokes, cuffs) now use landscape orientation when portrait and landscape require the same number of tile pages. The tiebreak in `computeTileLayout` now prefers landscape when `wIn > hIn`, matching the physical shape of the piece.
 
 ---
 
