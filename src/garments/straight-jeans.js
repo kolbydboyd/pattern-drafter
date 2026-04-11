@@ -289,7 +289,7 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Join back panels at CB',
-        detail: 'Flat-fell the back rise seam: place both back panels WST, align the CB rise edges from waist down to where the curved crotch begins. Stitch 5/8\u2033 from the edge. Trim the right-back SA to 3/16\u2033. Wrap the left-back SA over the trimmed edge and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then double-stitch the crotch curve: re-open the panels, join RST along the curved crotch seat from the CB base around to the CF crotch point. Stitch at 5/8\u2033, then a second reinforcement row at 1/2\u2033 inside the first. Trim SA to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
+        detail: 'Flat-fell the back rise seam: place both back panels WST, align the CB rise edges from waist down to where the curved crotch begins. Stitch 5/8\u2033 from the edge. Open the fabric flat \u2014 both SAs sit upright together on the RS. Trim the right-back SA to 3/16\u2033. Fold the left-back SA over the trimmed edge and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then double-stitch the crotch curve: re-open the panels, join RST along the curved crotch seat from the CB base around to the CF crotch point. Stitch at 5/8\u2033, then a second reinforcement row at 1/2\u2033 inside the first. Trim SA to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
       });
     }
     steps.push({
@@ -298,11 +298,11 @@ export default {
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem. Fell toward back: trim the front SA to 3/16\u2033, fold back SA over the trimmed edge, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Repeat for the other side.',
+      detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem. Sew at 5/8\u2033. {press} both SAs toward back. Fell: trim the front (underneath) SA to 3/16\u2033, fold back SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Repeat for the other side.',
     });
     steps.push({
       step: n++, title: 'Sew inseam',
-      detail: 'Sew each leg inseam individually: right leg from hem to crotch notch, then left leg from hem to crotch notch, each {RST}. Fell each inseam toward the front: trim the back SA to 3/16\u2033, fold front SA over the trimmed edge, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then join the legs at the crotch seat: turn one leg WS-out and slide it inside the other. Align inseam seams and crotch notches. Sew the curved seat from the right inseam notch around to the left inseam notch at 5/8\u2033. Stitch a second reinforcement row at 1/2\u2033. Trim to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
+      detail: 'Sew each leg inseam individually: right leg from hem to crotch notch, then left leg from hem to crotch notch, each {RST} at 5/8\u2033. {press} both SAs toward front. Fell: trim the back (underneath) SA to 3/16\u2033, fold front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then join the legs at the crotch seat: turn one leg WS-out and slide it inside the other. Align inseam seams and crotch notches. Sew the curved seat from the right inseam notch around to the left inseam notch at 5/8\u2033. Stitch a second reinforcement row at 1/2\u2033. Trim to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
     });
     steps.push({
       step: n++, title: 'Make belt loop strips',
