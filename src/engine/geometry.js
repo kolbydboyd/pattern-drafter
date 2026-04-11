@@ -618,11 +618,12 @@ export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth 
   if (idx < 0 || bestDist > 1) return poly;
 
   // Concave J-curve from waist (inset) to side seam (depth)
+  // CP1 vertical → CP2 at same depth as endpoint → horizontal tangent at side seam
   const sx = waistSideX - scoopInset;
   const curvePts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
-    { x: waistSideX - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: waistSideX - scoopInset * 0.3, y: scoopDepth },
     { x: waistSideX, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
@@ -664,11 +665,12 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
  */
 export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
   // Curved opening edge from (bagWidth - scoopInset, 0) to (bagWidth, scoopDepth)
+  // CP2 at same y as endpoint → horizontal tangent at side seam (no slant at junction)
   const sx = bagWidth - scoopInset;
   const openingPts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
-    { x: bagWidth - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: bagWidth - scoopInset * 0.3, y: scoopDepth },
     { x: bagWidth, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
@@ -845,7 +847,7 @@ export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, sc
   const openingPts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
-    { x: bagWidth - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: bagWidth - scoopInset * 0.3, y: scoopDepth },
     { x: bagWidth, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
