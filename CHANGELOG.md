@@ -11,6 +11,12 @@ All notable changes are documented here, newest first.
 - Print overflow: "Construction Order" pages no longer overflow the physical page boundary in browser print preview. Root cause was `LINE_H = 0.135` in `buildInstructionsPage` — a 60% underestimate of the actual rendered line height for `.step-d { font-size:10pt; line-height:1.55 }` (≈ 0.215 in). Updated to `LINE_H = 0.215`, tightened `CHARS_PER_LINE` from 85 to 78, and added a 0.2 in safety buffer to the available height calculation. Each instruction page now packs the correct number of steps.
 - Print overflow: glossary terms moved to a dedicated page (`buildGlossaryPage`) so the Materials page stays within one physical page and the glossary never overflows the bottom margin. Glossary page is omitted when no terms are in use.
 - Print layout: wide pieces (yokes, cuffs) now use landscape orientation when portrait and landscape require the same number of tile pages. The tiebreak in `computeTileLayout` now prefers landscape when `wIn > hIn`, matching the physical shape of the piece.
+- Print layout: last tile page missing for waistband and pocket bag pieces. Root cause was an off-by-one in `computeTileLayout` margin-trim: `contentH/W` was computed as `span - 2*renderMargin + sa` but the SA cut line extends `sa` beyond the polygon on both ends, so the correct formula is `+ 2*sa`. The undercount caused the trim to incorrectly drop the last row or column tile for pieces near the tile-boundary threshold.
+- Print layout: Scale Verification tile map now uses a wider SVG (660px vs 460px) so pieces have more room across the full page width.
+- Print layout: "Important Notes" section on the Materials page now renders in two columns, matching the two-column layout used elsewhere on the page.
+
+### Changed
+- Soloist Jeans: removed bone/skeleton vinyl template pieces. The garment now uses the straight jeans piece set directly.
 
 ---
 

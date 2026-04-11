@@ -1029,7 +1029,7 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   if (renderMargin !== undefined) {
     const sa_val = piece.sa || 0.625;
     if (cols > 1) {
-      const contentW = effectiveW - 2 * renderMargin + sa_val;
+      const contentW = effectiveW - 2 * renderMargin + 2 * sa_val;
       const reducedCoverage = (cols - 1) * TX + OV;
       if (contentW <= reducedCoverage) {
         cols--;
@@ -1037,7 +1037,7 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
       }
     }
     if (rows > 1) {
-      const contentH = hIn - 2 * renderMargin + sa_val;
+      const contentH = hIn - 2 * renderMargin + 2 * sa_val;
       const reducedCoverage = (rows - 1) * TY + OV;
       if (contentH <= reducedCoverage) {
         rows--;
@@ -1241,7 +1241,7 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
   const GAP = 5, PAD = 10;
-  const SVG_W = 460;
+  const SVG_W = 660;
   const COL_GAP = 40;
 
   // Landscape cells are wider than tall; portrait cells are taller than wide
@@ -2007,7 +2007,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .mat-page { padding:0.5in; height:auto !important; min-height:${PH}in; overflow:visible !important; }
 .two-col { display:flex; gap:0.4in; margin-top:0.1in; }
 .two-col > div { flex:1; }
-.mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; }
+.mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; columns:2; column-gap:0.35in; }
 .mat-notes li { break-inside:avoid; }
 
 /* ── Instructions ── */
