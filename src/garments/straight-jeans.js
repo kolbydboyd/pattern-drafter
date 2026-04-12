@@ -208,7 +208,7 @@ export default {
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 2 (outer + lining) \xb7 Right front only \xb7 \u215e\u2033 SA \xb7 {serge} edges \xb7 Rounded bottom corners', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
+    pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template \xb7 Rounded bottom corners', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
     pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
@@ -255,7 +255,7 @@ export default {
     const isScoop = opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop';
     if (isScoop) {
       steps.push({ step: n++, title: 'Attach coin pocket to right pocket backing',
-        detail: 'Construct the coin pocket first: sew outer to lining {RST} on both sides and the bottom. Trim SA to 3mm, {clip} bottom corners diagonally, turn RS out, push corners with {point turner}, {press}. Then {press} \u215e\u2033 SA under on the sides and bottom (top edge stays raw). Align the coin pocket to the placement mark on the RS of the RIGHT backing piece, upper-right corner, with the top raw edge flush with the backing top edge. {topstitch} around sides and bottom with contrasting thread \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
+        detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Align to the placement mark on the RS of the RIGHT backing piece, upper-right corner. {topstitch} around sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
       steps.push({ step: n++, title: 'Prepare pocket backing',
         detail: '{serge} or overlock the curved bottom edge of the pocket backing (self fabric). Leave all other edges raw. This finished edge will hang free inside the assembled pocket.' });
       steps.push({ step: n++, title: 'Baste backing to fold-over bag (outer layer)',
@@ -274,7 +274,7 @@ export default {
     }
     if (!isScoop) {
       steps.push({ step: n++, title: 'Attach coin pocket to right pocket backing',
-        detail: 'Construct the coin pocket: sew outer to lining {RST} on sides and bottom, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {press} \u215e\u2033 SA under on sides and bottom (top raw). Align to the placement mark on the RS of the right pocket backing, upper-right corner. {topstitch} with contrasting thread \xbc\u2033 from edges. {bartack} the top two corners.' });
+        detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Align to the placement mark on the RS of the right pocket backing, upper-right corner. {topstitch} around sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
     }
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
     if (hasYoke) {

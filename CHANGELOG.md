@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.26] - 2026-04-12
+
+### Fixed
+- Coin pocket construction: removed the spurious "outer + lining" 2-layer construction on Straight Jeans, Soloist Jeans (via delegation), Baggy Jeans, Baggy Shorts, and Cargo Work Pants. The coin pocket is now cut as a single layer with ⅜″ SA on sides/bottom and ½″ SA on top for a double-fold hem, then pressed under with a cardboard template and topstitched directly onto the pocket backing. This matches traditional Levi's-style construction and the existing back patch pocket build in `straight-jeans.js`. Two layers of denim added unnecessary bulk and wasted fabric.
+- Straight Jeans coin pocket piece: corrected a typo in the SA annotation (`⅞″` → `⅜″`, matching the actual `sa: 0.375` value).
+
+---
+
 ## [0.12.25] - 2026-04-11
 
 ### Fixed
