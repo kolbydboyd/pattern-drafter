@@ -39,12 +39,29 @@ export default {
       default: 'side-seam',
     },
     liner: {
-      type: 'select', label: 'Mesh liner',
+      type: 'select', label: 'Liner',
       values: [
-        { value: 'yes', label: 'Yes, front & back mesh panels',  reference: 'athletic, brief-style' },
-        { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
+        { value: 'panels', label: 'Full mesh panels (board-short style)', reference: 'athletic, board shorts' },
+        { value: 'brief',  label: 'Brief-cut liner (retro style)',         reference: 'retro, 70s/80s classic' },
+        { value: 'no',     label: 'No liner',                              reference: 'minimal, layerable'    },
       ],
-      default: 'yes',
+      default: 'panels',
+    },
+    sideSplit: {
+      type: 'select', label: 'Hem side split',
+      values: [
+        { value: 'none', label: 'None'                      },
+        { value: '1',    label: '1″ slit (retro/athletic)'  },
+      ],
+      default: 'none',
+    },
+    backPocket: {
+      type: 'select', label: 'Back pocket',
+      values: [
+        { value: 'none',  label: 'None'               },
+        { value: 'patch', label: 'Small patch pocket' },
+      ],
+      default: 'none',
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.75, step: 0.25, min: 0.5, max: 2.5 },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.0,  step: 0.25, min: 1,   max: 3.5 },
@@ -129,8 +146,10 @@ export default {
       ext: backExt, cbRaise, sa, hem, isBack: true, opts,
     }));
 
-    // ── MESH LINER PANELS (1″ shorter than outer) ──
-    if (opts.liner === 'yes') {
+    // ── LINER ──
+    const isRetro = opts.liner === 'brief';
+
+    if (opts.liner === 'panels') {
       const linerInseam = Math.max(inseam - 1, 1);
       const linerH = rise + linerInseam;
       pieces.push(buildPanel({
@@ -147,26 +166,81 @@ export default {
       }));
     }
 
-    // ── WAISTBAND (drawstring only — no elastic) ──
-    const wbLen   = (frontW + backW) * 2 + sa * 2;
-    const wbWidth = 3;   // 1.5″ finished
-    pieces.push({
-      id: 'waistband',
-      name: 'Waistband',
-      instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
-      dimensions: { length: wbLen, width: wbWidth },
-      type: 'rectangle', sa,
-    });
+    if (opts.liner === 'brief') {
+      // Brief-cut liner: single rectangle spanning both front panels.
+      // Sewn as a mini-brief (CF + CB + inseam), then basted to outer at waist.
+      const briefW = (frontW + backW) * 1.15; // slight ease for brief seams
+      const briefH = rise * 0.85;             // brief stops short of hem
+      pieces.push({
+        id: 'brief-liner',
+        name: 'Brief Liner',
+        instruction: 'Cut 1 from soft elastane or 4-way stretch mesh · Sew CF seam + CB seam + inseam to form mini brief · {serge} or {zigzag} all edges before sewing · Baste to outer at waist ¼″',
+        dimensions: { width: briefW, height: briefH },
+        type: 'pocket',
+        sa: 0.375,
+      });
+    }
+
+    // ── WAISTBAND ──
+    // Retro style: hybrid (elastic back + drawcord front), same pattern as gym-shorts.
+    // Standard style: single drawcord waistband.
+    const wbWidth = 3; // 1.5″ finished
+
+    if (isRetro) {
+      const wbFrontLen = frontW * 2 + sa * 2;
+      const wbBackLen  = backW  * 2 + sa * 2;
+      pieces.push({
+        id: 'waistband-front',
+        name: 'Waistband Front',
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        dimensions: { length: wbFrontLen, width: wbWidth },
+        type: 'rectangle', sa,
+      });
+      pieces.push({
+        id: 'waistband-back',
+        name: 'Waistband Back',
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing for back waistband`,
+        dimensions: { length: wbBackLen, width: wbWidth },
+        type: 'rectangle', sa,
+      });
+    } else {
+      const wbLen = (frontW + backW) * 2 + sa * 2;
+      pieces.push({
+        id: 'waistband',
+        name: 'Waistband',
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        dimensions: { length: wbLen, width: wbWidth },
+        type: 'rectangle', sa,
+      });
+    }
 
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
+      // Retro shorts: slightly smaller pocket bags (shorter inseam leaves less room)
+      const bagW = isRetro ? 6.0 : 6.5;
+      const bagH = isRetro ? 6.5 : 7.0;
       pieces.push({
         id: 'pocket-bag',
         name: 'Side-Seam Pocket Bag',
         instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
-        dimensions: { width: 6.5, height: 7 },
+        dimensions: { width: bagW, height: bagH },
         type: 'pocket',
         sa,
+      });
+    }
+
+    // ── BACK PATCH POCKET (retro option) ──
+    if (opts.backPocket === 'patch') {
+      pieces.push({
+        id: 'back-pocket',
+        name: 'Back Patch Pocket',
+        instruction: 'Cut 1 · Self fabric · 4″ wide × 4.5″ tall · Fold top 1″ under and topstitch before attaching',
+        dimensions: { width: 4, height: 4.5 },
+        type: 'pocket',
+        sa,
+        marks: [
+          { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
+        ],
       });
     }
 
@@ -174,11 +248,16 @@ export default {
   },
 
   materials(m, opts) {
+    const isRetro = opts.liner === 'brief';
     const notions = [
       { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ - flat nylon or polyester cord` },
       { ref: 'grommets',   quantity: '2 - CF drawstring exits, ½″ inner dia, rust-proof' },
     ];
-    if (opts.liner === 'yes') {
+    if (isRetro) {
+      notions.push({ ref: 'elastic-0.75', quantity: `${Math.round(m.waist * 0.45)}″ of ¾″ wide elastic - back waistband casing only` });
+      notions.push({ name: 'Soft elastane', quantity: '0.33 yard', notes: 'Brief liner (4-way stretch, ≥ 80% elastane)' });
+    }
+    if (opts.liner === 'panels') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
     }
 
@@ -191,6 +270,7 @@ export default {
       notes: [
         'Use polyester thread ONLY - cotton thread rots with repeated chlorine and salt water exposure',
         'Rinse trunks in fresh cold water after every wear (pool or ocean) to extend fabric life',
+        ...(isRetro ? ['Retro short trunks: 92% nylon / 8% spandex shell gives the most authentic drape and quick-dry performance. Nylon taslan works well for a matte, vintage-textured look.'] : []),
         'Color guidance - hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
         'Use rust-proof grommets (brass or stainless) - standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
@@ -203,11 +283,26 @@ export default {
   instructions(m, opts) {
     const steps = [];
     let n = 1;
+    const isRetro = opts.liner === 'brief';
 
-    if (opts.liner === 'yes') {
+    if (opts.liner === 'panels') {
       steps.push({
         step: n++, title: 'Assemble liner',
         detail: '{serge} all liner panel edges. Join liner fronts at CF crotch seam. Join liner backs at CB. Join liner at side seams. Join inseam. {baste} liner WS to WS of outer at waist edge (¼″). Treat as one unit going forward.',
+      });
+    }
+
+    if (opts.liner === 'brief') {
+      steps.push({
+        step: n++, title: 'Sew brief liner',
+        detail: '{serge} or {zigzag} all liner edges before sewing. Join the two halves at CF seam {RST} with stretch stitch. Join at CB seam. Join inseam. The result is a mini brief. {baste} the brief WS to WS of the outer shell at the waist edge, ¼″ from the raw edge. Treat as one unit going forward.',
+      });
+    }
+
+    if (opts.backPocket === 'patch') {
+      steps.push({
+        step: n++, title: 'Attach back pocket',
+        detail: 'Fold top edge of pocket under 1″ and {topstitch}. {press} remaining 3 edges under ⅜″. Center pocket on one back panel, 2″ below the waist seam line. {topstitch} close to edge on 3 sides. Bar tack top corners.',
       });
     }
 
@@ -228,26 +323,63 @@ export default {
     });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
 
-    steps.push({
-      step: n++, title: 'Install grommets in waistband',
-      detail: 'Mark grommet positions ¾″ from each CF short end of waistband. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions. Check they are flush and secure.',
-    });
-    steps.push({
-      step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
-    });
+    // Waistband
+    if (isRetro) {
+      steps.push({
+        step: n++, title: 'Install grommets in front waistband',
+        detail: 'Mark grommet positions ¾″ from each CF short end of the front waistband piece. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions.',
+      });
+      steps.push({
+        step: n++, title: 'Construct front waistband',
+        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+      });
+      steps.push({
+        step: n++, title: 'Construct back waistband',
+        detail: 'Fold back waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew. Fold over, leave a 2″ gap in the topstitching at CB. Thread ¾″ elastic through casing with a {bodkin}. Overlap ends 1″, {zigzag} to join. Close gap. {topstitch} top and bottom edges.',
+      });
+      steps.push({
+        step: n++, title: 'Join waistband halves',
+        detail: 'Fold short ends of front and back waistband under ⅜″. Pin at each side seam, aligning with garment side seams. {slipstitch} or {topstitch} closed on each side.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Install grommets in waistband',
+        detail: 'Mark grommet positions ¾″ from each CF short end of waistband. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions. Check they are flush and secure.',
+      });
+      steps.push({
+        step: n++, title: 'Attach waistband',
+        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+      });
+    }
+
     steps.push({
       step: n++, title: 'Thread drawstring',
-      detail: 'Attach safety pin to cord end. Thread through waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
+      detail: 'Attach safety pin to cord end. Thread through front waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
     });
+
+    if (opts.sideSplit === '1') {
+      steps.push({
+        step: n++, title: 'Finish side slits',
+        detail: 'A slit notch marks the top of each 1″ side slit on the side seam. Bar tack at each notch: stitch width 3–4 mm, length 0, 8–10 stitches. This holds the slit opening under stress. The slit edges finish when you fold and stitch the hem.',
+      });
+    }
+
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' Hem up to each bar tack; the slit opens above.' : ''}`,
     });
     steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },
+
+  variants: [
+    {
+      id: 'retro-short-trunks',
+      name: 'Retro Short Trunks',
+      defaults: { ease: 'slim', liner: 'brief', sideSplit: '1', backPocket: 'none' },
+    },
+  ],
 };
 
 
@@ -279,12 +411,14 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(ext)    + ' ext',    x1: -ext,       y1: rise + 0.4, x2: 0, y2: rise + 0.4,     type: 'h', color: '#c44' },
   ];
 
-  // Notch marks: hip level on side seam, crotch junction
+  // Notch marks: hip level on side seam, crotch junction, slit start
+  const splitIn = parseFloat(opts.sideSplit) || 0;
   const notches = [
     { x: width, y: rise,        angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
     ...(isBack ? [{ x: width, y: rise + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),
     { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
     ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
+    ...(splitIn > 0 ? [{ x: width, y: height - splitIn, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),  // slit top
   ];
 
   return {

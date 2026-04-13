@@ -1015,12 +1015,13 @@ variants: [
 | **chinos** | Classic Chinos | mid-rise, straight, slant pockets | cotton twill | the default |
 | | Slim Chinos | mid-rise, slim taper, slant pockets | stretch twill | modern slim |
 | **cargo-shorts** | Cargo Shorts | standard, cargo pockets | cotton twill | the default |
-| | Hiking Shorts | standard, cargo pockets, gusset | ripstop nylon | MYOG/outdoor crossover |
+| | Hiking Shorts ✅ | drawstring, cargo pockets, ripstop | ripstop nylon | MYOG/outdoor crossover — gusset deferred (engine) |
 | **gym-shorts** | Gym Shorts | elastic, lined, 5" inseam | performance knit | the default |
-| | Running Shorts | elastic, split side, 3" inseam | ultralight mesh | athletic |
-| | Basketball Shorts | elastic, side stripe, 9" inseam | performance mesh | sport-specific |
+| | Running Shorts ✅ | elastic, brief liner, 2″ side split | performance knit | athletic — sideSplit option added |
+| | Basketball Shorts ✅ | elastic, 1″ side split, 9" inseam | performance mesh | sport-specific |
 | **swim-trunks** | Board Shorts | elastic, 7" inseam | board short fabric | surf style |
 | | Swim Trunks | elastic, mesh lined, 5" inseam | swim fabric | classic |
+| | Retro Short Trunks ✅ | 3″ inseam, brief liner, 1″ side slit, slim | nylon/spandex, nylon taslan | 70s/80s retro revival |
 | **crop-jacket** | Cropped Jacket | standard, zip front | cotton twill | the default |
 | | Trucker Crop | button front, chest pockets | denim | denim crop |
 | **denim-jacket** | Denim Trucker Jacket | standard, button, chest pockets | denim 12 oz | the default |
@@ -1095,7 +1096,7 @@ to existing modules is the fastest path to a 60+ card catalog with zero new engi
 - [ ] hoodie: Classic, Zip-Up, Cropped (3 cards)
 - [ ] straight-jeans: Classic, Slim, High-Rise (3 cards)
 - [ ] chinos: Classic, Slim (2 cards)
-- [ ] gym-shorts: Gym, Running, Basketball (3 cards)
+- [x] gym-shorts: Gym, Running, Basketball (3 cards) — Running + Basketball variants updated with sideSplit defaults 2026-04-13
 - [ ] fitted-tee-w: Basic, Scoop, Long-Sleeve (3 cards)
 - [ ] wrap-dress-w: Wrap Dress, Maxi Wrap (2 cards)
 - [ ] shirt-dress-w: Shirt Dress, Linen Shirt Dress (2 cards)

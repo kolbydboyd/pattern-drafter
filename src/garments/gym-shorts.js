@@ -94,6 +94,15 @@ export default {
       ],
       default: 0.75,
     },
+    sideSplit: {
+      type: 'select', label: 'Hem side split',
+      values: [
+        { value: 'none', label: 'None'                              },
+        { value: '1',    label: '1″ side slit (running/basketball)' },
+        { value: '2',    label: '2″ side slit (running)'            },
+      ],
+      default: 'none',
+    },
   },
 
   /**
@@ -329,11 +338,21 @@ export default {
       detail: 'Attach a safety pin to one end of drawstring. Feed through front waistband casing, in through one grommet and out through the other. Even up tails. Knot or melt-seal synthetic cord ends to prevent fraying.',
     });
 
+    // Side slits
+    if (opts.sideSplit !== 'none') {
+      const splitIn = parseFloat(opts.sideSplit);
+      steps.push({
+        step: n++,
+        title: 'Finish side slits',
+        detail: `A slit notch marks the top of each ${fmtInches(splitIn)} side slit on the side seam. Before hemming, bar tack at each slit top notch: set stitch width 3–4 mm, length 0, take 8–10 stitches. This reinforces the slit opening under stress. The slit edges are left open above the hem fold — they will be finished when you fold and stitch the hem.`,
+      });
+    }
+
     // Hem
     steps.push({
       step: n++,
       title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch - do not use straight stitch on stretch hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice (or once and {serge} raw edge). {press} with damp cloth, low heat. {topstitch} with {zigzag} (width 2.5 mm) or coverstitch - do not use straight stitch on stretch hems.${opts.sideSplit !== 'none' ? ' At each side slit, fold and stitch the hem right up to the bar tack; the slit opens above.' : ''}`,
     });
     steps.push({
       step: n++,
@@ -345,8 +364,8 @@ export default {
   },
 
   variants: [
-    { id: 'running-shorts', name: 'Running Shorts', defaults: { ease: 'slim', liner: 'mesh' } },
-    { id: 'basketball-shorts', name: 'Basketball Shorts', defaults: { ease: 'relaxed' } },
+    { id: 'running-shorts',    name: 'Running Shorts',    defaults: { ease: 'slim',    liner: 'mesh', sideSplit: '2' } },
+    { id: 'basketball-shorts', name: 'Basketball Shorts', defaults: { ease: 'relaxed',                sideSplit: '1' } },
   ],
 };
 
@@ -377,20 +396,23 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     return -sa;
   });
 
+  const splitIn = parseFloat(opts.sideSplit) || 0;
   const dims = [
     { label: fmtInches(width),              x1: 0,      y1: -0.5,       x2: width,      y2: -0.5,       type: 'h' },
     { label: fmtInches(rise)   + ' rise',   x: width + 1.2, y1: 0,      y2: rise,                       type: 'v' },
     { label: fmtInches(inseam) + ' inseam', x: width + 1.2, y1: rise,   y2: height,                     type: 'v' },
     { label: fmtInches(height) + ' total',  x: width + 2.3, y1: 0,      y2: height,                     type: 'v' },
     { label: fmtInches(ext)    + ' ext',    x1: -ext,   y1: rise + 0.4, x2: 0,          y2: rise + 0.4, type: 'h', color: '#c44' },
+    ...(splitIn > 0 ? [{ label: fmtInches(splitIn) + ' slit', x: width + 1.2, y1: height - splitIn, y2: height, type: 'v', color: '#48a' }] : []),
   ];
 
-  // Notch marks: hip level on side seam, crotch junction
+  // Notch marks: hip level on side seam, crotch junction, slit start
   const notches = [
     { x: width, y: rise,        angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
     ...(isBack ? [{ x: width, y: rise + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),
     { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
     ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
+    ...(splitIn > 0 ? [{ x: width, y: height - splitIn, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),  // slit top
   ];
 
   return {

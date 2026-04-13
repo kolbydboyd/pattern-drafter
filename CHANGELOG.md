@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.34] - 2026-04-13
+
+### Added
+- **Running Shorts** and **Basketball Shorts** tiles (variants of `gym-shorts`): both were previously registered but lacked sport-specific side-split defaults. Running Shorts now defaults to `sideSplit: '2'`; Basketball Shorts defaults to `sideSplit: '1'`.
+- **Hiking Shorts** tile (new variant of `cargo-shorts`): defaults to drawstring waist, slant front pockets, cargo pockets, and 1″ hem. Fabric note recommends ripstop nylon or nylon-stretch. ROADMAP item fulfilled.
+- **Retro Short Trunks** tile (new variant of `swim-trunks`): 3″ inseam slim-fit trunks modeled after the 70s/80s California retro style. Defaults to `liner: 'brief'`, `sideSplit: '1'`, slim ease. Construction uses a brief-cut elastane liner (one piece, basted to outer at waist) rather than four full mesh panels, and a hybrid elastic-back / drawcord-front waistband identical to the gym-shorts pattern.
+
+### Changed
+- **`gym-shorts.js`**: added `sideSplit` option (`none` / `1″` / `2″`). Notch mark added at slit-top on side seam. Bar-tack step inserted before hem step when a split is active. Affects Running Shorts and Basketball Shorts variant defaults.
+- **`swim-trunks.js`**: renamed `liner: 'yes'` to `liner: 'panels'` (backward-compatible default update). Added `liner: 'brief'` option (brief-cut elastane piece, retro style). Added `sideSplit` option (`none` / `1″`). Added `backPocket` option (`none` / small patch). Waistband splits into hybrid front/back halves when `liner: 'brief'` is active. Materials list conditionally adds ¾″ elastic and soft elastane for retro variant.
+
+---
+
 ## [0.12.33] - 2026-04-13
 
 ### Added
