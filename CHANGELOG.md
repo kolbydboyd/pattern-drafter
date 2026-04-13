@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.30] - 2026-04-13
+
+### Added
+- **Scholar Sweatpants** (`scholar-sweatpants`): new lower-body garment modeled after the Alo Yoga Scholar Straight Leg Sweatpant. Thin wrapper over `sweatpants.js` with Scholar defaults (wide ease, straight leg, mid rise, deeper back crotch extension at 3.25″) plus signature welt-zip side pockets. Adds `welt-strip` and `welt-pocket-bag` pieces, a coil pocket zipper notion (2 × 6″), light fusible interfacing, and four dedicated construction steps (mark opening, attach welt and cut, install zipper, attach bags) inserted before the side seam step. Base slash/slant/side pockets are suppressed so the Scholar welt-zip is the only pocket construction.
+- **Scholar Hoodie** (`scholar-hoodie`): new upper-body garment modeled after the Alo Scholar Hooded Sweater. Reimplements the bodice and sleeve with dropped-shoulder geometry — shoulder point extended laterally by the new `shoulderDrop` option (default 2.5″, range 1–4″), slope flattened to near-zero, armhole lowered by the drop amount, and a shallow sleeve cap at 0.35× armhole depth to match the relaxed drop. Delegates hood, kangaroo pocket, and rib cuff construction to `hoodie.js` (forced to `fit: 'oversized'` and `frontStyle: 'pullover'`) so the hood curve math and pocket geometry stay in one place. Custom 4″-cut / 2″-finished rib hem at 90% of body hem for the taller Scholar rib. New "Set sleeves (dropped-shoulder note)" step inserted before the standard set-sleeves step. Appended fabric notes recommend heavyweight sweater-knit cotton (or heavy jersey/interlock) as the correct hand.
+- SVG catalog-card illustrations for `scholar-sweatpants`, `scholar-hoodie`, and `soloist-jeans` (the Soloist card was previously missing an illustration and had been falling through to a placeholder). Scholar pant illustration calls out the welt-zip side pockets and external drawcord grommets. Scholar hoodie illustration shows the dropped-shoulder seam, taller rib hem, and two-panel hood. Soloist illustration shows the square-scoop front pocket opening and a hinted pointed back yoke.
+- SEO description entry for `soloist-jeans` in `seo-descriptions.js` (previously missing, triggering a build warning). The new entry covers the square-scoop pocket opening and denim weight recommendation. Build is now warning-free for SEO and catalog illustrations across all 97 garments.
+
+---
+
 ## [0.12.29] - 2026-04-13
 
 ### Changed

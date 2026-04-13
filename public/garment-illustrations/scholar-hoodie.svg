@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Scholar hoodie: oversized, dropped shoulders, taller rib hem, boxy body -->
+  <!-- 2-panel hood with generous crown -->
+  <path d="M54,48 Q54,18 80,16 Q106,18 106,48"/>
+  <!-- hood opening edge -->
+  <path d="M64,52 L74,64"/>
+  <path d="M96,52 L86,64"/>
+  <!-- drawcord tips -->
+  <circle cx="76" cy="68" r="1.2"/>
+  <circle cx="84" cy="68" r="1.2"/>
+  <!-- body + sleeves: dropped shoulders extend well past where a set-in would sit, -->
+  <!-- shallow sleeve cap, flat shoulder slope -->
+  <path d="M52,52 L14,74 L14,130 L40,130 L44,176 L116,176 L120,130 L146,130 L146,74 L108,52"/>
+  <!-- dropped-shoulder seam line (front) indicating where sleeve meets body -->
+  <path d="M44,76 Q46,96 44,130" stroke-dasharray="3 3"/>
+  <path d="M116,76 Q114,96 116,130" stroke-dasharray="3 3"/>
+  <!-- taller ribbed cuffs -->
+  <rect x="14" y="122" width="26" height="12" rx="3"/>
+  <rect x="120" y="122" width="26" height="12" rx="3"/>
+  <!-- taller ribbed hem (2" finished vs 1.5" base) -->
+  <rect x="44" y="166" width="72" height="12" rx="3"/>
+  <!-- kangaroo pocket (hexagonal) -->
+  <path d="M56,110 L56,140 Q80,145 104,140 L104,110 L96,108 L64,108 Z"/>
+  <!-- hand opening slits at sides of pocket -->
+  <line x1="58" y1="118" x2="62" y2="126"/>
+  <line x1="102" y1="118" x2="98" y2="126"/>
+</svg>

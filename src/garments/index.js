@@ -16,11 +16,13 @@ import chinos        from './chinos.js';
 import workPants874  from './874-work-pants.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
+import scholarSweatpants from './scholar-sweatpants.js';
 import tee           from './tee.js';
 import campShirt     from './camp-shirt.js';
 import buttonUp      from './button-up.js';
 import crewneck      from './crewneck.js';
 import hoodie        from './hoodie.js';
+import scholarHoodie from './scholar-hoodie.js';
 import cropJacket    from './crop-jacket.js';
 import athleticFormalJacket from './athletic-formal-jacket.js';
 import denimJacket   from './denim-jacket.js';
@@ -65,11 +67,13 @@ const GARMENTS = {
   '874-work-pants':       workPants874,
   'pleated-trousers':     pleatedTrousers,
   'sweatpants':           sweatpants,
+  'scholar-sweatpants':   scholarSweatpants,
   'tee':                  tee,
   'camp-shirt':           campShirt,
   'button-up':            buttonUp,
   'crewneck':             crewneck,
   'hoodie':               hoodie,
+  'scholar-hoodie':       scholarHoodie,
   'crop-jacket':          cropJacket,
   'athletic-formal-jacket': athleticFormalJacket,
   'denim-jacket':         denimJacket,
