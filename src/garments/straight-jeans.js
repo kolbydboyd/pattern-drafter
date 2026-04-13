@@ -12,7 +12,8 @@ import {
   buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash,
   buildScoopPocketBacking, clipPanelAtScoop,
   buildSquareScoopPocketBacking, clipPanelAtSquareScoop,
-  buildFoldOverScoopPocketBag, buildFoldOverSquareScoopPocketBag
+  buildFoldOverScoopPocketBag, buildFoldOverSquareScoopPocketBag,
+  closeYokeDarts,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -99,6 +100,15 @@ export default {
       ],
       default: 1,
     },
+    beltLoopStyle: {
+      type: 'select', label: 'Belt loops',
+      values: [
+        { value: 'individual', label: 'Individual loops (classic 5/6/7-loop)' },
+        { value: 'tunnel',     label: 'Tunnel loops (continuous band, military/workwear)' },
+        { value: 'none',       label: 'No belt loops' },
+      ],
+      default: 'individual',
+    },
   },
 
   pieces(m, opts) {
@@ -177,16 +187,24 @@ export default {
 
     // ── WAISTBAND ──
     const wbLen = waist + ease.total + sa * 2;
+    const beltLoopStyle = opts.beltLoopStyle || 'individual';
+    const beltLoopCountForBand = waist > 36 ? 7 : 6;
+    const wbInstr = beltLoopStyle === 'tunnel'
+      ? `Cut 1 on fold · Interface · 1½″ finished · Tunnel belt loops applied across band (5 wide + 2 narrow)`
+      : beltLoopStyle === 'none'
+        ? `Cut 1 on fold · Interface · 1½″ finished · No belt loops`
+        : `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${beltLoopCountForBand}`;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${waist > 36 ? 7 : 6}`,
+      instruction: wbInstr,
       dimensions: { length: wbLen, width: 3 },
       type: 'rectangle', sa,
     });
 
-    // ── FLY SHIELD (J-curve) ──
+    // ── FLY SHIELD (J-curve) + FLY EXTENSION ──
     pieces.push(buildFlyShield(rise));
+    pieces.push(buildFlyExtension(rise));
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -212,9 +230,33 @@ export default {
     pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
-    // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
-    const beltLoopCount = waist > 36 ? 7 : 6;
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
+    if (beltLoopStyle === 'individual') {
+      // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long.
+      const beltLoopCount = waist > 36 ? 7 : 6;
+      pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
+    } else if (beltLoopStyle === 'tunnel') {
+      // Dickies-style discrete tunnel loops: short, wide patches sewn across
+      // the waistband. Each patch is tacked along the existing waistband top
+      // and bottom topstitching lines, forming a horizontal tunnel the belt
+      // threads through. Wide tunnels (3½″) sit at CB, both back panels, and
+      // both side seams (5 total). Narrow tunnels (1½″) sit over the front
+      // hip bones flanking the fly (2 total). Each strip is cut taller than
+      // the finished waistband so it bows out enough to clear a 1¼″ belt.
+      const tunnelH = 2.25; // cut height; finishes ~1½″ tall once tacked
+      pieces.push({
+        id: 'belt-tunnel-wide', name: 'Tunnel Belt Loop (wide)',
+        instruction: `Cut 5 patches · 4″ × ${fmtInches(tunnelH)} · {press} long edges under ⅜″ each so it finishes ~3¼″ wide · Tack at top and bottom of waistband (along existing topstitching lines) at CB, both back panels, and both side seams · Belt threads horizontally through each tunnel`,
+        dimensions: { width: 4, height: tunnelH },
+        type: 'rectangle', sa: 0,
+      });
+      pieces.push({
+        id: 'belt-tunnel-narrow', name: 'Tunnel Belt Loop (narrow)',
+        instruction: `Cut 2 patches · 2¼″ × ${fmtInches(tunnelH)} · {press} long edges under ⅜″ each so it finishes ~1½″ wide · Tack at top and bottom of waistband over the front hip bones, flanking the fly · Belt threads horizontally through each tunnel`,
+        dimensions: { width: 2.25, height: tunnelH },
+        type: 'rectangle', sa: 0,
+      });
+    }
+    // beltLoopStyle === 'none' adds no piece.
 
     return pieces;
   },
@@ -247,15 +289,18 @@ export default {
   instructions(m, opts) {
     const steps = [];
     let n = 1;
+    const waist = m.waist || 32;
+    const beltLoopCount = waist > 36 ? 7 : 6;
+    const beltLoopStyle = opts.beltLoopStyle || 'individual';
 
     steps.push({
       step: n++, title: 'Prepare back patch pockets',
       detail: 'Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on back panels, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.',
     });
+    steps.push({ step: n++, title: 'Attach coin pocket to right front panel',
+      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Position the coin pocket on the RS of the RIGHT front panel using the coin pocket placement notch (upper outer area, just below the front pocket opening). {topstitch} sides and bottom in gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners. The coin pocket is now permanently sewn through the right front denim, before any pocket-bag assembly.' });
     const isScoop = opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop';
     if (isScoop) {
-      steps.push({ step: n++, title: 'Attach coin pocket to right pocket backing',
-        detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Align to the placement mark on the RS of the RIGHT backing piece, upper-right corner. {topstitch} around sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
       steps.push({ step: n++, title: 'Prepare pocket backing',
         detail: '{serge} or overlock the curved bottom edge of the pocket backing (self fabric). Leave all other edges raw. This finished edge will hang free inside the assembled pocket.' });
       steps.push({ step: n++, title: 'Baste backing to fold-over bag (outer layer)',
@@ -272,10 +317,6 @@ export default {
       steps.push({ step: n++, title: 'Attach pocket to front panel',
         detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     }
-    if (!isScoop) {
-      steps.push({ step: n++, title: 'Attach coin pocket to right pocket backing',
-        detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Align to the placement mark on the RS of the right pocket backing, upper-right corner. {topstitch} around sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
-    }
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
     if (hasYoke) {
       steps.push({
@@ -283,47 +324,78 @@ export default {
         detail: `Sew back yoke to lower back panel {RST} along the ${opts.yokeStyle === 'pointed' ? 'V-shaped' : 'curved'} yoke seam at 5/8\u2033. Match notches at side seam, midpoint, and CB. {press} both SAs toward the yoke. Trim the lower panel SA to 3/16\u2033. Tuck the raw edge of the yoke SA under \xbc\u2033 (so it encloses the trimmed lower SA) and {press} flat \u2014 you now have a clean folded edge sitting on the yoke side of the seam, covering the 3/16\u2033 trimmed edge with ~\xbc\u2033 of clean margin. {topstitch} with gold thread at 3.5mm, two rows from RS: first at 1/8\u2033 from the seam, then at \xbc\u2033 from the seam. Both rows should bite through the fold, the trimmed lower SA, and the lower back panel. Repeat for mirror side.`,
       });
       steps.push({
-        step: n++, title: 'Flat-fell CB rise (straight portion only)',
-        detail: 'Place both yoke+back assemblies {RST}, aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. {press} both SAs to one side (toward the left back). Fell: trim the underneath (right-back) SA to 3/16\u2033, tuck the raw edge of the top (left-back) SA under \xbc\u2033, fold it over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
-      });
-      steps.push({
-        step: n++, title: 'Double-stitch curved crotch seat',
-        detail: 'Re-open the back panels and re-align them {RST} along the curved crotch seat, from the CB rise transition point down and around to the CF crotch point. This curve cannot be flat-felled so it gets reinforced with double stitching instead. Stitch the main seam at 5/8\u2033 from the edge. Add a second reinforcement row at 1/2\u2033 from the raw edge (so 1/8\u2033 outside the first row, closer to the raw edge). Trim SA to 3/8\u2033 \u2014 both rows remain within the trimmed SA. {serge} or zigzag the raw edge. {clip} the curve every 1/2\u2033. {press} SA toward back.',
+        step: n++, title: 'Sew center back and seat curve',
+        detail: 'Place both yoke+back assemblies {RST}, aligning the CB and seat curve edges from the waist all the way down to the front crotch point. Stitch the entire CB-to-seat-curve in one pass at 5/8\u2033. Add a second reinforcement row at 1/2\u2033 (1/8\u2033 outside the first row, in the SA). Trim SA to 3/8\u2033. {clip} the curve every 1/2\u2033. {serge} or zigzag the raw edge. {press} SA toward the left back. From RS, {topstitch} two rows in gold thread alongside the seam. The back rise is reinforced by double-stitching, not flat-felled, because the seat curvature can\u2019t lie flat under a fell.',
       });
     } else {
       steps.push({
-        step: n++, title: 'Flat-fell CB rise (straight portion only)',
-        detail: 'Place both back panels {RST}, aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. {press} both SAs to one side (toward the left back). Fell: trim the underneath (right-back) SA to 3/16\u2033, tuck the raw edge of the top (left-back) SA under \xbc\u2033, fold it over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
-      });
-      steps.push({
-        step: n++, title: 'Double-stitch curved crotch seat',
-        detail: 'Re-open the back panels and re-align them {RST} along the curved crotch seat, from the CB rise transition point down and around to the CF crotch point. This curve cannot be flat-felled so it gets reinforced with double stitching instead. Stitch the main seam at 5/8\u2033 from the edge. Add a second reinforcement row at 1/2\u2033 from the raw edge (so 1/8\u2033 outside the first row, closer to the raw edge). Trim SA to 3/8\u2033 \u2014 both rows remain within the trimmed SA. {serge} or zigzag the raw edge. {clip} the curve every 1/2\u2033. {press} SA toward back.',
+        step: n++, title: 'Sew center back and seat curve',
+        detail: 'Place both back panels {RST}, aligning the CB and seat curve edges from the waist all the way down to the front crotch point. Stitch the entire CB-to-seat-curve in one pass at 5/8\u2033. Add a second reinforcement row at 1/2\u2033 (1/8\u2033 outside the first row, in the SA). Trim SA to 3/8\u2033. {clip} the curve every 1/2\u2033. {serge} or zigzag the raw edge. {press} SA toward the left back. From RS, {topstitch} two rows in gold thread alongside the seam. The back rise is reinforced by double-stitching, not flat-felled, because the seat curvature can\u2019t lie flat under a fell.',
       });
     }
     steps.push({
-      step: n++, title: 'Install zip fly',
-      detail: '1. Interface both fly shield pieces (outer side). 2. {staystitch} both left and right CF edges 3/8\u2033 from the edge to stabilize the curve. 3. Sew the right and left front panels {RST} from the crotch point up to the base of the fly opening. {clip} the curve. {press} SA toward right. 4. RIGHT side: fold the right CF extension to the RS at the fold line, enclosing the SA. {press}. Place the closed zipper face-down on the folded extension, teeth at the fold. Stitch the right zipper tape to the extension only (do not catch the main panel). 5. LEFT side: fold the left CF extension to the WS. {press}. Open the zipper. Place the left tape face-up on the left extension, teeth at the fold. Stitch 1/4\u2033 from the teeth. 6. Fly shield: sew the two shield pieces {RST}, straight CF edge left open. Trim, {clip} the J-curve, turn RS out, {press}. {topstitch} the J-curve at 3/16\u2033 from RS. Place the shield on the left extension WS, straight CF edges aligned, baste together. 7. Close the zipper. Fold everything to RS. Baste the fly layers together from RS to hold position. 8. {topstitch} the J-curve from RS (transfer the J-curve shape from the pattern piece using chalk or a tracing wheel). 9. Bar tack the fly base: 8\u201310 zig-zag stitches at 0mm stitch length across the seam. 10. Check: zipper opens cleanly from RS.',
+      step: n++, title: 'Prep fly pieces',
+      detail: 'Interface the outer fly shield piece. {staystitch} both the left and right CF edges of the front panels 3/8\u2033 from the edge to stabilize the curve. Sew the two fly shield pieces {RST}, leaving the straight CF edge open. Trim, {clip} the J-curve, turn RS out, {press}. {topstitch} the J-curve at 3/16\u2033 from RS.',
+    });
+    steps.push({
+      step: n++, title: 'Sew CF curve below fly',
+      detail: 'Sew the right and left front panels {RST} from the crotch point up to the base of the fly opening (marked on the pattern). Backtack at the fly base. {clip} the curve. {press} SA toward the right side.',
+    });
+    steps.push({
+      step: n++, title: 'Attach right zipper tape to fly extension',
+      detail: 'Fold the right Fly Extension to the RS at the fold line, enclosing the SA. {press}. Place the closed zipper face-down on the folded extension with the teeth right at the fold. Stitch the right zipper tape to the extension only \u2014 do not catch the main panel.',
+    });
+    steps.push({
+      step: n++, title: 'Attach left zipper tape',
+      detail: 'Fold the left Fly Extension to the WS. {press}. Open the zipper. Place the left tape face-up on the left extension, teeth aligned at the fold. Stitch 1/4\u2033 from the teeth, catching both the extension and the front panel.',
+    });
+    steps.push({
+      step: n++, title: 'Attach fly shield, topstitch J, bartack',
+      detail: 'Place the prepared fly shield on the left extension WS, straight CF edges aligned, and {baste} together. Close the zipper. Fold everything to the RS and {baste} the fly layers together from the RS to hold position. {topstitch} the J-curve from RS (transfer the J-curve shape from the pattern piece using chalk or a tracing wheel). {bartack} the fly base: 8\u201310 zig-zag stitches at 0mm stitch length across the seam. Check that the zipper opens cleanly from the RS.',
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
       detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem. Sew at 5/8\u2033. {press} both SAs toward back. Fell: trim the front (underneath) SA to 3/16\u2033, fold back SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Repeat for the other side.',
     });
     steps.push({
-      step: n++, title: 'Sew inseam',
-      detail: 'Sew each leg inseam individually: right leg from hem to crotch notch, then left leg from hem to crotch notch, each {RST} at 5/8\u2033. {press} both SAs toward front. Fell: trim the back (underneath) SA to 3/16\u2033, fold front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Then join the legs at the crotch seat: turn one leg WS-out and slide it inside the other. Align inseam seams and crotch notches. Sew the curved seat from the right inseam notch around to the left inseam notch at 5/8\u2033. Stitch a second reinforcement row at 1/2\u2033. Trim to 3/8\u2033. Serge or zigzag the raw edge. {clip} curve every 1/2\u2033. {press} SA toward back.',
+      step: n++, title: 'Sew inseams',
+      detail: 'At this point each leg is a flat front+back assembly joined only at the side seam. The CB-to-CF crotch curve was already sewn in the seat-curve step, so this step just closes the inner-leg seams. For each leg: align the inseam edges {RST} from hem up to the crotch notch and stitch at 5/8\u2033. {press} SA toward the front. Fell: trim the back (underneath) SA to 3/16\u2033, fold the front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS at 1/8\u2033 and 1/4\u2033 from the fold. Repeat for the other leg. After both inseams are felled, the front and back crotch curves should meet cleanly at the crotch junction. If a small gap remains right at the junction, close it with a short reinforcing seam stitched twice. The pants are now a closed pair.',
+    });
+    if (beltLoopStyle === 'individual') {
+      steps.push({
+        step: n++, title: 'Make belt loop strips',
+        detail: `Cut ${beltLoopCount} belt loop strips on the straight grain, each 2\u00bc\u2033 wide \u00d7 3\u00bd\u2033 long (matches the Belt Loops piece). {press} each strip in thirds lengthwise so it finishes \u00be\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Trim ends square. The finished loop is \u00be\u2033 wide \u00d7 ~2\u00be\u2033 tall after both ends are turned under. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge. Distribute ${beltLoopCount} loops around the waist: one at CB, one on each side seam, and the rest spaced evenly across the back and front (avoiding the fly).`,
+      });
+    }
+    steps.push({
+      step: n++, title: 'Prep waistband',
+      detail: 'Interface the waistband (full length). Fold {RST} lengthwise. Stitch both short ends with the asymmetric overlap built in: the left end extends ~1\u00bc\u2033 past CF for the buttonhole overlap, the right end extends ~\u215d\u2033 for the button underlap. {clip} corners, turn RS out, {press} flat.',
     });
     steps.push({
-      step: n++, title: 'Make belt loop strips',
-      detail: 'Cut 5 belt loop strips on the straight grain, each 1\u00bd\u2033 wide \u00d7 (waistband height + 1\u00bd\u2033) long. {press} each strip in thirds lengthwise (each third \u00bd\u2033 wide). {topstitch} both long edges at 2mm. Trim ends square. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge: one at CB, two on the back (spaced evenly between CB and side seams), and two on the front flanking the fly. The loops hang down into the jeans body at this stage.',
+      step: n++, title: 'Attach waistband to jeans waist',
+      detail: beltLoopStyle === 'individual'
+        ? 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. The belt loops sit sandwiched between the waist and the band, hanging down into the body. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.'
+        : 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.',
     });
     steps.push({
-      step: n++, title: 'Construct and attach waistband',
-      detail: 'Interface the waistband (full length). Fold the waistband {RST} lengthwise and sew both short ends \u2014 the left end extends ~1\u00bc\u2033 past CF for the overlap (buttonhole end), the right end extends ~\u215d\u2033 for the underlap (button end). {clip} corners, turn RS out, {press}. Pin the bottom WS half of the waistband to the jeans waist RS, matching CB, side seams, CF notch, and fly. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033). Fold the waistband up. Fold the top SA under on the inside and slip-stitch or {topstitch} from RS, catching the inner fold. {topstitch} the waistband top edge and all around the ends with gold {topstitch} thread at 3mm.',
+      step: n++, title: 'Finish waistband interior',
+      detail: 'Fold the waistband up and over to the inside. Fold the inside SA under so the folded edge sits just below the seam line. From RS, {topstitch} along the bottom of the waistband at 1/16\u2033 from the seam, catching the inner fold in one pass. {topstitch} a second row at the top edge of the waistband and continue around both finished ends, all in gold thread at 3mm.',
     });
-    steps.push({
-      step: n++, title: 'Finish belt loops',
-      detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
-    });
+    if (beltLoopStyle === 'individual') {
+      steps.push({
+        step: n++, title: 'Finish belt loops',
+        detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
+      });
+    } else if (beltLoopStyle === 'tunnel') {
+      steps.push({
+        step: n++, title: 'Prep tunnel belt loop patches',
+        detail: 'Cut 5 wide tunnel patches (4\u2033 \u00d7 2\u00bc\u2033) and 2 narrow tunnel patches (2\u00bc\u2033 \u00d7 2\u00bc\u2033) on the straight grain. For each patch: {press} both long (vertical) edges under \u215c\u2033 toward the WS, then {topstitch} each folded edge at \u215b\u2033 in gold thread. Wide patches now finish ~3\u00bc\u2033 wide; narrow patches finish ~1\u00bd\u2033 wide. Top and bottom raw edges stay raw \u2014 they get caught by the waistband topstitching. The patch height (2\u00bc\u2033) is intentionally taller than the 1\u00bd\u2033 finished waistband so the patch bows out enough to clear a 1\u00bc\u2033 belt.',
+      });
+      steps.push({
+        step: n++, title: 'Apply tunnel patches across waistband',
+        detail: 'Position each finished patch horizontally across the OUTSIDE (RS) of the waistband, centered top-to-bottom so the patch overhangs both the top and bottom edges of the band by ~\u215c\u2033. Wide patches go at: CB, midway across each back panel between CB and side seam, and one centered on each side seam (5 total). Narrow patches go over each front hip bone, flanking the fly (2 total). For each patch: pin in place, then {topstitch} the top raw edge of the patch directly along the existing waistband top topstitching line, catching the patch in the same row. {topstitch} the bottom raw edge along the waistband bottom topstitching line. The middle of the patch stays free \u2014 it bows out from the waistband to form the tunnel. {bartack} both ends of both top and bottom seams on each patch (8\u201310 zig-zag stitches at 0mm length) for the high-stress corners. Verify each tunnel accepts the belt by threading one through before declaring done.',
+      });
+    }
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at both ends of each front pocket opening (waist-seam end and side-seam end, marked on pattern) and at the sides of the coin pocket. Add one at the crotch seam junction if fabric is heavy.' });
     steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem) || 1)} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });
@@ -436,6 +508,49 @@ function buildFlyShield(rise) {
 }
 
 
+// ── Fly extension (rectangular underlap behind the CF) ──────────────────
+
+function buildFlyExtension(rise) {
+  const extSA = 0.25;                    // 1/4″ SA
+  const w = 1.375;                       // ~1⅜″ wide
+  const flyLen = Math.ceil(rise * 0.6);  // matches fly shield calc
+  const h = flyLen + 1;                  // extends 1″ below fly base
+
+  const poly = [
+    { x: 0, y: 0 },
+    { x: w, y: 0 },
+    { x: w, y: h },
+    { x: 0, y: h },
+  ];
+
+  const saPoly = offsetPolygon(poly, (i, a, b) => {
+    // CF edge (left, x≈0): no SA — sits on center front fold
+    if (Math.abs(a.x) < 0.1 && Math.abs(b.x) < 0.1) return 0;
+    return -extSA;
+  });
+
+  return {
+    id: 'fly-extension',
+    name: 'Fly Extension',
+    instruction: 'Cut 2 (left + right mirror) · Self fabric · Interface left · ¼″ SA · Folds back behind CF; carries the zipper tape',
+    polygon: poly,
+    saPolygon: saPoly,
+    path: polyToPath(poly),
+    saPath: polyToPath(saPoly),
+    width: w, height: h,
+    sa: extSA, type: 'bodice',
+    isCutOnFold: false,
+    dimensions: [
+      { label: fmtInches(w) + ' width',  x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
+      { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
+    ],
+    labels: [
+      { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
+    ],
+  };
+}
+
+
 // ── Panel builder with knee-point leg shaping ─────────────────────────────
 
 function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
@@ -520,7 +635,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     }
   }
 
-  // Notch marks: hip on side seam, crotch junction, knee on both seams
+  // Notch marks: hip on side seam, crotch junction, knee on both seams.
+  // Front panels also get a coin-pocket placement notch in the upper-right
+  // pocket area (right front only, but marked on both since panels are mirrors).
   const notches = [
     { x: hipWidth,    y: hipLineY,        angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) },
     ...(isBack ? [{ x: hipWidth, y: hipLineY + 0.25, angle: edgeAngle({ x: hipWidth, y: 0 }, { x: sideKneeX, y: kneeY }) }] : []),
@@ -528,6 +645,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     ...(isBack ? [{ x: -ext, y: rise - 0.25,         angle: edgeAngle({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise }) }] : []),
     { x: sideKneeX,   y: kneeY,           angle: edgeAngle({ x: hipWidth, y: hipLineY }, { x: sideKneeX, y: kneeY }) },
     { x: inseamKneeX, y: kneeY,           angle: edgeAngle({ x: -ext, y: rise }, { x: inseamKneeX, y: kneeY }) },
+    // Coin pocket placement (right front only) — sits just below the front
+    // pocket opening on the upper outer area of the panel.
+    ...(!isBack ? [{ x: sideWaistX - 1.75, y: 2.5, angle: 0, label: 'coin pocket' }] : []),
   ];
 
   return {
@@ -552,14 +672,15 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
 
 function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   const { waistWidth, hipWidth, cbRaise, sa, hem, rise, inseam, ext, height,
-          polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts } = backPanel;
+          polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts,
+          darts: backDarts } = backPanel;
 
   const yokeSideDepth = 1.5; // yoke at side seam (~1.5″ below waist)
   // Interpolate the side seam x at yokeSideDepth — original side seam runs
   // diagonally from (waistWidth, 0) to (hipWidth, hipLineY)
   const sideXAtYoke = waistWidth + (hipWidth - waistWidth) * (yokeSideDepth / hipLineY);
 
-  // ── Yoke seam curve from side seam → CB ────────────────────────────────
+  // ── Yoke seam curve from side seam → CB (pre-rotation) ────────────────
   const seamPts = [];
   if (yokeStyle === 'curved') {
     const p0 = { x: sideXAtYoke, y: yokeSideDepth };
@@ -571,22 +692,41 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   }
   // 'pointed': no intermediate points — straight line forms the V
 
-  // ── YOKE polygon (clockwise) ──────────────────────────────────────────
-  const yokePoly = [];
-  yokePoly.push({ x: 0,           y: -cbRaise       }); // CB waist (raised)
-  yokePoly.push({ x: waistWidth,  y: 0               }); // side waist
-  yokePoly.push({ x: sideXAtYoke, y: yokeSideDepth   }); // yoke seam at side
-  for (const pt of seamPts) yokePoly.push(pt);
-  yokePoly.push({ x: 0,        y: yokeDepthCB     }); // yoke seam at CB
+  // ── PRE-ROTATION yoke polygon (clockwise from CB waist) ───────────────
+  const yokePolyRaw = [];
+  yokePolyRaw.push({ x: 0,           y: -cbRaise      }); // CB waist (raised)
+  yokePolyRaw.push({ x: waistWidth,  y: 0             }); // side waist (= backHipW)
+  yokePolyRaw.push({ x: sideXAtYoke, y: yokeSideDepth }); // yoke seam at side
+  for (const pt of seamPts) yokePolyRaw.push(pt);
+  yokePolyRaw.push({ x: 0,           y: yokeDepthCB   }); // yoke seam at CB
+
+  // ── Close the back darts: rotate dart wedges shut, absorbing them into
+  // the yoke's seams.  The resulting yoke top edge becomes backWaistW wide,
+  // the side seam slants inward, and the bottom (yoke seam) gains a curve.
+  const yokePoly = closeYokeDarts(yokePolyRaw, backDarts || []);
+
+  // After closure, indices in yokePoly:
+  //   [0]                  CB waist (untouched)
+  //   [1 .. numDarts]      one merged dart-leg vertex per dart on top edge
+  //   [numDarts + 1]       side waist (rotated)
+  //   [numDarts + 2]       yoke seam at side (rotated)
+  //   [numDarts + 3 .. n-1] yoke seam curve points (rotated by varying amounts)
+  //   [last]               yoke seam at CB (untouched, x=0)
+  const numDarts = (backDarts || []).filter(d => d && d.intake > 0 && d.length > 0).length;
+  const seamStartIdx = numDarts + 2;
+  const yokeSeamLine = yokePoly.slice(seamStartIdx); // side → ... → CB (post-rotation)
 
   // ── LOWER BACK polygon (clockwise) ────────────────────────────────────
+  // Top edge is the post-rotation yoke seam in reverse (CB → side), so the
+  // lower panel mates exactly with the yoke piece.
   const lowerPoly = [];
-  lowerPoly.push({ x: 0,        y: yokeDepthCB    }); // yoke seam at CB
-  for (let i = seamPts.length - 1; i >= 0; i--) lowerPoly.push({ ...seamPts[i] });
-  lowerPoly.push({ x: sideXAtYoke, y: yokeSideDepth  }); // yoke seam at side
-  // Copy hip → knee → hem → inseam → crotch → crotch curve from original.
-  // Filter out crotch curve points above the yoke cut and the {0, cbRaise}
-  // structural point (it belongs to the yoke, not the lower panel).
+  for (let i = yokeSeamLine.length - 1; i >= 0; i--) {
+    lowerPoly.push({ ...yokeSeamLine[i] });
+  }
+  // Copy hip → knee → hem → inseam → crotch curve from the original back panel.
+  // Skip both waist points (indices 0 and 1) since the top edge is now the
+  // yoke seam line above.  Also filter out curve points above the yoke cut
+  // and the {0, cbRaise} structural CB point (which now belongs to the yoke).
   for (let i = 2; i < polygon.length; i++) {
     const pt = polygon[i];
     if (pt.curve && pt.y < yokeDepthCB) continue;
@@ -601,37 +741,40 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
     return -sa;
   });
 
-  // ── Seam lengths ──────────────────────────────────────────────────────
-  let yokeSeamLen = dist({ x: sideXAtYoke, y: yokeSideDepth }, seamPts[0] || { x: 0, y: yokeDepthCB });
-  for (let i = 0; i < seamPts.length - 1; i++) yokeSeamLen += dist(seamPts[i], seamPts[i + 1]);
-  if (seamPts.length) yokeSeamLen += dist(seamPts[seamPts.length - 1], { x: 0, y: yokeDepthCB });
-  const yokeW = waistWidth;
+  // ── Seam lengths (measured along the post-rotation seam line) ─────────
+  let yokeSeamLen = 0;
+  for (let i = 0; i < yokeSeamLine.length - 1; i++) {
+    yokeSeamLen += dist(yokeSeamLine[i], yokeSeamLine[i + 1]);
+  }
+  // Yoke top edge length post-closure = backWaistW (sum of dart intakes removed)
+  const dartIntakeTotal = (backDarts || []).reduce((s, d) => s + (d?.intake || 0), 0);
+  const yokeTopW = Math.max(0, waistWidth - dartIntakeTotal);
   const yokeH = yokeDepthCB + cbRaise;
 
-  // ── Yoke notches (mid-seam alignment mark) ────────────────────────────
-  const seamMidIdx = Math.floor(seamPts.length / 2);
-  const seamMidPt  = seamPts.length
-    ? seamPts[seamMidIdx]
-    : { x: sideXAtYoke * 0.5, y: (yokeSideDepth + yokeDepthCB) / 2 };
-  const seamEndA = seamPts.length ? seamPts[Math.max(0, seamMidIdx - 1)] : { x: sideXAtYoke, y: yokeSideDepth };
-  const seamEndB = seamPts.length ? seamPts[Math.min(seamPts.length - 1, seamMidIdx + 1)] : { x: 0, y: yokeDepthCB };
+  // ── Yoke notches (mid-seam alignment mark, on post-rotation seam) ─────
+  const seamMidIdx = Math.floor(yokeSeamLine.length / 2);
+  const seamMidPt  = yokeSeamLine[seamMidIdx] || { x: sideXAtYoke * 0.5, y: (yokeSideDepth + yokeDepthCB) / 2 };
+  const seamEndA = yokeSeamLine[Math.max(0, seamMidIdx - 1)] || yokeSeamLine[0];
+  const seamEndB = yokeSeamLine[Math.min(yokeSeamLine.length - 1, seamMidIdx + 1)] || yokeSeamLine[yokeSeamLine.length - 1];
+  const yokeSideCornerPost = yokeSeamLine[0]; // post-rotation side-seam corner
+  const yokeCBCorner       = yokeSeamLine[yokeSeamLine.length - 1]; // (0, yokeDepthCB), unrotated
 
   const yokeNotches = [
-    { x: sideXAtYoke, y: yokeSideDepth, angle: edgeAngle({ x: waistWidth, y: 0 }, { x: hipWidth, y: hipLineY }) },
+    { x: yokeSideCornerPost.x, y: yokeSideCornerPost.y, angle: edgeAngle({ x: waistWidth, y: 0 }, { x: hipWidth, y: hipLineY }) },
     { x: seamMidPt.x, y: seamMidPt.y, angle: edgeAngle(seamEndA, seamEndB) },
-    { x: 0, y: yokeDepthCB, angle: 0 },
+    { x: yokeCBCorner.x, y: yokeCBCorner.y, angle: 0 },
   ];
 
   // ── Dimensions ────────────────────────────────────────────────────────
   const yokeDims = [
-    { label: fmtInches(yokeW) + ' width',     x1: 0, y1: -cbRaise - 0.5, x2: waistWidth, y2: -cbRaise - 0.5, type: 'h' },
-    { label: fmtInches(yokeH) + ' depth',     x: waistWidth + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
-    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: sideXAtYoke, y2: yokeSideDepth + 0.5, type: 'h', color: '#b8963e' },
+    { label: fmtInches(yokeTopW) + ' waist', x1: 0, y1: -cbRaise - 0.5, x2: yokeTopW, y2: -cbRaise - 0.5, type: 'h' },
+    { label: fmtInches(yokeH) + ' depth',     x: yokeSideCornerPost.x + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
+    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: yokeSideCornerPost.x, y2: yokeSideCornerPost.y + 0.5, type: 'h', color: '#b8963e' },
   ];
 
   // Lower panel inherits most of the original dimensions minus waist width
   const lowerDims = backPanel.dimensions.filter(d => !d.label.includes('waist'));
-  lowerDims.push({ label: fmtInches(yokeSeamLen) + ' yoke seam', x1: 0, y1: yokeDepthCB - 0.5, x2: sideXAtYoke, y2: yokeSideDepth - 0.5, type: 'h', color: '#b8963e' });
+  lowerDims.push({ label: fmtInches(yokeSeamLen) + ' yoke seam', x1: 0, y1: yokeDepthCB - 0.5, x2: yokeSideCornerPost.x, y2: yokeSideCornerPost.y - 0.5, type: 'h', color: '#b8963e' });
 
   // ── Build pieces ──────────────────────────────────────────────────────
   const yoke = {
@@ -641,12 +784,12 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
     polygon: yokePoly, saPolygon: yokeSaPoly,
     path: polyToPath(yokePoly), saPath: polyToPath(yokeSaPoly),
     dimensions: yokeDims,
-    waistWidth, hipWidth, width: sideXAtYoke, height: yokeH,
+    waistWidth: yokeTopW, hipWidth, width: yokeSideCornerPost.x, height: yokeH,
     rise, inseam, ext, cbRaise, sa, hem, isBack: true,
     notches: yokeNotches,
     labels: [
-      { text: 'CB',        x: -0.5,             y: yokeDepthCB * 0.4, rotation: -90 },
-      { text: 'SIDE SEAM', x: sideXAtYoke + 0.3, y: yokeSideDepth * 0.5, rotation: 90 },
+      { text: 'CB',        x: -0.5,                       y: yokeDepthCB * 0.4, rotation: -90 },
+      { text: 'SIDE SEAM', x: yokeSideCornerPost.x + 0.3, y: yokeSideCornerPost.y * 0.5, rotation: 90 },
     ],
     darts: [], type: 'bodice', opts,
   };

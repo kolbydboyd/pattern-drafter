@@ -4,6 +4,33 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.33] - 2026-04-13
+
+### Added
+- **Tunnel belt loop option** (Dickies-style) for Straight Jeans / Soloist Jeans (via delegation). New `beltLoopStyle` option with three values: `individual` (the classic 5/6/7 narrow loops, default and unchanged), `tunnel` (discrete wide patches tacked top-and-bottom across the waistband to form horizontal belt tunnels), and `none`. The tunnel build emits two pieces: `Tunnel Belt Loop (wide)` cuts 5 patches at 4″ × 2¼″ for CB / both back panels / both side seams; `Tunnel Belt Loop (narrow)` cuts 2 patches at 2¼″ × 2¼″ for the front hip bones flanking the fly. Each patch finishes ~1½″ tall (matching the waistband) and bows out to clear a 1¼″ belt. Instructions branch on style: individual is unchanged; tunnel runs a "Prep tunnel patches" step (press long edges under, topstitch) followed by "Apply tunnel patches across waistband" (tack top and bottom raw edges directly along the existing waistband topstitching lines, bartack the corners). Waistband instruction text also branches so the "loops sandwiched between waist and band" line only appears for individual loops.
+
+---
+
+## [0.12.32] - 2026-04-13
+
+### Fixed
+- **Back yoke now actually closes the back darts.** Straight Jeans / Soloist Jeans (via delegation): the previous yoke split sliced the rectangular top off the back panel without rotating the dart wedges shut, so the yoke top edge was as wide as `backHipW` instead of `backWaistW`. Every render with `yokeStyle: 'pointed'` or `'curved'` produced a back assembly the waistband couldn't attach to without ruching. Soloist Jeans defaults to `pointed`, so it hit this bug out of the box. Fixed by adding a new `closeYokeDarts` helper in `src/engine/geometry.js` that rotates each dart wedge closed about its apex (right-to-left rotation pass, panel-classified so the rotations compose order-independently), and rewriting `splitBackYoke` to consume `backPanel.darts` and rebuild the lower-panel top edge from the post-rotation seam line so the two pieces mate exactly.
+
+### Changed
+- **Coin pocket attaches to the right front panel directly**, not to a loose pocket backing. Added a coin-pocket placement notch to the front panel notches array (right-front mirror only) so position is unambiguous, and merged the previously duplicated scoop/non-scoop coin pocket steps into a single early step that runs right after "Prepare back patch pockets". Matches traditional Levi's-style construction where the coin pocket is sewn through the denim before any pocket-bag assembly.
+- **Belt loop instructions reconciled with the pieces spec.** The instruction step previously hardcoded `5` strips at `1½″ × (waistband + 1½″)`, while the pieces section already cut `waist > 36 ? 7 : 6` strips at `2¼″ × 3½″`. The instruction now uses the same `beltLoopCount` variable and the same finished `¾″ × ~2¾″` dimensions.
+- **Center-back rise + seat curve are now one step**, not two. The previous "Flat-fell CB rise (straight portion only)" + "Double-stitch curved crotch seat" split asked the user to mark a transition point that doesn't exist on the pattern, then change technique mid-seam. Production jeans sew the entire CB-to-seat-curve in one pass with reinforcement double-stitching; the instructions now say the same.
+- **Inseam step rewritten to remove the phantom "join legs at crotch" pass.** The old wording read as if the user re-sewed the crotch curve after sewing the inseams (it had already been sewn earlier as part of the seat curve). New wording explicitly states each leg's inseam closes flat from hem to crotch notch and that the crotch curves should already meet at the junction.
+- **Fly install split into 5 short steps** (Prep fly pieces / Sew CF curve / Right tape / Left tape / Shield + topstitch + bartack) instead of one 10-substep wall of text.
+- **Waistband install split into 3 steps** (Prep waistband / Attach to waist / Finish interior).
+- **Soloist Jeans gets actual silhouette defaults** instead of no-op overrides matching the straight-jeans defaults: `legShape: 'slim'`, `riseStyle: 'low'`, `inseam: 33` (longer for the dragging-hem look), `frontExt: 1.75`, `backExt: 3.25` (deeper back, shallower front), retaining `frontPocket: 'square-scoop'` and `yokeStyle: 'pointed'`. Header comment now spells out the long/lean Takahiromiyashita silhouette intent.
+
+### Added
+- **Fly Extension piece** (`buildFlyExtension`) — the rectangular underlap behind the CF that carries the zipper tape was previously missing from the piece list even though the assembly steps referenced it. Now cut as `Cut 2 (left + right mirror) · Self fabric · Interface left · ¼″ SA · 1⅜″ × (flyLen + 1″)`.
+- **`closeYokeDarts(yokePoly, darts)` in `src/engine/geometry.js`** — rotates each dart wedge closed about its apex via a right-to-left rotation pass with panel classification, so two rotations about distinct points compose order-independently. Available for any future yoke-from-darted-panel construction.
+
+---
+
 ## [0.12.31] - 2026-04-13
 
 ### Changed
@@ -14,6 +41,8 @@ All notable changes are documented here, newest first.
   - **Pleat direction option** (`pleatDir`): forward (opens toward CF, Italian, most slimming) or reverse (opens toward side seam, RTW standard). Defaults to forward. `showWhen` suppresses it when pleats are off. Instruction and step detail reflect the chosen direction.
   - Zipper notion renamed from "Invisible zipper" to "Coil zipper" (fly zips are standard coil/metal, not invisible). Hook-and-eye renamed to "Trouser hook-and-bar".
   - Seasonal fabric note added: linen 3–5 oz for summer, worsted wool 8–11 oz for winter, tropical wool/crepe 6–8 oz for formal, with 4 oz minimum weight advisory for wide-leg drape.
+
+---
 
 ## [0.12.30] - 2026-04-13
 
