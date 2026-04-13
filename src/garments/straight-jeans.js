@@ -100,6 +100,15 @@ export default {
       ],
       default: 1,
     },
+    beltLoopStyle: {
+      type: 'select', label: 'Belt loops',
+      values: [
+        { value: 'individual', label: 'Individual loops (classic 5/6/7-loop)' },
+        { value: 'tunnel',     label: 'Tunnel loops (continuous band, military/workwear)' },
+        { value: 'none',       label: 'No belt loops' },
+      ],
+      default: 'individual',
+    },
   },
 
   pieces(m, opts) {
@@ -178,10 +187,17 @@ export default {
 
     // ── WAISTBAND ──
     const wbLen = waist + ease.total + sa * 2;
+    const beltLoopStyle = opts.beltLoopStyle || 'individual';
+    const beltLoopCountForBand = waist > 36 ? 7 : 6;
+    const wbInstr = beltLoopStyle === 'tunnel'
+      ? `Cut 1 on fold · Interface · 1½″ finished · Tunnel belt loops behind band`
+      : beltLoopStyle === 'none'
+        ? `Cut 1 on fold · Interface · 1½″ finished · No belt loops`
+        : `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${beltLoopCountForBand}`;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${waist > 36 ? 7 : 6}`,
+      instruction: wbInstr,
       dimensions: { length: wbLen, width: 3 },
       type: 'rectangle', sa,
     });
@@ -214,9 +230,25 @@ export default {
     pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
-    // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long (includes turn-under).
-    const beltLoopCount = waist > 36 ? 7 : 6;
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
+    if (beltLoopStyle === 'individual') {
+      // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long.
+      const beltLoopCount = waist > 36 ? 7 : 6;
+      pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
+    } else if (beltLoopStyle === 'tunnel') {
+      // Continuous tunnel band sewn behind the waistband. Belt threads through
+      // the gaps between tack-down points. Strip is the full waist length plus
+      // ease, folded in thirds to ~1″ finished width (taller than individual
+      // loops to fit a 1¼″ webbing or leather belt). Cut on the bias is
+      // unnecessary; straight grain is fine.
+      const tunnelLen = wbLen + 1; // ½″ tuck-under at each short end
+      pieces.push({
+        id: 'belt-loop-tunnel', name: 'Tunnel Belt Loop',
+        instruction: `Cut 1 strip · 3″ × ${fmtInches(tunnelLen)} · {press} in thirds to 1″ wide · {topstitch} both long edges · Tucks under ½″ at each short end · Tacks down to waistband at ${beltLoopCountForBand} points around the waist; gaps form the belt tunnels`,
+        dimensions: { width: tunnelLen, height: 3 },
+        type: 'rectangle', sa: 0,
+      });
+    }
+    // beltLoopStyle === 'none' adds no piece.
 
     return pieces;
   },
@@ -251,6 +283,7 @@ export default {
     let n = 1;
     const waist = m.waist || 32;
     const beltLoopCount = waist > 36 ? 7 : 6;
+    const beltLoopStyle = opts.beltLoopStyle || 'individual';
 
     steps.push({
       step: n++, title: 'Prepare back patch pockets',
@@ -320,26 +353,41 @@ export default {
       step: n++, title: 'Sew inseams',
       detail: 'At this point each leg is a flat front+back assembly joined only at the side seam. The CB-to-CF crotch curve was already sewn in the seat-curve step, so this step just closes the inner-leg seams. For each leg: align the inseam edges {RST} from hem up to the crotch notch and stitch at 5/8\u2033. {press} SA toward the front. Fell: trim the back (underneath) SA to 3/16\u2033, fold the front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS at 1/8\u2033 and 1/4\u2033 from the fold. Repeat for the other leg. After both inseams are felled, the front and back crotch curves should meet cleanly at the crotch junction. If a small gap remains right at the junction, close it with a short reinforcing seam stitched twice. The pants are now a closed pair.',
     });
-    steps.push({
-      step: n++, title: 'Make belt loop strips',
-      detail: `Cut ${beltLoopCount} belt loop strips on the straight grain, each 2\u00bc\u2033 wide \u00d7 3\u00bd\u2033 long (matches the Belt Loops piece). {press} each strip in thirds lengthwise so it finishes \u00be\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Trim ends square. The finished loop is \u00be\u2033 wide \u00d7 ~2\u00be\u2033 tall after both ends are turned under. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge. Distribute ${beltLoopCount} loops around the waist: one at CB, one on each side seam, and the rest spaced evenly across the back and front (avoiding the fly).`,
-    });
+    if (beltLoopStyle === 'individual') {
+      steps.push({
+        step: n++, title: 'Make belt loop strips',
+        detail: `Cut ${beltLoopCount} belt loop strips on the straight grain, each 2\u00bc\u2033 wide \u00d7 3\u00bd\u2033 long (matches the Belt Loops piece). {press} each strip in thirds lengthwise so it finishes \u00be\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Trim ends square. The finished loop is \u00be\u2033 wide \u00d7 ~2\u00be\u2033 tall after both ends are turned under. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge. Distribute ${beltLoopCount} loops around the waist: one at CB, one on each side seam, and the rest spaced evenly across the back and front (avoiding the fly).`,
+      });
+    }
     steps.push({
       step: n++, title: 'Prep waistband',
       detail: 'Interface the waistband (full length). Fold {RST} lengthwise. Stitch both short ends with the asymmetric overlap built in: the left end extends ~1\u00bc\u2033 past CF for the buttonhole overlap, the right end extends ~\u215d\u2033 for the button underlap. {clip} corners, turn RS out, {press} flat.',
     });
     steps.push({
       step: n++, title: 'Attach waistband to jeans waist',
-      detail: 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. The belt loops sit sandwiched between the waist and the band, hanging down into the body. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.',
+      detail: beltLoopStyle === 'individual'
+        ? 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. The belt loops sit sandwiched between the waist and the band, hanging down into the body. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.'
+        : 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.',
     });
     steps.push({
       step: n++, title: 'Finish waistband interior',
       detail: 'Fold the waistband up and over to the inside. Fold the inside SA under so the folded edge sits just below the seam line. From RS, {topstitch} along the bottom of the waistband at 1/16\u2033 from the seam, catching the inner fold in one pass. {topstitch} a second row at the top edge of the waistband and continue around both finished ends, all in gold thread at 3mm.',
     });
-    steps.push({
-      step: n++, title: 'Finish belt loops',
-      detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
-    });
+    if (beltLoopStyle === 'individual') {
+      steps.push({
+        step: n++, title: 'Finish belt loops',
+        detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
+      });
+    } else if (beltLoopStyle === 'tunnel') {
+      steps.push({
+        step: n++, title: 'Make tunnel belt loop strip',
+        detail: `Cut the tunnel belt loop strip on the straight grain (one continuous piece, see the Tunnel Belt Loop piece for length). {press} the strip in thirds lengthwise so it finishes 1\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Tuck \u00bd\u2033 under at each short end and {topstitch} the ends closed so no raw edges show.`,
+      });
+      steps.push({
+        step: n++, title: 'Apply tunnel loop to waistband',
+        detail: `Position the finished tunnel strip horizontally across the OUTSIDE (RS) of the waistband, centered top-to-bottom on the band, with one end at the CF buttonhole edge and the other end at the CF underlap. The strip should hug the waistband flat, no gathering. {topstitch} the strip down to the waistband at ${beltLoopCount} tack points spaced evenly around the waist (CB, both side seams, two on the back panel between CB and side seams, two on the front flanking the fly). At each tack: stitch a short vertical seam through both long edges of the strip and the waistband body; {bartack} both top and bottom of each tack for strength. The gaps between the tack points form the belt tunnels \u2014 a 1\u00bc\u2033 webbing or leather belt threads through them. Verify by sliding a belt through end-to-end before declaring done.`,
+      });
+    }
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at both ends of each front pocket opening (waist-seam end and side-seam end, marked on pattern) and at the sides of the coin pocket. Add one at the crotch seam junction if fabric is heavy.' });
     steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem) || 1)} twice. {topstitch} with 3.5mm gold thread. For chain-stitch look, use a single fold and a serger with chainstitch if available.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });
