@@ -121,6 +121,7 @@ for (const garment of Object.values({ ...GARMENTS })) {
       _baseId: garment.id,
       _variantDefaults: v.defaults,
       _variantFabrics: v.fabrics,
+      ...(v.measurementDefaults ? { measurementDefaults: { ...garment.measurementDefaults, ...v.measurementDefaults } } : {}),
       variants: undefined,
     };
   }

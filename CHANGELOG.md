@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.35] - 2026-04-13
+
+### Fixed
+- **Retro Short Trunks default inseam** set to 3″. The variant was inheriting the base `swim-trunks` default of 5″ because the variant expansion loop did not support `measurementDefaults` overrides. Added `measurementDefaults: { inseam: 3 }` to the retro variant definition and updated the expansion loop in `index.js` to shallow-merge variant `measurementDefaults` over the base module's `measurementDefaults`. Any future variant can now override specific measurement defaults the same way.
+
+---
+
 ## [0.12.34] - 2026-04-13
 
 ### Added
