@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- fitted camp shirt: short sleeve, camp collar, tapered waist, no pocket -->
+  <path d="M70,44 L80,60 L90,44"/>
+  <path d="M70,44 L54,52 L50,92 L60,92 Q58,135 62,170 L98,170 Q102,135 100,92 L110,92 L106,52 L90,44"/>
+  <line x1="80" y1="60" x2="80" y2="170"/>
+  <circle cx="80" cy="82" r="2"/>
+  <circle cx="80" cy="102" r="2"/>
+  <circle cx="80" cy="122" r="2"/>
+  <circle cx="80" cy="142" r="2"/>
+</svg>
