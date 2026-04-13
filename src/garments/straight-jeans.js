@@ -190,7 +190,7 @@ export default {
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const beltLoopCountForBand = waist > 36 ? 7 : 6;
     const wbInstr = beltLoopStyle === 'tunnel'
-      ? `Cut 1 on fold · Interface · 1½″ finished · Tunnel belt loops behind band`
+      ? `Cut 1 on fold · Interface · 1½″ finished · Tunnel belt loops applied across band (5 wide + 2 narrow)`
       : beltLoopStyle === 'none'
         ? `Cut 1 on fold · Interface · 1½″ finished · No belt loops`
         : `Cut 1 on fold · Interface · 1½″ finished · Belt loops ×${beltLoopCountForBand}`;
@@ -235,16 +235,24 @@ export default {
       const beltLoopCount = waist > 36 ? 7 : 6;
       pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
     } else if (beltLoopStyle === 'tunnel') {
-      // Continuous tunnel band sewn behind the waistband. Belt threads through
-      // the gaps between tack-down points. Strip is the full waist length plus
-      // ease, folded in thirds to ~1″ finished width (taller than individual
-      // loops to fit a 1¼″ webbing or leather belt). Cut on the bias is
-      // unnecessary; straight grain is fine.
-      const tunnelLen = wbLen + 1; // ½″ tuck-under at each short end
+      // Dickies-style discrete tunnel loops: short, wide patches sewn across
+      // the waistband. Each patch is tacked along the existing waistband top
+      // and bottom topstitching lines, forming a horizontal tunnel the belt
+      // threads through. Wide tunnels (3½″) sit at CB, both back panels, and
+      // both side seams (5 total). Narrow tunnels (1½″) sit over the front
+      // hip bones flanking the fly (2 total). Each strip is cut taller than
+      // the finished waistband so it bows out enough to clear a 1¼″ belt.
+      const tunnelH = 2.25; // cut height; finishes ~1½″ tall once tacked
       pieces.push({
-        id: 'belt-loop-tunnel', name: 'Tunnel Belt Loop',
-        instruction: `Cut 1 strip · 3″ × ${fmtInches(tunnelLen)} · {press} in thirds to 1″ wide · {topstitch} both long edges · Tucks under ½″ at each short end · Tacks down to waistband at ${beltLoopCountForBand} points around the waist; gaps form the belt tunnels`,
-        dimensions: { width: tunnelLen, height: 3 },
+        id: 'belt-tunnel-wide', name: 'Tunnel Belt Loop (wide)',
+        instruction: `Cut 5 patches · 4″ × ${fmtInches(tunnelH)} · {press} long edges under ⅜″ each so it finishes ~3¼″ wide · Tack at top and bottom of waistband (along existing topstitching lines) at CB, both back panels, and both side seams · Belt threads horizontally through each tunnel`,
+        dimensions: { width: 4, height: tunnelH },
+        type: 'rectangle', sa: 0,
+      });
+      pieces.push({
+        id: 'belt-tunnel-narrow', name: 'Tunnel Belt Loop (narrow)',
+        instruction: `Cut 2 patches · 2¼″ × ${fmtInches(tunnelH)} · {press} long edges under ⅜″ each so it finishes ~1½″ wide · Tack at top and bottom of waistband over the front hip bones, flanking the fly · Belt threads horizontally through each tunnel`,
+        dimensions: { width: 2.25, height: tunnelH },
         type: 'rectangle', sa: 0,
       });
     }
@@ -380,12 +388,12 @@ export default {
       });
     } else if (beltLoopStyle === 'tunnel') {
       steps.push({
-        step: n++, title: 'Make tunnel belt loop strip',
-        detail: `Cut the tunnel belt loop strip on the straight grain (one continuous piece, see the Tunnel Belt Loop piece for length). {press} the strip in thirds lengthwise so it finishes 1\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Tuck \u00bd\u2033 under at each short end and {topstitch} the ends closed so no raw edges show.`,
+        step: n++, title: 'Prep tunnel belt loop patches',
+        detail: 'Cut 5 wide tunnel patches (4\u2033 \u00d7 2\u00bc\u2033) and 2 narrow tunnel patches (2\u00bc\u2033 \u00d7 2\u00bc\u2033) on the straight grain. For each patch: {press} both long (vertical) edges under \u215c\u2033 toward the WS, then {topstitch} each folded edge at \u215b\u2033 in gold thread. Wide patches now finish ~3\u00bc\u2033 wide; narrow patches finish ~1\u00bd\u2033 wide. Top and bottom raw edges stay raw \u2014 they get caught by the waistband topstitching. The patch height (2\u00bc\u2033) is intentionally taller than the 1\u00bd\u2033 finished waistband so the patch bows out enough to clear a 1\u00bc\u2033 belt.',
       });
       steps.push({
-        step: n++, title: 'Apply tunnel loop to waistband',
-        detail: `Position the finished tunnel strip horizontally across the OUTSIDE (RS) of the waistband, centered top-to-bottom on the band, with one end at the CF buttonhole edge and the other end at the CF underlap. The strip should hug the waistband flat, no gathering. {topstitch} the strip down to the waistband at ${beltLoopCount} tack points spaced evenly around the waist (CB, both side seams, two on the back panel between CB and side seams, two on the front flanking the fly). At each tack: stitch a short vertical seam through both long edges of the strip and the waistband body; {bartack} both top and bottom of each tack for strength. The gaps between the tack points form the belt tunnels \u2014 a 1\u00bc\u2033 webbing or leather belt threads through them. Verify by sliding a belt through end-to-end before declaring done.`,
+        step: n++, title: 'Apply tunnel patches across waistband',
+        detail: 'Position each finished patch horizontally across the OUTSIDE (RS) of the waistband, centered top-to-bottom so the patch overhangs both the top and bottom edges of the band by ~\u215c\u2033. Wide patches go at: CB, midway across each back panel between CB and side seam, and one centered on each side seam (5 total). Narrow patches go over each front hip bone, flanking the fly (2 total). For each patch: pin in place, then {topstitch} the top raw edge of the patch directly along the existing waistband top topstitching line, catching the patch in the same row. {topstitch} the bottom raw edge along the waistband bottom topstitching line. The middle of the patch stays free \u2014 it bows out from the waistband to form the tunnel. {bartack} both ends of both top and bottom seams on each patch (8\u201310 zig-zag stitches at 0mm length) for the high-stress corners. Verify each tunnel accepts the belt by threading one through before declaring done.',
       });
     }
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at both ends of each front pocket opening (waist-seam end and side-seam end, marked on pattern) and at the sides of the coin pocket. Add one at the crotch seam junction if fabric is heavy.' });
