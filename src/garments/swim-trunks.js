@@ -378,6 +378,7 @@ export default {
       id: 'retro-short-trunks',
       name: 'Retro Short Trunks',
       defaults: { ease: 'slim', liner: 'brief', sideSplit: '1', backPocket: 'none' },
+      measurementDefaults: { inseam: 3 },
     },
   ],
 };
