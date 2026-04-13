@@ -391,6 +391,15 @@ export default {
 
     return steps;
   },
+
+  variants: [
+    {
+      id: 'hiking-shorts',
+      name: 'Hiking Shorts',
+      defaults: { ease: 'regular', frontPocket: 'slant', cargo: 'cargo', fly: 'drawstring', hem: '1' },
+      fabrics: ['ripstop-nylon', 'nylon-stretch'],
+    },
+  ],
 };
 
 
