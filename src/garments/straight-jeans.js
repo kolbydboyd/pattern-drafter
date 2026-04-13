@@ -202,8 +202,8 @@ export default {
       pieces.push(buildFoldOverScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel' }));
     }
     if (opts.frontPocket === 'square-scoop') {
-      pieces.push(buildSquareScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling' }));
-      pieces.push(buildFoldOverSquareScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel' }));
+      pieces.push(buildSquareScoopPocketBacking({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 4, bagDepth: 5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling' }));
+      pieces.push(buildFoldOverSquareScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 4, bagDepth: 10, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
@@ -469,7 +469,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const hasSquareScoop = !isBack && opts?.frontPocket === 'square-scoop';
   if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 6);
   if (hasScoop) clipPanelAtScoop(poly, sideWaistX, 3.5, 6);
-  if (hasSquareScoop) clipPanelAtSquareScoop(poly, sideWaistX, 3.5, 6);
+  if (hasSquareScoop) clipPanelAtSquareScoop(poly, sideWaistX, 3.5, 4);
 
   // SA offset — match edges by geometry (sanitizePoly changes vertex order/count)
   const sideIdx = hasSlash ? 2 : 1;

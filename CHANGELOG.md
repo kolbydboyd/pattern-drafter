@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.27] - 2026-04-13
+
+### Fixed
+- Square-scoop pocket opening depth: reduced `scoopDepth` from 6″ to 4″ on Straight Jeans (and Soloist Jeans via delegation). Previously the bottom of the L-shaped opening finished ~7.5″ below the top of the finished waistband (6″ panel + 1.5″ waistband), which is ~2″ too deep for comfortable hand insertion. New depth puts the bottom of the opening ~5.5″ below the finished waistband top, matching standard jeans/workwear hand-pocket geometry. Also tightened the square-scoop backing (`bagDepth` 7 → 5) and bag (`bagDepth` 11.5 → 10) proportionally so the pocket bag isn't disproportionately long for the shallower opening.
+
+---
+
 ## [0.12.26] - 2026-04-12
 
 ### Fixed
