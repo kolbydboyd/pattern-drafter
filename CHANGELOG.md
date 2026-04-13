@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.28] - 2026-04-13
+
+### Fixed
+- Yoke flat-fell instructions (Straight Jeans, Soloist Jeans via delegation): trimmed lower panel SA was reduced from ¼″ to 3/16″ to match the rest of the file's flat-fell convention (CB rise, outseam, inseam all use 3/16″). At ¼″ trim with a 5/8″ over-SA, the fold-over barely cleared the trimmed edge and the second topstitch row at ¼″ landed right on the fold edge. Also spelled out the previously-implicit "tuck raw edge under ¼″" step so home sewers don't end up with raw edges peeking out from under the topstitching.
+- Back rise + crotch seat instructions: split the old combined "Join back panels at CB" step into two distinct steps — "Flat-fell CB rise (straight portion only)" and "Double-stitch curved crotch seat". The combined step required sewing two separate 5/8″ seams under one step header, which read as though the user was being told to stitch the same seam twice. Split also lets the reader mark and sew the straight portion first (where flat-felling works) before re-opening and RST-joining the curve (where it doesn't). Clarified the ambiguous "1/2″ inside the first" reinforcement-row wording to "1/2″ from the raw edge (1/8″ outside the first row, closer to the raw edge)".
+
+---
+
 ## [0.12.27] - 2026-04-13
 
 ### Fixed
