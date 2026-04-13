@@ -284,7 +284,7 @@ export default {
       });
       steps.push({
         step: n++, title: 'Flat-fell CB rise (straight portion only)',
-        detail: 'Place both yoke+back assemblies WST (wrong sides together), aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. Open the fabric flat so both SAs stand up on the RS. Trim the right-back SA to 3/16\u2033. Fold the left-back SA over the trimmed edge, tucking the raw edge under \xbc\u2033, and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
+        detail: 'Place both yoke+back assemblies {RST}, aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. {press} both SAs to one side (toward the left back). Fell: trim the underneath (right-back) SA to 3/16\u2033, tuck the raw edge of the top (left-back) SA under \xbc\u2033, fold it over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
       });
       steps.push({
         step: n++, title: 'Double-stitch curved crotch seat',
@@ -293,7 +293,7 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Flat-fell CB rise (straight portion only)',
-        detail: 'Place both back panels WST, aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. Open the fabric flat \u2014 both SAs sit upright together on the RS. Trim the right-back SA to 3/16\u2033. Fold the left-back SA over the trimmed edge, tucking the raw edge under \xbc\u2033, and {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
+        detail: 'Place both back panels {RST}, aligning the CB rise edges from waist down to the point where the seat curve begins (mark this transition on both panels before sewing). Stitch only this straight portion at 5/8\u2033 from the edge \u2014 do NOT continue around the curve yet. {press} both SAs to one side (toward the left back). Fell: trim the underneath (right-back) SA to 3/16\u2033, tuck the raw edge of the top (left-back) SA under \xbc\u2033, fold it over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at \xbc\u2033 from the fold.',
       });
       steps.push({
         step: n++, title: 'Double-stitch curved crotch seat',

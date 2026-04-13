@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.29] - 2026-04-13
+
+### Changed
+- Unified flat-fell method across all seams in Straight Jeans / Soloist Jeans assembly instructions. CB rise flat-fell was previously a "true" flat-fell (sew WST, open flat, fold, topstitch) while outseams and inseams used the "felled seam" method (sew RST, press to one side, trim under-SA, fold over-SA, topstitch). Both methods produce an identical topstitched flat-fell visible on the RS, but the inconsistency forced the sewer to mentally switch between WST and RST mode partway through construction. CB rise is now RST + press-to-side + fell, matching the outseam and inseam convention. No finished-garment difference.
+
+---
+
 ## [0.12.28] - 2026-04-13
 
 ### Fixed
