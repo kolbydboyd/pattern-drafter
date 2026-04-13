@@ -385,6 +385,82 @@ export function polyToPath(poly) {
 }
 
 /**
+ * Rotate dart wedges closed on a yoke polygon. Each dart is treated as a
+ * wedge cut out of the waist (top) edge with apex at (dart.x, dart.length).
+ * The polygon section to the right of each dart rotates rigidly about the
+ * apex by the dart's subtended angle, "absorbing" the dart into the seams.
+ * After closure, the top edge is shorter (by the sum of dart intakes) and the
+ * side seam slants inward — the standard pattern-drafting move that turns a
+ * rectangular yoke into a curved/wedge shape.
+ *
+ * Expects yokePoly ordered clockwise starting at the CB waist (top-left).
+ * The top edge runs from poly[0] (CB waist) to poly[1] (side waist) at y≈0;
+ * the bottom edge (yoke seam) runs back to poly[0].
+ *
+ * @param {Array<{x:number, y:number}>} yokePoly  Pre-rotation yoke polygon
+ * @param {Array<{x:number, intake:number, length:number}>} darts  Dart definitions
+ * @returns {Array<{x:number, y:number}>}  Rotated polygon
+ */
+export function closeYokeDarts(yokePoly, darts) {
+  if (!darts || !darts.length) return yokePoly.map(p => ({ ...p }));
+  const valid = darts.filter(d => d && d.intake > 0 && d.length > 0);
+  if (!valid.length) return yokePoly.map(p => ({ ...p }));
+  const sorted = [...valid].sort((a, b) => a.x - b.x);
+
+  // Augment polygon: insert dart left/right leg vertices on the top edge
+  // between poly[0] (CB waist) and poly[1] (side waist).  Each remaining
+  // vertex is tagged with a panel index based on its original x position.
+  const pts = [];
+  pts.push({ ...yokePoly[0], _panel: 0 });
+  for (let i = 0; i < sorted.length; i++) {
+    const d = sorted[i];
+    const half = d.intake / 2;
+    pts.push({ x: d.x - half, y: 0, _panel: i });
+    pts.push({ x: d.x + half, y: 0, _panel: i + 1, _dartRight: true });
+  }
+  for (let i = 1; i < yokePoly.length; i++) {
+    const p = yokePoly[i];
+    let panel = 0;
+    for (const d of sorted) if (p.x > d.x) panel++;
+    pts.push({ ...p, _panel: panel });
+  }
+
+  // Right-to-left rotation pass: for each dart i, rotate all points whose
+  // panel index is > i about apex_i by the dart's subtended angle.
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const d = sorted[i];
+    const apex = { x: d.x, y: d.length };
+    const half = d.intake / 2;
+    // Angle that takes (+half, -length) onto (-half, -length)
+    const cross = -2 * half * d.length;
+    const dot   = d.length * d.length - half * half;
+    const angle = Math.atan2(cross, dot);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    for (const p of pts) {
+      if (p._panel > i) {
+        const dx = p.x - apex.x;
+        const dy = p.y - apex.y;
+        p.x = apex.x + dx * cos - dy * sin;
+        p.y = apex.y + dx * sin + dy * cos;
+      }
+    }
+  }
+
+  // Drop the right-leg duplicates (they coincide with their matching left
+  // leg after rotation) and strip internal markers.
+  const out = [];
+  for (const p of pts) {
+    if (p._dartRight) continue;
+    const clean = { ...p };
+    delete clean._panel;
+    delete clean._dartRight;
+    out.push(clean);
+  }
+  return out;
+}
+
+/**
  * Format a decimal inch value as a human-readable fraction string.
  * Fractions supported: ⅛, ¼, ⅜, ½, ⅝, ¾, ⅞ (tolerance ±0.06).
  * Negative values are treated as their absolute value.
