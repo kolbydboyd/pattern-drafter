@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.31] - 2026-04-13
+
+### Changed
+- **Wide-Leg Trouser (M)** (`wide-leg-trouser-m`): four improvements from tailoring research.
+  - **Belt loops added** (were entirely missing): structured waistband now generates a `belt-loop` rectangle piece (cut 5, self-fabric, 1½″ × 4″), a belt-loop notion, and a dedicated "Prepare and attach belt loops" instruction step covering fold/press/edge-stitch, placement (CF×2, side seam×2, CB×1), and top-stitch over WB.
+  - **Cuff construction fixed**: `hem` option changed from a numeric value (used only as SA inset) to named keys (`plain` / `cuff175` / `cuff200`). For turn-up cuffs, leg height `H` is extended by 2× finished cuff depth and the hem polygon inset is 0.5″ SA, producing the correct amount of fabric to fold back. Previous 2″ "wide cuff fold" option only provided 2″ of fabric — physically impossible to make a 2″ turn-up with. Added 1¾″ English cuff option.
+  - **Pleat depth** bumped 1.25″ → 1.5″ per pleat, matching `pleated-trousers.js` and research consensus that 1.25″ is skimpy.
+  - **Pleat direction option** (`pleatDir`): forward (opens toward CF, Italian, most slimming) or reverse (opens toward side seam, RTW standard). Defaults to forward. `showWhen` suppresses it when pleats are off. Instruction and step detail reflect the chosen direction.
+  - Zipper notion renamed from "Invisible zipper" to "Coil zipper" (fly zips are standard coil/metal, not invisible). Hook-and-eye renamed to "Trouser hook-and-bar".
+  - Seasonal fabric note added: linen 3–5 oz for summer, worsted wool 8–11 oz for winter, tropical wool/crepe 6–8 oz for formal, with 4 oz minimum weight advisory for wide-leg drape.
+
 ## [0.12.30] - 2026-04-13
 
 ### Added
