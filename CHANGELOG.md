@@ -4,14 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.31] - 2026-04-13
+## [0.12.32] - 2026-04-13
 
 ### Added
 - **Tunnel belt loop option** (Dickies-style) for Straight Jeans / Soloist Jeans (via delegation). New `beltLoopStyle` option with three values: `individual` (the classic 5/6/7 narrow loops, default and unchanged), `tunnel` (discrete wide patches tacked top-and-bottom across the waistband to form horizontal belt tunnels), and `none`. The tunnel build emits two pieces: `Tunnel Belt Loop (wide)` cuts 5 patches at 4″ × 2¼″ for CB / both back panels / both side seams; `Tunnel Belt Loop (narrow)` cuts 2 patches at 2¼″ × 2¼″ for the front hip bones flanking the fly. Each patch finishes ~1½″ tall (matching the waistband) and bows out to clear a 1¼″ belt. Instructions branch on style: individual is unchanged; tunnel runs a "Prep tunnel patches" step (press long edges under, topstitch) followed by "Apply tunnel patches across waistband" (tack top and bottom raw edges directly along the existing waistband topstitching lines, bartack the corners). Waistband instruction text also branches so the "loops sandwiched between waist and band" line only appears for individual loops.
 
 ---
 
-## [0.12.30] - 2026-04-13
+## [0.12.31] - 2026-04-13
 
 ### Fixed
 - **Back yoke now actually closes the back darts.** Straight Jeans / Soloist Jeans (via delegation): the previous yoke split sliced the rectangular top off the back panel without rotating the dart wedges shut, so the yoke top edge was as wide as `backHipW` instead of `backWaistW`. Every render with `yokeStyle: 'pointed'` or `'curved'` produced a back assembly the waistband couldn't attach to without ruching. Soloist Jeans defaults to `pointed`, so it hit this bug out of the box. Fixed by adding a new `closeYokeDarts` helper in `src/engine/geometry.js` that rotates each dart wedge closed about its apex (right-to-left rotation pass, panel-classified so the rotations compose order-independently), and rewriting `splitBackYoke` to consume `backPanel.darts` and rebuild the lower-panel top edge from the post-rotation seam line so the two pieces mate exactly.
@@ -28,6 +28,16 @@ All notable changes are documented here, newest first.
 ### Added
 - **Fly Extension piece** (`buildFlyExtension`) — the rectangular underlap behind the CF that carries the zipper tape was previously missing from the piece list even though the assembly steps referenced it. Now cut as `Cut 2 (left + right mirror) · Self fabric · Interface left · ¼″ SA · 1⅜″ × (flyLen + 1″)`.
 - **`closeYokeDarts(yokePoly, darts)` in `src/engine/geometry.js`** — rotates each dart wedge closed about its apex via a right-to-left rotation pass with panel classification, so two rotations about distinct points compose order-independently. Available for any future yoke-from-darted-panel construction.
+
+---
+
+## [0.12.30] - 2026-04-13
+
+### Added
+- **Scholar Sweatpants** (`scholar-sweatpants`): new lower-body garment modeled after the Alo Yoga Scholar Straight Leg Sweatpant. Thin wrapper over `sweatpants.js` with Scholar defaults (wide ease, straight leg, mid rise, deeper back crotch extension at 3.25″) plus signature welt-zip side pockets. Adds `welt-strip` and `welt-pocket-bag` pieces, a coil pocket zipper notion (2 × 6″), light fusible interfacing, and four dedicated construction steps (mark opening, attach welt and cut, install zipper, attach bags) inserted before the side seam step. Base slash/slant/side pockets are suppressed so the Scholar welt-zip is the only pocket construction.
+- **Scholar Hoodie** (`scholar-hoodie`): new upper-body garment modeled after the Alo Scholar Hooded Sweater. Reimplements the bodice and sleeve with dropped-shoulder geometry — shoulder point extended laterally by the new `shoulderDrop` option (default 2.5″, range 1–4″), slope flattened to near-zero, armhole lowered by the drop amount, and a shallow sleeve cap at 0.35× armhole depth to match the relaxed drop. Delegates hood, kangaroo pocket, and rib cuff construction to `hoodie.js` (forced to `fit: 'oversized'` and `frontStyle: 'pullover'`) so the hood curve math and pocket geometry stay in one place. Custom 4″-cut / 2″-finished rib hem at 90% of body hem for the taller Scholar rib. New "Set sleeves (dropped-shoulder note)" step inserted before the standard set-sleeves step. Appended fabric notes recommend heavyweight sweater-knit cotton (or heavy jersey/interlock) as the correct hand.
+- SVG catalog-card illustrations for `scholar-sweatpants`, `scholar-hoodie`, and `soloist-jeans` (the Soloist card was previously missing an illustration and had been falling through to a placeholder). Scholar pant illustration calls out the welt-zip side pockets and external drawcord grommets. Scholar hoodie illustration shows the dropped-shoulder seam, taller rib hem, and two-panel hood. Soloist illustration shows the square-scoop front pocket opening and a hinted pointed back yoke.
+- SEO description entry for `soloist-jeans` in `seo-descriptions.js` (previously missing, triggering a build warning). The new entry covers the square-scoop pocket opening and denim weight recommendation. Build is now warning-free for SEO and catalog illustrations across all 97 garments.
 
 ---
 
