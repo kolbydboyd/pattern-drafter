@@ -85,6 +85,22 @@ const SEO_DESCRIPTIONS = {
       { q: 'What makes a camp collar different from a regular collar?', a: 'A camp collar (also called a revere collar) lays flat and open, with no stand or band. It creates a relaxed, notched-lapel look.' },
     ],
   },
+  'fitted-camp-shirt': {
+    metaDescription: 'Draft a custom-fit fitted camp shirt sewing pattern from your measurements. Tapered waist, camp collar, short sleeves. Tiled PDF with construction instructions.',
+    pageIntro: 'A fitted camp collar shirt drafted to your chest, shoulder, and torso measurements. Waist suppression tapers the side seams for a sharp silhouette without sacrificing the relaxed camp collar look.',
+    faq: [
+      { q: 'How fitted is the fitted camp shirt?', a: 'The pattern adds 2 inches of ease to your chest measurement and tapers the side seams inward at the natural waist for a clean, athletic silhouette.' },
+      { q: 'What fabric works best for a fitted camp shirt?', a: 'Lightweight linen, cotton lawn, or chambray. The crisp hand of linen holds the tapered shape well.' },
+    ],
+  },
+  'fitted-linen-camp': {
+    metaDescription: 'Draft a custom-fit fitted linen camp shirt sewing pattern. Long sleeve, camp collar, tapered waist. Tiled PDF with construction instructions.',
+    pageIntro: 'A long-sleeve fitted camp shirt drafted to your measurements. The camp collar, tapered side seams, and linen fabric combine a relaxed aesthetic with a sharp, athletic fit.',
+    faq: [
+      { q: 'Can I roll the sleeves on a long-sleeve camp shirt?', a: 'Yes. Roll the sleeve to just below the elbow and secure with a button tab if desired, or simply fold and press.' },
+      { q: 'What fabric works for a long-sleeve fitted camp shirt?', a: 'Medium-weight linen is ideal. It drapes well, presses crisply, and softens beautifully with wear.' },
+    ],
+  },
   'crewneck': {
     metaDescription: 'Generate a custom-fit crewneck sweatshirt sewing pattern from your measurements. Ribbed cuffs and hem, set-in sleeves, and relaxed fit. Tiled PDF pattern.',
     pageIntro: 'A classic crewneck sweatshirt drafted to your chest, shoulder, and sleeve measurements. Ribbed cuffs, collar, and hem band for a clean, comfortable finish.',
