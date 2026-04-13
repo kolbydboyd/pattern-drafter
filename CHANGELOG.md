@@ -4,14 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.32] - 2026-04-13
+## [0.12.33] - 2026-04-13
 
 ### Added
 - **Tunnel belt loop option** (Dickies-style) for Straight Jeans / Soloist Jeans (via delegation). New `beltLoopStyle` option with three values: `individual` (the classic 5/6/7 narrow loops, default and unchanged), `tunnel` (discrete wide patches tacked top-and-bottom across the waistband to form horizontal belt tunnels), and `none`. The tunnel build emits two pieces: `Tunnel Belt Loop (wide)` cuts 5 patches at 4″ × 2¼″ for CB / both back panels / both side seams; `Tunnel Belt Loop (narrow)` cuts 2 patches at 2¼″ × 2¼″ for the front hip bones flanking the fly. Each patch finishes ~1½″ tall (matching the waistband) and bows out to clear a 1¼″ belt. Instructions branch on style: individual is unchanged; tunnel runs a "Prep tunnel patches" step (press long edges under, topstitch) followed by "Apply tunnel patches across waistband" (tack top and bottom raw edges directly along the existing waistband topstitching lines, bartack the corners). Waistband instruction text also branches so the "loops sandwiched between waist and band" line only appears for individual loops.
 
 ---
 
-## [0.12.31] - 2026-04-13
+## [0.12.32] - 2026-04-13
 
 ### Fixed
 - **Back yoke now actually closes the back darts.** Straight Jeans / Soloist Jeans (via delegation): the previous yoke split sliced the rectangular top off the back panel without rotating the dart wedges shut, so the yoke top edge was as wide as `backHipW` instead of `backWaistW`. Every render with `yokeStyle: 'pointed'` or `'curved'` produced a back assembly the waistband couldn't attach to without ruching. Soloist Jeans defaults to `pointed`, so it hit this bug out of the box. Fixed by adding a new `closeYokeDarts` helper in `src/engine/geometry.js` that rotates each dart wedge closed about its apex (right-to-left rotation pass, panel-classified so the rotations compose order-independently), and rewriting `splitBackYoke` to consume `backPanel.darts` and rebuild the lower-panel top edge from the post-rotation seam line so the two pieces mate exactly.
@@ -28,6 +28,19 @@ All notable changes are documented here, newest first.
 ### Added
 - **Fly Extension piece** (`buildFlyExtension`) — the rectangular underlap behind the CF that carries the zipper tape was previously missing from the piece list even though the assembly steps referenced it. Now cut as `Cut 2 (left + right mirror) · Self fabric · Interface left · ¼″ SA · 1⅜″ × (flyLen + 1″)`.
 - **`closeYokeDarts(yokePoly, darts)` in `src/engine/geometry.js`** — rotates each dart wedge closed about its apex via a right-to-left rotation pass with panel classification, so two rotations about distinct points compose order-independently. Available for any future yoke-from-darted-panel construction.
+
+---
+
+## [0.12.31] - 2026-04-13
+
+### Changed
+- **Wide-Leg Trouser (M)** (`wide-leg-trouser-m`): four improvements from tailoring research.
+  - **Belt loops added** (were entirely missing): structured waistband now generates a `belt-loop` rectangle piece (cut 5, self-fabric, 1½″ × 4″), a belt-loop notion, and a dedicated "Prepare and attach belt loops" instruction step covering fold/press/edge-stitch, placement (CF×2, side seam×2, CB×1), and top-stitch over WB.
+  - **Cuff construction fixed**: `hem` option changed from a numeric value (used only as SA inset) to named keys (`plain` / `cuff175` / `cuff200`). For turn-up cuffs, leg height `H` is extended by 2× finished cuff depth and the hem polygon inset is 0.5″ SA, producing the correct amount of fabric to fold back. Previous 2″ "wide cuff fold" option only provided 2″ of fabric — physically impossible to make a 2″ turn-up with. Added 1¾″ English cuff option.
+  - **Pleat depth** bumped 1.25″ → 1.5″ per pleat, matching `pleated-trousers.js` and research consensus that 1.25″ is skimpy.
+  - **Pleat direction option** (`pleatDir`): forward (opens toward CF, Italian, most slimming) or reverse (opens toward side seam, RTW standard). Defaults to forward. `showWhen` suppresses it when pleats are off. Instruction and step detail reflect the chosen direction.
+  - Zipper notion renamed from "Invisible zipper" to "Coil zipper" (fly zips are standard coil/metal, not invisible). Hook-and-eye renamed to "Trouser hook-and-bar".
+  - Seasonal fabric note added: linen 3–5 oz for summer, worsted wool 8–11 oz for winter, tropical wool/crepe 6–8 oz for formal, with 4 oz minimum weight advisory for wide-leg drape.
 
 ---
 
