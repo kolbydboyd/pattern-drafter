@@ -173,7 +173,7 @@ export default {
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) \xb7 Right front only \xb7 {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
@@ -222,7 +222,7 @@ export default {
     steps.push({ step: n++, title: 'Attach pocket to front panel',
       detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     steps.push({ step: n++, title: 'Prepare coin pocket',
-      detail: 'Construct coin pocket: sew outer to lining {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} coin pocket to panel edges.' });
+      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} the bottom corner curves so they lie flat. Remove template. Position on the RS of the right front panel in the upper right corner of the pocket opening. {topstitch} sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
       detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',

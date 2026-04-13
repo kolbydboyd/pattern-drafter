@@ -4,6 +4,36 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.29] - 2026-04-13
+
+### Changed
+- Unified flat-fell method across all seams in Straight Jeans / Soloist Jeans assembly instructions. CB rise flat-fell was previously a "true" flat-fell (sew WST, open flat, fold, topstitch) while outseams and inseams used the "felled seam" method (sew RST, press to one side, trim under-SA, fold over-SA, topstitch). Both methods produce an identical topstitched flat-fell visible on the RS, but the inconsistency forced the sewer to mentally switch between WST and RST mode partway through construction. CB rise is now RST + press-to-side + fell, matching the outseam and inseam convention. No finished-garment difference.
+
+---
+
+## [0.12.28] - 2026-04-13
+
+### Fixed
+- Yoke flat-fell instructions (Straight Jeans, Soloist Jeans via delegation): trimmed lower panel SA was reduced from ¼″ to 3/16″ to match the rest of the file's flat-fell convention (CB rise, outseam, inseam all use 3/16″). At ¼″ trim with a 5/8″ over-SA, the fold-over barely cleared the trimmed edge and the second topstitch row at ¼″ landed right on the fold edge. Also spelled out the previously-implicit "tuck raw edge under ¼″" step so home sewers don't end up with raw edges peeking out from under the topstitching.
+- Back rise + crotch seat instructions: split the old combined "Join back panels at CB" step into two distinct steps — "Flat-fell CB rise (straight portion only)" and "Double-stitch curved crotch seat". The combined step required sewing two separate 5/8″ seams under one step header, which read as though the user was being told to stitch the same seam twice. Split also lets the reader mark and sew the straight portion first (where flat-felling works) before re-opening and RST-joining the curve (where it doesn't). Clarified the ambiguous "1/2″ inside the first" reinforcement-row wording to "1/2″ from the raw edge (1/8″ outside the first row, closer to the raw edge)".
+
+---
+
+## [0.12.27] - 2026-04-13
+
+### Fixed
+- Square-scoop pocket opening depth: reduced `scoopDepth` from 6″ to 4″ on Straight Jeans (and Soloist Jeans via delegation). Previously the bottom of the L-shaped opening finished ~7.5″ below the top of the finished waistband (6″ panel + 1.5″ waistband), which is ~2″ too deep for comfortable hand insertion. New depth puts the bottom of the opening ~5.5″ below the finished waistband top, matching standard jeans/workwear hand-pocket geometry. Also tightened the square-scoop backing (`bagDepth` 7 → 5) and bag (`bagDepth` 11.5 → 10) proportionally so the pocket bag isn't disproportionately long for the shallower opening.
+
+---
+
+## [0.12.26] - 2026-04-12
+
+### Fixed
+- Coin pocket construction: removed the spurious "outer + lining" 2-layer construction on Straight Jeans, Soloist Jeans (via delegation), Baggy Jeans, Baggy Shorts, and Cargo Work Pants. The coin pocket is now cut as a single layer with ⅜″ SA on sides/bottom and ½″ SA on top for a double-fold hem, then pressed under with a cardboard template and topstitched directly onto the pocket backing. This matches traditional Levi's-style construction and the existing back patch pocket build in `straight-jeans.js`. Two layers of denim added unnecessary bulk and wasted fabric.
+- Straight Jeans coin pocket piece: corrected a typo in the SA annotation (`⅞″` → `⅜″`, matching the actual `sa: 0.375` value).
+
+---
+
 ## [0.12.25] - 2026-04-11
 
 ### Fixed

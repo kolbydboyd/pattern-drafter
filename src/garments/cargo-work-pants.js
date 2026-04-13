@@ -207,7 +207,7 @@ export default {
     if (opts.frontPocket === 'slant') {
       pieces.push(buildSlantPocketBacking({ bagWidth: 8, slashInset: 4, slashDepth: 7, bagDepth: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric \xb7 Deep crossover opening \xb7 Visible pocket front' }));
       pieces.push(buildSlantPocketBag({ bagWidth: 8, slashInset: 4, slashDepth: 7, bagDepth: 10.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Deep pocket for crossover access \xb7 Pocket back (against body)' }));
-      pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 2 (outer + lining) · Right front only · Inside slant pocket', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
+      pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 · Right front only · Inside slant pocket · ⅜″ SA sides/bottom, ½″ SA top (double-fold hem) · {press} under using cardboard template', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
       pieces.push({ id: 'zip-pocket', name: 'Zip Security Pocket', instruction: 'Cut 2 (outer + lining) · Left front only · Inside slant pocket · Install 4″ zip', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
