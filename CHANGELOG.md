@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.43] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — pocket-mouth finish**: the side-seam pocket opening produced clean construction but didn't include the press / topstitch / bar-tack sequence needed for an RTW-quality finish. Updated three instruction strings: "Prepare pocket bags" now adds a press-under of the serged mouth edges ⅜″ to the wrong side; "Sew side seams" now adds a press-open of the closed seam, ⅛″ topstitch (stretch / narrow zigzag) along the full 4″ mouth on both front and back panels, and ties the bar tacks to the topstitch endpoints catching all layers (front + bag at top, both panels + bag tail at bottom); pocket bag piece label updated to mention the topstitch + bar tack finish so it's visible from the piece view alone. No geometry change.
+
+---
+
 ## [0.12.42] - 2026-04-14
 
 ### Fixed

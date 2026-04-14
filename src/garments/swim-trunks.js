@@ -311,11 +311,13 @@ export default {
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
       if (isRetro) {
-        // Retro: anchored folded pocket — dimensions derived from front panel geometry.
+        // Retro: anchored folded pocket — depth scales with the front panel.
         // Outer edge = front panel side seam. Top = waistband seam line. Bottom = hem fold line.
-        // Fold line is a straight vertical edge at the inner (crotch-facing) side of the bag.
-        // Piece is ONE layer; fold in half along the fold edge before sewing → full-width pocket.
-        const bagDepth = frontW + frontExt; // matches front panel hem width
+        // Fold line is a straight vertical edge ~7" from the side seam toward the crotch.
+        // Scales with body size: 80% of front panel waist width, clamped to [6.5", 9"]
+        // so the pocket always fits a hand and never exceeds the front panel.
+        // Piece is ONE layer; fold in half along the fold edge before sewing.
+        const bagDepth = Math.max(6.5, Math.min(9, frontW * 0.8));
         const bagH     = rise + inseam;     // full garment height: waistband to hem
         const pocketMouth = 4.0;            // pocket mouth opening: 4" from waistband down the side seam
 
@@ -336,7 +338,7 @@ export default {
         pieces.push({
           id: 'pocket-bag',
           name: 'Side-Seam Pocket Bag',
-          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Top caught in waistband seam · Outer edge into side seam — leave top ${fmtInches(pocketMouth)} OPEN (pocket mouth), sew closed below · Bottom caught in hem fold — bag cannot dangle`,
+          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Top caught in waistband seam · Outer edge into side seam — leave top ${fmtInches(pocketMouth)} OPEN (pocket mouth), {topstitch} ⅛″ along mouth edges and bar tack the corners · Sew closed below mouth · Bottom caught in hem fold — bag cannot dangle`,
           polygon: bagPoly, saPolygon: bagSaPoly,
           path: polyToPath(bagPoly), saPath: polyToPath(bagSaPoly),
           dims: [
@@ -449,7 +451,7 @@ export default {
       steps.push({
         step: n++, title: 'Prepare pocket bags',
         detail: isRetro
-          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge goes toward the crotch. Baste the top of each folded bag to the waistband seam line on the front panel. Baste the outer (side seam) edge of the bag to the front panel side seam edge. Baste the bottom to the front panel hem fold line. Bag is now secured to the front panel on three sides with the fold facing inward. Before assembling side seams: {serge} or {zigzag} the raw edge of each front panel and each back panel separately along the 4″ pocket mouth zone at the top of the side seam. These finished edges will remain exposed as the pocket mouth opening.'
+          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge goes toward the crotch. Baste the top of each folded bag to the waistband seam line on the front panel. Baste the outer (side seam) edge of the bag to the front panel side seam edge. Baste the bottom to the front panel hem fold line. Bag is now secured to the front panel on three sides with the fold facing inward. Before assembling side seams: {serge} or {zigzag} the raw edge of each front panel and each back panel separately along the 4″ pocket mouth zone at the top of the side seam. {press} each finished edge ⅜″ toward the wrong side so the mouth edges sit flat — these pressed edges become the visible pocket opening.'
           : '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
       });
     }
@@ -461,7 +463,7 @@ export default {
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
         ? (isRetro
-            ? `Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew the middle of the seam closed all the way to the hem, catching the bag outer edge in the seam.${slitNote} {press} open. Bar tack at the top and bottom of each pocket mouth opening: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam at each transition point. This prevents the pocket mouth from extending under stress.`
+            ? `Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew the middle of the seam closed all the way to the hem, catching the bag outer edge in the seam.${slitNote} {press} the closed portion of the seam open. {topstitch} ⅛″ from the pressed mouth edge on both the front and back panel — the full 4″ length on each side — using a stretch stitch or narrow {zigzag} (2.0mm width, 2.5mm length) so the line survives the fabric's stretch. Bar tack at the top and bottom of each pocket mouth opening, exactly where the topstitch meets the side seam: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam, catching all layers (front panel + bag at top, both panels + bag tail at bottom). This anchors the corners against tearing and locks the topstitch endpoints.`
             : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open.`)
         : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open.`,
     });
