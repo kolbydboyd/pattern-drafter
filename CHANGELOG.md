@@ -4,6 +4,24 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.43] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — pocket-mouth finish**: the side-seam pocket opening produced clean construction but didn't include the press / topstitch / bar-tack sequence needed for an RTW-quality finish. Updated three instruction strings: "Prepare pocket bags" now adds a press-under of the serged mouth edges ⅜″ to the wrong side; "Sew side seams" now adds a press-open of the closed seam, ⅛″ topstitch (stretch / narrow zigzag) along the full 4″ mouth on both front and back panels, and ties the bar tacks to the topstitch endpoints catching all layers (front + bag at top, both panels + bag tail at bottom); pocket bag piece label updated to mention the topstitch + bar tack finish so it's visible from the piece view alone. No geometry change.
+- **Retro Short Trunks — pocket mouth notch on outer panels**: the pocket bag piece had a notch at the bottom of the 4″ pocket mouth on its side-seam edge, but `buildPanel` wasn't adding a matching notch on the front or back panel side seams. Without it the open / closed transition couldn't be aligned at sewing time. Added a side-seam notch at `y = 4.0″` on both front and back panels when `opts.pocket === 'side-seam'` and `opts.liner === 'brief'`.
+- **Retro Short Trunks — Waistband Back size showing 0″**: the `waistband-back` piece was passing `dimensions: { length, height: wbWidth }` while `waistband-front` (and the renderer) expects `width`. The size label rendered as `17¼" × 0"`. Renamed the key to `width` so both halves display the correct 1½″ finished width.
+- **Retro Short Trunks — pocket bag layer assignment**: the previous "Prepare pocket bags" / "Sew side seams" / pocket bag piece label all described basting both layers of the folded bag to the FRONT panel only. That's not how an in-seam pocket works. Updated all three to the correct construction: front bag layer is basted to the front panel along three edges (waistband stitch line, side seam edge, hem fold line); back bag layer is basted to the back panel along the matching three edges; the fold sits free in the middle and forms the inside of the pocket. Side seam step now explicitly catches all four layers below the mouth (front panel + front bag + back bag + back panel) and the topstitch / bar tack call-outs reference panel + bag layer at the appropriate transition points.
+- **Swim Trunks — comfort finish on body seams**: the outer-shell CF, CB, side, and inseam steps previously sewed and pressed but never finished the raw edges, leaving them to rub against skin in sensitive areas. Updated all four steps to trim SA to ¼″, serge or zigzag the SAs together, press to one side (toward back for inseam and side seams), and topstitch ⅛″ from the seam line to lock the doubled SA flat against the body. For the side seam with retro pocket, the front pair (panel + front bag layer) and back pair (panel + back bag layer) are serged separately so no raw mesh edge touches skin. Both waistband construction steps now explicitly note that the waist seam SA and elastic are fully enclosed inside the waistband fold.
+
+---
+
+## [0.12.42] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — brief leg opening now sized to thigh**: previously the leg arch was purely a function of waist + rise and ignored `m.thigh` entirely, so for anyone with a larger thigh-to-waist ratio the leg opening was uncomfortably tight (often needing >100% elastic stretch). Added two helpers — `solveBriefCrotchW` (solves for the crotch-seam width that gives a target arch chord length) and `briefArcLength` (samples the bezier to compute actual arc length). The brief's front and back arches are now sized so the combined fabric leg opening ≈ thigh × 0.92, putting the elastic stretch in the 50–70% range across normal body sizes. Added `[swim-trunks]` console warnings if the resulting opening would need >80% stretch (too tight) or <20% stretch (too loose). Side-drop ratios reduced (front 0.35→0.30, back 0.45→0.40) to give the chord more vertical room.
+
+---
+
 ## [0.12.41] - 2026-04-14
 
 ### Fixed

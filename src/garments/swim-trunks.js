@@ -170,14 +170,23 @@ export default {
       // Brief-cut liner: 2 pattern pieces (4 cuts total — front×2, back×2).
       // Seams: CF (joins front halves), CB (joins back halves), crotch (front to back).
       // Leg opening is a shaped arch — elastic applied to that edge.
-      // Sized to waist (body-fit), not to hip-based outer panels.
+      // Panel WIDTH is sized to waist (body-fit). Leg arch length is sized to THIGH
+      // (so the gathered leg opening fits the wearer's thigh after elastic application).
       const waist    = m.waist || (m.hip * 0.84);
+      const thigh    = m.thigh || (m.hip * 0.59); // typical thigh ≈ 59% of hip
+
+      // Target leg opening: each leg has 2 arches (one front, one back) joined into a circle.
+      // Fabric arc per leg ≈ thigh * 0.92, leaving ~8% for elastic gather + stretch.
+      // Split slightly favoring the back (52%) since the back has more vertical room.
+      const targetLegArc   = thigh * 0.92;
+      const targetFrontArc = targetLegArc * 0.48;
+      const targetBackArc  = targetLegArc * 0.52;
 
       // Front panel (one half — cut 2, mirror L & R)
       const bfW       = waist / 4 + 0.75;            // quarter-front + ease
       const bfH       = rise  * 0.58;                // height: waist to crotch
-      const bfSide    = bfH  * 0.35;                 // side edge extends down before leg arch starts
-      const bfCrotch  = bfW  * 0.30;                 // narrow crotch seam (front)
+      const bfSide    = bfH  * 0.30;                 // side edge extends down before leg arch starts
+      const bfCrotch  = solveBriefCrotchW(bfW, bfH, bfSide, targetFrontArc);
       const bfSag     = (bfW - bfCrotch) * 0.35;     // leg arch inward sweep
       const bfPoly    = buildBriefPanel({ panelW: bfW, height: bfH, sideDrop: bfSide, crotchW: bfCrotch, archSag: bfSag, cbRaise: 0 });
       const bfSaPoly  = offsetPolygon(bfPoly, () => -0.375);
@@ -209,8 +218,8 @@ export default {
       const bbW       = waist / 4 + 1.25;            // wider for seat coverage
       const bbH       = rise  * 0.75;                // taller for full seat
       const bbRaise   = 0.75;                        // CB raised above outer waist (seat shaping)
-      const bbSide    = bbH  * 0.45;                 // taller side edge for seat coverage
-      const bbCrotch  = bbW  * 0.45;                 // wider crotch (seat)
+      const bbSide    = bbH  * 0.40;                 // taller side edge for seat coverage
+      const bbCrotch  = solveBriefCrotchW(bbW, bbH, bbSide, targetBackArc, 1.5);
       const bbSag     = (bbW - bbCrotch) * 0.25;     // shallower sweep than front
       const bbPoly    = buildBriefPanel({ panelW: bbW, height: bbH, sideDrop: bbSide, crotchW: bbCrotch, archSag: bbSag, cbRaise: bbRaise });
       const bbSaPoly  = offsetPolygon(bbPoly, () => -0.375);
@@ -237,6 +246,20 @@ export default {
         type: 'bodice', isCutOnFold: false, width: bbW, height: bbH, sa: 0.375, hem: 0,
       });
 
+      // Thigh-fit sanity check: combined fabric leg arc should accommodate thigh after
+      // elastic gather (~75% of arc) and reasonable stretch (~50% of elastic length).
+      if (m.thigh) {
+        const frontArcLen = briefArcLength(bfW, bfH, bfSide, bfCrotch, bfSag);
+        const backArcLen  = briefArcLength(bbW, bbH, bbSide, bbCrotch, bbSag);
+        const legArc      = frontArcLen + backArcLen;
+        const elasticLen  = legArc * 0.75;
+        const stretchPct  = (m.thigh / elasticLen - 1) * 100;
+        if (stretchPct > 80) {
+          console.warn(`[swim-trunks] Brief leg opening tight: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → needs ${stretchPct.toFixed(0)}% elastic stretch (>80% is uncomfortable).`);
+        } else if (stretchPct < 20) {
+          console.warn(`[swim-trunks] Brief leg opening loose: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → only ${stretchPct.toFixed(0)}% stretch (may sag).`);
+        }
+      }
     }
 
     // ── WAISTBAND ──
@@ -268,7 +291,7 @@ export default {
         id: 'waistband-back',
         name: 'Waistband Back',
         instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing · Cut ¾″ elastic to ${elasticLen}″ (casing length × 0.88) · Stitch one elastic end into each short end before folding — elastic is caught at side seams, no threading gap needed`,
-        dimensions: { length: wbBackLen, height: wbWidth },
+        dimensions: { length: wbBackLen, width: wbWidth },
         type: 'pocket', sa,
         marks: [
           { type: 'fold', axis: 'v', position: wbBackLen / 2, label: 'CB — center reference' },
@@ -288,11 +311,13 @@ export default {
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
       if (isRetro) {
-        // Retro: anchored folded pocket — dimensions derived from front panel geometry.
+        // Retro: anchored folded pocket — depth scales with the front panel.
         // Outer edge = front panel side seam. Top = waistband seam line. Bottom = hem fold line.
-        // Fold line is a straight vertical edge at the inner (crotch-facing) side of the bag.
-        // Piece is ONE layer; fold in half along the fold edge before sewing → full-width pocket.
-        const bagDepth = frontW + frontExt; // matches front panel hem width
+        // Fold line is a straight vertical edge ~7" from the side seam toward the crotch.
+        // Scales with body size: 80% of front panel waist width, clamped to [6.5", 9"]
+        // so the pocket always fits a hand and never exceeds the front panel.
+        // Piece is ONE layer; fold in half along the fold edge before sewing.
+        const bagDepth = Math.max(6.5, Math.min(9, frontW * 0.8));
         const bagH     = rise + inseam;     // full garment height: waistband to hem
         const pocketMouth = 4.0;            // pocket mouth opening: 4" from waistband down the side seam
 
@@ -313,7 +338,7 @@ export default {
         pieces.push({
           id: 'pocket-bag',
           name: 'Side-Seam Pocket Bag',
-          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Top caught in waistband seam · Outer edge into side seam — leave top ${fmtInches(pocketMouth)} OPEN (pocket mouth), sew closed below · Bottom caught in hem fold — bag cannot dangle`,
+          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Front layer caught in front panel (waistband, side seam below mouth, hem) · Back layer caught in back panel (matching three edges) · Fold edge free at center — forms inside of pocket · Top ${fmtInches(pocketMouth)} at side seam = pocket mouth: {topstitch} ⅛″ along mouth edges, bar tack corners · Bag cannot dangle`,
           polygon: bagPoly, saPolygon: bagSaPoly,
           path: polyToPath(bagPoly), saPath: polyToPath(bagSaPoly),
           dims: [
@@ -426,21 +451,21 @@ export default {
       steps.push({
         step: n++, title: 'Prepare pocket bags',
         detail: isRetro
-          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge goes toward the crotch. Baste the top of each folded bag to the waistband seam line on the front panel. Baste the outer (side seam) edge of the bag to the front panel side seam edge. Baste the bottom to the front panel hem fold line. Bag is now secured to the front panel on three sides with the fold facing inward. Before assembling side seams: {serge} or {zigzag} the raw edge of each front panel and each back panel separately along the 4″ pocket mouth zone at the top of the side seam. These finished edges will remain exposed as the pocket mouth opening.'
+          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge faces the crotch. Lay one folded bag against each side of the garment so it spans the side seam, with the front layer behind the front panel and the back layer behind the back panel. Baste the FRONT bag layer to the FRONT panel along three edges: top to waistband stitch line, outer (side seam) edge to front side seam edge, bottom to front hem fold line. Baste the BACK bag layer to the BACK panel along the matching three edges. The fold edge is free in the middle — it becomes the inside of the pocket. Before assembling side seams: {serge} or {zigzag} the raw edge of each front panel and each back panel separately along the 4″ pocket mouth zone at the top of the side seam — include the bag layer in this finished edge. {press} each finished edge ⅜″ toward the wrong side so the mouth edges sit flat — these pressed edges become the visible pocket opening.'
           : '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. {clip} curve every ½″. {press}.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST} with stretch stitch. {clip} curve every ½″. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side with a stretch stitch — this locks the doubled SA flat so it cannot rub against the body in the most sensitive area.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST} with stretch stitch. {clip}. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side, stretch stitch — locks the SA flat for comfort and adds visible reinforcement.' });
     const slitNote = opts.sideSplit === '1' ? ' Stop sewing 1″ before the hem at the bottom of each side seam — leave this last 1″ OPEN (this is the side slit).' : '';
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
         ? (isRetro
-            ? `Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew the middle of the seam closed all the way to the hem, catching the bag outer edge in the seam.${slitNote} {press} open. Bar tack at the top and bottom of each pocket mouth opening: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam at each transition point. This prevents the pocket mouth from extending under stress.`
-            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open.`)
-        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open.`,
+            ? `Sew front to back at each side seam {RST}. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth; each panel still carries its own bag layer at the mouth). Then sew the middle of the seam closed all the way to the hem, catching all four layers in the seam: front panel + front bag layer + back bag layer + back panel.${slitNote} {press} the closed portion of the seam open. {serge} or {zigzag} the front pair (front panel SA + front bag SA) and the back pair (back panel SA + back bag SA) separately as two clean finished edges — no raw edges sit against skin. {topstitch} ⅛″ from the pressed mouth edge on both the front and back panel — the full 4″ length on each side — using a stretch stitch or narrow {zigzag} (2.0mm width, 2.5mm length) so the line survives the fabric's stretch; this catches the bag layer to its panel along the visible mouth edge and continues the comfort finish into the closed zone. Bar tack at the top and bottom of each pocket mouth opening, exactly where the topstitch meets the side seam: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam, catching panel + bag layer at the top and all four layers at the bottom. This anchors the corners against tearing and locks the topstitch endpoints.`
+            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open. {serge} or {zigzag} the front and back SAs separately for a clean finish against the body.`)
+        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open. {serge} or {zigzag} the front and back SAs separately for a clean, comfortable finish against the body.`,
     });
 
     if (opts.sideSplit === '1') {
@@ -450,7 +475,7 @@ export default {
       });
     }
 
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through the crotch. {clip} curve. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA toward the back. {topstitch} ⅛″ from the seam line on the back side with a stretch stitch — locks the doubled SA flat against the back leg so it does not chafe during walking, wading, or swimming.' });
 
     // Waistband
     if (isRetro) {
@@ -460,11 +485,11 @@ export default {
       });
       steps.push({
         step: n++, title: 'Construct front waistband',
-        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
       });
       steps.push({
         step: n++, title: 'Construct back waistband',
-        detail: `Cut ¾″ elastic to the length marked on the pattern piece (back casing length × 0.88). Lay elastic along the inside of the unfolded waistband piece. Align one elastic end with each short end of the waistband, within the seam allowance. {zigzag} each elastic end in place at the short ends — the elastic will be automatically caught in the side seam joins. Fold waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew, stretching elastic gently to fit. Fold over to inside and {topstitch} top and bottom edges all the way across — no threading gap needed.`,
+        detail: `Cut ¾″ elastic to the length marked on the pattern piece (back casing length × 0.88). Lay elastic along the inside of the unfolded waistband piece. Align one elastic end with each short end of the waistband, within the seam allowance. {zigzag} each elastic end in place at the short ends — the elastic will be automatically caught in the side seam joins. Fold waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew, stretching elastic gently to fit. Fold over to inside and {topstitch} top and bottom edges all the way across — no threading gap needed. The waist seam SA and the elastic are both enclosed inside the waistband fold, so nothing rough touches the body.`,
       });
       steps.push({
         step: n++, title: 'Join waistband halves',
@@ -477,7 +502,7 @@ export default {
       });
       steps.push({
         step: n++, title: 'Attach waistband',
-        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
       });
     }
 
@@ -542,6 +567,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
     ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
     ...(splitIn > 0 ? [{ x: width, y: height - splitIn, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),  // slit top
+    // Pocket mouth notch (retro side-seam pocket only): marks bottom of the 4" pocket
+    // mouth opening on both front and back side seams. Aligns with the matching notch
+    // on the pocket bag piece so the open/closed transition matches when sewing.
+    ...(opts.pocket === 'side-seam' && opts.liner === 'brief'
+      ? [{ x: width, y: 4.0, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }]
+      : []),
   ];
 
   return {
@@ -576,6 +607,38 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 //   4. Crotch seam → short horizontal segment joining front to back (no gusset)
 //   5. CF/CB seam  → vertical, joins the two halves of front (or back)
 //                    CB is raised by cbRaise above outer waist for seat shaping
+
+// Solve for crotchW such that the straight-line chord across the leg arch
+// approximates a target arc length. Used to size the brief leg opening to
+// match the wearer's thigh measurement instead of fixed waist proportions.
+//
+// The actual bezier arc is ~5% longer than the straight chord for the sag values
+// used here, so we solve for a chord = target * 0.95 to land on target arc length.
+//
+// Clamped to [minCrotchW, panelW * 0.55] so the polygon stays physically valid.
+function solveBriefCrotchW(panelW, height, sideDrop, targetArc, minCrotchW = 1.0) {
+  const targetChord = targetArc * 0.95;
+  const dy = height - sideDrop;
+  const dxSq = targetChord * targetChord - dy * dy;
+  if (dxSq <= 0) return minCrotchW; // chord can't span vertical drop — clamp
+  const dx = Math.sqrt(dxSq);
+  return Math.max(minCrotchW, Math.min(panelW * 0.55, panelW - dx));
+}
+
+// Compute the actual bezier arc length for a brief leg arch. Mirrors the
+// bezier construction inside buildBriefPanel so the two stay in sync.
+function briefArcLength(panelW, height, sideDrop, crotchW, archSag) {
+  const p0  = { x: panelW, y: sideDrop };
+  const cp1 = { x: panelW - archSag * 0.2, y: sideDrop + (height - sideDrop) * 0.35 };
+  const cp2 = { x: crotchW + archSag * 0.4, y: height - (height - sideDrop) * 0.15 };
+  const p3  = { x: crotchW, y: height };
+  const pts = sampleBezier(p0, cp1, cp2, p3, 32);
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  }
+  return len;
+}
 
 function buildBriefPanel({ panelW, height, sideDrop, crotchW, archSag, cbRaise }) {
   const poly = [];
