@@ -641,6 +641,68 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
 export { buildSlantPocketBacking as buildSlantPocketFacing };
 
 /**
+ * Build a side-seam (in-seam) pocket bag piece.
+ * D-shaped: straight top, straight sides, semicircular bottom.
+ * bagWidth = depth of bag into garment (7"); bagHeight = total bag length (10").
+ *
+ * @param {{ bagWidth?: number, bagHeight?: number, sa?: number, instruction?: string }} opts
+ */
+export function buildSideSeamPocketBag({ bagWidth = 7, bagHeight = 10, sa = 0.5, instruction = '' } = {}) {
+  const r = bagWidth / 2;           // semicircle radius = half width
+  const straightH = bagHeight - r;  // straight-wall height above semicircle
+  const k = 0.5523;                 // bezier approximation factor for quarter circle
+
+  // Right-side arc: (bagWidth, straightH) → (bagWidth/2, bagHeight)
+  const arc1 = sampleBezier(
+    { x: bagWidth,       y: straightH },
+    { x: bagWidth,       y: straightH + r * k },
+    { x: bagWidth / 2 + r * k, y: bagHeight },
+    { x: bagWidth / 2,   y: bagHeight },
+    20,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  // Left-side arc: (bagWidth/2, bagHeight) → (0, straightH)
+  const arc2 = sampleBezier(
+    { x: bagWidth / 2,       y: bagHeight },
+    { x: bagWidth / 2 - r * k, y: bagHeight },
+    { x: 0,                  y: straightH + r * k },
+    { x: 0,                  y: straightH },
+    20,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  // CW polygon: top-left → top-right → right wall → arc right-to-bottom → arc bottom-to-left → closes up left wall
+  const polygon = [
+    { x: 0,        y: 0 },          // top-left  (inner, waist)
+    { x: bagWidth, y: 0 },          // top-right (side seam, waist)
+    { x: bagWidth, y: straightH },  // right wall bottom
+    ...arc1.slice(1),               // arc right → bottom
+    ...arc2.slice(1),               // arc bottom → left
+  ];
+
+  const dims = [
+    { label: fmtInches(bagWidth),  x1: 0, y1: -0.35, x2: bagWidth, y2: -0.35, type: 'h' },
+    { label: fmtInches(bagHeight), x: bagWidth + 0.8, y1: 0, y2: bagHeight, type: 'v' },
+  ];
+
+  return {
+    id: 'side-bag',
+    name: 'Side-Seam Pocket Bag',
+    instruction: instruction || `Cut 4 (2 per side) · D-shaped · Straight edge along side seam · Semicircular bottom · Serge all edges`,
+    polygon,
+    sa, hem: sa,
+    width: bagWidth, height: bagHeight,
+    type: 'bodice',
+    isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagHeight },
+    dims,
+    labels: [
+      { text: 'SIDE SEAM', x: bagWidth + 0.25, y: bagHeight * 0.28, rotation: 90 },
+      { text: 'INNER',     x: -0.25,            y: bagHeight * 0.28, rotation: -90 },
+    ],
+  };
+}
+
+/**
  * Clip a front panel polygon at the slash line for a slant pocket.
  * Removes the triangle at the waist/side-seam corner and replaces it
  * with the slash diagonal.
