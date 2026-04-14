@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- mock neck collar (shorter, stands up, does not fold) -->
+  <path d="M60,40 L100,40 L101,56 L59,56 Z"/>
+
+  <!-- shoulder seams -->
+  <line x1="38" y1="66" x2="60" y2="56" stroke-width="1.2"/>
+  <line x1="122" y1="66" x2="100" y2="56" stroke-width="1.2"/>
+
+  <!-- torso body -->
+  <path d="M38,66 L122,66 L120,172 L40,172 Z"/>
+
+  <!-- sleeve right -->
+  <path d="M122,66 L148,82 L144,158 L118,158 L120,92 Z"/>
+  <!-- sleeve left -->
+  <path d="M38,66 L12,82 L16,158 L42,158 L40,92 Z"/>
+
+  <!-- hem fold line -->
+  <line x1="41" y1="164" x2="119" y2="164" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

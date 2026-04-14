@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- waistband (structured, zip closure) -->
+  <rect x="44" y="20" width="72" height="12" rx="2"/>
+  <!-- hook and bar hint at left end -->
+  <circle cx="47" cy="26" r="1.5" stroke-width="1"/>
+  <line x1="49" y1="26" x2="53" y2="26" stroke-width="1"/>
+
+  <!-- skirt silhouette — subtle A-line, more tailored look -->
+  <path d="M44,32 L116,32 L134,188 L26,188 Z"/>
+
+  <!-- invisible zip at CB (right side, dashed line) -->
+  <line x1="116" y1="32" x2="115" y2="84" stroke-dasharray="3 2" stroke-width="1"/>
+
+  <!-- hem fold line -->
+  <line x1="28" y1="180" x2="132" y2="180" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

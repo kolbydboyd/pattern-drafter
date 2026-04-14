@@ -243,7 +243,11 @@ measure → generate → print → tile → cut → sew → finished
 
 _Research references: Aldrich (Metric Pattern Cutting for Women's Wear, 6th ed.), Armstrong (Patternmaking for Fashion Design, 6th ed.), Bunka Fashion College (Fundamentals of Garment Design), FreeSewing.org, ASTM D5585/D6192/D6458 body measurement standards, Beverly Johnson (lingerie), Cloth Habit, Orange Lingerie, Jalie, Style Arc._
 
-### Current catalog: 84 patterns (42 base garments + 42 style variants)
+### Current catalog: 119 patterns (51 base garments + 68 style variants) — updated 2026-04-14
+
+**Quick-win additions (2026-04-14):** scrunchie (+ mini, oversized), dog bandana, zippered pouch (+ makeup bag, pencil case), pajama pants (+ flannel, satin), lounge shorts, turtleneck (+ mock-neck), dolman/batwing top, maxi skirt (+ elastic, zip variants), trapeze dress
+
+### Previous catalog: 84 patterns (42 base garments + 42 style variants)
 
 **Men's/unisex base (24):** tee, camp shirt, button-up, crewneck, hoodie, straight jeans, baggy jeans, chinos, 874 work pants, pleated trousers, sweatpants, cargo shorts, baggy shorts, gym shorts, pleated shorts, swim trunks, crop jacket, athletic formal jacket, denim jacket, cargo work pants, apron, bow tie, tank top, tote bag
 **Women's base (18):** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, circle skirt, pencil skirt, shirt dress, wrap dress, T-shirt dress, slip dress, A-line dress, sundress, leggings, athletic formal trousers

@@ -499,6 +499,153 @@ const SEO_DESCRIPTIONS = {
       { q: 'Do I need a serger?', a: 'A serger gives the best finish on knit seams, but you can use a stretch stitch or narrow zigzag on a standard machine.' },
     ],
   },
+
+  // ── Quick-win additions ────────────────────────────────────────────────────
+
+  'scrunchie': {
+    metaDescription: 'Free scrunchie sewing pattern sized to fit perfectly. Standard, mini, and oversized versions. One rectangle, elastic, done in 20 minutes. Tiled PDF included.',
+    pageIntro: 'The easiest sewing project with the most impact. One fabric rectangle plus a short elastic strip makes a scrunchie in under 20 minutes. No measurements needed.',
+    faq: [
+      { q: 'What fabric is best for scrunchies?', a: 'Silky fabrics like charmeuse, satin, or crepe de chine slide beautifully. Cotton poplin and quilting cotton work great for everyday use. Velvet adds a luxurious touch.' },
+      { q: 'How long is the elastic?', a: 'Standard scrunchies use a 9″ piece of ¼″ or ⅜″ elastic. Mini scrunchies use 7″, oversized use 11″.' },
+    ],
+  },
+  'mini-scrunchie': {
+    metaDescription: 'Free mini scrunchie sewing pattern. Smaller, neater than standard — great for fine hair and kids. One rectangle and elastic. Tiled PDF.',
+    pageIntro: 'A compact mini scrunchie using a shorter fabric rectangle for a neater, smaller finish. Great for fine hair and wrist-wear.',
+    faq: [
+      { q: 'How small is the mini scrunchie?', a: 'The fabric rectangle is 16″ long × 4.5″ wide, making a scrunchie about ½ the volume of the standard version.' },
+      { q: 'Same technique as the standard?', a: 'Yes — fold, sew the long edge, turn, insert elastic, close. Identical steps, just shorter dimensions.' },
+    ],
+  },
+  'oversized-scrunchie': {
+    metaDescription: 'Free oversized scrunchie sewing pattern. Big, puffy, and dramatic. One long rectangle, elastic, and 30 minutes. Tiled PDF.',
+    pageIntro: 'A big, puffy oversized scrunchie made from a longer rectangle for maximum volume and ruffle. Great in velvet, silk, or anything with drape.',
+    faq: [
+      { q: 'How big is the oversized scrunchie?', a: 'The fabric rectangle is 28″ × 4.5″ — about 25% more fabric than the standard. This creates a much puffier, more dramatic scrunchie.' },
+      { q: 'What fabric looks best?', a: 'Velvet is the classic choice for oversized scrunchies. Satin, charmeuse, and silk also give great results.' },
+    ],
+  },
+  'dog-bandana': {
+    metaDescription: 'Free dog bandana sewing pattern in four dog sizes (S/M/L/XL). Over-collar triangle fold or tie-on rectangle. Quick sew, great gift. Tiled PDF.',
+    pageIntro: 'A quick-sew dog bandana sized to fit your dog\'s collar. Choose the classic over-collar triangle fold or a tie-on rectangle style. No body measurements needed — just your dog\'s collar width.',
+    faq: [
+      { q: 'How do I measure my dog for the bandana?', a: 'Measure around your dog\'s neck where the collar sits. S is 12-14″, M is 16-18″, L is 20-22″, XL is 24-26″. The bandana slides over the collar — no tying needed.' },
+      { q: 'What fabric is best?', a: 'Quilting cotton is the easiest to sew and holds up well to dog activity. Flannel is great for winter. Avoid stretchy fabrics for the over-collar style.' },
+    ],
+  },
+  'zippered-pouch': {
+    metaDescription: 'Custom zippered pouch sewing pattern in three sizes. Lined, optional boxed corners, interior pocket, and wrist loop. Tiled PDF with instructions.',
+    pageIntro: 'A lined zippered pouch in small (5×4″), medium (8×6″), or large (10×7″). Options for boxed corners, an interior pocket, and a wrist loop. Perfect for organizing your bag or gifting.',
+    faq: [
+      { q: 'Do I need a special zipper foot?', a: 'Yes — a zipper foot lets you sew close to the zipper teeth. Most machines come with one. For metal zippers, use a zipper foot and move slowly through the pull.' },
+      { q: 'What is a boxed corner?', a: 'Boxed corners create a flat bottom on the pouch so it stands up. You sew across the corner triangle and trim it — no gusset pieces needed. 1-inch corners give a 2-inch-wide base.' },
+    ],
+  },
+  'makeup-bag': {
+    metaDescription: 'Sew a custom makeup bag with boxed bottom and interior pocket. Medium zippered pouch pattern with organized storage. Tiled PDF.',
+    pageIntro: 'A medium zippered makeup bag (8×6″) with a flat boxed bottom so it stands up, plus an interior pocket for small items. Lined and finished with a zipper tab.',
+    faq: [
+      { q: 'What fabric is best for a makeup bag?', a: 'Oilcloth or laminated cotton on the interior makes cleanup easy. Canvas or cotton twill on the exterior holds its shape.' },
+      { q: 'How big is the interior?', a: 'The finished interior is approximately 8″ wide × 5½″ tall × 2″ deep with a 1-inch boxed corner. Fits full-size palettes, brushes, and most makeup bottles.' },
+    ],
+  },
+  'pencil-case': {
+    metaDescription: 'Custom pencil case sewing pattern. Large zippered pouch (10×7″), lined, with optional interior elastic loop. Tiled PDF.',
+    pageIntro: 'A spacious zippered pencil case (10×7″) sized to hold colored pencils, markers, and art supplies. Lined with an optional interior elastic loop for a ruler.',
+    faq: [
+      { q: 'Will this fit colored pencils?', a: 'Yes — the 10-inch length fits a standard set of 24-36 colored pencils laid flat. Artist colored pencils (up to 7.5″) fit without cutting.' },
+      { q: 'Can I make it without a lining?', a: 'Yes — skip the lining pieces and finish the interior raw edges with a French seam or serger. This makes for a faster sew.' },
+    ],
+  },
+  'pajama-pants': {
+    metaDescription: 'Draft custom-fit pajama pants from your exact measurements. Elastic waist with drawstring, straight leg, flannel or satin fabric options. Beginner-friendly tiled PDF.',
+    pageIntro: 'Comfortable straight-leg pajama pants with an elastic casing waistband and optional drawstring, drafted from your waist, hip, rise, and inseam measurements.',
+    faq: [
+      { q: 'What fabric works best for pajama pants?', a: 'Cotton flannel is the classic for cozy pajamas. Cotton voile and rayon challis are cooler for warmer months. Charmeuse and satin give a luxurious feel.' },
+      { q: 'Do pajama pants need a fly?', a: 'No — this pattern uses a simple elastic casing waistband with no fly opening. It\'s the quickest and most comfortable construction for sleepwear.' },
+    ],
+  },
+  'flannel-pajama-pants': {
+    metaDescription: 'Custom-fit flannel pajama pants sewing pattern. Elastic waist, straight leg, warm and cozy. Tiled PDF with instructions.',
+    pageIntro: 'Classic flannel pajama pants drafted to your measurements. An elastic casing waistband and straight leg make this a beginner-friendly weekend project.',
+    faq: [
+      { q: 'What weight of flannel should I buy?', a: 'Mid-weight cotton flannel (4-5 oz) is the standard for pajama pants. Heavier flannel is too stiff; lighter is fine for warm-weather wear.' },
+      { q: 'Should I pre-wash flannel?', a: 'Yes — flannel shrinks significantly on the first wash. Pre-wash in warm water and dry on medium before cutting.' },
+    ],
+  },
+  'satin-pajama-pants': {
+    metaDescription: 'Custom-fit satin pajama pants sewing pattern. Elastic drawstring waist, straight leg, luxurious feel. Tiled PDF.',
+    pageIntro: 'Silky satin pajama pants with an elastic and drawstring waist, drafted to your measurements. A beginner-friendly project for a luxurious result.',
+    faq: [
+      { q: 'How do I cut slippery satin?', a: 'Use pattern weights instead of pins (which can distort the fabric). Place fabric on a non-slip mat, use sharp scissors or a rotary cutter, and cut slowly.' },
+      { q: 'What stitch length for satin?', a: 'Use a shorter stitch length (2.0-2.5mm) on satin. A longer stitch can cause puckering on lightweight fabrics. Use a new sharp needle.' },
+    ],
+  },
+  'lounge-shorts': {
+    metaDescription: 'Custom-fit lounge shorts sewing pattern. Elastic waist, 3-8 inch inseam, knit or woven fabric. Beginner-friendly tiled PDF.',
+    pageIntro: 'Easy elastic-waist lounge shorts drafted to your waist and hip measurements. Choose your inseam length (3-8 inches) and fabric type. Works in cotton jersey, modal, seersucker, and gauze.',
+    faq: [
+      { q: 'What is the difference between knit and woven fabric for shorts?', a: 'Knit lounge shorts (jersey, modal) stretch with movement and feel like athletic wear. Woven lounge shorts (seersucker, gauze) feel more like casual wear. Both use elastic waists.' },
+      { q: 'How do I choose the inseam length?', a: '3 inches is very short and boxy. 5-6 inches hits mid-thigh. 8 inches is longer and more modest. 6 inches is the most popular.' },
+    ],
+  },
+  'turtleneck': {
+    metaDescription: 'Draft a custom-fit turtleneck sewing pattern from your exact measurements. Full turtleneck, mock neck, or funnel neck. Knit fabric with set-in sleeves. Tiled PDF.',
+    pageIntro: 'A fitted knit turtleneck with a tall stand collar, drafted from your chest, neck, shoulder, and sleeve measurements. Choose full turtle (folds over), mock neck, or funnel neck style.',
+    faq: [
+      { q: 'What fabric should I use for a turtleneck?', a: 'The collar must be cut from rib knit (1×1 or 2×2 rib) with strong horizontal recovery. The body can be cotton jersey, merino jersey, or thermal knit.' },
+      { q: 'How is a mock neck different from a full turtleneck?', a: 'A full turtleneck collar is 10-12 inches cut (5-6 inches finished) and folds down over the neckline seam. A mock neck is 6-8 inches cut and stands up without folding — it does not cover the chin.' },
+    ],
+  },
+  'mock-neck': {
+    metaDescription: 'Custom-fit mock neck top sewing pattern. Short stand collar, no fold, knit fabric. Tiled PDF with instructions.',
+    pageIntro: 'A clean, modern mock neck knit top with a short stand collar that does not fold over. Drafted from your chest, neck, and sleeve measurements.',
+    faq: [
+      { q: 'How tall is the mock neck collar?', a: 'The mock neck collar is cut 6-8 inches tall (3-4 inches finished). It stands up against the chin area without folding over like a full turtleneck.' },
+      { q: 'Can I use the same fabric for the collar and body?', a: 'Yes if the body fabric has enough stretch and recovery. For most jerseys, cut the collar from a 2×2 rib or trim strip for a crisper, sturdier stand.' },
+    ],
+  },
+  'dolman-top-w': {
+    metaDescription: 'Sew a custom-fit dolman / batwing top. T-shape with integrated sleeves, no set-in armhole, beginner-friendly. Knit or woven. Tiled PDF.',
+    pageIntro: 'A relaxed batwing top with sleeves integrated into the body — no set-in armhole and no sleeve cap. The dramatic underarm curve is the only seam. Works in jersey, crepe, or rayon challis.',
+    faq: [
+      { q: 'What makes a dolman top different from a regular top?', a: 'A dolman has no separate armhole seam. The sleeve and body are cut as one T-shaped piece. The underarm seam is one long curved seam from cuff to hem — much simpler to construct.' },
+      { q: 'What fabric works best for a batwing top?', a: 'Drapey knits (jersey, modal, bamboo) show off the batwing silhouette best. Woven fabrics (crepe, rayon challis, voile) also work and give a more structured look.' },
+    ],
+  },
+  'maxi-skirt-w': {
+    metaDescription: 'Draft a custom-fit maxi skirt sewing pattern from your exact measurements. Floor-length A-line panels, elastic casing or invisible zip waistband. Tiled PDF.',
+    pageIntro: 'A floor-length A-line maxi skirt drafted from your waist, hip, and skirt length measurements. Choose elastic casing for a pull-on waist or an invisible zip with a structured waistband.',
+    faq: [
+      { q: 'Why does the pattern include a hanging step before hemming?', a: 'Maxi skirts cut with any bias angle will drop as the fabric relaxes. Hanging for 24 hours before marking the hem ensures an even floor-length result after the fabric settles.' },
+      { q: 'How much fabric do I need for a maxi skirt?', a: 'It depends on your hip measurement and the flare amount. The pattern calculates the exact yardage, but plan for 3-4 yards at 44-60 inches wide for most sizes.' },
+    ],
+  },
+  'maxi-skirt-elastic-w': {
+    metaDescription: 'Easy pull-on elastic waist maxi skirt sewing pattern. Floor length, A-line, beginner-friendly. Tiled PDF.',
+    pageIntro: 'A beginner-friendly floor-length A-line maxi skirt with a comfortable elastic casing waistband. No zipper, no buttons — just pull it on.',
+    faq: [
+      { q: 'How does the elastic casing work?', a: 'A separate waistband strip is folded and sewn to the skirt waist. Elastic threads through the casing and is sewn closed. The finished result sits comfortably and pulls on over the hips.' },
+      { q: 'Can I add pockets?', a: 'Yes — the pattern includes an option for side-seam pocket bags. They\'re added at the side seams before those seams are sewn.' },
+    ],
+  },
+  'maxi-skirt-zip-w': {
+    metaDescription: 'Custom-fit side-zip maxi skirt sewing pattern. Invisible zip, structured waistband, subtle A-line. Tiled PDF.',
+    pageIntro: 'A polished floor-length A-line maxi skirt with an invisible zipper at the center back and a structured waistband for a fitted, tailored look.',
+    faq: [
+      { q: 'Where is the zipper?', a: 'The invisible zip is installed at the center back seam, from the waistband down through the skirt. It is invisible from the outside when properly installed.' },
+      { q: 'Is the invisible zip hard to install?', a: 'It takes practice but is very doable for beginners. The key is to press the zip coils before sewing so they lie flat, and to use a dedicated invisible zipper foot.' },
+    ],
+  },
+  'trapeze-dress-w': {
+    metaDescription: 'Sew a custom-fit trapeze dress. Sleeveless A-line silhouette, no waist shaping, crew/scoop/square neckline. Beginner-friendly. Tiled PDF.',
+    pageIntro: 'A sleeveless trapeze dress that flares from the bust to the hem with no waist darts or seams. Crew, scoop, or square neckline with facings. Great in cotton, linen, or rayon.',
+    faq: [
+      { q: 'What is a trapeze dress?', a: 'A trapeze dress has no waist shaping — it flares from the shoulders or bust straight to the hem in a trapezoid shape. It is one of the most flattering and comfortable silhouettes because it does not define the waist.' },
+      { q: 'What fabric works best for a trapeze dress?', a: 'Lightweight to medium wovens with drape — cotton lawn, rayon challis, linen, or crepe. The dress relies on fabric drape rather than construction for its silhouette.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;

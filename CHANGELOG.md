@@ -4,6 +4,26 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.44] - 2026-04-14
+
+### Added
+- **9 new garment modules** (quick-win patterns with minimal geometry):
+  - **Scrunchie** (`scrunchie.js`) — no body measurements; 1-rectangle construction; 3 size presets (standard 22″, mini 16″, oversized 28″); variants: `mini-scrunchie`, `oversized-scrunchie`
+  - **Dog Bandana** (`dog-bandana.js`) — S/M/L/XL sizing by collar width; over-collar triangle fold or tie-on rectangle styles; lined option
+  - **Zippered Pouch** (`zippered-pouch.js`) — 3 size presets (small 5×4″, medium 8×6″, large 10×7″); boxed corners, interior pocket, wrist loop options; variants: `makeup-bag`, `pencil-case`
+  - **Pajama Pants** (`pajama-pants.js`) — elastic casing waistband + optional drawstring; flannel/voile/satin fabric options; variants: `flannel-pajama-pants`, `satin-pajama-pants`
+  - **Lounge Shorts** (`lounge-shorts.js`) — pajama-pants lower block at 3–8″ inseam; knit or woven toggle changes SA; optional side-seam pockets
+  - **Turtleneck** (`turtleneck.js`) — full upper-body block (same as tee.js); collar rectangle at 87% neck circumference; full/mock/funnel collar styles; variant: `mock-neck`
+  - **Dolman / Batwing Top** (`dolman-top-w.js`) — T-shape one-piece; integrated sleeves, no set-in armhole; batwing underarm bezier curve; knit or woven; cap/elbow/¾/full sleeve lengths
+  - **Maxi Skirt** (`maxi-skirt-w.js`) — floor-length A-line panels (~50″ default); elastic casing or invisible zip + structured waistband; hang-before-hemming instruction; variants: `maxi-skirt-elastic-w`, `maxi-skirt-zip-w`
+  - **Trapeze Dress** (`trapeze-dress-w.js`) — sleeveless A-line from bust to hem; no waist shaping or darts; crew/scoop/square neckline; neckline + armhole facings; invisible zip or pullover back
+- **SVG illustrations** for all new modules and variants (19 new SVG files in `public/garment-illustrations/`)
+- **Pricing entries** for all 18 new garment IDs in `src/lib/pricing.js` (all `simple` tier, $9)
+- **SEO descriptions** for all 18 new garment IDs in `src/garments/seo-descriptions.js`
+- Pattern page count: 105 → 119 garments
+
+---
+
 ## [0.12.43] - 2026-04-14
 
 ### Fixed

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- pouch body -->
+  <rect x="28" y="70" width="104" height="90" rx="3"/>
+
+  <!-- zipper at top -->
+  <line x1="28" y1="70" x2="132" y2="70"/>
+  <!-- zipper teeth suggestion -->
+  <line x1="34" y1="66" x2="34" y2="74" stroke-width="1"/>
+  <line x1="44" y1="66" x2="44" y2="74" stroke-width="1"/>
+  <line x1="54" y1="66" x2="54" y2="74" stroke-width="1"/>
+  <line x1="64" y1="66" x2="64" y2="74" stroke-width="1"/>
+  <line x1="74" y1="66" x2="74" y2="74" stroke-width="1"/>
+  <line x1="84" y1="66" x2="84" y2="74" stroke-width="1"/>
+  <line x1="94" y1="66" x2="94" y2="74" stroke-width="1"/>
+  <line x1="104" y1="66" x2="104" y2="74" stroke-width="1"/>
+  <line x1="114" y1="66" x2="114" y2="74" stroke-width="1"/>
+  <line x1="124" y1="66" x2="124" y2="74" stroke-width="1"/>
+
+  <!-- zipper pull -->
+  <rect x="72" y="58" width="10" height="12" rx="1" stroke-width="1.2"/>
+  <line x1="77" y1="56" x2="77" y2="58" stroke-width="1"/>
+
+  <!-- topstitch line near zipper -->
+  <line x1="32" y1="76" x2="128" y2="76" stroke-dasharray="3 2" stroke-width="1"/>
+
+  <!-- interior pocket hint (dashed) -->
+  <rect x="46" y="95" width="36" height="28" rx="1" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- crew neckline scoop -->
+  <path d="M68,18 Q68,28 80,28 Q92,28 92,18"/>
+
+  <!-- shoulder edges (sleeveless — armhole facings) -->
+  <line x1="52" y1="18" x2="68" y2="18"/>
+  <line x1="92" y1="18" x2="108" y2="18"/>
+
+  <!-- armhole curves (rounded, no sleeve) -->
+  <path d="M52,18 Q50,38 54,52"/>
+  <path d="M108,18 Q110,38 106,52"/>
+
+  <!-- side seams — flaring A-line from underarm to hem -->
+  <line x1="54" y1="52" x2="18" y2="190"/>
+  <line x1="106" y1="52" x2="142" y2="190"/>
+
+  <!-- hem -->
+  <line x1="18" y1="190" x2="142" y2="190"/>
+  <!-- hem fold line -->
+  <line x1="20" y1="182" x2="140" y2="182" stroke-dasharray="3 2" stroke-width="1"/>
+
+  <!-- CB zip hint (right side, dashed) -->
+  <line x1="142" y1="190" x2="142" y2="190" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

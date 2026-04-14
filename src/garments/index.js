@@ -54,6 +54,15 @@ import openCardigan        from './open-cardigan.js';
 import choreCoat           from './chore-coat.js';
 import wideLegTrouserM     from './wide-leg-trouser-m.js';
 import henley              from './henley.js';
+import scrunchie           from './scrunchie.js';
+import dogBandana          from './dog-bandana.js';
+import zipperedPouch       from './zippered-pouch.js';
+import pajamaPants        from './pajama-pants.js';
+import loungeShorts        from './lounge-shorts.js';
+import turtleneck          from './turtleneck.js';
+import dolmanTopW          from './dolman-top-w.js';
+import maxiSkirtW          from './maxi-skirt-w.js';
+import trapezeDressW       from './trapeze-dress-w.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -105,6 +114,15 @@ const GARMENTS = {
   'chore-coat':             choreCoat,
   'wide-leg-trouser-m':     wideLegTrouserM,
   'henley':                 henley,
+  'scrunchie':              scrunchie,
+  'dog-bandana':            dogBandana,
+  'zippered-pouch':         zipperedPouch,
+  'pajama-pants':           pajamaPants,
+  'lounge-shorts':          loungeShorts,
+  'turtleneck':             turtleneck,
+  'dolman-top-w':           dolmanTopW,
+  'maxi-skirt-w':           maxiSkirtW,
+  'trapeze-dress-w':        trapezeDressW,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────
