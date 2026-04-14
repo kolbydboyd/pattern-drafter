@@ -4,6 +4,35 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.38] - 2026-04-14
+
+### Fixed
+- **Notch marks — UI preview**: all notch triangles in the pattern piece preview now point **inward** (apex toward the piece interior), matching industry-standard sewing pattern notation. Previously `renderNotchesSVG` in `pattern-view.js` picked the outward normal, so triangles pointed outside the cut line. The PDF renderer (`print-layout.js`) was already correct; the UI renderer now matches it.
+- **Retro Short Trunks — waistband visual markers**: waistband-front and waistband-back pieces converted from `type: 'rectangle'` (no SVG preview) to `type: 'pocket'` (mini SVG with mark rendering). CF position is now marked on the front waistband with a dashed green line; CB center reference is marked on the back waistband.
+- **Retro Short Trunks — elastic construction**: switched from CB-loop (thread through gap with bodkin) to side-seam-catch method. Elastic ends are stitched within the SA at each short end of the back waistband before assembly; they are automatically caught when joining the waistband halves at the side seams. No threading gap or bodkin step needed. Construction steps and materials updated accordingly.
+- **Retro Short Trunks — pocket mouth finishing**: added instruction to serge/zigzag the raw edges of each front and back panel separately along the 4″ pocket mouth zone before sewing the side seams. Added bartack instruction at the top and bottom of each pocket mouth opening (width 3.5mm, length 0, 8–10 stitches) to prevent the opening from extending under stress.
+- **Retro Short Trunks — missing mesh material**: athletic mesh was not listed in the materials spec when `liner: 'brief'` + `pocket: 'side-seam'`. Added `0.25 yard Athletic mesh` (pocket bags only) for this combination.
+- **Retro Short Trunks — needle spec**: changed from generic `ballpoint-80` (for cotton jersey) to `stretch-75` (Schmetz Stretch 75/11, for Lycra/spandex blends) when retro mode is active, matching the 4-way stretch nylon/spandex shell fabric. Non-retro swim trunks retain `ballpoint-80`.
+
+---
+
+## [0.12.37] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — waistband sizing**: waistband pieces were incorrectly sized to the hip-based panel width (~42" total for 31" waist / 36" hip). Waistband pieces must be sized to the body waist, not the hip panels. Fixed: `wbFrontLen = wbBackLen = waist/2 + 0.5" ease + SA×2`. For 31" waist this yields 17" per half = 34" total. The outer panels remain correctly hip-sized; the stretch fabric eases into the narrower waistband. Elastic inside back casing updated to `waist/2 × 0.88` with the rationale documented.
+- **Retro Short Trunks — pocket bag**: replaced the free-hanging vertical bag (which could protrude past the 3" hem) with a folded, anchored design. One piece per side (8" wide, folds to 4" deep toward crotch × full garment height). Top caught in waistband seam, outer edge into side seam (4" left open from waistband = pocket mouth, side seam closed below to hem), bottom caught in hem fold. Bag cannot dangle. Sewing sequence updated across pocket prep, side seam, and hem steps.
+
+---
+
+## [0.12.36] - 2026-04-13
+
+### Fixed
+- **Retro Short Trunks — brief liner shape**: replaced single rectangular placeholder with 3 properly named pieces: `Brief Liner Front` (cut 2, mirror), `Brief Liner Back` (cut 2, mirror, taller for seat coverage), and `Brief Liner Gusset` (cut 1). Dimensions are now body-measurement-based (waist/4 + ease) rather than hip-panel-derived. Instructions updated to describe marking the leg opening arc, joining CF/CB seams, attaching the gusset, and basting the finished mini brief to the outer shell.
+- **Retro Short Trunks — pocket bag depth**: pocket bag height is now constrained to `min(6.5″, max(2.0″, inseam − hem − 0.75″))` so the bag never protrudes past the hem. For the default 3″ inseam this yields a 2.0″ bag depth (appropriate for a key card). Bag width reduced from 6.0″ to 5.5″ to match the shorter cut.
+- **Swim Trunks waistband sizing** (no code change): the 21″ back + 21.5″ front waistband lengths for a 31″ waist are correct. The waistband pieces are sized to the hip-based garment opening; the elastic casing (back) and drawcord (front) cinch the garment to the actual waist measurement.
+
+---
+
 ## [0.12.35] - 2026-04-13
 
 ### Fixed
