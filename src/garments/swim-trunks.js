@@ -174,51 +174,67 @@ export default {
       const waist    = m.waist || (m.hip * 0.84);
 
       // Front panel (one half — cut 2, mirror L & R)
-      const bfW  = waist / 4 + 0.75;              // quarter-front + ease
-      const bfH  = rise  * 0.58;                  // height: waist to crotch
-      const bfSag = Math.min(2.5, bfW * 0.22);    // leg arch sagitta (depth of inward sweep)
-      const bfPoly = buildBriefPanel({ panelW: bfW, height: bfH, arcSagitta: bfSag, cbRaise: 0 });
-      const bfSaPoly = offsetPolygon(bfPoly, () => -0.375);
+      const bfW       = waist / 4 + 0.75;            // quarter-front + ease
+      const bfH       = rise  * 0.58;                // height: waist to crotch
+      const bfSide    = bfH  * 0.35;                 // side edge extends down before leg arch starts
+      const bfCrotch  = bfW  * 0.30;                 // narrow crotch seam (front)
+      const bfSag     = (bfW - bfCrotch) * 0.35;     // leg arch inward sweep
+      const bfPoly    = buildBriefPanel({ panelW: bfW, height: bfH, sideDrop: bfSide, crotchW: bfCrotch, archSag: bfSag, cbRaise: 0 });
+      const bfSaPoly  = offsetPolygon(bfPoly, () => -0.375);
       pieces.push({
         id: 'brief-front', name: 'Brief Liner Front',
-        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge: apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge (curved): apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length',
         polygon: bfPoly, saPolygon: bfSaPoly,
         path: polyToPath(bfPoly), saPath: polyToPath(bfSaPoly),
         dims: [
-          { label: fmtInches(bfW),              x1: 0, y1: -0.5, x2: bfW,  y2: -0.5, type: 'h' },
-          { label: fmtInches(bfH) + ' height',  x: bfW + 1.2,   y1: 0,    y2: bfH,  type: 'v' },
+          { label: fmtInches(bfW),                     x1: 0,          y1: -0.5,     x2: bfW,      y2: -0.5, type: 'h' },
+          { label: fmtInches(bfH) + ' height',         x: bfW + 1.2,   y1: 0,        y2: bfH,                type: 'v' },
+          { label: fmtInches(bfCrotch) + ' crotch',    x1: 0,          y1: bfH + 0.5, x2: bfCrotch, y2: bfH + 0.5, type: 'h', color: '#c44' },
         ],
         labels: [
-          { text: 'BRIEF FRONT', x: bfW * 0.2,  y: bfH * 0.25, rotation: 0  },
+          { text: 'BRIEF FRONT', x: bfW * 0.25, y: bfH * 0.3,  rotation: 0   },
           { text: 'CF SEAM',     x: -0.4,        y: bfH * 0.45, rotation: -90 },
-          { text: 'LEG ARCH →',  x: bfW * 0.45, y: bfH * 0.4,  rotation: 30 },
+          { text: 'LEG ARCH →',  x: bfW * 0.55, y: bfH * 0.65, rotation: 35  },
         ],
-        notches: [], type: 'bodice', isCutOnFold: false, width: bfW, height: bfH, sa: 0.375, hem: 0,
+        notches: [
+          // Leg-arch start: bottom of side edge (where elastic application begins)
+          { x: bfW,     y: bfSide, angle: edgeAngle({ x: bfW, y: 0 }, { x: bfW, y: bfSide }) },
+          // Crotch corner: inner end of leg arch (where leg arch meets crotch seam)
+          { x: bfCrotch, y: bfH,    angle: edgeAngle({ x: 0, y: bfH }, { x: bfCrotch, y: bfH }) },
+        ],
+        type: 'bodice', isCutOnFold: false, width: bfW, height: bfH, sa: 0.375, hem: 0,
       });
 
       // Back panel (one half — cut 2, mirror L & R)
-      const bbW   = waist / 4 + 1.25;             // wider for seat coverage
-      const bbH   = rise  * 0.75;                 // taller for full seat
-      const bbRaise = 0.75;                        // CB raised above outer waist (seat shaping)
-      const bbSag = Math.min(2.0, bbW * 0.17);    // shallower arch = more seat coverage
-      const bbPoly = buildBriefPanel({ panelW: bbW, height: bbH, arcSagitta: bbSag, cbRaise: bbRaise });
-      const bbSaPoly = offsetPolygon(bbPoly, () => -0.375);
+      const bbW       = waist / 4 + 1.25;            // wider for seat coverage
+      const bbH       = rise  * 0.75;                // taller for full seat
+      const bbRaise   = 0.75;                        // CB raised above outer waist (seat shaping)
+      const bbSide    = bbH  * 0.45;                 // taller side edge for seat coverage
+      const bbCrotch  = bbW  * 0.45;                 // wider crotch (seat)
+      const bbSag     = (bbW - bbCrotch) * 0.25;     // shallower sweep than front
+      const bbPoly    = buildBriefPanel({ panelW: bbW, height: bbH, sideDrop: bbSide, crotchW: bbCrotch, archSag: bbSag, cbRaise: bbRaise });
+      const bbSaPoly  = offsetPolygon(bbPoly, () => -0.375);
       pieces.push({
         id: 'brief-back', name: 'Brief Liner Back',
-        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge: apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length`,
+        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge (curved): apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length`,
         polygon: bbPoly, saPolygon: bbSaPoly,
         path: polyToPath(bbPoly), saPath: polyToPath(bbSaPoly),
         dims: [
-          { label: fmtInches(bbW),              x1: 0, y1: -0.5, x2: bbW,  y2: -0.5,   type: 'h' },
-          { label: fmtInches(bbH) + ' height',  x: bbW + 1.2,   y1: 0,    y2: bbH,     type: 'v' },
-          { label: fmtInches(bbRaise) + ' CB raise', x: -0.6,   y1: -bbRaise, y2: 0,   type: 'v', color: '#c44' },
+          { label: fmtInches(bbW),                     x1: 0,          y1: -bbRaise - 0.5, x2: bbW,     y2: -bbRaise - 0.5, type: 'h' },
+          { label: fmtInches(bbH) + ' height',         x: bbW + 1.2,   y1: 0,              y2: bbH,                         type: 'v' },
+          { label: fmtInches(bbRaise) + ' CB raise',   x: -0.6,        y1: -bbRaise,       y2: 0,                           type: 'v', color: '#c44' },
+          { label: fmtInches(bbCrotch) + ' crotch',    x1: 0,          y1: bbH + 0.5,      x2: bbCrotch, y2: bbH + 0.5,     type: 'h', color: '#c44' },
         ],
         labels: [
-          { text: 'BRIEF BACK', x: bbW * 0.2,  y: bbH * 0.3,  rotation: 0  },
+          { text: 'BRIEF BACK', x: bbW * 0.25, y: bbH * 0.35, rotation: 0   },
           { text: 'CB SEAM',    x: -0.4,        y: bbH * 0.5,  rotation: -90 },
-          { text: 'LEG ARCH →', x: bbW * 0.45, y: bbH * 0.4,  rotation: 25 },
+          { text: 'LEG ARCH →', x: bbW * 0.55, y: bbH * 0.7,  rotation: 25  },
         ],
-        notches: [], type: 'bodice', isCutOnFold: false, width: bbW, height: bbH, sa: 0.375, hem: 0,
+        notches: [
+          { x: bbW,     y: bbSide, angle: edgeAngle({ x: bbW, y: 0 }, { x: bbW, y: bbSide }) },
+          { x: bbCrotch, y: bbH,    angle: edgeAngle({ x: 0, y: bbH }, { x: bbCrotch, y: bbH }) },
+        ],
+        type: 'bodice', isCutOnFold: false, width: bbW, height: bbH, sa: 0.375, hem: 0,
       });
 
     }
@@ -272,13 +288,13 @@ export default {
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
       if (isRetro) {
-        // Retro: anchored folded pocket — rendered as a polygon matching the front panel geometry.
+        // Retro: anchored folded pocket — dimensions derived from front panel geometry.
         // Outer edge = front panel side seam. Top = waistband seam line. Bottom = hem fold line.
-        // Fold line is a straight vertical edge 5" from the side seam toward the crotch.
-        // Piece is ONE layer; fold in half along the fold edge before sewing → 5" deep pocket.
-        const bagDepth = 5.0;           // depth from side seam to fold (toward crotch)
-        const bagH     = rise + inseam; // full garment height: waistband to hem
-        const pocketMouth = 4.0;        // pocket mouth opening: 4" from waistband down the side seam
+        // Fold line is a straight vertical edge at the inner (crotch-facing) side of the bag.
+        // Piece is ONE layer; fold in half along the fold edge before sewing → full-width pocket.
+        const bagDepth = frontW + frontExt; // matches front panel hem width
+        const bagH     = rise + inseam;     // full garment height: waistband to hem
+        const pocketMouth = 4.0;            // pocket mouth opening: 4" from waistband down the side seam
 
         // Polygon: fold edge at x=0, side seam at x=bagDepth, y=0 at waist, y=bagH at hem
         const bagPoly = [
@@ -358,7 +374,7 @@ export default {
     if (opts.liner === 'panels') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
     } else if (isRetro && opts.pocket === 'side-seam') {
-      notions.push({ name: 'Athletic mesh', quantity: '0.25 yard', notes: 'Side-seam pocket bags only (2 folded pieces)' });
+      notions.push({ name: 'Athletic mesh', quantity: '0.5 yard', notes: 'Side-seam pocket bags only (2 folded pieces, sized to front panel)' });
     }
 
     return buildMaterialsSpec({
@@ -395,7 +411,7 @@ export default {
     if (opts.liner === 'brief') {
       steps.push({
         step: n++, title: 'Sew brief liner',
-        detail: '{serge} all liner piece edges. Join two front halves at CF {RST} with stretch stitch, {clip} curve — trim SA to ¼″, press toward one side, {topstitch} flat. Join two back halves at CB {RST}, {clip} curve — trim SA to ¼″, press toward one side, {topstitch} flat. Pin front to back at crotch {RST}; sew crotch seam with stretch stitch. {clip} all curved seams — trim SA to ¼″ and press toward back, {topstitch} flat. Keeping all seams pressed flat prevents raw edges from sitting against skin. The result is a mini brief with two leg openings exposed. Apply leg arch elastic: option A — ¼″ lingerie elastic, pin to WS of arch at 75% stretch, {zigzag} in place, fold to inside, {topstitch}; option B (preferred) — ⅝″ foldover elastic (FOE), fold over the raw arch edge enclosing both sides, {topstitch} through all layers in one pass. FOE fully encloses the cut edge and is softer against skin. {baste} brief WS to WS of outer shell at waist edge ¼″ from raw edge. Treat as one unit going forward.',
+        detail: 'Each brief piece has five edges: waist (top), a short straight side edge, a curved leg arch, a short crotch seam, and the CF/CB seam. {serge} all edges before assembly. Join two front halves at CF {RST} with stretch stitch, trim SA to ¼″, press to one side, {topstitch} flat. Join two back halves at CB {RST}, trim SA to ¼″, press to one side, {topstitch} flat. Pin front to back at the short crotch seam {RST} and sew with stretch stitch, trim SA to ¼″, press toward back, {topstitch} flat. The result is a mini brief with two leg openings framed by the side edges (straight) and leg arches (curved). Apply elastic ONLY to the curved leg arch edge — NOT the straight side edge. Option A: ¼″ lingerie elastic, pin to WS of arch at 75% stretch, {zigzag} in place, fold to inside, {topstitch}. Option B (preferred): ⅝″ foldover elastic (FOE), fold over the raw arch edge enclosing both sides, {topstitch} through all layers in one pass. FOE fully encloses the cut edge and is softer against skin. {baste} brief WS to WS of outer shell along the waist and side edges ¼″ from raw edge. Treat as one unit going forward — the side edges get caught into the outer-shell side seams during garment assembly.',
       });
     }
 
@@ -552,32 +568,39 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 // Polygon coordinate system: x = 0 at CF/CB seam (inner), y = 0 at outer waist,
 // y increases downward toward crotch.
 //
-// Seam structure of the finished brief:
-//   CF seam     → joins two front halves
-//   CB seam     → joins two back halves  (CB is raised by cbRaise for seat shaping)
-//   Crotch seam → joins front to back directly (no gusset needed)
-//   Leg arch    → NO seam — elastic applied to this edge
+// The polygon has FIVE edges (like a real brief pattern piece):
+//   1. Waist       → horizontal top, joins waistband
+//   2. Side edge   → short vertical from outer waist corner down to leg-arch start
+//   3. Leg arch    → concave curve from side edge bottom to inner crotch corner
+//                    (NO seam — elastic applied to this edge)
+//   4. Crotch seam → short horizontal segment joining front to back (no gusset)
+//   5. CF/CB seam  → vertical, joins the two halves of front (or back)
+//                    CB is raised by cbRaise above outer waist for seat shaping
 
-function buildBriefPanel({ panelW, height, arcSagitta, cbRaise }) {
+function buildBriefPanel({ panelW, height, sideDrop, crotchW, archSag, cbRaise }) {
   const poly = [];
 
-  // Top edge: diagonal if CB raised, straight if front (cbRaise = 0)
+  // 1. Waist edge: from CF/CB inner top across to outer waist corner
   poly.push({ x: 0,      y: cbRaise > 0 ? -cbRaise : 0 }); // CF or CB inner waist
-  poly.push({ x: panelW, y: 0 });                            // outer waist corner
+  poly.push({ x: panelW, y: 0 });                          // outer waist corner
 
-  // Leg opening arch: cubic Bezier from outer waist to crotch center.
-  // cp1 stays near the outer waist corner (gradual at hip level).
-  // cp2 pulls toward the CF/CB at the lower third (aggressive sweep near crotch).
-  // This creates the characteristic brief arch: flat at top, deep curve near crotch.
-  // Arch ends at x=0 (CF/CB center) — panels sew directly to each other at crotch seam.
-  const p0  = { x: panelW,              y: 0 };
-  const cp1 = { x: panelW - arcSagitta * 0.3, y: height * 0.15 };
-  const cp2 = { x: arcSagitta * 0.5,    y: height * 0.75 };
-  const p3  = { x: 0,                   y: height };
+  // 2. Side edge: straight vertical down to leg-arch start
+  poly.push({ x: panelW, y: sideDrop });
+
+  // 3. Leg arch: concave cubic Bezier from side edge bottom to inner crotch corner.
+  // Curve sags inward toward the CF/CB so the brief has a true leg opening.
+  const p0  = { x: panelW, y: sideDrop };
+  const cp1 = { x: panelW - archSag * 0.2, y: sideDrop + (height - sideDrop) * 0.35 };
+  const cp2 = { x: crotchW + archSag * 0.4, y: height - (height - sideDrop) * 0.15 };
+  const p3  = { x: crotchW, y: height };
 
   const archPts = sampleBezier(p0, cp1, cp2, p3, 48);
   for (let i = 1; i < archPts.length; i++) poly.push({ ...archPts[i], curve: true });
-  // Polygon closes back to the first point via the CF/CB seam (left vertical edge)
+
+  // 4. Crotch seam: horizontal from inner leg-arch end across to CF/CB
+  poly.push({ x: 0, y: height });
+
+  // 5. Polygon closes via CF/CB seam (straight vertical from crotch back to top)
 
   return poly;
 }
