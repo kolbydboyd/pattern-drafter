@@ -270,14 +270,48 @@ export default {
     if (opts.collar === 'shawl') {
       const frontNeckArc = arcLength(frontNeckPts);
       const backNeckArc  = arcLength(backNeckPts);
-      const collarLen    = frontNeckArc * 2 + backNeckArc * 2 + 2; // +2 for ease/overlap
+      // Half-arc: CB to CF on one side. +1 = ease/overlap at each front edge.
+      const halfArc     = frontNeckArc + backNeckArc + 1;
+      const collarWidth = 4.5;             // cut width; folds to ~2.25″ finished
+      const waveDepth   = collarWidth * 0.09; // ≈ 0.4″ outward bow at back neck
+
+      // Outer (fall) edge: slight convex bow so the outer edge is longer than the
+      // inner — this is what makes a shawl collar roll and lie flat without puckering.
+      // x: 0 (CB fold) → halfArc (CF). Negative y = bows outward above piece.
+      const outerPts = [];
+      const OSTEPS   = 5;
+      for (let i = 0; i <= OSTEPS; i++) {
+        const frac = i / OSTEPS;
+        const x    = halfArc * frac;
+        // Sine envelope: peaks in back-neck region, fades to 0 at CF
+        const wave = waveDepth * Math.sin(Math.PI * (1 - frac) * 0.85);
+        outerPts.push({ x, y: -wave, curve: i > 0 && i < OSTEPS });
+      }
+
+      const collarPoly = [
+        { x: 0,       y: 0            },        // CB fold, outer edge
+        ...outerPts.slice(1, -1),               // intermediate outer bow points
+        { x: halfArc, y: outerPts[OSTEPS].y },  // CF outer corner
+        { x: halfArc, y: collarWidth   },        // CF neckline corner
+        { x: 0,       y: collarWidth   },        // CB fold, neckline edge
+      ];
+
+      const collarBB = bbox(collarPoly);
+
       pieces.push({
         id: 'shawl-collar',
         name: 'Shawl Collar',
-        instruction: 'Cut 2 (outer + facing) · Interface outer · Sew to combined front edge and neckline opening',
-        type: 'rectangle',
-        dimensions: { length: collarLen, width: 5 },
+        instruction: 'Cut 2 on fold at CB (outer + facing) · Interface outer · Sew outer to facing {RST} along outer curved edge, leaving neckline open · {clip} curves, turn RS out, {press} · Pin to combined neckline and CF opening {RST} · Sew, {clip} curves · {understitch} facing to SA · Fold facing to inside, {slipstitch} or {topstitch}',
+        type: 'bodice',
+        polygon: collarPoly,
+        path: polyToPathStr(collarPoly),
+        width:  collarBB.maxX - collarBB.minX,
+        height: collarBB.maxY - collarBB.minY,
         sa,
+        dims: [
+          { label: fmtInches(halfArc) + ' half length (CB to CF)', x1: 0, y1: -(waveDepth + 0.5), x2: halfArc, y2: -(waveDepth + 0.5), type: 'h' },
+          { label: fmtInches(collarWidth) + ' cut width',          x: halfArc + 1, y1: 0, y2: collarWidth, type: 'v' },
+        ],
       });
     }
 
