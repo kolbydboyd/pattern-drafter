@@ -10,12 +10,18 @@ const SC = 20; // 1 inch = 20 SVG units
 const sc = i => i * SC;
 
 /**
- * Compute the average centroid of a polygon (inch coords).
+ * Compute the bounding-box center of a polygon (inch coords).
+ * Bounding-box center is used instead of vertex average to avoid bias from
+ * high-density bezier curves (e.g. crotch arch with 96 sample points skews
+ * the average toward the crotch corner, causing wrong inward-normal selection).
  */
 function polygonCentroid(poly) {
-  let cx = 0, cy = 0;
-  for (const p of poly) { cx += p.x; cy += p.y; }
-  return { x: cx / poly.length, y: cy / poly.length };
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of poly) {
+    if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+  }
+  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 }
 
 /**
@@ -682,7 +688,10 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
+    ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
+      const x = ox + sc(l.x), y = oy + sc(l.y);
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
+    }).join('')}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
       // Roll/fold line annotation (e.g. lapel break line)
       piece.rollLine ? (() => {
         const r = piece.rollLine;

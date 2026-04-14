@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.39] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — brief liner rendering**: `brief-front` and `brief-back` pieces were `type: 'panel'` but lacked the panel-specific props (`width`, `height`, `ext`, `rise`, `inseam`, `cbRaise`), so the UI showed "Panel width: undefined" with no polygon. Changed to `type: 'bodice'` with explicit `width`/`height`/`isCutOnFold: false` so the shaped arch polygon now renders correctly in the pattern view.
+- **Retro Short Trunks — pocket bag rendering**: same fix applied to the `pocket-bag` piece (`type: 'panel'` → `type: 'bodice'`). Shaped rectangular polygon now renders in the pattern view with fold-edge and side-seam labels.
+- **Retro Short Trunks — brief liner gusset removed**: brief liner simplified from 3 pieces (front×2, back×2, gusset×1) to 2 pieces (front×2, back×2). The gusset was unnecessary — front and back panels now join directly at a crotch seam, which is the standard construction for commercial retro brief liners. `buildBriefPanel` updated so the leg arch bezier terminates at x=0 (CF/CB center) instead of at a gusset attachment point. Instructions updated accordingly.
+- **Retro Short Trunks — waistband dimension display**: `dimensions: { length, height }` should have been `{ length, width }`. The pocket-renderer display string uses `pd.width` for the second dimension; `height` caused "undefined" to appear. Fixed to `{ length, width }`.
+- **Fly shield in PDF**: `renderPocketPlacement` in `print-layout.js` was drawing the fly shield outline on all front panels (including swim trunks, gym shorts, etc.) because the gate was `if (!isBack)`. Fixed to `if (!isBack && opts?.fly)` so the overlay only appears on garments with the fly option active.
+- **Notch centroid bias**: both `polygonCentroid` in `pattern-view.js` and the equivalent inline computation in `print-layout.js` `renderNotchesPrint` used vertex-average centroid. High-density bezier curves (e.g. 96-point crotch arch) skewed the centroid toward the crotch corner, occasionally flipping the inward-normal selection. Changed to bounding-box center `(minX+maxX)/2, (minY+maxY)/2` in both files for bias-free inward normal selection.
+- **Labels in `renderGenericPieceSVG`**: added `piece.labels` rendering support to the bodice/generic SVG renderer in `pattern-view.js`. Labels array `[{ text, x, y, rotation }]` now renders as amber text overlays on the shaped polygon preview.
+
+---
+
 ## [0.12.38] - 2026-04-14
 
 ### Fixed
