@@ -46,10 +46,13 @@ function renderNotchesPrint(cutPolyInches, notches, ox, oy) {
   const TRI_H  = 0.20;
   const TRI_HW = 0.075;
 
-  // Centroid for inward-normal selection
-  let cx = 0, cy = 0;
-  for (const p of cutPolyInches) { cx += p.x; cy += p.y; }
-  cx /= n; cy /= n;
+  // Bounding-box center for inward-normal selection (avoids bias from high-density bezier curves)
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of cutPolyInches) {
+    if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+  }
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
 
   let svg = '';
   for (const notch of notches) {
@@ -259,7 +262,7 @@ function renderPocketPlacement(piece, ox, oy) {
   }
 
   // ── Fly shield outline (front panel, left/CF side) ──
-  if (!isBack) {
+  if (!isBack && opts?.fly) {
     const flyLen = Math.ceil((rise || 10) * 0.6);
     const fsX = ox * DPI;
     const fsY = oy * DPI;
