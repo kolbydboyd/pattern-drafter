@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.46] - 2026-04-14
+
+### Fixed
+- **Hoodie / Scholar Hoodie — hood face opening shape**: the face opening edge was a straight vertical line, which appeared convex and caused fabric bunching at the drawstring casing. Added a concave Bézier arc (~0.5″ inward bow at the cheek/chin zone) matching standard two-panel hood drafting practice. The Scholar Hoodie inherits the fix automatically since it delegates hood panel geometry to `hoodie.js`.
+
+---
+
 ## [0.12.45] - 2026-04-14
 
 ### Fixed
