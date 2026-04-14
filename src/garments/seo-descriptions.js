@@ -706,6 +706,36 @@ const SEO_DESCRIPTIONS = {
       { q: 'How does the back neckline work without a zipper?', a: 'The back neckline has a casing for ¼″ elastic that stretches enough for the dress to go over a child\'s head. This makes dressing easier and eliminates the need for a zipper.' },
     ],
   },
+  'polo-shirt': {
+    metaDescription: 'Draft a custom-fit polo shirt sewing pattern from your exact measurements. Self-fabric collar, 2-button placket, set-in sleeve with rib cuff, side slits. Tiled PDF.',
+    pageIntro: 'A classic polo shirt drafted to your chest, shoulder, neck, and bicep measurements. Self-fabric collar with an interfaced upper layer for a crisp stand, a short 2-button placket, set-in short sleeve with a stiff rib cuff, side hem slits, and a turn-back hem.',
+    faq: [
+      { q: 'How do I get crisp collar edges on a knit polo?', a: 'Interface the upper collar piece before sewing. Sew the upper and under collar together on three sides (RST), clip the corners, turn right side out, and press firmly. The interfacing plus the sewn-and-turned method creates the sharp fold characteristic of a classic polo collar.' },
+      { q: 'Can I use a readymade collar instead of cutting my own?', a: 'Yes. Readymade knit collar pieces (sometimes called polo collar ribbing) are available from specialty sewing suppliers and can be sewn directly to your neckline. The pattern includes a self-fabric collar as the default.' },
+      { q: 'What fabric is a polo shirt made from?', a: 'Piqué (the textured waffle-weave knit) is the classic choice. Cotton interlock or poly interlock also work well and produce a slightly smoother look. The sleeve cuffs are cut from a stiffer rib knit.' },
+    ],
+  },
+  'slim-polo': {
+    metaDescription: 'Draft a custom-fit slim polo shirt sewing pattern. Fitted (+2″ ease), 2-button placket, interfaced collar. Tiled PDF.',
+    pageIntro: 'A slim-fit polo shirt drafted to your measurements. Same construction as the Classic Polo with a closer, more tailored fit.',
+    faq: [
+      { q: 'What ease is built into the slim polo?', a: '2″ of wearing ease at the chest — close to the body without being restrictive. Use a 4-way stretch fabric for the most comfortable slim fit.' },
+    ],
+  },
+  'classic-polo': {
+    metaDescription: 'Draft a custom-fit classic polo shirt sewing pattern. Regular fit (+4″ ease), above-elbow sleeve, 2-button placket. Tiled PDF.',
+    pageIntro: 'The standard polo shirt silhouette with regular (+4″) ease and a slightly longer above-elbow sleeve. Interfaced collar for a crisp, traditional look.',
+    faq: [
+      { q: 'What is the sleeve length on the classic polo?', a: 'The above-elbow preset is 9″ from the underarm — it sits just above the elbow for a traditional polo look.' },
+    ],
+  },
+  'sport-polo': {
+    metaDescription: 'Draft a custom-fit sport polo sewing pattern. Relaxed fit (+6″ ease), mid-bicep sleeve, soft uninterfaced collar. Tiled PDF.',
+    pageIntro: 'A relaxed polo with a soft, uninterfaced collar for a more casual, sporty feel. Mid-bicep sleeve and generous ease for comfort on the move.',
+    faq: [
+      { q: 'Why no interfacing on the sport polo collar?', a: 'Skipping the interfacing gives the collar a softer, more casual drape — closer to an athletic polo than a traditional dress polo. A heavier piqué fabric will still provide some natural body.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;

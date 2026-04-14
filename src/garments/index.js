@@ -55,6 +55,7 @@ import openCardigan        from './open-cardigan.js';
 import choreCoat           from './chore-coat.js';
 import wideLegTrouserM     from './wide-leg-trouser-m.js';
 import henley              from './henley.js';
+import poloShirt          from './polo-shirt.js';
 import scrunchie           from './scrunchie.js';
 import dogBandana          from './dog-bandana.js';
 import zipperedPouch       from './zippered-pouch.js';
@@ -121,6 +122,7 @@ const GARMENTS = {
   'chore-coat':             choreCoat,
   'wide-leg-trouser-m':     wideLegTrouserM,
   'henley':                 henley,
+  'polo-shirt':             poloShirt,
   'scrunchie':              scrunchie,
   'dog-bandana':            dogBandana,
   'zippered-pouch':         zipperedPouch,
