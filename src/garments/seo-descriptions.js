@@ -197,6 +197,23 @@ const SEO_DESCRIPTIONS = {
       { q: 'What length options are available?', a: 'You set the skirt length based on your preference - above the knee, knee-length, or midi. The pattern drafts to your exact specification.' },
     ],
   },
+  'mini-skirt-w': {
+    metaDescription: 'Draft a custom-fit mini skirt sewing pattern from your measurements. Contoured waistband, center back invisible zip, shaped side seams. Tiled PDF sewing pattern for women.',
+    pageIntro: 'A short fitted mini skirt drafted to your waist and hip measurements. Concave front waist, convex side seams bulging out through the hip, raised-peak back darts, and a three-piece contoured waistband. Invisible zipper at center back. Hem allowance is baked into the pattern so the folded edges line up exactly with the side seams.',
+    faq: [
+      { q: 'How long is the mini skirt?', a: 'The default length is 14 inches, which lands at mid-thigh on most bodies. You can adjust the skirt length input to any value down to 12 inches or up to 17 or 18 inches if you want a longer version.' },
+      { q: 'What is a contoured waistband?', a: 'A contoured waistband is curved rather than a straight rectangle, so it sits smoothly against the curve of your body above the hip. This pattern cuts the waistband as three shaped pieces (one front on the fold, two backs mirrored) that join at the side seams.' },
+      { q: 'Why is the hem drawn with a kick at the side seams?', a: 'The side seams taper slightly from hip to hem, so if the hem allowance were a simple parallel offset the side edges would not line up when folded up. The mirrored kick at the side seams means the hem allowance folds flat against the panel above with no trimming.' },
+    ],
+  },
+  'micro-skirt-w': {
+    metaDescription: 'Draft a custom-fit micro mini skirt sewing pattern from your measurements. Short fitted silhouette, invisible back zip, contoured waistband. Tiled PDF for women.',
+    pageIntro: 'A very short fitted skirt drafted to your waist and hip measurements. Same construction as the mini skirt but drafted to a 12 inch default length for a more dramatic silhouette.',
+    faq: [
+      { q: 'How short is a micro skirt?', a: 'The default length is 12 inches from the natural waist, which lands at upper thigh on most bodies. Adjust the skirt length input if you want a different finish.' },
+      { q: 'Is the construction the same as the mini skirt?', a: 'Yes. The micro is a length variant of the mini skirt pattern. Same contoured waistband, same shaped side seams, same raised-peak back darts, same invisible back zipper.' },
+    ],
+  },
   'shirt-dress-w': {
     metaDescription: 'Generate a custom-fit shirt dress sewing pattern from your measurements. Button front, collar, waist shaping, and full skirt. Tiled PDF for women.',
     pageIntro: 'A button-front shirt dress drafted to your bust, waist, and hip measurements. Collar, cuffs, and waist shaping create a polished, wear-anywhere dress sized to your body.',

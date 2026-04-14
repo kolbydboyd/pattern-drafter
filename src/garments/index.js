@@ -42,6 +42,7 @@ import bowTie            from './bow-tie.js';
 import tankTop           from './tank-top.js';
 import circleSkirtW      from './circle-skirt-w.js';
 import pencilSkirtW      from './pencil-skirt-w.js';
+import miniSkirtW        from './mini-skirt-w.js';
 import leggings          from './leggings.js';
 import athleticFormalTrousers from './athletic-formal-trousers.js';
 import tshirtDressW          from './tshirt-dress-w.js';
@@ -107,6 +108,7 @@ const GARMENTS = {
   'tank-top':             tankTop,
   'circle-skirt-w':       circleSkirtW,
   'pencil-skirt-w':       pencilSkirtW,
+  'mini-skirt-w':         miniSkirtW,
   'leggings':             leggings,
   'athletic-formal-trousers': athleticFormalTrousers,
   'tshirt-dress-w':           tshirtDressW,

@@ -244,16 +244,16 @@ measure → generate → print → tile → cut → sew → finished
 
 _Research references: Aldrich (Metric Pattern Cutting for Women's Wear, 6th ed.), Armstrong (Patternmaking for Fashion Design, 6th ed.), Bunka Fashion College (Fundamentals of Garment Design), FreeSewing.org, ASTM D5585/D6192/D6458 body measurement standards, Beverly Johnson (lingerie), Cloth Habit, Orange Lingerie, Jalie, Style Arc._
 
-### Current catalog: 119 patterns (51 base garments + 68 style variants) — updated 2026-04-14
+### Current catalog: 121 patterns (52 base garments + 69 style variants) — updated 2026-04-14
 
-**Quick-win additions (2026-04-14):** scrunchie (+ mini, oversized), dog bandana, zippered pouch (+ makeup bag, pencil case), pajama pants (+ flannel, satin), lounge shorts, turtleneck (+ mock-neck), dolman/batwing top, maxi skirt (+ elastic, zip variants), trapeze dress
+**Quick-win additions (2026-04-14):** scrunchie (+ mini, oversized), dog bandana, zippered pouch (+ makeup bag, pencil case), pajama pants (+ flannel, satin), lounge shorts, turtleneck (+ mock-neck), dolman/batwing top, maxi skirt (+ elastic, zip variants), trapeze dress, mini skirt (W) (+ micro variant)
 
 ### Previous catalog: 84 patterns (42 base garments + 42 style variants)
 
 **Men's/unisex base (24):** tee, camp shirt, button-up, crewneck, hoodie, straight jeans, baggy jeans, chinos, 874 work pants, pleated trousers, sweatpants, cargo shorts, baggy shorts, gym shorts, pleated shorts, swim trunks, crop jacket, athletic formal jacket, denim jacket, cargo work pants, apron, bow tie, tank top, tote bag
-**Women's base (18):** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, circle skirt, pencil skirt, shirt dress, wrap dress, T-shirt dress, slip dress, A-line dress, sundress, leggings, athletic formal trousers
+**Women's base (19):** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, circle skirt, pencil skirt, mini skirt, shirt dress, wrap dress, T-shirt dress, slip dress, A-line dress, sundress, leggings, athletic formal trousers
 
-**Style variants (42):** oversized tee, muscle tee, longline tee, pocket tee, scoop tee (W), long-sleeve fitted tee (W), cropped tee (W), running shorts, basketball shorts, racerback tank, cropped tank, capri leggings, biker shorts, lounge pant (W), mini circle skirt (W), midi circle skirt (W), slim jeans, high-rise jeans, slim chinos, tapered joggers, vacation shirt, raglan sweatshirt, woven tank (W), cigarette pants (W), linen wide-legs (W), long-sleeve tee dress (W), maxi tee dress (W), maxi slip dress (W), maxi sundress (W), tiered sundress (W), market tote, beach tote, zip hoodie, oversized hoodie, maxi wrap dress (W), linen shirt dress (W), midi A-line dress (W), poplin blouse (W), linen tunic (W), lightweight denim jacket, linen shirt, chambray work shirt
+**Style variants (43):** oversized tee, muscle tee, longline tee, pocket tee, scoop tee (W), long-sleeve fitted tee (W), cropped tee (W), running shorts, basketball shorts, racerback tank, cropped tank, capri leggings, biker shorts, lounge pant (W), mini circle skirt (W), midi circle skirt (W), micro skirt (W), slim jeans, high-rise jeans, slim chinos, tapered joggers, vacation shirt, raglan sweatshirt, woven tank (W), cigarette pants (W), linen wide-legs (W), long-sleeve tee dress (W), maxi tee dress (W), maxi slip dress (W), maxi sundress (W), tiered sundress (W), market tote, beach tote, zip hoodie, oversized hoodie, maxi wrap dress (W), linen shirt dress (W), midi A-line dress (W), poplin blouse (W), linen tunic (W), lightweight denim jacket, linen shirt, chambray work shirt
 
 **Live bundles (10):** 3-Pattern Capsule ($29), 5-Pattern Wardrobe ($49), Beach Day ($39), Weekend Casual ($34), Athleisure ($34), Tailored Essentials ($42), Cozy Weekend ($25), Summer Capsule (W) ($25), Office Ready (W) ($34), Date Night (W) ($29)
 
