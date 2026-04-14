@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Kids A-Line Dress: wider neckline, short bodice, full A-line skirt -->
+  <!-- Neckline (round, wide — child proportion) -->
+  <path d="M70,44 Q80,36 90,44"/>
+  <!-- Bodice (sleeveless, short torso) -->
+  <path d="M68,44 L52,56 L50,94 L56,94 L56,102 L104,102 L104,94 L110,94 L108,56 L92,44"/>
+  <!-- Waist seam -->
+  <path d="M56,100 Q80,104 104,100"/>
+  <!-- A-line skirt (wide flare) -->
+  <path d="M56,102 L30,188 L130,188 L104,102"/>
+  <!-- Skirt hem -->
+  <path d="M30,188 Q80,192 130,188"/>
+</svg>

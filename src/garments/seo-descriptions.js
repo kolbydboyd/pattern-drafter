@@ -646,6 +646,49 @@ const SEO_DESCRIPTIONS = {
       { q: 'What fabric works best for a trapeze dress?', a: 'Lightweight to medium wovens with drape — cotton lawn, rayon challis, linen, or crepe. The dress relies on fabric drape rather than construction for its silhouette.' },
     ],
   },
+
+  // ── Children's patterns ────────────────────────────────────────────────────
+
+  'kids-tee': {
+    metaDescription: "Generate a custom-fit kids T-shirt sewing pattern from your child's measurements. Sized 2T–14, beginner-friendly, knit fabric. Tiled PDF included.",
+    pageIntro: "A crew or scoop neck T-shirt drafted to your child's chest, shoulder, and torso measurements. Short or long sleeve options. Beginner-friendly with just four pieces.",
+    faq: [
+      { q: 'What fabric works best for a kids tee?', a: 'Cotton jersey (4–6 oz) is the easiest choice — it washes well, stays soft, and is easy to sew. Rayon jersey drapes beautifully but needs a bit more care.' },
+      { q: 'Do I need a serger?', a: 'A serger gives the cleanest finish, but a stretch stitch on a regular machine works well. Use a ballpoint needle 75/11 to avoid snags on knit fabric.' },
+    ],
+  },
+  'kids-joggers': {
+    metaDescription: "Draft a custom-fit kids joggers sewing pattern from your child's measurements. Elastic waistband, beginner-friendly. Sizes 2T–14. Tiled PDF.",
+    pageIntro: "Pull-on joggers with a full-circle elastic waistband, drafted to your child's waist, hip, and inseam. Straight leg or tapered jogger style. Includes a built-in growth hem tuck.",
+    faq: [
+      { q: 'Why no drawstring?', a: 'Drawstrings are a safety hazard for young children and are banned from some children\'s garments. The elastic-only waistband is safer and just as comfortable.' },
+      { q: 'What is the growth hem tuck?', a: 'The pattern includes a 1.5″ hem allowance. Fold up only 1″ to leave a hidden tuck inside — later you can let it down for another season of wear.' },
+    ],
+  },
+  'kids-leggings': {
+    metaDescription: "Create a custom-fit kids leggings sewing pattern from your child's measurements. Zero ease, 4-way stretch knit, elastic waist. Sizes 2T–14. Tiled PDF.",
+    pageIntro: "Fitted knit leggings with a full-circle elastic waistband, drafted to your child's measurements. Full length, capri, or bike short options. Just three pieces — the easiest kids pattern.",
+    faq: [
+      { q: 'What stretch percentage does the fabric need?', a: '4-way stretch with at least 50% stretch recovery is required. Cotton-spandex blends (95/5 or 90/10) are the most popular choice.' },
+      { q: 'Can I use this pattern for leggings with pockets?', a: 'The current pattern is pocket-free to keep the construction simple. Side seam pockets can be added by sewing pocket bags into the side seams before closing them.' },
+    ],
+  },
+  'kids-shorts': {
+    metaDescription: "Generate custom-fit kids pull-on shorts from your child's measurements. Elastic waist, beginner-friendly. Sizes 2T–14. Tiled PDF included.",
+    pageIntro: "Simple pull-on shorts with a full-circle elastic waistband, drafted to your child's waist and hip measurements. Choose from short, mid, or bermuda length. The most beginner-friendly kids pattern.",
+    faq: [
+      { q: 'What fabric works for kids shorts?', a: 'Cotton twill and cotton poplin give a crisp, durable result great for everyday wear. Cotton jersey makes a softer, more athletic pull-on short.' },
+      { q: 'How long should the elastic be?', a: 'Cut the elastic to about 85% of your child\'s waist measurement — it should stretch on comfortably but hold up securely during play.' },
+    ],
+  },
+  'kids-dress': {
+    metaDescription: "Draft a custom-fit kids A-line dress sewing pattern from your child's measurements. Elastic back neck, beginner-friendly. Sizes 2T–14. Tiled PDF.",
+    pageIntro: "A shaped bodice with a flared A-line skirt, drafted to your child's chest, shoulder, and full length measurements. No bust dart — flat chest block. Back neck elastic for easy over-head dressing.",
+    faq: [
+      { q: 'What fabric is best for a kids dress?', a: 'Lightweight cotton lawn, poplin, or linen blend drapes beautifully and washes easily. Pre-wash before cutting — natural fibers can shrink 3–5%.' },
+      { q: 'How does the back neckline work without a zipper?', a: 'The back neckline has a casing for ¼″ elastic that stretches enough for the dress to go over a child\'s head. This makes dressing easier and eliminates the need for a zipper.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;

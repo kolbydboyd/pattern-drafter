@@ -185,11 +185,12 @@ export default {
     const slvWidth   = m.bicep / 2 + sleeveEase;
     const capHeight  = opts.sleeve === 'cap' ? 0 : armholeDepth * 0.60;
     let sleevePoly;
+    let capPts;
     if (opts.sleeve === 'cap') {
       sleevePoly = [{ x:0, y:0 }, { x:slvWidth*2, y:0 }, { x:slvWidth*2, y:slvLen }, { x:0, y:slvLen }];
     } else {
-      const capCp  = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
-      const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16).map(p => ({ ...p, curve: true }));
+      const capCp = sleeveCapCurve(m.bicep, capHeight, slvWidth * 2);
+      capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16).map(p => ({ ...p, curve: true }));
       sleevePoly = capPts.map(p => ({ ...p, y: p.y + capHeight }));
       // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
       delete sleevePoly[0].curve;

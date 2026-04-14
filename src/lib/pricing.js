@@ -57,6 +57,12 @@ const GARMENT_TIERS = {
   'lounge-pant-w':              'simple',
   'mini-circle-skirt-w':        'simple',
   'midi-circle-skirt-w':        'simple',
+  // kids — all simple ($9)
+  'kids-tee':                   'simple',
+  'kids-joggers':               'simple',
+  'kids-leggings':              'simple',
+  'kids-shorts':                'simple',
+  'kids-dress':                 'simple',
   // core — $14
   'cargo-shorts':       'core',
   'straight-jeans':     'core',

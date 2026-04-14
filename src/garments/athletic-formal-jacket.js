@@ -249,7 +249,7 @@ export default {
       wrist: m.wrist || m.bicep * 0.55,
       armholeArc,
       capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
-      sleeveBend: 8,          // slight elbow bend (less than structured denim)
+      sleeveBend: 6,          // slight elbow bend — jersey needs less than woven (denim uses 10°)
       bicepEase: 0.15,
       capHeightRatio: 0.40,   // lower cap for knit
     });
@@ -364,9 +364,20 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: sleeveResult.topSleeveWidth,
         sa, hem,
+        notches: (() => {
+          const { crown, backPitchPt, frontPitchPt, tsElbowLeft } = sleeveResult.landmarks;
+          return [
+            { x: crown.x,             y: crown.y,        angle: -90 }, // crown — aligns to shoulder seam
+            { x: frontPitchPt.x,      y: frontPitchPt.y, angle: 180 }, // front pitch (single notch)
+            { x: backPitchPt.x,       y: backPitchPt.y,  angle: 0 },   // back pitch (double notch)
+            { x: backPitchPt.x + 0.3, y: backPitchPt.y,  angle: 0 },
+            { x: tsElbowLeft.x,       y: tsElbowLeft.y,  angle: 180 }, // elbow — front seam alignment
+          ];
+        })(),
         dims: [
           { label: fmtInches(sleeveResult.topSleeveWidth) + ' top width', x1: topSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: topSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: topSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: topSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
         ],
       },
       {
@@ -382,9 +393,13 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: sleeveResult.underSleeveWidth,
         sa, hem,
+        notches: [
+          { x: sleeveResult.landmarks.usElbowLeft.x, y: sleeveResult.landmarks.usElbowLeft.y, angle: 0 }, // elbow — front seam alignment
+        ],
         dims: [
           { label: fmtInches(sleeveResult.underSleeveWidth) + ' under width', x1: underSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: underSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: underSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: underSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
         ],
       },
     ];
@@ -834,13 +849,18 @@ export default {
     });
 
     steps.push({
+      step: n++, title: 'Assemble sleeves',
+      detail: 'For each sleeve: pin top sleeve to under sleeve {RST} along the front (inner arm) seam, matching elbow notches. Stretch stitch or {serge}. {press} open. Then sew the back (outer arm) seam the same way. You now have a finished sleeve tube with the cap shaped for the armhole.',
+    });
+
+    steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit (knit fabric eases readily). Stretch stitch or {serge}. {press} toward sleeve.',
+      detail: 'Pin each assembled sleeve cap into the armhole {RST}. Match the crown notch to the shoulder seam, the front seam of the sleeve to the front pitch notch on the armhole, and the back seam to the back (double) pitch notch. Distribute the cap ease evenly — 1″ of ease in jersey eases readily. Stretch stitch or {serge}. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams',
-      detail: `Sew front to back at side seams {RST} from hem through underarm to sleeve hem in one continuous seam.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch stitch or {serge}. {press} open.`,
+      detail: `Sew front to back at side seams {RST} from hem to underarm only — the sleeve is already assembled and set.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch stitch or {serge}. {press} open.`,
     });
 
     // ── LINING ──

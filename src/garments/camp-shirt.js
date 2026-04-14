@@ -10,6 +10,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  sleeveCapCurve, validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -195,17 +196,23 @@ export default {
     backPoly.push({ x: backSideX, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
-    // ── SLEEVE (straight rectangle with 10% taper toward hem) ────────────────
+    // ── SLEEVE (set-in cap curve) ─────────────────────────────────────────────
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.2;
     const slvTopW    = m.bicep / 2 + sleeveEase;     // half-sleeve at cap
     const slvBotW    = (m.wrist || m.bicep * 0.7) / 2 + (opts.sleeveStyle === 'long' ? 0.5 : 0);
-    const sleevePoly = [
-      { x: 0,        y: 0          },  // back shoulder
-      { x: slvTopW * 2, y: 0       },  // front shoulder
-      { x: slvTopW * 2 - (slvTopW - slvBotW), y: slvLength }, // front hem (tapered)
-      { x: slvTopW - slvBotW,       y: slvLength },            // back hem (tapered)
-    ];
+    const capH       = armholeDepth * 0.55;   // woven shirt cap — slightly lower than knit
+    const capCp      = sleeveCapCurve(m.bicep, capH, slvTopW * 2);
+    const capPts     = sampleCurve(capCp, 16);
+    validateSleeveSeams('camp-shirt', capPts, frontArmPts, backArmPts);
+
+    const sleevePoly = [];
+    for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capH });
+    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+    delete sleevePoly[0].curve;
+    delete sleevePoly[capPts.length - 1].curve;
+    sleevePoly.push({ x: slvTopW * 2 - (slvTopW - slvBotW), y: capH + slvLength }); // front hem
+    sleevePoly.push({ x: slvTopW - slvBotW,                  y: capH + slvLength }); // back hem
 
     // ── COLLAR ───────────────────────────────────────────────────────────────
     // Camp collar: shaped rectangle with rounded front points.
@@ -252,13 +259,14 @@ export default {
     backEdgeAllowances.push({ sa: hem, label: 'Hem' });
     while (backEdgeAllowances.length < backPoly.length) backEdgeAllowances.push({ sa: 0, label: 'Fold' });
 
-    // Sleeve: flat rectangle — top(cap) → front side → hem → back side
-    const sleeveEdgeAllowances = [
-      { sa: 0.625, label: 'Cap' },
-      { sa: 0.625, label: 'Side seam' },
-      { sa: hem,   label: 'Hem' },
-      { sa: 0.625, label: 'Side seam' },
-    ];
+    // Sleeve: cap curve → front side seam → hem → back side seam
+    const nCapPts = capPts.length;
+    const sleeveEdgeAllowances = sleevePoly.map((_, i) => {
+      if (i < nCapPts - 1) return { sa: 0.375, label: 'Cap' };
+      if (i === nCapPts - 1) return { sa: 0.625, label: 'Side seam' };
+      if (i === nCapPts)     return { sa: hem,   label: 'Hem' };
+      return { sa: 0.625, label: 'Side seam' };
+    });
 
     const frontBB   = bbox(frontPoly);
     const backBB    = bbox(backPoly);
@@ -296,11 +304,10 @@ export default {
       { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
       { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
     ];
-    const slvMidX = slvTopW;
     const sleeveNotches = [
-      { x: slvMidX, y: 0, angle: -90 },  // center cap
-      { x: slvTopW * 0.5, y: 0, angle: -90 },  // quarter notch
-      { x: slvTopW * 1.5, y: 0, angle: -90 },  // quarter notch
+      { x: slvTopW, y: 0, angle: -90 },  // crown center
+      { x: slvTopW * 0.5, y: capH * 0.5, angle: edgeAngle({ x: 0, y: capH }, { x: slvTopW, y: 0 }) },   // back cap
+      { x: slvTopW * 1.5, y: capH * 0.5, angle: edgeAngle({ x: slvTopW, y: 0 }, { x: slvTopW * 2, y: capH }) }, // front cap
     ];
 
     const pieces = [
@@ -350,15 +357,16 @@ export default {
         path: polyToPathStr(sleevePoly),
         width: sleeveBB.maxX - sleeveBB.minX,
         height: sleeveBB.maxY - sleeveBB.minY,
-        capHeight: 0,
+        capHeight: capH,
         sleeveLength: slvLength,
         sleeveWidth: slvTopW * 2,
         sa, hem,
         notches: sleeveNotches,
         edgeAllowances: sleeveEdgeAllowances,
         dims: [
-          { label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: slvLength, type: 'v' },
+          { label: fmtInches(slvTopW * 2) + ' underarm', x1: 0, y1: capH + 0.4, x2: slvTopW * 2, y2: capH + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: capH, y2: capH + slvLength, type: 'v' },
+          { label: fmtInches(capH) + ' cap', x: -1.2, y1: 0, y2: capH, type: 'v' },
           { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },

@@ -4,7 +4,7 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.44] - 2026-04-14
+## [0.12.48] - 2026-04-14
 
 ### Added
 - **9 new garment modules** (quick-win patterns with minimal geometry):
@@ -20,7 +20,69 @@ All notable changes are documented here, newest first.
 - **SVG illustrations** for all new modules and variants (19 new SVG files in `public/garment-illustrations/`)
 - **Pricing entries** for all 18 new garment IDs in `src/lib/pricing.js` (all `simple` tier, $9)
 - **SEO descriptions** for all 18 new garment IDs in `src/garments/seo-descriptions.js`
-- Pattern page count: 105 → 119 garments
+- Pattern page count: 119 → 134 garments (combined with kids patterns from [0.12.47])
+
+---
+## [0.12.47] - 2026-04-14
+
+### Added
+- **Children's patterns (v0.8.0)** — 5 new garment modules for sizes 2T–14, each with child-appropriate ease, measurement defaults, and beginner-friendly construction:
+  - `kids-tee` — Kids T-Shirt (crew/scoop neck, short/long sleeve, +2" standard ease)
+  - `kids-joggers` — Kids Joggers (elastic-only waistband, straight/tapered leg, growth hem tuck)
+  - `kids-leggings` — Kids Leggings (zero ease knit, ankle/capri/shorts length, high or mid waist)
+  - `kids-shorts` — Kids Pull-On Shorts (elastic waist, 3 inseam lengths, optional side pockets)
+  - `kids-dress` — Kids A-Line Dress (round/scoop/boat neck, sleeveless/cap sleeve, A-line skirt)
+- **Children's filter tab** on the `/patterns` listing page — new "Children" tab filters to the 5 kids garments. Menswear tab no longer includes kids patterns.
+- **Children's category in wizard** — "Children" category tile added to step 1 of the pattern wizard (between Accessories and the end of the list).
+- **5 SVG garment illustrations** — `kids-tee.svg`, `kids-joggers.svg`, `kids-leggings.svg`, `kids-shorts.svg`, `kids-dress.svg` added to `/public/garment-illustrations/`.
+- **Measurement min bounds lowered** for child compatibility: chest (30→18), waist (22→16), hip (28→18), shoulder (14→8), neck (13→9), bicep (10→6), torsoLength (14→8), rise (7→4), thigh (16→10). Adult defaults unchanged.
+- **SEO descriptions** added for all 5 kids garments in `seo-descriptions.js`.
+- **Pricing** — all 5 kids garments mapped to `simple` tier ($9) in `pricing.js`.
+- **Related patterns** on garment detail pages now scopes by audience — kids patterns only relate to other kids patterns, adults to adults.
+- **CHILDREN_SIZES avatar array** added to `src/engine/grading.js` — 10 sizes (2T–14) for pattern grading and PDF bundle size charts.
+
+---
+
+## [0.12.46] - 2026-04-14
+
+### Fixed
+- **Hoodie / Scholar Hoodie — hood face opening shape**: the face opening edge was a straight vertical line, which appeared convex and caused fabric bunching at the drawstring casing. Added a concave Bézier arc (~0.5″ inward bow at the cheek/chin zone) matching standard two-panel hood drafting practice. The Scholar Hoodie inherits the fix automatically since it delegates hood panel geometry to `hoodie.js`.
+
+---
+
+## [0.12.45] - 2026-04-14
+
+### Fixed
+- **Crop Jacket — lining pieces are now shaped polygons, not rectangles**: the first pass of the Detroit conversion shipped lining pieces as `type: 'pocket'` with `dimensions: { width, height }`, which renders as a flat rectangle in the piece view. That's wrong — a real front lining follows the front panel shape (neck curve, shoulder slope, armhole, side seam) with the inner edge clipped to the facing line, and a real back lining follows the back panel shape. Now derives `liningFrontPoly`, `liningBackPoly`, and `liningSleevePoly` from the actual shell polygons:
+  - **Front lining**: clones `frontPoly` and snaps every point with `x < FACING_W` to `x = FACING_W`, then lifts the hem to `torsoLen − 1″`. When `neckW > FACING_W` the lining shows a real partial neck curve at the top inner area (e.g. neck=18″ → neckW=3.6 > FACING_W=3, so points 8–12 of the curve survive); when `neckW ≤ FACING_W` the inner edge is fully vertical. A `dedupPoly` helper drops consecutive duplicate points and any closing-point dupe so the polygon stays clean. Renders as `type: 'bodice'` so the piece view + yardage estimator handle it correctly.
+  - **Back lining**: clones `backPoly` and only lifts hem points to `torsoLen − 1″`. Renders as `type: 'bodice'`, `isBack: true`, cut on fold.
+  - **Sleeve lining**: rebuilt as a 4-point polygon at `slvTopW × 2` wide × `slvLength − 1″` tall (the shell sleeve is already a straight rectangle in this jacket). Renders as `type: 'sleeve'`.
+- Verified with two body sizes (chest 38 / neck 15 → neckW = FACING_W exactly, and chest 44 / neck 18 → neckW > FACING_W) — polygon point counts and bounding boxes both come out right (front lining: 39 pts, BB 8.0 × 15.0 for the small size; back lining: 39 pts, BB 11.0 × 15.0; sleeve lining: 4 pts, BB 15.4 × 25.0).
+- **Cropped Tee (fitted-tee-w) — `capPts is not defined` error**: `capPts` was declared with `const` inside the first `if/else` block's `else` branch, making it block-scoped and inaccessible to the second `else` branch that computed sleeve notches. Lifted the declaration to `let capPts` above both blocks so it is in scope throughout the sleeve section.
+
+---
+
+## [0.12.44] - 2026-04-14
+
+### Added
+- **Crop Jacket — full Carhartt Detroit conversion**: the crop jacket was marketed as a chore-coat / Detroit style but only supported button or snap closures and patch pockets. After auditing against a real Detroit jacket and FreeSewing's Jaeger / Carlton sources (fetched from GitHub since the local freesewing-develop repo isn't synced into the build environment), added five new options and up to seven new conditional pattern pieces:
+  - **`closure: zipper`** (now the default) — exposed YKK #5 separating zipper at CF. Adds a `Zipper Guard Strip` piece (1.5″ × torsoLen, cut 2 L+R, interfaced) that folds behind the zipper tape to back the teeth and protect the wearer from cold metal. Materials gain the separating zipper notion (length = torsoLen + 2″) plus a single collar tab button or snap. Front facing instruction now references the guard strip when the zipper is selected. Dedicated install step uses the guard + zipper foot + topstitch sequence.
+  - **`lining: poplin | flannel`** — adds three lining pieces: `Front Lining` (×2, frontW − facing width × torsoLen − 1, sewn to facing inner edge), `Back Lining` (cut on fold, ½″ CB pleat for ease), and `Sleeve Lining` (×2 mirror, bagged through sleeve hem). Materials gain 2.5 yd of poplin or brushed flannel (Carhartt blanket-lined style). Construction instructions add an "Assemble lining" + "Bag the lining" sequence after the body is built; lining hem floats 1″ shorter than shell.
+  - **`lowerPocket: welt`** — replaces the hip patch pocket with a `Hip Welt Pocket` piece (cut 4: 2 welts 7″ × 1.5″ + 2 bags 7″ × 8″ per pocket, ×2 pockets). Construction step covers welt slash, clip-to-corners, understitch, bag attach, bar tack — the same workflow used by the trouser welt back pockets so the user only learns it once.
+  - **`chestPocket: zip`** — replaces the patch chest pocket with a `Zippered Chest Pocket` (5″ × 7″ bag halves + 5″ × 1.5″ interfaced welt strip + 5″ #3 coil zipper). Dedicated welt + bag construction step. The original `patch` (with pencil slot) and `none` options are preserved.
+  - **`innerPocket: welt`** — interior breast pocket cut from lining fabric. Requires `lining !== 'none'`. Adds `Inner Pocket Welt` (×2 L+R, 5″ × 3″ folded, interfaced) and `Inner Pocket Bag` (4 pieces, 5″ × 8″) following Jaeger/Carlton's inner pocket construction. Sewn into the lining BEFORE the lining is bagged into the shell.
+  - **`cuff: tab`** — adjustable snap/button cuff tab (Detroit-style adjustable wrist). Adds `Adjustable Cuff Tab` piece (4 cut, 3″ × 2.5″, interfaced, folded + sewn + turned). Tab is attached to the underarm side of the sleeve hem before hemming with ~1″ adjustment range. Materials gain 2 cuff tab snaps or buttons.
+- Reuses existing infrastructure: lining pattern follows `slip-skirt-w.js`, welt pocket pieces follow `pleated-shorts.js`, zipper guard concept follows `straight-jeans.js` fly shield, cuff tab follows `denim-jacket.js`. No new engine code, no new top-level dirs, fully within `src/garments/crop-jacket.js`.
+
+### Fixed
+- **Camp Shirt — sleeve missing cap curve**: the sleeve piece was drafted as a flat 4-point trapezoid with `capHeight: 0` and no sleeve cap geometry. Set-in sleeves require a curved cap to fit the armhole. Wired up `sleeveCapCurve` and `validateSleeveSeams` from `src/engine/upper-body.js` (already used by `button-up.js`) and rebuilt the sleeve polygon with a proper bezier cap curve (now 19 points, `capH = armholeDepth * 0.55`). Updated `sleeveEdgeAllowances` to dynamically cover all cap points with 0.375″ SA, and updated `sleeveNotches` and `dims` to reference cap geometry. Affects Camp Shirt, Fitted Camp Shirt, and Fitted Linen Camp Shirt variants.
+- **Athletic Formal Trousers — waistband length bug**: `wbLen` for the elastic waistband was calculated from the hip-based garment opening (`(frontHipW + backHipW) * 2`), which also incorrectly included `outtuckExtra` that is already consumed by folding before the waistband is attached. Result was a 49″ waistband for a 32W / 36H, instead of the correct ~35″. Fixed by sizing the elastic waistband to the body waist measurement (`m.waist + 2 + sa * 2`) — the elastic gathers the wider trouser opening to fit. Fixed hybrid back waistband (`backWbLen`) the same way (`m.waist / 2 + 1 + sa * 2`). Updated instruction to note "gather trouser waist to fit band before attaching."
+- **Athletic Formal Trousers — back patch pocket tilt direction**: `tiltDeg = -5` in `pattern-view.js` rotated the pocket indicator CW in SVG coordinates, making the CB edge higher (wrong direction). Changed to `tiltDeg = 5` so the side-seam edge is higher, which is the correct tailoring convention for back pants pockets.
+- **Athletic Formal Trousers — CB raise default reduced**: default `cbRaise` reduced from 1.25″ to 0.75″. For a stretch jersey garment with an elastic waistband, 1.25″ is over-specified; 0.75″ provides adequate seat coverage without over-lifting the back waistline. The option is still adjustable (0–2.5″ in 0.25″ steps).
+
+### Changed
+- **Athletic Formal Trousers — side-seam pocket bag is now a shaped piece**: replaced the simple `type: 'pocket'` rectangle piece (7″ × 9″) with a fully drafted D-shaped polygon via the new `buildSideSeamPocketBag` engine function. The piece renders with a 7″ × 10″ cut outline (straight top and sides, semicircular bottom), SA offset, grain line, and dimension labels. Depth increased 9″ → 10″ for heavyweight jersey comfort.
+- **Engine — `buildSideSeamPocketBag` added to `geometry.js`**: reusable D-shaped in-seam pocket bag builder. Uses `sampleBezier` for the semicircular bottom (two quarter-circle cubic bezier segments). Returns a `type: 'bodice'` piece compatible with `renderGenericPieceSVG` and `renderBodiceOrSleeveSVG`.
 
 ---
 
