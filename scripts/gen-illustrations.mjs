@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -254,11 +254,95 @@ const SVGS = {
   <path d="M54,98 Q80,102 106,98"/>
   <path d="M54,98 L42,192 L118,192 L106,98"/>
   <path d="M48,146 Q80,152 112,146"/>`),
+
+  'polo-shirt': svg(`
+  <!-- polo collar — two fold-back points + stand arc -->
+  <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
+  <path d="M66,58 Q80,50 94,58"/>
+  <!-- body + short set-in sleeves -->
+  <path d="M66,58 L40,76 L52,90 L52,170 L108,170 L108,90 L120,76 L94,58"/>
+  <!-- CF placket — short, 2 buttons -->
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <!-- side hem slits -->
+  <line x1="52" y1="158" x2="58" y2="158"/>
+  <line x1="108" y1="158" x2="102" y2="158"/>`),
+
+  'slim-polo': svg(`
+  <path d="M67,58 L73,68 L80,62 L87,68 L93,58"/>
+  <path d="M67,58 Q80,50 93,58"/>
+  <path d="M67,58 L43,76 L56,90 L56,170 L104,170 L104,90 L117,76 L93,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="56" y1="158" x2="62" y2="158"/>
+  <line x1="104" y1="158" x2="98" y2="158"/>`),
+
+  'classic-polo': svg(`
+  <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
+  <path d="M66,58 Q80,50 94,58"/>
+  <!-- above-elbow sleeve extends lower -->
+  <path d="M66,58 L38,78 L38,100 L52,104 L52,170 L108,170 L108,104 L122,100 L122,78 L94,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="52" y1="158" x2="58" y2="158"/>
+  <line x1="108" y1="158" x2="102" y2="158"/>`),
+
+  'sport-polo': svg(`
+  <path d="M65,58 L71,68 L80,62 L89,68 L95,58"/>
+  <path d="M65,58 Q80,50 95,58"/>
+  <!-- wider body (relaxed fit) -->
+  <path d="M65,58 L38,78 L50,92 L50,170 L110,170 L110,92 L122,78 L95,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="50" y1="158" x2="56" y2="158"/>
+  <line x1="110" y1="158" x2="104" y2="158"/>`),
 };
 
+// ── Write all explicitly-defined illustrations ────────────────────────────────
 let count = 0;
 for (const [id, content] of Object.entries(SVGS)) {
   writeFileSync(join(OUT, `${id}.svg`), content, 'utf8');
   count++;
 }
-console.log(`Generated ${count} SVG illustrations in ${OUT}`);
+
+// ── Generate category placeholders for any registered garment missing an SVG ──
+// Importing the garment registry lets us auto-detect gaps whenever a new
+// garment is added without a hand-crafted illustration.
+const { default: GARMENTS } = await import('../src/garments/index.js');
+
+// Generic silhouettes per category — used only when no specific SVG exists.
+const PLACEHOLDERS = {
+  upper: svg(`
+  <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60 L96,72 Q80,78 64,72 Z"/>
+  <path d="M64,60 Q80,50 96,60"/>`),
+  lower: svg(`
+  <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
+  <path d="M44,50 L40,196 L76,196 L80,92 L84,196 L120,196 L116,50"/>
+  <line x1="80" y1="50" x2="80" y2="92"/>`),
+  skirt: svg(`
+  <rect x="52" y="38" width="56" height="10" rx="2"/>
+  <path d="M52,48 L36,188 L124,188 L108,48"/>`),
+  dress: svg(`
+  <path d="M68,36 Q80,28 92,36"/>
+  <path d="M66,36 L50,48 L48,96 L58,96 L54,192 L106,192 L102,96 L112,96 L110,48 L94,36"/>`),
+  accessory: svg(`
+  <rect x="40" y="70" width="80" height="60" rx="8"/>
+  <line x1="40" y1="100" x2="120" y2="100"/>`),
+};
+
+let placeholderCount = 0;
+for (const [id, garment] of Object.entries(GARMENTS)) {
+  const file = join(OUT, `${id}.svg`);
+  if (!existsSync(file)) {
+    const fallback = PLACEHOLDERS[garment.category] || PLACEHOLDERS.upper;
+    writeFileSync(file, fallback, 'utf8');
+    placeholderCount++;
+    console.log(`  placeholder: ${id}.svg (${garment.category})`);
+  }
+}
+
+console.log(`Generated ${count} illustrations + ${placeholderCount} placeholders → ${OUT}`);

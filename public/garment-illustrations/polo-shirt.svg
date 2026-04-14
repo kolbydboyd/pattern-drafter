@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- polo shirt: spread collar, 2-button placket, short set-in sleeves, side slits -->
+
   <!-- polo collar — two fold-back points + stand arc -->
   <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
   <path d="M66,58 Q80,50 94,58"/>
