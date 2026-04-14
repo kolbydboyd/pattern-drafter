@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.52] - 2026-04-14
+
+### Fixed
+- **D-shaped side-seam pocket bags backported to remaining 14 garments** — completing the full audit of all side-seam pocket pieces. Every remaining garment that used a flat rectangle `{ dimensions: { width, height }, type: 'pocket' }` for a side-seam bag is now using `buildSideSeamPocketBag()`. Sizes are unchanged; D-shape replaces rectangle throughout. Imports updated for each file.
+  - Pants/trousers: `easy-pant-w` (both side-pocket branches), `straight-jeans`, `chinos`, `baggy-jeans`, `straight-trouser-w`, `wide-leg-trouser-m`, `wide-leg-trouser-w`, `sweatpants`
+  - Skirts/dresses: `a-line-skirt-w` (7×9), `a-line-dress-w` (7×9), `maxi-skirt-w` (7×10)
+  - Kids: `kids-dress` (5.5×6.5), `kids-joggers` (6×7)
+  - Swim: `swim-trunks` standard non-retro mesh pocket (6.5×7)
+
 ## [0.12.51] - 2026-04-14
 
 ### Fixed

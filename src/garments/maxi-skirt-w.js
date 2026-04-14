@@ -7,7 +7,7 @@
  * All measurements in inches. Seam allowance computed by the engine.
  */
 
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -180,13 +180,10 @@ export default {
     }
 
     if (opts.pockets === 'yes') {
-      pieces.push({
-        id: 'pocket-bag', name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Self or lining fabric · 7″ × 10″ each',
-        type: 'pocket',
-        dimensions: { width: 7, height: 10 },
-        sa,
-      });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 10, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(10)} deep · D-shaped · Self or lining fabric · Serge all edges before assembly`,
+      }));
     }
 
     if (opts.lining === 'yes') {

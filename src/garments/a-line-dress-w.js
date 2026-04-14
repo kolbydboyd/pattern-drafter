@@ -11,7 +11,7 @@ import {
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
   validateSleeveSeams,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, buildSideSeamPocketBag } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -326,11 +326,10 @@ export default {
 
     // Pockets
     if (opts.pockets === 'yes') {
-      pieces.push({
-        id: 'pocket-bag', name: 'Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · 7″ × 9″ each · Set into side seam',
-        type: 'rectangle', dimensions: { length: 9, width: 7 }, sa,
-      });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Set into side seam · Serge all edges before assembly`,
+      }));
     }
 
     return pieces;

@@ -5,7 +5,7 @@
  * Flare amount controls how much wider the hem is than the hip.
  */
 
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -203,7 +203,10 @@ export default {
     }
 
     if (opts.pockets === 'yes') {
-      pieces.push({ id: 'pocket-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Attach bag to front and back side seam SAs at hip level', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Attach to front and back side seam SAs at hip level · Serge all edges before assembly`,
+      }));
     }
 
     if (opts.hem === 'faced') {

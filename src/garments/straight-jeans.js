@@ -13,7 +13,7 @@ import {
   buildScoopPocketBacking, clipPanelAtScoop,
   buildSquareScoopPocketBacking, clipPanelAtSquareScoop,
   buildFoldOverScoopPocketBag, buildFoldOverSquareScoopPocketBag,
-  closeYokeDarts,
+  closeYokeDarts, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -224,7 +224,10 @@ export default {
       pieces.push(buildFoldOverSquareScoopPocketBag({ bagWidth: 7, scoopInset: 3.5, scoopDepth: 4, bagDepth: 10, sa, instruction: 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
+      }));
     }
     pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template \xb7 Rounded bottom corners', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
     pieces.push(buildBackPatchPocket());
