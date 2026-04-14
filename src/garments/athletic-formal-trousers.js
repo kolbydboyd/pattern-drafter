@@ -17,7 +17,8 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
-  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash
+  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash,
+  buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -129,7 +130,7 @@ export default {
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 2, step: 0.25, min: 0.5, max: 3   },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 3.0, step: 0.25, min: 1,   max: 4.5 },
-    cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,   max: 2.5 },
+    cbRaise:  { type: 'number', label: 'CB raise',         default: 0.75, step: 0.25, min: 0,   max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -200,16 +201,17 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const garmentWaist = (frontHipW + backHipW) * 2;
+    // For elastic/hybrid: waistband is cut to body waist + ease; trouser top is gathered to fit.
+    // (garmentWaist is hip-based and much wider — the elastic gathers the excess.)
     const elasticW = parseFloat(opts.elasticWidth) || 1;
     if (opts.waistband === 'elastic') {
-      // Full elastic + drawcord casing (like sweatpants)
-      const wbLen   = garmentWaist + sa * 2;
+      // Full elastic + drawcord casing: sized to body waist, gathered onto trouser when attaching
+      const wbLen   = m.waist + 2 + sa * 2;
       const wbWidth = (elasticW + 1) * 2;
       pieces.push({
         id: 'waistband',
         name: 'Waistband (Elastic + Drawcord)',
-        instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawcord casing · Buttonhole/grommet pair at CF`,
+        instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawcord casing · Gather trouser waist to fit band before attaching · Buttonhole/grommet pair at CF`,
         dimensions: { length: wbLen, width: wbWidth },
         type: 'rectangle', sa,
       });
@@ -217,7 +219,7 @@ export default {
       // Front: structured flat waistband with button
       // Back: elastic casing
       const frontWbLen = (m.waist + ease.total + outtuckExtra * 2) / 2 + 2; // front half + overlap
-      const backWbLen  = garmentWaist / 2 + sa * 2; // back half, matches garment opening
+      const backWbLen  = m.waist / 2 + 1 + sa * 2; // back half sized to body waist
       const wbWidth = (elasticW + 1) * 2;
       pieces.push({
         id: 'waistband-front',
@@ -252,7 +254,10 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 10, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
     }
     if (opts.pocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket' });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 10, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(10)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
+      }));
     }
 
     // ── BACK POCKETS ──
