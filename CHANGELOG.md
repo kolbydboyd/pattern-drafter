@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.36] - 2026-04-13
+
+### Fixed
+- **Retro Short Trunks — brief liner shape**: replaced single rectangular placeholder with 3 properly named pieces: `Brief Liner Front` (cut 2, mirror), `Brief Liner Back` (cut 2, mirror, taller for seat coverage), and `Brief Liner Gusset` (cut 1). Dimensions are now body-measurement-based (waist/4 + ease) rather than hip-panel-derived. Instructions updated to describe marking the leg opening arc, joining CF/CB seams, attaching the gusset, and basting the finished mini brief to the outer shell.
+- **Retro Short Trunks — pocket bag depth**: pocket bag height is now constrained to `min(6.5″, max(2.0″, inseam − hem − 0.75″))` so the bag never protrudes past the hem. For the default 3″ inseam this yields a 2.0″ bag depth (appropriate for a key card). Bag width reduced from 6.0″ to 5.5″ to match the shorter cut.
+- **Swim Trunks waistband sizing** (no code change): the 21″ back + 21.5″ front waistband lengths for a 31″ waist are correct. The waistband pieces are sized to the hip-based garment opening; the elastic casing (back) and drawcord (front) cinch the garment to the actual waist measurement.
+
+---
+
 ## [0.12.35] - 2026-04-13
 
 ### Fixed

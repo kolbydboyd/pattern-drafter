@@ -167,17 +167,37 @@ export default {
     }
 
     if (opts.liner === 'brief') {
-      // Brief-cut liner: single rectangle spanning both front panels.
-      // Sewn as a mini-brief (CF + CB + inseam), then basted to outer at waist.
-      const briefW = (frontW + backW) * 1.15; // slight ease for brief seams
-      const briefH = rise * 0.85;             // brief stops short of hem
+      // Brief-cut liner: 3 pieces — front panel ×2, back panel ×2, gusset ×1.
+      // Sized to body (waist-based), not outer hip panels.
+      // All pieces are cut as rectangles; curved leg opening is marked and cut during construction.
+      const waist = m.waist || (m.hip * 0.84);
+      const briefFrontW = waist / 4 + 0.75;    // one front half-panel + ease (mirror pair)
+      const briefBackW  = waist / 4 + 1.25;    // one back half-panel + ease, wider for seat coverage
+      const briefFrontH = rise * 0.58;          // front panel height — covers crotch, stops mid-rise
+      const briefBackH  = rise * 0.75;          // back panel taller — provides full seat coverage
+      const gussetW     = 3.0;                  // standard brief gusset width
+      const gussetH     = Math.round((frontExt + backExt) * 10) / 10; // spans full crotch depth
+
       pieces.push({
-        id: 'brief-liner',
-        name: 'Brief Liner',
-        instruction: 'Cut 1 from soft elastane or 4-way stretch mesh · Sew CF seam + CB seam + inseam to form mini brief · {serge} or {zigzag} all edges before sewing · Baste to outer at waist ¼″',
-        dimensions: { width: briefW, height: briefH },
-        type: 'pocket',
-        sa: 0.375,
+        id: 'brief-front',
+        name: 'Brief Liner Front',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · Mark leg opening curve: draw an arc from the top outer corner down toward the lower inner (CF) corner — removing the triangular wedge. Cut on arc. Join both halves at CF seam {RST} with stretch stitch.',
+        dimensions: { width: briefFrontW, height: briefFrontH },
+        type: 'pocket', sa: 0.375,
+      });
+      pieces.push({
+        id: 'brief-back',
+        name: 'Brief Liner Back',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · Taller than front piece for full seat coverage. Mark leg opening curve same as front panel. Join both halves at CB seam {RST} with stretch stitch.',
+        dimensions: { width: briefBackW, height: briefBackH },
+        type: 'pocket', sa: 0.375,
+      });
+      pieces.push({
+        id: 'brief-gusset',
+        name: 'Brief Liner Gusset',
+        instruction: 'Cut 1 · Soft elastane or cotton/spandex blend · Sew RS of gusset to RS of front crotch edge {RST}. Then sew RS of gusset to RS of back crotch edge {RST}. Gusset bridges front and back panels at the crotch seam.',
+        dimensions: { width: gussetW, height: gussetH },
+        type: 'pocket', sa: 0.375,
       });
     }
 
@@ -216,9 +236,11 @@ export default {
 
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
-      // Retro shorts: slightly smaller pocket bags (shorter inseam leaves less room)
-      const bagW = isRetro ? 6.0 : 6.5;
-      const bagH = isRetro ? 6.5 : 7.0;
+      const bagW = isRetro ? 5.5 : 6.5;
+      // Pocket bag depth is limited by the inseam — the bag hangs inside the leg and must not
+      // protrude past the hem. Leave 0.75″ clearance above the folded hem.
+      const maxBagH = Math.max(2.0, inseam - hem - 0.75);
+      const bagH = isRetro ? Math.min(6.5, maxBagH) : 7.0;
       pieces.push({
         id: 'pocket-bag',
         name: 'Side-Seam Pocket Bag',
@@ -295,7 +317,7 @@ export default {
     if (opts.liner === 'brief') {
       steps.push({
         step: n++, title: 'Sew brief liner',
-        detail: '{serge} or {zigzag} all liner edges before sewing. Join the two halves at CF seam {RST} with stretch stitch. Join at CB seam. Join inseam. The result is a mini brief. {baste} the brief WS to WS of the outer shell at the waist edge, ¼″ from the raw edge. Treat as one unit going forward.',
+        detail: '{serge} or {zigzag} all liner edges before sewing. On each front and back panel, mark the leg opening curve: draw an arc from the top outer corner down to the lower inner corner, removing the triangular wedge. Cut on the arc. Join the two front halves at CF {RST} with stretch stitch. Join the two back halves at CB {RST}. Sew the gusset to the front crotch edge {RST}, then sew the other long edge of the gusset to the back crotch edge {RST}. {clip} all curved seams every ½″. The result is a mini brief. {baste} the brief WS to WS of the outer shell at the waist edge ¼″ from the raw edge. Treat as one unit going forward.',
       });
     }
 
