@@ -291,7 +291,7 @@ export default {
         id: 'waistband-back',
         name: 'Waistband Back',
         instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing · Cut ¾″ elastic to ${elasticLen}″ (casing length × 0.88) · Stitch one elastic end into each short end before folding — elastic is caught at side seams, no threading gap needed`,
-        dimensions: { length: wbBackLen, height: wbWidth },
+        dimensions: { length: wbBackLen, width: wbWidth },
         type: 'pocket', sa,
         marks: [
           { type: 'fold', axis: 'v', position: wbBackLen / 2, label: 'CB — center reference' },
@@ -567,6 +567,12 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
     ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
     ...(splitIn > 0 ? [{ x: width, y: height - splitIn, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),  // slit top
+    // Pocket mouth notch (retro side-seam pocket only): marks bottom of the 4" pocket
+    // mouth opening on both front and back side seams. Aligns with the matching notch
+    // on the pocket bag piece so the open/closed transition matches when sewing.
+    ...(opts.pocket === 'side-seam' && opts.liner === 'brief'
+      ? [{ x: width, y: 4.0, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }]
+      : []),
   ];
 
   return {

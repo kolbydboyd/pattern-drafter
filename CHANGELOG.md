@@ -8,6 +8,8 @@ All notable changes are documented here, newest first.
 
 ### Fixed
 - **Retro Short Trunks — pocket-mouth finish**: the side-seam pocket opening produced clean construction but didn't include the press / topstitch / bar-tack sequence needed for an RTW-quality finish. Updated three instruction strings: "Prepare pocket bags" now adds a press-under of the serged mouth edges ⅜″ to the wrong side; "Sew side seams" now adds a press-open of the closed seam, ⅛″ topstitch (stretch / narrow zigzag) along the full 4″ mouth on both front and back panels, and ties the bar tacks to the topstitch endpoints catching all layers (front + bag at top, both panels + bag tail at bottom); pocket bag piece label updated to mention the topstitch + bar tack finish so it's visible from the piece view alone. No geometry change.
+- **Retro Short Trunks — pocket mouth notch on outer panels**: the pocket bag piece had a notch at the bottom of the 4″ pocket mouth on its side-seam edge, but `buildPanel` wasn't adding a matching notch on the front or back panel side seams. Without it the open / closed transition couldn't be aligned at sewing time. Added a side-seam notch at `y = 4.0″` on both front and back panels when `opts.pocket === 'side-seam'` and `opts.liner === 'brief'`.
+- **Retro Short Trunks — Waistband Back size showing 0″**: the `waistband-back` piece was passing `dimensions: { length, height: wbWidth }` while `waistband-front` (and the renderer) expects `width`. The size label rendered as `17¼" × 0"`. Renamed the key to `width` so both halves display the correct 1½″ finished width.
 
 ---
 
