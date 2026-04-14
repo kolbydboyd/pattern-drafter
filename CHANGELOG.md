@@ -7,6 +7,11 @@ All notable changes are documented here, newest first.
 ## [0.12.45] - 2026-04-14
 
 ### Fixed
+- **Crop Jacket — lining pieces are now shaped polygons, not rectangles**: the first pass of the Detroit conversion shipped lining pieces as `type: 'pocket'` with `dimensions: { width, height }`, which renders as a flat rectangle in the piece view. That's wrong — a real front lining follows the front panel shape (neck curve, shoulder slope, armhole, side seam) with the inner edge clipped to the facing line, and a real back lining follows the back panel shape. Now derives `liningFrontPoly`, `liningBackPoly`, and `liningSleevePoly` from the actual shell polygons:
+  - **Front lining**: clones `frontPoly` and snaps every point with `x < FACING_W` to `x = FACING_W`, then lifts the hem to `torsoLen − 1″`. When `neckW > FACING_W` the lining shows a real partial neck curve at the top inner area (e.g. neck=18″ → neckW=3.6 > FACING_W=3, so points 8–12 of the curve survive); when `neckW ≤ FACING_W` the inner edge is fully vertical. A `dedupPoly` helper drops consecutive duplicate points and any closing-point dupe so the polygon stays clean. Renders as `type: 'bodice'` so the piece view + yardage estimator handle it correctly.
+  - **Back lining**: clones `backPoly` and only lifts hem points to `torsoLen − 1″`. Renders as `type: 'bodice'`, `isBack: true`, cut on fold.
+  - **Sleeve lining**: rebuilt as a 4-point polygon at `slvTopW × 2` wide × `slvLength − 1″` tall (the shell sleeve is already a straight rectangle in this jacket). Renders as `type: 'sleeve'`.
+- Verified with two body sizes (chest 38 / neck 15 → neckW = FACING_W exactly, and chest 44 / neck 18 → neckW > FACING_W) — polygon point counts and bounding boxes both come out right (front lining: 39 pts, BB 8.0 × 15.0 for the small size; back lining: 39 pts, BB 11.0 × 15.0; sleeve lining: 4 pts, BB 15.4 × 25.0).
 - **Cropped Tee (fitted-tee-w) — `capPts is not defined` error**: `capPts` was declared with `const` inside the first `if/else` block's `else` branch, making it block-scoped and inaccessible to the second `else` branch that computed sleeve notches. Lifted the declaration to `let capPts` above both blocks so it is in scope throughout the sleeve section.
 
 ---

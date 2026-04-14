@@ -207,6 +207,56 @@ export default {
       { x: 0,           y: slvLength },
     ];
 
+    // ── LINING POLYGONS ──────────────────────────────────────────────────────
+    // Lining pieces follow the actual shell shapes (not rectangles).
+    // Front lining: clip the placket/facing area (inner edge at x = FACING_W),
+    // hem shortened 1″ so lining floats free of shell hem.
+    // Back & sleeve lining: same shape as shell, hem shortened 1″.
+    const LINING_HEM_LIFT = 1.0;
+    const liningHemY = torsoLen - LINING_HEM_LIFT;
+
+    function dedupPoly(poly) {
+      const out = [];
+      for (const p of poly) {
+        const last = out[out.length - 1];
+        if (!last || Math.abs(last.x - p.x) > 0.001 || Math.abs(last.y - p.y) > 0.001) {
+          out.push(p);
+        }
+      }
+      // Also drop a trailing point that duplicates the first
+      if (out.length > 1) {
+        const first = out[0], lastP = out[out.length - 1];
+        if (Math.abs(first.x - lastP.x) < 0.001 && Math.abs(first.y - lastP.y) < 0.001) out.pop();
+      }
+      return out;
+    }
+
+    // Front lining: snap inner edge to FACING_W, lift hem
+    const liningFrontPoly = dedupPoly(
+      frontPoly.map(p => ({
+        ...p,
+        x: Math.max(p.x, FACING_W),
+        y: Math.min(p.y, liningHemY),
+      }))
+    );
+
+    // Back lining: just lift hem
+    const liningBackPoly = dedupPoly(
+      backPoly.map(p => ({
+        ...p,
+        y: Math.min(p.y, liningHemY),
+      }))
+    );
+
+    // Sleeve lining: same rectangle, shortened 1″
+    const sleeveLiningLen = slvLength - LINING_HEM_LIFT;
+    const liningSleevePoly = [
+      { x: 0,           y: 0                },
+      { x: slvTopW * 2, y: 0                },
+      { x: slvTopW * 2, y: sleeveLiningLen  },
+      { x: 0,           y: sleeveLiningLen  },
+    ];
+
     // ── COLLAR ───────────────────────────────────────────────────────────────
     // Stand collar: 3″ cut (1.5″ finished stand). Length = neckline circumference.
     const collarLen   = m.neck + 1; // ease for standing collar
@@ -377,29 +427,60 @@ export default {
 
     // ── LINING (lining !== 'none') ───────────────────────────────────────────
     if (opts.lining !== 'none') {
+      const liningFrontBB  = bbox(liningFrontPoly);
+      const liningBackBB   = bbox(liningBackPoly);
+      const liningSleeveBB = bbox(liningSleevePoly);
+
       pieces.push({
         id: 'lining-front',
         name: 'Front Lining',
-        instruction: `Cut 2 (L & R) · Same shape as front panel, minus front facing width · Shorten 1″ from hem · Sew {RST} to facing inner edge at CF · Tack to underarm`,
-        type: 'pocket',
-        dimensions: { width: frontW - FACING_W, height: torsoLen - 1 },
-        sa,
+        instruction: `Cut 2 (L & R mirror) · Inner edge sits at facing line (${fmtInches(FACING_W)} from CF) · Hem ${fmtInches(LINING_HEM_LIFT)} shorter than shell · Sew {RST} to facing inner edge`,
+        type: 'bodice',
+        polygon: liningFrontPoly,
+        path: polyToPathStr(liningFrontPoly),
+        width: liningFrontBB.maxX - liningFrontBB.minX,
+        height: liningFrontBB.maxY - liningFrontBB.minY,
+        isBack: false,
+        sa, hem: 0,
+        dims: [
+          { label: fmtInches(liningHemY) + ' length', x: liningFrontBB.maxX + 1, y1: 0, y2: liningHemY, type: 'v' },
+        ],
       });
+
       pieces.push({
         id: 'lining-back',
         name: 'Back Lining',
-        instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Add ½″ pleat at CB for ease`,
-        type: 'pocket',
-        dimensions: { width: backW * 2, height: torsoLen - 1 },
-        sa,
+        instruction: `Cut 1 on fold (CB) · Same shape as back panel · Hem ${fmtInches(LINING_HEM_LIFT)} shorter than shell · Add ½″ pleat at CB for ease`,
+        type: 'bodice',
+        polygon: liningBackPoly,
+        path: polyToPathStr(liningBackPoly),
+        width: liningBackBB.maxX - liningBackBB.minX,
+        height: liningBackBB.maxY - liningBackBB.minY,
+        isBack: true,
+        sa, hem: 0,
+        dims: [
+          { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
+          { label: fmtInches(liningHemY) + ' length', x: liningBackBB.maxX + 1, y1: 0, y2: liningHemY, type: 'v' },
+        ],
       });
+
       pieces.push({
         id: 'lining-sleeve',
         name: 'Sleeve Lining',
-        instruction: `Cut 2 (mirror L & R) · Same as sleeve · Shorten 1″ from hem · Sew {RST} to sleeve at hem after construction, bag the lining`,
-        type: 'pocket',
-        dimensions: { width: slvTopW * 2, height: slvLength - 1 },
-        sa,
+        instruction: `Cut 2 (mirror L & R) · Same width as sleeve · Hem ${fmtInches(LINING_HEM_LIFT)} shorter than shell · Sew {RST} to sleeve at hem, bag through cap`,
+        type: 'sleeve',
+        polygon: liningSleevePoly,
+        path: polyToPathStr(liningSleevePoly),
+        width: liningSleeveBB.maxX - liningSleeveBB.minX,
+        height: liningSleeveBB.maxY - liningSleeveBB.minY,
+        capHeight: 0,
+        sleeveLength: sleeveLiningLen,
+        sleeveWidth: slvTopW * 2,
+        sa, hem: 0,
+        dims: [
+          { label: fmtInches(slvTopW * 2) + ' width', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
+          { label: fmtInches(sleeveLiningLen) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: sleeveLiningLen, type: 'v' },
+        ],
       });
     }
 
