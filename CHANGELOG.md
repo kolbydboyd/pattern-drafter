@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.44] - 2026-04-14
+
+### Fixed
+- **Camp Shirt — sleeve missing cap curve**: the sleeve piece was drafted as a flat 4-point trapezoid with `capHeight: 0` and no sleeve cap geometry. Set-in sleeves require a curved cap to fit the armhole. Wired up `sleeveCapCurve` and `validateSleeveSeams` from `src/engine/upper-body.js` (already used by `button-up.js`) and rebuilt the sleeve polygon with a proper bezier cap curve (now 19 points, `capH = armholeDepth * 0.55`). Updated `sleeveEdgeAllowances` to dynamically cover all cap points with 0.375″ SA, and updated `sleeveNotches` and `dims` to reference cap geometry. Affects Camp Shirt, Fitted Camp Shirt, and Fitted Linen Camp Shirt variants.
+
+---
+
 ## [0.12.43] - 2026-04-14
 
 ### Fixed
