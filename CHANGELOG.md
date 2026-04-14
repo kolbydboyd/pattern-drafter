@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.40] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — brief liner seam finishing**: CF, CB, and crotch seam steps now explicitly instruct to trim SA to ¼″, press to one side, and topstitch flat. This prevents raw serged edges from sitting against skin in the crotch/groin area.
+- **Retro Short Trunks — leg arch elastic upgraded to FOE**: instructions now offer ⅝″ foldover elastic (FOE) as the preferred option over plain ¼″ lingerie elastic. FOE folds over the raw arch edge, enclosing both sides in one pass — no separate serging, softer against skin. Plain lingerie elastic remains listed as an alternative. FOE added to the materials list (1 yard covers all 4 leg arch openings at 75% stretch).
+
+---
+
 ## [0.12.39] - 2026-04-14
 
 ### Fixed

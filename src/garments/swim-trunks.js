@@ -181,7 +181,7 @@ export default {
       const bfSaPoly = offsetPolygon(bfPoly, () => -0.375);
       pieces.push({
         id: 'brief-front', name: 'Brief Liner Front',
-        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge: apply ¼″ lingerie elastic (cut to 75% of arch length)',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge: apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length',
         polygon: bfPoly, saPolygon: bfSaPoly,
         path: polyToPath(bfPoly), saPath: polyToPath(bfSaPoly),
         dims: [
@@ -205,7 +205,7 @@ export default {
       const bbSaPoly = offsetPolygon(bbPoly, () => -0.375);
       pieces.push({
         id: 'brief-back', name: 'Brief Liner Back',
-        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge: apply ¼″ lingerie elastic (cut to 75% of arch length)`,
+        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge: apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length`,
         polygon: bbPoly, saPolygon: bbSaPoly,
         path: polyToPath(bbPoly), saPath: polyToPath(bbSaPoly),
         dims: [
@@ -353,6 +353,7 @@ export default {
     if (isRetro) {
       notions.push({ ref: 'elastic-0.75', quantity: `${Math.round((m.waist / 2 + 0.5) * 0.88)}″ of ¾″ wide elastic - back waistband casing only (ends caught at side seams, no threading gap needed)` });
       notions.push({ name: 'Soft elastane', quantity: '0.33 yard', notes: 'Brief liner (4-way stretch, ≥ 80% elastane)' });
+      notions.push({ name: 'Foldover elastic (FOE) ⅝″', quantity: '1 yard', notes: 'Leg arch finishing (4 openings) — encloses raw cut edge on both sides, no separate serging needed, softer against skin than plain lingerie elastic. Cut each piece to 75% of arch length. Alt: ¼″ lingerie elastic at same quantity.' });
     }
     if (opts.liner === 'panels') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
@@ -394,7 +395,7 @@ export default {
     if (opts.liner === 'brief') {
       steps.push({
         step: n++, title: 'Sew brief liner',
-        detail: '{serge} all liner piece edges. Join two front halves at CF {RST} with stretch stitch, {clip} curve. Join two back halves at CB {RST}, {clip} curve. Pin front to back at crotch {RST}; sew crotch seam with stretch stitch. {clip} all curved seams. The result is a mini brief with two leg openings exposed. Apply ¼″ lingerie elastic to each leg arch opening: pin elastic to WS of arch at 75% stretch, {zigzag} in place, fold elastic to inside, {topstitch}. {baste} brief WS to WS of outer shell at waist edge ¼″ from raw edge. Treat as one unit going forward.',
+        detail: '{serge} all liner piece edges. Join two front halves at CF {RST} with stretch stitch, {clip} curve — trim SA to ¼″, press toward one side, {topstitch} flat. Join two back halves at CB {RST}, {clip} curve — trim SA to ¼″, press toward one side, {topstitch} flat. Pin front to back at crotch {RST}; sew crotch seam with stretch stitch. {clip} all curved seams — trim SA to ¼″ and press toward back, {topstitch} flat. Keeping all seams pressed flat prevents raw edges from sitting against skin. The result is a mini brief with two leg openings exposed. Apply leg arch elastic: option A — ¼″ lingerie elastic, pin to WS of arch at 75% stretch, {zigzag} in place, fold to inside, {topstitch}; option B (preferred) — ⅝″ foldover elastic (FOE), fold over the raw arch edge enclosing both sides, {topstitch} through all layers in one pass. FOE fully encloses the cut edge and is softer against skin. {baste} brief WS to WS of outer shell at waist edge ¼″ from raw edge. Treat as one unit going forward.',
       });
     }
 
