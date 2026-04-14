@@ -426,14 +426,23 @@ export default {
 
     steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. {clip} curve every ½″. {press}.' });
     steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
+    const slitNote = opts.sideSplit === '1' ? ' Stop sewing 1″ before the hem at the bottom of each side seam — leave this last 1″ OPEN (this is the side slit).' : '';
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
         ? (isRetro
-            ? 'Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew closed all the way to the hem, catching the bag outer edge in the seam. {press} open. Bar tack at the top and bottom of each pocket mouth opening: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam at each transition point. This prevents the pocket mouth from extending under stress.'
-            : 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. {press} open.')
-        : 'Join front to back at side seams {RST}. Stretch stitch. {press} open.',
+            ? `Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew the middle of the seam closed all the way to the hem, catching the bag outer edge in the seam.${slitNote} {press} open. Bar tack at the top and bottom of each pocket mouth opening: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam at each transition point. This prevents the pocket mouth from extending under stress.`
+            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open.`)
+        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open.`,
     });
+
+    if (opts.sideSplit === '1') {
+      steps.push({
+        step: n++, title: 'Finish side slits',
+        detail: 'The 1″ side slit is a straight opening at the bottom of each side seam — no fabric is cut, simply unsewn. {serge} or {zigzag} the 1″ raw edges on both the front and back panels at each slit opening separately to prevent fraying. Bar tack at the top of each slit (at the slit notch mark): stitch width 3.5mm, length 0, 8–10 stitches across the seam. This reinforces the slit corner against tearing under stress.',
+      });
+    }
+
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
 
     // Waistband
@@ -470,16 +479,9 @@ export default {
       detail: 'Attach safety pin to cord end. Thread through front waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
     });
 
-    if (opts.sideSplit === '1') {
-      steps.push({
-        step: n++, title: 'Finish side slits',
-        detail: 'A slit notch marks the top of each 1″ side slit on the side seam. Bar tack at each notch: stitch width 3–4 mm, length 0, 8–10 stitches. This holds the slit opening under stress. The slit edges finish when you fold and stitch the hem.',
-      });
-    }
-
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' Hem up to each bar tack; the slit opens above.' : ''}${isRetro && opts.pocket === 'side-seam' ? ' Catch the bottom edge of each pocket bag in the hem fold. Topstitch through all layers — the bag is now locked at waistband (top), side seam (outer edge), and hem (bottom). Cannot dangle.' : ''}`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' At each slit: hem up to the bar tack, pivot and fold the slit raw edge under, and tack down flat. The slit opens below the bar tack at the leg hem corner.' : ''}${isRetro && opts.pocket === 'side-seam' ? ' Catch the bottom edge of each pocket bag in the hem fold. Topstitch through all layers — the bag is now locked at waistband (top), side seam (outer edge), and hem (bottom). Cannot dangle.' : ''}`,
     });
     steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
