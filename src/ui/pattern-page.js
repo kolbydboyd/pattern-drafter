@@ -333,13 +333,15 @@ async function renderPatternListing() {
     }).join('');
   }
 
-  let _activeFilter = 'all';
+  let _genderFilter = 'all';     // 'all' | 'men' | 'women'
+  let _difficultyFilter = 'all'; // 'all' | 'beginner' | 'intermediate' | 'advanced'
   let _searchQuery = '';
 
   function _renderGrid() {
-    let filtered = _activeFilter === 'all' ? allGarments
-      : _activeFilter === 'womenswear' ? allGarments.filter(isWomenswear)
-      : allGarments.filter(g => !isWomenswear(g));
+    let filtered = allGarments;
+    if (_genderFilter === 'women') filtered = filtered.filter(isWomenswear);
+    else if (_genderFilter === 'men') filtered = filtered.filter(g => !isWomenswear(g));
+    if (_difficultyFilter !== 'all') filtered = filtered.filter(g => g.difficulty === _difficultyFilter);
     if (_searchQuery) {
       const q = _searchQuery.toLowerCase();
       filtered = filtered.filter(g =>
@@ -364,10 +366,18 @@ async function renderPatternListing() {
     <div class="pat-pg-wrap">
       <h1 class="pat-pg-listing-title">All Patterns</h1>
       <div class="pat-pg-listing-toolbar">
-        <div class="filter-tabs" role="tablist">
-          <button class="filter-tab filter-tab-active" data-filter="all" role="tab" aria-selected="true">All</button>
-          <button class="filter-tab" data-filter="menswear" role="tab" aria-selected="false">Menswear</button>
-          <button class="filter-tab" data-filter="womenswear" role="tab" aria-selected="false">Womenswear</button>
+        <div class="pat-pg-filters">
+          <div class="filter-tabs" role="tablist" aria-label="Gender filter">
+            <button class="filter-tab filter-tab-active" data-gender="all" role="tab" aria-selected="true">All</button>
+            <button class="filter-tab" data-gender="men" role="tab" aria-selected="false">Men</button>
+            <button class="filter-tab" data-gender="women" role="tab" aria-selected="false">Women</button>
+          </div>
+          <div class="filter-tabs" role="tablist" aria-label="Difficulty filter">
+            <button class="filter-tab filter-tab-active" data-diff="all" role="tab" aria-selected="true">All levels</button>
+            <button class="filter-tab" data-diff="beginner" role="tab" aria-selected="false">Beginner</button>
+            <button class="filter-tab" data-diff="intermediate" role="tab" aria-selected="false">Intermediate</button>
+            <button class="filter-tab" data-diff="advanced" role="tab" aria-selected="false">Advanced</button>
+          </div>
         </div>
         <input type="search" id="pat-listing-search" class="pat-pg-search" placeholder="Search patterns..." aria-label="Search patterns">
       </div>
@@ -377,15 +387,28 @@ async function renderPatternListing() {
 
   _attachHeartHandlers(root);
 
-  root.querySelectorAll('.filter-tab').forEach(btn => {
+  root.querySelectorAll('[data-gender]').forEach(btn => {
     btn.addEventListener('click', () => {
-      root.querySelectorAll('.filter-tab').forEach(b => {
+      root.querySelectorAll('[data-gender]').forEach(b => {
         b.classList.remove('filter-tab-active');
         b.setAttribute('aria-selected', 'false');
       });
       btn.classList.add('filter-tab-active');
       btn.setAttribute('aria-selected', 'true');
-      _activeFilter = btn.dataset.filter;
+      _genderFilter = btn.dataset.gender;
+      _renderGrid();
+    });
+  });
+
+  root.querySelectorAll('[data-diff]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('[data-diff]').forEach(b => {
+        b.classList.remove('filter-tab-active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('filter-tab-active');
+      btn.setAttribute('aria-selected', 'true');
+      _difficultyFilter = btn.dataset.diff;
       _renderGrid();
     });
   });

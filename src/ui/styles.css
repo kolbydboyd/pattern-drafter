@@ -859,6 +859,7 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .pat-pg-404-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .pat-pg-listing-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:28px}
 .pat-pg-listing-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.pat-pg-filters{display:flex;flex-direction:column;gap:8px}
 .pat-pg-listing-toolbar .filter-tabs{margin-bottom:0}
 .pat-pg-search{padding:6px 12px;border:1px solid var(--bdr);border-radius:20px;background:var(--ibg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:.78rem;width:200px;transition:border-color .15s}
 .pat-pg-search:focus{outline:none;border-color:var(--gold)}

@@ -7,7 +7,7 @@
 
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
-  armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE, yokeSplit,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -152,7 +152,14 @@ export default {
     const backNeckPts    = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
     const shoulderPts    = sampleCurve(shoulderSlope(shoulderW, slopeDrop));
     const frontArmPts    = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
-    const backArmPts     = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
+    const backArmCp      = armholeCurve(shoulderW, backChestDepth, armholeDepth, true);
+    const backArmPts     = sampleCurve(backArmCp);
+
+    // ── YOKE SPLIT GEOMETRY ───────────────────────────────────────────────────
+    const yokeH = opts.backDetail === 'yoke' ? 3.5 : 0;
+    const yokeLineY  = shoulderPtY + yokeH;
+    const backYokePt = opts.backDetail === 'yoke' ? yokeSplit(backArmCp, yokeH) : null;
+    const backYokeX  = backYokePt ? shoulderPtX + backYokePt.x : shoulderPtX + backChestDepth;
 
     // Front panel polygon
     const frontPoly = [];
@@ -183,14 +190,25 @@ export default {
     }
 
     // Back panel polygon
-    const yokeH = opts.backDetail === 'yoke' ? 3.5 : 0;
     const backPoly = [];
-    [...backNeckPts].reverse().forEach(p => backPoly.push({ ...p, x: neckW - p.x }));
-    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
-    delete backPoly[0].curve;  // fold-neckline junction
-    delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
-    for (let i=1;i<shoulderPts.length;i++) backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
-    for (let i=1;i<backArmPts.length;i++) backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+    if (opts.backDetail === 'yoke') {
+      // When a yoke is used, the back body panel starts at the yoke seam
+      backPoly.push({ x: 0, y: yokeLineY });
+      backPoly.push({ x: backYokeX, y: yokeLineY });
+      for (let i = 0; i < backArmPts.length; i++) {
+        const pt = { x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y };
+        if (pt.y <= yokeLineY) continue;
+        backPoly.push(pt);
+      }
+    } else {
+      // Full back from neckline (no yoke)
+      [...backNeckPts].reverse().forEach(p => backPoly.push({ ...p, x: neckW - p.x }));
+      // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete backPoly[0].curve;  // fold-neckline junction
+      delete backPoly[backNeckPts.length - 1].curve;  // shoulder-neck junction
+      for (let i=1;i<shoulderPts.length;i++) backPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
+      for (let i=1;i<backArmPts.length;i++) backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
+    }
     backPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
@@ -234,12 +252,18 @@ export default {
       frontNotches.push({ x: bd.sideX, y: bd.lowerY, angle: 0 });
     }
 
-    const backNotches = [
-      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
-      { x: backSideX, y: armholeY, angle: 0 },
-      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
-      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
-    ];
+    const backNotches = opts.backDetail === 'yoke'
+      ? [
+          // Body panel only — notches below the yoke seam
+          { x: backSideX, y: armholeY,        angle: 0 },
+          { x: backSideX, y: armholeY + 0.25, angle: 0 },
+        ]
+      : [
+          { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+          { x: backSideX, y: armholeY, angle: 0 },
+          { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+          { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
+        ];
 
     const sleeveNotches = [
       { x: slvTopW, y: 0, angle: -90 },
@@ -268,12 +292,19 @@ export default {
         dims: [{ label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
-        id: 'bodice-back', name: 'Back Panel',
-        instruction: `Cut 1 on fold (CB)${opts.backDetail === 'yoke' ? ' · Stop at yoke seam line' : ''}${opts.backDetail === 'pleat' ? ' · CB pleat 1″ each side' : ''}`,
+        id: 'bodice-back', name: opts.backDetail === 'yoke' ? 'Back Body Panel' : 'Back Panel',
+        instruction: opts.backDetail === 'yoke'
+          ? 'Cut 1 on fold (CB) · Joins to back yoke at top, side seams at sides'
+          : `Cut 1 on fold (CB)${opts.backDetail === 'pleat' ? ' · CB pleat 1″ each side' : ''}`,
         type: 'bodice', polygon: backPoly, path: polyPath(backPoly),
         width: backBB.maxX - backBB.minX, height: backBB.maxY - backBB.minY,
         isBack: true, sa, hem, notches: backNotches,
-        dims: [{ label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' }],
+        dims: [
+          { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
+          opts.backDetail === 'yoke'
+            ? { label: fmtInches(torsoLen - yokeLineY) + ' body length', x: backBB.maxX + 1, y1: yokeLineY, y2: torsoLen, type: 'v' }
+            : { label: fmtInches(torsoLen) + ' length', x: backBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
+        ],
       },
       {
         id: 'sleeve', name: 'Sleeve',
@@ -289,7 +320,31 @@ export default {
     ];
 
     if (opts.backDetail === 'yoke') {
-      pieces.push({ id: 'back-yoke', name: 'Back Yoke', instruction: 'Cut 2 (outer + lining) · Interface outer · Horizontal across upper back', dimensions: { length: backW * 2 + 1, width: yokeH + sa * 2 }, type: 'pocket', sa });
+      const backYokePoly = [];
+      const neckBackRev = [...backNeckPts].reverse();
+      for (const p of neckBackRev) backYokePoly.push({ x: neckW - p.x, y: p.y });
+      for (let i = 1; i < shoulderPts.length; i++)
+        backYokePoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      for (let i = 1; i < backArmPts.length; i++) {
+        const pt = { x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y };
+        if (pt.y > yokeLineY) break;
+        backYokePoly.push(pt);
+      }
+      backYokePoly.push({ x: backYokeX, y: yokeLineY });
+      backYokePoly.push({ x: 0, y: yokeLineY });
+      const backYokeBB = bbox(backYokePoly);
+      pieces.push({
+        id: 'back-yoke', name: 'Back Yoke',
+        instruction: 'Cut 2 (outer + lining) · Interface outer · Flat-fell to back panel at yoke seam',
+        type: 'bodice', polygon: backYokePoly, path: polyPath(backYokePoly),
+        width: backYokeBB.maxX - backYokeBB.minX, height: backYokeBB.maxY - backYokeBB.minY,
+        isBack: true, sa, hem: 0,
+        notches: [{ x: backYokeX, y: yokeLineY, angle: 0 }],
+        dims: [
+          { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
+          { label: fmtInches(yokeLineY) + ' depth', x: backYokeBB.maxX + 1, y1: 0, y2: yokeLineY, type: 'v' },
+        ],
+      });
     }
     if (opts.sleeve === 'long' && opts.cuff !== 'none') {
       const cuffH = opts.cuff === 'french' ? 5 : 2.5;

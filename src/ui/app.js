@@ -9,7 +9,7 @@ import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } f
 import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
-import { renderPanelSVG, renderGenericPieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
+import { renderPanelSVG, renderGenericPieceSVG, renderRectanglePieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
@@ -74,12 +74,12 @@ let _purchasedSet = new Set(); // garment IDs user has purchased/credited
 let _fitEaseOverride = null; // { snappedValue, optionKey } — applied in readInputs()
 
 const GARMENT_CATEGORIES = [
-  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','soloist-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','tapered-joggers','wide-leg-trouser-w','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
+  { id:'pants',       label:'Pants',       desc:'Trousers, jeans & sweatpants',          ids:['straight-jeans','slim-jeans','high-rise-jeans','soloist-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','athletic-formal-trousers','sweatpants','scholar-sweatpants','tapered-joggers','874-work-pants','cargo-work-pants','wide-leg-trouser-w','wide-leg-trouser-m','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
   { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','gym-shorts','running-shorts','basketball-shorts','swim-trunks','pleated-shorts','baggy-shorts'] },
-  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','oversized-tee','muscle-tee','longline-tee','pocket-tee','tank-top','racerback-tank','cropped-tank','camp-shirt','vacation-shirt','linen-shirt','chambray-work-shirt','crewneck','raglan-sweatshirt','hoodie','zip-hoodie','oversized-hoodie','fitted-tee-w','scoop-tee-w','long-sleeve-fitted-tee-w','cropped-tee-w','button-up-w','poplin-blouse-w','linen-tunic-w','shell-blouse-w','woven-tank-w'] },
+  { id:'tops',        label:'Tops',        desc:'Tees, shirts, hoodies & blouses',        ids:['tee','oversized-tee','muscle-tee','longline-tee','pocket-tee','tank-top','racerback-tank','cropped-tank','henley','camp-shirt','vacation-shirt','linen-shirt','chambray-work-shirt','button-up','crewneck','raglan-sweatshirt','hoodie','scholar-hoodie','zip-hoodie','oversized-hoodie','open-cardigan','fitted-tee-w','scoop-tee-w','long-sleeve-fitted-tee-w','cropped-tee-w','button-up-w','poplin-blouse-w','linen-tunic-w','shell-blouse-w','woven-tank-w'] },
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','circle-skirt-w','mini-circle-skirt-w','midi-circle-skirt-w'] },
   { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','linen-shirt-dress-w','wrap-dress-w','maxi-wrap-dress-w','tshirt-dress-w','long-sleeve-tee-dress-w','maxi-tee-dress-w','slip-dress-w','maxi-slip-dress-w','a-line-dress-w','midi-aline-dress-w','sundress-w','maxi-sundress-w','tiered-sundress-w'] },
-  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','lightweight-denim-jacket','athletic-formal-jacket'] },
+  { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','lightweight-denim-jacket','chore-coat','athletic-formal-jacket'] },
   { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag','market-tote','beach-tote'] },
 ];
 
@@ -745,7 +745,8 @@ function _generate() {
           ${piece.type === 'sleeve' ? `<tr><td>Cap height</td><td>${fmtInches(piece.capHeight)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'rectangle') {
-      piecesHtml += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
+      const svg = renderRectanglePieceSVG(piece);
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>${svg}
         <table class="dt" style="max-width:400px">
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>
@@ -1634,7 +1635,7 @@ function renderStep1() {
         <p class="wiz-step-desc">Select a garment to continue</p>
       </div>
       <div class="gmt-grid">
-        ${cat.ids.map(id => {
+        ${cat.ids.filter(id => GARMENTS[id]).map(id => {
           const g = GARMENTS[id];
           const wishlisted = _wishlistSet.has(id);
           const owned = _purchasedSet.has(id);

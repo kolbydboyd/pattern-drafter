@@ -471,6 +471,7 @@ export function twoPartSleeve({
   let tweak = 1;
   let runs  = 0;
   let topPoly, underPoly, capArc, capH, tsW, usW;
+  let landmarks = null;
 
   do {
     const easedQB = (bicep / 4) * (1 + bicepEase) * tweak;
@@ -556,9 +557,9 @@ export function twoPartSleeve({
     const usElbowLeft = { x: usLeftEdge.x + factor / 2.4, y: elbowY + capH };
 
     // Top sleeve polygon: cap → right edge down → wrist → left edge up
+    // Note: tsCapPts already ends at tsLeftEdge — do not push it again.
     topPoly = [
       ...tsCapPts,
-      tsLeftEdge,
       tsElbowLeft,
       tsWristLeft,
       tsWristRight,
@@ -570,7 +571,6 @@ export function twoPartSleeve({
     // Under sleeve polygon: cap → left edge down → wrist → right edge up
     underPoly = [
       ...usCapPts,
-      usLeftEdge,
       usElbowLeft,
       usWristLeft,
       usWristRight,
@@ -578,6 +578,10 @@ export function twoPartSleeve({
       tsRightEdge,
       usTip,
     ];
+
+    // Capture key landmark points for notch placement (overwritten each iteration;
+    // final values reflect the converged geometry).
+    landmarks = { crown, backPitchPt, frontPitchPt, tsLeftEdge, usLeftEdge, tsElbowLeft, usElbowLeft };
 
     runs++;
     const delta = capArc - target;
@@ -594,6 +598,7 @@ export function twoPartSleeve({
     elbowY: elbowY + capH,
     capArc,
     iterations: runs,
+    landmarks,
   };
 }
 
