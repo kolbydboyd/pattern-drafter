@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- slim polo: narrower body, fitted silhouette -->
+  <!-- polo collar -->
+  <path d="M67,58 L73,68 L80,62 L87,68 L93,58"/>
+  <path d="M67,58 Q80,50 93,58"/>
+  <!-- body + short sleeves (narrower side seams) -->
+  <path d="M67,58 L43,76 L56,90 L56,170 L104,170 L104,90 L117,76 L93,58"/>
+  <!-- CF placket — short, 2 buttons -->
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <!-- side hem slits -->
+  <line x1="56" y1="158" x2="62" y2="158"/>
+  <line x1="104" y1="158" x2="98" y2="158"/>
+</svg>
