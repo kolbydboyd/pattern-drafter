@@ -849,13 +849,18 @@ export default {
     });
 
     steps.push({
+      step: n++, title: 'Assemble sleeves',
+      detail: 'For each sleeve: pin top sleeve to under sleeve {RST} along the front (inner arm) seam, matching elbow notches. Stretch stitch or {serge}. {press} open. Then sew the back (outer arm) seam the same way. You now have a finished sleeve tube with the cap shaped for the armhole.',
+    });
+
+    steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Pin sleeve cap to armhole, matching center cap to shoulder seam. Ease cap to fit (knit fabric eases readily). Stretch stitch or {serge}. {press} toward sleeve.',
+      detail: 'Pin each assembled sleeve cap into the armhole {RST}. Match the crown notch to the shoulder seam, the front seam of the sleeve to the front pitch notch on the armhole, and the back seam to the back (double) pitch notch. Distribute the cap ease evenly — 1″ of ease in jersey eases readily. Stretch stitch or {serge}. {press} toward sleeve.',
     });
 
     steps.push({
       step: n++, title: 'Sew side seams',
-      detail: `Sew front to back at side seams {RST} from hem through underarm to sleeve hem in one continuous seam.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch stitch or {serge}. {press} open.`,
+      detail: `Sew front to back at side seams {RST} from hem to underarm only — the sleeve is already assembled and set.${opts.vent === 'side' ? ` Leave the bottom ${fmtInches(m.torsoLength * VENT_LENGTH_FRAC)} of each side seam open for side vents.` : ''} Stretch stitch or {serge}. {press} open.`,
     });
 
     // ── LINING ──
