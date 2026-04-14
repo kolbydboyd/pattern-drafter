@@ -14,6 +14,7 @@ import { renderPanelSVG, renderGenericPieceSVG, renderRectanglePieceSVG, renderT
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
+import { getNewestGarmentIds } from '../garments/release-dates.js';
 import { initAuthModal, openAuthModal, getCurrentUser, onUserChange } from './auth-modal.js';
 import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits, submitCommunityGarment, getCommunityGarments } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
@@ -2349,6 +2350,55 @@ else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
 document.querySelectorAll('.js-pattern-count').forEach(el => {
   el.textContent = Object.keys(GARMENTS).length;
 });
+
+// Newest patterns carousel on landing page
+(function loadNewestCarousel() {
+  const track = document.getElementById('lp-newest-track');
+  if (!track) return;
+  const ids = getNewestGarmentIds(GARMENTS, 7);
+  if (ids.length === 0) {
+    track.closest('.lp-newest')?.remove();
+    return;
+  }
+  const diffLabel = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
+  const cards = ids.map(id => {
+    const g = GARMENTS[id];
+    const diff = g.difficulty || 'intermediate';
+    const priceCents = PATTERN_PRICES[id]?.cents;
+    const priceText = priceCents ? `$${Math.round(priceCents / 100)}` : '';
+    const card = document.createElement('a');
+    card.href = `/?step=1&garment=${id}`;
+    card.className = 'lp-featured-card lp-newest-card';
+    card.innerHTML = `
+      <img src="/garment-illustrations/${id}.svg" alt="${g.name}" width="120" height="150" loading="lazy">
+      <span class="lp-featured-name">${g.name}</span>
+      <span class="lp-featured-meta"><span class="lp-featured-diff diff-${diff}">${diffLabel[diff] || diff}</span> ${priceText}</span>
+      <span class="lp-featured-btn">Generate This Pattern</span>
+    `;
+    return card;
+  });
+  track.append(...cards);
+
+  const prev = document.querySelector('.lp-newest-prev');
+  const next = document.querySelector('.lp-newest-next');
+  if (!prev || !next) return;
+  // With 4 visible and a pool of >4, a single forward click reveals the rest.
+  if (cards.length <= 4) {
+    prev.hidden = true;
+    next.hidden = true;
+    return;
+  }
+  next.addEventListener('click', () => {
+    track.classList.add('is-page-2');
+    next.hidden = true;
+    prev.hidden = false;
+  });
+  prev.addEventListener('click', () => {
+    track.classList.remove('is-page-2');
+    prev.hidden = true;
+    next.hidden = false;
+  });
+})();
 
 // Pattern generation counter — fetch once and display
 (function loadPatternCount() {
