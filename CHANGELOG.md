@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.50] - 2026-04-14
+
+### Added
+- **Newest patterns carousel** on the landing page, directly under "Popular patterns". Shows the 4 most recent garments with a forward arrow that reveals the next 3 (pool of 7). Mobile viewports fall back to a native horizontal scroll with scroll-snap.
+- **Release dates manifest** at `src/garments/release-dates.js` — single source of truth for garment release dates and the `getNewestGarmentIds()` helper that powers the carousel. Add new entries here as future garments ship.
+
+---
+
 ## [0.12.49] - 2026-04-14
 
 ### Added
