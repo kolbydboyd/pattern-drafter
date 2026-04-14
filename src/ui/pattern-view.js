@@ -69,8 +69,8 @@ function renderNotchesSVG(saPolyInches, notches, ox, oy) {
         const nx1 = eduy, ny1 = -edux;
         const nx2 = -eduy, ny2 = edux;
 
-        // Pick the one pointing away from the polygon centroid
-        const toCx = cpx - centroid.x, toCy = cpy - centroid.y;
+        // Pick the one pointing toward the polygon centroid (inward — standard for sewing pattern notches)
+        const toCx = centroid.x - cpx, toCy = centroid.y - cpy;
         if (nx1 * toCx + ny1 * toCy >= 0) {
           bestNx = nx1; bestNy = ny1;
         } else {
@@ -82,7 +82,7 @@ function renderNotchesSVG(saPolyInches, notches, ox, oy) {
     // Convert base point to SVG coords
     const px = ox + sc(bestPx), py = oy + sc(bestPy);
 
-    // Apex: base point + outward normal * triangle height
+    // Apex: base point + inward normal * triangle height (points into the piece)
     const apexX = px + sc(TRI_H) * bestNx;
     const apexY = py + sc(TRI_H) * bestNy;
 

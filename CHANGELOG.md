@@ -4,6 +4,18 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.38] - 2026-04-14
+
+### Fixed
+- **Notch marks — UI preview**: all notch triangles in the pattern piece preview now point **inward** (apex toward the piece interior), matching industry-standard sewing pattern notation. Previously `renderNotchesSVG` in `pattern-view.js` picked the outward normal, so triangles pointed outside the cut line. The PDF renderer (`print-layout.js`) was already correct; the UI renderer now matches it.
+- **Retro Short Trunks — waistband visual markers**: waistband-front and waistband-back pieces converted from `type: 'rectangle'` (no SVG preview) to `type: 'pocket'` (mini SVG with mark rendering). CF position is now marked on the front waistband with a dashed green line; CB center reference is marked on the back waistband.
+- **Retro Short Trunks — elastic construction**: switched from CB-loop (thread through gap with bodkin) to side-seam-catch method. Elastic ends are stitched within the SA at each short end of the back waistband before assembly; they are automatically caught when joining the waistband halves at the side seams. No threading gap or bodkin step needed. Construction steps and materials updated accordingly.
+- **Retro Short Trunks — pocket mouth finishing**: added instruction to serge/zigzag the raw edges of each front and back panel separately along the 4″ pocket mouth zone before sewing the side seams. Added bartack instruction at the top and bottom of each pocket mouth opening (width 3.5mm, length 0, 8–10 stitches) to prevent the opening from extending under stress.
+- **Retro Short Trunks — missing mesh material**: athletic mesh was not listed in the materials spec when `liner: 'brief'` + `pocket: 'side-seam'`. Added `0.25 yard Athletic mesh` (pocket bags only) for this combination.
+- **Retro Short Trunks — needle spec**: changed from generic `ballpoint-80` (for cotton jersey) to `stretch-75` (Schmetz Stretch 75/11, for Lycra/spandex blends) when retro mode is active, matching the 4-way stretch nylon/spandex shell fabric. Non-retro swim trunks retain `ballpoint-80`.
+
+---
+
 ## [0.12.37] - 2026-04-14
 
 ### Fixed
