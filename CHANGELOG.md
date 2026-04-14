@@ -4,6 +4,26 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.52] - 2026-04-14
+
+### Fixed
+- **D-shaped side-seam pocket bags backported to remaining 14 garments** — completing the full audit of all side-seam pocket pieces. Every remaining garment that used a flat rectangle `{ dimensions: { width, height }, type: 'pocket' }` for a side-seam bag is now using `buildSideSeamPocketBag()`. Sizes are unchanged; D-shape replaces rectangle throughout. Imports updated for each file.
+  - Pants/trousers: `easy-pant-w` (both side-pocket branches), `straight-jeans`, `chinos`, `baggy-jeans`, `straight-trouser-w`, `wide-leg-trouser-m`, `wide-leg-trouser-w`, `sweatpants`
+  - Skirts/dresses: `a-line-skirt-w` (7×9), `a-line-dress-w` (7×9), `maxi-skirt-w` (7×10)
+  - Kids: `kids-dress` (5.5×6.5), `kids-joggers` (6×7)
+  - Swim: `swim-trunks` standard non-retro mesh pocket (6.5×7)
+
+## [0.12.51] - 2026-04-14
+
+### Fixed
+- **Waistband sizing bug backported to 9 garments** — elastic and drawstring waistband pieces were incorrectly sized to the hip-derived garment opening `(frontW + backW) * 2` instead of the body waist measurement. For a 32W/40H user this produced bands up to ~8" too long. All affected garments now size the band to `m.waist + [ease] + sa * 2` and include a "gather garment opening to fit band before attaching" instruction.
+  - Adults (+2" ease): `sweatpants`, `pajama-pants`, `lounge-shorts`, `easy-pant-w` (elastic option), `cargo-shorts` (elastic/drawstring option), `swim-trunks` (standard non-retro variant)
+  - Kids (+1.5" ease): `kids-shorts`, `kids-joggers`, `kids-leggings`
+- **D-shaped side-seam pocket bags backported to 8 garments** — side-seam pocket bag pieces were defined as simple rectangles instead of using the `buildSideSeamPocketBag()` D-shaped builder added in v0.12.44. Pockets now have a straight top and sides with a semicircular bottom, matching real pocket construction. Each file's import updated accordingly.
+  - `lounge-shorts` (6×7), `kids-shorts` (5×6), `gym-shorts` (7×7.5), `cargo-shorts` (7×7.5), `cargo-work-pants` (8×10), `baggy-shorts` (7×9), `pleated-shorts` (7×9), `pleated-trousers` (7×9)
+
+---
+
 ## [0.12.50] - 2026-04-14
 
 ### Added

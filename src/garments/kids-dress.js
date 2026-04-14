@@ -11,7 +11,7 @@ import {
   armholeCurve, shoulderSlope, necklineCurve, shoulderDropFromWidth,
   armholeDepthFromChest, neckWidthFromCircumference,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, offsetPolygon, polyToPath } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, offsetPolygon, polyToPath, buildSideSeamPocketBag } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 // Kids bodice ease: +2" chest (standard), +3" (relaxed)
@@ -250,13 +250,10 @@ export default {
 
     // ── Optional pockets ───────────────────────────────────────────────────────
     if (opts.pockets === 'yes') {
-      pieces.push({
-        id: 'pocket-bag',
-        name: 'Side Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Lining or self fabric · {serge} all edges',
-        dimensions: { width: 5.5, height: 6.5 },
-        type: 'pocket', sa,
-      });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 5.5, bagHeight: 6.5, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(5.5)} wide × ${fmtInches(6.5)} deep · D-shaped · Lining or self fabric · Serge all edges before assembly`,
+      }));
     }
 
     // ── Neckband / facing ─────────────────────────────────────────────────────

@@ -11,7 +11,7 @@ import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, edgeAngle, insetCrotchBezier,
   buildSlantPocketBacking, clipPanelAtSlash,
-  buildSlantPocketBag
+  buildSlantPocketBag, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -186,7 +186,10 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
+      }));
     }
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) per pocket · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
