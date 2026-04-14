@@ -6,6 +6,7 @@ import GARMENTS from '../garments/index.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
 import SEO_DESCRIPTIONS from '../garments/seo-descriptions.js';
 import { renderMakesGallery, extractTesters, renderAsSeenOn } from './real-makes.js';
+import { getRecommendations } from '../engine/recommendations.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
@@ -81,12 +82,8 @@ const jsonld = {
 const jsonldEl = document.getElementById('pp-jsonld');
 if (jsonldEl) jsonldEl.textContent = JSON.stringify(jsonld);
 
-// ── Related patterns (same category and audience) ─────────────────────────────
-const related = Object.values(GARMENTS)
-  .filter(g => g.id !== garmentId
-    && g.category === garment.category
-    && (g.audience || null) === (garment.audience || null))
-  .slice(0, 3);
+// ── Related patterns (similar + complementary via recommendation engine) ──────
+const related = getRecommendations(garmentId, [], 3).map(id => GARMENTS[id]).filter(Boolean);
 
 // ── Option list ───────────────────────────────────────────────────────────────
 const optionItems = garment.options
@@ -216,7 +213,7 @@ root.innerHTML = `
   ${relatedCards ? `
   <section class="pat-pg-section">
     <h2 class="pat-pg-section-title">Related Patterns</h2>
-    <p class="pat-pg-related-note">These patterns use the same body block and will fit with the same confidence.</p>
+    <p class="pat-pg-related-note">These patterns share similar measurements and will fit with the same confidence.</p>
     <div class="pat-pg-related-grid">${relatedCards}</div>
   </section>` : ''}
 
