@@ -133,13 +133,13 @@ export default {
     }));
 
     // ── Waistband casing ──────────────────────────────────────────────────────
-    const wbCircumference = (frontW + backW) * 2;
+    const wbCircumference = m.waist + 2;
     // Casing cut width: elastic + seam to fold in + hem on bottom = (elasticW + 1) × 2
     const wbCut = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband Casing',
-      instruction: `Cut 1 · ${fmtInches(wbCircumference)} long × ${fmtInches(wbCut)} wide · Elastic + drawstring casing · Fold in half, sew to waist`,
+      instruction: `Cut 1 · ${fmtInches(wbCircumference)} long × ${fmtInches(wbCut)} wide · Elastic + drawstring casing · Fold in half, sew to waist · Gather pant opening to fit band before attaching`,
       type: 'rectangle',
       dimensions: { length: wbCircumference, width: wbCut },
       sa,

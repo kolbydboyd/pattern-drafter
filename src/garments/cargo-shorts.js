@@ -8,7 +8,7 @@
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -195,11 +195,11 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    // Elastic/drawstring: waistband matches garment waist opening. Fly: body waist + overlap.
+    // Elastic/drawstring: waistband sized to body waist (gather shorts opening to fit).
+    // Fly: body waist + overlap.
     const isCasing = opts.fly === 'none' || opts.fly === 'drawstring';
     const flyOverlap = isCasing ? 0 : 2;
-    const shortsWaist = (frontW + backW) * 2; // actual waist opening of assembled shorts
-    const wbBase = isCasing ? shortsWaist : (m.waist + ease.total);
+    const wbBase = m.waist + ease.total;
     const wbLength = wbBase + flyOverlap + sa * 2;
     const elasticW = parseFloat(opts.elasticWidth) || 1;
     // Casing waistband: cut = (elastic/cord width + 1″ ease/fold) × 2. Structured: fixed 3″.
@@ -208,6 +208,7 @@ export default {
     const wbInstruction = [
       `Cut 1 on fold · Interface (2 layers) before cutting · ${fmtInches(wbWidth / 2)} finished`,
       `Notch at CF, CB, and both side seams (front panel = ${fmtInches(frontW)}, back panel = ${fmtInches(backW)} from each side seam)`,
+      isCasing ? `Gather shorts opening to fit band before attaching` : '',
       opts.fly === 'drawstring' ? `Mark 2 buttonholes at CF, 1″ apart, on the inner half (near the fold). On the printed on-fold piece, mark 1 buttonhole ½″ from the fold.` : '',
     ].filter(Boolean).join(' · ');
     pieces.push({
@@ -234,7 +235,10 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 11.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 7.5 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 7.5, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(7.5)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
+      }));
     }
     if (opts.cargo === 'cargo') {
       pieces.push({ id: 'cargo-body', name: 'Cargo Pocket Body', instruction: 'Cut 2 \xb7 9\u2033 wide \xd7 7\u2033 tall cut \xb7 Box pleat at center: \u00bd\u2033 under, \u00bd\u2033 fold back, 2\u2033 on top, \u00bd\u2033 under, \u00bd\u2033 back out (4\u2033 consumed total) \xb7 Finished pocket 5\u2033 wide, expands to 9\u2033', dimensions: { width: 9, height: 7 }, type: 'pocket', sa, marks: [

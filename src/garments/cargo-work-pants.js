@@ -10,7 +10,7 @@
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
-  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash
+  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -211,7 +211,10 @@ export default {
       pieces.push({ id: 'zip-pocket', name: 'Zip Security Pocket', instruction: 'Cut 2 (outer + lining) · Left front only · Inside slant pocket · Install 4″ zip', dimensions: { width: 3.5, height: 4 }, type: 'pocket' });
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 8, height: 10 }, type: 'pocket' });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 8, bagHeight: 10, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(8)} wide × ${fmtInches(10)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
+      }));
     }
 
     // ── CARGO POCKETS ──

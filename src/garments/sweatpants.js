@@ -158,13 +158,13 @@ export default {
     }));
 
     // ── WAISTBAND (elastic + drawstring) ──
-    const wbLen   = (frontW + backW) * 2 + sa * 2;
+    const wbLen   = m.waist + 2 + sa * 2;
     const elasticW = parseFloat(opts.elasticWidth) || 1;
     const wbWidth = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF · Gather pant opening to fit band before attaching`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     });

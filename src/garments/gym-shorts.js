@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -204,14 +204,10 @@ export default {
 
     // ── POCKET PIECES ──
     if (opts.pocket === 'side-seam') {
-      pieces.push({
-        id: 'pocket-bag',
-        name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Mesh or lining fabric OK',
-        dimensions: { width: 7, height: 7.5 },
-        type: 'pocket',
-        sa,
-      });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 7.5, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(7.5)} deep · D-shaped · Mesh or lining fabric OK · Serge all edges before assembly`,
+      }));
     }
 
     // ── MESH LINER (optional) ──

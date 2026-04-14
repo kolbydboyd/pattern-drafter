@@ -225,11 +225,11 @@ export default {
     ];
 
     const pantOpening = (frontW + backW) * 2;
-    const wbCirc = pantOpening + sa * 2;
     if (opts.waistband === 'elastic') {
       const elasticW = parseFloat(opts.elasticWidth) || 1;
       const wbWidth = (elasticW + 0.75) * 2;
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} finished × 2) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
+      const wbCirc = m.waist + 2 + sa * 2;
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} finished × 2) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist) · Gather pant opening to fit band before attaching`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     } else {
       const yogaLen = Math.round(pantOpening * 0.85 * 4) / 4;
       pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(yogaLen)} long × 6″ cut (3″ finished fold-over) · Stretch 15% to meet pant opening (${fmtInches(pantOpening)})`, dimensions: { length: yogaLen, width: 6 }, type: 'rectangle', sa });

@@ -298,11 +298,11 @@ export default {
         ],
       });
     } else {
-      const wbLen = (frontW + backW) * 2 + sa * 2;
+      const wbLen = m.waist + 2 + sa * 2;
       pieces.push({
         id: 'waistband',
         name: 'Waistband',
-        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring · Gather trunk opening to fit band before attaching`,
         dimensions: { length: wbLen, width: wbWidth },
         type: 'rectangle', sa,
       });

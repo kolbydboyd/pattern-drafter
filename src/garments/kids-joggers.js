@@ -119,13 +119,13 @@ export default {
 
     // Waistband — elastic only (no drawstring for child safety)
     const elasticW = parseFloat(opts.elasticWidth) || 1;
-    const wbLen    = (frontW + backW) * 2 + sa * 2;
+    const wbLen    = m.waist + 1.5 + sa * 2;
     const wbWidth  = (elasticW + 0.75) * 2; // finished = elasticW + 0.75", cut = doubled
 
     const waistband = {
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished width · ${fmtInches(elasticW)} elastic casing · Elastic only (no drawstring)`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished width · ${fmtInches(elasticW)} elastic casing · Elastic only (no drawstring) · Gather pant opening to fit band before attaching`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     };
