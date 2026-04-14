@@ -274,19 +274,48 @@ export default {
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
       if (isRetro) {
-        // Retro: anchored folded pocket. One piece per side, folded in half — fold edge faces crotch.
-        // Top caught in waistband seam. Outer edge into side seam (4" open from waistband = pocket mouth;
-        // side seam closed below that to hem trapping the bag). Bottom caught in hem fold.
-        // Cannot dangle — locked in on three sides.
-        const bagDepth = 4.0;           // depth from side seam to fold (toward crotch)
-        const bagW = bagDepth * 2;      // unfolded width — piece folds in half to bagDepth
-        const bagH = rise + inseam;     // full garment height: waistband to hem
+        // Retro: anchored folded pocket — rendered as a polygon matching the front panel geometry.
+        // Outer edge = front panel side seam. Top = waistband seam line. Bottom = hem fold line.
+        // Fold line is a straight vertical edge 5" from the side seam toward the crotch.
+        // Piece is ONE layer; fold in half along the fold edge before sewing → 5" deep pocket.
+        const bagDepth = 5.0;           // depth from side seam to fold (toward crotch)
+        const bagH     = rise + inseam; // full garment height: waistband to hem
+        const pocketMouth = 4.0;        // pocket mouth opening: 4" from waistband down the side seam
+
+        // Polygon: fold edge at x=0, side seam at x=bagDepth, y=0 at waist, y=bagH at hem
+        const bagPoly = [
+          { x: 0,        y: 0    },   // fold at waist
+          { x: bagDepth, y: 0    },   // side seam at waist (top of pocket mouth)
+          { x: bagDepth, y: bagH },   // side seam at hem
+          { x: 0,        y: bagH },   // fold at hem
+        ];
+        // SA: fold edge = 0 (fold, not seam), hem edge = -hem (caught in fold), others = -sa
+        const bagSaPoly = offsetPolygon(bagPoly, (i, a, b) => {
+          if (Math.abs(a.x) < 0.01 && Math.abs(b.x) < 0.01) return 0;           // fold — no SA
+          if (Math.abs(a.y - bagH) < 0.5 && Math.abs(b.y - bagH) < 0.5) return -hem; // hem edge
+          return -sa;
+        });
+
         pieces.push({
           id: 'pocket-bag',
           name: 'Side-Seam Pocket Bag',
-          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half lengthwise {WST} — fold edge toward crotch · Baste folded bag to front panel: top to waistband seam line, outer edge to side seam, bottom to hem fold line · Pocket mouth = the 4″ of side seam left open from waistband down · Bottom edge caught in hem fold; top edge caught in waistband seam — bag cannot dangle`,
-          dimensions: { width: bagW, height: bagH },
-          type: 'pocket', sa,
+          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Top caught in waistband seam · Outer edge into side seam — leave top ${fmtInches(pocketMouth)} OPEN (pocket mouth), sew closed below · Bottom caught in hem fold — bag cannot dangle`,
+          polygon: bagPoly, saPolygon: bagSaPoly,
+          path: polyToPath(bagPoly), saPath: polyToPath(bagSaPoly),
+          dimensions: [
+            { label: fmtInches(bagDepth) + ' depth', x1: 0, y1: -0.5, x2: bagDepth, y2: -0.5, type: 'h' },
+            { label: fmtInches(bagH) + ' height',    x: bagDepth + 1.2, y1: 0, y2: bagH, type: 'v' },
+          ],
+          labels: [
+            { text: 'FOLD (no SA)', x: -0.4,           y: bagH * 0.5, rotation: -90 },
+            { text: 'SIDE SEAM',    x: bagDepth + 0.3,  y: bagH * 0.5, rotation: 90  },
+            { text: 'POCKET BAG',   x: bagDepth * 0.25, y: bagH * 0.35, rotation: 0  },
+          ],
+          notches: [
+            // Notch on side seam at bottom of pocket mouth — transition from open to sewn
+            { x: bagDepth, y: pocketMouth, angle: edgeAngle({ x: bagDepth, y: 0 }, { x: bagDepth, y: bagH }) },
+          ],
+          type: 'panel', sa, hem,
         });
       } else {
         pieces.push({

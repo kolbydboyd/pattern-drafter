@@ -329,8 +329,8 @@ export function renderPanelSVG(piece) {
     pocketSVG += dm(sx2, sy2);
     pocketSVG += `<text x="${sx2+4}" y="${sy2+4}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
   }
-  // Fly shield placement outline (front panel only)
-  if (!isBack) {
+  // Fly shield placement outline (front panel only — only garments that have a fly option)
+  if (!isBack && opts?.fly) {
     const flyLen = Math.ceil(rise * 0.6);
     const col = '#8a4a4a';
     pocketSVG += `<rect x="${ox}" y="${oy}" width="${sc(2.5)}" height="${sc(flyLen)}"
