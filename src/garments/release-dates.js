@@ -8,6 +8,10 @@
  */
 
 export const RELEASE_DATES = {
+  'polo-shirt':         '2026-04-14',
+  'slim-polo':          '2026-04-14',
+  'classic-polo':       '2026-04-14',
+  'sport-polo':         '2026-04-14',
   'zippered-pouch':     '2026-04-14',
   'turtleneck':         '2026-04-14',
   'trapeze-dress-w':    '2026-04-14',

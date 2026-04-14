@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.55] - 2026-04-14
+
+### Added
+- **Polo Shirt** (`polo-shirt`) — new upper-body garment module with self-fabric collar, 2-button CF placket, set-in short sleeve with stiff rib cuff, side hem slits, turn-back hem, and ¾″ longer back. Pieces: front bodice (cut on fold, CF slit for placket), back bodice, set-in sleeve ×2, sleeve rib cuff ×2, polo collar upper + under collar (interfaced upper layer for crisp stand), CF placket facing ×4, neck tape. Three options: fit (slim/regular/relaxed), sleeve length (mid-bicep 7″/elbow 9″), collar finish (interfaced/uninterfaced). Three variants: `slim-polo`, `classic-polo`, `sport-polo`. SEO descriptions and release dates added for all four IDs.
+
+---
+
 ## [0.12.54] - 2026-04-14
 
 ### Fixed

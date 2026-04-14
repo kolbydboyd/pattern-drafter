@@ -385,6 +385,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://peoplespatterns.com/patterns/polo-shirt</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://peoplespatterns.com/patterns/scrunchie</loc>
     <lastmod>2026-04-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -782,6 +788,24 @@
   </url>
   <url>
     <loc>https://peoplespatterns.com/patterns/long-sleeve-henley</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/slim-polo</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/classic-polo</loc>
+    <lastmod>2026-04-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://peoplespatterns.com/patterns/sport-polo</loc>
     <lastmod>2026-04-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
