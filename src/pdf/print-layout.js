@@ -46,10 +46,13 @@ function renderNotchesPrint(cutPolyInches, notches, ox, oy) {
   const TRI_H  = 0.20;
   const TRI_HW = 0.075;
 
-  // Centroid for inward-normal selection
-  let cx = 0, cy = 0;
-  for (const p of cutPolyInches) { cx += p.x; cy += p.y; }
-  cx /= n; cy /= n;
+  // Bounding-box center for inward-normal selection (avoids bias from high-density bezier curves)
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of cutPolyInches) {
+    if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+  }
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
 
   let svg = '';
   for (const notch of notches) {
@@ -108,6 +111,13 @@ function polyPath(pts, ox, oy) {
     d += ` L ${(ox + pts[i].x) * DPI} ${(oy + pts[i].y) * DPI}`;
   }
   return d + ' Z';
+}
+
+/** SVG path for a rect with square top corners and rounded bottom corners */
+function bottomRoundedPath(x, y, w, h, cr) {
+  const r = Math.min(cr, w / 2, h / 2);
+  if (r <= 0) return `M${x},${y} h${w} v${h} h${-w} Z`;
+  return `M${x},${y} h${w} v${h - r} q0,${r} ${-r},${r} h${-(w - 2 * r)} q${-r},0 ${-r},${-r} Z`;
 }
 
 /** Drill mark (crosshair) for pocket corners — industry standard fabric transfer mark */
@@ -187,6 +197,19 @@ function renderPocketPlacement(piece, ox, oy) {
       text-anchor="middle" transform="rotate(90,${labelX},${labelMidY})">pocket opening</text>`;
   }
 
+  // ── Scoop / Square-scoop pocket (front only) — rivet positions at opening endpoints ──
+  if (!isBack && (opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop')) {
+    const scoopInset = 3.5, scoopDepth = 6;
+    const sx1 = (ox + width - scoopInset) * DPI, sy1 = oy * DPI;
+    const sx2 = (ox + width) * DPI,             sy2 = (oy + scoopDepth) * DPI;
+    svg += drillMark(sx1, sy1);
+    svg += `<text x="${sx1 + 5}" y="${sy1 + 9}"
+      font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">rivet</text>`;
+    svg += drillMark(sx2, sy2);
+    svg += `<text x="${sx2 + 5}" y="${sy2 + 4}"
+      font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">rivet</text>`;
+  }
+
   // ── Cargo pocket (front only) ──
   if (opts.cargo === 'cargo') {
     const cpX = (ox + width) * DPI;
@@ -236,6 +259,19 @@ function renderPocketPlacement(piece, ox, oy) {
       svg += drillMark(weltX, w2Y + wH / 2);
       svg += drillMark(weltX + wW, w2Y + wH / 2);
     }
+  }
+
+  // ── Fly shield outline (front panel, left/CF side) ──
+  if (!isBack && opts?.fly) {
+    const flyLen = Math.ceil((rise || 10) * 0.6);
+    const fsX = ox * DPI;
+    const fsY = oy * DPI;
+    const fsW = 2.5 * DPI;
+    const fsH = flyLen * DPI;
+    svg += `<rect x="${fsX}" y="${fsY}" width="${fsW}" height="${fsH}"
+      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+    svg += `<text x="${fsX + 3}" y="${fsY + fsH + 10}"
+      font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">fly shield (left only)</text>`;
   }
 
   return svg;
@@ -560,6 +596,22 @@ function renderBodiceOrSleeveSVG(piece) {
             fill="#999">${line}</text>`
         ).join('\n');
       })()}
+      ${(() => {
+        if (piece.id !== 'scoop-backing' && piece.id !== 'square-scoop-backing') return '';
+        const bW = piece.width || 7;
+        const bSA = piece.sa || 0.625;
+        const coinW = 3, coinH = 3.5;
+        const cpX = (ox + bW - bSA - coinW) * DPI;
+        const cpY = (oy + bSA) * DPI;
+        const cpW = coinW * DPI, cpH = coinH * DPI;
+        const crpx = 0.5 * DPI;
+        return `<rect x="${cpX.toFixed(1)}" y="${cpY.toFixed(1)}" width="${cpW.toFixed(1)}" height="${cpH.toFixed(1)}" rx="${crpx.toFixed(1)}"
+          stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>
+        ${drillMark(cpX, cpY)}
+        ${drillMark(cpX + cpW, cpY)}
+        <text x="${(cpX + 3).toFixed(1)}" y="${(cpY + cpH + 10).toFixed(1)}"
+          font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">coin pocket</text>`;
+      })()}
     </svg>`,
   };
 }
@@ -654,6 +706,12 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
         fill="#666" text-anchor="middle">${instruction}</text>` : ''}
+      ${piece.id === 'waistband'
+        ? `${drillMark(cx, ry + rH)}
+           <circle cx="${cx}" cy="${ry + rH}" r="5" stroke="${PKT_COL}" stroke-width="0.8" fill="none"/>
+           <text x="${cx + 9}" y="${ry + rH + 4}"
+             font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">button/buttonhole</text>`
+        : ''}
     </svg>`,
   };
 }
@@ -685,9 +743,14 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const cy = (M + H / 2) * DPI;
 
   // SA cut line (outer) + stitch line (inner dashed)
+  const crInner = (piece.cornerRadius || 0) * DPI;
+  const crOuter = ((piece.cornerRadius || 0) + sa) * DPI;
   const saRect = sa > 0
-    ? `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-        stroke="#000" stroke-width="1.5" fill="none"/>`
+    ? (piece.id === 'coin-pocket'
+      ? `<path d="${bottomRoundedPath(rx - saOff, ry - saOff, rW + saOff * 2, rH + saOff * 2, crOuter)}"
+          stroke="#000" stroke-width="1.5" fill="none"/>`
+      : `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
+          rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`)
     : '';
   const stitchStroke = sa > 0 ? 'stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"' : 'stroke="#2c2a26" stroke-width="2"';
 
@@ -743,9 +806,15 @@ function renderPocketSVG(piece, { compact = false } = {}) {
         width="${wIn * DPI}" height="${hIn * DPI}"
         viewBox="0 0 ${wIn * DPI} ${hIn * DPI}">
       ${saRect}
-      <rect x="${rx}" y="${ry}" width="${rW}" height="${rH}"
-        ${stitchStroke} fill="none"/>
+      ${piece.id === 'coin-pocket'
+        ? `<path d="${bottomRoundedPath(rx, ry, rW, rH, crInner)}" ${stitchStroke} fill="none"/>`
+        : `<rect x="${rx}" y="${ry}" width="${rW}" height="${rH}" rx="${crInner}" ${stitchStroke} fill="none"/>`}
       ${marksSvg}
+      ${piece.id === 'coin-pocket'
+        ? `${drillMark(rx, ry)}${drillMark(rx + rW, ry)}
+           <text x="${rx + 4}" y="${ry - 5}"
+             font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">bar tack / rivet</text>`
+        : ''}
       <text x="${cx}" y="${(M - 0.08) * DPI}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
@@ -941,7 +1010,10 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   const pages_l = tileCnt(wIn, TX_l) * tileCnt(hIn, TY_l);
   // Panel pieces (pants, shorts) are always taller than wide — force portrait so
   // tiles cover more of the long dimension per row and assembly is intuitive.
-  const landscape = piece.type !== 'panel' && pages_l < pages_p;
+  // Tiebreak: if both orientations use the same page count, prefer landscape for
+  // pieces that are wider than tall (e.g. yokes, cuffs) so the long axis spans
+  // the page width and assembly is easier.
+  const landscape = piece.type !== 'panel' && (pages_l < pages_p || (pages_l === pages_p && wIn > hIn));
   const tPW = landscape ? PH : PW;
   const tPH = landscape ? PW : PH;
   const TX  = landscape ? TX_l : TX_p;
@@ -971,7 +1043,7 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
   if (renderMargin !== undefined) {
     const sa_val = piece.sa || 0.625;
     if (cols > 1) {
-      const contentW = effectiveW - 2 * renderMargin + sa_val;
+      const contentW = effectiveW - 2 * renderMargin + 2 * sa_val;
       const reducedCoverage = (cols - 1) * TX + OV;
       if (contentW <= reducedCoverage) {
         cols--;
@@ -979,7 +1051,7 @@ function computeTileLayout(wIn, hIn, piece, PW, PH, OV, renderMargin) {
       }
     }
     if (rows > 1) {
-      const contentH = hIn - 2 * renderMargin + sa_val;
+      const contentH = hIn - 2 * renderMargin + 2 * sa_val;
       const reducedCoverage = (rows - 1) * TY + OV;
       if (contentH <= reducedCoverage) {
         rows--;
@@ -1183,7 +1255,7 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
 
 function buildTileMapSVG(pieces, PW, PH, OV) {
   const GAP = 5, PAD = 10;
-  const SVG_W = 460;
+  const SVG_W = 660;
   const COL_GAP = 40;
 
   // Landscape cells are wider than tall; portrait cells are taller than wide
@@ -1437,15 +1509,6 @@ function buildMaterialsPage(materials, instructions) {
     ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${expandGlossaryPrint(materials.needle.use || '')}</td></tr>`
     : '';
 
-  const terms = usedGlossaryTerms(instructions, materials);
-  const glossaryHtml = terms.length ? `
-    <div class="print-glossary">
-      <h3 class="sect-head">Glossary</h3>
-      <div class="gl-grid">${terms.map(t =>
-        `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
-      ).join('')}</div>
-    </div>` : '';
-
   return `<div class="page mat-page">
     <h2 class="page-head">Materials &amp; Stitch Guide</h2>
     <div class="two-col">
@@ -1474,7 +1537,22 @@ function buildMaterialsPage(materials, instructions) {
         </table>
       </div>
     </div>
-    ${glossaryHtml}
+  </div>`;
+}
+
+/**
+ * Build a standalone glossary page.
+ * Separated from the materials page so it never overflows into the materials
+ * page bottom margin. Returns empty string when no glossary terms are in use.
+ */
+function buildGlossaryPage(materials, instructions) {
+  const terms = usedGlossaryTerms(instructions, materials);
+  if (!terms.length) return '';
+  return `<div class="page mat-page">
+    <h2 class="page-head">Glossary</h2>
+    <div class="gl-grid">${terms.map(t =>
+      `<div class="gl-entry"><b class="gl">${t.term}</b> <span class="gl-def">${t.def}</span></div>`
+    ).join('')}</div>
   </div>`;
 }
 
@@ -1510,9 +1588,10 @@ function buildInstructionsPage(instructions, PH) {
   const HEAD_H = 0.55;        // heading + note on first page
   const CONT_HEAD_H = 0.35;   // heading only on continuation pages
   const STEP_GAP = 0.14;      // gap between steps
-  const CHARS_PER_LINE = 85;  // ~chars fitting in detail column at 9pt
-  const LINE_H = 0.135;       // 9pt * 1.55 line-height
+  const CHARS_PER_LINE = 78;  // ~chars fitting in detail column at 10pt monospace (6.94in / ~0.089in/char)
+  const LINE_H = 0.215;       // 10pt * 1.55 line-height = 10/72 * 1.55 ≈ 0.215in
   const TITLE_H = 0.2;        // title line height
+  const SAFETY = 0.2;         // safety buffer against font-metric rounding differences
 
   function estimateStepHeight(s) {
     const detailLines = Math.ceil((s.detail || '').length / CHARS_PER_LINE) || 1;
@@ -1523,7 +1602,7 @@ function buildInstructionsPage(instructions, PH) {
   const pages = [];
   let cur = [];
   let usedH = 0;
-  let availH = PH - PAD * 2 - HEAD_H;
+  let availH = PH - PAD * 2 - HEAD_H - SAFETY;
 
   for (const s of allSteps) {
     const h = estimateStepHeight(s);
@@ -1531,7 +1610,7 @@ function buildInstructionsPage(instructions, PH) {
       pages.push(cur);
       cur = [];
       usedH = 0;
-      availH = PH - PAD * 2 - CONT_HEAD_H;
+      availH = PH - PAD * 2 - CONT_HEAD_H - SAFETY;
     }
     cur.push(s);
     usedH += h;
@@ -1942,7 +2021,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 .mat-page { padding:0.5in; height:auto !important; min-height:${PH}in; overflow:visible !important; }
 .two-col { display:flex; gap:0.4in; margin-top:0.1in; }
 .two-col > div { flex:1; }
-.mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; }
+.mat-notes ul { padding-left:1.1em; font-size:9.5pt; line-height:1.75; color:#444; columns:2; column-gap:0.35in; }
 .mat-notes li { break-inside:avoid; }
 
 /* ── Instructions ── */
@@ -2562,6 +2641,7 @@ ${body}
     : buildCoverPage(garment, measurements, opts)
     + buildScalePage(pieces, PW, PH, OV)
     + buildMaterialsPage(materials, instructions)
+    + buildGlossaryPage(materials, instructions)
     + buildInstructionsPage(instructions, PH);
 
   // ── Pattern piece pages ─────────────────────────────────────────────────
@@ -2648,6 +2728,7 @@ export function generateGradedPrintLayout(gradingResult, materials, instructions
   const preamblePages = buildGradedCoverPage(garment, sizeChart, opts, redemptionCode)
     + buildScalePage(largestPieces, PW, PH, OV)
     + buildMaterialsPage(materials)
+    + buildGlossaryPage(materials, instructions)
     + buildInstructionsPage(instructions);
 
   // Build tile pages with all sizes overlaid
@@ -2805,6 +2886,7 @@ export function generateGradedTiledLayouts(gradingResult, paperSize = 'letter', 
     const preamble = coverPage
       + buildScalePage(gp.pieces, PW, PH, OV)
       + buildMaterialsPage(materials)
+      + buildGlossaryPage(materials, instructions)
       + buildInstructionsPage(instructions);
 
     // Standard single-size tile pages

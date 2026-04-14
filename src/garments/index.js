@@ -16,11 +16,13 @@ import chinos        from './chinos.js';
 import workPants874  from './874-work-pants.js';
 import pleatedTrousers from './pleated-trousers.js';
 import sweatpants    from './sweatpants.js';
+import scholarSweatpants from './scholar-sweatpants.js';
 import tee           from './tee.js';
 import campShirt     from './camp-shirt.js';
 import buttonUp      from './button-up.js';
 import crewneck      from './crewneck.js';
 import hoodie        from './hoodie.js';
+import scholarHoodie from './scholar-hoodie.js';
 import cropJacket    from './crop-jacket.js';
 import athleticFormalJacket from './athletic-formal-jacket.js';
 import denimJacket   from './denim-jacket.js';
@@ -52,6 +54,15 @@ import openCardigan        from './open-cardigan.js';
 import choreCoat           from './chore-coat.js';
 import wideLegTrouserM     from './wide-leg-trouser-m.js';
 import henley              from './henley.js';
+import scrunchie           from './scrunchie.js';
+import dogBandana          from './dog-bandana.js';
+import zipperedPouch       from './zippered-pouch.js';
+import pajamaPants        from './pajama-pants.js';
+import loungeShorts        from './lounge-shorts.js';
+import turtleneck          from './turtleneck.js';
+import dolmanTopW          from './dolman-top-w.js';
+import maxiSkirtW          from './maxi-skirt-w.js';
+import trapezeDressW       from './trapeze-dress-w.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -65,11 +76,13 @@ const GARMENTS = {
   '874-work-pants':       workPants874,
   'pleated-trousers':     pleatedTrousers,
   'sweatpants':           sweatpants,
+  'scholar-sweatpants':   scholarSweatpants,
   'tee':                  tee,
   'camp-shirt':           campShirt,
   'button-up':            buttonUp,
   'crewneck':             crewneck,
   'hoodie':               hoodie,
+  'scholar-hoodie':       scholarHoodie,
   'crop-jacket':          cropJacket,
   'athletic-formal-jacket': athleticFormalJacket,
   'denim-jacket':         denimJacket,
@@ -101,6 +114,15 @@ const GARMENTS = {
   'chore-coat':             choreCoat,
   'wide-leg-trouser-m':     wideLegTrouserM,
   'henley':                 henley,
+  'scrunchie':              scrunchie,
+  'dog-bandana':            dogBandana,
+  'zippered-pouch':         zipperedPouch,
+  'pajama-pants':           pajamaPants,
+  'lounge-shorts':          loungeShorts,
+  'turtleneck':             turtleneck,
+  'dolman-top-w':           dolmanTopW,
+  'maxi-skirt-w':           maxiSkirtW,
+  'trapeze-dress-w':        trapezeDressW,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────
@@ -117,6 +139,7 @@ for (const garment of Object.values({ ...GARMENTS })) {
       _baseId: garment.id,
       _variantDefaults: v.defaults,
       _variantFabrics: v.fabrics,
+      ...(v.measurementDefaults ? { measurementDefaults: { ...garment.measurementDefaults, ...v.measurementDefaults } } : {}),
       variants: undefined,
     };
   }

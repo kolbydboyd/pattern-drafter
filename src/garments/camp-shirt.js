@@ -52,8 +52,9 @@ export default {
     fit: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'standard',  label: 'Regular (+4″)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed',   label: 'Relaxed (+6″)', reference: 'skater, workwear'      },
+        { value: 'fitted',   label: 'Fitted (+2″)',   reference: 'slim, tapered, athletic'  },
+        { value: 'standard', label: 'Regular (+4″)',  reference: 'classic, off-the-rack'    },
+        { value: 'relaxed',  label: 'Relaxed (+6″)',  reference: 'skater, workwear'         },
       ],
       default: 'standard',
     },
@@ -162,6 +163,9 @@ export default {
     }
     // Underarm → hem
     const sideX = shoulderPtX + chestDepth;
+    if (opts.fit === 'fitted') {
+      frontPoly.push({ x: sideX - 1, y: torsoLen * 0.42 }); // waist suppression: 1" inward at natural waist
+    }
     frontPoly.push({ x: sideX, y: torsoLen });
     // Hem → CF fold (including placket extension)
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
@@ -185,6 +189,9 @@ export default {
       backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
     }
     const backSideX = shoulderPtX + backChestDepth;
+    if (opts.fit === 'fitted') {
+      backPoly.push({ x: backSideX - 1, y: torsoLen * 0.42 }); // waist suppression: 1" inward at natural waist
+    }
     backPoly.push({ x: backSideX, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
@@ -229,7 +236,8 @@ export default {
     for (let i = 0; i < nNeckPts - 1; i++) frontEdgeAllowances.push({ sa: 0.375, label: 'Neckline' });
     for (let i = 0; i < nShoulderPts; i++) frontEdgeAllowances.push({ sa: 0.625, label: 'Shoulder' });
     for (let i = 0; i < nFrontArmPts; i++) frontEdgeAllowances.push({ sa: 0.375, label: 'Armhole' });
-    frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' }); // armhole→hem
+    if (opts.fit === 'fitted') frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' }); // armhole→waist
+    frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' }); // side seam→hem
     frontEdgeAllowances.push({ sa: hem, label: 'Hem' });         // hem across
     frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });   // placket up
     while (frontEdgeAllowances.length < frontPoly.length) frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });
@@ -239,6 +247,7 @@ export default {
     for (let i = 0; i < nNeckPts - 1; i++) backEdgeAllowances.push({ sa: 0.375, label: 'Neckline' });
     for (let i = 0; i < nShoulderPts; i++) backEdgeAllowances.push({ sa: 0.625, label: 'Shoulder' });
     for (let i = 0; i < nBackArmPts; i++) backEdgeAllowances.push({ sa: 0.375, label: 'Armhole' });
+    if (opts.fit === 'fitted') backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' }); // armhole→waist
     backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
     backEdgeAllowances.push({ sa: hem, label: 'Hem' });
     while (backEdgeAllowances.length < backPoly.length) backEdgeAllowances.push({ sa: 0, label: 'Fold' });
@@ -476,6 +485,8 @@ export default {
   },
 
   variants: [
-    { id: 'vacation-shirt', name: 'Vacation Shirt', defaults: { collar: 'camp', sleeveStyle: 'short', fit: 'relaxed', chestPocket: 'patch' } },
+    { id: 'vacation-shirt',      name: 'Vacation Shirt',       defaults: { collar: 'camp', sleeveStyle: 'short', fit: 'relaxed', chestPocket: 'patch' } },
+    { id: 'fitted-camp-shirt',   name: 'Fitted Camp Shirt',    defaults: { collar: 'camp', sleeveStyle: 'short', fit: 'fitted',  chestPocket: 'none'  } },
+    { id: 'fitted-linen-camp',   name: 'Fitted Linen Camp Shirt', defaults: { collar: 'camp', sleeveStyle: 'long', fit: 'fitted', chestPocket: 'none' } },
   ],
 };

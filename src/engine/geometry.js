@@ -385,6 +385,82 @@ export function polyToPath(poly) {
 }
 
 /**
+ * Rotate dart wedges closed on a yoke polygon. Each dart is treated as a
+ * wedge cut out of the waist (top) edge with apex at (dart.x, dart.length).
+ * The polygon section to the right of each dart rotates rigidly about the
+ * apex by the dart's subtended angle, "absorbing" the dart into the seams.
+ * After closure, the top edge is shorter (by the sum of dart intakes) and the
+ * side seam slants inward — the standard pattern-drafting move that turns a
+ * rectangular yoke into a curved/wedge shape.
+ *
+ * Expects yokePoly ordered clockwise starting at the CB waist (top-left).
+ * The top edge runs from poly[0] (CB waist) to poly[1] (side waist) at y≈0;
+ * the bottom edge (yoke seam) runs back to poly[0].
+ *
+ * @param {Array<{x:number, y:number}>} yokePoly  Pre-rotation yoke polygon
+ * @param {Array<{x:number, intake:number, length:number}>} darts  Dart definitions
+ * @returns {Array<{x:number, y:number}>}  Rotated polygon
+ */
+export function closeYokeDarts(yokePoly, darts) {
+  if (!darts || !darts.length) return yokePoly.map(p => ({ ...p }));
+  const valid = darts.filter(d => d && d.intake > 0 && d.length > 0);
+  if (!valid.length) return yokePoly.map(p => ({ ...p }));
+  const sorted = [...valid].sort((a, b) => a.x - b.x);
+
+  // Augment polygon: insert dart left/right leg vertices on the top edge
+  // between poly[0] (CB waist) and poly[1] (side waist).  Each remaining
+  // vertex is tagged with a panel index based on its original x position.
+  const pts = [];
+  pts.push({ ...yokePoly[0], _panel: 0 });
+  for (let i = 0; i < sorted.length; i++) {
+    const d = sorted[i];
+    const half = d.intake / 2;
+    pts.push({ x: d.x - half, y: 0, _panel: i });
+    pts.push({ x: d.x + half, y: 0, _panel: i + 1, _dartRight: true });
+  }
+  for (let i = 1; i < yokePoly.length; i++) {
+    const p = yokePoly[i];
+    let panel = 0;
+    for (const d of sorted) if (p.x > d.x) panel++;
+    pts.push({ ...p, _panel: panel });
+  }
+
+  // Right-to-left rotation pass: for each dart i, rotate all points whose
+  // panel index is > i about apex_i by the dart's subtended angle.
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const d = sorted[i];
+    const apex = { x: d.x, y: d.length };
+    const half = d.intake / 2;
+    // Angle that takes (+half, -length) onto (-half, -length)
+    const cross = -2 * half * d.length;
+    const dot   = d.length * d.length - half * half;
+    const angle = Math.atan2(cross, dot);
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    for (const p of pts) {
+      if (p._panel > i) {
+        const dx = p.x - apex.x;
+        const dy = p.y - apex.y;
+        p.x = apex.x + dx * cos - dy * sin;
+        p.y = apex.y + dx * sin + dy * cos;
+      }
+    }
+  }
+
+  // Drop the right-leg duplicates (they coincide with their matching left
+  // leg after rotation) and strip internal markers.
+  const out = [];
+  for (const p of pts) {
+    if (p._dartRight) continue;
+    const clean = { ...p };
+    delete clean._panel;
+    delete clean._dartRight;
+    out.push(clean);
+  }
+  return out;
+}
+
+/**
  * Format a decimal inch value as a human-readable fraction string.
  * Fractions supported: ⅛, ¼, ⅜, ½, ⅝, ¾, ⅞ (tolerance ±0.06).
  * Negative values are treated as their absolute value.
@@ -393,6 +469,7 @@ export function polyToPath(poly) {
  * @returns {string} Formatted string (e.g. "1⅝″", "2″", "3.3″")
  */
 export function fmtInches(val) {
+  if (val == null || isNaN(val)) return '0″';
   if (val < 0) val = -val;
   const whole = Math.floor(val);
   const frac = val - whole;
@@ -586,10 +663,16 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
+  // Interpolate the actual side seam x at slashDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
+    : waistSideX;
+
   // Replace the corner vertex with two slash endpoints
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },    // slash start on waist
-    { x: waistSideX, y: slashDepth },         // slash end on side seam
+    { x: endX, y: slashDepth },               // slash end on actual side seam
   );
   return poly;
 }
@@ -616,13 +699,20 @@ export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth 
   }
   if (idx < 0 || bestDist > 1) return poly;
 
+  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
+    : waistSideX;
+
   // Concave J-curve from waist (inset) to side seam (depth)
+  // CP1 vertical → CP2 at same depth as endpoint → horizontal tangent at side seam
   const sx = waistSideX - scoopInset;
   const curvePts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
-    { x: waistSideX - scoopInset * 0.15, y: scoopDepth * 0.9 },
-    { x: waistSideX, y: scoopDepth },
+    { x: waistSideX - scoopInset * 0.3, y: scoopDepth },
+    { x: endX, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
@@ -648,7 +738,7 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
   return {
     id: 'scoop-backing',
     name: 'Scoop Pocket Backing',
-    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling',
     polygon, sa, hem: sa,
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
@@ -663,11 +753,12 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
  */
 export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
   // Curved opening edge from (bagWidth - scoopInset, 0) to (bagWidth, scoopDepth)
+  // CP2 at same y as endpoint → horizontal tangent at side seam (no slant at junction)
   const sx = bagWidth - scoopInset;
   const openingPts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
-    { x: bagWidth - scoopInset * 0.15, y: scoopDepth * 0.9 },
+    { x: bagWidth - scoopInset * 0.3, y: scoopDepth },
     { x: bagWidth, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
@@ -688,5 +779,252 @@ export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'h', position: scoopDepth },
+    ],
+  };
+}
+
+// ── Square-scoop pocket (L-shaped opening with rounded corner) ──────────────
+
+/**
+ * Clip a front panel polygon at a square-scoop opening.
+ * Replaces the waist/side-seam corner with an L-shaped polyline:
+ * vertical drop → rounded 90° corner → horizontal run to side seam.
+ *
+ * Mutates `poly` in place and returns it.
+ *
+ * @param {Array<{x:number, y:number}>} poly - CW panel polygon
+ * @param {number} waistSideX - x of the waist-at-side-seam vertex
+ * @param {number} scoopInset - how far in from side seam the opening starts on waist (default 3.5)
+ * @param {number} scoopDepth - how far below waist the opening meets the side seam (default 6)
+ * @param {number} cornerRadius - radius of the rounded corner (default 0.75)
+ * @returns {Array<{x:number, y:number}>} the mutated polygon
+ */
+export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth = 6, cornerRadius = 0.75) {
+  let idx = -1;
+  let bestDist = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const d = Math.abs(poly[i].x - waistSideX) + Math.abs(poly[i].y);
+    if (d < bestDist) { bestDist = d; idx = i; }
+  }
+  if (idx < 0 || bestDist > 1) return poly;
+
+  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
+    : waistSideX;
+
+  const sx = waistSideX - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523; // bezier approximation of quarter-circle
+
+  // Quarter-circle from end of vertical to start of horizontal
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const pts = [
+    { x: sx, y: 0 },                // opening start on waist
+    { x: sx, y: scoopDepth - r },   // bottom of vertical segment (arc start)
+    ...arcPts.slice(1, -1),          // arc mid-points (skip endpoints, already covered)
+    { x: sx + r, y: scoopDepth },   // end of arc / start of horizontal
+    { x: endX, y: scoopDepth },     // opening end on actual side seam
+  ];
+
+  poly.splice(idx, 1, ...pts);
+  return poly;
+}
+
+/**
+ * Build a square-scoop pocket backing piece (self-fabric, visible front).
+ * Same shape as scoop backing: rectangle from waist across full bag width,
+ * down the side seam, then scoop curve at the bottom.
+ */
+export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
+  const scoopPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    { x: bagWidth, y: 0 },
+    { x: bagWidth, y: scoopDepth },
+    ...scoopPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-backing',
+    name: 'Square Scoop Pocket Backing',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front \xb7 {serge} curved bottom edge before assembling',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
+
+/**
+ * Build a square-scoop pocket bag piece (lining).
+ * Top-right edge follows the L-shaped opening (vertical + rounded corner + horizontal),
+ * bottom edge follows the bag scoop curve.
+ */
+export function buildSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, cornerRadius = 0.75, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523;
+
+  // L-shaped opening edge matching clipPanelAtSquareScoop
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const openingPts = [
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth - r },
+    ...arcPts.slice(1, -1),
+    { x: sx + r, y: scoopDepth },
+    { x: bagWidth, y: scoopDepth },
+  ];
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-bag',
+    name: 'Square Scoop Pocket Bag',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: false,
+    dimensions: { width: bagWidth, height: bagDepth },
+  };
+}
+
+// ── Fold-over pocket bag builders ────────────────────────────────────────────
+// RTW/professional construction: one lining piece cut on fold at the inner
+// (left) edge. The fold replaces the inner seam; the bottom is finished with
+// a French seam after the pocket is attached to the front panel.
+//
+// Construction sequence:
+//  1. Serge/finish curved bottom edge of self-fabric backing piece.
+//  2. With fold-over bag laid flat (unfolded), place backing WS-to-WS on the
+//     outer half, align top and side-seam edges. Baste top and side edges.
+//     Backing's serged bottom edge hangs free.
+//  3. Align bag+backing unit's opening edge to front panel scoop edge RST.
+//     Sew the opening curve. Clip every 1/2". Turn pocket to WS of panel.
+//     Press. Understitch. Topstitch 1/4" from opening edge.
+//  4. Fold the bag at the fold line RST, bottom edges aligned.
+//     Stitch bottom 3/8" SA. Trim to 1/8". Clip curve. Flip WST.
+//     Stitch again 1/4" from edge (French seam). Press.
+//  5. Baste top and side seam edges of pocket bag to panel SAs.
+
+/**
+ * Build a fold-over scoop pocket bag piece (lining, cut on fold).
+ * Identical polygon to buildScoopPocketBag — the fold is at x = 0 (inner
+ * edge). Cut on fold; when opened flat the piece is 2× as wide.
+ */
+export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const openingPts = sampleBezier(
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth * 0.45 },
+    { x: bagWidth - scoopInset * 0.3, y: scoopDepth },
+    { x: bagWidth, y: scoopDepth },
+    12,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'scoop-bag',
+    name: 'Scoop Pocket Bag (Fold-Over)',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: true,
+    foldEdge: 'left',
+    dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'v', position: 0 },
+    ],
+    // Opening edges (J-curve, indices 1–12) get 3/8″ SA; fold closure edge gets 0 SA.
+    edgeAllowances: polygon.map((_, i) => {
+      if (i >= 1 && i <= 12) return { sa: 0.375, label: 'opening' };
+      if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
+      return { sa, label: '' };
+    }),
+  };
+}
+
+/**
+ * Build a fold-over square-scoop pocket bag piece (lining, cut on fold).
+ * Identical polygon to buildSquareScoopPocketBag — fold at x = 0 (inner edge).
+ */
+export function buildFoldOverSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, cornerRadius = 0.75, sa = 0.625, instruction = '' } = {}) {
+  const sx = bagWidth - scoopInset;
+  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
+  const k = 0.5523;
+
+  const arcPts = sampleBezier(
+    { x: sx, y: scoopDepth - r },
+    { x: sx, y: scoopDepth - r + r * k },
+    { x: sx + r - r * k, y: scoopDepth },
+    { x: sx + r, y: scoopDepth },
+    6,
+  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  const openingPts = [
+    { x: sx, y: 0 },
+    { x: sx, y: scoopDepth - r },
+    ...arcPts.slice(1, -1),
+    { x: sx + r, y: scoopDepth },
+    { x: bagWidth, y: scoopDepth },
+  ];
+
+  const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
+
+  const polygon = [
+    { x: 0, y: 0 },
+    ...openingPts,
+    ...bottomPts.slice(1),
+  ];
+
+  return {
+    id: 'square-scoop-bag',
+    name: 'Square Scoop Pocket Bag (Fold-Over)',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    polygon, sa, hem: sa,
+    width: bagWidth, height: bagDepth,
+    type: 'bodice', isCutOnFold: true,
+    foldEdge: 'left',
+    dimensions: { width: bagWidth, height: bagDepth },
+    marks: [
+      { type: 'fold', axis: 'v', position: 0 },
+    ],
+    // Opening edges (straight + arc + horizontal to side seam, indices 1–8) get 3/8″ SA.
+    edgeAllowances: polygon.map((_, i) => {
+      if (i >= 1 && i <= 8) return { sa: 0.375, label: 'opening' };
+      if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
+      return { sa, label: '' };
+    }),
   };
 }

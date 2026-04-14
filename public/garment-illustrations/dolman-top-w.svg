@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- crew neckline -->
+  <path d="M80,32 Q80,22 92,22 Q104,22 104,32" stroke-width="1.5"/>
+
+  <!-- left sleeve top edge (shoulder → wrist) -->
+  <line x1="56" y1="32" x2="10" y2="36"/>
+  <!-- right sleeve top edge -->
+  <line x1="104" y1="32" x2="150" y2="36"/>
+
+  <!-- left wrist -->
+  <line x1="10" y1="36" x2="10" y2="56"/>
+  <!-- right wrist -->
+  <line x1="150" y1="36" x2="150" y2="56"/>
+
+  <!-- left batwing underarm curve (concave, dipping down) -->
+  <path d="M10,56 Q22,72 56,80"/>
+  <!-- right batwing underarm curve -->
+  <path d="M150,56 Q138,72 104,80"/>
+
+  <!-- left shoulder line from neck to sleeve start -->
+  <line x1="80" y1="32" x2="56" y2="32"/>
+
+  <!-- body (torso) sides -->
+  <line x1="56" y1="80" x2="56" y2="178"/>
+  <line x1="104" y1="80" x2="104" y2="178"/>
+
+  <!-- hem -->
+  <line x1="56" y1="178" x2="104" y2="178"/>
+  <!-- hem fold line -->
+  <line x1="56" y1="170" x2="104" y2="170" stroke-dasharray="3 2" stroke-width="1"/>
+
+  <!-- wrist hem fold lines -->
+  <line x1="10" y1="48" x2="10" y2="48" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="10" y1="49" x2="14" y2="49" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="150" y1="49" x2="146" y2="49" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

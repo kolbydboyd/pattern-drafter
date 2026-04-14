@@ -243,7 +243,11 @@ measure → generate → print → tile → cut → sew → finished
 
 _Research references: Aldrich (Metric Pattern Cutting for Women's Wear, 6th ed.), Armstrong (Patternmaking for Fashion Design, 6th ed.), Bunka Fashion College (Fundamentals of Garment Design), FreeSewing.org, ASTM D5585/D6192/D6458 body measurement standards, Beverly Johnson (lingerie), Cloth Habit, Orange Lingerie, Jalie, Style Arc._
 
-### Current catalog: 84 patterns (42 base garments + 42 style variants)
+### Current catalog: 119 patterns (51 base garments + 68 style variants) — updated 2026-04-14
+
+**Quick-win additions (2026-04-14):** scrunchie (+ mini, oversized), dog bandana, zippered pouch (+ makeup bag, pencil case), pajama pants (+ flannel, satin), lounge shorts, turtleneck (+ mock-neck), dolman/batwing top, maxi skirt (+ elastic, zip variants), trapeze dress
+
+### Previous catalog: 84 patterns (42 base garments + 42 style variants)
 
 **Men's/unisex base (24):** tee, camp shirt, button-up, crewneck, hoodie, straight jeans, baggy jeans, chinos, 874 work pants, pleated trousers, sweatpants, cargo shorts, baggy shorts, gym shorts, pleated shorts, swim trunks, crop jacket, athletic formal jacket, denim jacket, cargo work pants, apron, bow tie, tank top, tote bag
 **Women's base (18):** fitted tee, shell blouse, button-up, easy pant, straight trouser, wide-leg trouser, A-line skirt, slip skirt, circle skirt, pencil skirt, shirt dress, wrap dress, T-shirt dress, slip dress, A-line dress, sundress, leggings, athletic formal trousers
@@ -917,6 +921,7 @@ not yet covered, it has higher catalog value.
 | Shirring / smocking | smocked dress | not yet |
 | Pleats (box, knife) | pleated-shorts, pleated-trousers, pleated skirt | done (shorts/trousers), skirt pending |
 | Yoke (horizontal) | denim-jacket, western shirt, flannel | done |
+| Yoke (back V/curved, jeans) | straight-jeans, soloist-jeans | done |
 | Lining (full garment) | blazer, slip-skirt-w, coat, vest, evening gown | partial (slip skirt) |
 | Bias cut | bias-cut skirt, slip dress, necktie | not yet |
 | Knit / stretch construction | tee, leggings, boxers, bralette, bodycon | partial (tee), full with leggings |
@@ -1014,12 +1019,13 @@ variants: [
 | **chinos** | Classic Chinos | mid-rise, straight, slant pockets | cotton twill | the default |
 | | Slim Chinos | mid-rise, slim taper, slant pockets | stretch twill | modern slim |
 | **cargo-shorts** | Cargo Shorts | standard, cargo pockets | cotton twill | the default |
-| | Hiking Shorts | standard, cargo pockets, gusset | ripstop nylon | MYOG/outdoor crossover |
+| | Hiking Shorts ✅ | drawstring, cargo pockets, ripstop | ripstop nylon | MYOG/outdoor crossover — gusset deferred (engine) |
 | **gym-shorts** | Gym Shorts | elastic, lined, 5" inseam | performance knit | the default |
-| | Running Shorts | elastic, split side, 3" inseam | ultralight mesh | athletic |
-| | Basketball Shorts | elastic, side stripe, 9" inseam | performance mesh | sport-specific |
+| | Running Shorts ✅ | elastic, brief liner, 2″ side split | performance knit | athletic — sideSplit option added |
+| | Basketball Shorts ✅ | elastic, 1″ side split, 9" inseam | performance mesh | sport-specific |
 | **swim-trunks** | Board Shorts | elastic, 7" inseam | board short fabric | surf style |
 | | Swim Trunks | elastic, mesh lined, 5" inseam | swim fabric | classic |
+| | Retro Short Trunks ✅ | 3″ inseam, brief liner, 1″ side slit, slim | nylon/spandex, nylon taslan | 70s/80s retro revival |
 | **crop-jacket** | Cropped Jacket | standard, zip front | cotton twill | the default |
 | | Trucker Crop | button front, chest pockets | denim | denim crop |
 | **denim-jacket** | Denim Trucker Jacket | standard, button, chest pockets | denim 12 oz | the default |
@@ -1094,7 +1100,7 @@ to existing modules is the fastest path to a 60+ card catalog with zero new engi
 - [ ] hoodie: Classic, Zip-Up, Cropped (3 cards)
 - [ ] straight-jeans: Classic, Slim, High-Rise (3 cards)
 - [ ] chinos: Classic, Slim (2 cards)
-- [ ] gym-shorts: Gym, Running, Basketball (3 cards)
+- [x] gym-shorts: Gym, Running, Basketball (3 cards) — Running + Basketball variants updated with sideSplit defaults 2026-04-13
 - [ ] fitted-tee-w: Basic, Scoop, Long-Sleeve (3 cards)
 - [ ] wrap-dress-w: Wrap Dress, Maxi Wrap (2 cards)
 - [ ] shirt-dress-w: Shirt Dress, Linen Shirt Dress (2 cards)

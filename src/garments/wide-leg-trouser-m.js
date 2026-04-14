@@ -14,7 +14,7 @@ import {
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
-const PLEAT_DEPTH = 1.25; // inches per pleat (front panel only)
+const PLEAT_DEPTH = 1.5; // inches per pleat (front panel only) — matches pleated-trousers.js
 
 export default {
   id: 'wide-leg-trouser-m',
@@ -53,6 +53,15 @@ export default {
         { value: 'double', label: 'Double pleat',    reference: 'full, heritage cut'  },
       ],
       default: 'none',
+    },
+    pleatDir: {
+      type: 'select', label: 'Pleat direction',
+      values: [
+        { value: 'forward', label: 'Forward (opens toward CF)', reference: 'Italian, most slimming, sharpest crease' },
+        { value: 'reverse', label: 'Reverse (opens toward side)', reference: 'RTW standard, forgiving on fit'       },
+      ],
+      default: 'forward',
+      showWhen: { pleats: ['single', 'double'] },
     },
     waistband: {
       type: 'select', label: 'Waistband',
@@ -98,12 +107,13 @@ export default {
       default: 'zip',
     },
     hem: {
-      type: 'select', label: 'Hem',
+      type: 'select', label: 'Hem finish',
       values: [
-        { value: 1.5, label: '1.5″ straight (blind hem)' },
-        { value: 2,   label: '2″ wide cuff fold'         },
+        { value: 'plain',   label: '1½″ plain hem (blind stitch)',  reference: 'clean, modern, casual'    },
+        { value: 'cuff175', label: '1¾″ turn-up cuff (English)',    reference: 'classic, suits all heights' },
+        { value: 'cuff200', label: '2″ turn-up cuff (Italian)',     reference: 'formal, best on tall men'  },
       ],
-      default: 1.5,
+      default: 'plain',
     },
     // Men's crotch defaults differ from women's — smaller front ext, less CB raise
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.25, step: 0.25, min: 0.5, max: 3   },
@@ -123,8 +133,12 @@ export default {
     const easeVal = opts.ease === 'xwide' ? 10 : opts.ease === 'wide' ? 7 : 4;
     const ease    = easeDistribution(easeVal);
 
-    const sa       = parseFloat(opts.sa);
-    const hem      = parseFloat(opts.hem);
+    const sa        = parseFloat(opts.sa);
+    // Cuff construction: turn-up needs 2× finished depth added to leg length so the
+    // fold-back is possible. SA at the cut edge is 0.5″. Plain hem uses 1.5″ allowance.
+    const isCuff      = opts.hem === 'cuff175' || opts.hem === 'cuff200';
+    const cuffDepth   = opts.hem === 'cuff200' ? 2 : opts.hem === 'cuff175' ? 1.75 : 0;
+    const hem         = isCuff ? cuffDepth * 2 + 0.5 : 1.5; // total hem SA on polygon
     const frontExt = parseFloat(opts.frontExt);
     const backExt  = parseFloat(opts.backExt);
     const cbRaise  = parseFloat(opts.cbRaise);
@@ -158,7 +172,8 @@ export default {
     const frontWaistW = m.waist / 4 + ease.front + pleatExtra;
     const backWaistW  = m.waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
-    const H           = rise + inseam;
+    // For turn-up cuffs, extend leg height by 2× finished depth so the cuff folds back.
+    const H           = rise + inseam + (isCuff ? cuffDepth * 2 : 0);
 
     const pieces = [];
 
@@ -166,7 +181,7 @@ export default {
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R)${numPleats > 0
-        ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat ${fmtInches(PLEAT_DEPTH)} each, folds toward side seam`
+        ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat ${fmtInches(PLEAT_DEPTH)} each · ${opts.pleatDir === 'reverse' ? 'Reverse: fold opens toward side seam' : 'Forward: fold opens toward CF (more slimming)'}`
         : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
@@ -234,6 +249,19 @@ export default {
       pieces.push({ id: 'back-welt', name: 'Back Welt Pocket', instruction: 'Cut 4 (2 welts + 2 bags) · ×2 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
     }
 
+    // ── BELT LOOPS ───────────────────────────────────────────────────────────
+    if (opts.waistband === 'structured') {
+      const wbFinished = 1.5;
+      const loopCutH   = wbFinished * 2 + 1; // finished height = WB + 3/8" each end
+      pieces.push({
+        id: 'belt-loop',
+        name: 'Belt Loop',
+        instruction: `Cut 5 · Self fabric, straight grain · Fold in thirds to ⅝″ wide, {press}, edge-stitch both long edges · Position: CF×2 (fly sides), side seam×2, CB×1 · Baste to waist SA; fold up after WB, stitch to WB top`,
+        dimensions: { width: 1.5, height: loopCutH },
+        type: 'rectangle', sa: 0,
+      });
+    }
+
     return pieces;
   },
 
@@ -245,9 +273,12 @@ export default {
 
     if (opts.waistband !== 'elastic' && opts.fly === 'zip') {
       const zipLen = Math.ceil(rise * 0.65);
-      notions.push({ name: 'Invisible zipper', quantity: `${zipLen}″`, notes: 'Invisible (lapped) zip for clean fly finish' });
+      notions.push({ name: 'Coil zipper', quantity: `${zipLen}″`, notes: 'Standard fly zipper (not invisible) — 7–9″ typical' });
       notions.push({ name: 'Waistband button', quantity: '1', notes: '¾″ button or trouser hook' });
-      notions.push({ name: 'Hook-and-eye', quantity: '1 set', notes: 'Size 2–3 at waistband overlap' });
+      notions.push({ name: 'Trouser hook-and-bar', quantity: '1 set', notes: 'Size 2–3 at waistband overlap' });
+    }
+    if (opts.waistband === 'structured') {
+      notions.push({ name: 'Belt loops', quantity: '5 strips self-fabric', notes: '1½″ wide × 4″ long each (cut from main fabric, on straight grain)' });
     }
     if (opts.waistband === 'elastic') {
       const elasticW = parseFloat(opts.elasticWidth) || 1;
@@ -267,6 +298,7 @@ export default {
         'For invisible hem: fold up hem allowance, {press}, and hand-sew with a catch stitch. Mark the break while wearing the trouser with your shoes on.',
         'Wide-leg: let the trouser hang for 24 hours after completing before marking the hem — knit and woven fabrics both drop at the hem when hanging on the bias.',
         'Trouser break: full break (hem rests on top of shoe) looks traditional; half break (slight ripple at front) is modern. Mark with a pin while wearing.',
+        'Fabric by season: summer — linen or cotton-linen blend (3–5 oz) for breathability and drape; spring/fall — linen-wool blend or cotton twill (5–7 oz); fall/winter — worsted wool, flannel, or gabardine (8–11 oz) for structure. Formal year-round: tropical wool or crepe (6–8 oz). Avoid fabrics under 4 oz for wide-leg — they lack the weight to hang correctly without lining.',
       ],
     });
   },
@@ -277,6 +309,8 @@ export default {
     const numPleats = opts.pleats === 'double' ? 2 : opts.pleats === 'single' ? 1 : 0;
     const hasFly    = opts.fly === 'zip';
     const rise      = m.rise || 10;
+    const isCuff    = opts.hem === 'cuff175' || opts.hem === 'cuff200';
+    const cuffDepth = opts.hem === 'cuff200' ? 2 : opts.hem === 'cuff175' ? 1.75 : 0;
 
     if (opts.backPockets === 'welt2') {
       steps.push({
@@ -295,9 +329,12 @@ export default {
     }
 
     if (numPleats > 0) {
+      const pleatDirLabel = opts.pleatDir === 'reverse'
+        ? 'fold toward side seam (reverse pleat)'
+        : 'fold toward CF center (forward pleat — more slimming)';
       steps.push({
         step: n++, title: `Form front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `On RS, fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist. {baste} at ⅜″. {press} first 5–6″ from waist with steam — do NOT press full leg length.`,
+        detail: `On RS, ${pleatDirLabel}, enclosing ${fmtInches(PLEAT_DEPTH)} per pleat. Pin at waist. {baste} at ⅜″. {press} first 5–6″ from waist with steam — do NOT press full leg length.`,
       });
     }
 
@@ -314,12 +351,19 @@ export default {
     steps.push({ step: n++, title: 'Sew inseam', detail: 'One continuous seam from front hem through crotch to back hem. {clip} curve. {press} toward back. {serge}.' });
 
     if (opts.waistband === 'structured') {
-      steps.push({ step: n++, title: 'Construct waistband', detail: 'Interface outer waistband. Sew to trouser waist {RST}. Fold over to inside. Grade SA layers to reduce bulk. {topstitch} or {slipstitch}. Install button and hook-and-eye.' });
+      steps.push({
+        step: n++, title: 'Prepare and attach belt loops',
+        detail: 'Fold each loop strip in thirds lengthwise (RS out), {press}, edge-stitch both long edges. Finished width ⅝″. Cut 5 loops. Pin loops RS-down to trouser body at waist SA edge: CF left and right of fly, both side seams, and CB. {baste} at ⅜″. (Loops are caught in the waistband seam; after WB is complete, fold each loop up over WB top edge and stitch flat.)',
+      });
+      steps.push({ step: n++, title: 'Construct waistband', detail: 'Interface outer waistband. Sew to trouser waist {RST} (catching belt loop bases). Fold over to inside. Grade SA layers to reduce bulk. {topstitch} or {slipstitch}. Fold each belt loop up over WB top, trim to fit, fold raw end under, stitch down. Install button and trouser hook-and-bar.' });
     } else {
       steps.push({ step: n++, title: 'Construct elastic waistband', detail: 'Fold casing in half {WST}, {press}. Sew to trouser waist {RST}. Fold over, {topstitch} leaving 2″ gap. Thread elastic (~90% of waist), overlap 1″, {zigzag}. Close gap. {topstitch} edge.' });
     }
 
-    steps.push({ step: n++, title: 'Hem — fit first', detail: `Try on with your shoes. Mark break point. Fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}. Hand-sew with catch stitch or blind hem for invisible finish.` });
+    const hemDetail = isCuff
+      ? `Try on with your shoes. Mark finished leg length. Finish raw hem edge with {serge}. Fold up ${fmtInches(cuffDepth * 2)} (2× cuff depth), then fold cuff over to RS by ${fmtInches(cuffDepth)}. {press} crisp. Tack cuff at side seam and inseam only — do not catch main fabric.`
+      : `Try on with your shoes. Mark break point. Fold up 1½″ twice, {press}. Hand-sew with catch stitch or blind hem for invisible finish.`;
+    steps.push({ step: n++, title: 'Hem — fit first', detail: hemDetail });
     steps.push({ step: n++, title: 'Finish', detail: '{press} entire trouser with steam. Press front crease (align side seam to inseam, press fold). Bar tack all pocket openings and crotch junction.' });
 
     return steps;

@@ -156,12 +156,19 @@ function loadProfiles() {
   catch { return []; }
 }
 
+// Try wz- prefixed ID first (wizard), then fall back to non-prefixed (generator)
+function _el(id) {
+  return document.getElementById(`wz-${id}`) || document.getElementById(id);
+}
+
 function refreshProfileDropdown() {
-  const sel = document.getElementById('profile-select');
-  if (!sel) return;
   const profiles = loadProfiles();
-  sel.innerHTML = `<option value="">- saved profiles -</option>` +
+  const opts = `<option value="">- saved profiles -</option>` +
     profiles.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+  const sel = document.getElementById('profile-select');
+  if (sel) sel.innerHTML = opts;
+  const wzSel = document.getElementById('wz-profile-select');
+  if (wzSel) wzSel.innerHTML = opts;
 }
 
 async function saveCurrentProfile() {
@@ -169,7 +176,7 @@ async function saveCurrentProfile() {
     openAuthModal('save-profile', () => saveCurrentProfile());
     return;
   }
-  const nameInput = document.getElementById('profile-name-input');
+  const nameInput = _el('profile-name-input');
   const name = nameInput?.value?.trim();
   if (!name) {
     nameInput?.focus();
@@ -179,10 +186,10 @@ async function saveCurrentProfile() {
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
-    m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+    m[mId] = parseFloat(_el(`m-${mId}`)?.value) || 0;
   }
   for (const mId of relevantOptionalIds(g)) {
-    const el = document.getElementById(`m-${mId}`);
+    const el = _el(`m-${mId}`);
     if (!el) continue;
     const raw = el.value.trim();
     if (raw !== '') { const v = parseFloat(raw); if (!isNaN(v) && v > 0) m[mId] = v; }
@@ -197,7 +204,7 @@ async function saveCurrentProfile() {
 
     // Overwrite existing profile
     const user = getCurrentUser();
-    const btn  = document.getElementById('save-profile-btn');
+    const btn  = _el('save-profile-btn');
     const orig = btn?.textContent;
     if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
 
@@ -225,7 +232,7 @@ async function saveCurrentProfile() {
 
   // Save new profile to Supabase
   const user = getCurrentUser();
-  const btn  = document.getElementById('save-profile-btn');
+  const btn  = _el('save-profile-btn');
   const orig = btn?.textContent;
   if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
   const { data: savedProfile, error } = await saveMeasurementProfile(user.id, name, m);
@@ -248,7 +255,7 @@ async function saveCurrentProfile() {
 }
 
 function deleteCurrentProfile() {
-  const sel = document.getElementById('profile-select');
+  const sel = _el('profile-select');
   const name = sel?.value;
   if (!name) return;
   const profiles = loadProfiles().filter(p => p.name !== name);
@@ -266,11 +273,14 @@ function applyProfile(name) {
   for (const [key, val] of Object.entries(profile)) {
     if (key === 'name' || key === 'id') continue;
     if (key in garmentDefaults) continue; // skip garment-specific lengths (inseam, sleeveLength, etc.)
-    const el = document.getElementById(`m-${key}`);
-    if (el) el.value = val;
+    const sp = document.getElementById(`m-${key}`);
+    if (sp) sp.value = val;
+    const wz = document.getElementById(`wz-m-${key}`);
+    if (wz) wz.value = val;
   }
   // Notify listeners (e.g. riseOverride auto-fill) that m-rise may have changed
   document.getElementById('m-rise')?.dispatchEvent(new Event('input'));
+  document.getElementById('wz-m-rise')?.dispatchEvent(new Event('input'));
   if (currentStep === 4) generate();
   // Track last used in Supabase (fire and forget)
   if (profile.id) updateProfileLastUsed(profile.id).catch(() => {});
@@ -442,11 +452,11 @@ function readInputs() {
   const g = GARMENTS[currentGarment];
   const m = {};
   for (const mId of g.measurements) {
-    m[mId] = parseFloat(document.getElementById(`m-${mId}`)?.value) || 0;
+    m[mId] = parseFloat(_el(`m-${mId}`)?.value) || 0;
   }
   // Optional measurements — only include when the user actually entered a value
   for (const mId of relevantOptionalIds(g)) {
-    const el = document.getElementById(`m-${mId}`);
+    const el = _el(`m-${mId}`);
     if (!el) continue;
     const raw = el.value.trim();
     if (raw !== '') {
@@ -456,7 +466,7 @@ function readInputs() {
   }
   const opts = {};
   for (const [key, opt] of Object.entries(g.options)) {
-    const el = document.getElementById(`o-${key}`);
+    const el = _el(`o-${key}`);
     if (!el) continue;
     if (opt.type === 'boolean') opts[key] = el.checked;
     else if (opt.type === 'number') opts[key] = parseFloat(el.value);
@@ -711,7 +721,7 @@ function _generate() {
   const isUpper = !isLower;
   const overviewParts = isUpper
     ? [g.name, opts.fit ?? opts.ease, m.chest ? fmtInches(m.chest) + ' chest' : '', m.waist ? fmtInches(m.waist) + ' waist' : '', m.torsoLength ? fmtInches(m.torsoLength) + ' torso' : ''].filter(Boolean)
-    : [g.name, opts.fit ?? opts.ease, fmtInches(m.waist) + ' W', fmtInches(m.hip) + ' H', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
+    : [g.name, opts.fit ?? opts.ease, m.waist ? fmtInches(m.waist) + ' W' : '', m.hip ? fmtInches(m.hip) + ' H' : '', m.rise ? fmtInches(m.rise) + ' rise' : '', m.inseam ? fmtInches(m.inseam) + ' inseam' : ''].filter(Boolean);
   const diffBadge = g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : '';
 
   // ── Pieces pane ──
@@ -782,6 +792,14 @@ function _generate() {
       if (piece.grainAngle === 45) {
         pSvg += `<line x1="${prx + 4}" y1="${pry + prH - 4}" x2="${prx + prW - 4}" y2="${pry + 4}" stroke="#2c2a26" stroke-width="0.6" stroke-dasharray="3,2"/>`;
         pSvg += `<text x="${prx + prW / 2}" y="${pry + prH / 2 + 3}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">BIAS</text>`;
+      }
+      // Rivet marks at top corners for coin pocket
+      if (piece.id === 'coin-pocket') {
+        const col = '#8a4a4a';
+        const dm2 = (x, y) =>
+          `<line x1="${x-3}" y1="${y}" x2="${x+3}" y2="${y}" stroke="${col}" stroke-width="0.8"/>` +
+          `<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+3}" stroke="${col}" stroke-width="0.8"/>`;
+        pSvg += dm2(prx, pry) + dm2(prx + prW, pry);
       }
       pSvg += '</svg>';
       piecesHtml += `<div class="pc sm"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>

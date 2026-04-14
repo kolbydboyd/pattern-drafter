@@ -105,11 +105,11 @@ export default {
     const easeFront = easeVal * 0.2;
     const easeBack  = easeVal * 0.3;
 
-    const sa       = parseFloat(opts.sa);
-    const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
-    const cbRaise  = parseFloat(opts.cbRaise);
+    const sa       = parseFloat(opts.sa)       || 0.5;
+    const hem      = parseFloat(opts.hem)      || 0.75;
+    const frontExt = parseFloat(opts.frontExt) || 1.5;
+    const backExt  = parseFloat(opts.backExt)  || 3;
+    const cbRaise  = parseFloat(opts.cbRaise)  || 1.25;
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;

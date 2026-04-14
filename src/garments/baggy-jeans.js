@@ -89,11 +89,11 @@ export default {
     const BAGGY_EASE = { regular: 6, relaxed: 8, oversized: 10 };
     const easeTotal  = BAGGY_EASE[opts.ease] ?? 8;
     const ease       = easeDistribution(easeTotal);
-    const sa       = parseFloat(opts.sa);
-    const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
-    const cbRaise  = parseFloat(opts.cbRaise);
+    const sa       = parseFloat(opts.sa)       || 0.625;
+    const hem      = parseFloat(opts.hem)      || 1.5;
+    const frontExt = parseFloat(opts.frontExt) || 2;
+    const backExt  = parseFloat(opts.backExt)  || 3;
+    const cbRaise  = parseFloat(opts.cbRaise)  || 1.25;
     const RISE_OFFSETS = { 'ultra-low': -2.5, low: -1.5, mid: 0, high: 1.5 };
     const baseRise  = m.rise || 10;
     const riseOff   = RISE_OFFSETS[opts.riseStyle] ?? 0;
@@ -101,10 +101,13 @@ export default {
     const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 33);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.wide;
 
-    let frontHipW   = m.hip / 4 + ease.front + 0.5;
-    let backHipW    = m.hip / 4 + ease.back;
-    const frontWaistW = m.waist / 4 + ease.front;
-    const backWaistW  = m.waist / 4 + ease.back;
+    const hip   = m.hip   || 36;
+    const waist = m.waist || 32;
+
+    let frontHipW   = hip / 4 + ease.front + 0.5;
+    let backHipW    = hip / 4 + ease.back;
+    const frontWaistW = waist / 4 + ease.front;
+    const backWaistW  = waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
 
     // Thigh ease check — baggy jeans need more room (+5″ minimum)
@@ -150,11 +153,11 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.waist + easeTotal + sa * 2;
+    const wbLen = waist + easeTotal + sa * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 on fold \xb7 Interface \xb7 1\u00BD\u2033 finished \xb7 Belt loops \xd7${m.waist > 36 ? 7 : 6}`,
+      instruction: `Cut 1 on fold \xb7 Interface \xb7 1\u00BD\u2033 finished \xb7 Belt loops \xd7${waist > 36 ? 7 : 6}`,
       dimensions: { length: wbLen, width: 3 },
       type: 'rectangle', sa,
     });
@@ -170,11 +173,11 @@ export default {
     if (opts.frontPocket === 'side') {
       pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 2 (outer + lining) \xb7 Right front only \xb7 {serge} edges', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1\u00BE\u2033 \xd7 \u00BE\u2033 finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
+    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${waist > 36 ? 7 : 6} strips 1\u00BE\u2033 \xd7 \u00BE\u2033 finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
 
     return pieces;
   },
@@ -182,7 +185,7 @@ export default {
   materials(m, opts) {
     const notions = [
       { ref: 'interfacing-med', quantity: '0.5 yard (waistband + pocket facings)' },
-      { name: 'Metal zipper', quantity: `${Math.ceil(m.rise * 0.6)}\u2033`, notes: 'YKK #5 metal or equivalent' },
+      { name: 'Metal zipper', quantity: `${Math.ceil((m.rise || 10) * 0.6)}\u2033`, notes: 'YKK #5 metal or equivalent' },
       { name: 'Waistband button', quantity: '1', notes: '\u00BE\u2033 jeans tack button, no-sew' },
       { name: 'Copper rivets', quantity: '5\u20136', notes: 'At pocket corners and stress points' },
     ];
@@ -219,7 +222,7 @@ export default {
     steps.push({ step: n++, title: 'Attach pocket to front panel',
       detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     steps.push({ step: n++, title: 'Prepare coin pocket',
-      detail: 'Construct coin pocket: sew outer to lining {RST} on 3 sides, trim SA to 3mm, {clip} corners diagonally, turn RS out, push corners with {point turner}, {press}. {topstitch} coin pocket to RS of right front panel in upper right corner of pocket opening. {baste} coin pocket to panel edges.' });
+      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} the bottom corner curves so they lie flat. Remove template. Position on the RS of the right front panel in the upper right corner of the pocket opening. {topstitch} sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
       detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',

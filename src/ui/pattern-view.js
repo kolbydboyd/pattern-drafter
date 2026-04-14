@@ -10,12 +10,18 @@ const SC = 20; // 1 inch = 20 SVG units
 const sc = i => i * SC;
 
 /**
- * Compute the average centroid of a polygon (inch coords).
+ * Compute the bounding-box center of a polygon (inch coords).
+ * Bounding-box center is used instead of vertex average to avoid bias from
+ * high-density bezier curves (e.g. crotch arch with 96 sample points skews
+ * the average toward the crotch corner, causing wrong inward-normal selection).
  */
 function polygonCentroid(poly) {
-  let cx = 0, cy = 0;
-  for (const p of poly) { cx += p.x; cy += p.y; }
-  return { x: cx / poly.length, y: cy / poly.length };
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of poly) {
+    if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+  }
+  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 }
 
 /**
@@ -69,8 +75,8 @@ function renderNotchesSVG(saPolyInches, notches, ox, oy) {
         const nx1 = eduy, ny1 = -edux;
         const nx2 = -eduy, ny2 = edux;
 
-        // Pick the one pointing away from the polygon centroid
-        const toCx = cpx - centroid.x, toCy = cpy - centroid.y;
+        // Pick the one pointing toward the polygon centroid (inward — standard for sewing pattern notches)
+        const toCx = centroid.x - cpx, toCy = centroid.y - cpy;
         if (nx1 * toCx + ny1 * toCy >= 0) {
           bestNx = nx1; bestNy = ny1;
         } else {
@@ -82,7 +88,7 @@ function renderNotchesSVG(saPolyInches, notches, ox, oy) {
     // Convert base point to SVG coords
     const px = ox + sc(bestPx), py = oy + sc(bestPy);
 
-    // Apex: base point + outward normal * triangle height
+    // Apex: base point + inward normal * triangle height (points into the piece)
     const apexX = px + sc(TRI_H) * bestNx;
     const apexY = py + sc(TRI_H) * bestNy;
 
@@ -316,15 +322,103 @@ export function renderPanelSVG(piece) {
     // Label
     pocketSVG += `<text x="${(bagL + 2).toFixed(1)}" y="${(midY + 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">side pocket</text>`;
   }
+  if (!isBack && (opts?.frontPocket === 'scoop' || opts?.frontPocket === 'square-scoop')) {
+    const scoopInset = 3.5, scoopDepth = 6;
+    const sx1 = ox + sc(width - scoopInset), sy1 = oy;
+    const sx2 = ox + sc(width),             sy2 = oy + sc(scoopDepth);
+    const col = '#8a4a4a';
+    const dm = (x, y) =>
+      `<line x1="${x-3}" y1="${y}" x2="${x+3}" y2="${y}" stroke="${col}" stroke-width=".8"/>` +
+      `<line x1="${x}" y1="${y-3}" x2="${x}" y2="${y+3}" stroke="${col}" stroke-width=".8"/>`;
+    pocketSVG += dm(sx1, sy1);
+    pocketSVG += `<text x="${sx1+4}" y="${sy1+9}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
+    pocketSVG += dm(sx2, sy2);
+    pocketSVG += `<text x="${sx2+4}" y="${sy2+4}" font-family="IBM Plex Mono" font-size="7" fill="${col}">rivet</text>`;
+  }
+  // Fly shield placement outline (front panel only — only garments that have a fly option)
+  if (!isBack && opts?.fly) {
+    const flyLen = Math.ceil(rise * 0.6);
+    const col = '#8a4a4a';
+    pocketSVG += `<rect x="${ox}" y="${oy}" width="${sc(2.5)}" height="${sc(flyLen)}"
+      stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${ox + 3}" y="${oy + sc(flyLen) + 9}"
+        font-family="IBM Plex Mono" font-size="7" fill="${col}">fly shield (left only)</text>`;
+  }
   if (opts?.cargo === 'cargo') {
     const cpX = ox + sc(width), cpY = oy + sc(rise + Math.min(inseam * .2, 2));
     pocketSVG += `<rect x="${cpX-sc(3.5)}" y="${cpY}" width="${sc(3.5)}" height="${sc(4)}" rx="1.5" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <text x="${cpX-sc(3.5)+3}" y="${cpY+sc(4)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">cargo</text>`;
   }
-  if (isBack && opts?.backPocket && opts.backPocket !== 'none') {
-    const bpX = ox + sc(width * .35), bpY = oy + sc(1.8);
-    pocketSVG += `<rect x="${bpX}" y="${bpY}" width="${sc(3)}" height="${sc(3.5)}" rx="2" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${bpX+2}" y="${bpY+sc(3.5)+9}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">patch pocket</text>`;
+  if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
+    // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
+    const pw = 5.5, psH = 5, ptH = 6.5;
+    const tiltDeg = -5;
+    const col = '#8a4a4a';
+    // Pentagon points (local coords, untilted)
+    const ppts = [
+      [0, 0], [pw, 0], [pw, psH], [pw / 2, ptH], [0, psH]
+    ];
+    const rad = tiltDeg * Math.PI / 180;
+    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+
+    // Derive hipLineY from polygon (vertex with max x = hip point)
+    const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    const hipLineY = hipVertex.y;
+    // Center pocket on the seat: pocket midpoint sits 0.5″ below hip line
+    let bpTop = hipLineY - ptH / 2 + 0.5;
+
+    // ── Side-seam clamping ──
+    function sideSeamXatY(py) {
+      let maxX = 0;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= py && py <= yMax && Math.abs(b.y - a.y) > 0.01) {
+          const x = a.x + (py - a.y) / (b.y - a.y) * (b.x - a.x);
+          if (x > maxX) maxX = x;
+        }
+      }
+      return maxX || width;
+    }
+    let bpInner = 2;
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      const allowed = sideSeamXatY(bpTop + ry) - 0.5 - rx;
+      if (allowed < bpInner) bpInner = allowed;
+    }
+    bpInner = Math.max(0.5, bpInner);
+
+    // ── Top-edge clamping (prevents pocket crossing yoke seam) ──
+    function topEdgeYatX(px) {
+      let minY = Infinity;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const xMin = Math.min(a.x, b.x), xMax = Math.max(a.x, b.x);
+        if (xMin <= px && px <= xMax && Math.abs(b.x - a.x) > 0.01) {
+          const y = a.y + (px - a.x) / (b.x - a.x) * (b.y - a.y);
+          if (y < minY) minY = y;
+        }
+      }
+      return minY === Infinity ? 0 : minY;
+    }
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      const topY = topEdgeYatX(bpInner + rx);
+      const needed = topY + 0.5 - ry;
+      if (needed > bpTop) bpTop = needed;
+    }
+
+    const svgPts = ppts.map(([lx, ly]) => {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      return `${(ox + sc(bpInner + rx)).toFixed(1)},${(oy + sc(bpTop + ry)).toFixed(1)}`;
+    });
+    pocketSVG += `<polygon points="${svgPts.join(' ')}" stroke="${col}" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>`;
+    // Label below pocket
+    const lblX = ox + sc(bpInner + pw * 0.3), lblY = oy + sc(bpTop + ptH + 0.8);
+    pocketSVG += `<text x="${lblX.toFixed(1)}" y="${lblY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">patch pocket</text>`;
   }
 
   // Pleat fold lines
@@ -594,7 +688,10 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
-    ${dimsSVG}${bustDartSVG}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
+    ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
+      const x = ox + sc(l.x), y = oy + sc(l.y);
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
+    }).join('')}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
       // Roll/fold line annotation (e.g. lapel break line)
       piece.rollLine ? (() => {
         const r = piece.rollLine;
@@ -605,6 +702,33 @@ export function renderGenericPieceSVG(piece) {
           <text x="${mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#4a8a5a" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${mx.toFixed(1)},${(my - 4).toFixed(1)})">${r.label || 'roll line'}</text>`;
       })() : ''
     }
+    ${(piece.marks || []).map(mk => {
+      const mc = '#4a8a5a';
+      if (mk.type === 'fold' && mk.axis === 'h') {
+        const ly = oy + sc(mk.position);
+        const lx1 = ox + sc(minX), lx2 = ox + sc(maxX);
+        return `<line x1="${lx1}" y1="${ly}" x2="${lx2}" y2="${ly}" stroke="${mc}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      } else if (mk.type === 'fold' && mk.axis === 'v') {
+        const lx = ox + sc(mk.position);
+        const ly1 = oy + sc(minY), ly2 = oy + sc(maxY);
+        return `<line x1="${lx}" y1="${ly1}" x2="${lx}" y2="${ly2}" stroke="${mc}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      }
+      return '';
+    }).join('')}
+    ${(() => {
+      if (piece.id !== 'scoop-backing' && piece.id !== 'square-scoop-backing') return '';
+      const bW = piece.width || 7;
+      const bSA = piece.sa || 0.625;
+      const coinW = 3, coinH = 3.5;
+      const cpX = ox + sc(bW - bSA - coinW);
+      const cpY = oy + sc(bSA);
+      const cpWpx = sc(coinW), cpHpx = sc(coinH);
+      const col = '#8a4a4a';
+      return `<rect x="${cpX.toFixed(1)}" y="${cpY.toFixed(1)}" width="${cpWpx.toFixed(1)}" height="${cpHpx.toFixed(1)}" rx="${sc(0.5).toFixed(1)}"
+        stroke="${col}" stroke-width="0.6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${(cpX + 2).toFixed(1)}" y="${(cpY + cpHpx + 9).toFixed(1)}"
+        font-family="IBM Plex Mono" font-size="7" fill="${col}">coin pocket</text>`;
+    })()}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>

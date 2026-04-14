@@ -39,12 +39,29 @@ export default {
       default: 'side-seam',
     },
     liner: {
-      type: 'select', label: 'Mesh liner',
+      type: 'select', label: 'Liner',
       values: [
-        { value: 'yes', label: 'Yes, front & back mesh panels',  reference: 'athletic, brief-style' },
-        { value: 'no',  label: 'No liner',                       reference: 'minimal, layerable'   },
+        { value: 'panels', label: 'Full mesh panels (board-short style)', reference: 'athletic, board shorts' },
+        { value: 'brief',  label: 'Brief-cut liner (retro style)',         reference: 'retro, 70s/80s classic' },
+        { value: 'no',     label: 'No liner',                              reference: 'minimal, layerable'    },
       ],
-      default: 'yes',
+      default: 'panels',
+    },
+    sideSplit: {
+      type: 'select', label: 'Hem side split',
+      values: [
+        { value: 'none', label: 'None'                      },
+        { value: '1',    label: '1″ slit (retro/athletic)'  },
+      ],
+      default: 'none',
+    },
+    backPocket: {
+      type: 'select', label: 'Back pocket',
+      values: [
+        { value: 'none',  label: 'None'               },
+        { value: 'patch', label: 'Small patch pocket' },
+      ],
+      default: 'none',
     },
     frontExt: { type: 'number', label: 'Front crotch ext', default: 1.75, step: 0.25, min: 0.5, max: 2.5 },
     backExt:  { type: 'number', label: 'Back crotch ext',  default: 2.0,  step: 0.25, min: 1,   max: 3.5 },
@@ -129,8 +146,10 @@ export default {
       ext: backExt, cbRaise, sa, hem, isBack: true, opts,
     }));
 
-    // ── MESH LINER PANELS (1″ shorter than outer) ──
-    if (opts.liner === 'yes') {
+    // ── LINER ──
+    const isRetro = opts.liner === 'brief';
+
+    if (opts.liner === 'panels') {
       const linerInseam = Math.max(inseam - 1, 1);
       const linerH = rise + linerInseam;
       pieces.push(buildPanel({
@@ -147,26 +166,219 @@ export default {
       }));
     }
 
-    // ── WAISTBAND (drawstring only — no elastic) ──
-    const wbLen   = (frontW + backW) * 2 + sa * 2;
-    const wbWidth = 3;   // 1.5″ finished
-    pieces.push({
-      id: 'waistband',
-      name: 'Waistband',
-      instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
-      dimensions: { length: wbLen, width: wbWidth },
-      type: 'rectangle', sa,
-    });
+    if (opts.liner === 'brief') {
+      // Brief-cut liner: 2 pattern pieces (4 cuts total — front×2, back×2).
+      // Seams: CF (joins front halves), CB (joins back halves), crotch (front to back).
+      // Leg opening is a shaped arch — elastic applied to that edge.
+      // Panel WIDTH is sized to waist (body-fit). Leg arch length is sized to THIGH
+      // (so the gathered leg opening fits the wearer's thigh after elastic application).
+      const waist    = m.waist || (m.hip * 0.84);
+      const thigh    = m.thigh || (m.hip * 0.59); // typical thigh ≈ 59% of hip
+
+      // Target leg opening: each leg has 2 arches (one front, one back) joined into a circle.
+      // Fabric arc per leg ≈ thigh * 0.92, leaving ~8% for elastic gather + stretch.
+      // Split slightly favoring the back (52%) since the back has more vertical room.
+      const targetLegArc   = thigh * 0.92;
+      const targetFrontArc = targetLegArc * 0.48;
+      const targetBackArc  = targetLegArc * 0.52;
+
+      // Front panel (one half — cut 2, mirror L & R)
+      const bfW       = waist / 4 + 0.75;            // quarter-front + ease
+      const bfH       = rise  * 0.58;                // height: waist to crotch
+      const bfSide    = bfH  * 0.30;                 // side edge extends down before leg arch starts
+      const bfCrotch  = solveBriefCrotchW(bfW, bfH, bfSide, targetFrontArc);
+      const bfSag     = (bfW - bfCrotch) * 0.35;     // leg arch inward sweep
+      const bfPoly    = buildBriefPanel({ panelW: bfW, height: bfH, sideDrop: bfSide, crotchW: bfCrotch, archSag: bfSag, cbRaise: 0 });
+      const bfSaPoly  = offsetPolygon(bfPoly, () => -0.375);
+      pieces.push({
+        id: 'brief-front', name: 'Brief Liner Front',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge (curved): apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length',
+        polygon: bfPoly, saPolygon: bfSaPoly,
+        path: polyToPath(bfPoly), saPath: polyToPath(bfSaPoly),
+        dims: [
+          { label: fmtInches(bfW),                     x1: 0,          y1: -0.5,     x2: bfW,      y2: -0.5, type: 'h' },
+          { label: fmtInches(bfH) + ' height',         x: bfW + 1.2,   y1: 0,        y2: bfH,                type: 'v' },
+          { label: fmtInches(bfCrotch) + ' crotch',    x1: 0,          y1: bfH + 0.5, x2: bfCrotch, y2: bfH + 0.5, type: 'h', color: '#c44' },
+        ],
+        labels: [
+          { text: 'BRIEF FRONT', x: bfW * 0.25, y: bfH * 0.3,  rotation: 0   },
+          { text: 'CF SEAM',     x: -0.4,        y: bfH * 0.45, rotation: -90 },
+          { text: 'LEG ARCH →',  x: bfW * 0.55, y: bfH * 0.65, rotation: 35  },
+        ],
+        notches: [
+          // Leg-arch start: bottom of side edge (where elastic application begins)
+          { x: bfW,     y: bfSide, angle: edgeAngle({ x: bfW, y: 0 }, { x: bfW, y: bfSide }) },
+          // Crotch corner: inner end of leg arch (where leg arch meets crotch seam)
+          { x: bfCrotch, y: bfH,    angle: edgeAngle({ x: 0, y: bfH }, { x: bfCrotch, y: bfH }) },
+        ],
+        type: 'bodice', isCutOnFold: false, width: bfW, height: bfH, sa: 0.375, hem: 0,
+      });
+
+      // Back panel (one half — cut 2, mirror L & R)
+      const bbW       = waist / 4 + 1.25;            // wider for seat coverage
+      const bbH       = rise  * 0.75;                // taller for full seat
+      const bbRaise   = 0.75;                        // CB raised above outer waist (seat shaping)
+      const bbSide    = bbH  * 0.40;                 // taller side edge for seat coverage
+      const bbCrotch  = solveBriefCrotchW(bbW, bbH, bbSide, targetBackArc, 1.5);
+      const bbSag     = (bbW - bbCrotch) * 0.25;     // shallower sweep than front
+      const bbPoly    = buildBriefPanel({ panelW: bbW, height: bbH, sideDrop: bbSide, crotchW: bbCrotch, archSag: bbSag, cbRaise: bbRaise });
+      const bbSaPoly  = offsetPolygon(bbPoly, () => -0.375);
+      pieces.push({
+        id: 'brief-back', name: 'Brief Liner Back',
+        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge (curved): apply ⅝″ foldover elastic (FOE) or ¼″ lingerie elastic — cut to 75% of arch length`,
+        polygon: bbPoly, saPolygon: bbSaPoly,
+        path: polyToPath(bbPoly), saPath: polyToPath(bbSaPoly),
+        dims: [
+          { label: fmtInches(bbW),                     x1: 0,          y1: -bbRaise - 0.5, x2: bbW,     y2: -bbRaise - 0.5, type: 'h' },
+          { label: fmtInches(bbH) + ' height',         x: bbW + 1.2,   y1: 0,              y2: bbH,                         type: 'v' },
+          { label: fmtInches(bbRaise) + ' CB raise',   x: -0.6,        y1: -bbRaise,       y2: 0,                           type: 'v', color: '#c44' },
+          { label: fmtInches(bbCrotch) + ' crotch',    x1: 0,          y1: bbH + 0.5,      x2: bbCrotch, y2: bbH + 0.5,     type: 'h', color: '#c44' },
+        ],
+        labels: [
+          { text: 'BRIEF BACK', x: bbW * 0.25, y: bbH * 0.35, rotation: 0   },
+          { text: 'CB SEAM',    x: -0.4,        y: bbH * 0.5,  rotation: -90 },
+          { text: 'LEG ARCH →', x: bbW * 0.55, y: bbH * 0.7,  rotation: 25  },
+        ],
+        notches: [
+          { x: bbW,     y: bbSide, angle: edgeAngle({ x: bbW, y: 0 }, { x: bbW, y: bbSide }) },
+          { x: bbCrotch, y: bbH,    angle: edgeAngle({ x: 0, y: bbH }, { x: bbCrotch, y: bbH }) },
+        ],
+        type: 'bodice', isCutOnFold: false, width: bbW, height: bbH, sa: 0.375, hem: 0,
+      });
+
+      // Thigh-fit sanity check: combined fabric leg arc should accommodate thigh after
+      // elastic gather (~75% of arc) and reasonable stretch (~50% of elastic length).
+      if (m.thigh) {
+        const frontArcLen = briefArcLength(bfW, bfH, bfSide, bfCrotch, bfSag);
+        const backArcLen  = briefArcLength(bbW, bbH, bbSide, bbCrotch, bbSag);
+        const legArc      = frontArcLen + backArcLen;
+        const elasticLen  = legArc * 0.75;
+        const stretchPct  = (m.thigh / elasticLen - 1) * 100;
+        if (stretchPct > 80) {
+          console.warn(`[swim-trunks] Brief leg opening tight: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → needs ${stretchPct.toFixed(0)}% elastic stretch (>80% is uncomfortable).`);
+        } else if (stretchPct < 20) {
+          console.warn(`[swim-trunks] Brief leg opening loose: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → only ${stretchPct.toFixed(0)}% stretch (may sag).`);
+        }
+      }
+    }
+
+    // ── WAISTBAND ──
+    // Retro style: hybrid (elastic back + drawcord front), same pattern as gym-shorts.
+    // Standard style: single drawcord waistband.
+    const wbWidth = 3; // 1.5″ finished
+
+    if (isRetro) {
+      // Retro waistband is sized to WAIST (not hip-panel width).
+      // Panels are hip-sized for fit; the stretch fabric is eased into the shorter waistband.
+      // Both halves equal (symmetric at side seams); elastic inside back is cut shorter for recovery.
+      // Elastic ends are stitched into the short ends of the back waistband and caught at the side seams
+      // when joining the two halves — no CB threading gap needed.
+      const wbEase     = 1.0;  // 1" total ease for stretch fabric pull-on with elastic assist
+      const wbFrontLen = m.waist / 2 + wbEase / 2 + sa * 2;
+      const wbBackLen  = m.waist / 2 + wbEase / 2 + sa * 2;
+      const elasticLen = Math.round((wbBackLen - sa * 2) * 0.88);  // 12% shorter than casing for recovery tension
+      pieces.push({
+        id: 'waistband-front',
+        name: 'Waistband Front',
+        instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        dimensions: { length: wbFrontLen, width: wbWidth },
+        type: 'pocket', sa,
+        marks: [
+          { type: 'fold', axis: 'v', position: wbFrontLen / 2, label: 'CF — grommet pair' },
+        ],
+      });
+      pieces.push({
+        id: 'waistband-back',
+        name: 'Waistband Back',
+        instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing · Cut ¾″ elastic to ${elasticLen}″ (casing length × 0.88) · Stitch one elastic end into each short end before folding — elastic is caught at side seams, no threading gap needed`,
+        dimensions: { length: wbBackLen, width: wbWidth },
+        type: 'pocket', sa,
+        marks: [
+          { type: 'fold', axis: 'v', position: wbBackLen / 2, label: 'CB — center reference' },
+        ],
+      });
+    } else {
+      const wbLen = (frontW + backW) * 2 + sa * 2;
+      pieces.push({
+        id: 'waistband',
+        name: 'Waistband',
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        dimensions: { length: wbLen, width: wbWidth },
+        type: 'rectangle', sa,
+      });
+    }
 
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
+      if (isRetro) {
+        // Retro: anchored folded pocket — depth scales with the front panel.
+        // Outer edge = front panel side seam. Top = waistband seam line. Bottom = hem fold line.
+        // Fold line is a straight vertical edge ~7" from the side seam toward the crotch.
+        // Scales with body size: 80% of front panel waist width, clamped to [6.5", 9"]
+        // so the pocket always fits a hand and never exceeds the front panel.
+        // Piece is ONE layer; fold in half along the fold edge before sewing.
+        const bagDepth = Math.max(6.5, Math.min(9, frontW * 0.8));
+        const bagH     = rise + inseam;     // full garment height: waistband to hem
+        const pocketMouth = 4.0;            // pocket mouth opening: 4" from waistband down the side seam
+
+        // Polygon: fold edge at x=0, side seam at x=bagDepth, y=0 at waist, y=bagH at hem
+        const bagPoly = [
+          { x: 0,        y: 0    },   // fold at waist
+          { x: bagDepth, y: 0    },   // side seam at waist (top of pocket mouth)
+          { x: bagDepth, y: bagH },   // side seam at hem
+          { x: 0,        y: bagH },   // fold at hem
+        ];
+        // SA: fold edge = 0 (fold, not seam), hem edge = -hem (caught in fold), others = -sa
+        const bagSaPoly = offsetPolygon(bagPoly, (i, a, b) => {
+          if (Math.abs(a.x) < 0.01 && Math.abs(b.x) < 0.01) return 0;           // fold — no SA
+          if (Math.abs(a.y - bagH) < 0.5 && Math.abs(b.y - bagH) < 0.5) return -hem; // hem edge
+          return -sa;
+        });
+
+        pieces.push({
+          id: 'pocket-bag',
+          name: 'Side-Seam Pocket Bag',
+          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half at fold edge (no SA on fold) — fold faces crotch · Front layer caught in front panel (waistband, side seam below mouth, hem) · Back layer caught in back panel (matching three edges) · Fold edge free at center — forms inside of pocket · Top ${fmtInches(pocketMouth)} at side seam = pocket mouth: {topstitch} ⅛″ along mouth edges, bar tack corners · Bag cannot dangle`,
+          polygon: bagPoly, saPolygon: bagSaPoly,
+          path: polyToPath(bagPoly), saPath: polyToPath(bagSaPoly),
+          dims: [
+            { label: fmtInches(bagDepth) + ' depth', x1: 0, y1: -0.5, x2: bagDepth, y2: -0.5, type: 'h' },
+            { label: fmtInches(bagH) + ' height',    x: bagDepth + 1.2, y1: 0, y2: bagH, type: 'v' },
+          ],
+          labels: [
+            { text: 'FOLD (no SA)', x: -0.4,           y: bagH * 0.5, rotation: -90 },
+            { text: 'SIDE SEAM',    x: bagDepth + 0.3,  y: bagH * 0.5, rotation: 90  },
+            { text: 'POCKET BAG',   x: bagDepth * 0.25, y: bagH * 0.35, rotation: 0  },
+          ],
+          notches: [
+            // Notch on side seam at bottom of pocket mouth — transition from open to sewn
+            { x: bagDepth, y: pocketMouth, angle: edgeAngle({ x: bagDepth, y: 0 }, { x: bagDepth, y: bagH }) },
+          ],
+          type: 'bodice', isCutOnFold: false, width: bagDepth, height: bagH, sa, hem,
+        });
+      } else {
+        pieces.push({
+          id: 'pocket-bag',
+          name: 'Side-Seam Pocket Bag',
+          instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
+          dimensions: { width: 6.5, height: 7.0 },
+          type: 'pocket', sa,
+        });
+      }
+    }
+
+    // ── BACK PATCH POCKET (retro option) ──
+    if (opts.backPocket === 'patch') {
       pieces.push({
-        id: 'pocket-bag',
-        name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
-        dimensions: { width: 6.5, height: 7 },
+        id: 'back-pocket',
+        name: 'Back Patch Pocket',
+        instruction: 'Cut 1 · Self fabric · 4″ wide × 4.5″ tall · Fold top 1″ under and topstitch before attaching',
+        dimensions: { width: 4, height: 4.5 },
         type: 'pocket',
         sa,
+        marks: [
+          { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
+        ],
       });
     }
 
@@ -174,23 +386,32 @@ export default {
   },
 
   materials(m, opts) {
+    const isRetro = opts.liner === 'brief';
     const notions = [
       { ref: 'drawstring', quantity: `${Math.round(m.waist + 14)}″ - flat nylon or polyester cord` },
       { ref: 'grommets',   quantity: '2 - CF drawstring exits, ½″ inner dia, rust-proof' },
     ];
-    if (opts.liner === 'yes') {
+    if (isRetro) {
+      notions.push({ ref: 'elastic-0.75', quantity: `${Math.round((m.waist / 2 + 0.5) * 0.88)}″ of ¾″ wide elastic - back waistband casing only (ends caught at side seams, no threading gap needed)` });
+      notions.push({ name: 'Soft elastane', quantity: '0.33 yard', notes: 'Brief liner (4-way stretch, ≥ 80% elastane)' });
+      notions.push({ name: 'Foldover elastic (FOE) ⅝″', quantity: '1 yard', notes: 'Leg arch finishing (4 openings) — encloses raw cut edge on both sides, no separate serging needed, softer against skin than plain lingerie elastic. Cut each piece to 75% of arch length. Alt: ¼″ lingerie elastic at same quantity.' });
+    }
+    if (opts.liner === 'panels') {
       notions.push({ name: 'Athletic mesh', quantity: '0.75 yard', notes: 'Liner panels + pocket bags' });
+    } else if (isRetro && opts.pocket === 'side-seam') {
+      notions.push({ name: 'Athletic mesh', quantity: '0.5 yard', notes: 'Side-seam pocket bags only (2 folded pieces, sized to front panel)' });
     }
 
     return buildMaterialsSpec({
       fabrics: ['nylon-taslan', 'supplex'],
       notions,
       thread: 'poly-all',
-      needle: 'ballpoint-80',
+      needle: isRetro ? 'stretch-75' : 'ballpoint-80',
       stitches: ['stretch', 'zigzag-small', 'straight-3'],
       notes: [
         'Use polyester thread ONLY - cotton thread rots with repeated chlorine and salt water exposure',
         'Rinse trunks in fresh cold water after every wear (pool or ocean) to extend fabric life',
+        ...(isRetro ? ['Retro short trunks: 92% nylon / 8% spandex shell gives the most authentic drape and quick-dry performance. Nylon taslan works well for a matte, vintage-textured look.'] : []),
         'Color guidance - hides sweat: black, navy, dark charcoal, dark olive. Avoid light gray and light blue near the water line.',
         'Use rust-proof grommets (brass or stainless) - standard steel grommets will stain the fabric',
         'All hardware (grommets, cord locks) must be corrosion-resistant for saltwater use',
@@ -203,51 +424,110 @@ export default {
   instructions(m, opts) {
     const steps = [];
     let n = 1;
+    const isRetro = opts.liner === 'brief';
 
-    if (opts.liner === 'yes') {
+    if (opts.liner === 'panels') {
       steps.push({
         step: n++, title: 'Assemble liner',
         detail: '{serge} all liner panel edges. Join liner fronts at CF crotch seam. Join liner backs at CB. Join liner at side seams. Join inseam. {baste} liner WS to WS of outer at waist edge (¼″). Treat as one unit going forward.',
       });
     }
 
-    if (opts.pocket === 'side-seam') {
+    if (opts.liner === 'brief') {
       steps.push({
-        step: n++, title: 'Prepare pocket bags',
-        detail: '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
+        step: n++, title: 'Sew brief liner',
+        detail: 'Each brief piece has five edges: waist (top), a short straight side edge, a curved leg arch, a short crotch seam, and the CF/CB seam. {serge} all edges before assembly. Join two front halves at CF {RST} with stretch stitch, trim SA to ¼″, press to one side, {topstitch} flat. Join two back halves at CB {RST}, trim SA to ¼″, press to one side, {topstitch} flat. Pin front to back at the short crotch seam {RST} and sew with stretch stitch, trim SA to ¼″, press toward back, {topstitch} flat. The result is a mini brief with two leg openings framed by the side edges (straight) and leg arches (curved). Apply elastic ONLY to the curved leg arch edge — NOT the straight side edge. Option A: ¼″ lingerie elastic, pin to WS of arch at 75% stretch, {zigzag} in place, fold to inside, {topstitch}. Option B (preferred): ⅝″ foldover elastic (FOE), fold over the raw arch edge enclosing both sides, {topstitch} through all layers in one pass. FOE fully encloses the cut edge and is softer against skin. {baste} brief WS to WS of outer shell along the waist and side edges ¼″ from raw edge. Treat as one unit going forward — the side edges get caught into the outer-shell side seams during garment assembly.',
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. {clip} curve every ½″. {press}.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
+    if (opts.backPocket === 'patch') {
+      steps.push({
+        step: n++, title: 'Attach back pocket',
+        detail: 'Fold top edge of pocket under 1″ and {topstitch}. {press} remaining 3 edges under ⅜″. Center pocket on one back panel, 2″ below the waist seam line. {topstitch} close to edge on 3 sides. Bar tack top corners.',
+      });
+    }
+
+    if (opts.pocket === 'side-seam') {
+      steps.push({
+        step: n++, title: 'Prepare pocket bags',
+        detail: isRetro
+          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge faces the crotch. Lay one folded bag against each side of the garment so it spans the side seam, with the front layer behind the front panel and the back layer behind the back panel. Baste the FRONT bag layer to the FRONT panel along three edges: top to waistband stitch line, outer (side seam) edge to front side seam edge, bottom to front hem fold line. Baste the BACK bag layer to the BACK panel along the matching three edges. The fold edge is free in the middle — it becomes the inside of the pocket. Before assembling side seams: {serge} or {zigzag} the raw edge of each front panel and each back panel separately along the 4″ pocket mouth zone at the top of the side seam — include the bag layer in this finished edge. {press} each finished edge ⅜″ toward the wrong side so the mouth edges sit flat — these pressed edges become the visible pocket opening.'
+          : '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
+      });
+    }
+
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST} with stretch stitch. {clip} curve every ½″. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side with a stretch stitch — this locks the doubled SA flat so it cannot rub against the body in the most sensitive area.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST} with stretch stitch. {clip}. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side, stretch stitch — locks the SA flat for comfort and adds visible reinforcement.' });
+    const slitNote = opts.sideSplit === '1' ? ' Stop sewing 1″ before the hem at the bottom of each side seam — leave this last 1″ OPEN (this is the side slit).' : '';
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
-        ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. {press} open.'
-        : 'Join front to back at side seams {RST}. Stretch stitch. {press} open.',
+        ? (isRetro
+            ? `Sew front to back at each side seam {RST}. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth; each panel still carries its own bag layer at the mouth). Then sew the middle of the seam closed all the way to the hem, catching all four layers in the seam: front panel + front bag layer + back bag layer + back panel.${slitNote} {press} the closed portion of the seam open. {serge} or {zigzag} the front pair (front panel SA + front bag SA) and the back pair (back panel SA + back bag SA) separately as two clean finished edges — no raw edges sit against skin. {topstitch} ⅛″ from the pressed mouth edge on both the front and back panel — the full 4″ length on each side — using a stretch stitch or narrow {zigzag} (2.0mm width, 2.5mm length) so the line survives the fabric's stretch; this catches the bag layer to its panel along the visible mouth edge and continues the comfort finish into the closed zone. Bar tack at the top and bottom of each pocket mouth opening, exactly where the topstitch meets the side seam: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam, catching panel + bag layer at the top and all four layers at the bottom. This anchors the corners against tearing and locks the topstitch endpoints.`
+            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open. {serge} or {zigzag} the front and back SAs separately for a clean finish against the body.`)
+        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open. {serge} or {zigzag} the front and back SAs separately for a clean, comfortable finish against the body.`,
     });
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
+
+    if (opts.sideSplit === '1') {
+      steps.push({
+        step: n++, title: 'Finish side slits',
+        detail: 'The 1″ side slit is a straight opening at the bottom of each side seam — no fabric is cut, simply unsewn. {serge} or {zigzag} the 1″ raw edges on both the front and back panels at each slit opening separately to prevent fraying. Bar tack at the top of each slit (at the slit notch mark): stitch width 3.5mm, length 0, 8–10 stitches across the seam. This reinforces the slit corner against tearing under stress.',
+      });
+    }
+
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through the crotch. {clip} curve. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA toward the back. {topstitch} ⅛″ from the seam line on the back side with a stretch stitch — locks the doubled SA flat against the back leg so it does not chafe during walking, wading, or swimming.' });
+
+    // Waistband
+    if (isRetro) {
+      steps.push({
+        step: n++, title: 'Install grommets in front waistband',
+        detail: 'Mark grommet positions ¾″ from each CF short end of the front waistband piece. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions.',
+      });
+      steps.push({
+        step: n++, title: 'Construct front waistband',
+        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
+      });
+      steps.push({
+        step: n++, title: 'Construct back waistband',
+        detail: `Cut ¾″ elastic to the length marked on the pattern piece (back casing length × 0.88). Lay elastic along the inside of the unfolded waistband piece. Align one elastic end with each short end of the waistband, within the seam allowance. {zigzag} each elastic end in place at the short ends — the elastic will be automatically caught in the side seam joins. Fold waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew, stretching elastic gently to fit. Fold over to inside and {topstitch} top and bottom edges all the way across — no threading gap needed. The waist seam SA and the elastic are both enclosed inside the waistband fold, so nothing rough touches the body.`,
+      });
+      steps.push({
+        step: n++, title: 'Join waistband halves',
+        detail: 'Pin front and back waistband short ends together {RST} at each side seam, aligning with garment side seams. Sew with stretch stitch. Trim and {press}. The elastic ends are now secured at each side seam.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Install grommets in waistband',
+        detail: 'Mark grommet positions ¾″ from each CF short end of waistband. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions. Check they are flush and secure.',
+      });
+      steps.push({
+        step: n++, title: 'Attach waistband',
+        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
+      });
+    }
 
     steps.push({
-      step: n++, title: 'Install grommets in waistband',
-      detail: 'Mark grommet positions ¾″ from each CF short end of waistband. Punch holes with awl or hole punch. Set rust-proof grommets per manufacturer instructions. Check they are flush and secure.',
-    });
-    steps.push({
-      step: n++, title: 'Attach waistband',
-      detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
-    });
-    steps.push({
       step: n++, title: 'Thread drawstring',
-      detail: 'Attach safety pin to cord end. Thread through waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
+      detail: 'Attach safety pin to cord end. Thread through front waistband casing, exiting at both CF grommets. Even tails. Melt-seal or knot cord ends to prevent fraying. Test drawstring moves freely.',
     });
+
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' At each slit: hem up to the bar tack, pivot and fold the slit raw edge under, and tack down flat. The slit opens below the bar tack at the leg hem corner.' : ''}${isRetro && opts.pocket === 'side-seam' ? ' Catch the bottom edge of each pocket bag in the hem fold. Topstitch through all layers — the bag is now locked at waistband (top), side seam (outer edge), and hem (bottom). Cannot dangle.' : ''}`,
     });
     steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
     return steps;
   },
+
+  variants: [
+    {
+      id: 'retro-short-trunks',
+      name: 'Retro Short Trunks',
+      defaults: { ease: 'slim', liner: 'brief', sideSplit: '1', backPocket: 'none' },
+      measurementDefaults: { inseam: 3 },
+    },
+  ],
 };
 
 
@@ -279,12 +559,20 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     { label: fmtInches(ext)    + ' ext',    x1: -ext,       y1: rise + 0.4, x2: 0, y2: rise + 0.4,     type: 'h', color: '#c44' },
   ];
 
-  // Notch marks: hip level on side seam, crotch junction
+  // Notch marks: hip level on side seam, crotch junction, slit start
+  const splitIn = parseFloat(opts.sideSplit) || 0;
   const notches = [
     { x: width, y: rise,        angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) },  // hip on side seam
     ...(isBack ? [{ x: width, y: rise + 0.25, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),
     { x: -ext,  y: rise,        angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) },  // crotch junction
     ...(isBack ? [{ x: -ext,  y: rise - 0.25, angle: edgeAngle({ x: -ext, y: height }, { x: -ext, y: rise }) }] : []),
+    ...(splitIn > 0 ? [{ x: width, y: height - splitIn, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }] : []),  // slit top
+    // Pocket mouth notch (retro side-seam pocket only): marks bottom of the 4" pocket
+    // mouth opening on both front and back side seams. Aligns with the matching notch
+    // on the pocket bag piece so the open/closed transition matches when sewing.
+    ...(opts.pocket === 'side-seam' && opts.liner === 'brief'
+      ? [{ x: width, y: 4.0, angle: edgeAngle({ x: width, y: 0 }, { x: width, y: height }) }]
+      : []),
   ];
 
   return {
@@ -303,4 +591,79 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     ],
     type: 'panel', opts,
   };
+}
+
+// ── Brief liner panel builder ─────────────────────────────────────────────────
+// Generates one half of a brief front or back panel.
+// No side seams — the leg opening is a shaped arch with elastic applied.
+// Polygon coordinate system: x = 0 at CF/CB seam (inner), y = 0 at outer waist,
+// y increases downward toward crotch.
+//
+// The polygon has FIVE edges (like a real brief pattern piece):
+//   1. Waist       → horizontal top, joins waistband
+//   2. Side edge   → short vertical from outer waist corner down to leg-arch start
+//   3. Leg arch    → concave curve from side edge bottom to inner crotch corner
+//                    (NO seam — elastic applied to this edge)
+//   4. Crotch seam → short horizontal segment joining front to back (no gusset)
+//   5. CF/CB seam  → vertical, joins the two halves of front (or back)
+//                    CB is raised by cbRaise above outer waist for seat shaping
+
+// Solve for crotchW such that the straight-line chord across the leg arch
+// approximates a target arc length. Used to size the brief leg opening to
+// match the wearer's thigh measurement instead of fixed waist proportions.
+//
+// The actual bezier arc is ~5% longer than the straight chord for the sag values
+// used here, so we solve for a chord = target * 0.95 to land on target arc length.
+//
+// Clamped to [minCrotchW, panelW * 0.55] so the polygon stays physically valid.
+function solveBriefCrotchW(panelW, height, sideDrop, targetArc, minCrotchW = 1.0) {
+  const targetChord = targetArc * 0.95;
+  const dy = height - sideDrop;
+  const dxSq = targetChord * targetChord - dy * dy;
+  if (dxSq <= 0) return minCrotchW; // chord can't span vertical drop — clamp
+  const dx = Math.sqrt(dxSq);
+  return Math.max(minCrotchW, Math.min(panelW * 0.55, panelW - dx));
+}
+
+// Compute the actual bezier arc length for a brief leg arch. Mirrors the
+// bezier construction inside buildBriefPanel so the two stay in sync.
+function briefArcLength(panelW, height, sideDrop, crotchW, archSag) {
+  const p0  = { x: panelW, y: sideDrop };
+  const cp1 = { x: panelW - archSag * 0.2, y: sideDrop + (height - sideDrop) * 0.35 };
+  const cp2 = { x: crotchW + archSag * 0.4, y: height - (height - sideDrop) * 0.15 };
+  const p3  = { x: crotchW, y: height };
+  const pts = sampleBezier(p0, cp1, cp2, p3, 32);
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  }
+  return len;
+}
+
+function buildBriefPanel({ panelW, height, sideDrop, crotchW, archSag, cbRaise }) {
+  const poly = [];
+
+  // 1. Waist edge: from CF/CB inner top across to outer waist corner
+  poly.push({ x: 0,      y: cbRaise > 0 ? -cbRaise : 0 }); // CF or CB inner waist
+  poly.push({ x: panelW, y: 0 });                          // outer waist corner
+
+  // 2. Side edge: straight vertical down to leg-arch start
+  poly.push({ x: panelW, y: sideDrop });
+
+  // 3. Leg arch: concave cubic Bezier from side edge bottom to inner crotch corner.
+  // Curve sags inward toward the CF/CB so the brief has a true leg opening.
+  const p0  = { x: panelW, y: sideDrop };
+  const cp1 = { x: panelW - archSag * 0.2, y: sideDrop + (height - sideDrop) * 0.35 };
+  const cp2 = { x: crotchW + archSag * 0.4, y: height - (height - sideDrop) * 0.15 };
+  const p3  = { x: crotchW, y: height };
+
+  const archPts = sampleBezier(p0, cp1, cp2, p3, 48);
+  for (let i = 1; i < archPts.length; i++) poly.push({ ...archPts[i], curve: true });
+
+  // 4. Crotch seam: horizontal from inner leg-arch end across to CF/CB
+  poly.push({ x: 0, y: height });
+
+  // 5. Polygon closes via CF/CB seam (straight vertical from crotch back to top)
+
+  return poly;
 }
