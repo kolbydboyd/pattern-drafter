@@ -209,6 +209,22 @@ export default {
     }
     hoodPoly.push({ x: 0, y: hoodH });   // face opening bottom (neck edge) — no curve tag
 
+    // Face opening: concave arc bowing toward the hood interior (positive x).
+    // Standard drafting: ~0.5″ inward bow in the cheek/chin zone (35–70% from crown).
+    // Prevents fabric bunching at the drawstring casing and frames the face correctly.
+    const faceOpenCP = {
+      p0: { x: 0, y: hoodH },             // face bottom (neck edge)
+      p1: { x: 0.5, y: hoodH * 0.70 },   // lower control — pulls chin area inward
+      p2: { x: 0.5, y: hoodH * 0.35 },   // upper control — pulls cheek area inward
+      p3: { x: 0, y: 0 },                 // face top (crown)
+    };
+    const faceOpenPts = sampleBezier(faceOpenCP.p0, faceOpenCP.p1, faceOpenCP.p2, faceOpenCP.p3, 12)
+      .map(p => ({ ...p, curve: true }));
+    // Insert interior points only; endpoints are structural (no curve tag)
+    for (let i = 1; i < faceOpenPts.length - 1; i++) {
+      hoodPoly.push(faceOpenPts[i]);
+    }
+
     // ── RIB TRIM ─────────────────────────────────────────────────────────────
     const hemCirc = (frontW + backW) * 2;
     const wbLen   = hemCirc * 0.90;
