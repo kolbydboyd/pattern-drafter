@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -254,11 +254,77 @@ const SVGS = {
   <path d="M54,98 Q80,102 106,98"/>
   <path d="M54,98 L42,192 L118,192 L106,98"/>
   <path d="M48,146 Q80,152 112,146"/>`),
+
+  'polo-shirt': svg(`
+  <!-- polo collar — two fold-back points + stand arc -->
+  <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
+  <path d="M66,58 Q80,50 94,58"/>
+  <!-- body + short set-in sleeves -->
+  <path d="M66,58 L40,76 L52,90 L52,170 L108,170 L108,90 L120,76 L94,58"/>
+  <!-- CF placket — short, 2 buttons -->
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <!-- side hem slits -->
+  <line x1="52" y1="158" x2="58" y2="158"/>
+  <line x1="108" y1="158" x2="102" y2="158"/>`),
+
+  'slim-polo': svg(`
+  <path d="M67,58 L73,68 L80,62 L87,68 L93,58"/>
+  <path d="M67,58 Q80,50 93,58"/>
+  <path d="M67,58 L43,76 L56,90 L56,170 L104,170 L104,90 L117,76 L93,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="56" y1="158" x2="62" y2="158"/>
+  <line x1="104" y1="158" x2="98" y2="158"/>`),
+
+  'classic-polo': svg(`
+  <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
+  <path d="M66,58 Q80,50 94,58"/>
+  <!-- above-elbow sleeve extends lower -->
+  <path d="M66,58 L38,78 L38,100 L52,104 L52,170 L108,170 L108,104 L122,100 L122,78 L94,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="52" y1="158" x2="58" y2="158"/>
+  <line x1="108" y1="158" x2="102" y2="158"/>`),
+
+  'sport-polo': svg(`
+  <path d="M65,58 L71,68 L80,62 L89,68 L95,58"/>
+  <path d="M65,58 Q80,50 95,58"/>
+  <!-- wider body (relaxed fit) -->
+  <path d="M65,58 L38,78 L50,92 L50,170 L110,170 L110,92 L122,78 L95,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="50" y1="158" x2="56" y2="158"/>
+  <line x1="110" y1="158" x2="104" y2="158"/>`),
 };
 
+// ── Write all explicitly-defined illustrations ────────────────────────────────
 let count = 0;
 for (const [id, content] of Object.entries(SVGS)) {
   writeFileSync(join(OUT, `${id}.svg`), content, 'utf8');
   count++;
 }
-console.log(`Generated ${count} SVG illustrations in ${OUT}`);
+
+// ── Fail the build if any registered garment has no SVG file at all ─────────
+// An SVG can come from the SVGS object above (script-managed) or be a
+// hand-crafted file placed directly in public/garment-illustrations/.
+// Either counts. A completely missing file means a broken catalog card.
+const { default: GARMENTS } = await import('../src/garments/index.js');
+
+const missing = Object.keys(GARMENTS).filter(id => !existsSync(join(OUT, `${id}.svg`)));
+
+if (missing.length > 0) {
+  console.error(`\nBuild error: ${missing.length} garment(s) missing an illustration:`);
+  for (const id of missing) {
+    console.error(`  - ${id}  (${GARMENTS[id].category})`);
+  }
+  console.error('\nAdd an SVG entry to the SVGS object in scripts/gen-illustrations.mjs');
+  console.error('or place a hand-crafted file at public/garment-illustrations/<id>.svg.\n');
+  process.exit(1);
+}
+
+console.log(`Generated ${count} illustrations → ${OUT}`);

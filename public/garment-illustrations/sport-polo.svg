@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <path d="M65,58 L71,68 L80,62 L89,68 L95,58"/>
+  <path d="M65,58 Q80,50 95,58"/>
+  <!-- wider body (relaxed fit) -->
+  <path d="M65,58 L38,78 L50,92 L50,170 L110,170 L110,92 L122,78 L95,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="50" y1="158" x2="56" y2="158"/>
+  <line x1="110" y1="158" x2="104" y2="158"/>
+</svg>
