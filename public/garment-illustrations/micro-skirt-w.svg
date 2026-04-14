@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <path d="M58,38 Q80,34 102,38 L102,48 Q80,44 58,48 Z"/>
+  <path d="M58,48 Q53,62 52,78 L54,116 L106,116 L108,78 Q107,62 102,48"/>
+  <path d="M70,48 L72,58"/>
+  <path d="M90,48 L88,58"/>
+  <line x1="80" y1="38" x2="80" y2="58" stroke-dasharray="2 3"/>
+</svg>

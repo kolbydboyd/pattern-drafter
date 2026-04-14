@@ -4,6 +4,22 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.48] - 2026-04-14
+
+### Added
+- **Mini Skirt (W)** — new womenswear garment module `mini-skirt-w` at 14" default length. Introduces three construction techniques not previously used in the catalog:
+  - **Shaped front panel** with concave waist curve and a convex side seam that bulges outward through the hip then tapers slightly to the hem. No front darts — the side-seam curve and the contoured waistband do the shaping.
+  - **Raised-peak back darts** — each back panel has a single waist dart drafted as a bezier-arched "peak" rising above the waistline, which flattens into a smooth curve when the dart is sewn closed. When the two mirrored back panels sit side by side, the combined waistline reads as a soft "W".
+  - **Mirrored hem-allowance kick** — the hem allowance is baked into the polygon (not a parallel SA offset) with the side edge reflected across the hem fold line, so when the hem turns up the side edges lie flush against the panel side seams above without any trimming.
+  - **Three-piece contoured waistband** — 1 front waistband on the fold + 2 mirrored back waistbands, drafted as shaped polygon pieces so the curved lower edge matches the skirt waist exactly. Slipstitched inside with no visible topstitch. Invisible zip at CB runs through both the back panels and the back waistband.
+- **Micro Skirt (W)** — `micro-skirt-w` variant at 12" default length. Same construction as the mini skirt via the existing variants expansion in `src/garments/index.js`.
+- **2 SVG garment illustrations** — `mini-skirt-w.svg` and `micro-skirt-w.svg` added to `/public/garment-illustrations/` via `scripts/gen-illustrations.mjs`.
+- **SEO descriptions** for both skirts in `seo-descriptions.js`.
+- **Pricing** — both mapped to `simple` tier ($9) in `pricing.js`.
+- **Skirts wizard category** updated to include both new entries.
+
+---
+
 ## [0.12.47] - 2026-04-14
 
 ### Added

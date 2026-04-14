@@ -39,6 +39,7 @@ const GARMENT_TIERS = {
   'tank-top':         'simple',
   'circle-skirt-w':   'simple',
   'pencil-skirt-w':   'simple',
+  'mini-skirt-w':     'simple',
   'leggings':         'simple',
   // simple variants
   'oversized-tee':              'simple',
@@ -57,6 +58,7 @@ const GARMENT_TIERS = {
   'lounge-pant-w':              'simple',
   'mini-circle-skirt-w':        'simple',
   'midi-circle-skirt-w':        'simple',
+  'micro-skirt-w':              'simple',
   // kids — all simple ($9)
   'kids-tee':                   'simple',
   'kids-joggers':               'simple',
