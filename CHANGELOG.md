@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.45] - 2026-04-14
+
+### Fixed
+- **Cropped Tee (fitted-tee-w) — `capPts is not defined` error**: `capPts` was declared with `const` inside the first `if/else` block's `else` branch, making it block-scoped and inaccessible to the second `else` branch that computed sleeve notches. Lifted the declaration to `let capPts` above both blocks so it is in scope throughout the sleeve section.
+
+---
+
 ## [0.12.44] - 2026-04-14
 
 ### Fixed
