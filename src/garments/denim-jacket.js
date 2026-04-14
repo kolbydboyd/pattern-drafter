@@ -430,9 +430,20 @@ export default {
           sleeveLength: slvLength,
           sleeveWidth: sleeveResult.topSleeveWidth,
           sa, hem,
+          notches: (() => {
+            const { crown, backPitchPt, frontPitchPt, tsElbowLeft } = sleeveResult.landmarks;
+            return [
+              { x: crown.x,             y: crown.y,        angle: -90 }, // crown — aligns to shoulder seam
+              { x: frontPitchPt.x,      y: frontPitchPt.y, angle: 180 }, // front pitch (single notch)
+              { x: backPitchPt.x,       y: backPitchPt.y,  angle: 0 },   // back pitch (double notch)
+              { x: backPitchPt.x + 0.3, y: backPitchPt.y,  angle: 0 },
+              { x: tsElbowLeft.x,       y: tsElbowLeft.y,  angle: 180 }, // elbow — front seam alignment
+            ];
+          })(),
           dims: [
             { label: fmtInches(sleeveResult.topSleeveWidth) + ' top slv width', x1: topSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: topSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
             { label: fmtInches(slvLength) + ' length', x: topSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+            { label: fmtInches(effArmToElbow) + ' to elbow', x: topSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
           ],
         },
         {
@@ -448,9 +459,13 @@ export default {
           sleeveLength: slvLength,
           sleeveWidth: sleeveResult.underSleeveWidth,
           sa, hem,
+          notches: [
+            { x: sleeveResult.landmarks.usElbowLeft.x, y: sleeveResult.landmarks.usElbowLeft.y, angle: 0 }, // elbow — front seam alignment
+          ],
           dims: [
             { label: fmtInches(sleeveResult.underSleeveWidth) + ' under slv width', x1: underSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: underSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
             { label: fmtInches(slvLength) + ' length', x: underSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+            { label: fmtInches(effArmToElbow) + ' to elbow', x: underSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
           ],
         },
       ] : [

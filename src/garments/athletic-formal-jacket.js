@@ -249,7 +249,7 @@ export default {
       wrist: m.wrist || m.bicep * 0.55,
       armholeArc,
       capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
-      sleeveBend: 8,          // slight elbow bend (less than structured denim)
+      sleeveBend: 6,          // slight elbow bend — jersey needs less than woven (denim uses 10°)
       bicepEase: 0.15,
       capHeightRatio: 0.40,   // lower cap for knit
     });
@@ -364,9 +364,20 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: sleeveResult.topSleeveWidth,
         sa, hem,
+        notches: (() => {
+          const { crown, backPitchPt, frontPitchPt, tsElbowLeft } = sleeveResult.landmarks;
+          return [
+            { x: crown.x,             y: crown.y,        angle: -90 }, // crown — aligns to shoulder seam
+            { x: frontPitchPt.x,      y: frontPitchPt.y, angle: 180 }, // front pitch (single notch)
+            { x: backPitchPt.x,       y: backPitchPt.y,  angle: 0 },   // back pitch (double notch)
+            { x: backPitchPt.x + 0.3, y: backPitchPt.y,  angle: 0 },
+            { x: tsElbowLeft.x,       y: tsElbowLeft.y,  angle: 180 }, // elbow — front seam alignment
+          ];
+        })(),
         dims: [
           { label: fmtInches(sleeveResult.topSleeveWidth) + ' top width', x1: topSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: topSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: topSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: topSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
         ],
       },
       {
@@ -382,9 +393,13 @@ export default {
         sleeveLength: slvLength,
         sleeveWidth: sleeveResult.underSleeveWidth,
         sa, hem,
+        notches: [
+          { x: sleeveResult.landmarks.usElbowLeft.x, y: sleeveResult.landmarks.usElbowLeft.y, angle: 0 }, // elbow — front seam alignment
+        ],
         dims: [
           { label: fmtInches(sleeveResult.underSleeveWidth) + ' under width', x1: underSlvBB.minX, y1: sleeveResult.capHeight + 0.4, x2: underSlvBB.maxX, y2: sleeveResult.capHeight + 0.4, type: 'h' },
           { label: fmtInches(slvLength) + ' length', x: underSlvBB.maxX + 1, y1: 0, y2: slvLength + sleeveResult.capHeight, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: underSlvBB.minX - 1.5, y1: sleeveResult.capHeight, y2: sleeveResult.elbowY, type: 'v', color: '#b8963e' },
         ],
       },
     ];
