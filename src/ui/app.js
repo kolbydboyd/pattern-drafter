@@ -9,7 +9,7 @@ import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } f
 import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
-import { renderPanelSVG, renderGenericPieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
+import { renderPanelSVG, renderGenericPieceSVG, renderRectanglePieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
@@ -745,7 +745,8 @@ function _generate() {
           ${piece.type === 'sleeve' ? `<tr><td>Cap height</td><td>${fmtInches(piece.capHeight)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'rectangle') {
-      piecesHtml += `<div class="pc full"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>
+      const svg = renderRectanglePieceSVG(piece);
+      piecesHtml += `<div class="pc"><h3>${piece.name}</h3><div class="sub">${expandGlossary(piece.instruction)}</div>${svg}
         <table class="dt" style="max-width:400px">
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>

@@ -736,6 +736,86 @@ export function renderGenericPieceSVG(piece) {
 }
 
 /**
+ * Render a rectangle piece (gathered panels, straps, simple rectangles) as an SVG string.
+ * Piece must have: dimensions.width, dimensions.length, sa, name, id.
+ * Optional: hem, instruction (checked for "on fold" to show fold indicator).
+ */
+export function renderRectanglePieceSVG(piece) {
+  const { dimensions, sa = 0.625, hem = 0, name, id, instruction = '' } = piece;
+  const pieceW = dimensions.width;
+  const pieceL = dimensions.length;
+  const onFold = /on fold/i.test(instruction);
+
+  const mL = 3, mT = 2, mR = 4, mB = 6;
+  const svgW = sc(mL + pieceW + mR);
+  const svgH = sc(mT + pieceL + mB);
+  const ox = sc(mL);
+  const oy = sc(mT);
+
+  // Cut line (outer, solid) — SA on all sides; hem replaces SA at bottom
+  const cutX = ox - sc(sa);
+  const cutY = oy - sc(sa);
+  const cutW = sc(pieceW + 2 * sa);
+  const cutH = sc(pieceL + sa + (hem > 0 ? hem : sa));
+
+  // Stitch line (inner, dashed)
+  const stX = ox, stY = oy, stW = sc(pieceW), stH = sc(pieceL);
+
+  // Grain line — vertical through horizontal center
+  const gx = ox + sc(pieceW / 2);
+  const gy1 = oy + sc(pieceL * 0.2);
+  const gy2 = oy + sc(pieceL * 0.8);
+
+  // Dimension annotations
+  // Horizontal (width) above piece
+  const dimHy = oy - sc(sa) - 8;
+  const dimHx1 = ox, dimHx2 = ox + sc(pieceW);
+  const dimHlabel = fmtInches(pieceW);
+  // Vertical (length) at right of piece
+  const dimVx = ox + sc(pieceW) + sc(sa) + 14;
+  const dimVy1 = oy, dimVy2 = oy + sc(pieceL);
+  const dimVmy = (dimVy1 + dimVy2) / 2;
+  const dimVlabel = fmtInches(pieceL);
+
+  const dimsSVG = `
+    <line x1="${dimHx1}" y1="${dimHy}" x2="${dimHx2}" y2="${dimHy}" stroke="#bbb" stroke-width=".4"/>
+    <line x1="${dimHx1}" y1="${dimHy - 3}" x2="${dimHx1}" y2="${dimHy + 3}" stroke="#bbb" stroke-width=".4"/>
+    <line x1="${dimHx2}" y1="${dimHy - 3}" x2="${dimHx2}" y2="${dimHy + 3}" stroke="#bbb" stroke-width=".4"/>
+    <text x="${(dimHx1 + dimHx2) / 2}" y="${dimHy - 4}" font-family="IBM Plex Mono" font-size="12" fill="#555" text-anchor="middle" font-weight="500">${dimHlabel}</text>
+    <line x1="${dimVx}" y1="${dimVy1}" x2="${dimVx}" y2="${dimVy2}" stroke="#bbb" stroke-width=".4"/>
+    <line x1="${dimVx - 3}" y1="${dimVy1}" x2="${dimVx + 3}" y2="${dimVy1}" stroke="#bbb" stroke-width=".4"/>
+    <line x1="${dimVx - 3}" y1="${dimVy2}" x2="${dimVx + 3}" y2="${dimVy2}" stroke="#bbb" stroke-width=".4"/>
+    <text x="${dimVx + 10}" y="${dimVmy}" font-family="IBM Plex Mono" font-size="12" fill="#555" text-anchor="start" font-weight="500" transform="rotate(90,${dimVx + 10},${dimVmy})">${dimVlabel}</text>`;
+
+  const legY = svgH - 28;
+  const legendSVG = `
+    <line x1="10" y1="${legY - 3}" x2="26" y2="${legY - 3}" stroke="#000" stroke-width="1.5"/>
+    <text x="30" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">cut here</text>
+    <line x1="72" y1="${legY - 3}" x2="88" y2="${legY - 3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="92" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">stitch line</text>
+    ${onFold ? `<line x1="148" y1="${legY - 3}" x2="164" y2="${legY - 3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">fold line</text>` : ''}`;
+
+  const pieceLabel = onFold ? `${name?.toUpperCase()} (cut on fold)` : `${name?.toUpperCase()} × 2 (mirror)`;
+  const saNote = hem > 0
+    ? `${fmtInches(sa)} SA · ${fmtInches(hem)} hem allowance`
+    : `${fmtInches(sa)} SA included`;
+
+  return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
+    <defs><pattern id="gp${id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
+    <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#gp${id})"/>
+    <rect x="${cutX.toFixed(1)}" y="${cutY.toFixed(1)}" width="${cutW.toFixed(1)}" height="${cutH.toFixed(1)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
+    <rect x="${stX.toFixed(1)}" y="${stY.toFixed(1)}" width="${stW.toFixed(1)}" height="${stH.toFixed(1)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    ${grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
+    ${onFold ? foldIndicatorSVG(cutX, cutY, cutY + cutH) : ''}
+    ${dimsSVG}
+    <text x="${svgW / 2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
+    ${legendSVG}
+    <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${saNote}</text>
+  </svg>`;
+}
+
+/**
  * Render a vinyl/template piece (bone outlines etc.) as an SVG string.
  * Piece must have: polygon (array of {x,y} in inches), width, height, name.
  * Supports compound paths via piece.svgPath (fill-rule:evenodd for holes).
