@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -298,11 +298,11 @@ export default {
         ],
       });
     } else {
-      const wbLen = (frontW + backW) * 2 + sa * 2;
+      const wbLen = m.waist + 2 + sa * 2;
       pieces.push({
         id: 'waistband',
         name: 'Waistband',
-        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring · Gather trunk opening to fit band before attaching`,
         dimensions: { length: wbLen, width: wbWidth },
         type: 'rectangle', sa,
       });
@@ -357,13 +357,10 @@ export default {
           type: 'bodice', isCutOnFold: false, width: bagDepth, height: bagH, sa, hem,
         });
       } else {
-        pieces.push({
-          id: 'pocket-bag',
-          name: 'Side-Seam Pocket Bag',
-          instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
-          dimensions: { width: 6.5, height: 7.0 },
-          type: 'pocket', sa,
-        });
+        pieces.push(buildSideSeamPocketBag({
+          bagWidth: 6.5, bagHeight: 7.0, sa,
+          instruction: `Cut 4 (2 per side) · ${fmtInches(6.5)} wide × ${fmtInches(7)} deep · D-shaped · Athletic mesh — allows water drainage · Serge all edges before assembly`,
+        }));
       }
     }
 

@@ -117,13 +117,13 @@ export default {
     });
 
     const elasticW = parseFloat(opts.elasticWidth) || 0.75;
-    const wbLen    = (frontW + backW) * 2 + sa * 2;
+    const wbLen    = m.waist + 1.5 + sa * 2;
     const wbWidth  = (elasticW + 0.5) * 2;
 
     const waistband = {
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished width · Elastic-only casing`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished width · Elastic-only casing · Gather leggings opening to fit band before attaching`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     };

@@ -9,7 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, LEG_SHAPES, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -158,13 +158,13 @@ export default {
     }));
 
     // ── WAISTBAND (elastic + drawstring) ──
-    const wbLen   = (frontW + backW) * 2 + sa * 2;
+    const wbLen   = m.waist + 2 + sa * 2;
     const elasticW = parseFloat(opts.elasticWidth) || 1;
     const wbWidth = (elasticW + 1) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband',
-      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF`,
+      instruction: `Cut 1 · ${fmtInches(wbWidth / 2)} finished · ${fmtInches(elasticW)} elastic + drawstring casing · Buttonhole/grommet pair at CF · Gather pant opening to fit band before attaching`,
       dimensions: { length: wbLen, width: wbWidth },
       type: 'rectangle', sa,
     });
@@ -185,7 +185,10 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Same fabric or lining · Serge all edges before assembly`,
+      }));
     }
 
     // ── RIBBED CUFFS (jogger only) ──

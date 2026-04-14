@@ -4,17 +4,39 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.52] - 2026-04-14
+## [0.12.54] - 2026-04-14
 
 ### Fixed
 - **Button-Up Shirt (W) — missing sleeve cap curve**: the `button-up.js` unisex sleeve cap fix (commit `2571c54`) was never applied to the women's variant. `button-up-w.js` still used a flat 4-point trapezoid with `capHeight: 0` for all sleeve styles (long, ¾, short), making it impossible to ease the sleeve into the curved armhole. Added `sleeveCapCurve()` at `armholeDepth × 0.55` (matching the unisex fix), per-edge seam allowances on cap curve points, and proper cap notch marks. The `cap` sleeve option retains a flat rectangle (correct by design). Imports `sleeveCapCurve` and `validateSleeveSeams` from `upper-body.js`.
 
 ---
 
-## [0.12.51] - 2026-04-14
+## [0.12.53] - 2026-04-14
 
 ### Fixed
 - **Crewneck Sweatshirt — raglan sleeve ReferenceError**: same class of scoping bug as the `fitted-tee-w` capPts fix (`0b5082d`). When `sleeveType === 'raglan'`, three variables declared with `const` inside `else` blocks were accessed unconditionally outside their block scope: `frontArmPts` (line 133), `backArmPts` (line 160), and `capPts` (line 190). All users who selected the Raglan sleeve option saw a runtime crash with no pattern output. Fixed by hoisting `let frontArmPts, backArmPts` before the if/else and wrapping the entire armhole-notch and sleeve-cap-notch block in `if (!isRaglan)`, consistent with how the rest of the raglan branch handles absence of set-in geometry.
+
+---
+
+## [0.12.52] - 2026-04-14
+
+### Fixed
+- **D-shaped side-seam pocket bags backported to remaining 14 garments** — completing the full audit of all side-seam pocket pieces. Every remaining garment that used a flat rectangle `{ dimensions: { width, height }, type: 'pocket' }` for a side-seam bag is now using `buildSideSeamPocketBag()`. Sizes are unchanged; D-shape replaces rectangle throughout. Imports updated for each file.
+  - Pants/trousers: `easy-pant-w` (both side-pocket branches), `straight-jeans`, `chinos`, `baggy-jeans`, `straight-trouser-w`, `wide-leg-trouser-m`, `wide-leg-trouser-w`, `sweatpants`
+  - Skirts/dresses: `a-line-skirt-w` (7×9), `a-line-dress-w` (7×9), `maxi-skirt-w` (7×10)
+  - Kids: `kids-dress` (5.5×6.5), `kids-joggers` (6×7)
+  - Swim: `swim-trunks` standard non-retro mesh pocket (6.5×7)
+
+---
+
+## [0.12.51] - 2026-04-14
+
+### Fixed
+- **Waistband sizing bug backported to 9 garments** — elastic and drawstring waistband pieces were incorrectly sized to the hip-derived garment opening `(frontW + backW) * 2` instead of the body waist measurement. For a 32W/40H user this produced bands up to ~8" too long. All affected garments now size the band to `m.waist + [ease] + sa * 2` and include a "gather garment opening to fit band before attaching" instruction.
+  - Adults (+2" ease): `sweatpants`, `pajama-pants`, `lounge-shorts`, `easy-pant-w` (elastic option), `cargo-shorts` (elastic/drawstring option), `swim-trunks` (standard non-retro variant)
+  - Kids (+1.5" ease): `kids-shorts`, `kids-joggers`, `kids-leggings`
+- **D-shaped side-seam pocket bags backported to 8 garments** — side-seam pocket bag pieces were defined as simple rectangles instead of using the `buildSideSeamPocketBag()` D-shaped builder added in v0.12.44. Pockets now have a straight top and sides with a semicircular bottom, matching real pocket construction. Each file's import updated accordingly.
+  - `lounge-shorts` (6×7), `kids-shorts` (5×6), `gym-shorts` (7×7.5), `cargo-shorts` (7×7.5), `cargo-work-pants` (8×10), `baggy-shorts` (7×9), `pleated-shorts` (7×9), `pleated-trousers` (7×9)
 
 ---
 

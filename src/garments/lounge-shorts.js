@@ -8,7 +8,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, edgeAngle, insetCrotchBezier,
+  fmtInches, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -128,12 +128,12 @@ export default {
     }));
 
     // ── Waistband casing ──────────────────────────────────────────────────────
-    const wbCircumference = (frontW + backW) * 2;
+    const wbCircumference = m.waist + 2;
     const wbCut = (elasticW + 0.75) * 2;
     pieces.push({
       id: 'waistband',
       name: 'Waistband Casing',
-      instruction: `Cut 1 · ${fmtInches(wbCircumference)} long × ${fmtInches(wbCut)} wide`,
+      instruction: `Cut 1 · ${fmtInches(wbCircumference)} long × ${fmtInches(wbCut)} wide · Gather short opening to fit band before attaching`,
       type: 'rectangle',
       dimensions: { length: wbCircumference, width: wbCut },
       sa,
@@ -141,14 +141,10 @@ export default {
 
     // ── Side seam pocket bags ─────────────────────────────────────────────────
     if (opts.pockets === 'side-seam') {
-      pieces.push({
-        id: 'pocket-bag',
-        name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Self or lining fabric',
-        type: 'pocket',
-        dimensions: { width: 6, height: 7 },
-        sa,
-      });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 6, bagHeight: 7, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(6)} wide × ${fmtInches(7)} deep · D-shaped · Self or lining fabric · Serge all edges before assembly`,
+      }));
     }
 
     return pieces;

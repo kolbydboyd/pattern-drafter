@@ -9,7 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -225,18 +225,21 @@ export default {
     ];
 
     const pantOpening = (frontW + backW) * 2;
-    const wbCirc = pantOpening + sa * 2;
     if (opts.waistband === 'elastic') {
       const elasticW = parseFloat(opts.elasticWidth) || 1;
       const wbWidth = (elasticW + 0.75) * 2;
-      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} finished × 2) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist)`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
+      const wbCirc = m.waist + 2 + sa * 2;
+      pieces.push({ id: 'waistband', name: 'Waistband (Elastic Casing)', instruction: `Cut 1 · Fold-over casing · ${fmtInches(wbWidth)} cut (${fmtInches(wbWidth / 2)} finished × 2) · Thread ${fmtInches(elasticW)} elastic = ${Math.round(m.waist * 0.9)}″ (~90% of waist) · Gather pant opening to fit band before attaching`, dimensions: { length: wbCirc, width: wbWidth }, type: 'rectangle', sa });
     } else {
       const yogaLen = Math.round(pantOpening * 0.85 * 4) / 4;
       pieces.push({ id: 'waistband', name: 'Yoga Band (Knit)', instruction: `Cut 1 from rib or ponte on fold · ${fmtInches(yogaLen)} long × 6″ cut (3″ finished fold-over) · Stretch 15% to meet pant opening (${fmtInches(pantOpening)})`, dimensions: { length: yogaLen, width: 6 }, type: 'rectangle', sa });
     }
 
     if (opts.pockets === 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side) · Same fabric or lining', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Same fabric or lining · Serge all edges before assembly`,
+      }));
     }
 
     if (opts.frontPocket === 'slant') {
@@ -244,7 +247,10 @@ export default {
       pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6.5, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body) \xb7 {serge} all edges' }));
     }
     if (opts.frontPocket === 'side' && opts.pockets !== 'side') {
-      pieces.push({ id: 'side-bag', name: 'Side-Seam Pocket Bag', instruction: 'Cut 4 (2 per side)', dimensions: { width: 7, height: 9 }, type: 'pocket', sa });
+      pieces.push(buildSideSeamPocketBag({
+        bagWidth: 7, bagHeight: 9, sa,
+        instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Same fabric or lining · Serge all edges before assembly`,
+      }));
     }
 
     if (opts.hemStyle === 'elastic') {
