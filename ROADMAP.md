@@ -1022,7 +1022,8 @@ variants: [
 | **swim-trunks** | Board Shorts | elastic, 7" inseam | board short fabric | surf style |
 | | Swim Trunks | elastic, mesh lined, 5" inseam | swim fabric | classic |
 | | Retro Short Trunks ✅ | 3″ inseam, brief liner, 1″ side slit, slim | nylon/spandex, nylon taslan | 70s/80s retro revival |
-| **crop-jacket** | Cropped Jacket | standard, zip front | cotton twill | the default |
+| **crop-jacket** | Detroit Jacket ✅ | zipper, lined, welt pockets, cuff tab | cotton canvas / duck | full Carhartt-style conversion 2026-04-14 |
+| | Cropped Jacket | standard, zip front | cotton twill | the default |
 | | Trucker Crop | button front, chest pockets | denim | denim crop |
 | **denim-jacket** | Denim Trucker Jacket | standard, button, chest pockets | denim 12 oz | the default |
 | | Lightweight Denim Jacket | standard, button, no lining | denim 8 oz | summer weight |

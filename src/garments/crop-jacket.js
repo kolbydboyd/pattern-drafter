@@ -48,16 +48,51 @@ export default {
       values: [
         { value: 'button', label: 'Buttons (shank)'    },
         { value: 'snap',   label: 'Snap buttons'       },
+        { value: 'zipper', label: 'Separating zipper (Detroit)' },
       ],
-      default: 'button',
+      default: 'zipper',
+    },
+    lining: {
+      type: 'select', label: 'Lining',
+      values: [
+        { value: 'none',    label: 'Unlined'                  },
+        { value: 'poplin',  label: 'Poplin (lightweight)'     },
+        { value: 'flannel', label: 'Flannel (warmth, blanket)' },
+      ],
+      default: 'none',
+    },
+    lowerPocket: {
+      type: 'select', label: 'Lower pockets',
+      values: [
+        { value: 'patch', label: 'Hip patch pockets ×2' },
+        { value: 'welt',  label: 'Welt pockets ×2 (Detroit)' },
+      ],
+      default: 'patch',
     },
     chestPocket: {
       type: 'select', label: 'Chest pocket',
       values: [
         { value: 'none',  label: 'None'                   },
         { value: 'patch', label: 'Patch with pencil slot' },
+        { value: 'zip',   label: 'Zippered welt pocket'   },
       ],
       default: 'none',
+    },
+    innerPocket: {
+      type: 'select', label: 'Inner breast pocket',
+      values: [
+        { value: 'none', label: 'None'                              },
+        { value: 'welt', label: 'Welt pocket in lining (needs lining)' },
+      ],
+      default: 'none',
+    },
+    cuff: {
+      type: 'select', label: 'Cuff',
+      values: [
+        { value: 'plain', label: 'Plain hemmed cuff'         },
+        { value: 'tab',   label: 'Adjustable tab (snap/button)' },
+      ],
+      default: 'plain',
     },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -277,21 +312,37 @@ export default {
       {
         id: 'front-facing',
         name: 'Front Facing',
-        instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
+        instruction: opts.closure === 'zipper'
+          ? `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long · Backs the zipper tape on inside`
+          : `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} wide × ${fmtInches(facingH)} long`,
         type: 'pocket',
         dimensions: { width: FACING_W, height: facingH },
         sa,
       },
-      {
+    ];
+
+    // ── LOWER POCKETS ────────────────────────────────────────────────────────
+    if (opts.lowerPocket === 'welt') {
+      pieces.push({
+        id: 'hip-welt-pocket',
+        name: 'Hip Welt Pocket',
+        instruction: `Cut 4 (2 welts 7″ × 1.5″ + 2 bags 7″ × 8″) per pocket · ×2 pockets total · Interface welts · {understitch} · Bar tack ends`,
+        type: 'pocket',
+        dimensions: { width: 7, height: 8 },
+        sa,
+      });
+    } else {
+      pieces.push({
         id: 'hip-pocket',
         name: 'Hip Patch Pocket',
         instruction: `Cut 2 · Position at hip level ${fmtInches(opts.length === 'hip' ? 8 : 4)}″ from hem on front panels · Bar tack top corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
         sa,
-      },
-    ];
+      });
+    }
 
+    // ── CHEST POCKET ─────────────────────────────────────────────────────────
     if (opts.chestPocket === 'patch') {
       pieces.push({
         id: 'chest-pocket',
@@ -301,6 +352,87 @@ export default {
         dimensions: { width: 5, height: 6 },
         sa,
       });
+    } else if (opts.chestPocket === 'zip') {
+      pieces.push({
+        id: 'chest-pocket-bag',
+        name: 'Zippered Chest Pocket',
+        instruction: 'Cut 2 bag halves (5″ × 7″) + 1 welt strip (5″ × 1.5″, interfaced) · 5″ #3 zipper · Left chest, 2.5″ below neckline · Bar tack zipper ends',
+        type: 'pocket',
+        dimensions: { width: 5, height: 7 },
+        sa,
+      });
+    }
+
+    // ── ZIPPER GUARD STRIP (closure === 'zipper') ────────────────────────────
+    if (opts.closure === 'zipper') {
+      pieces.push({
+        id: 'zipper-guard',
+        name: 'Zipper Guard Strip',
+        instruction: `Cut 2 (L & R) · Interface · ${fmtInches(1.5)} × ${fmtInches(torsoLen)} · Folds behind CF zipper tape · {topstitch} inner edge`,
+        type: 'pocket',
+        dimensions: { width: 1.5, height: torsoLen },
+        sa,
+      });
+    }
+
+    // ── LINING (lining !== 'none') ───────────────────────────────────────────
+    if (opts.lining !== 'none') {
+      pieces.push({
+        id: 'lining-front',
+        name: 'Front Lining',
+        instruction: `Cut 2 (L & R) · Same shape as front panel, minus front facing width · Shorten 1″ from hem · Sew {RST} to facing inner edge at CF · Tack to underarm`,
+        type: 'pocket',
+        dimensions: { width: frontW - FACING_W, height: torsoLen - 1 },
+        sa,
+      });
+      pieces.push({
+        id: 'lining-back',
+        name: 'Back Lining',
+        instruction: `Cut 1 on fold · Same as back panel · Shorten 1″ from hem · Add ½″ pleat at CB for ease`,
+        type: 'pocket',
+        dimensions: { width: backW * 2, height: torsoLen - 1 },
+        sa,
+      });
+      pieces.push({
+        id: 'lining-sleeve',
+        name: 'Sleeve Lining',
+        instruction: `Cut 2 (mirror L & R) · Same as sleeve · Shorten 1″ from hem · Sew {RST} to sleeve at hem after construction, bag the lining`,
+        type: 'pocket',
+        dimensions: { width: slvTopW * 2, height: slvLength - 1 },
+        sa,
+      });
+    }
+
+    // ── INNER BREAST POCKET (innerPocket === 'welt', requires lining) ────────
+    if (opts.innerPocket === 'welt' && opts.lining !== 'none') {
+      pieces.push({
+        id: 'inner-pocket-welt',
+        name: 'Inner Pocket Welt',
+        instruction: 'Cut 2 (L & R) from lining fabric · Interface · 5″ × 3″ · Fold on horizontal center line · Welt opening sits on lining front',
+        type: 'pocket',
+        dimensions: { width: 5, height: 3 },
+        sa,
+      });
+      pieces.push({
+        id: 'inner-pocket-bag',
+        name: 'Inner Pocket Bag',
+        instruction: 'Cut 4 (2 per pocket) from lining · 5″ × 8″ · Sew bag halves {RST} on 3 sides · Slip through welt opening · Bar tack ends',
+        type: 'pocket',
+        dimensions: { width: 5, height: 8 },
+        sa,
+      });
+    }
+
+    // ── CUFF TAB (cuff === 'tab') ────────────────────────────────────────────
+    if (opts.cuff === 'tab') {
+      pieces.push({
+        id: 'cuff-tab',
+        name: 'Adjustable Cuff Tab',
+        instruction: 'Cut 4 (2 per sleeve) · Interface · 3″ × 2.5″ · Fold {RST}, sew 3 sides, turn, {press} · 1 button or snap per tab',
+        type: 'pocket',
+        dimensions: { width: 3, height: 2.5 },
+        sa,
+      });
     }
 
     return pieces;
@@ -308,14 +440,31 @@ export default {
 
   materials(m, opts) {
     const btnCount = 5;
+    const torsoLen = m.torsoLength + (opts.length === 'hip' ? 4 : 0);
     const notions  = [
       { ref: 'interfacing-med', quantity: '0.75 yard (collar + front facings)' },
     ];
 
     if (opts.closure === 'button') {
       notions.push({ name: 'Heavy-duty shank buttons', quantity: `${btnCount + 1}`, notes: '⅞″ – 1″ diameter (+1 spare)' });
-    } else {
+    } else if (opts.closure === 'snap') {
       notions.push({ name: 'Snap buttons', quantity: `${btnCount}`, notes: 'Heavy-duty snaps (size 24 or 20)' });
+    } else if (opts.closure === 'zipper') {
+      notions.push({ name: 'Separating zipper (YKK #5)', quantity: `${Math.ceil(torsoLen + 2)}″`, notes: 'Metal coil, exposed CF, brass preferred. Detroit jacket style.' });
+      notions.push({ name: 'Collar button or snap', quantity: '1', notes: 'For neck tab above zipper' });
+    }
+
+    if (opts.chestPocket === 'zip') {
+      notions.push({ name: 'Pocket zipper (#3)', quantity: '5″', notes: 'Coil zipper for chest welt pocket' });
+    }
+
+    if (opts.lining !== 'none') {
+      const liningName = opts.lining === 'flannel' ? 'Cotton flannel lining' : 'Cotton poplin lining';
+      notions.push({ name: liningName, quantity: '2.5 yard', notes: opts.lining === 'flannel' ? 'Soft brushed flannel for warmth (Carhartt blanket-lined style)' : 'Lightweight, smooth — Bemberg or poplin' });
+    }
+
+    if (opts.cuff === 'tab') {
+      notions.push({ name: 'Cuff tab snaps or buttons', quantity: '2', notes: 'One per sleeve cuff tab' });
     }
 
     return buildMaterialsSpec({
@@ -331,6 +480,9 @@ export default {
         'Interface collar with 2 layers of medium woven interfacing for structure',
         'Bar tack all four corners of each pocket - canvas is heavy and will stress pocket attachment',
         opts.closure === 'snap' ? 'Install snaps with a snap setter tool - do not sew snap buttons by hand on canvas' : '',
+        opts.closure === 'zipper' ? 'Separating zipper: use a zipper foot. Install AFTER attaching front facings and zipper guard strips. Test zipper engagement before topstitching.' : '',
+        opts.lining !== 'none' ? 'Pre-wash lining fabric. Bag the lining: sew shell + lining at hem and front edges, turn through sleeve hem opening, slipstitch closed.' : '',
+        opts.lowerPocket === 'welt' ? 'Welt pockets: practice on scrap canvas first. Mark accurately, slash precisely. Bar tack ends after turning.' : '',
         'Waxed cotton: do not pre-wash - wipe clean only, re-wax annually',
       ].filter(Boolean),
     });
@@ -340,28 +492,49 @@ export default {
     const steps = [];
     let n = 1;
     const btnCount = 5;
+    const lined = opts.lining !== 'none';
+    const isZip = opts.closure === 'zipper';
 
     if (opts.chestPocket === 'patch') {
       steps.push({
         step: n++, title: 'Prepare chest pocket',
         detail: 'Mark pencil slot division line 1.5″ from right edge. Fold top under 1″, {topstitch} twice. {press} sides and bottom under ⅝″. {topstitch} slot division line through pocket. Position on left front panel. {topstitch} on 3 sides. Bar tack all four corners.',
       });
+    } else if (opts.chestPocket === 'zip') {
+      steps.push({
+        step: n++, title: 'Prepare zippered chest pocket',
+        detail: 'Mark welt opening on left chest, 2.5″ below neckline. Interface welt strip. Sew welt {RST} centered over slash line. Slash through center, clip to corners. Turn welt to WS, {press}. Sew #3 zipper to WS of opening, face down, teeth at slash edges. {topstitch} from RS at 3mm. Sew bag halves {RST}, attach to welt SA. Bar tack zipper ends.',
+      });
     }
 
-    steps.push({
-      step: n++, title: 'Prepare hip patch pockets',
-      detail: 'Fold top edge under 1″ twice, {topstitch}. {press} remaining three edges under ⅝″. Position on front panels at hip level. {topstitch} on 3 sides at 3.5mm. Bar tack all four corners.',
-    });
+    if (opts.lowerPocket === 'welt') {
+      steps.push({
+        step: n++, title: 'Prepare hip welt pockets',
+        detail: 'Mark welt opening on each front panel at hip level (4″ from hem, or 8″ if hip length). Interface welt strips. Sew welts {RST} above and below slash line, ending stitches exactly at corners. Slash through center, clip diagonally to corners. Turn welts through opening to WS. {press}. {understitch} welts. Attach pocket bag halves to welt SAs. {whipstitch} bag sides. Bar tack welt ends.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Prepare hip patch pockets',
+        detail: 'Fold top edge under 1″ twice, {topstitch}. {press} remaining three edges under ⅝″. Position on front panels at hip level. {topstitch} on 3 sides at 3.5mm. Bar tack all four corners.',
+      });
+    }
 
     steps.push({
       step: n++, title: 'Prepare collar',
       detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely - use a {point turner}. {topstitch} 3.5mm from edge if desired.`,
     });
 
-    steps.push({
-      step: n++, title: 'Prepare front facings and plackets',
-      detail: `Interface facing strips. {press} placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge {RST}. {press}, {topstitch}. Facing creates clean interior at front opening.`,
-    });
+    if (isZip) {
+      steps.push({
+        step: n++, title: 'Prepare zipper guards and front facings',
+        detail: `Interface zipper guard strips and front facings. {press} guard strips in half lengthwise. Sew guard to CF edge of each front panel {RST}, raw edges aligned. {press} guard toward inside, {topstitch} inner edge through panel. Sew front facing to inner edge of guard {RST}. {press} facing toward inside.`,
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Prepare front facings and plackets',
+        detail: `Interface facing strips. {press} placket extension ${fmtInches(PLACKET_W)} to WS at CF fold line. Sew facing to placket edge {RST}. {press}, {topstitch}. Facing creates clean interior at front opening.`,
+      });
+    }
 
     steps.push({
       step: n++, title: 'Sew shoulder seams (flat-fell)',
@@ -383,17 +556,60 @@ export default {
       detail: 'Sew front to back at side seams {RST}, from hem through underarm continuously to sleeve hem. Apply flat-fell finish: {press} toward back, trim front SA to 3mm, fold back SA over, {topstitch} at 3.5mm.',
     });
 
-    steps.push({
-      step: n++, title: 'Hem sleeves and body',
-      detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} at 3.5mm. Repeat for jacket body hem.`,
-    });
+    if (isZip) {
+      steps.push({
+        step: n++, title: 'Install separating zipper',
+        detail: `Open the separating zipper. Place left tape face-down on RS of left front panel, teeth aligned with CF edge under the guard. Baste in place. Sew through guard + zipper tape + front panel using zipper foot at 3mm from teeth. Repeat for right tape on right front. Close zipper to test alignment - both halves should meet evenly at the collar. {topstitch} from RS at ¼″ from the zipper teeth on both sides.`,
+      });
+    }
+
+    if (opts.cuff === 'tab') {
+      steps.push({
+        step: n++, title: 'Make and attach cuff tabs',
+        detail: 'Fold each tab pair {RST}, sew 3 sides leaving short end open. Trim corners, turn, {press}. {topstitch} edges. Attach tab to underarm side of sleeve hem before hemming, pointing toward the cuff opening. Mark and install snap or button to allow ~1″ adjustment.',
+      });
+    }
 
     steps.push({
-      step: n++, title: opts.closure === 'button' ? 'Buttonholes and buttons' : 'Install snaps',
-      detail: opts.closure === 'button'
-        ? `Mark ${btnCount} buttonholes on right placket (vertical buttonholes for jacket): first 1.5″ from neckline, last 2″ from hem, evenly spaced. Test on scrap canvas. Sew buttonholes. Cut open. Sew buttons to left placket.`
-        : `Mark ${btnCount} snap positions. Install male halves on right placket, female halves on left placket. Use snap setter tool and backing plate - canvas requires firm pressure.`,
+      step: n++, title: 'Hem sleeves and body',
+      detail: `Fold sleeve hem up ${fmtInches(parseFloat(opts.hem))} twice, {press}. {topstitch} at 3.5mm. Repeat for jacket body hem.${lined ? ' Leave lining hem free for bagging in next step.' : ''}`,
     });
+
+    if (lined) {
+      steps.push({
+        step: n++, title: 'Assemble lining',
+        detail: 'Sew lining front + back at shoulders and side seams. Sew sleeve linings into lining armholes. Add ½″ pleat at CB lining for ease. Press all seams toward back.',
+      });
+
+      if (opts.innerPocket === 'welt') {
+        steps.push({
+          step: n++, title: 'Sew inner breast pocket',
+          detail: 'Mark welt opening on left lining front, ~3″ below shoulder. Interface welt strip. Sew welt {RST} centered over slash. Slash, clip corners, turn through opening. {press}. Sew bag halves {RST} on 3 sides. Attach bag to welt SAs through opening. Bar tack ends. Repeat on right side if desired.',
+        });
+      }
+
+      steps.push({
+        step: n++, title: 'Bag the lining',
+        detail: 'Pin lining to jacket {RST}: lining CF to facing inner edge, lining hem to jacket hem (lining 1″ shorter than shell). {Slipstitch} lining hem to facing edges. {Slipstitch} sleeve lining hem to sleeve hem. Tack lining at underarm seam to keep it from twisting. Lining floats free at side seams.',
+      });
+    }
+
+    if (opts.closure === 'button') {
+      steps.push({
+        step: n++, title: 'Buttonholes and buttons',
+        detail: `Mark ${btnCount} buttonholes on right placket (vertical buttonholes for jacket): first 1.5″ from neckline, last 2″ from hem, evenly spaced. Test on scrap canvas. Sew buttonholes. Cut open. Sew buttons to left placket.`,
+      });
+    } else if (opts.closure === 'snap') {
+      steps.push({
+        step: n++, title: 'Install snaps',
+        detail: `Mark ${btnCount} snap positions. Install male halves on right placket, female halves on left placket. Use snap setter tool and backing plate - canvas requires firm pressure.`,
+      });
+    } else if (isZip) {
+      steps.push({
+        step: n++, title: 'Install collar tab closure',
+        detail: 'Sew a small button or snap at the collar/neckline above the zipper top stop. Detroit jackets often have a single button or snap here to keep the collar closed at the throat.',
+      });
+    }
 
     steps.push({
       step: n++, title: 'Finish',
