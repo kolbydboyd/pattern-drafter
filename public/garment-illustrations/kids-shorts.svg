@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Kids Pull-On Shorts: wider waistband, short inseam -->
+  <!-- Elastic waistband -->
+  <path d="M46,50 L114,50 L114,64 L46,64 Z"/>
+  <path d="M62,50 Q80,56 98,50"/>
+  <!-- Short leg panels (very short inseam) -->
+  <path d="M46,64 L44,118 L76,118 L80,84 L84,118 L116,118 L114,64"/>
+  <!-- Center crotch line -->
+  <line x1="80" y1="64" x2="80" y2="84"/>
+  <!-- Hem line -->
+  <path d="M44,118 Q80,122 116,118"/>
+</svg>

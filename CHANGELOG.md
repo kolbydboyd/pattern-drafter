@@ -4,6 +4,26 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.47] - 2026-04-14
+
+### Added
+- **Children's patterns (v0.8.0)** — 5 new garment modules for sizes 2T–14, each with child-appropriate ease, measurement defaults, and beginner-friendly construction:
+  - `kids-tee` — Kids T-Shirt (crew/scoop neck, short/long sleeve, +2" standard ease)
+  - `kids-joggers` — Kids Joggers (elastic-only waistband, straight/tapered leg, growth hem tuck)
+  - `kids-leggings` — Kids Leggings (zero ease knit, ankle/capri/shorts length, high or mid waist)
+  - `kids-shorts` — Kids Pull-On Shorts (elastic waist, 3 inseam lengths, optional side pockets)
+  - `kids-dress` — Kids A-Line Dress (round/scoop/boat neck, sleeveless/cap sleeve, A-line skirt)
+- **Children's filter tab** on the `/patterns` listing page — new "Children" tab filters to the 5 kids garments. Menswear tab no longer includes kids patterns.
+- **Children's category in wizard** — "Children" category tile added to step 1 of the pattern wizard (between Accessories and the end of the list).
+- **5 SVG garment illustrations** — `kids-tee.svg`, `kids-joggers.svg`, `kids-leggings.svg`, `kids-shorts.svg`, `kids-dress.svg` added to `/public/garment-illustrations/`.
+- **Measurement min bounds lowered** for child compatibility: chest (30→18), waist (22→16), hip (28→18), shoulder (14→8), neck (13→9), bicep (10→6), torsoLength (14→8), rise (7→4), thigh (16→10). Adult defaults unchanged.
+- **SEO descriptions** added for all 5 kids garments in `seo-descriptions.js`.
+- **Pricing** — all 5 kids garments mapped to `simple` tier ($9) in `pricing.js`.
+- **Related patterns** on garment detail pages now scopes by audience — kids patterns only relate to other kids patterns, adults to adults.
+- **CHILDREN_SIZES avatar array** added to `src/engine/grading.js` — 10 sizes (2T–14) for pattern grading and PDF bundle size charts.
+
+---
+
 ## [0.12.46] - 2026-04-14
 
 ### Fixed

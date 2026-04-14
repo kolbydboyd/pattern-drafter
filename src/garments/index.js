@@ -54,6 +54,11 @@ import openCardigan        from './open-cardigan.js';
 import choreCoat           from './chore-coat.js';
 import wideLegTrouserM     from './wide-leg-trouser-m.js';
 import henley              from './henley.js';
+import kidsTee             from './kids-tee.js';
+import kidsJoggers         from './kids-joggers.js';
+import kidsLeggings        from './kids-leggings.js';
+import kidsShorts          from './kids-shorts.js';
+import kidsDress           from './kids-dress.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -105,6 +110,11 @@ const GARMENTS = {
   'chore-coat':             choreCoat,
   'wide-leg-trouser-m':     wideLegTrouserM,
   'henley':                 henley,
+  'kids-tee':              kidsTee,
+  'kids-joggers':          kidsJoggers,
+  'kids-leggings':         kidsLeggings,
+  'kids-shorts':           kidsShorts,
+  'kids-dress':            kidsDress,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────

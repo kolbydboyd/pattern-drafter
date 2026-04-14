@@ -81,9 +81,11 @@ const jsonld = {
 const jsonldEl = document.getElementById('pp-jsonld');
 if (jsonldEl) jsonldEl.textContent = JSON.stringify(jsonld);
 
-// ── Related patterns (same category) ──────────────────────────────────────────
+// ── Related patterns (same category and audience) ─────────────────────────────
 const related = Object.values(GARMENTS)
-  .filter(g => g.id !== garmentId && g.category === garment.category)
+  .filter(g => g.id !== garmentId
+    && g.category === garment.category
+    && (g.audience || null) === (garment.audience || null))
   .slice(0, 3);
 
 // ── Option list ───────────────────────────────────────────────────────────────
@@ -311,7 +313,8 @@ async function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
   const allGarments = Object.values(GARMENTS);
 
-  function isWomenswear(g) { return g.id.endsWith('-w'); }
+  function isKidswear(g)   { return g.audience === 'kids'; }
+  function isWomenswear(g) { return g.id.endsWith('-w') && !isKidswear(g); }
 
   function buildCards(list) {
     return list.map(g => {
@@ -333,14 +336,16 @@ async function renderPatternListing() {
     }).join('');
   }
 
-  let _genderFilter = 'all';     // 'all' | 'men' | 'women'
-  let _difficultyFilter = 'all'; // 'all' | 'beginner' | 'intermediate' | 'advanced'
+  let _activeFilter = 'all';       // 'all' | 'menswear' | 'womenswear' | 'childrens'
+  let _difficultyFilter = 'all';   // 'all' | 'beginner' | 'intermediate' | 'advanced'
   let _searchQuery = '';
 
   function _renderGrid() {
-    let filtered = allGarments;
-    if (_genderFilter === 'women') filtered = filtered.filter(isWomenswear);
-    else if (_genderFilter === 'men') filtered = filtered.filter(g => !isWomenswear(g));
+    let filtered;
+    if (_activeFilter === 'all')             filtered = allGarments;
+    else if (_activeFilter === 'womenswear') filtered = allGarments.filter(isWomenswear);
+    else if (_activeFilter === 'childrens')  filtered = allGarments.filter(isKidswear);
+    else /* menswear */                      filtered = allGarments.filter(g => !isWomenswear(g) && !isKidswear(g));
     if (_difficultyFilter !== 'all') filtered = filtered.filter(g => g.difficulty === _difficultyFilter);
     if (_searchQuery) {
       const q = _searchQuery.toLowerCase();
@@ -367,10 +372,11 @@ async function renderPatternListing() {
       <h1 class="pat-pg-listing-title">All Patterns</h1>
       <div class="pat-pg-listing-toolbar">
         <div class="pat-pg-filters">
-          <div class="filter-tabs" role="tablist" aria-label="Gender filter">
-            <button class="filter-tab filter-tab-active" data-gender="all" role="tab" aria-selected="true">All</button>
-            <button class="filter-tab" data-gender="men" role="tab" aria-selected="false">Men</button>
-            <button class="filter-tab" data-gender="women" role="tab" aria-selected="false">Women</button>
+          <div class="filter-tabs" role="tablist" aria-label="Audience filter">
+            <button class="filter-tab filter-tab-active" data-filter="all" role="tab" aria-selected="true">All</button>
+            <button class="filter-tab" data-filter="menswear" role="tab" aria-selected="false">Menswear</button>
+            <button class="filter-tab" data-filter="womenswear" role="tab" aria-selected="false">Womenswear</button>
+            <button class="filter-tab" data-filter="childrens" role="tab" aria-selected="false">Children</button>
           </div>
           <div class="filter-tabs" role="tablist" aria-label="Difficulty filter">
             <button class="filter-tab filter-tab-active" data-diff="all" role="tab" aria-selected="true">All levels</button>
@@ -387,15 +393,15 @@ async function renderPatternListing() {
 
   _attachHeartHandlers(root);
 
-  root.querySelectorAll('[data-gender]').forEach(btn => {
+  root.querySelectorAll('[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
-      root.querySelectorAll('[data-gender]').forEach(b => {
+      root.querySelectorAll('[data-filter]').forEach(b => {
         b.classList.remove('filter-tab-active');
         b.setAttribute('aria-selected', 'false');
       });
       btn.classList.add('filter-tab-active');
       btn.setAttribute('aria-selected', 'true');
-      _genderFilter = btn.dataset.gender;
+      _activeFilter = btn.dataset.filter;
       _renderGrid();
     });
   });
