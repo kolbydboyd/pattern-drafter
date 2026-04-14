@@ -1287,7 +1287,7 @@ async function _renderRecommendationsSection(garmentId) {
     <h3 class="recs-title">Your measurements also work for:</h3>
     <div class="recs-grid">
       ${recs.map(id => {
-        const displayName = id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        const displayName = GARMENTS[id]?.name || id;
         return `<button class="recs-card" data-garment="${id}">
           <span class="recs-card-name">${displayName}</span>
           <span class="recs-card-cta">Generate →</span>
