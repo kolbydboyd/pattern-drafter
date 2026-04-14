@@ -123,6 +123,7 @@ export default {
     delete frontPoly[0].curve;  // fold-neckline junction
     delete frontPoly[frontNeckPts.length - 1].curve;  // shoulder-neck junction
 
+    let frontArmPts, backArmPts;
     if (isRaglan) {
       // Raglan: diagonal line from shoulder-neck junction to underarm instead of shoulder + armhole
       frontPoly.push({ x: shoulderPtX + chestDepth, y: shoulderPtY + armholeDepth });
@@ -130,7 +131,7 @@ export default {
       for (let i = 1; i < frontShoulderPts.length; i++) {
         frontPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
       }
-      const frontArmPts = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
+      frontArmPts = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
       for (let i = 1; i < frontArmPts.length; i++) {
         frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
       }
@@ -157,7 +158,7 @@ export default {
       for (let i = 1; i < frontShoulderPts.length; i++) {
         backPoly.push({ ...frontShoulderPts[i], x: neckW + frontShoulderPts[i].x });
       }
-      const backArmPts = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
+      backArmPts = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
       for (let i = 1; i < backArmPts.length; i++) {
         backPoly.push({ ...backArmPts[i], x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y });
       }
@@ -214,41 +215,49 @@ export default {
     // Arc-length notches: single = front, double = back; ~3.25″ from underarm
     const FRONT_NOTCH_ARC = 3.25;
     const BACK_NOTCH_ARC  = 3.25;
-    const frontArmPtsRev = [...frontArmPts].reverse();
-    const backArmPtsRev  = [...backArmPts].reverse();
-    const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
-    const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
-    const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
-    const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
-    const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
-    const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
 
-    const frontNotches = isRaglan ? [] : [
-      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
-      { x: sideX, y: armholeY, angle: 0 },
-      { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
-    ];
+    // Raglan has no set-in armhole or sleeve cap — skip all notch geometry that
+    // requires frontArmPts / backArmPts / capPts (only valid for set-in sleeve).
+    let frontNotches  = [];
+    let backNotches   = [];
+    let sleeveNotches = [];
 
-    const backNotches = isRaglan ? [] : [
-      { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
-      { x: backSideX, y: armholeY, angle: 0 },
-      { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
-      { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
-    ];
+    if (!isRaglan) {
+      const frontArmPtsRev = [...frontArmPts].reverse();
+      const backArmPtsRev  = [...backArmPts].reverse();
+      const frontNotchPt    = ptAtArcLen(frontArmPtsRev, FRONT_NOTCH_ARC);
+      const backNotch1Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC);
+      const backNotch2Pt    = ptAtArcLen(backArmPtsRev, BACK_NOTCH_ARC + 0.25);
+      const frontNotchBodice = { x: frontNotchPt.x + shoulderPtX, y: frontNotchPt.y + shoulderPtY };
+      const backNotch1Bodice = { x: backNotch1Pt.x + shoulderPtX, y: backNotch1Pt.y + shoulderPtY };
+      const backNotch2Bodice = { x: backNotch2Pt.x + shoulderPtX, y: backNotch2Pt.y + shoulderPtY };
 
-    const capW = slvWidth * 2;
-    const capMidIdx      = Math.floor(capPts.length / 2);
-    const backCapPts     = capPts.slice(0, capMidIdx + 1);
-    const frontCapPtsRev = [...capPts.slice(capMidIdx)].reverse();
-    const backCapNotch1  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC);
-    const backCapNotch2  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC + 0.25);
-    const frontCapNotch  = ptAtArcLen(frontCapPtsRev, FRONT_NOTCH_ARC);
-    const sleeveNotches = isRaglan ? [] : [
-      { x: capW / 2, y: 0, angle: -90 },
-      { x: backCapNotch1.x,  y: backCapNotch1.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
-      { x: backCapNotch2.x,  y: backCapNotch2.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
-      { x: frontCapNotch.x,  y: frontCapNotch.y  + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
-    ];
+      frontNotches = [
+        { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+        { x: sideX, y: armholeY, angle: 0 },
+        { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
+      ];
+      backNotches = [
+        { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
+        { x: backSideX, y: armholeY, angle: 0 },
+        { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
+        { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
+      ];
+
+      const capW = slvWidth * 2;
+      const capMidIdx      = Math.floor(capPts.length / 2);
+      const backCapPts     = capPts.slice(0, capMidIdx + 1);
+      const frontCapPtsRev = [...capPts.slice(capMidIdx)].reverse();
+      const backCapNotch1  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC);
+      const backCapNotch2  = ptAtArcLen(backCapPts, BACK_NOTCH_ARC + 0.25);
+      const frontCapNotch  = ptAtArcLen(frontCapPtsRev, FRONT_NOTCH_ARC);
+      sleeveNotches = [
+        { x: capW / 2, y: 0, angle: -90 },
+        { x: backCapNotch1.x,  y: backCapNotch1.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+        { x: backCapNotch2.x,  y: backCapNotch2.y  + capHeight, angle: edgeAngle(backCapPts[0], backCapPts[1]) },
+        { x: frontCapNotch.x,  y: frontCapNotch.y  + capHeight, angle: edgeAngle(frontCapPtsRev[0], frontCapPtsRev[1]) },
+      ];
+    }
 
     // ── SLEEVE CAP / ARMHOLE VALIDATION ───────────────────────────────────────
     let capEaseNote = '';

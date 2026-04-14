@@ -4,6 +4,20 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.54] - 2026-04-14
+
+### Fixed
+- **Button-Up Shirt (W) — missing sleeve cap curve**: the `button-up.js` unisex sleeve cap fix (commit `2571c54`) was never applied to the women's variant. `button-up-w.js` still used a flat 4-point trapezoid with `capHeight: 0` for all sleeve styles (long, ¾, short), making it impossible to ease the sleeve into the curved armhole. Added `sleeveCapCurve()` at `armholeDepth × 0.55` (matching the unisex fix), per-edge seam allowances on cap curve points, and proper cap notch marks. The `cap` sleeve option retains a flat rectangle (correct by design). Imports `sleeveCapCurve` and `validateSleeveSeams` from `upper-body.js`.
+
+---
+
+## [0.12.53] - 2026-04-14
+
+### Fixed
+- **Crewneck Sweatshirt — raglan sleeve ReferenceError**: same class of scoping bug as the `fitted-tee-w` capPts fix (`0b5082d`). When `sleeveType === 'raglan'`, three variables declared with `const` inside `else` blocks were accessed unconditionally outside their block scope: `frontArmPts` (line 133), `backArmPts` (line 160), and `capPts` (line 190). All users who selected the Raglan sleeve option saw a runtime crash with no pattern output. Fixed by hoisting `let frontArmPts, backArmPts` before the if/else and wrapping the entire armhole-notch and sleeve-cap-notch block in `if (!isRaglan)`, consistent with how the rest of the raglan branch handles absence of set-in geometry.
+
+---
+
 ## [0.12.52] - 2026-04-14
 
 ### Fixed
@@ -12,6 +26,8 @@ All notable changes are documented here, newest first.
   - Skirts/dresses: `a-line-skirt-w` (7×9), `a-line-dress-w` (7×9), `maxi-skirt-w` (7×10)
   - Kids: `kids-dress` (5.5×6.5), `kids-joggers` (6×7)
   - Swim: `swim-trunks` standard non-retro mesh pocket (6.5×7)
+
+---
 
 ## [0.12.51] - 2026-04-14
 
