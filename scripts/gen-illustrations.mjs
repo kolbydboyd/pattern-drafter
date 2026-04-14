@@ -309,40 +309,22 @@ for (const [id, content] of Object.entries(SVGS)) {
   count++;
 }
 
-// ── Generate category placeholders for any registered garment missing an SVG ──
-// Importing the garment registry lets us auto-detect gaps whenever a new
-// garment is added without a hand-crafted illustration.
+// ── Fail the build if any registered garment has no SVG file at all ─────────
+// An SVG can come from the SVGS object above (script-managed) or be a
+// hand-crafted file placed directly in public/garment-illustrations/.
+// Either counts. A completely missing file means a broken catalog card.
 const { default: GARMENTS } = await import('../src/garments/index.js');
 
-// Generic silhouettes per category — used only when no specific SVG exists.
-const PLACEHOLDERS = {
-  upper: svg(`
-  <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60 L96,72 Q80,78 64,72 Z"/>
-  <path d="M64,60 Q80,50 96,60"/>`),
-  lower: svg(`
-  <path d="M44,38 L116,38 L116,50 L44,50 Z"/>
-  <path d="M44,50 L40,196 L76,196 L80,92 L84,196 L120,196 L116,50"/>
-  <line x1="80" y1="50" x2="80" y2="92"/>`),
-  skirt: svg(`
-  <rect x="52" y="38" width="56" height="10" rx="2"/>
-  <path d="M52,48 L36,188 L124,188 L108,48"/>`),
-  dress: svg(`
-  <path d="M68,36 Q80,28 92,36"/>
-  <path d="M66,36 L50,48 L48,96 L58,96 L54,192 L106,192 L102,96 L112,96 L110,48 L94,36"/>`),
-  accessory: svg(`
-  <rect x="40" y="70" width="80" height="60" rx="8"/>
-  <line x1="40" y1="100" x2="120" y2="100"/>`),
-};
+const missing = Object.keys(GARMENTS).filter(id => !existsSync(join(OUT, `${id}.svg`)));
 
-let placeholderCount = 0;
-for (const [id, garment] of Object.entries(GARMENTS)) {
-  const file = join(OUT, `${id}.svg`);
-  if (!existsSync(file)) {
-    const fallback = PLACEHOLDERS[garment.category] || PLACEHOLDERS.upper;
-    writeFileSync(file, fallback, 'utf8');
-    placeholderCount++;
-    console.log(`  placeholder: ${id}.svg (${garment.category})`);
+if (missing.length > 0) {
+  console.error(`\nBuild error: ${missing.length} garment(s) missing an illustration:`);
+  for (const id of missing) {
+    console.error(`  - ${id}  (${GARMENTS[id].category})`);
   }
+  console.error('\nAdd an SVG entry to the SVGS object in scripts/gen-illustrations.mjs');
+  console.error('or place a hand-crafted file at public/garment-illustrations/<id>.svg.\n');
+  process.exit(1);
 }
 
-console.log(`Generated ${count} illustrations + ${placeholderCount} placeholders → ${OUT}`);
+console.log(`Generated ${count} illustrations → ${OUT}`);
