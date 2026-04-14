@@ -8,6 +8,7 @@ import '../analytics.js';
 import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } from '../analytics.js';
 import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
+import { CHILDREN_SIZES, CHILDREN_SIZE_ORDER } from '../lib/children-sizes.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
 import { renderPanelSVG, renderGenericPieceSVG, renderRectanglePieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
 import { generatePrintLayout } from '../pdf/print-layout.js';
@@ -81,6 +82,7 @@ const GARMENT_CATEGORIES = [
   { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','linen-shirt-dress-w','wrap-dress-w','maxi-wrap-dress-w','tshirt-dress-w','long-sleeve-tee-dress-w','maxi-tee-dress-w','slip-dress-w','maxi-slip-dress-w','a-line-dress-w','midi-aline-dress-w','sundress-w','maxi-sundress-w','tiered-sundress-w'] },
   { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','lightweight-denim-jacket','chore-coat','athletic-formal-jacket'] },
   { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag','market-tote','beach-tote'] },
+  { id:'children',   label:'Children',   desc:"Kids T-shirts, joggers, leggings, dresses & shorts (sizes 2T\u201314)", ids:['kids-tee','kids-joggers','kids-leggings','kids-shorts','kids-dress'] },
 ];
 
 // ═══ OPTIONAL MEASUREMENT RELEVANCE ═══
@@ -311,8 +313,19 @@ function buildInputs() {
     `<option value="${p.name}">${p.name}</option>`
   ).join('');
 
+  const isKids = g.audience === 'kids';
   if (isAccessory) {
     html += `<h2>${g.measurementLabel || 'Dimensions'}</h2><p class="sd">Enter your desired dimensions.</p>`;
+  } else if (isKids) {
+    html += `<h2>Child's Measurements</h2>
+    <p class="sd">Measure your child with a flexible tape. Or start from a standard size below.</p>
+    <div class="f">
+      <label>Start from size</label>
+      <select id="kids-size-select">
+        <option value="">— enter measurements manually —</option>
+        ${CHILDREN_SIZE_ORDER.map(s => `<option value="${s}">${CHILDREN_SIZES[s].label}</option>`).join('')}
+      </select>
+    </div>`;
   } else {
     html += `<h2>Body</h2><p class="sd">Flexible tape over underwear. Don't pull tight.</p>
     <div class="f profile-row">
@@ -398,6 +411,20 @@ function buildInputs() {
   document.getElementById('del-profile-btn')?.addEventListener('click', deleteCurrentProfile);
   document.getElementById('profile-select')?.addEventListener('change', e => {
     if (e.target.value) applyProfile(e.target.value);
+  });
+  document.getElementById('kids-size-select')?.addEventListener('change', e => {
+    const sizeKey = e.target.value;
+    if (!sizeKey) return;
+    const size = CHILDREN_SIZES[sizeKey];
+    if (!size) return;
+    const g = GARMENTS[currentGarment];
+    for (const mId of (g?.measurements || [])) {
+      if (mId in size) {
+        const el = document.getElementById(`m-${mId}`);
+        if (el) el.value = size[mId];
+      }
+    }
+    if (currentStep === 4) generate();
   });
   document.getElementById('garment-select').addEventListener('change', e => {
     currentGarment = e.target.value;

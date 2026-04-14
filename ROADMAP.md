@@ -29,7 +29,8 @@ manufacturer has this. It becomes a licensable asset.
 
 ## What's Done
 
-- [x] 47 garment base modules built and code-complete (43 existing + 4 added 2026-04-08: open-cardigan, chore-coat, wide-leg-trouser-m, henley) — expands to ~95 catalog cards via variants
+- [x] 52 garment base modules built and code-complete (47 existing + 5 added 2026-04-14: kids-tee, kids-joggers, kids-leggings, kids-shorts, kids-dress) — expands to ~100 catalog cards via variants
+- [x] Children's patterns — 5 garments covering sizes 2T–14 with child-appropriate ease, elastic waistbands, and growth hem tucks. Children filter tab on /patterns page. Children category in wizard.
 - [x] Pattern generation engine working
 - [x] Print layout with tiling and scale verification
 - [x] Single PDF renderer

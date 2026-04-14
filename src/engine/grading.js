@@ -37,6 +37,24 @@ export const MENS_SIZES = [
   { label: '2XL', us: '50-52', chest: 52,   waist: 46,   hip: 52,   shoulder: 21.5, neck: 18.5, bicep: 16,   wrist: 7.75, sleeveLength: 26,   torsoLength: 20,   rise: 12,   thigh: 29,   inseam: 32 },
 ];
 
+// ── Children's size chart (2T–14, ages 2–14) ─────────────────────────────────
+// Based on ASTM D4910 (standard children's sizing), industry RTW averages,
+// and common indie sewing pattern size charts.
+// All measurements in inches (body measurements, not finished garment).
+
+export const CHILDREN_SIZES = [
+  { label: '2T',  age: '~2 yrs',      chest: 21,   waist: 20,   hip: 21,   shoulder: 9,    neck: 10,   bicep: 6.5,  sleeveLength: 9,  torsoLength: 10,  rise: 5,   thigh: 12,   inseam: 10, fullLength: 22 },
+  { label: '3T',  age: '~3 yrs',      chest: 22,   waist: 20.5, hip: 22,   shoulder: 9.5,  neck: 10.5, bicep: 7,    sleeveLength: 10, torsoLength: 11,  rise: 5.5, thigh: 13,   inseam: 12, fullLength: 24 },
+  { label: '4T',  age: '~4 yrs',      chest: 23,   waist: 21,   hip: 23,   shoulder: 10,   neck: 11,   bicep: 7.5,  sleeveLength: 11, torsoLength: 11.5,rise: 6,   thigh: 14,   inseam: 13, fullLength: 26 },
+  { label: '5',   age: '~4-5 yrs',    chest: 24,   waist: 21.5, hip: 24,   shoulder: 10.5, neck: 11.5, bicep: 8,    sleeveLength: 12, torsoLength: 12,  rise: 6.5, thigh: 15,   inseam: 14, fullLength: 27 },
+  { label: '6',   age: '~5-6 yrs',    chest: 25,   waist: 22,   hip: 25,   shoulder: 11,   neck: 12,   bicep: 8.5,  sleeveLength: 13, torsoLength: 12.5,rise: 7,   thigh: 16,   inseam: 15, fullLength: 28 },
+  { label: '7',   age: '~6-7 yrs',    chest: 26,   waist: 22.5, hip: 26,   shoulder: 11.5, neck: 12.5, bicep: 9,    sleeveLength: 14, torsoLength: 13,  rise: 7.5, thigh: 17,   inseam: 16, fullLength: 29 },
+  { label: '8',   age: '~7-8 yrs',    chest: 27,   waist: 23,   hip: 27,   shoulder: 12,   neck: 13,   bicep: 9.5,  sleeveLength: 15, torsoLength: 13.5,rise: 8,   thigh: 18,   inseam: 18, fullLength: 30 },
+  { label: '10',  age: '~9-10 yrs',   chest: 28.5, waist: 23.5, hip: 28.5, shoulder: 12.5, neck: 13.5, bicep: 10,   sleeveLength: 17, torsoLength: 14,  rise: 8.5, thigh: 19.5, inseam: 20, fullLength: 33 },
+  { label: '12',  age: '~11-12 yrs',  chest: 30,   waist: 24.5, hip: 30,   shoulder: 13,   neck: 14,   bicep: 10.5, sleeveLength: 19, torsoLength: 15,  rise: 9,   thigh: 21,   inseam: 22, fullLength: 36 },
+  { label: '14',  age: '~13-14 yrs',  chest: 32,   waist: 25.5, hip: 32,   shoulder: 14,   neck: 14.5, bicep: 11,   sleeveLength: 21, torsoLength: 16,  rise: 9.5, thigh: 22.5, inseam: 24, fullLength: 38 },
+];
+
 // ── Line styles per size (for multi-size overlay rendering) ──────────────────
 // Used when multiple layers are visible simultaneously. The primary
 // differentiation is toggleable PDF layers; these are a secondary visual aid.
@@ -55,12 +73,16 @@ export const SIZE_LINE_STYLES = [
  * Determine which size chart to use for a garment.
  *
  * Women's garments (id ends with '-w') use WOMENS_SIZES.
+ * Children's garments (id starts with 'kids-') use CHILDREN_SIZES.
  * All other garments use MENS_SIZES (men's/unisex).
  *
- * @param {string} garmentId - e.g. 'tee', 'a-line-skirt-w'
+ * @param {string} garmentId - e.g. 'tee', 'a-line-skirt-w', 'kids-tee'
  * @returns {{ sizes: Array, gender: string }}
  */
 export function getSizeChart(garmentId) {
+  if (garmentId.startsWith('kids-')) {
+    return { sizes: CHILDREN_SIZES, gender: 'childrens' };
+  }
   const isWomens = garmentId.endsWith('-w');
   return {
     sizes: isWomens ? WOMENS_SIZES : MENS_SIZES,
@@ -144,9 +166,10 @@ export function gradeGarment(garment, opts = {}) {
  * @returns {Array<Object>}
  */
 export function buildSizeChartTable(garment) {
-  const { sizes } = getSizeChart(garment.id);
+  const { sizes, gender } = getSizeChart(garment.id);
   return sizes.map(row => {
-    const entry = { label: row.label, us: row.us };
+    // Children's rows use 'age' instead of 'us'
+    const entry = { label: row.label, us: gender === 'childrens' ? row.age : row.us };
     for (const key of garment.measurements) {
       if (key === 'chest' && row.bust !== undefined) {
         entry[key] = row.bust ?? row.chest;
@@ -181,7 +204,9 @@ export function generateBundleReadme(garment, gradingResult, redemptionCode) {
       const v = key === 'chest' && row.bust !== undefined ? (row.bust ?? row.chest) : row[key];
       return v !== undefined ? String(v) : '-';
     });
-    return [row.label, row.us, ...vals];
+    // Children's rows use 'age' in place of 'us'
+    const usVal = row.us !== undefined ? row.us : (row.age ?? '-');
+    return [row.label, usVal, ...vals];
   });
 
   // Pad columns
@@ -210,7 +235,7 @@ This code never expires.
 
   return `======================================================================
 ${garment.name} - Sewing Pattern
-Sizes ${sizeRange} (${gender === 'womens' ? "Women's" : "Men's/Unisex"})
+Sizes ${sizeRange} (${gender === 'womens' ? "Women's" : gender === 'childrens' ? "Children's" : "Men's/Unisex"})
 People's Patterns - peoplespatterns.com
 ======================================================================
 
