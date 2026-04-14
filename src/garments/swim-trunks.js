@@ -167,35 +167,67 @@ export default {
     }
 
     if (opts.liner === 'brief') {
-      // Brief-cut liner: 3 pieces — front panel ×2, back panel ×2, gusset ×1.
-      // Sized to body (waist-based), not outer hip panels.
-      // All pieces are cut as rectangles; curved leg opening is marked and cut during construction.
-      const waist = m.waist || (m.hip * 0.84);
-      const briefFrontW = waist / 4 + 0.75;    // one front half-panel + ease (mirror pair)
-      const briefBackW  = waist / 4 + 1.25;    // one back half-panel + ease, wider for seat coverage
-      const briefFrontH = rise * 0.58;          // front panel height — covers crotch, stops mid-rise
-      const briefBackH  = rise * 0.75;          // back panel taller — provides full seat coverage
-      const gussetW     = 3.0;                  // standard brief gusset width
-      const gussetH     = Math.round((frontExt + backExt) * 10) / 10; // spans full crotch depth
+      // Brief-cut liner: 3 pattern pieces (5 cuts total).
+      // Seams: CF only (no side seams), CB only, front-to-gusset, back-to-gusset.
+      // Leg opening is a shaped arch — elastic applied to that edge.
+      // Sized to waist (body-fit), not to hip-based outer panels.
+      const waist    = m.waist || (m.hip * 0.84);
+      const gussetW  = 3.0;
+      const gussetHW = gussetW / 2;  // half gusset width — marks crotch attachment point on each panel
 
+      // Front panel (one half — cut 2, mirror L & R)
+      const bfW  = waist / 4 + 0.75;              // quarter-front + ease
+      const bfH  = rise  * 0.58;                  // height: waist to gusset attachment
+      const bfSag = Math.min(2.5, bfW * 0.22);    // leg arch sagitta (depth of inward sweep)
+      const bfPoly = buildBriefPanel({ panelW: bfW, height: bfH, gussetHW, arcSagitta: bfSag, cbRaise: 0 });
+      const bfSaPoly = offsetPolygon(bfPoly, () => -0.375);
       pieces.push({
-        id: 'brief-front',
-        name: 'Brief Liner Front',
-        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · Mark leg opening curve: draw an arc from the top outer corner down toward the lower inner (CF) corner — removing the triangular wedge. Cut on arc. Join both halves at CF seam {RST} with stretch stitch.',
-        dimensions: { width: briefFrontW, height: briefFrontH },
-        type: 'pocket', sa: 0.375,
+        id: 'brief-front', name: 'Brief Liner Front',
+        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CF seam joins both halves · Leg arch edge: apply ¼″ lingerie elastic (cut to 75% of arch length)',
+        polygon: bfPoly, saPolygon: bfSaPoly,
+        path: polyToPath(bfPoly), saPath: polyToPath(bfSaPoly),
+        dimensions: [
+          { label: fmtInches(bfW),              x1: 0, y1: -0.5, x2: bfW,  y2: -0.5, type: 'h' },
+          { label: fmtInches(bfH) + ' height',  x: bfW + 1.2,   y1: 0,    y2: bfH,  type: 'v' },
+        ],
+        labels: [
+          { text: 'BRIEF FRONT', x: bfW * 0.2,  y: bfH * 0.25, rotation: 0  },
+          { text: 'CF SEAM',     x: -0.4,        y: bfH * 0.45, rotation: -90 },
+          { text: 'LEG ARCH →',  x: bfW * 0.45, y: bfH * 0.4,  rotation: 30 },
+        ],
+        notches: [], type: 'panel', sa: 0.375, hem: 0,
       });
+
+      // Back panel (one half — cut 2, mirror L & R)
+      const bbW   = waist / 4 + 1.25;             // wider for seat coverage
+      const bbH   = rise  * 0.75;                 // taller for full seat
+      const bbRaise = 0.75;                        // CB raised above outer waist (seat shaping)
+      const bbSag = Math.min(2.0, bbW * 0.17);    // shallower arch = more seat coverage
+      const bbPoly = buildBriefPanel({ panelW: bbW, height: bbH, gussetHW, arcSagitta: bbSag, cbRaise: bbRaise });
+      const bbSaPoly = offsetPolygon(bbPoly, () => -0.375);
       pieces.push({
-        id: 'brief-back',
-        name: 'Brief Liner Back',
-        instruction: 'Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · Taller than front piece for full seat coverage. Mark leg opening curve same as front panel. Join both halves at CB seam {RST} with stretch stitch.',
-        dimensions: { width: briefBackW, height: briefBackH },
-        type: 'pocket', sa: 0.375,
+        id: 'brief-back', name: 'Brief Liner Back',
+        instruction: `Cut 2 (mirror L & R) · Soft elastane (4-way stretch, ≥ 80% elastane) · CB raised ${fmtInches(bbRaise)} for seat shaping · CB seam joins both halves · Leg arch edge: apply ¼″ lingerie elastic (cut to 75% of arch length)`,
+        polygon: bbPoly, saPolygon: bbSaPoly,
+        path: polyToPath(bbPoly), saPath: polyToPath(bbSaPoly),
+        dimensions: [
+          { label: fmtInches(bbW),              x1: 0, y1: -0.5, x2: bbW,  y2: -0.5,   type: 'h' },
+          { label: fmtInches(bbH) + ' height',  x: bbW + 1.2,   y1: 0,    y2: bbH,     type: 'v' },
+          { label: fmtInches(bbRaise) + ' CB raise', x: -0.6,   y1: -bbRaise, y2: 0,   type: 'v', color: '#c44' },
+        ],
+        labels: [
+          { text: 'BRIEF BACK', x: bbW * 0.2,  y: bbH * 0.3,  rotation: 0  },
+          { text: 'CB SEAM',    x: -0.4,        y: bbH * 0.5,  rotation: -90 },
+          { text: 'LEG ARCH →', x: bbW * 0.45, y: bbH * 0.4,  rotation: 25 },
+        ],
+        notches: [], type: 'panel', sa: 0.375, hem: 0,
       });
+
+      // Gusset (cut 1 — bridges front to back at crotch)
+      const gussetH = Math.round((frontExt + backExt) * 10) / 10;
       pieces.push({
-        id: 'brief-gusset',
-        name: 'Brief Liner Gusset',
-        instruction: 'Cut 1 · Soft elastane or cotton/spandex blend · Sew RS of gusset to RS of front crotch edge {RST}. Then sew RS of gusset to RS of back crotch edge {RST}. Gusset bridges front and back panels at the crotch seam.',
+        id: 'brief-gusset', name: 'Brief Liner Gusset',
+        instruction: 'Cut 1 · Soft elastane or cotton/spandex blend · One long edge sews to front crotch point {RST}; other long edge sews to back crotch point {RST}',
         dimensions: { width: gussetW, height: gussetH },
         type: 'pocket', sa: 0.375,
       });
@@ -317,7 +349,7 @@ export default {
     if (opts.liner === 'brief') {
       steps.push({
         step: n++, title: 'Sew brief liner',
-        detail: '{serge} or {zigzag} all liner edges before sewing. On each front and back panel, mark the leg opening curve: draw an arc from the top outer corner down to the lower inner corner, removing the triangular wedge. Cut on the arc. Join the two front halves at CF {RST} with stretch stitch. Join the two back halves at CB {RST}. Sew the gusset to the front crotch edge {RST}, then sew the other long edge of the gusset to the back crotch edge {RST}. {clip} all curved seams every ½″. The result is a mini brief. {baste} the brief WS to WS of the outer shell at the waist edge ¼″ from the raw edge. Treat as one unit going forward.',
+        detail: '{serge} all liner piece edges. Join two front halves at CF {RST} with stretch stitch, {clip} curve. Join two back halves at CB {RST}, {clip} curve. Sew one long edge of gusset to front crotch point {RST}. Sew other long edge of gusset to back crotch point {RST}. The result is a mini brief with two leg openings exposed. {clip} all curved seams. Apply ¼″ lingerie elastic to each leg arch opening: pin elastic to WS of arch at 75% stretch, {zigzag} in place, fold elastic to inside, {topstitch}. {baste} brief WS to WS of outer shell at waist edge ¼″ from raw edge. Treat as one unit going forward.',
       });
     }
 
@@ -460,4 +492,42 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
     ],
     type: 'panel', opts,
   };
+}
+
+// ── Brief liner panel builder ─────────────────────────────────────────────────
+// Generates one half of a brief front or back panel.
+// No side seams — the leg opening is a shaped arch with elastic applied.
+// Polygon coordinate system: x = 0 at CF/CB seam (inner), y = 0 at outer waist,
+// y increases downward toward gusset attachment.
+//
+// Seam structure of the finished brief:
+//   CF seam  → joins two front halves
+//   CB seam  → joins two back halves  (CB is raised by cbRaise for seat shaping)
+//   Gusset   → one long edge to front crotch point, other long edge to back crotch point
+//   Leg arch → NO seam — elastic applied to this edge
+
+function buildBriefPanel({ panelW, height, gussetHW, arcSagitta, cbRaise }) {
+  const poly = [];
+
+  // Top edge: diagonal if CB raised, straight if front (cbRaise = 0)
+  poly.push({ x: 0,      y: cbRaise > 0 ? -cbRaise : 0 }); // CF or CB inner waist
+  poly.push({ x: panelW, y: 0 });                            // outer waist corner
+
+  // Leg opening arch: cubic Bezier from outer waist to gusset attachment.
+  // cp1 stays near the outer waist corner (gradual at hip level).
+  // cp2 pulls toward the CF/CB at the lower third (aggressive sweep near crotch).
+  // This creates the characteristic brief arch: flat at top, deep curve near crotch.
+  const p0  = { x: panelW,              y: 0 };
+  const cp1 = { x: panelW - arcSagitta * 0.3, y: height * 0.15 };
+  const cp2 = { x: arcSagitta * 0.5,    y: height * 0.75 };
+  const p3  = { x: gussetHW,            y: height };
+
+  const archPts = sampleBezier(p0, cp1, cp2, p3, 48);
+  for (let i = 1; i < archPts.length - 1; i++) poly.push({ ...archPts[i], curve: true });
+
+  poly.push({ x: gussetHW, y: height }); // gusset attachment corner (outer)
+  poly.push({ x: 0,        y: height }); // CF/CB at crotch (inner)
+  // Polygon closes back to the first point via the CF/CB seam (left vertical edge)
+
+  return poly;
 }
