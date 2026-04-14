@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.51] - 2026-04-14
+
+### Fixed
+- **Crewneck Sweatshirt — raglan sleeve ReferenceError**: same class of scoping bug as the `fitted-tee-w` capPts fix (`0b5082d`). When `sleeveType === 'raglan'`, three variables declared with `const` inside `else` blocks were accessed unconditionally outside their block scope: `frontArmPts` (line 133), `backArmPts` (line 160), and `capPts` (line 190). All users who selected the Raglan sleeve option saw a runtime crash with no pattern output. Fixed by hoisting `let frontArmPts, backArmPts` before the if/else and wrapping the entire armhole-notch and sleeve-cap-notch block in `if (!isRaglan)`, consistent with how the rest of the raglan branch handles absence of set-in geometry.
+
+---
+
 ## [0.12.50] - 2026-04-14
 
 ### Added
