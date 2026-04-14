@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.37] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — waistband sizing**: waistband pieces were incorrectly sized to the hip-based panel width (~42" total for 31" waist / 36" hip). Waistband pieces must be sized to the body waist, not the hip panels. Fixed: `wbFrontLen = wbBackLen = waist/2 + 0.5" ease + SA×2`. For 31" waist this yields 17" per half = 34" total. The outer panels remain correctly hip-sized; the stretch fabric eases into the narrower waistband. Elastic inside back casing updated to `waist/2 × 0.88` with the rationale documented.
+- **Retro Short Trunks — pocket bag**: replaced the free-hanging vertical bag (which could protrude past the 3" hem) with a folded, anchored design. One piece per side (8" wide, folds to 4" deep toward crotch × full garment height). Top caught in waistband seam, outer edge into side seam (4" left open from waistband = pocket mouth, side seam closed below to hem), bottom caught in hem fold. Bag cannot dangle. Sewing sequence updated across pocket prep, side seam, and hem steps.
+
+---
+
 ## [0.12.36] - 2026-04-13
 
 ### Fixed

@@ -239,19 +239,24 @@ export default {
     const wbWidth = 3; // 1.5″ finished
 
     if (isRetro) {
-      const wbFrontLen = frontW * 2 + sa * 2;
-      const wbBackLen  = backW  * 2 + sa * 2;
+      // Retro waistband is sized to WAIST (not hip-panel width).
+      // Panels are hip-sized for fit; the stretch fabric is eased into the shorter waistband.
+      // Both halves equal (symmetric at side seams); elastic inside back is cut shorter for recovery.
+      const wbEase     = 1.0;  // 1" total ease for stretch fabric pull-on with elastic assist
+      const wbFrontLen = m.waist / 2 + wbEase / 2 + sa * 2;
+      const wbBackLen  = m.waist / 2 + wbEase / 2 + sa * 2;
+      const elasticLen = Math.round(m.waist / 2 * 0.88);  // 12% shorter than casing = recovery tension
       pieces.push({
         id: 'waistband-front',
         name: 'Waistband Front',
-        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
+        instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Grommet pair at CF for drawstring`,
         dimensions: { length: wbFrontLen, width: wbWidth },
         type: 'rectangle', sa,
       });
       pieces.push({
         id: 'waistband-back',
         name: 'Waistband Back',
-        instruction: `Cut 1 · Nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing for back waistband`,
+        instruction: `Cut 1 · Self fabric or nylon · ${fmtInches(wbWidth / 2)} finished · Elastic casing · Elastic inside: cut to ${elasticLen}″ (back waist × 0.88 — shorter than casing for recovery tension)`,
         dimensions: { length: wbBackLen, width: wbWidth },
         type: 'rectangle', sa,
       });
@@ -268,19 +273,30 @@ export default {
 
     // ── SIDE-SEAM POCKET BAGS (mesh for drainage) ──
     if (opts.pocket === 'side-seam') {
-      const bagW = isRetro ? 5.5 : 6.5;
-      // Pocket bag depth is limited by the inseam — the bag hangs inside the leg and must not
-      // protrude past the hem. Leave 0.75″ clearance above the folded hem.
-      const maxBagH = Math.max(2.0, inseam - hem - 0.75);
-      const bagH = isRetro ? Math.min(6.5, maxBagH) : 7.0;
-      pieces.push({
-        id: 'pocket-bag',
-        name: 'Side-Seam Pocket Bag',
-        instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
-        dimensions: { width: bagW, height: bagH },
-        type: 'pocket',
-        sa,
-      });
+      if (isRetro) {
+        // Retro: anchored folded pocket. One piece per side, folded in half — fold edge faces crotch.
+        // Top caught in waistband seam. Outer edge into side seam (4" open from waistband = pocket mouth;
+        // side seam closed below that to hem trapping the bag). Bottom caught in hem fold.
+        // Cannot dangle — locked in on three sides.
+        const bagDepth = 4.0;           // depth from side seam to fold (toward crotch)
+        const bagW = bagDepth * 2;      // unfolded width — piece folds in half to bagDepth
+        const bagH = rise + inseam;     // full garment height: waistband to hem
+        pieces.push({
+          id: 'pocket-bag',
+          name: 'Side-Seam Pocket Bag',
+          instruction: `Cut 2 (1 per side) · Athletic mesh · {serge} all edges · Fold in half lengthwise {WST} — fold edge toward crotch · Baste folded bag to front panel: top to waistband seam line, outer edge to side seam, bottom to hem fold line · Pocket mouth = the 4″ of side seam left open from waistband down · Bottom edge caught in hem fold; top edge caught in waistband seam — bag cannot dangle`,
+          dimensions: { width: bagW, height: bagH },
+          type: 'pocket', sa,
+        });
+      } else {
+        pieces.push({
+          id: 'pocket-bag',
+          name: 'Side-Seam Pocket Bag',
+          instruction: 'Cut 4 (2 per side) · Athletic mesh - allows water drainage · {serge} all edges',
+          dimensions: { width: 6.5, height: 7.0 },
+          type: 'pocket', sa,
+        });
+      }
     }
 
     // ── BACK PATCH POCKET (retro option) ──
@@ -308,7 +324,7 @@ export default {
       { ref: 'grommets',   quantity: '2 - CF drawstring exits, ½″ inner dia, rust-proof' },
     ];
     if (isRetro) {
-      notions.push({ ref: 'elastic-0.75', quantity: `${Math.round(m.waist * 0.45)}″ of ¾″ wide elastic - back waistband casing only` });
+      notions.push({ ref: 'elastic-0.75', quantity: `${Math.round(m.waist / 2 * 0.88)}″ of ¾″ wide elastic - back waistband casing only (cut 12% shorter than casing for recovery tension)` });
       notions.push({ name: 'Soft elastane', quantity: '0.33 yard', notes: 'Brief liner (4-way stretch, ≥ 80% elastane)' });
     }
     if (opts.liner === 'panels') {
@@ -363,7 +379,9 @@ export default {
     if (opts.pocket === 'side-seam') {
       steps.push({
         step: n++, title: 'Prepare pocket bags',
-        detail: '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
+        detail: isRetro
+          ? '{serge} all edges of each pocket bag piece. Fold in half lengthwise {WST} — fold edge goes toward the crotch. Baste the top of each folded bag to the waistband seam line on the front panel. Baste the outer (side seam) edge of the bag to the front panel side seam edge. Baste the bottom to the front panel hem fold line. Bag is now secured to the front panel on three sides with the fold facing inward.'
+          : '{serge} all mesh pocket bag edges. Pin one bag to each front panel side seam and one to each back panel at the pocket opening zone. Sew bags to panels along opening only. {press} away from opening.',
       });
     }
 
@@ -372,7 +390,9 @@ export default {
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
-        ? 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. {press} open.'
+        ? (isRetro
+            ? 'Sew front to back at each side seam {RST} with the pocket bag sandwiched at the seam edge. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth). Then sew closed all the way to the hem, catching the bag outer edge in the seam. {press} open.'
+            : 'Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together. Trim corners. {press} open.')
         : 'Join front to back at side seams {RST}. Stretch stitch. {press} open.',
     });
     steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
@@ -420,7 +440,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Hem',
-      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' Hem up to each bar tack; the slit opens above.' : ''}`,
+      detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} once. {topstitch} with {zigzag} (2.5mm width). Do not use straight stitch on stretch/nylon hems.${opts.sideSplit === '1' ? ' Hem up to each bar tack; the slit opens above.' : ''}${isRetro && opts.pocket === 'side-seam' ? ' Catch the bottom edge of each pocket bag in the hem fold. Topstitch through all layers — the bag is now locked at waistband (top), side seam (outer edge), and hem (bottom). Cannot dangle.' : ''}`,
     });
     steps.push({ step: n++, title: 'Finish', detail: 'Inspect all seams. Stretch stitch should {zigzag} slightly. Trim any loose threads. Rinse finished trunks in cold water before first wear.' });
 
