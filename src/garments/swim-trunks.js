@@ -456,16 +456,16 @@ export default {
       });
     }
 
-    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST}. Stretch stitch. {clip} curve every ½″. {press}.' });
-    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST}. Stretch stitch. {clip}. {press}.' });
+    steps.push({ step: n++, title: 'Sew center front seam', detail: 'Join outer front panels at CF crotch {RST} with stretch stitch. {clip} curve every ½″. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side with a stretch stitch — this locks the doubled SA flat so it cannot rub against the body in the most sensitive area.' });
+    steps.push({ step: n++, title: 'Sew center back seam',  detail: 'Join outer back panels at CB {RST} with stretch stitch. {clip}. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA to one side. {topstitch} ⅛″ from the seam line on the pressed side, stretch stitch — locks the SA flat for comfort and adds visible reinforcement.' });
     const slitNote = opts.sideSplit === '1' ? ' Stop sewing 1″ before the hem at the bottom of each side seam — leave this last 1″ OPEN (this is the side slit).' : '';
     steps.push({
       step: n++, title: 'Sew side seams',
       detail: opts.pocket === 'side-seam'
         ? (isRetro
-            ? `Sew front to back at each side seam {RST}. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth; each panel still carries its own bag layer at the mouth). Then sew the middle of the seam closed all the way to the hem, catching all four layers in the seam: front panel + front bag layer + back bag layer + back panel.${slitNote} {press} the closed portion of the seam open. {topstitch} ⅛″ from the pressed mouth edge on both the front and back panel — the full 4″ length on each side — using a stretch stitch or narrow {zigzag} (2.0mm width, 2.5mm length) so the line survives the fabric's stretch; this catches the bag layer to its panel along the visible mouth edge. Bar tack at the top and bottom of each pocket mouth opening, exactly where the topstitch meets the side seam: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam, catching panel + bag layer at the top and all four layers at the bottom. This anchors the corners against tearing and locks the topstitch endpoints.`
-            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open.`)
-        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open.`,
+            ? `Sew front to back at each side seam {RST}. Starting from the waistband end: leave the first 4″ OPEN — do not sew (this is the pocket mouth; each panel still carries its own bag layer at the mouth). Then sew the middle of the seam closed all the way to the hem, catching all four layers in the seam: front panel + front bag layer + back bag layer + back panel.${slitNote} {press} the closed portion of the seam open. {serge} or {zigzag} the front pair (front panel SA + front bag SA) and the back pair (back panel SA + back bag SA) separately as two clean finished edges — no raw edges sit against skin. {topstitch} ⅛″ from the pressed mouth edge on both the front and back panel — the full 4″ length on each side — using a stretch stitch or narrow {zigzag} (2.0mm width, 2.5mm length) so the line survives the fabric's stretch; this catches the bag layer to its panel along the visible mouth edge and continues the comfort finish into the closed zone. Bar tack at the top and bottom of each pocket mouth opening, exactly where the topstitch meets the side seam: stitch width 3.5mm, length 0, 8–10 stitches perpendicular to the side seam, catching panel + bag layer at the top and all four layers at the bottom. This anchors the corners against tearing and locks the topstitch endpoints.`
+            : `Sew above and below pocket opening with stretch stitch. Pivot and sew around pocket bags, joining both bags together.${slitNote} Trim corners. {press} open. {serge} or {zigzag} the front and back SAs separately for a clean finish against the body.`)
+        : `Join front to back at side seams {RST}. Stretch stitch.${slitNote} {press} open. {serge} or {zigzag} the front and back SAs separately for a clean, comfortable finish against the body.`,
     });
 
     if (opts.sideSplit === '1') {
@@ -475,7 +475,7 @@ export default {
       });
     }
 
-    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through crotch. {clip} curve. {press} toward back.' });
+    steps.push({ step: n++, title: 'Sew inseam', detail: 'Continuous stretch stitch from hem to hem through the crotch. {clip} curve. Trim SA to ¼″ and {serge} or {zigzag} both SAs together. {press} SA toward the back. {topstitch} ⅛″ from the seam line on the back side with a stretch stitch — locks the doubled SA flat against the back leg so it does not chafe during walking, wading, or swimming.' });
 
     // Waistband
     if (isRetro) {
@@ -485,11 +485,11 @@ export default {
       });
       steps.push({
         step: n++, title: 'Construct front waistband',
-        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+        detail: 'Fold front waistband in half lengthwise {WST}, {press}. Pin to trunks front waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
       });
       steps.push({
         step: n++, title: 'Construct back waistband',
-        detail: `Cut ¾″ elastic to the length marked on the pattern piece (back casing length × 0.88). Lay elastic along the inside of the unfolded waistband piece. Align one elastic end with each short end of the waistband, within the seam allowance. {zigzag} each elastic end in place at the short ends — the elastic will be automatically caught in the side seam joins. Fold waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew, stretching elastic gently to fit. Fold over to inside and {topstitch} top and bottom edges all the way across — no threading gap needed.`,
+        detail: `Cut ¾″ elastic to the length marked on the pattern piece (back casing length × 0.88). Lay elastic along the inside of the unfolded waistband piece. Align one elastic end with each short end of the waistband, within the seam allowance. {zigzag} each elastic end in place at the short ends — the elastic will be automatically caught in the side seam joins. Fold waistband in half lengthwise {WST}, {press}. Pin to trunks back waist {RST}, matching side seams. Sew, stretching elastic gently to fit. Fold over to inside and {topstitch} top and bottom edges all the way across — no threading gap needed. The waist seam SA and the elastic are both enclosed inside the waistband fold, so nothing rough touches the body.`,
       });
       steps.push({
         step: n++, title: 'Join waistband halves',
@@ -502,7 +502,7 @@ export default {
       });
       steps.push({
         step: n++, title: 'Attach waistband',
-        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering seam. {topstitch} close to inner fold with stretch stitch.',
+        detail: 'Fold waistband in half lengthwise {WST}, {press}. Pin to trunks waist {RST}, matching side seams. Sew. Fold over to inside, pin covering the waist seam. {topstitch} close to the inner fold with a stretch stitch — this fully encloses the waist seam allowance inside the waistband fold, so no raw edge touches the body at the waist.',
       });
     }
 
