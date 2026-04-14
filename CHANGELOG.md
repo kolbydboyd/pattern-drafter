@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.52] - 2026-04-14
+
+### Fixed
+- **Button-Up Shirt (W) — missing sleeve cap curve**: the `button-up.js` unisex sleeve cap fix (commit `2571c54`) was never applied to the women's variant. `button-up-w.js` still used a flat 4-point trapezoid with `capHeight: 0` for all sleeve styles (long, ¾, short), making it impossible to ease the sleeve into the curved armhole. Added `sleeveCapCurve()` at `armholeDepth × 0.55` (matching the unisex fix), per-edge seam allowances on cap curve points, and proper cap notch marks. The `cap` sleeve option retains a flat rectangle (correct by design). Imports `sleeveCapCurve` and `validateSleeveSeams` from `upper-body.js`.
+
+---
+
 ## [0.12.51] - 2026-04-14
 
 ### Fixed

@@ -6,8 +6,9 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
+  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE, yokeSplit,
+  validateSleeveSeams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -212,16 +213,33 @@ export default {
     backPoly.push({ x: shoulderPtX + chestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
-    // Sleeve polygon (tapered)
+    // Sleeve polygon (set-in cap curve for long/short/¾; flat for cap sleeve)
     const effArmToElbow = m.armToElbow || (slvLen * 0.45);
     const slvTopW = m.bicep / 2 + easeVal * 0.15;
     const slvBotW = (m.wrist || m.bicep * 0.75) / 2 + 0.25;
-    const sleevePoly = [
-      { x: 0,           y: 0      },
-      { x: slvTopW * 2, y: 0      },
-      { x: slvTopW * 2 - (slvTopW - slvBotW), y: slvLen },
-      { x: slvTopW - slvBotW,                  y: slvLen },
-    ];
+    let sleevePoly, capHeight, capPts;
+    if (opts.sleeve === 'cap') {
+      // Cap sleeve: flat rectangle — no set-in cap ease needed
+      capHeight = 0;
+      sleevePoly = [
+        { x: 0,           y: 0      },
+        { x: slvTopW * 2, y: 0      },
+        { x: slvTopW * 2, y: slvLen },
+        { x: 0,           y: slvLen },
+      ];
+    } else {
+      capHeight = armholeDepth * 0.55;  // woven shirt cap — slightly lower than knit
+      const capCp = sleeveCapCurve(m.bicep, capHeight, slvTopW * 2);
+      capPts = sampleCurve(capCp, 16);
+      validateSleeveSeams('button-up-w', capPts, frontArmPts, backArmPts);
+      sleevePoly = [];
+      for (const p of capPts) sleevePoly.push({ ...p, y: p.y + capHeight });
+      // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
+      delete sleevePoly[0].curve;
+      delete sleevePoly[capPts.length - 1].curve;
+      sleevePoly.push({ x: slvTopW * 2 - (slvTopW - slvBotW), y: capHeight + slvLen });
+      sleevePoly.push({ x: slvTopW - slvBotW,                  y: capHeight + slvLen });
+    }
 
     // ── NOTCH MARKS ─────────────────────────────────────────────────────────
     const shoulderMidX = neckW + shoulderW / 2;
@@ -265,11 +283,21 @@ export default {
           { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
         ];
 
-    const sleeveNotches = [
+    const sleeveNotches = opts.sleeve === 'cap' ? [
       { x: slvTopW, y: 0, angle: -90 },
-      { x: slvTopW * 0.5, y: 0, angle: -90 },
-      { x: slvTopW * 1.5, y: 0, angle: -90 },
+    ] : [
+      { x: slvTopW,       y: 0,              angle: -90 },  // crown center
+      { x: slvTopW * 0.5, y: capHeight * 0.5, angle: edgeAngle({ x: 0, y: capHeight }, { x: slvTopW, y: 0 }) },       // back cap
+      { x: slvTopW * 1.5, y: capHeight * 0.5, angle: edgeAngle({ x: slvTopW, y: 0 }, { x: slvTopW * 2, y: capHeight }) }, // front cap
     ];
+    const nCapPts = capPts ? capPts.length : 0;
+    const sleeveEdgeAllowances = sleevePoly.map((_, i) => {
+      if (nCapPts === 0) return { sa: 0.375, label: 'Seam' };  // cap sleeve — uniform SA
+      if (i < nCapPts - 1) return { sa: 0.375, label: 'Cap' };
+      if (i === nCapPts - 1) return { sa: 0.625, label: 'Side seam' };
+      if (i === nCapPts)     return { sa: hem,   label: 'Hem' };
+      return { sa: 0.625, label: 'Side seam' };
+    });
 
     // ── COLLAR from neckline arc ──────────────────────────────────────────────
     const frontNeckArc = arcLength(frontNeckPts);
@@ -311,8 +339,8 @@ export default {
         instruction: `Cut 2 (mirror L & R) · ${opts.sleeve} · Straight grain along length`,
         type: 'sleeve', polygon: sleevePoly, path: polyPath(sleevePoly),
         width: slvBB.maxX - slvBB.minX, height: slvBB.maxY - slvBB.minY,
-        capHeight: 0, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem, notches: sleeveNotches,
-        dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' }],
+        capHeight, sleeveLength: slvLen, sleeveWidth: slvTopW * 2, sa, hem, notches: sleeveNotches, edgeAllowances: sleeveEdgeAllowances,
+        dims: [{ label: fmtInches(slvTopW * 2) + ' top', x1: 0, y1: capHeight + 0.4, x2: slvTopW * 2, y2: capHeight + 0.4, type: 'h' }, { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: capHeight, y2: capHeight + effArmToElbow, type: 'v', color: '#b8963e' }],
       },
       { id: 'collar', name: `${opts.collar === 'peterpan' ? 'Peter Pan' : opts.collar === 'band' ? 'Band' : opts.collar === 'camp' ? 'Camp'  : 'Point'} Collar`, instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} long × ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: fallH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
       { id: 'collar-stand', name: 'Collar Stand', instruction: `Cut 2 · Interface one · ${fmtInches(collarLen)} long × ${fmtInches(standH * 2 + sa * 2)} cut (${fmtInches(standH)} finished stand) · Neckline seam: ${fmtInches(necklineLen)}`, dimensions: { length: collarLen, width: standH * 2 + sa * 2 }, type: 'rectangle', sa, dims: [{ label: `Neckline: ${fmtInches(necklineLen)}`, x1: 0, y1: -0.5, x2: collarLen, y2: -0.5, type: 'h' }] },
