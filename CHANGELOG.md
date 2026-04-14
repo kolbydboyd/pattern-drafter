@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.41] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — pocket bag sizing**: `bagDepth` was hardcoded to 5″ regardless of the wearer's measurements, producing a narrow rectangle that didn't match the front panel. Now derived from front panel geometry: `bagDepth = frontW + frontExt`, so the folded pocket bag spans the full width of the front panel hem. Mesh yardage bumped from 0.25 yd to 0.5 yd to match.
+- **Retro Short Trunks — brief liner polygon shape**: `buildBriefPanel` was producing a single-lobed curve with no side edge and no crotch seam — the leg arch ran straight from the outer waist corner to the CF/CB center, which doesn't resemble a real brief. Rewritten as a proper 5-edge polygon: waist, side edge (straight vertical), leg arch (concave bezier), crotch seam (short horizontal), CF/CB seam. Front uses `sideDrop = 0.35·H`, `crotchW = 0.30·W`; back uses `sideDrop = 0.45·H`, `crotchW = 0.45·W` (wider seat, shallower arch). Notches added at leg-arch start and crotch corner. "Sew brief liner" instructions updated to reference the new edge structure and clarify that elastic applies only to the curved leg arch, not the straight side edge.
+
+---
+
 ## [0.12.40] - 2026-04-14
 
 ### Fixed
