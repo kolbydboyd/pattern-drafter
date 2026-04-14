@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- tall turtleneck collar (folded over) -->
+  <path d="M58,20 L102,20 L104,50 L56,50 Z"/>
+  <!-- collar fold line -->
+  <line x1="55" y1="35" x2="105" y2="35" stroke-dasharray="4 3" stroke-width="1"/>
+
+  <!-- shoulder seams -->
+  <line x1="38" y1="60" x2="58" y2="50" stroke-width="1.2"/>
+  <line x1="122" y1="60" x2="102" y2="50" stroke-width="1.2"/>
+
+  <!-- torso body -->
+  <path d="M38,60 L122,60 L120,170 L40,170 Z"/>
+
+  <!-- sleeve right -->
+  <path d="M122,60 L148,78 L144,155 L118,155 L120,88 Z"/>
+  <!-- sleeve left -->
+  <path d="M38,60 L12,78 L16,155 L42,155 L40,88 Z"/>
+
+  <!-- hem fold line -->
+  <line x1="41" y1="162" x2="119" y2="162" stroke-dasharray="3 2" stroke-width="1"/>
+
+</svg>

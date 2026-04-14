@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+  <!-- outer ring -->
+  <ellipse cx="80" cy="105" rx="55" ry="38"/>
+  <!-- inner ring (tube hole) -->
+  <ellipse cx="80" cy="105" rx="30" ry="18"/>
+
+  <!-- ruffle/gather marks around the ring -->
+  <path d="M27,90 Q22,105 27,120" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M35,75 Q28,90 32,108" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M55,68 Q50,80 52,96" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M80,67 Q80,78 80,94" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M105,68 Q110,80 108,96" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M125,75 Q132,90 128,108" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M133,90 Q138,105 133,120" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M125,120 Q130,135 122,143" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M105,130 Q108,143 100,148" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M55,130 Q52,143 60,148" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M35,120 Q30,133 38,143" stroke-width="1" stroke-dasharray="3 3"/>
+
+</svg>
