@@ -170,14 +170,23 @@ export default {
       // Brief-cut liner: 2 pattern pieces (4 cuts total — front×2, back×2).
       // Seams: CF (joins front halves), CB (joins back halves), crotch (front to back).
       // Leg opening is a shaped arch — elastic applied to that edge.
-      // Sized to waist (body-fit), not to hip-based outer panels.
+      // Panel WIDTH is sized to waist (body-fit). Leg arch length is sized to THIGH
+      // (so the gathered leg opening fits the wearer's thigh after elastic application).
       const waist    = m.waist || (m.hip * 0.84);
+      const thigh    = m.thigh || (m.hip * 0.59); // typical thigh ≈ 59% of hip
+
+      // Target leg opening: each leg has 2 arches (one front, one back) joined into a circle.
+      // Fabric arc per leg ≈ thigh * 0.92, leaving ~8% for elastic gather + stretch.
+      // Split slightly favoring the back (52%) since the back has more vertical room.
+      const targetLegArc   = thigh * 0.92;
+      const targetFrontArc = targetLegArc * 0.48;
+      const targetBackArc  = targetLegArc * 0.52;
 
       // Front panel (one half — cut 2, mirror L & R)
       const bfW       = waist / 4 + 0.75;            // quarter-front + ease
       const bfH       = rise  * 0.58;                // height: waist to crotch
-      const bfSide    = bfH  * 0.35;                 // side edge extends down before leg arch starts
-      const bfCrotch  = bfW  * 0.30;                 // narrow crotch seam (front)
+      const bfSide    = bfH  * 0.30;                 // side edge extends down before leg arch starts
+      const bfCrotch  = solveBriefCrotchW(bfW, bfH, bfSide, targetFrontArc);
       const bfSag     = (bfW - bfCrotch) * 0.35;     // leg arch inward sweep
       const bfPoly    = buildBriefPanel({ panelW: bfW, height: bfH, sideDrop: bfSide, crotchW: bfCrotch, archSag: bfSag, cbRaise: 0 });
       const bfSaPoly  = offsetPolygon(bfPoly, () => -0.375);
@@ -209,8 +218,8 @@ export default {
       const bbW       = waist / 4 + 1.25;            // wider for seat coverage
       const bbH       = rise  * 0.75;                // taller for full seat
       const bbRaise   = 0.75;                        // CB raised above outer waist (seat shaping)
-      const bbSide    = bbH  * 0.45;                 // taller side edge for seat coverage
-      const bbCrotch  = bbW  * 0.45;                 // wider crotch (seat)
+      const bbSide    = bbH  * 0.40;                 // taller side edge for seat coverage
+      const bbCrotch  = solveBriefCrotchW(bbW, bbH, bbSide, targetBackArc, 1.5);
       const bbSag     = (bbW - bbCrotch) * 0.25;     // shallower sweep than front
       const bbPoly    = buildBriefPanel({ panelW: bbW, height: bbH, sideDrop: bbSide, crotchW: bbCrotch, archSag: bbSag, cbRaise: bbRaise });
       const bbSaPoly  = offsetPolygon(bbPoly, () => -0.375);
@@ -237,6 +246,20 @@ export default {
         type: 'bodice', isCutOnFold: false, width: bbW, height: bbH, sa: 0.375, hem: 0,
       });
 
+      // Thigh-fit sanity check: combined fabric leg arc should accommodate thigh after
+      // elastic gather (~75% of arc) and reasonable stretch (~50% of elastic length).
+      if (m.thigh) {
+        const frontArcLen = briefArcLength(bfW, bfH, bfSide, bfCrotch, bfSag);
+        const backArcLen  = briefArcLength(bbW, bbH, bbSide, bbCrotch, bbSag);
+        const legArc      = frontArcLen + backArcLen;
+        const elasticLen  = legArc * 0.75;
+        const stretchPct  = (m.thigh / elasticLen - 1) * 100;
+        if (stretchPct > 80) {
+          console.warn(`[swim-trunks] Brief leg opening tight: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → needs ${stretchPct.toFixed(0)}% elastic stretch (>80% is uncomfortable).`);
+        } else if (stretchPct < 20) {
+          console.warn(`[swim-trunks] Brief leg opening loose: relaxed circumference ${elasticLen.toFixed(1)}″, thigh ${m.thigh}″ → only ${stretchPct.toFixed(0)}% stretch (may sag).`);
+        }
+      }
     }
 
     // ── WAISTBAND ──
@@ -576,6 +599,38 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
 //   4. Crotch seam → short horizontal segment joining front to back (no gusset)
 //   5. CF/CB seam  → vertical, joins the two halves of front (or back)
 //                    CB is raised by cbRaise above outer waist for seat shaping
+
+// Solve for crotchW such that the straight-line chord across the leg arch
+// approximates a target arc length. Used to size the brief leg opening to
+// match the wearer's thigh measurement instead of fixed waist proportions.
+//
+// The actual bezier arc is ~5% longer than the straight chord for the sag values
+// used here, so we solve for a chord = target * 0.95 to land on target arc length.
+//
+// Clamped to [minCrotchW, panelW * 0.55] so the polygon stays physically valid.
+function solveBriefCrotchW(panelW, height, sideDrop, targetArc, minCrotchW = 1.0) {
+  const targetChord = targetArc * 0.95;
+  const dy = height - sideDrop;
+  const dxSq = targetChord * targetChord - dy * dy;
+  if (dxSq <= 0) return minCrotchW; // chord can't span vertical drop — clamp
+  const dx = Math.sqrt(dxSq);
+  return Math.max(minCrotchW, Math.min(panelW * 0.55, panelW - dx));
+}
+
+// Compute the actual bezier arc length for a brief leg arch. Mirrors the
+// bezier construction inside buildBriefPanel so the two stay in sync.
+function briefArcLength(panelW, height, sideDrop, crotchW, archSag) {
+  const p0  = { x: panelW, y: sideDrop };
+  const cp1 = { x: panelW - archSag * 0.2, y: sideDrop + (height - sideDrop) * 0.35 };
+  const cp2 = { x: crotchW + archSag * 0.4, y: height - (height - sideDrop) * 0.15 };
+  const p3  = { x: crotchW, y: height };
+  const pts = sampleBezier(p0, cp1, cp2, p3, 32);
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+  }
+  return len;
+}
 
 function buildBriefPanel({ panelW, height, sideDrop, crotchW, archSag, cbRaise }) {
   const poly = [];

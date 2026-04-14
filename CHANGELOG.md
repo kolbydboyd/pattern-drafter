@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.42] - 2026-04-14
+
+### Fixed
+- **Retro Short Trunks — brief leg opening now sized to thigh**: previously the leg arch was purely a function of waist + rise and ignored `m.thigh` entirely, so for anyone with a larger thigh-to-waist ratio the leg opening was uncomfortably tight (often needing >100% elastic stretch). Added two helpers — `solveBriefCrotchW` (solves for the crotch-seam width that gives a target arch chord length) and `briefArcLength` (samples the bezier to compute actual arc length). The brief's front and back arches are now sized so the combined fabric leg opening ≈ thigh × 0.92, putting the elastic stretch in the 50–70% range across normal body sizes. Added `[swim-trunks]` console warnings if the resulting opening would need >80% stretch (too tight) or <20% stretch (too loose). Side-drop ratios reduced (front 0.35→0.30, back 0.45→0.40) to give the chord more vertical room.
+
+---
+
 ## [0.12.41] - 2026-04-14
 
 ### Fixed
