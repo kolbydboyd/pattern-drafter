@@ -3,9 +3,13 @@
  * Etsy Open API v3 client for polling order receipts.
  *
  * Etsy does not offer real-time webhooks for order notifications.
- * Instead, we poll for new receipts on a cron schedule (see api/etsy-order-webhook.js).
+ * Instead, we poll for new receipts on a cron schedule
+ * (see functions/api/etsy-order-webhook.js).
  *
- * Required env vars:
+ * This module runs inside Cloudflare Pages Functions (Workers), so it cannot
+ * read `process.env`. Callers must pass env values explicitly.
+ *
+ * Required env vars (read by the caller):
  *   ETSY_API_KEY      - Etsy app API key (keystring)
  *   ETSY_SHARED_SECRET - Etsy app shared secret
  *   ETSY_ACCESS_TOKEN  - OAuth2 access token for the shop
@@ -18,10 +22,10 @@ const BASE_URL = 'https://openapi.etsy.com/v3';
 /**
  * Make an authenticated GET request to the Etsy API.
  */
-async function etsyFetch(path, accessToken) {
+async function etsyFetch(path, accessToken, apiKey) {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
-      'x-api-key': process.env.ETSY_API_KEY,
+      'x-api-key': apiKey,
       'Authorization': `Bearer ${accessToken}`,
     },
   });
@@ -38,14 +42,14 @@ async function etsyFetch(path, accessToken) {
  *
  * The caller should persist the new refresh token for next use.
  */
-export async function refreshAccessToken() {
+export async function refreshAccessToken(apiKey, refreshToken) {
   const res = await fetch('https://api.etsy.com/v3/public/oauth/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'refresh_token',
-      client_id: process.env.ETSY_API_KEY,
-      refresh_token: process.env.ETSY_REFRESH_TOKEN,
+      client_id: apiKey,
+      refresh_token: refreshToken,
     }),
   });
   if (!res.ok) {
@@ -59,18 +63,19 @@ export async function refreshAccessToken() {
  * Get recent shop receipts (orders), optionally filtered by min_created timestamp.
  *
  * @param {string} accessToken - valid OAuth2 access token
+ * @param {string} apiKey - Etsy app API key
+ * @param {string} shopId - numeric shop ID
  * @param {Object} [options]
  * @param {number} [options.minCreated] - Unix timestamp; only return receipts created after this
  * @param {number} [options.limit=25] - max results per page
  * @returns {Promise<Array>} array of receipt objects
  */
-export async function getRecentReceipts(accessToken, { minCreated, limit = 25 } = {}) {
-  const shopId = process.env.ETSY_SHOP_ID;
+export async function getRecentReceipts(accessToken, apiKey, shopId, { minCreated, limit = 25 } = {}) {
   let path = `/application/shops/${shopId}/receipts?limit=${limit}&was_paid=true`;
   if (minCreated) {
     path += `&min_created=${minCreated}`;
   }
-  const data = await etsyFetch(path, accessToken);
+  const data = await etsyFetch(path, accessToken, apiKey);
   return data.results || [];
 }
 
@@ -79,11 +84,12 @@ export async function getRecentReceipts(accessToken, { minCreated, limit = 25 } 
  * Used to map Etsy listing IDs to our garment IDs.
  *
  * @param {string} accessToken
+ * @param {string} apiKey
  * @param {number} listingId
  * @returns {Promise<Object>} listing object with title, tags, etc.
  */
-export async function getListing(accessToken, listingId) {
-  return etsyFetch(`/application/listings/${listingId}`, accessToken);
+export async function getListing(accessToken, apiKey, listingId) {
+  return etsyFetch(`/application/listings/${listingId}`, accessToken, apiKey);
 }
 
 /**

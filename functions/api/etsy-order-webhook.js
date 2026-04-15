@@ -95,7 +95,12 @@ export async function onRequest(context) {
       ? Math.floor(new Date(lastCode.created_at).getTime() / 1000)
       : Math.floor(Date.now() / 1000) - 86400;
 
-    const receipts = await getRecentReceipts(env.ETSY_ACCESS_TOKEN, { minCreated });
+    const receipts = await getRecentReceipts(
+      env.ETSY_ACCESS_TOKEN,
+      env.ETSY_API_KEY,
+      env.ETSY_SHOP_ID,
+      { minCreated },
+    );
 
     let created = 0;
 
