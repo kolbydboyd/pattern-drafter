@@ -958,7 +958,7 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .faq-a p{font-size:.85rem;color:var(--mid);line-height:1.7;padding-bottom:16px}
 
 /* ── Pricing page ── */
-.about-pg{flex:1;overflow-y:auto;padding:48px 20px}
+.about-pg{padding:48px 20px}
 .about-pg>*{max-width:720px;margin-left:auto;margin-right:auto}
 .about-hero{text-align:center;padding:0 0 40px}
 .about-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:14px;line-height:1.25}
@@ -971,7 +971,7 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .about-cta{text-align:center;padding:40px 20px;background:var(--card);border-radius:8px;border:1px solid var(--bdr);margin-bottom:48px}
 .about-cta-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:300;color:var(--text);margin-bottom:8px}
 .about-cta-sub{font-size:.85rem;color:var(--mid);margin-bottom:20px}
-.pricing-pg{flex:1;overflow-y:auto;padding:48px 20px}
+.pricing-pg{padding:48px 20px}
 .pricing-hero{max-width:700px;margin:0 auto 48px;text-align:center}
 .pricing-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:300;color:var(--text);margin-bottom:10px}
 .pricing-sub{font-size:.88rem;color:var(--mid);line-height:1.6}
