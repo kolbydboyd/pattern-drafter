@@ -2,7 +2,7 @@
 // Returns metadata for a completed Stripe Checkout session (garment name, amount).
 // Supports single pattern, bundle, and subscription sessions.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../../src/lib/pricing.js';
 
 export async function onRequest(context) {
   const { request, env } = context;

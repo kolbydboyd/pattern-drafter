@@ -31,7 +31,7 @@ import {
   welcomeSequenceDay13Email,
   weeklyDigestEmail,
   abandonedPatternReminderEmail,
-} from '../src/lib/email-templates.js';
+} from '../../src/lib/email-templates.js';
 
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 export async function sendEmail(env, type, to, data = {}) {

@@ -234,7 +234,7 @@ async function sendWeeklyDigest(supabase, env) {
   // Import articles to find new ones
   let ARTICLES;
   try {
-    const mod = await import('../src/content/articles.js');
+    const mod = await import('../../src/content/articles.js');
     ARTICLES = mod.ARTICLES || mod.default || [];
   } catch {
     return 'skipped (articles import failed)';

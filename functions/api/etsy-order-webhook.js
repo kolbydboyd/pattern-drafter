@@ -10,7 +10,7 @@
 //   RESEND_API_KEY
 
 import { createClient } from '@supabase/supabase-js';
-import { getRecentReceipts, LISTING_TO_GARMENT } from '../src/lib/etsy-api.js';
+import { getRecentReceipts, LISTING_TO_GARMENT } from '../../src/lib/etsy-api.js';
 
 /**
  * Generate a unique redemption code: PP-XXXX-XXXX-XXXX

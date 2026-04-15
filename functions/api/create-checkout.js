@@ -2,7 +2,7 @@
 // Cloudflare Pages Function — creates a Stripe Checkout session
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
-import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../src/lib/pricing.js';
+import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../../src/lib/pricing.js';
 
 export async function onRequest(context) {
   const { request, env } = context;

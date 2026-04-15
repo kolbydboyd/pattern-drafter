@@ -3,7 +3,7 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
-import { SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
+import { SUBSCRIPTION_PRICES } from '../../src/lib/pricing.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
