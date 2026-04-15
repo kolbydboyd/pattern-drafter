@@ -28,7 +28,6 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - `src/lib/` — shared utilities
 - `src/content/` — static/marketing content
 - `src/analytics.js` — PostHog init and tracking helpers
-- `api/` — original Vercel-style handlers (kept for reference; do not add new handlers here)
 - `functions/api/` — Cloudflare Pages Functions (Workers format); all active API handlers live here
 - `lambda/` — AWS Lambda functions for PDF generation (Chromium requires 1024 MB / 60 s)
 - `supabase/` — migrations and edge functions

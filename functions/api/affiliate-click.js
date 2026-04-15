@@ -1,7 +1,7 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Records an affiliate referral click.
 import { createClient } from '@supabase/supabase-js';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 export async function onRequest(context) {
   const { request, env } = context;
