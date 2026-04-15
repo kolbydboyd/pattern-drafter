@@ -1,9 +1,11 @@
 # Cloudflare Pages handles .html extension stripping automatically.
 # Only rules needed here are ones Cloudflare can't infer from the file tree.
-
-# SPA routes — wildcard paths must serve the shell HTML
-/patterns/* /patterns.html 200
-/learn/* /learn.html 200
+#
+# /patterns/* and /learn/* are NOT listed here — all garment and article pages
+# are pre-rendered as static files (dist/patterns/*/index.html,
+# dist/learn/*/index.html) so Cloudflare serves them directly. A rewrite rule
+# would cause Cloudflare to redirect through /patterns.html → extension-strip
+# → /patterns instead of serving the static file.
 
 # SEO alias routes
 /made-to-measure-sewing-patterns /about.html 200
