@@ -6,9 +6,7 @@ Globals:
   Function:
     Runtime: nodejs20.x
     Architectures: [x86_64]
-    # src/ garment modules and engine are bundled from the project root.
-    # Deploy from the project root: sam build && sam deploy
-    CodeUri: ../
+    CodeUri: ./
     Environment:
       Variables:
         NODE_OPTIONS: --experimental-vm-modules
@@ -19,7 +17,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: peoples-patterns-generate
-      Handler: lambda/generate-pattern.handler
+      Handler: generate-pattern.handler
       MemorySize: 1024
       Timeout: 60
       Description: "Post-purchase PDF generation with Chromium"
@@ -45,7 +43,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: peoples-patterns-regenerate
-      Handler: lambda/regenerate-pattern.handler
+      Handler: regenerate-pattern.handler
       MemorySize: 1024
       Timeout: 60
       Description: "Free re-generation for existing purchase owners"
