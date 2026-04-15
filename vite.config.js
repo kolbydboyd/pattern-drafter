@@ -28,6 +28,10 @@ export default defineConfig({
   plugins: [mpaRewrites()],
   build: {
     outDir: 'dist',
+    // The garments-misc chunk bundles the catch-all garment modules and
+    // sits ~505 kB minified. That's genuine content, not a packaging bug,
+    // so nudge the warning threshold just past it.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       input: {
         main:    resolve(__dirname, 'index.html'),
@@ -47,6 +51,34 @@ export default defineConfig({
         affiliate: resolve(__dirname, 'affiliate.html'),
         'submit-make': resolve(__dirname, 'submit-make.html'),
         feedback:      resolve(__dirname, 'feedback.html'),
+      },
+      output: {
+        // Split content-heavy modules into their own chunks so no single
+        // bundle exceeds Vite's default 500 kB warning threshold and browsers
+        // can cache each section independently.
+        manualChunks(id) {
+          if (id.includes('/src/content/articles-')) {
+            // articles-getting-started.js, articles-fit.js, etc. each in own chunk
+            const match = id.match(/articles-([a-z-]+)\.js/);
+            if (match) return `articles-${match[1]}`;
+          }
+          if (id.includes('/src/garments/seo-descriptions')) {
+            return 'garments-seo';
+          }
+          if (id.includes('/src/garments/')) {
+            // Split garment modules by body-area category so no single chunk
+            // balloons past the warning limit. Each category groups roughly
+            // a dozen garments of ~20-40 kB source each.
+            const file = id.split('/src/garments/').pop();
+            if (/(^|\/)(.*-)?dress([-.]|$)/.test(file))     return 'garments-dress';
+            if (/(^|\/)(.*-)?skirt([-.]|$)/.test(file))     return 'garments-skirt';
+            if (/(^|\/)(jeans|chinos|trouser|pants|shorts|trunks|leggings|joggers|sweatpants)/.test(file)) return 'garments-lower';
+            if (/(^|\/)(tee|shirt|polo|top|tank|blouse|hoodie|sweater|cardigan|jacket|coat|turtleneck|henley|vest|crewneck)/.test(file)) return 'garments-upper';
+            return 'garments-misc';
+          }
+          if (id.includes('node_modules/@supabase')) return 'vendor-supabase';
+          if (id.includes('node_modules/posthog-js')) return 'vendor-posthog';
+        },
       },
     },
   },
