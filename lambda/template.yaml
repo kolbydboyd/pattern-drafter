@@ -33,11 +33,11 @@ Resources:
             - Authorization
       Environment:
         Variables:
-          SUPABASE_URL: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_URL}}"
-          SUPABASE_SERVICE_ROLE_KEY: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_SERVICE_ROLE_KEY}}"
-          STRIPE_SECRET_KEY: !Sub "{{resolve:ssm:/peoples-patterns/STRIPE_SECRET_KEY}}"
-          RESEND_API_KEY: !Sub "{{resolve:ssm:/peoples-patterns/RESEND_API_KEY}}"
-          FROM_EMAIL: !Sub "{{resolve:ssm:/peoples-patterns/FROM_EMAIL}}"
+          SUPABASE_URL: "placeholder"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder"
+          STRIPE_SECRET_KEY: "placeholder"
+          RESEND_API_KEY: "placeholder"
+          FROM_EMAIL: "placeholder"
 
   RegeneratePattern:
     Type: AWS::Serverless::Function
@@ -59,8 +59,8 @@ Resources:
             - Authorization
       Environment:
         Variables:
-          SUPABASE_URL: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_URL}}"
-          SUPABASE_SERVICE_ROLE_KEY: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_SERVICE_ROLE_KEY}}"
+          SUPABASE_URL: "placeholder"
+          SUPABASE_SERVICE_ROLE_KEY: "placeholder"
 
 Outputs:
   GeneratePatternUrl:
