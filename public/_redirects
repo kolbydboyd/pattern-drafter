@@ -1,31 +1,9 @@
-# Strip .html extensions (301 redirects)
-/index.html / 301
-/patterns.html /patterns 301
-/learn.html /learn 301
-/faq.html /faq 301
-/pricing.html /pricing 301
-/about.html /about 301
-/terms.html /terms 301
-/privacy.html /privacy 301
-/tester.html /tester 301
+# Cloudflare Pages handles .html extension stripping automatically.
+# Only rules needed here are ones Cloudflare can't infer from the file tree.
 
-# SPA rewrites — serve the HTML file while keeping the URL
+# SPA routes — wildcard paths must serve the shell HTML
 /patterns/* /patterns.html 200
 /learn/* /learn.html 200
-/faq /faq.html 200
-/terms /terms.html 200
-/privacy /privacy.html 200
-/404 /404.html 200
-/success /success.html 200
-/about /about.html 200
-/pricing /pricing.html 200
-/admin /admin.html 200
-/redeem /redeem.html 200
-/tester /tester.html 200
-/pin-preview /pin-preview.html 200
-/affiliate /affiliate.html 200
-/submit-make /submit-make.html 200
-/feedback /feedback.html 200
 
 # SEO alias routes
 /made-to-measure-sewing-patterns /about.html 200
