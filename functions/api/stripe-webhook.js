@@ -48,6 +48,8 @@ export async function onRequest(context) {
       await handleA0Upgrade(session, supabase);
     } else if (checkoutMode === 'credit_pack') {
       await handleCreditPackPurchase(session, supabase, env);
+    } else if (checkoutMode === 'cart') {
+      await handleCartPurchase(session, stripe, supabase, env);
     }
   }
 
@@ -403,6 +405,89 @@ async function handleCartAbandon(session, supabase, env) {
         }))
         .catch(err => console.error('Cart abandon email failed:', err));
     }
+  }
+}
+
+// ── Cart purchase ─────────────────────────────────────────────────────────────
+
+async function handleCartPurchase(session, stripe, supabase, env) {
+  const { userId, pendingId, affiliateCode } = session.metadata;
+
+  // Fetch cart items stored at checkout creation time
+  let items = [];
+  if (pendingId) {
+    const { data: pending } = await supabase
+      .from('pending_checkouts')
+      .select('items')
+      .eq('id', pendingId)
+      .single();
+    if (pending?.items) {
+      items = pending.items;
+    } else {
+      console.warn('Cart pending checkout not found or empty items:', pendingId);
+    }
+  }
+
+  if (items.length === 0) {
+    console.error('handleCartPurchase: no items found for pendingId', pendingId);
+    return;
+  }
+
+  // Insert one purchases row per garment in the cart
+  for (const item of items) {
+    const { error: purchaseErr } = await supabase.from('purchases').insert({
+      user_id:               userId || null,
+      garment_id:            item.garmentId,
+      profile_id:            item.profileId || null,
+      stripe_payment_intent: session.payment_intent,
+      amount_cents:          item.priceCents,
+      a0_addon:              item.addA0 ?? false,
+      measurements:          item.measurements ?? {},
+      opts:                  item.opts ?? {},
+    });
+    if (purchaseErr) console.error('Failed to insert cart purchase for', item.garmentId, ':', purchaseErr);
+  }
+
+  // Single orders row covering the whole cart
+  await supabase.from('orders').insert({
+    user_id:        userId || null,
+    stripe_session: session.id,
+    status:         'completed',
+    items:          items.map(i => ({ garment_id: i.garmentId })),
+    total_cents:    session.amount_total,
+  });
+
+  // Affiliate conversion (once per order)
+  if (affiliateCode) {
+    const { data: orderRow } = await supabase
+      .from('orders')
+      .select('id')
+      .eq('stripe_session', session.id)
+      .single();
+    await recordAffiliateConversion(affiliateCode, orderRow?.id, userId, session.amount_total, supabase);
+  }
+
+  // Trigger PDF generation for each garment
+  for (const item of items) {
+    await triggerPdf(item.garmentId, userId, item.measurements, item.opts, session.id, env);
+  }
+
+  // Send confirmation email
+  if (userId) {
+    const email = await getUserEmail(userId, supabase);
+    if (email) {
+      sendEmail(env, 'PURCHASE_CONFIRMATION', email, {
+        garmentName: items.length === 1
+          ? (items[0].garmentId || 'your pattern')
+          : `${items.length} patterns`,
+      }).catch(() => {});
+    }
+  }
+
+  // Clean up pending checkout row
+  if (pendingId) {
+    supabase.from('pending_checkouts').delete().eq('id', pendingId)
+      .then(() => {}).catch(() => {});
   }
 }
 

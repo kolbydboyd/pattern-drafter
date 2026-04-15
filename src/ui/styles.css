@@ -1335,4 +1335,15 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 
 .adm-theme-btn{background:none;border:none;color:var(--hdr-text);cursor:pointer;padding:4px;opacity:.7;transition:opacity .15s}
 .adm-theme-btn:hover{opacity:1}
+
+/* ── Cart icon + badge ───────────────────────────────────────────────────────── */
+.hdr-cart{position:relative;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--hdr-text);text-decoration:none;opacity:.85;transition:opacity .15s}
+.hdr-cart:hover{opacity:1}
+.hdr-cart svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.hdr-cart-badge{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;background:var(--gold);color:#1a1209;font-family:'IBM Plex Mono',monospace;font-size:.6rem;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:none}
+
+/* ── Cart add toast ──────────────────────────────────────────────────────────── */
+.cart-toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--gold);border-radius:5px;padding:10px 16px;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--text);z-index:9999;opacity:1;transition:opacity .5s ease;box-shadow:0 4px 16px rgba(0,0,0,.18);pointer-events:none}
+.cart-toast-link{color:var(--gold);text-decoration:none;margin-left:8px;pointer-events:auto}
+[data-theme='dark'] .cart-toast{box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .adm-theme-btn svg{width:18px;height:18px;display:block}

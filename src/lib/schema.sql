@@ -243,6 +243,27 @@ alter table measurement_deltas enable row level security;
 create policy "Users can read own measurement deltas"
   on measurement_deltas for select using (auth.uid() = user_id);
 
+-- ── Cart checkout support ─────────────────────────────────────────────────────
+-- pending_checkouts gains an optional 'items' column for multi-item cart orders.
+-- Single-pattern checkout continues to use garment_id (unchanged).
+-- Migration: run once on existing installs
+--   alter table pending_checkouts alter column garment_id drop not null;
+--   alter table pending_checkouts add column if not exists items jsonb;
+alter table pending_checkouts alter column garment_id drop not null;
+alter table pending_checkouts add column if not exists items jsonb;
+
+-- ── email_discount_uses ───────────────────────────────────────────────────────
+-- Prevents the same email from claiming the 10% first-order discount more than once.
+-- Service role only — no RLS needed.
+create table if not exists email_discount_uses (
+  id        uuid default gen_random_uuid() primary key,
+  email     text not null,
+  coupon_id text not null,
+  used_at   timestamptz default now()
+);
+create unique index if not exists email_discount_uses_email_idx
+  on email_discount_uses(lower(email));
+
 -- ── Supabase Storage ──────────────────────────────────────────────────────────
 -- Create a private 'patterns' bucket in the Supabase Dashboard:
 --   Storage → New bucket → Name: "patterns" → Public: OFF

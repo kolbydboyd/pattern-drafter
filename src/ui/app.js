@@ -20,6 +20,7 @@ import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateP
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
+import { addToCart, getCartCount } from '../lib/cart.js';
 import { getSession, signIn } from '../lib/auth.js';
 import { checkAndSetAffiliateCookie } from '../lib/affiliate.js';
 import {
@@ -1099,18 +1100,18 @@ async function _applyWatermarkState(garmentId) {
         handleDownloadPDF(btn);
       });
     } else {
-      // Logged in, no free credits: full purchase bar with A0 upsell
+      // Logged in, no free credits: Add to Cart with A0 upsell
       banner.innerHTML = `
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
           Add A0 / Projector / Copy Shop files <span class="wm-a0-price">(+$4)</span> · no taping
         </label>
-        <button class="wm-banner-btn" id="wm-buy-btn">Buy Now</button>`;
+        <button class="wm-banner-btn" id="wm-add-cart-btn">Add to Cart</button>`;
       output.parentNode.insertBefore(banner, output);
-      document.getElementById('wm-buy-btn').addEventListener('click', () => {
+      document.getElementById('wm-add-cart-btn').addEventListener('click', () => {
         const addA0 = document.getElementById('wm-a0-check')?.checked ?? false;
-        _triggerBuyPattern(garmentId, addA0);
+        _triggerAddToCart(garmentId, addA0);
       });
     }
   }
@@ -1400,6 +1401,31 @@ function _triggerBuyPattern(garmentId, addA0 = false) {
     console.error('Checkout error:', err);
     alert('Could not start checkout: ' + err.message);
   });
+}
+
+// ── Cart helpers ──────────────────────────────────────────────────────────────
+function _triggerAddToCart(garmentId, addA0 = false) {
+  const { m: mVals, opts } = readInputs();
+  addToCart({
+    id:           `${garmentId}-${Date.now()}`,
+    garmentId:    garmentId ?? currentGarment,
+    measurements: mVals,
+    opts,
+    profileId:    _activeProfileId ?? null,
+    addA0,
+  });
+  _showCartToast(garmentId ?? currentGarment);
+}
+
+function _showCartToast(garmentId) {
+  const label = PATTERN_PRICES[garmentId]?.label ?? garmentId.replace(/-/g, ' ');
+  const count = getCartCount();
+  const t = document.createElement('div');
+  t.className = 'cart-toast';
+  t.innerHTML = `${label} added. <a href="/checkout" class="cart-toast-link">View cart (${count})</a>`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; }, 2400);
+  setTimeout(() => t.remove(), 2900);
 }
 
 function _promptA0Upgrade() {
@@ -2519,3 +2545,12 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 initSiteTracking();
 initHeroABTest();
 initSocialProofABTest();
+
+// ── Cart badge sync ───────────────────────────────────────────────────────────
+function _updateCartBadge() {
+  const n = getCartCount();
+  const badge = document.getElementById('hdr-cart-badge');
+  if (badge) { badge.textContent = n; badge.hidden = n === 0; }
+}
+window.addEventListener('cart-updated', _updateCartBadge);
+_updateCartBadge();
