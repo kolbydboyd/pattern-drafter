@@ -1739,6 +1739,77 @@ const FS_STORES = {
   ],
 };
 
+const FS_WEALTHY = {
+  fabrics: [
+    { name: 'Sea Island Cotton', bestFor: 'Tees, dress shirts, casual button-downs', notes: 'Longest and finest cotton staple. Described as strong as silk, durable as wool, soft as cashmere. Naturally lustrous. Shrinks ~3-5% on first wash. The benchmark for premium basics.', brands: 'Sunspel, Charvet' },
+    { name: 'Cashmere', bestFor: 'Crewnecks, cardigans, lightweight knits', notes: '3x warmer than sheep wool, exquisitely soft. Sourced from Hircus goats in Inner Mongolia. Less durable than merino. Wash every 5-7 wears. Fold to store, never hang.', brands: 'Brunello Cucinelli, Loro Piana, John Smedley' },
+    { name: 'Baby Cashmere', bestFor: 'Ultra-premium knitwear, scarves', notes: 'Finest grade cashmere, hand-collected from the neck and belly of young Hircus goats. Only ~30g per animal. Feather-light and incomparably soft. Reference-level luxury.', brands: 'Brunello Cucinelli, Loro Piana exclusively' },
+    { name: 'Merino Wool', bestFor: 'Base layers, knitwear, travel pieces', notes: 'Naturally curly fiber traps air for insulation. Softer than standard wool. Better durability and elasticity than cashmere. Resists odor naturally. Wash every 3-5 wears.', brands: 'John Smedley, Icebreaker, Uniqlo Merino' },
+    { name: 'Supima / Egyptian Cotton', bestFor: 'Tees, OCBD shirts, polos', notes: 'Long-staple American (Supima) or Egyptian cotton. Noticeably softer and more durable than standard cotton. Pima cotton is the accessible equivalent. Pre-wash cold before cutting.', brands: 'Sunspel, Vince, Todd Snyder' },
+    { name: 'Linen', bestFor: 'Summer shirts, trousers, casual outerwear', notes: 'Best weight is 5.5-7 oz for shirts, 7-9 oz for trousers. Pre-wash on high heat — shrinks 5-10%. Gets softer with every wash. Accept the wrinkle; it reads as intentional at this quality level.', brands: 'Loro Piana, 120% Lino, fabrics-store.com' },
+    { name: 'Silk-Linen Blend', bestFor: 'Summer trousers, elevated casual shirts', notes: 'Combines silk sheen with linen breathability. Complex surface texture reads as expensive. Less prone to wrinkling than pure linen. Dry clean only.', brands: 'Loro Piana, Zegna' },
+    { name: 'Vicuña', bestFor: 'Reference only. The ceiling of luxury.', notes: 'Rarest natural fiber on earth. ~$3,000-5,000/yd. Collected from wild Andean vicuña during ceremonial shearings. Ultra-fine and incredibly warm. Loro Piana holds exclusive sourcing rights. Know it exists.', brands: 'Loro Piana exclusively' },
+  ],
+  garments: [
+    { name: 'White Linen Button-Down', fabric: '5.5-7 oz linen', role: 'Summer anchor piece', notes: 'The single most versatile item in elevated casual. Wears alone, unbuttoned over a tee, tucked or untucked. Accept the natural wrinkle. Keep collar structure minimal — no stiff fusing.' },
+    { name: 'OCBD Shirt', fabric: 'Oxford cloth cotton', role: 'Year-round workhorse', notes: 'Oxford Cloth Button-Down. The cornerstone of American prep. Soft collar roll is the hallmark of quality. Must be slightly oversized to achieve the right drape. Works with chinos, trousers, denim.' },
+    { name: 'Premium Tee', fabric: 'Sea Island cotton or Supima, 7-9 oz', role: 'Everyday base', notes: 'Heavyweight matters. Under 6 oz looks cheap on the body. No branding. Neutral colors only: white, ecru, navy, charcoal, black. Invest in fabric quality here — this gets worn the most.' },
+    { name: 'Merino or Cashmere Crewneck', fabric: 'Merino 12-ply or cashmere 2-ply', role: 'Fall/winter layer', notes: 'Wear over an OCBD or alone. Solid neutral only. No patterns. Fits slightly relaxed through the body. The garment that instantly elevates any casual outfit.' },
+    { name: 'Navy Chinos', fabric: 'Cotton twill 7-9 oz', role: 'Versatile trouser', notes: 'The bridge between jeans and dress trousers. Flat front, straight or slightly tapered leg. No cargo pockets. Navy travels further than khaki. Belt loops with a slim leather belt.' },
+    { name: 'Straight Trousers', fabric: 'Tropical weight wool or wool-poly 8-10 oz', role: 'Elevated casual bottom', notes: 'The upgrade from chinos. Single pleat optional. Unlined or half-lined for flexibility. Charcoal, camel, or olive. Breaks at the shoe — no pooling.' },
+    { name: 'Polo Shirt', fabric: 'Pique cotton or fine merino', role: 'Smart casual essential', notes: 'Classic two-button placket only. No logo or micro-logo. Fits across the chest, tapers slightly. Goes with chinos, shorts, or trousers. Tuck for more formal settings.' },
+    { name: 'Chore Coat / Overshirt', fabric: 'Heavy linen, moleskin, or brushed cotton 10-14 oz', role: 'Casual outer layer', notes: 'The relaxed alternative to a blazer. Worn open over a tee or crewneck. Four patch pockets. Loose through the body. Brown, olive, or washed black are the moves.' },
+    { name: 'Merino Cardigan', fabric: 'Merino or fine wool', role: 'Versatile knit layer', notes: 'Full-button or half-zip. Replaces a blazer in casual settings. Fits like a light jacket — not a sweater stretched over a shirt. Navy, camel, or charcoal are the standard colors.' },
+    { name: 'Quality Denim', fabric: '12-14 oz raw or washed selvedge', role: 'Casual foundation', notes: 'Straight or slightly tapered cut. No distressing, no branding on pockets. Raw denim develops personal fading over time. Japanese denim (Oni, Kurabo) or American (Cone Mills) for fabric quality.' },
+  ],
+  construction: [
+    { technique: 'Single-Needle 2-Thread Stitching', applies: 'Dress shirts, fine casual shirts', notes: 'Stitches look identical inside and out. Finer and more precise than mass-market double-needle. Runs 1/16" from the seam edge with tight tension. The gold standard for shirt construction.' },
+    { technique: 'Flat-Felled Seams', applies: 'Dress shirts, chinos, fine casual wear', notes: 'Both seam allowances folded and stitched flat. Strong, durable, no raw edges visible. Appears on side seams and sleeve seams in fine shirts. Doubles as a decorative detail.' },
+    { technique: 'Gusset at Hem Junction', applies: 'Fine shirts', notes: 'Triangular fabric insert at the side seam/hem junction. Prevents tearing at the highest-stress point. Invisible when the shirt is untucked. Mark of serious construction quality.' },
+    { technique: 'Rolled Hem (Hand-Stitched)', applies: 'Fine shirts, scarves', notes: '1/8" to 1/4" hem hand-rolled and stitched. Softer edge than any machine hem. Appears on shirt hem and cuffs in true bespoke shirts. Near-impossible to replicate by machine.' },
+    { technique: 'Full Canvas Construction', applies: 'Jackets, blazers, sport coats', notes: 'Horsehair, linen, and wool canvas hand-stitched through the entire jacket front — not just the lapels. Canvas molds to the wearer\'s torso over years. The garment feels alive. Dry-clean only, worth it.' },
+    { technique: 'Pad Stitching', applies: 'Jacket lapels and chest piece', notes: 'Hundreds of tiny diagonal hand stitches attaching canvas to lapel fabric. Creates natural curl and body in the lapel. Cannot be replicated by machine. The definitive mark of bespoke tailoring.' },
+  ],
+  footwear: [
+    { style: 'Suede Loafer', materials: 'Suede upper, leather sole', notes: 'The unofficial shoe of old money. Horsebit or plain. Wear without socks or with no-show socks. Spray with suede protector. Colors: tan, tobacco, dark brown.', brands: 'Gucci, Loro Piana, Allen Edmonds' },
+    { style: 'Leather Penny Loafer', materials: 'French calf or cordovan leather', notes: 'Ages beautifully and is resoleable — a quality pair lasts decades. Burgundy, tan, or dark brown. Cedar shoe trees after every wear. Rotate with at least one other pair.', brands: 'Alden (cordovan), Allen Edmonds, Tricker\'s' },
+    { style: 'Suede Desert Boot', materials: 'Suede upper, crepe or rubber sole', notes: 'Clean, casual, endlessly versatile. Mid-height ankle boot. Wears with chinos, jeans, or casual trousers. Tan or sand suede is the classic. Waterproof spray is essential.', brands: 'Clarks Originals, Sanders, Tricker\'s' },
+    { style: 'White Leather Sneaker', materials: 'Full-grain leather, clean rubber sole', notes: 'No logos, no color blocking, no mesh. Clean white leather only. Pairs with anything. Clean with a leather eraser. One quality pair is worth more than ten cheap pairs.', brands: 'Common Projects, Axel Arigato, Oliver Cabell' },
+    { style: 'Boat Shoe', materials: 'Full-grain leather, hand-sewn moccasin construction', notes: 'Classic non-marking rubber sole. Wear sockless in warm weather. Ages into a personal artifact. Tan or brown. The genuine article is hand-sewn around the sole — check the welt.', brands: 'Sperry Gold Cup, Quoddy, Rancourt' },
+    { style: 'Driving Moccasin', materials: 'Soft glove leather, pebble rubber sole', notes: 'Extremely low-profile, minimal sole. Designed for driving, works for casual weekends. Wear sockless. Tobacco or cognac leather. Store with cedar trees to maintain shape.', brands: 'Tod\'s, Loro Piana, Car Shoe' },
+  ],
+  accessories: [
+    { item: 'Slim Leather Belt', notes: 'Match leather tone to shoes — always. 1" to 1.25" width maximum. Minimal buckle hardware in silver or gold (match to other metal on the outfit). No embossing, no branding. Quality leather improves with age and conditioning.' },
+    { item: 'Waxed Canvas Tote / Bag', notes: 'Develops personal patina over years of use. Tan or olive. Functional over fashionable. Quality marks: flat-felled seams, brass rivets, rolled leather handles. Big Duck Canvas for material; Filson for made-to-last.', brands: 'Filson, Tanner Goods, Frank Clegg' },
+    { item: 'Slim Leather Wallet', notes: 'No velcro. No chain. No bulk. Carry 3-5 cards maximum. Slim bifold or card holder only. Gets thinner and more personal with age. Same leather family as belt and shoes.' },
+    { item: 'Cashmere or Fine Wool Scarf', notes: 'The single accessory that instantly elevates any outfit. Solid or subtle pattern. Drape loosely or fold-and-loop — never a tight full wrap. Ideal dimension: 12" x 72".', brands: 'Brunello Cucinelli, Begg & Co., Johnstons of Elgin' },
+    { item: 'Fitted Hat (Panama or Felt)', notes: 'Measure first, never impulse-buy. Genuine Panama straw (Montecristi grade) for summer — lighter and more packable than tourist versions. Wool felt for fall/winter — holds shape in rain. No baseball caps in elevated contexts.', brands: 'Optimo, Worth & Worth, Stetson' },
+  ],
+  jewelry: [
+    { item: 'Dress Watch', notes: 'The only accessory with real investment value. Quiet luxury standard: clean dial, no chronograph sub-dials, no date window if possible. Round case 36-40mm. Metal bracelet or leather strap. Understated over flashy.', brands: 'Patek Philippe Calatrava, Rolex Cellini, Jaeger-LeCoultre, IWC Portugieser' },
+    { item: 'Simple Band Ring', notes: 'One ring maximum on the hand (other than a wedding band). Plain gold or silver. No stones. No visible exterior engraving. Width 4-6mm. Quiet and intentional, not decorative.' },
+    { item: 'Fine Chain Necklace', notes: 'Worn under the shirt — shows at the collar occasionally. Gold or white gold. Fine chain 1-2mm width. No pendants for everyday wear. Optional: a small pendant with personal meaning only.', brands: 'Miansai, Mejuri Men, or a custom goldsmith' },
+    { item: 'Cufflinks', notes: 'Dress occasions only. Simple shapes: oval, round, or rectangular. Matte or brushed metal over polished. No novelty shapes or themes. Silver or gold tone consistent with watch and belt hardware.', brands: 'Tiffany & Co., Deakin & Francis, personal heirlooms' },
+  ],
+  care: [
+    { fiber: 'Cashmere', frequency: 'Every 5-7 wears', wash: 'Hand wash cold with mild wool detergent. Gently squeeze — never wring, twist, or scrunch.', dry: 'Roll in a clean towel to remove water. Lay flat in original shape on a drying rack. Away from heat and direct sun.', storage: 'Fold only — never hang. Wrap in acid-free tissue. Cedar blocks or sachets prevent moths. Breathable container.' },
+    { fiber: 'Merino Wool', frequency: 'Every 3-5 wears', wash: 'Hand wash cold, or machine delicate cycle at 30°C max in a mesh bag. 30-minute cycle maximum.', dry: 'Lay flat on a clean towel or drying rack. Reshape while damp. No tumble dryer.', storage: 'Fold. Cedar blocks prevent moths. Air out between wears to extend time between washes.' },
+    { fiber: 'Linen', frequency: 'After each wear', wash: 'Machine wash cold on gentle cycle. Warm wash is acceptable if you want a more relaxed texture over time.', dry: 'Low heat tumble 10 minutes max, or hang while damp. Smooth the seams and collar while damp to reduce ironing.', storage: 'Hang on wide wooden hangers. Never cramped — linen wrinkles permanently under sustained pressure.' },
+    { fiber: 'Leather Shoes', frequency: 'After every wear', wash: 'Not applicable. Wipe with a damp cloth after each wear to remove dust and moisture.', dry: 'Cedar shoe trees inserted immediately after removing. Absorb moisture and maintain shape overnight.', storage: 'Rotate pairs (never wear the same pair two days in a row). Condition with leather cream monthly. Polish as needed. Store in dust bags.' },
+  ],
+  brands: [
+    { name: 'Loro Piana', tier: 'Tier 1', focus: 'Fabric + ready-to-wear', notes: 'The benchmark for material-driven luxury. Largest cashmere manufacturer in the Western world. Exclusive rights to vicuña. The best fabric nobody talks about.' },
+    { name: 'Brunello Cucinelli', tier: 'Tier 1', focus: 'Knitwear + elevated casual', notes: 'King of cashmere. Selects only the best fibers from neck and belly, hand-dyed with plant dyes, hand-stitched by Italian craftsmen in Solomeo. Quiet dignity as a brand ethos.' },
+    { name: 'Hermès', tier: 'Tier 1', focus: 'Accessories + leather goods', notes: 'The global benchmark for leather goods. Buy for the leather belt, the silk scarf, and the quality basics. Resale value holds better than almost any other brand.' },
+    { name: 'Kiton', tier: 'Tier 1', focus: 'Neapolitan tailoring', notes: 'The technical ceiling of what a jacket can be. Every piece is full-canvas, extensively hand-stitched by Neapolitan tailors. Reference for understanding construction standards.' },
+    { name: 'Zegna', tier: 'Tier 2', focus: 'Italian tailoring + casual', notes: 'Controls its own wool mills. Exceptional tailored sportswear and elevated casual. The Triple Stitch sneaker is their quiet luxury casual foothold. More accessible than Loro Piana at comparable quality.' },
+    { name: 'Ralph Lauren Purple Label', tier: 'Tier 2', focus: 'American old money', notes: 'The American old money narrative at its best. Full-canvas construction, superb fabrics. Purple Label (not Polo) is where quality actually lives. The aesthetic reference for American elevated casual.' },
+    { name: 'Bottega Veneta', tier: 'Tier 2', focus: 'Leather goods + accessories', notes: 'No visible logo — the item speaks for itself. Intrecciato woven leather is the signature. The bags and shoes are the move. Exudes craft and restraint.' },
+    { name: 'Sunspel', tier: 'Tier 3', focus: 'Premium basics', notes: 'The British authority on Sea Island cotton basics. Their classic tee is the reference point for what a quality tee actually feels like. Founded 1860. Worth the price for pure fabric quality.' },
+    { name: 'John Smedley', tier: 'Tier 3', focus: 'Fine knitwear', notes: 'Heritage British knitwear since 1784. Sea Island cotton and merino polos and crewnecks. Slim, classic fit. The affordable entry point to true luxury knitwear. Their Sea Island polo is the reference.' },
+  ],
+};
+
 function renderFoundersSelect(profiles = []) {
   const activeProfile = profiles[0];
   const m = activeProfile?.measurements ?? {};
@@ -1827,6 +1898,7 @@ function renderFoundersSelect(profiles = []) {
     <nav style="display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--bdr)">
       <button class="adm-fs-subtab adm-fs-subtab--active" data-fs-view="garments" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">By Garment (${FS_GARMENTS.length})</button>
       <button class="adm-fs-subtab" data-fs-view="stores" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Store Guide</button>
+      <button class="adm-fs-subtab" data-fs-view="wealthy" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Wealthy Men</button>
     </nav>
 
     <div id="adm-fs-garments">
@@ -1883,6 +1955,95 @@ function renderFoundersSelect(profiles = []) {
         </div>
       `).join('')}
     </div>
+
+    <div id="adm-fs-wealthy" hidden>
+      <p style="font-size:.8rem;color:var(--mid);margin:0 0 16px">Quick-reference research on elevated casual men's style. Fabrics, construction, footwear, accessories, jewelry, and care.</p>
+
+      ${[
+        { key: 'fabrics', label: 'Fabrics', renderItem: f => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${f.name}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Best For</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${f.bestFor}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55;margin-bottom:6px">${f.notes}</div>
+          ${f.brands ? `<div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Brands</div><div style="font-size:.75rem">${f.brands}</div>` : ''}
+        ` },
+        { key: 'garments', label: 'Garments', renderItem: g => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${g.name}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+            <div><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em">Fabric</div><div style="font-size:.75rem">${g.fabric}</div></div>
+            <div><div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em">Role</div><div style="font-size:.75rem">${g.role}</div></div>
+          </div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55">${g.notes}</div>
+        ` },
+        { key: 'construction', label: 'Construction', renderItem: c => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${c.technique}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Applies To</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${c.applies}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55">${c.notes}</div>
+        ` },
+        { key: 'footwear', label: 'Footwear', renderItem: f => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${f.style}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Materials</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${f.materials}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55;margin-bottom:6px">${f.notes}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Brands</div>
+          <div style="font-size:.75rem">${f.brands}</div>
+        ` },
+        { key: 'accessories', label: 'Accessories', renderItem: a => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:6px">${a.item}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55;margin-bottom:${a.brands ? '6px' : '0'}">${a.notes}</div>
+          ${a.brands ? `<div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Brands</div><div style="font-size:.75rem">${a.brands}</div>` : ''}
+        ` },
+        { key: 'jewelry', label: 'Jewelry', renderItem: j => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:6px">${j.item}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55;margin-bottom:6px">${j.notes}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Brands</div>
+          <div style="font-size:.75rem">${j.brands}</div>
+        ` },
+        { key: 'care', label: 'Care & Maintenance', renderItem: c => `
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${c.fiber}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Frequency</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${c.frequency}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Wash</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${c.wash}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Dry</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${c.dry}</div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Storage</div>
+          <div style="font-size:.75rem">${c.storage}</div>
+        ` },
+        { key: 'brands', label: 'Brands', renderItem: b => `
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+            <div style="font-size:.82rem;font-weight:700">${b.name}</div>
+            <span style="font-size:.65rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);background:var(--bg);padding:1px 6px;border-radius:3px;white-space:nowrap">${b.tier}</span>
+          </div>
+          <div style="font-size:.65rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Focus</div>
+          <div style="font-size:.75rem;margin-bottom:6px">${b.focus}</div>
+          <div style="font-size:.75rem;color:var(--mid);line-height:1.55">${b.notes}</div>
+        ` },
+      ].map(({ key, label, renderItem }) => {
+        const items = FS_WEALTHY[key];
+        return `
+          <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+            <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong style="font-size:.85rem">${label}</strong>
+                <span style="font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);margin-left:8px">${items.length}</span>
+              </div>
+              <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+            </div>
+            <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px">
+                ${items.map(item => `
+                  <div style="background:var(--bg);border-radius:4px;padding:10px 12px">
+                    ${renderItem(item)}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
   `;
 }
 
@@ -1904,8 +2065,10 @@ function wireFoundersSelect() {
       const view = btn.dataset.fsView;
       const garments = section.querySelector('#adm-fs-garments');
       const stores = section.querySelector('#adm-fs-stores');
+      const wealthy = section.querySelector('#adm-fs-wealthy');
       if (garments) garments.hidden = view !== 'garments';
       if (stores) stores.hidden = view !== 'stores';
+      if (wealthy) wealthy.hidden = view !== 'wealthy';
     });
   });
 
