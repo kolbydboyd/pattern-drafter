@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- polo shirt: tee silhouette + collar + 2-button placket + short sleeves -->
+  <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60"/>
+  <!-- collar (knit polo collar with V-shape opening) -->
+  <path d="M54,60 L66,54 L72,70 L80,78 L88,70 L94,54 L106,60"/>
+  <path d="M72,70 L88,70"/>
+  <!-- placket -->
+  <line x1="80" y1="70" x2="80" y2="92"/>
+  <circle cx="80" cy="78" r="1.2" fill="#c9a96e"/>
+  <circle cx="80" cy="86" r="1.2" fill="#c9a96e"/>
+</svg>
