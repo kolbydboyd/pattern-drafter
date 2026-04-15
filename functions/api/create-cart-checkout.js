@@ -4,40 +4,62 @@
 import Stripe from 'stripe';
 import { PATTERN_PRICES, BUNDLES, A0_UPSELL } from '../../src/lib/pricing.js';
 
-// Server-side bundle pricing — mirrors computeCartPricing() in src/lib/cart.js
+// Server-side bundle pricing — mirrors computeCartPricing() in src/lib/cart.js.
+// Only applies a bundle when it is cheaper than paying individually.
+// Applies bundle to the most expensive items to maximise savings.
+// Compares 3- and 5-bundle options and picks whichever total is lowest.
 function _serverPricing(items) {
   const resolved = items.map(item => {
     const p = PATTERN_PRICES[item.garmentId];
     return { ...item, priceCents: p?.cents ?? 900, priceId: p?.priceId ?? null };
   });
 
-  const sorted = [...resolved].sort((a, b) => a.priceCents - b.priceCents);
+  // Sort most expensive first
+  const sorted = [...resolved].sort((a, b) => b.priceCents - a.priceCents);
   const count  = sorted.length;
 
-  let bundleId   = null;
-  let bundleCents = 0;
-  let extraItems  = [];
+  const individualTotal = sorted.reduce((s, i) => s + i.priceCents, 0);
 
-  if (count >= 5) {
-    bundleId    = 'wardrobe5';
-    bundleCents = BUNDLES.wardrobe5.cents;
-    extraItems  = sorted.slice(5);
-  } else if (count >= 3) {
-    bundleId    = 'capsule3';
-    bundleCents = BUNDLES.capsule3.cents;
-    extraItems  = sorted.slice(3);
-  } else {
-    extraItems = sorted;
+  let bestBundleId    = null;
+  let bestBundleCents = 0;
+  let bestTotal       = individualTotal;
+
+  if (count >= 3) {
+    const top3Cost  = sorted[0].priceCents + sorted[1].priceCents + sorted[2].priceCents;
+    const cap3Cents = BUNDLES.capsule3.cents;
+    if (cap3Cents < top3Cost) {
+      const extras = sorted.slice(3).reduce((s, i) => s + i.priceCents, 0);
+      const total3 = cap3Cents + extras;
+      if (total3 < bestTotal) {
+        bestBundleId    = 'capsule3';
+        bestBundleCents = cap3Cents;
+        bestTotal       = total3;
+      }
+    }
   }
 
-  const extrasCents = extraItems.reduce((s, i) => s + i.priceCents, 0);
+  if (count >= 5) {
+    const top5Cost   = sorted.slice(0, 5).reduce((s, i) => s + i.priceCents, 0);
+    const ward5Cents = BUNDLES.wardrobe5.cents;
+    if (ward5Cents < top5Cost) {
+      const extras = sorted.slice(5).reduce((s, i) => s + i.priceCents, 0);
+      const total5 = ward5Cents + extras;
+      if (total5 < bestTotal) {
+        bestBundleId    = 'wardrobe5';
+        bestBundleCents = ward5Cents;
+        bestTotal       = total5;
+      }
+    }
+  }
+
   const a0Count     = items.filter(i => i.addA0).length;
   const a0Cents     = a0Count * A0_UPSELL.cents;
+  const coveredCount = bestBundleId === 'wardrobe5' ? 5 : bestBundleId === 'capsule3' ? 3 : 0;
 
   const lineItems = [];
-  if (bundleId) {
-    lineItems.push({ price: BUNDLES[bundleId].priceId, quantity: 1 });
-    for (const item of extraItems) {
+  if (bestBundleId) {
+    lineItems.push({ price: BUNDLES[bestBundleId].priceId, quantity: 1 });
+    for (const item of sorted.slice(coveredCount)) {
       if (item.priceId) lineItems.push({ price: item.priceId, quantity: 1 });
     }
   } else {
@@ -51,8 +73,8 @@ function _serverPricing(items) {
 
   return {
     lineItems,
-    bundleId,
-    totalCents: bundleCents + extrasCents + a0Cents,
+    bundleId:      bestBundleId,
+    totalCents:    bestTotal + a0Cents,
     resolvedItems: resolved,
   };
 }

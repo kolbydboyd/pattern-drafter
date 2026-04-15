@@ -62,47 +62,69 @@ export function computeCartPricing(items) {
     return { ...item, priceCents: p?.cents ?? 900, priceId: p?.priceId ?? null };
   });
 
-  // Sort cheapest first (bundle covers the cheapest items to maximise savings)
-  const sorted = [...resolved].sort((a, b) => a.priceCents - b.priceCents);
+  // Sort most expensive first — bundles cover the priciest items to maximise savings
+  const sorted = [...resolved].sort((a, b) => b.priceCents - a.priceCents);
 
-  const count = sorted.length;
-  let bundleId   = null;
-  let bundleCents = 0;
-  let extraItems  = [];
+  const count           = sorted.length;
+  const individualTotal = sorted.reduce((s, i) => s + i.priceCents, 0);
 
-  if (count >= 5) {
-    bundleId    = 'wardrobe5';
-    bundleCents = BUNDLES.wardrobe5.cents; // $49
-    extraItems  = sorted.slice(5);
-  } else if (count >= 3) {
-    bundleId    = 'capsule3';
-    bundleCents = BUNDLES.capsule3.cents; // $29
-    extraItems  = sorted.slice(3);
-  } else {
-    extraItems = sorted;
+  // Try each applicable bundle; only accept it when it actually saves money.
+  // Compare both 3- and 5-bundle options and pick the cheapest total.
+  let bestBundleId    = null;
+  let bestBundleCents = 0;
+  let bestExtrasCents = individualTotal;
+  let bestTotal       = individualTotal;
+
+  if (count >= 3) {
+    const top3Cost    = sorted[0].priceCents + sorted[1].priceCents + sorted[2].priceCents;
+    const cap3Cents   = BUNDLES.capsule3.cents; // $29
+    if (cap3Cents < top3Cost) {
+      const extras = sorted.slice(3).reduce((s, i) => s + i.priceCents, 0);
+      const total3 = cap3Cents + extras;
+      if (total3 < bestTotal) {
+        bestBundleId    = 'capsule3';
+        bestBundleCents = cap3Cents;
+        bestExtrasCents = extras;
+        bestTotal       = total3;
+      }
+    }
   }
 
-  const extrasCents = extraItems.reduce((s, i) => s + i.priceCents, 0);
+  if (count >= 5) {
+    const top5Cost  = sorted.slice(0, 5).reduce((s, i) => s + i.priceCents, 0);
+    const ward5Cents = BUNDLES.wardrobe5.cents; // $49
+    if (ward5Cents < top5Cost) {
+      const extras = sorted.slice(5).reduce((s, i) => s + i.priceCents, 0);
+      const total5 = ward5Cents + extras;
+      if (total5 < bestTotal) {
+        bestBundleId    = 'wardrobe5';
+        bestBundleCents = ward5Cents;
+        bestExtrasCents = extras;
+        bestTotal       = total5;
+      }
+    }
+  }
+
+  const bundleId    = bestBundleId;
+  const bundleCents = bestBundleCents;
+  const extrasCents = bestExtrasCents;
 
   // A0 add-ons
   const a0Count = items.filter(i => i.addA0).length;
   const a0Cents = a0Count * A0_UPSELL.cents;
 
-  // Savings vs paying individually
-  const individualTotal = resolved.reduce((s, i) => s + i.priceCents, 0);
-  const subtotal        = bundleCents + extrasCents;
-  const savings         = Math.max(0, individualTotal - subtotal);
-  const totalCents      = subtotal + a0Cents;
+  const savings    = individualTotal - bestTotal;
+  const totalCents = bestTotal + a0Cents;
 
   // Stripe line_items array (used by create-cart-checkout.js)
+  const coveredCount = bundleId === 'wardrobe5' ? 5 : bundleId === 'capsule3' ? 3 : 0;
   const lineItems = [];
   if (bundleId) {
     lineItems.push({ price: BUNDLES[bundleId].priceId, quantity: 1 });
-  }
-  for (const item of extraItems) {
-    if (item.priceId) lineItems.push({ price: item.priceId, quantity: 1 });
-  }
-  if (!bundleId) {
+    for (const item of sorted.slice(coveredCount)) {
+      if (item.priceId) lineItems.push({ price: item.priceId, quantity: 1 });
+    }
+  } else {
     for (const item of sorted) {
       if (item.priceId) lineItems.push({ price: item.priceId, quantity: 1 });
     }
