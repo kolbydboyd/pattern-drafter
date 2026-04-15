@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.57] - 2026-04-15
+
+### Added
+- **US Legal paper size (8.5 x 14 in)** — available in the Print tab alongside Letter, A4, Tabloid, and A0. Legal produces fewer tile pages than Letter for tall panel pieces (pants, skirts) because the extra 3 inches of height covers more of the piece per page. Available for both browser print and downloaded PDF.
+- **Tapered tiling for panel pieces** — slim or tapered garments (jeans, fitted trousers) now skip blank tile columns in rows where the actual piece is narrower than its widest point. A waist row that needs 3 pages wide and a hem row that only needs 2 will now print correctly, saving paper without changing the assembly experience.
+
+---
+
 ## [0.12.56] - 2026-04-14
 
 ### Changed

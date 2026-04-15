@@ -20,6 +20,7 @@ import { GLOSSARY } from '../engine/glossary.js';
 const PAPER_SIZES = {
   letter:    { w: 8.5,  h: 11,    label: 'US Letter'   },
   a4:        { w: 8.27, h: 11.69, label: 'A4'          },
+  legal:     { w: 8.5,  h: 14,    label: 'US Legal'    },
   tabloid:   { w: 11,   h: 17,    label: 'Tabloid'     },
   a0:        { w: 33.1, h: 46.8,  label: 'A0/Plotter'  },
   projector: { w: 80,   h: 60,    label: 'Projector'   },
@@ -1096,6 +1097,35 @@ function renderPieceCompact(piece) {
   return null;
 }
 
+// ── Tapered tiling helper ─────────────────────────────────────────────────
+
+/**
+ * Returns the max x-coordinate (SVG inches) of any polygon edge that falls
+ * within the y-band [yMin, yMax].  Used to skip columns with no actual piece
+ * content so that narrow rows (e.g. slim-jeans hem) print fewer pages than
+ * wide rows (e.g. waist) without wasting blank tiles.
+ *
+ * poly : [{x,y}] in piece-local inches
+ * ox,oy: piece origin offset in SVG inches (MARGIN + ext, MARGIN + cbRaise)
+ */
+function polyMaxXAtYBand(poly, ox, oy, yMin, yMax) {
+  let maxX = -Infinity;
+  const n = poly.length;
+  for (let i = 0; i < n; i++) {
+    const a = poly[i], b = poly[(i + 1) % n];
+    const ay = oy + a.y, by = oy + b.y;
+    const ax = ox + a.x, bx = ox + b.x;
+    if (ay >= yMin && ay <= yMax) maxX = Math.max(maxX, ax);
+    const dy = by - ay;
+    if (Math.abs(dy) < 1e-9) continue;
+    const tMin = (yMin - ay) / dy, tMax = (yMax - ay) / dy;
+    const t1 = Math.max(0, Math.min(1, Math.min(tMin, tMax)));
+    const t2 = Math.max(0, Math.min(1, Math.max(tMin, tMax)));
+    if (t2 > t1) maxX = Math.max(maxX, ax + t1 * (bx - ax), ax + t2 * (bx - ax));
+  }
+  return maxX === -Infinity ? ox : maxX;
+}
+
 // ── Tile page builder ──────────────────────────────────────────────────────
 
 function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
@@ -1115,7 +1145,18 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
       // Skip tiles with negligible visible content (< 0.1″ in either dimension)
       const tileL = col * TX, tileR = tileL + (tPW - 2 * SM);
       const tileT = row * TY, tileB = tileT + (tPH - 2 * SM);
-      const visW = Math.max(0, Math.min(effectiveW, tileR) - Math.max(0, tileL));
+      // For panel pieces use per-row polygon extent so tapered pieces (e.g. slim
+      // jeans) skip blank columns at the hem rather than printing empty tiles.
+      let rowEffectiveW = effectiveW;
+      if (piece.type === 'panel' && piece.saPolygon) {
+        const svgOx = (piece.ext || 0) + MARGIN;
+        const svgOy = MARGIN + (piece.cbRaise || 0);
+        const yBandMin = row * TY + marginTrimY;
+        const yBandMax = yBandMin + (tPH - 2 * SM);
+        rowEffectiveW = polyMaxXAtYBand(piece.saPolygon, svgOx, svgOy, yBandMin, yBandMax)
+                        + MARGIN + shiftX - marginTrimX;
+      }
+      const visW = Math.max(0, Math.min(rowEffectiveW, tileR) - Math.max(0, tileL));
       const visH = Math.max(0, Math.min(hIn, tileB) - Math.max(0, tileT));
       if (visW < 0.1 || visH < 0.1) continue;
 
