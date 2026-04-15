@@ -281,7 +281,7 @@ export default {
     const actualStrapL = isCrossbody ? Math.round(strapL * 1.5) : strapL;
     let strapNote = `Fold lengthwise, sew, turn, {topstitch} both edges`;
     if (opts.strapStyle === 'reinforced') strapNote += ' · Add padding or interfacing before folding';
-    if (isCrossbody) strapNote += ' · Attach hardware sliders at each end';
+    if (isCrossbody) strapNote += ' · Thread strap through the single tri-glide slider before securing the second end';
 
     pieces.push({
       id: 'strap', name: isCrossbody ? 'Cross-body Strap' : 'Strap',
@@ -296,10 +296,10 @@ export default {
       const pW = Math.min(6, W * 0.5);
       pieces.push({
         id: 'interior-slip-pocket', name: 'Interior Slip Pocket',
-        instruction: `Cut 1 · ${fmtInches(pW)} wide × 7″ tall · Fold top edge under ½″ twice, {topstitch}`,
+        instruction: `Cut 1 · ${fmtInches(pW)} wide × 7″ tall · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: ${fmtInches(sa)} SA`,
         type: 'rectangle',
         dimensions: { length: 7, width: pW },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 
@@ -322,10 +322,10 @@ export default {
       const placement = opts.exteriorPatchPocket === 'front' ? 'front panel' : 'side';
       pieces.push({
         id: 'exterior-patch-pocket', name: 'Exterior Patch Pocket',
-        instruction: `Cut 1 · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · Attach to ${placement}`,
+        instruction: `Cut 1 · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: ${fmtInches(sa)} SA · Attach to ${placement}`,
         type: 'rectangle',
         dimensions: { length: pH, width: pW },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 
@@ -333,10 +333,10 @@ export default {
     if (opts.exteriorGussetedPocket === 'yes') {
       pieces.push({
         id: 'exterior-gusseted-pocket', name: 'Exterior Gusseted Pocket',
-        instruction: `Cut 1 · 5″ wide × 8″ tall · Pleat 1½″ gusset on each side before attaching`,
+        instruction: `Cut 1 · 5″ wide × 8″ tall · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: ${fmtInches(sa)} SA · Pleat 1½″ gusset on each side before attaching`,
         type: 'rectangle',
         dimensions: { length: 8, width: 5 },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 
@@ -452,7 +452,7 @@ export default {
 
     // Crossbody hardware
     if (opts.strapStyle === 'crossbody') {
-      notions.push({ name: 'Slider / tri-glide (1″ or 1½″)', quantity: '2' });
+      notions.push({ name: 'Slider / tri-glide (1″ or 1½″)', quantity: '1' });
       notions.push({ name: 'Swivel snap hook', quantity: '2' });
       notions.push({ name: 'D-ring for strap attachment', quantity: '2' });
     }
@@ -504,7 +504,7 @@ export default {
         pocketDetail += 'Interior slip pocket: fold top edge under ½″ twice. {press} and {topstitch}. {press} remaining edges under ½″. ';
       }
       if (opts.interiorZipPocket === 'yes') {
-        pocketDetail += 'Interior zip pocket: mark zipper placement on one lining panel. Sew zipper between the two pocket rectangles. {press} seams away from zipper. {topstitch} along both sides of zipper. ';
+        pocketDetail += 'Interior zip pocket: lay one pocket rectangle face up. Place the zipper tape face down along the top edge, raw edges even. Lay the second rectangle face down on top to form a sandwich. Pin and sew through all three layers along the top edge. {press} both rectangles away from the zipper. {topstitch} close to the zipper on each side. Open the zipper halfway. Fold the unit {RST} and sew the bottom and both side edges. Trim corners. Turn right side out through the open zipper. ';
       }
       if (opts.exteriorPatchPocket !== 'none') {
         pocketDetail += 'Exterior patch pocket: fold top edge under ½″ twice. {press} and {topstitch}. {press} remaining edges under ½″. ';
@@ -551,7 +551,7 @@ export default {
     // 7. Make straps
     if (opts.strapStyle === 'crossbody') {
       steps.push({ step: n++, title: 'Make cross-body strap',
-        detail: 'Fold the strap in half lengthwise {RST}. Sew the long edge. Turn right side out using a safety pin or bodkin. {press} flat with the seam centered on one side. {topstitch} both long edges. Thread each end through a slider and fold back 1½″. Sew across to secure.' });
+        detail: 'Fold the strap in half lengthwise {RST}. Sew the long edge. Turn right side out using a safety pin or bodkin. {press} flat with the seam centered on one side. {topstitch} both long edges. On each end, fold back 1½″ over a swivel snap hook and sew a box stitch to secure. Before sewing the second end, thread the strap through the single tri-glide slider so the slider sits in the middle of the strap and can slide freely for length adjustment.' });
     } else {
       let strapDetail = 'Fold each strap in half lengthwise {RST}. Sew the long edge. Turn right side out. {press} flat with the seam centered on one side. {topstitch} both long edges.';
       if (opts.strapStyle === 'reinforced') {
@@ -563,7 +563,7 @@ export default {
     // 8. Attach straps
     if (opts.strapStyle === 'crossbody') {
       steps.push({ step: n++, title: 'Attach strap hardware',
-        detail: 'Sew a D-ring tab to each side of the bag at the top edge. Thread the strap snap hooks through the D-rings. Use an X-box stitch to reinforce the D-ring tabs.' });
+        detail: 'Fold a short strip of webbing through each D-ring and baste the ends to each side panel at the top edge (they will be caught in the seam). Once the bag is assembled, clip one swivel snap hook to each D-ring. Slide the tri-glide to center the strap and adjust to your preferred length. Use an X-box stitch to reinforce both D-ring tab attachment points.' });
     } else {
       steps.push({ step: n++, title: 'Attach straps to outer bag',
         detail: `Position each strap on the outer bag top edge, about ${fmtInches(W / 4)} from each side seam. The strap ends should extend 1″ below the top raw edge. Baste in place. For maximum strength, sew an X inside a box (X-box stitch) through the strap and bag body, catching at least 1″ of strap.` });

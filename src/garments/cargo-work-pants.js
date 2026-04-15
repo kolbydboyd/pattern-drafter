@@ -219,14 +219,14 @@ export default {
 
     // ── CARGO POCKETS ──
     if (opts.cargoPocket === 'cargo') {
-      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 \xb7 10\u2033 wide \xd7 8\u2033 tall \xb7 Box pleat at center: \u00bd\u2033 under, \u00bd\u2033 fold back, 2\u2033 on top, \u00bd\u2033 under, \u00bd\u2033 back out (4\u2033 consumed total) \xb7 Finished pocket 6\u2033 wide, expands to 10\u2033 \xb7 Mark internal divider at center for main + Velcro compartments \xb7 Mark smartphone pocket 2.5\u2033 from left edge', dimensions: { width: 10, height: 8 }, type: 'pocket' });
+      pieces.push({ id: 'cargo-body', name: 'Multi-Compartment Cargo Pocket', instruction: 'Cut 2 · 10″ wide × 8″ tall · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Box pleat at center: ½″ under, ½″ fold back, 2″ on top, ½″ under, ½″ back out (4″ consumed total) · Finished pocket 6″ wide, expands to 10″ · Mark internal divider at center for main + Velcro compartments · Mark smartphone pocket 2.5″ from left edge', dimensions: { width: 10, height: 8 }, type: 'pocket', sa, hem: 1.0, hemEdge: 'top' });
       pieces.push({ id: 'cargo-flap', name: 'Cargo Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) \xb7 6\u00bd\u2033 wide \xd7 3\u2033 tall \xb7 Covers finished pocket opening with \u00bc\u2033 overlap each side', dimensions: { width: 6.5, height: 3 }, type: 'pocket' });
       pieces.push({ id: 'cargo-zip-pocket', name: 'Cargo Zip Safety Pocket', instruction: 'Cut 2 (outer + lining) · Sewn inside cargo body · Install 4″ zip', dimensions: { width: 4, height: 5 }, type: 'pocket' });
     }
 
     // ── BACK POCKETS ──
     if (opts.backPocket !== 'none') {
-      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: 'Cut 4 (2 per back panel)', dimensions: { width: 6.5, height: 7.5 }, type: 'pocket' });
+      pieces.push({ id: 'back-patch', name: 'Back Patch Pocket', instruction: 'Cut 4 (2 per back panel) · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: SA', dimensions: { width: 6.5, height: 7.5 }, type: 'pocket', sa, hem: 1.0, hemEdge: 'top' });
       if (opts.backPocket === 'flap') {
         pieces.push({ id: 'back-flap', name: 'Back Pocket Flap', instruction: 'Cut 4 (2 outer + 2 lining) · Install press stud', dimensions: { width: 6.5, height: 3 }, type: 'pocket' });
       }

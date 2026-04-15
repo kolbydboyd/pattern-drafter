@@ -165,10 +165,10 @@ export default {
       const pocketH = 7;
       pieces.push({
         id: 'pocket', name: opts.pocket === 'divided' ? 'Divided Pocket' : 'Patch Pocket',
-        instruction: `Cut 1 · ${fmtInches(pocketW)} wide × ${fmtInches(pocketH)} tall${opts.pocket === 'divided' ? ' · Topstitch 2 vertical dividing lines at ⅓ intervals' : ''} · Fold top edge under ½″ twice, topstitch`,
+        instruction: `Cut 1 · ${fmtInches(pocketW)} wide × ${fmtInches(pocketH)} tall · Top edge: 1″ hem (fold under ½″ twice, {topstitch})${opts.pocket === 'divided' ? ' · Topstitch 2 vertical dividing lines at ⅓ intervals' : ''} · Sides + bottom: SA`,
         type: 'rectangle',
         dimensions: { width: pocketW, height: pocketH },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 

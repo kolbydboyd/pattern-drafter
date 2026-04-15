@@ -581,10 +581,10 @@ export default {
       pieces.push({
         id: 'chest-pocket',
         name: 'Chest Patch Pocket',
-        instruction: `Cut 2 (mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} · Position on front panel just below yoke seam · {topstitch} 3 sides`,
+        instruction: `Cut 2 (mirror L & R) · ${fmtInches(pocketW)} × ${fmtInches(pocketH)} · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · {topstitch} sides + bottom (3 sides)`,
         type: 'pocket',
         dimensions: { width: pocketW, height: pocketH },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 
