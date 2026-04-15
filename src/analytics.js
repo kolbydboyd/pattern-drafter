@@ -2,9 +2,6 @@
 // PostHog analytics — initialized once on import, helpers exported for use across the app.
 
 import posthog from 'posthog-js';
-import { inject } from '@vercel/analytics';
-
-inject();
 
 posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
   api_host:          import.meta.env.VITE_POSTHOG_HOST,

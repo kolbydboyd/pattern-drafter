@@ -3,12 +3,9 @@
 
 import { initAuthModal } from './auth-modal.js';
 
-import { inject } from '@vercel/analytics';
 import '../analytics.js';
 import { onUserChange, getCurrentUser } from './auth-modal.js';
 import GARMENTS from '../garments/index.js';
-
-inject();
 
 // Inject dynamic garment count on pages that reference it
 const countEl = document.getElementById('about-garment-count');

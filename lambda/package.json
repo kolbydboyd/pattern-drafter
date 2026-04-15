@@ -1,0 +1,13 @@
+{
+  "name": "peoples-patterns-lambda",
+  "version": "1.0.0",
+  "description": "AWS Lambda functions for PDF generation (Chromium/puppeteer)",
+  "type": "module",
+  "dependencies": {
+    "@sparticuz/chromium-min": "^143.0.4",
+    "@supabase/supabase-js": "^2.100.1",
+    "puppeteer-core": "^24.40.0",
+    "resend": "^6.9.4",
+    "stripe": "^21.0.1"
+  }
+}

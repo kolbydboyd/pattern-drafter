@@ -4,6 +4,22 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.56] - 2026-04-14
+
+### Changed
+- **Hosting migration: Vercel → Cloudflare Pages + AWS Lambda** — reduces hosting cost from ~$20/month to ~$0-5/month.
+  - Frontend deploys to Cloudflare Pages (free tier, unlimited bandwidth).
+  - All 29 light API functions converted from Vercel serverless format to Cloudflare Pages Functions (Workers) format in `functions/api/`. Key changes: `context.env` instead of `process.env`, Web API `Request`/`Response` instead of Express-style `req`/`res`, `sendEmail` and `enqueueWelcomeSequence` now accept `env` as first parameter.
+  - PDF generation (`generate-pattern`, `regenerate-pattern`) moved to AWS Lambda in `lambda/` — these require 1024 MB RAM and 60 s timeout, which Cloudflare Workers cannot provide. Invoked via Lambda Function URL; address stored in `LAMBDA_GENERATE_URL` env var.
+  - 5 cron jobs moved from Vercel Crons to GitHub Actions scheduled workflows in `.github/workflows/`.
+  - `@vercel/analytics` removed from `src/analytics.js`, `src/ui/page.js`, `src/ui/tester-page.js`, and `package.json`. Analytics now handled entirely by PostHog (already integrated).
+  - `VERCEL_URL` references in `api/stripe-webhook.js` replaced with `SITE_URL` env var; `triggerPdf()` now uses `LAMBDA_GENERATE_URL` when set.
+  - `public/_redirects` added for Cloudflare Pages routing (replaces `vercel.json` rewrites and redirects).
+  - `wrangler.toml` added for Cloudflare Pages configuration with `nodejs_compat` flag.
+  - `_rate-limit.js` removed — per-IP in-memory rate limiting is incompatible with stateless Workers; Cloudflare network-level protection replaces it.
+
+---
+
 ## [0.12.55] - 2026-04-14
 
 ### Added

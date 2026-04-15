@@ -16,7 +16,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - **Analytics:** PostHog (with A/B testing via feature flags)
 - **Email:** Resend
 - **PDF:** Puppeteer + html-pdf-node
-- **Deploy:** Vercel
+- **Deploy:** Cloudflare Pages (frontend + API) + AWS Lambda (PDF generation)
 - **Canonical roadmap:** ROADMAP.md
 
 ## Source Layout
@@ -28,7 +28,8 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - `src/lib/` — shared utilities
 - `src/content/` — static/marketing content
 - `src/analytics.js` — PostHog init and tracking helpers
-- `api/` — Vercel serverless functions (Stripe webhooks, etc.)
+- `functions/api/` — Cloudflare Pages Functions (Workers format); all active API handlers live here
+- `lambda/` — AWS Lambda functions for PDF generation (Chromium requires 1024 MB / 60 s)
 - `supabase/` — migrations and edge functions
 
 ## Conventions
@@ -41,7 +42,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 ## Hard Constraints (NEVER deviate)
 
 - Pure vanilla JS (ES modules) + Vite. **NO frameworks, NO Tailwind, NO new libraries.**
-- Follow exact folder structure in Source Layout above — do not create new top-level dirs.
+- Follow the folder structure in Source Layout above. New API handlers go in `functions/api/` (Cloudflare Pages Functions format — use `onRequest`/`onRequestPost`/etc. exports, `context.env` for env vars, Web API `Request`/`Response`). Never add new handlers to `api/`.
 - Every new garment MUST follow `docs/GARMENT-MODULE-SPEC.md` exactly (required exports: `id`, `name`, `category`, `measurements`, `options`, `pieces()`, `materials()`, `instructions()`).
 - Every new garment (including variants) MUST have a specific hand-crafted SVG illustration added to the `SVGS` object in `scripts/gen-illustrations.mjs`. The build fails if any registered garment ID is missing an SVG file. Design system: `viewBox="0 0 160 200"`, `stroke="#c9a96e"`, `stroke-width="1.5"`, `stroke-linecap="round"`, `stroke-linejoin="round"`.
 - All geometry MUST go through `src/engine/geometry.js` (Bezier curves, SA offset, polygon sanitization, etc.).

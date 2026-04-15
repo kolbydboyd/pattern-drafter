@@ -1,7 +1,6 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 // Tester program public page — application form + featured gallery.
 
-import { inject } from '@vercel/analytics';
 import '../analytics.js';
 import './auth-modal.js';
 import { getUser, getSession, onAuthStateChange } from '../lib/auth.js';
@@ -10,8 +9,6 @@ import {
   getFeaturedTesterSubmissions,
 } from '../lib/db.js';
 import GARMENTS from '../garments/index.js';
-
-inject();
 
 // ── Theme toggle (shared with page.js) ──────────────────────────────────────
 

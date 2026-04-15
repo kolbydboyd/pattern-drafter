@@ -1,0 +1,17 @@
+name: Cron — Links
+
+on:
+  schedule:
+    # 7:30 AM UTC daily
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger cron-links endpoint
+        run: |
+          curl --fail -X POST "${{ secrets.SITE_URL }}/api/cron-links" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"

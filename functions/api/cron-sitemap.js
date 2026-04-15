@@ -1,0 +1,135 @@
+// Copyright (c) 2026 People's Patterns LLC. All rights reserved.
+// Cloudflare Pages Function — daily sitemap regeneration + Search Console ping.
+// Called via HTTP POST with Authorization: Bearer CRON_SECRET.
+// Generates sitemap from published articles and garments,
+// uploads to Supabase Storage, and pings Google Search Console.
+
+import { createClient } from '@supabase/supabase-js';
+
+const SITE_URL = 'https://peoplespatterns.com';
+const TODAY = new Date().toISOString().slice(0, 10);
+
+// ── Garment IDs (must match src/garments/index.js) ──────────────────────────
+const GARMENT_IDS = [
+  'cargo-shorts', 'gym-shorts', 'swim-trunks', 'pleated-shorts', 'baggy-shorts',
+  'straight-jeans', 'baggy-jeans', 'chinos', 'pleated-trousers', 'sweatpants',
+  'tee', 'camp-shirt', 'crewneck', 'hoodie', 'crop-jacket', 'denim-jacket',
+  'wide-leg-trouser-w', 'straight-trouser-w', 'easy-pant-w',
+  'button-up-w', 'shell-blouse-w', 'fitted-tee-w',
+  'slip-skirt-w', 'a-line-skirt-w', 'shirt-dress-w', 'wrap-dress-w',
+  'cargo-work-pants',
+  'athletic-formal-jacket', 'athletic-formal-trousers',
+  'tshirt-dress-w', 'slip-dress-w', 'a-line-dress-w', 'sundress-w',
+  'tote-bag',
+];
+
+const STATIC_PAGES = [
+  { loc: '/',         priority: '1.0', changefreq: 'weekly'  },
+  { loc: '/patterns', priority: '0.9', changefreq: 'weekly'  },
+  { loc: '/learn',    priority: '0.8', changefreq: 'weekly'  },
+  { loc: '/faq',      priority: '0.6', changefreq: 'monthly' },
+  { loc: '/terms',    priority: '0.3', changefreq: 'yearly'  },
+  { loc: '/privacy',  priority: '0.3', changefreq: 'yearly'  },
+  { loc: '/tester',   priority: '0.7', changefreq: 'weekly'  },
+  { loc: '/pricing',  priority: '0.8', changefreq: 'monthly' },
+  { loc: '/about',    priority: '0.5', changefreq: 'monthly' },
+  // SEO landing pages
+  { loc: '/made-to-measure-sewing-patterns',          priority: '0.8', changefreq: 'monthly' },
+  { loc: '/custom-sewing-patterns-from-measurements', priority: '0.8', changefreq: 'monthly' },
+  { loc: '/made-to-measure-mens-sewing-patterns',     priority: '0.8', changefreq: 'monthly' },
+  { loc: '/made-to-measure-womens-sewing-patterns',   priority: '0.8', changefreq: 'monthly' },
+  { loc: '/how-made-to-measure-sewing-patterns-work', priority: '0.7', changefreq: 'monthly' },
+];
+
+function urlEntry(loc, priority, changefreq, lastmod) {
+  return `  <url>
+    <loc>${SITE_URL}${loc}</loc>
+    <lastmod>${lastmod || TODAY}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+}
+
+async function getPublishedArticles(supabase) {
+  // Fetch from articles table if it exists, otherwise fall back to static list
+  const { data, error } = await supabase
+    .from('articles')
+    .select('slug, date_published')
+    .lte('date_published', TODAY)
+    .order('date_published', { ascending: false });
+
+  if (error || !data) {
+    // Table may not exist yet — return empty (build-time sitemap covers this)
+    console.log('Articles table not available, using garments + static pages only');
+    return [];
+  }
+  return data;
+}
+
+function buildSitemap(articles) {
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...STATIC_PAGES.map(p => urlEntry(p.loc, p.priority, p.changefreq)),
+    ...GARMENT_IDS.map(id => urlEntry(`/patterns/${id}`, '0.8', 'monthly')),
+    ...articles.map(a => urlEntry(`/learn/${a.slug}`, '0.7', 'monthly', a.date_published)),
+    '</urlset>',
+  ];
+  return lines.join('\n');
+}
+
+async function uploadSitemap(supabase, xml) {
+  // Upload to Supabase Storage (public bucket) as a fallback/canonical source.
+  // The build-time sitemap in /public/sitemap.xml is primary during deploys.
+  const { error } = await supabase.storage
+    .from('site-assets')
+    .upload('sitemap.xml', new Blob([xml], { type: 'application/xml' }), {
+      contentType: 'application/xml',
+      upsert: true,
+    });
+  return error;
+}
+
+async function pingSearchConsole() {
+  const sitemapUrl = encodeURIComponent(`${SITE_URL}/sitemap.xml`);
+  const pingUrl = `https://www.google.com/ping?sitemap=${sitemapUrl}`;
+  try {
+    const res = await fetch(pingUrl);
+    return { ok: res.ok, status: res.status };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function onRequest(context) {
+  const { request, env } = context;
+
+  const auth = request.headers.get('authorization') || '';
+  if (auth !== `Bearer ${env.CRON_SECRET}`) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabase = createClient(
+    env.SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+  );
+
+  const articles = await getPublishedArticles(supabase);
+  const xml = buildSitemap(articles);
+  const totalUrls = STATIC_PAGES.length + GARMENT_IDS.length + articles.length;
+
+  const uploadErr = await uploadSitemap(supabase, xml);
+  if (uploadErr) {
+    console.error('Sitemap upload error:', uploadErr.message);
+  }
+
+  const pingResult = await pingSearchConsole();
+  console.log(`Sitemap cron: ${totalUrls} URLs, ping: ${pingResult.ok ? 'ok' : 'failed'}`);
+
+  return Response.json({
+    urls: totalUrls,
+    articles: articles.length,
+    uploaded: !uploadErr,
+    ping: pingResult,
+  });
+}

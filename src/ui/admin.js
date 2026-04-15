@@ -263,7 +263,7 @@ function renderLaunchTracker(muslins, photosByGarment) {
   const blockers = [
     { key: 'purchase-flow', label: 'Test full purchase flow end-to-end' },
     { key: 'print-layout', label: 'Test print layout at 1:1 scale' },
-    { key: 'dns-vercel', label: 'Wire peoplespatterns.com to Vercel' },
+    { key: 'dns-cloudflare', label: 'Wire peoplespatterns.com to Cloudflare Pages' },
     { key: 'search-console', label: 'Set up Google Search Console + submit sitemap' },
     { key: 'stripe-pricing', label: 'Update pricing in Stripe to match 3-tier structure' },
   ];
