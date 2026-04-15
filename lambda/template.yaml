@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: People's Patterns — PDF generation Lambda functions
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures: [x86_64]
+    # src/ garment modules and engine are bundled from the project root.
+    # Deploy from the project root: sam build && sam deploy
+    CodeUri: ../
+    Environment:
+      Variables:
+        NODE_OPTIONS: --experimental-vm-modules
+
+Resources:
+
+  GeneratePattern:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: peoples-patterns-generate
+      Handler: lambda/generate-pattern.handler
+      MemorySize: 1024
+      Timeout: 60
+      Description: "Post-purchase PDF generation with Chromium"
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - "https://peoplespatterns.com"
+          AllowMethods:
+            - POST
+          AllowHeaders:
+            - Content-Type
+            - Authorization
+      Environment:
+        Variables:
+          SUPABASE_URL: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_URL}}"
+          SUPABASE_SERVICE_ROLE_KEY: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_SERVICE_ROLE_KEY}}"
+          STRIPE_SECRET_KEY: !Sub "{{resolve:ssm:/peoples-patterns/STRIPE_SECRET_KEY}}"
+          RESEND_API_KEY: !Sub "{{resolve:ssm:/peoples-patterns/RESEND_API_KEY}}"
+          FROM_EMAIL: !Sub "{{resolve:ssm:/peoples-patterns/FROM_EMAIL}}"
+
+  RegeneratePattern:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: peoples-patterns-regenerate
+      Handler: lambda/regenerate-pattern.handler
+      MemorySize: 1024
+      Timeout: 60
+      Description: "Free re-generation for existing purchase owners"
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins:
+            - "https://peoplespatterns.com"
+          AllowMethods:
+            - POST
+          AllowHeaders:
+            - Content-Type
+            - Authorization
+      Environment:
+        Variables:
+          SUPABASE_URL: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_URL}}"
+          SUPABASE_SERVICE_ROLE_KEY: !Sub "{{resolve:ssm:/peoples-patterns/SUPABASE_SERVICE_ROLE_KEY}}"
+
+Outputs:
+  GeneratePatternUrl:
+    Description: "Lambda Function URL for generate-pattern (set as LAMBDA_GENERATE_URL in Cloudflare)"
+    Value: !GetAtt GeneratePatternUrl.FunctionUrl
+  RegeneratePatternUrl:
+    Description: "Lambda Function URL for regenerate-pattern (set as LAMBDA_REGENERATE_URL in Cloudflare)"
+    Value: !GetAtt RegeneratePatternUrl.FunctionUrl

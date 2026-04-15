@@ -1,46 +1,36 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-// Vercel serverless function — handles Stripe webhook events
+// Cloudflare Pages Function — handles Stripe webhook events
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
 import { SUBSCRIPTION_PRICES } from '../src/lib/pricing.js';
 
-// Use service role key here (server-side only, never in browser)
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
-
-export const config = { api: { bodyParser: false } };
-
-async function getRawBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', c => chunks.push(typeof c === 'string' ? Buffer.from(c) : c));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
-  });
-}
-
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+export async function onRequest(context) {
+  const { request, env } = context;
+  if (request.method !== 'POST') {
+    return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }
 
-  const stripe    = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const rawBody   = await getRawBody(req);
-  const signature = req.headers['stripe-signature'];
+  const stripe    = new Stripe(env.STRIPE_SECRET_KEY);
+  const rawBody   = await request.arrayBuffer();
+  const signature = request.headers.get('stripe-signature');
+
+  // Use service role key here (server-side only, never in browser)
+  const supabase = createClient(
+    env.SUPABASE_URL,
+    env.SUPABASE_SERVICE_ROLE_KEY,
+  );
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await stripe.webhooks.constructEventAsync(
       rawBody,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET,
+      env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
-    return res.status(400).json({ error: `Webhook error: ${err.message}` });
+    return Response.json({ error: `Webhook error: ${err.message}` }, { status: 400 });
   }
 
   // ── checkout.session.completed ──────────────────────────────────────────────
@@ -49,42 +39,42 @@ export default async function handler(req, res) {
     const checkoutMode = session.metadata?.checkoutMode || 'pattern';
 
     if (checkoutMode === 'pattern') {
-      await handlePatternPurchase(session, stripe);
+      await handlePatternPurchase(session, stripe, supabase, env);
     } else if (checkoutMode === 'bundle') {
-      await handleBundlePurchase(session, stripe);
+      await handleBundlePurchase(session, stripe, supabase, env);
     } else if (checkoutMode === 'subscription') {
-      await handleSubscriptionCreated(session, stripe);
+      await handleSubscriptionCreated(session, stripe, supabase, env);
     } else if (checkoutMode === 'a0_upgrade') {
-      await handleA0Upgrade(session);
+      await handleA0Upgrade(session, supabase);
     } else if (checkoutMode === 'credit_pack') {
-      await handleCreditPackPurchase(session);
+      await handleCreditPackPurchase(session, supabase, env);
     }
   }
 
   // ── checkout.session.expired — cart abandon email ──────────────────────────
   if (event.type === 'checkout.session.expired') {
-    await handleCartAbandon(event.data.object);
+    await handleCartAbandon(event.data.object, supabase, env);
   }
 
   // ── Subscription lifecycle events ──────────────────────────────────────────
   if (event.type === 'invoice.paid') {
-    await handleInvoicePaid(event.data.object, stripe);
+    await handleInvoicePaid(event.data.object, stripe, supabase, env);
   }
 
   if (event.type === 'customer.subscription.updated') {
-    await handleSubscriptionUpdated(event.data.object);
+    await handleSubscriptionUpdated(event.data.object, supabase);
   }
 
   if (event.type === 'customer.subscription.deleted') {
-    await handleSubscriptionCanceled(event.data.object);
+    await handleSubscriptionCanceled(event.data.object, supabase, env);
   }
 
-  res.status(200).json({ received: true });
+  return Response.json({ received: true });
 }
 
 // ── Single pattern purchase ──────────────────────────────────────────────────
 
-async function handlePatternPurchase(session, stripe) {
+async function handlePatternPurchase(session, stripe, supabase, env) {
   const { userId, garmentId, pendingId, a0_addon } = session.metadata;
 
   // Look up measurements + opts from Supabase (never stored in Stripe metadata).
@@ -128,12 +118,12 @@ async function handlePatternPurchase(session, stripe) {
   // Record affiliate conversion if this sale came from a referral link
   const affiliateCode = session.metadata?.affiliateCode;
   if (affiliateCode) {
-    await recordAffiliateConversion(affiliateCode, orderRow?.id, userId, session.amount_total);
+    await recordAffiliateConversion(affiliateCode, orderRow?.id, userId, session.amount_total, supabase);
   }
 
-  await sendPostPurchaseEmail(userId, garmentId, session);
-  await markSessionPurchased(userId, garmentId);
-  await triggerPdf(garmentId, userId, measurements, opts, session.id);
+  await sendPostPurchaseEmail(userId, garmentId, session, supabase, env);
+  await markSessionPurchased(userId, garmentId, supabase);
+  await triggerPdf(garmentId, userId, measurements, opts, session.id, env);
 
   // Clean up the pending checkout row (no longer needed)
   if (pendingId) {
@@ -144,7 +134,7 @@ async function handlePatternPurchase(session, stripe) {
 
 // ── A0 copy-shop upgrade ────────────────────────────────────────────────────
 
-async function handleA0Upgrade(session) {
+async function handleA0Upgrade(session, supabase) {
   const { purchaseId, userId } = session.metadata;
 
   const { error } = await supabase
@@ -158,7 +148,7 @@ async function handleA0Upgrade(session) {
 
 // ── Bundle purchase ──────────────────────────────────────────────────────────
 
-async function handleBundlePurchase(session, stripe) {
+async function handleBundlePurchase(session, stripe, supabase, env) {
   const { userId, bundleId, garmentIds, patternCount } = session.metadata;
   const parsedGarmentIds = garmentIds ? JSON.parse(garmentIds) : [];
   const creditCount = parseInt(patternCount, 10) || 0;
@@ -174,7 +164,7 @@ async function handleBundlePurchase(session, stripe) {
   // Record affiliate conversion if this sale came from a referral link
   const bundleAffiliateCode = session.metadata?.affiliateCode;
   if (bundleAffiliateCode) {
-    await recordAffiliateConversion(bundleAffiliateCode, bundleOrderRow?.id, userId, session.amount_total);
+    await recordAffiliateConversion(bundleAffiliateCode, bundleOrderRow?.id, userId, session.amount_total, supabase);
   }
 
   // If the user pre-selected garments, record them as purchases now.
@@ -207,9 +197,9 @@ async function handleBundlePurchase(session, stripe) {
 
   // Send welcome/confirmation email
   if (userId) {
-    const email = await getUserEmail(userId);
+    const email = await getUserEmail(userId, supabase);
     if (email) {
-      sendEmail('BUNDLE_PURCHASED', email, {
+      sendEmail(env, 'BUNDLE_PURCHASED', email, {
         bundleId,
         patternCount: creditCount,
         selectedCount: parsedGarmentIds.length,
@@ -220,7 +210,7 @@ async function handleBundlePurchase(session, stripe) {
 
 // ── Subscription created (initial checkout) ──────────────────────────────────
 
-async function handleSubscriptionCreated(session, stripe) {
+async function handleSubscriptionCreated(session, stripe, supabase, env) {
   const { userId, planId } = session.metadata;
   if (!userId) return;
 
@@ -258,19 +248,19 @@ async function handleSubscriptionCreated(session, stripe) {
   // Record affiliate conversion (first payment only, not renewals)
   const subAffiliateCode = session.metadata?.affiliateCode;
   if (subAffiliateCode) {
-    await recordAffiliateConversion(subAffiliateCode, subOrderRow?.id, userId, session.amount_total);
+    await recordAffiliateConversion(subAffiliateCode, subOrderRow?.id, userId, session.amount_total, supabase);
   }
 
-  const email = await getUserEmail(userId);
+  const email = await getUserEmail(userId, supabase);
   if (email) {
-    sendEmail('SUBSCRIPTION_WELCOME', email, { planId, credits: plan?.credits ?? 0 })
+    sendEmail(env, 'SUBSCRIPTION_WELCOME', email, { planId, credits: plan?.credits ?? 0 })
       .catch(err => console.error('Subscription welcome email failed:', err));
   }
 }
 
 // ── Invoice paid (subscription renewal) ──────────────────────────────────────
 
-async function handleInvoicePaid(invoice, stripe) {
+async function handleInvoicePaid(invoice, stripe, supabase, env) {
   // Only process subscription renewals (not the first invoice which is handled above)
   if (!invoice.subscription || invoice.billing_reason === 'subscription_create') return;
 
@@ -298,9 +288,9 @@ async function handleInvoicePaid(invoice, stripe) {
     .update({ subscription_credits: (sub?.current_credits ?? 0) + creditsToAdd })
     .eq('id', userId);
 
-  const email = await getUserEmail(userId);
+  const email = await getUserEmail(userId, supabase);
   if (email) {
-    sendEmail('SUBSCRIPTION_RENEWED', email, {
+    sendEmail(env, 'SUBSCRIPTION_RENEWED', email, {
       planId,
       newCredits: creditsToAdd,
       totalCredits: (sub?.current_credits ?? 0) + creditsToAdd,
@@ -310,7 +300,7 @@ async function handleInvoicePaid(invoice, stripe) {
 
 // ── Subscription updated (plan change, pause, etc.) ──────────────────────────
 
-async function handleSubscriptionUpdated(subscription) {
+async function handleSubscriptionUpdated(subscription, supabase) {
   const userId = subscription.metadata?.userId;
   if (!userId) return;
 
@@ -327,7 +317,7 @@ async function handleSubscriptionUpdated(subscription) {
 
 // ── Subscription canceled ────────────────────────────────────────────────────
 
-async function handleSubscriptionCanceled(subscription) {
+async function handleSubscriptionCanceled(subscription, supabase, env) {
   const userId = subscription.metadata?.userId;
   if (!userId) return;
 
@@ -342,16 +332,16 @@ async function handleSubscriptionCanceled(subscription) {
     stripe_subscription_id: null,
   }).eq('id', userId);
 
-  const email = await getUserEmail(userId);
+  const email = await getUserEmail(userId, supabase);
   if (email) {
-    sendEmail('SUBSCRIPTION_CANCELED', email, {})
+    sendEmail(env, 'SUBSCRIPTION_CANCELED', email, {})
       .catch(err => console.error('Cancellation email failed:', err));
   }
 }
 
 // ── Credit pack purchase ────────────────────────────────────────────────────
 
-async function handleCreditPackPurchase(session) {
+async function handleCreditPackPurchase(session, supabase, env) {
   const { userId, packId, creditCount } = session.metadata;
   const credits = parseInt(creditCount, 10) || 0;
 
@@ -376,9 +366,9 @@ async function handleCreditPackPurchase(session) {
   }
 
   if (userId) {
-    const email = await getUserEmail(userId);
+    const email = await getUserEmail(userId, supabase);
     if (email) {
-      sendEmail('PURCHASE_CONFIRMATION', email, {
+      sendEmail(env, 'PURCHASE_CONFIRMATION', email, {
         garmentName: `${credits}-Credit Pack`,
       }).catch(err => console.error('Credit pack email failed:', err));
     }
@@ -387,7 +377,7 @@ async function handleCreditPackPurchase(session) {
 
 // ── Cart abandon ─────────────────────────────────────────────────────────────
 
-async function handleCartAbandon(session) {
+async function handleCartAbandon(session, supabase, env) {
   const email     = session.customer_details?.email || session.metadata?.email;
   const garmentId = session.metadata?.garmentId;
 
@@ -400,9 +390,9 @@ async function handleCartAbandon(session) {
       .eq('garment_id', garmentId);
 
     if ((count ?? 0) === 0) {
-      sendEmail('CART_ABANDON', email, {
+      sendEmail(env, 'CART_ABANDON', email, {
         garmentName: garmentId.replace(/-/g, ' '),
-        checkoutUrl: `${process.env.SITE_URL || 'https://peoplespatterns.com'}/?step=1&garment=${garmentId}`,
+        checkoutUrl: `${env.SITE_URL || 'https://peoplespatterns.com'}/?step=1&garment=${garmentId}`,
       })
         .then(() => supabase.from('email_log').insert({
           user_id:    session.metadata?.userId || null,
@@ -418,7 +408,7 @@ async function handleCartAbandon(session) {
 
 // ── Affiliate conversion recording ──────────────────────────────────────────
 
-async function recordAffiliateConversion(code, orderId, buyerUserId, amountCents) {
+async function recordAffiliateConversion(code, orderId, buyerUserId, amountCents, supabase) {
   if (!code) return;
 
   const { data: affiliate } = await supabase
@@ -455,12 +445,12 @@ async function recordAffiliateConversion(code, orderId, buyerUserId, amountCents
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function getUserEmail(userId) {
+async function getUserEmail(userId, supabase) {
   const { data } = await supabase.auth.admin.getUserById(userId);
   return data?.user?.email ?? null;
 }
 
-async function sendPostPurchaseEmail(userId, garmentId, session) {
+async function sendPostPurchaseEmail(userId, garmentId, session, supabase, env) {
   if (!userId) return;
   const { count: prevPurchases } = await supabase
     .from('purchases')
@@ -468,7 +458,7 @@ async function sendPostPurchaseEmail(userId, garmentId, session) {
     .eq('user_id', userId)
     .neq('stripe_payment_intent', session.payment_intent);
 
-  const email = await getUserEmail(userId);
+  const email = await getUserEmail(userId, supabase);
   if (!email) return;
 
   const isFirst = (prevPurchases ?? 0) === 0;
@@ -476,7 +466,7 @@ async function sendPostPurchaseEmail(userId, garmentId, session) {
   const emailData = isFirst
     ? {}
     : { garmentName: garmentId.replace(/-/g, ' '), recommendations: [] };
-  sendEmail(emailType, email, emailData)
+  sendEmail(env, emailType, email, emailData)
     .then(() => supabase.from('email_log').insert({
       user_id:    userId,
       email,
@@ -487,7 +477,7 @@ async function sendPostPurchaseEmail(userId, garmentId, session) {
     .catch(err => console.error('Post-purchase email failed:', err));
 }
 
-async function markSessionPurchased(userId, garmentId) {
+async function markSessionPurchased(userId, garmentId, supabase) {
   if (!userId) return;
   supabase.from('pattern_sessions')
     .update({ purchased: true })
@@ -498,17 +488,17 @@ async function markSessionPurchased(userId, garmentId) {
     .catch(() => {});
 }
 
-async function triggerPdf(garmentId, userId, measurements, opts, sessionId) {
-  const endpoint = process.env.LAMBDA_GENERATE_URL
-    || `${process.env.SITE_URL || 'http://localhost:3000'}/api/generate-pattern`;
+async function triggerPdf(garmentId, userId, measurements, opts, sessionId, env) {
+  const endpoint = env.LAMBDA_GENERATE_URL
+    || `${env.SITE_URL || 'http://localhost:3000'}/api/generate-pattern`;
   fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       garmentId,
       userId,
-      measurements: JSON.parse(measurements || '{}'),
-      opts:         JSON.parse(opts || '{}'),
+      measurements: measurements ? (typeof measurements === 'string' ? JSON.parse(measurements) : measurements) : {},
+      opts:         opts ? (typeof opts === 'string' ? JSON.parse(opts) : opts) : {},
       sessionId,
     }),
   }).catch(err => console.error('PDF generation trigger failed:', err));

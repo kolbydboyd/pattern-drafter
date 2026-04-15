@@ -1,0 +1,21 @@
+name: Cron — Pinterest
+
+on:
+  schedule:
+    # 2:00 PM, 4:00 PM, 7:00 PM, 1:00 AM, 2:00 AM UTC daily
+    - cron: '0 14 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 19 * * *'
+    - cron: '0 1 * * *'
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger cron-pinterest endpoint
+        run: |
+          curl --fail -X POST "${{ secrets.SITE_URL }}/api/cron-pinterest" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json"
