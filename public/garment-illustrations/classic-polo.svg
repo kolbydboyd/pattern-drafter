@@ -1,11 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- polo shirt: tee silhouette + collar + 2-button placket + short sleeves -->
-  <path d="M54,60 L40,80 L52,92 L52,170 L108,170 L108,92 L120,80 L106,60"/>
-  <!-- collar (knit polo collar with V-shape opening) -->
-  <path d="M54,60 L66,54 L72,70 L80,78 L88,70 L94,54 L106,60"/>
-  <path d="M72,70 L88,70"/>
-  <!-- placket -->
-  <line x1="80" y1="70" x2="80" y2="92"/>
-  <circle cx="80" cy="78" r="1.2" fill="#c9a96e"/>
-  <circle cx="80" cy="86" r="1.2" fill="#c9a96e"/>
+
+  <path d="M66,58 L72,68 L80,62 L88,68 L94,58"/>
+  <path d="M66,58 Q80,50 94,58"/>
+  <!-- above-elbow sleeve extends lower -->
+  <path d="M66,58 L38,78 L38,100 L52,104 L52,170 L108,170 L108,104 L122,100 L122,78 L94,58"/>
+  <line x1="80" y1="62" x2="80" y2="86"/>
+  <circle cx="80" cy="70" r="1.8"/>
+  <circle cx="80" cy="80" r="1.8"/>
+  <line x1="52" y1="158" x2="58" y2="158"/>
+  <line x1="108" y1="158" x2="102" y2="158"/>
 </svg>

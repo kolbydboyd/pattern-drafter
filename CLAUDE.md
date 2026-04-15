@@ -44,6 +44,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 - Pure vanilla JS (ES modules) + Vite. **NO frameworks, NO Tailwind, NO new libraries.**
 - Follow the folder structure in Source Layout above. New API handlers go in `functions/api/` (Cloudflare Pages Functions format — use `onRequest`/`onRequestPost`/etc. exports, `context.env` for env vars, Web API `Request`/`Response`). Never add new handlers to `api/`.
 - Every new garment MUST follow `docs/GARMENT-MODULE-SPEC.md` exactly (required exports: `id`, `name`, `category`, `measurements`, `options`, `pieces()`, `materials()`, `instructions()`).
+- Every new garment (including variants) MUST have a specific hand-crafted SVG illustration added to the `SVGS` object in `scripts/gen-illustrations.mjs`. The build fails if any registered garment ID is missing an SVG file. Design system: `viewBox="0 0 160 200"`, `stroke="#c9a96e"`, `stroke-width="1.5"`, `stroke-linecap="round"`, `stroke-linejoin="round"`.
 - All geometry MUST go through `src/engine/geometry.js` (Bezier curves, SA offset, polygon sanitization, etc.).
 - UI: Keep `styles.css` minimal, reuse existing CSS classes, all new UI must support dark mode (`[data-theme='dark']` variables).
 - All measurements in inches; seam allowance is computed per-edge by the engine — never hardcode SA into piece geometry.
