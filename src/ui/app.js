@@ -2351,17 +2351,17 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
   el.textContent = Object.keys(GARMENTS).length;
 });
 
-// Newest patterns carousel on landing page
+// Newest patterns marquee on landing page - infinite continuous scroll
 (function loadNewestCarousel() {
   const track = document.getElementById('lp-newest-track');
   if (!track) return;
-  const ids = getNewestGarmentIds(GARMENTS, 7);
+  const ids = getNewestGarmentIds(GARMENTS, 15);
   if (ids.length === 0) {
     track.closest('.lp-newest')?.remove();
     return;
   }
   const diffLabel = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
-  const cards = ids.map(id => {
+  function makeCard(id, isClone) {
     const g = GARMENTS[id];
     const diff = g.difficulty || 'intermediate';
     const priceCents = PATTERN_PRICES[id]?.cents;
@@ -2369,6 +2369,10 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
     const card = document.createElement('a');
     card.href = `/?step=1&garment=${id}`;
     card.className = 'lp-featured-card lp-newest-card';
+    if (isClone) {
+      card.setAttribute('aria-hidden', 'true');
+      card.setAttribute('tabindex', '-1');
+    }
     card.innerHTML = `
       <img src="/garment-illustrations/${id}.svg" alt="${g.name}" width="120" height="150" loading="lazy">
       <span class="lp-featured-name">${g.name}</span>
@@ -2376,28 +2380,16 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
       <span class="lp-featured-btn">Generate This Pattern</span>
     `;
     return card;
-  });
-  track.append(...cards);
-
-  const prev = document.querySelector('.lp-newest-prev');
-  const next = document.querySelector('.lp-newest-next');
-  if (!prev || !next) return;
-  // With 4 visible and a pool of >4, a single forward click reveals the rest.
-  if (cards.length <= 4) {
-    prev.hidden = true;
-    next.hidden = true;
-    return;
   }
-  next.addEventListener('click', () => {
-    track.classList.add('is-page-2');
-    next.hidden = true;
-    prev.hidden = false;
-  });
-  prev.addEventListener('click', () => {
-    track.classList.remove('is-page-2');
-    prev.hidden = true;
-    next.hidden = false;
-  });
+  // Build the original set and a duplicate so the marquee loops seamlessly.
+  ids.forEach(id => track.appendChild(makeCard(id, false)));
+  ids.forEach(id => track.appendChild(makeCard(id, true)));
+  // Shift distance = one full set's width (card 180px + gap 20px) * card count.
+  track.style.setProperty('--lp-newest-shift', `-${ids.length * 200}px`);
+
+  // Hide arrow buttons - marquee scrolls continuously on its own.
+  document.querySelector('.lp-newest-prev')?.setAttribute('hidden', '');
+  document.querySelector('.lp-newest-next')?.setAttribute('hidden', '');
 })();
 
 // Pattern generation counter — fetch once and display

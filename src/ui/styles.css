@@ -281,19 +281,24 @@ html:has(#landing:not([style*="display:none"])),body:has(#landing:not([style*="d
 .diff-advanced{color:#c44;border-color:#c44}
 .lp-featured-btn{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:600;color:var(--gold);letter-spacing:.5px;text-transform:uppercase}
 
-/* Newest patterns carousel */
+/* Newest patterns marquee - infinite continuous scroll */
 .lp-newest-carousel{position:relative;display:flex;align-items:center;gap:12px;margin-top:24px}
-.lp-newest-viewport{flex:1;overflow:hidden}
-.lp-newest-track{display:flex;gap:20px;transition:transform .35s ease;justify-content:center;will-change:transform}
-.lp-newest-track.is-page-2{transform:translateX(calc(-1 * (180px + 20px) * 4))}
-.lp-newest-arrow{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:1px solid var(--bdr);background:var(--card);color:var(--text);font-size:1.1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s,background .2s}
-.lp-newest-arrow:hover{border-color:var(--gold);color:var(--gold)}
-.lp-newest-arrow[hidden]{display:none}
+.lp-newest-viewport{flex:1;overflow:hidden;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%)}
+.lp-newest-track{display:flex;gap:20px;width:max-content;animation:lp-newest-marquee 60s linear infinite;will-change:transform}
+.lp-newest-viewport:hover .lp-newest-track,
+.lp-newest-track:focus-within{animation-play-state:paused}
+.lp-newest-arrow{display:none}
+@keyframes lp-newest-marquee{
+  from{transform:translateX(0)}
+  to{transform:translateX(var(--lp-newest-shift,-3000px))}
+}
+@media (prefers-reduced-motion:reduce){
+  .lp-newest-track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}
+}
 @media (max-width:640px){
-  .lp-newest-viewport{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-  .lp-newest-track{justify-content:flex-start;transform:none !important;padding:0 4px}
+  .lp-newest-viewport{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;-webkit-mask-image:none;mask-image:none}
+  .lp-newest-track{animation:none;padding:0 4px}
   .lp-newest-track>*{scroll-snap-align:start;flex:0 0 auto}
-  .lp-newest-arrow{display:none}
 }
 
 /* Comparison table */
