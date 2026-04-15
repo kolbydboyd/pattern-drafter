@@ -591,9 +591,10 @@ export default {
       pieces.push({
         id: 'hip-patch-pocket',
         name: 'Hip Patch Pocket',
-        instruction: `Cut 2 · Position at hip level on front panels · {topstitch} sides and bottom · Bar tack corners`,
+        instruction: `Cut 2 · Position at hip level on front panels · Top edge: 1½″ hem (fold under ¾″ twice, {topstitch}) · {topstitch} sides + bottom · Bar tack corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
+        sa, hem: 1.5, hemEdge: 'top',
       });
     }
     if (opts.pocket === 'welt' || opts.pocket === 'combo') {

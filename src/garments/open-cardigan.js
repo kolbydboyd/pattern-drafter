@@ -321,10 +321,10 @@ export default {
       pieces.push({
         id: 'patch-pocket',
         name: 'Side Patch Pocket',
-        instruction: `Cut 2 · Position on each front panel at hip level · Interface top 1″ · {topstitch} sides and bottom · Round bottom corners (1″ radius)`,
+        instruction: `Cut 2 · Position on each front panel at hip level · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · {topstitch} sides and bottom · Round bottom corners (1″ radius)`,
         type: 'pocket',
         dimensions: { width: pktW, height: 7 },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 

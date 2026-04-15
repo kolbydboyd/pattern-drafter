@@ -385,10 +385,10 @@ export default {
       pieces.push({
         id: 'hip-pocket',
         name: 'Hip Patch Pocket',
-        instruction: `Cut 2 · Position at hip level ${fmtInches(opts.length === 'hip' ? 8 : 4)}″ from hem on front panels · Bar tack top corners`,
+        instruction: `Cut 2 · Position at hip level ${fmtInches(opts.length === 'hip' ? 8 : 4)}″ from hem on front panels · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: SA · Bar tack top corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 
@@ -397,10 +397,10 @@ export default {
       pieces.push({
         id: 'chest-pocket',
         name: 'Chest Patch Pocket with Pencil Slot',
-        instruction: 'Cut 1 · Left chest, 2.5″ below neckline · Pencil slot: 1.5″ wide section at top, divided by topstitching',
+        instruction: 'Cut 1 · Left chest, 2.5″ below neckline · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Pencil slot: 1.5″ wide section at top, divided by topstitching · Sides + bottom: SA',
         type: 'pocket',
         dimensions: { width: 5, height: 6 },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     } else if (opts.chestPocket === 'zip') {
       pieces.push({

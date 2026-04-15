@@ -167,7 +167,7 @@ export default {
         instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
       }));
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 · Right front only · Top edge: ½″ hem (double-fold, {topstitch}) · Sides + bottom: ⅜″ SA · {press} under using cardboard template', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa, hem: 0.5, hemEdge: 'top' });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──

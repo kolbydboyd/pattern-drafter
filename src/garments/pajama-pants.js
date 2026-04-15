@@ -154,10 +154,10 @@ export default {
       pieces.push({
         id: 'back-pocket',
         name: 'Back Patch Pocket',
-        instruction: 'Cut 1 · 5″ wide × 5½″ tall · Fold top under ¼″ twice and {topstitch} · Attach to right back panel',
+        instruction: 'Cut 1 · 5″ wide × 5½″ tall · Top edge: ½″ hem (fold under ¼″ twice, {topstitch}) · Sides + bottom: SA · Attach to right back panel',
         type: 'rectangle',
         dimensions: { length: 5.5, width: 5 },
-        sa,
+        sa, hem: 0.5, hemEdge: 'top',
       });
     }
 

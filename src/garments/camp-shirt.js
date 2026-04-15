@@ -395,10 +395,10 @@ export default {
       pieces.push({
         id: 'chest-pocket',
         name: 'Chest Patch Pocket',
-        instruction: 'Cut 1 · Position at left chest 2.5″ below neckline, 1.5″ from placket · Interface if desired',
+        instruction: 'Cut 1 · Position at left chest 2.5″ below neckline, 1.5″ from placket · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · Sides + bottom: SA',
         type: 'pocket',
         dimensions: { width: 4, height: 5 },
-        sa,
+        sa, hem: 1.0, hemEdge: 'top',
       });
     }
 

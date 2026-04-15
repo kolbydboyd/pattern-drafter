@@ -738,13 +738,16 @@ export function renderGenericPieceSVG(piece) {
 /**
  * Render a rectangle piece (gathered panels, straps, simple rectangles) as an SVG string.
  * Piece must have: dimensions.width, dimensions.length, sa, name, id.
- * Optional: hem, instruction (checked for "on fold" to show fold indicator).
+ * Optional: hem, hemEdge ('top'|'bottom', default 'bottom'), instruction (checked for "on fold").
+ * When hemEdge === 'top': hem allowance goes above the stitch line (pocket opening edge).
+ *   The stitch line is drawn as 3 sides only (left, bottom, right) — the top is a fold/hem.
  */
 export function renderRectanglePieceSVG(piece) {
-  const { dimensions, sa = 0.625, hem = 0, name, id, instruction = '' } = piece;
+  const { dimensions, sa = 0.625, hem = 0, hemEdge = 'bottom', name, id, instruction = '' } = piece;
   const pieceW = dimensions.width;
   const pieceL = dimensions.length;
   const onFold = /on fold/i.test(instruction);
+  const hemAtTop = hem > 0 && hemEdge === 'top';
 
   const mL = 3, mT = 2, mR = 4, mB = 6;
   const svgW = sc(mL + pieceW + mR);
@@ -752,14 +755,21 @@ export function renderRectanglePieceSVG(piece) {
   const ox = sc(mL);
   const oy = sc(mT);
 
-  // Cut line (outer, solid) — SA on all sides; hem replaces SA at bottom
+  // Cut line (outer, solid)
+  // hemAtTop: hem above stitch line, SA below; otherwise SA above, hem (or SA) below
+  const topAllowance = hemAtTop ? hem : sa;
+  const botAllowance = hemAtTop ? sa : (hem > 0 ? hem : sa);
   const cutX = ox - sc(sa);
-  const cutY = oy - sc(sa);
+  const cutY = oy - sc(topAllowance);
   const cutW = sc(pieceW + 2 * sa);
-  const cutH = sc(pieceL + sa + (hem > 0 ? hem : sa));
+  const cutH = sc(pieceL + topAllowance + botAllowance);
 
   // Stitch line (inner, dashed)
   const stX = ox, stY = oy, stW = sc(pieceW), stH = sc(pieceL);
+  // When hem is at top, the top edge is a fold/hem — draw only 3 sides (left, bottom, right)
+  const stitch3Side = hemAtTop
+    ? `M ${(stX + stW).toFixed(1)} ${stY.toFixed(1)} L ${stX.toFixed(1)} ${stY.toFixed(1)} L ${stX.toFixed(1)} ${(stY + stH).toFixed(1)} L ${(stX + stW).toFixed(1)} ${(stY + stH).toFixed(1)} L ${(stX + stW).toFixed(1)} ${stY.toFixed(1)}`
+    : null;
 
   // Grain line — vertical through horizontal center
   const gx = ox + sc(pieceW / 2);
@@ -767,8 +777,8 @@ export function renderRectanglePieceSVG(piece) {
   const gy2 = oy + sc(pieceL * 0.8);
 
   // Dimension annotations
-  // Horizontal (width) above piece
-  const dimHy = oy - sc(sa) - 8;
+  // Horizontal (width) above piece — position above the cut line top
+  const dimHy = cutY - 8;
   const dimHx1 = ox, dimHx2 = ox + sc(pieceW);
   const dimHlabel = fmtInches(pieceW);
   // Vertical (length) at right of piece
@@ -797,15 +807,19 @@ export function renderRectanglePieceSVG(piece) {
     <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">fold line</text>` : ''}`;
 
   const pieceLabel = onFold ? `${name?.toUpperCase()} (cut on fold)` : `${name?.toUpperCase()} × 2 (mirror)`;
-  const saNote = hem > 0
-    ? `${fmtInches(sa)} SA · ${fmtInches(hem)} hem allowance`
-    : `${fmtInches(sa)} SA included`;
+  const saNote = hemAtTop
+    ? `${fmtInches(hem)} hem at top (fold) · ${fmtInches(sa)} SA on 3 sides`
+    : hem > 0
+      ? `${fmtInches(sa)} SA · ${fmtInches(hem)} hem allowance`
+      : `${fmtInches(sa)} SA included`;
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
     <rect class="grid-bg" width="${svgW}" height="${svgH}" fill="url(#gp${id})"/>
     <rect x="${cutX.toFixed(1)}" y="${cutY.toFixed(1)}" width="${cutW.toFixed(1)}" height="${cutH.toFixed(1)}" stroke="#000" stroke-width="1.5" fill="rgba(0,0,0,.02)"/>
-    <rect x="${stX.toFixed(1)}" y="${stY.toFixed(1)}" width="${stW.toFixed(1)}" height="${stH.toFixed(1)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
+    ${stitch3Side
+      ? `<path d="${stitch3Side}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`
+      : `<rect x="${stX.toFixed(1)}" y="${stY.toFixed(1)}" width="${stW.toFixed(1)}" height="${stH.toFixed(1)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`}
     ${grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
     ${onFold ? foldIndicatorSVG(cutX, cutY, cutY + cutH) : ''}
     ${dimsSVG}

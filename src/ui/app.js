@@ -796,9 +796,21 @@ function _generate() {
       const prx = pM, pry = pM, prW = pW * pSc, prH = pH * pSc;
       const pSa = piece.sa || 0;
       const pSaOff = pSa * pSc;
+      const pHemAtTop = piece.hemEdge === 'top' && piece.hem > 0;
+      const pHemOff = pHemAtTop ? (piece.hem * pSc) : pSaOff;
       let pSvg = `<svg viewBox="0 0 ${svgW} ${svgH}" style="max-width:${Math.min(svgW, 280)}px;display:block;margin:8px auto">`;
-      if (pSa > 0) pSvg += `<rect x="${prx - pSaOff}" y="${pry - pSaOff}" width="${prW + pSaOff * 2}" height="${prH + pSaOff * 2}" stroke="#000" stroke-width="1.2" fill="none"/>`;
-      pSvg += `<rect x="${prx}" y="${pry}" width="${prW}" height="${prH}" stroke="${pSa > 0 ? '#666' : '#2c2a26'}" stroke-width="${pSa > 0 ? 0.6 : 1.2}" ${pSa > 0 ? 'stroke-dasharray="3,2"' : ''} fill="none"/>`;
+      // Cut line — hem at top if hemEdge:'top', otherwise SA on all sides
+      if (pSa > 0 || pHemAtTop) {
+        const ctX = prx - pSaOff, ctY = pry - pHemOff;
+        const ctW = prW + pSaOff * 2, ctH = prH + pHemOff + pSaOff;
+        pSvg += `<rect x="${ctX}" y="${ctY}" width="${ctW}" height="${ctH}" stroke="#000" stroke-width="1.2" fill="none"/>`;
+      }
+      // Stitch line — 3-sided path (no top edge) when hem is at top, otherwise full rect
+      if (pHemAtTop) {
+        pSvg += `<path d="M ${prx} ${pry} L ${prx} ${pry + prH} L ${prx + prW} ${pry + prH} L ${prx + prW} ${pry}" stroke="#666" stroke-width="0.6" stroke-dasharray="3,2" fill="none"/>`;
+      } else {
+        pSvg += `<rect x="${prx}" y="${pry}" width="${prW}" height="${prH}" stroke="${pSa > 0 ? '#666' : '#2c2a26'}" stroke-width="${pSa > 0 ? 0.6 : 1.2}" ${pSa > 0 ? 'stroke-dasharray="3,2"' : ''} fill="none"/>`;
+      }
       const marks = piece.marks || [];
       for (const mk of marks) {
         const mc = '#4a8a5a';
@@ -835,7 +847,7 @@ function _generate() {
         ${pSvg}
         <table class="dt">
           <tr><td>Size</td><td>${pSize}</td></tr>
-          ${pSa > 0 ? `<tr><td>SA</td><td>${fmtInches(pSa)}</td></tr>` : ''}
+          ${pHemAtTop ? `<tr><td>Hem (top)</td><td>${fmtInches(piece.hem)}</td></tr><tr><td>SA (3 sides)</td><td>${fmtInches(pSa)}</td></tr>` : pSa > 0 ? `<tr><td>SA</td><td>${fmtInches(pSa)}</td></tr>` : ''}
         </table></div>`;
     } else if (piece.type === 'template') {
       const svg = renderTemplateSVG(piece);
