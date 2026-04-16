@@ -392,7 +392,7 @@ export function renderPanelSVG(piece) {
     for (const [lx, ly] of ppts) {
       const rx = lx * cosA - ly * sinA;
       const ry = lx * sinA + ly * cosA;
-      const allowed = sideSeamXatY(bpTop + ry) - 0.5 - rx;
+      const allowed = sideSeamXatY(bpTop + ry) - 0.75 - rx;
       if (allowed < bpInner) bpInner = allowed;
     }
     bpInner = Math.max(0.5, bpInner);
@@ -414,7 +414,7 @@ export function renderPanelSVG(piece) {
       const rx = lx * cosA - ly * sinA;
       const ry = lx * sinA + ly * cosA;
       const topY = topEdgeYatX(bpInner + rx);
-      const needed = topY + 0.5 - ry;
+      const needed = topY + 0.75 - ry;
       if (needed > bpTop) bpTop = needed;
     }
 
