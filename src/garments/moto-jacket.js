@@ -266,7 +266,7 @@ export default {
     const sleeveResult = twoPartSleeve({
       bicep: m.bicep, sleeveLength: slvLength,
       armToElbow: effArmToElbow, wrist: m.wrist || m.bicep * 0.55,
-      armholeArc, capEaseTarget: 1.5, sleeveBend: 12,
+      armholeArc, capEaseTarget: 1.5, sleeveBend: 10,
       bicepEase: totalEase > 3 ? 0.20 : 0.15,
     });
     const capEase = sleeveResult.capArc - armholeArc;
