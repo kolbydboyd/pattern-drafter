@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.61] - 2026-04-16
+
+### Fixed
+- **Athletic Formal Jacket front facing crash** — pattern generation threw `undefined is not an object (evaluating 'e[d].label')` for all three lapel styles. The `facingEdges` array on the `front-facing` piece was one entry short of `facingPoly.length`: the closing CF edge (from `(-PLACKET_W, breakPointY)` back to the break point) had no label. `src/ui/pattern-view.js` reads one label per polygon edge, so the missing final slot crashed the renderer. `facingEdges` is now built one label per edge in explicit order (Lapel × K-1, Neck × N for shawl, then Neck-step, Inner, Hem, Placket, BreakStep) with a dev-time length-match warning to catch future regressions.
+
+---
+
 ## [0.12.60] - 2026-04-16
 
 ### Added

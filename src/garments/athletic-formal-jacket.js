@@ -564,13 +564,13 @@ export default {
       const facingPoly = [...lapelForFacing];
       // For shawl, include the neckline curve so the facing inner edge follows
       // the original (now-hidden) neckline between shoulder-neck and CF.
-      if (opts.collar === 'shawl') {
-        const neckForFacing = frontNeckPts
-          .map(p => ({ x: neckW - p.x, y: p.y }))
-          .filter(p => p.x < neckW - 0.01)
-          .sort((a, b) => b.x - a.x); // shoulder-side → CF-side (descending x)
-        for (const p of neckForFacing) facingPoly.push({ x: p.x, y: p.y });
-      }
+      const neckForFacing = opts.collar === 'shawl'
+        ? frontNeckPts
+            .map(p => ({ x: neckW - p.x, y: p.y }))
+            .filter(p => p.x < neckW - 0.01)
+            .sort((a, b) => b.x - a.x) // shoulder-side → CF-side (descending x)
+        : [];
+      for (const p of neckForFacing) facingPoly.push({ x: p.x, y: p.y });
       // Step inward at neckline level and taper down to the hem.
       facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
       facingPoly.push({ x: FACING_W, y: torsoLen });
@@ -578,19 +578,30 @@ export default {
       facingPoly.push({ x: -PLACKET_W, y: breakPointY });
       // closes back to breakPoint (= lapelForFacing[0])
 
-      // Per-edge SA: ⅜″ on the narrow lapel edges to keep SA stitch lines clean.
+      // Per-edge SA. `edgeAllowances[i]` is the edge OUTGOING from vertex i,
+      // so the array MUST have exactly `facingPoly.length` entries — the last
+      // slot is the closing edge back to vertex 0. Missing slots crash
+      // `edgeSALabels` (src/ui/pattern-view.js) at render.
+      // Lapel edges use ⅜″ for clean stitch lines on the narrow peak.
       const lapelSa = 0.375;
-      const lapelEdgeCount = lapelForFacing.length - 1;
-      const neckEdgeCount = opts.collar === 'shawl'
-        ? (facingPoly.length - lapelForFacing.length - 4) // subtract the 4 closing edges
-        : 0;
       const facingEdges = [];
-      for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
-      for (let i = 0; i < neckEdgeCount; i++) facingEdges.push({ sa, label: 'Neck' });
-      facingEdges.push({ sa, label: 'Neck-step' });
-      facingEdges.push({ sa, label: 'Inner' });
-      facingEdges.push({ sa: hem, label: 'Hem' });
-      facingEdges.push({ sa, label: 'Placket' });
+      // Lapel: K-1 edges between the K lapelForFacing points.
+      for (let i = 0; i < lapelForFacing.length - 1; i++) {
+        facingEdges.push({ sa: lapelSa, label: 'Lapel' });
+      }
+      // Shawl only: N 'Neck' edges = 1 (shoulderNeck → neck[0]) + N-1 (between neck pts).
+      for (let i = 0; i < neckForFacing.length; i++) {
+        facingEdges.push({ sa, label: 'Neck' });
+      }
+      facingEdges.push({ sa,      label: 'Neck-step' }); // neckStop → (FACING_TOP_W, ND)
+      facingEdges.push({ sa,      label: 'Inner' });     // → (FACING_W, torso)
+      facingEdges.push({ sa: hem, label: 'Hem' });       // → (-PLACKET_W, torso)
+      facingEdges.push({ sa,      label: 'Placket' });   // → (-PLACKET_W, breakPointY)
+      facingEdges.push({ sa,      label: 'BreakStep' }); // closing → breakPoint
+
+      if (facingEdges.length !== facingPoly.length) {
+        console.warn(`[athletic-formal-jacket] facingEdges length ${facingEdges.length} !== facingPoly length ${facingPoly.length}`);
+      }
 
       // Pre-compute SA polygon and clip any self-intersecting loops — the
       // narrow peak/notch wing can cause opposite-edge stitch lines to cross.
