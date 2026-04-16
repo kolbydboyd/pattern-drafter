@@ -15,7 +15,7 @@ const RATE_LIMIT_MAX    = 10;   // max PDF generations per user per hour
 const RATE_LIMIT_WINDOW = 3600; // seconds
 
 // PDF generation via headless Chromium (single renderer, no fallback).
-async function generatePDF(html) {
+async function generatePDF(html, format = 'Letter') {
   const chromium  = (await import('@sparticuz/chromium-min')).default;
   const puppeteer = (await import('puppeteer-core')).default;
 
@@ -31,7 +31,7 @@ async function generatePDF(html) {
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
   const pdf = await page.pdf({
-    format:          'Letter',
+    format,
     printBackground: true,
     margin:          { top: 0, right: 0, bottom: 0, left: 0 },
   });
@@ -82,7 +82,12 @@ export const handler = async (event) => {
   }
 
   const clientIp = (headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const { garmentId, measurements, opts, sessionId } = body;
+  const { garmentId, measurements, opts, sessionId, paperSize: reqPaperSize } = body;
+  // Map client paper size to Puppeteer format string. A0 and projector are
+  // handled as separate addon files; the primary PDF uses the requested size.
+  const PUPPETEER_FORMATS = { letter: 'Letter', a4: 'A4', legal: 'Legal', tabloid: 'Tabloid' };
+  const primaryPaperSize  = PUPPETEER_FORMATS[reqPaperSize] ? reqPaperSize : 'letter';
+  const primaryFormat     = PUPPETEER_FORMATS[primaryPaperSize];
 
   // Authenticate user server-side from the Authorization header.
   const authHeader = headers['authorization'] || headers['Authorization'] || '';
@@ -241,7 +246,7 @@ export const handler = async (event) => {
 
   // 6. Generate HTML print layout.
   const { generatePrintLayout } = await import('../src/pdf/print-layout.js');
-  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'letter');
+  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize);
 
   const needsA0 = purchase?.a0_addon === true;
   const htmlA0  = needsA0
@@ -254,9 +259,9 @@ export const handler = async (event) => {
   // 7. Render to PDF.
   let pdfBuffer, pdfA0Buffer, pdfProjectorBuffer;
   try {
-    const renders = [generatePDF(html)];
-    if (htmlA0)        renders.push(generatePDF(htmlA0));
-    if (htmlProjector) renders.push(generatePDF(htmlProjector));
+    const renders = [generatePDF(html, primaryFormat)];
+    if (htmlA0)        renders.push(generatePDF(htmlA0, 'A0'));
+    if (htmlProjector) renders.push(generatePDF(htmlProjector, 'Letter')); // projector uses custom CSS sizing
     [pdfBuffer, pdfA0Buffer, pdfProjectorBuffer] = await Promise.all(renders);
   } catch (err) {
     console.error('PDF generation failed:', err);

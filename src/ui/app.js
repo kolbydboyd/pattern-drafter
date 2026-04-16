@@ -908,6 +908,7 @@ function _generate() {
   const PAPER_SIZES = [
     { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
+    { id: 'legal',   label: 'US Legal    8.5 x 14 in   (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
     { id: 'a0',      label: 'A0 / Copy Shop / Projector  33.1 x 46.8 in (+$4)' },
   ];
@@ -1554,6 +1555,7 @@ async function handleDownloadPDF(btn) {
         garmentId:    currentGarment,
         measurements: m,
         opts,
+        paperSize:    selectedPaperSize === 'a0' ? 'letter' : selectedPaperSize,
       }),
     });
     const json = await res.json();
