@@ -321,8 +321,14 @@ export default {
         : 'Cut 2 (L & R mirror) · Panels meet at CF for center zip',
       type: 'bodice', polygon: frontPanelPoly, path: pts2path(frontPanelPoly),
       width: fpBB.maxX - fpBB.minX, height: fpBB.maxY - fpBB.minY,
-      isBack: false, sa, hem,
-      notches: [{ x: sideX, y: armholeY, angle: 0 }],
+      isBack: false, isCutOnFold: false, sa, hem,
+      notches: [
+        { x: sideX, y: armholeY, angle: 0 },
+        ...(hasNotchLapel && lapelResult ? [
+          { x: 0, y: breakPointY, angle: 180 },
+          { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },
+        ] : []),
+      ],
       dims: [
         { label: fmtInches(panelW + (asymmetric ? ZIP_OFFSET : 0)) + ' width', x1: cfX, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' },
         { label: fmtInches(torsoLen) + ' length', x: fpBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -336,8 +342,14 @@ export default {
         instruction: 'Cut 1 · Right lap flap · CF edge at zip centerline · Narrower than left panel',
         type: 'bodice', polygon: rightFlapPoly, path: pts2path(rightFlapPoly),
         width: rfBB.maxX - rfBB.minX, height: rfBB.maxY - rfBB.minY,
-        isBack: false, sa, hem,
-        notches: [{ x: sideX, y: armholeY, angle: 0 }],
+        isBack: false, isCutOnFold: false, sa, hem,
+        notches: [
+          { x: sideX, y: armholeY, angle: 0 },
+          ...(hasNotchLapel && lapelResult ? [
+            { x: 0, y: breakPointY, angle: 180 },
+            { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },
+          ] : []),
+        ],
         dims: [{ label: fmtInches(panelW) + ' width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' }],
       });
     }
@@ -431,7 +443,7 @@ export default {
         edgeAllowances: facingEdges,
         rollLine: { from: { x: 0, y: breakPointY }, to: { x: gorgePt.x, y: gorgePt.y }, label: 'roll line' },
         notches: [{ x: gorgePt.x, y: gorgePt.y, angle: 0 }, { x: 0, y: breakPointY, angle: 180 }],
-        width: fBB.maxX - fBB.minX, height: fBB.maxY - fBB.minY, isBack: false, sa,
+        width: fBB.maxX - fBB.minX, height: fBB.maxY - fBB.minY, isBack: false, isCutOnFold: false, sa,
       });
       pieces.push({
         id: 'upper-collar', name: 'Upper Collar',
@@ -501,7 +513,7 @@ export default {
       pieces.push({
         id: 'front-lining', name: 'Front Lining',
         instruction: [asymmetric ? 'Cut 1' : 'Cut 2 (L & R mirror)', quilted ? 'Quilt before cutting' : 'Bemberg or charmeuse', `Hem ${fmtInches(LIFT)} shorter than shell`].join(' · '),
-        type: 'bodice', polygon: fLin, path: pts2path(fLin), width: flBB.maxX - flBB.minX, height: flBB.maxY - flBB.minY, isBack: false, sa, hem: 0.75,
+        type: 'bodice', polygon: fLin, path: pts2path(fLin), width: flBB.maxX - flBB.minX, height: flBB.maxY - flBB.minY, isBack: false, isCutOnFold: false, sa, hem: 0.75,
       });
       pieces.push({
         id: 'back-lining', name: 'Back Lining',
