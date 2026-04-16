@@ -439,13 +439,13 @@ function buildBackPatchPocket() {
   return {
     id: 'back-pocket',
     name: 'Back Patch Pocket',
-    instruction: 'Cut 2 · ⅜″ SA sides/bottom, ½″ SA top · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
+    instruction: 'Cut 2 · ½″ hem at top (fold under ¼″ twice, {topstitch}) · ⅜″ SA sides/bottom · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: totalH,
-    sa: pocketSA, type: 'bodice',
+    sa: pocketSA, hem: 0.5, hemEdge: 'top', type: 'bodice',
     isCutOnFold: false,
     dimensions: [
       { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },

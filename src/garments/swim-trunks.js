@@ -369,10 +369,10 @@ export default {
       pieces.push({
         id: 'back-pocket',
         name: 'Back Patch Pocket',
-        instruction: 'Cut 1 · Self fabric · 4″ wide × 4.5″ tall · Fold top 1″ under and topstitch before attaching',
+        instruction: 'Cut 1 · Self fabric · Top edge: 1″ hem (fold under ½″ twice, {topstitch}) · ⅜″ SA on 3 sides',
         dimensions: { width: 4, height: 4.5 },
         type: 'pocket',
-        sa,
+        sa, hem: 1, hemEdge: 'top',
         marks: [
           { type: 'fold', axis: 'h', position: 1, label: 'fold under 1″' },
         ],

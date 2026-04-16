@@ -281,8 +281,8 @@ export default {
       pieces.push({
         id: 'back-patch',
         name: 'Back Patch Pocket',
-        instruction: 'Cut 2 - position centered on back panel below hip - {topstitch} sides and bottom - bar tack corners',
-        dimensions: { width: 6, height: 7 }, type: 'pocket',
+        instruction: 'Cut 2 · Top edge: 1\u2033 hem (fold under \u00bd\u2033 twice, {topstitch}) · \u215c\u2033 SA on 3 sides · Position centered on back panel below hip · {topstitch} sides and bottom · Bar tack corners',
+        dimensions: { width: 6, height: 7 }, type: 'pocket', sa: 0.375, hem: 1, hemEdge: 'top',
       });
     }
 
