@@ -19,7 +19,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
-  peakLapelCurve, notchedLapelCurve, shawlCollarCurve, collarCurve, twoPartSleeve,
+  peakLapelCurve, notchedLapelCurve, shawlLapelFront, shawlCollarCurve, collarCurve, twoPartSleeve,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, offsetPolygon } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -191,23 +191,94 @@ export default {
     const frontArmPts  = sampleCurve(armholeCurve(shoulderW, chestDepth, armholeDepth, false));
     const backArmPts   = sampleCurve(armholeCurve(shoulderW, backChestDepth, armholeDepth, true));
 
+    // ── LAPEL GEOMETRY ────────────────────────────────────────────────────
+    // Lapel is cut AS PART OF the front panel (traditional tailoring).
+    // Computed here so the panel can incorporate it directly.
+    const COLLAR_STAND = 1.25;
+    const btnSpacing = isDouble ? 4.5 : 5;
+    const btnCount   = isDouble ? 4 : 2;
+    // Top button Y: below the neckline depth for double-breasted
+    const topBtnY     = isDouble ? NECK_DEPTH_FRONT + 2 : NECK_DEPTH_FRONT + 3;
+    const breakPointY = topBtnY - 0.5; // break point sits just above top button
+
+    // Lapel width: wider for peak/double-breasted, narrower for notched
+    const lapelW = opts.collar === 'peak'
+      ? (isDouble ? 4 : 3.5)
+      : opts.collar === 'notched'
+        ? 3
+        : 3.5; // shawl
+
+    const lapelParams = { neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW, collarStand: COLLAR_STAND };
+    const lapelResult =
+      opts.collar === 'peak'    ? peakLapelCurve(lapelParams) :
+      opts.collar === 'notched' ? notchedLapelCurve(lapelParams) :
+                                  shawlLapelFront({ neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW, neckW });
+
+    // Panel-side "stop" for the neckline: peak/notched use the gorge point;
+    // shawl uses the shoulder-neck junction (no gorge, no notch).
+    // gorgePoint frame matches the panel: origin at CF neckline point, x+ toward body.
+    const neckStop = opts.collar === 'shawl' ? lapelResult.shoulderNeck : lapelResult.gorgePoint;
+
     // ── FRONT PANEL (left — right is mirror) ─────────────────────────────
+    // Clockwise winding, starting at shoulder-neck:
+    //   shoulder-neck → shoulder → armhole → side → hem → up placket →
+    //   across to break point → lapel outline (break → outer → peak/notch → gorge) →
+    //   partial neckline back to shoulder-neck.
+    const sideX = shoulderPtX + chestDepth;
     const frontPoly = [];
-    const neckFrontRev = [...frontNeckPts].reverse();
-    for (const p of neckFrontRev) frontPoly.push({ ...p, x: neckW - p.x });
-    // ── JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
-    delete frontPoly[0].curve;
-    delete frontPoly[frontNeckPts.length - 1].curve;
+
+    // Start at shoulder-neck junction. First shoulder point is the neck end.
+    frontPoly.push({ x: neckW, y: 0 });
+    // Shoulder seam → shoulder point
     for (let i = 1; i < shoulderPts.length; i++) {
       frontPoly.push({ ...shoulderPts[i], x: neckW + shoulderPts[i].x });
     }
+    // Armhole → underarm
     for (let i = 1; i < frontArmPts.length; i++) {
       frontPoly.push({ ...frontArmPts[i], x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
     }
-    const sideX = shoulderPtX + chestDepth;
+    // Side seam → hem
     frontPoly.push({ x: sideX, y: torsoLen });
+    // Hem across to CF placket
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
-    frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
+    // Up the placket to the break point
+    frontPoly.push({ x: -PLACKET_W, y: breakPointY });
+    // Horizontal step from placket edge to break point at CF (lapel flap bottom edge)
+    frontPoly.push({ x: 0, y: breakPointY });
+    // Lapel outline: breakPoint → outer → (peakTip / notchInner) → neckStop
+    // For peak: [breakPoint, outerMid, upperOuter, peakTip, gorgePoint]
+    // For notched: [breakPoint, lowerOuter, outerMid, upperOuter, notchInner, gorgePoint, notchOuter]
+    // For shawl: [breakPoint, outerMid, upperOuter, ..., shoulderNeck]
+    // Start from index 1 (we already pushed breakPoint). Stop at neckStop (gorgePoint / shoulderNeck).
+    for (let i = 1; i < lapelResult.lapelPoints.length; i++) {
+      const p = lapelResult.lapelPoints[i];
+      frontPoly.push({ x: p.x, y: p.y });
+      // Stop after pushing the neckStop — this is gorgePoint for peak/notched,
+      // shoulderNeck for shawl. Remaining points (e.g. notchOuter) belong to
+      // the under collar gorge, not the panel.
+      if (p.x === neckStop.x && p.y === neckStop.y) break;
+    }
+    // Partial neckline from neckStop → shoulder-neck junction.
+    // Shawl: lapel already ended at shoulder-neck, so polygon is closed.
+    // Peak/notched: push neckline points outside the gorge (panel x > neckStop.x),
+    // from CF-side to shoulder-side.
+    if (opts.collar !== 'shawl') {
+      // frontNeckPts is CF→shoulder in lapel-local frame; we want panel frame (neckW - p.x)
+      // and we want to traverse gorge → shoulder (panel-x increasing).
+      const neckForPanel = frontNeckPts
+        .map(p => ({ ...p, x: neckW - p.x }))
+        .filter(p => p.x > neckStop.x + 0.01);
+      // Sort ascending so we go gorge-side → shoulder-side
+      neckForPanel.sort((a, b) => a.x - b.x);
+      for (const p of neckForPanel) frontPoly.push({ ...p });
+      // ── JUNCTION UNTAGGING — bezier sampled points at segment boundaries ──
+      // First neckline point after the straight gorge segment, and the last
+      // one before the shoulder-neck corner, must not carry curve:true.
+      if (neckForPanel.length > 0) {
+        delete frontPoly[frontPoly.length - neckForPanel.length].curve;
+        delete frontPoly[frontPoly.length - 1].curve;
+      }
+    }
 
     // ── BACK PANEL (left — cut 2, mirror L & R, joined at CB seam) ──────
     const backPoly = [];
@@ -261,21 +332,6 @@ export default {
     }
     const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEaseVal)} (${sleeveResult.iterations} iter)`;
 
-    // ── COLLAR ───────────────────────────────────────────────────────────
-    // Button positions for lapel break point calculation
-    const btnSpacing = isDouble ? 4.5 : 5;
-    const btnCount   = isDouble ? 4 : 2;
-    // Top button Y: below the neckline depth for double-breasted
-    const topBtnY    = isDouble ? NECK_DEPTH_FRONT + 2 : NECK_DEPTH_FRONT + 3;
-    const breakPointY = topBtnY - 0.5; // break point sits just above top button
-
-    // Lapel width: wider for peak/double-breasted, narrower for notched
-    const lapelW = opts.collar === 'peak'
-      ? (isDouble ? 4 : 3.5)
-      : opts.collar === 'notched'
-        ? 3
-        : 3.5; // shawl
-
     // ── NOTCH MARKS ─────────────────────────────────────────────────────
     const shoulderMidX = neckW + shoulderW / 2;
     const shoulderMidY = slopeDrop / 2;
@@ -285,9 +341,12 @@ export default {
       { x: sideX, y: armholeY, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
       { x: sideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: sideX, y: armholeY }) },
-      // Collar/facing assembly notches
-      { x: 0, y: NECK_DEPTH_FRONT, angle: 90 },       // CF neckline — matches under collar CF end
+      // Lapel/collar assembly notches — match corresponding points on facing and under collar.
       { x: -PLACKET_W, y: breakPointY, angle: 180 },   // break point — matches facing break point
+      ...(opts.collar === 'shawl'
+        ? [{ x: neckW, y: 0, angle: 90 }]              // shawl: shoulder-neck match (also matches back collar)
+        : [{ x: neckStop.x, y: neckStop.y, angle: 90 }] // peak/notched: gorge — matches under collar CF end
+      ),
     ];
 
     const backNotches = [
@@ -319,13 +378,13 @@ export default {
         isBack: false,
         sa, hem,
         notches: frontNotches,
-        // Roll line: break point (CF placket edge) → CF neckline point
-        // The lapel folds back along this line when worn
-        rollLine: opts.collar !== 'shawl' ? {
+        // Roll line: break point (CF placket edge) → gorge (peak/notched) or shoulder-neck (shawl).
+        // The lapel folds back along this line when worn.
+        rollLine: {
           from: { x: -PLACKET_W, y: breakPointY },
-          to:   { x: 0, y: NECK_DEPTH_FRONT },
+          to:   { x: neckStop.x, y: neckStop.y },
           label: 'roll line',
-        } : undefined,
+        },
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -405,29 +464,28 @@ export default {
     ];
 
     // ── COLLAR PIECES ────────────────────────────────────────────────────
+    // Upper/under collar for peak + notched. Narrow back-neck collar for shawl.
     if (opts.collar === 'peak' || opts.collar === 'notched') {
-      // Neckline arc for collar construction
       const halfNeckArc = frontArmArc * 0.3 + neckW + shoulderW * 0.4; // approximate half-neck arc
 
       const { upperCollar, underCollar, standLength } = collarCurve({
         neckArc: halfNeckArc,
         collarWidth: opts.collar === 'peak' ? 3.5 : 3,
         style: 'point',
-        standHeight: 1.25,
+        standHeight: COLLAR_STAND,
         underShrink: 0.02,
       });
 
-      // Notch positions for collar-to-facing/panel assembly
       const collarW = opts.collar === 'peak' ? 3.5 : 3;
-      const ucCFEnd = upperCollar[upperCollar.length - 2];  // CF end of upper collar
-      const ucCBMid = { x: 0, y: collarW / 2 };            // CB fold midpoint
+      const ucCFEnd = upperCollar[upperCollar.length - 2];
+      const ucCBMid = { x: 0, y: collarW / 2 };
       const lcCFEnd = underCollar[underCollar.length - 2];
       const lcCBMid = { x: 0, y: (collarW / 1.02) / 2 };
 
       pieces.push({
         id: 'upper-collar',
         name: 'Upper Collar',
-        instruction: `Cut 1 on fold (CB) · Interface with knit fusible · ${opts.collar === 'peak' ? 'Peak' : 'Notched'} lapel style`,
+        instruction: `Cut 1 on fold (CB) · Interface with knit fusible · Attaches at the gorge between collar and ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel`,
         type: 'bodice',
         polygon: upperCollar,
         path: polyToPathStr(upperCollar),
@@ -436,7 +494,7 @@ export default {
         isBack: false,
         sa,
         notches: [
-          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches facing gorge
+          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches panel gorge
           { x: ucCBMid.x, y: ucCBMid.y, angle: 180 },  // CB fold — alignment mark
         ],
       });
@@ -455,66 +513,92 @@ export default {
         isBack: false,
         sa,
         notches: [
-          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches front panel neckline
+          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches panel gorge
           { x: lcCBMid.x, y: lcCBMid.y, angle: 180 },  // CB seam — alignment mark
         ],
       });
+    } else {
+      // Shawl: narrow back-neck collar that sews shoulder-to-shoulder across
+      // the back. The front lapel is part of the front panel; no front collar.
+      const halfBackArc = arcLength(backNeckPts);
+      const SHAWL_COLLAR_W = 3.5;
+      const { shawlPoly } = shawlCollarCurve({
+        backNeckArc: halfBackArc,
+        collarWidth: SHAWL_COLLAR_W,
+        collarStand: COLLAR_STAND,
+      });
 
-      // ── FRONT FACING + LAPEL ────────────────────────────────────────
-      // The facing is the CF-edge strip that shapes the lapel when folded.
-      // Below the break point it's a simple FACING_W-wide strip.
-      // Above the break point it widens into the lapel extension.
-      //
-      // We use bezier curves between the key lapel control points
-      // (from peakLapelCurve / notchedLapelCurve) and sample densely
-      // so the SA offset polygon stays clean at the curves.
+      pieces.push({
+        id: 'shawl-back-collar',
+        name: 'Shawl Back Collar',
+        instruction: 'Cut 1 on fold (CB) · Interface with knit fusible · Sews shoulder-to-shoulder across the back neck · Front lapel is cut as part of the front panel',
+        type: 'bodice',
+        polygon: shawlPoly,
+        path: polyToPathStr(shawlPoly),
+        width: halfBackArc,
+        height: SHAWL_COLLAR_W,
+        isBack: true,
+        sa,
+      });
+    }
 
-      const lapelCurveParams = {
-        neckDepthFront: NECK_DEPTH_FRONT,
-        breakPointY,
-        lapelWidth: lapelW,
-        collarStand: 1.25,
-      };
-      const lapelResult = opts.collar === 'peak'
-        ? peakLapelCurve(lapelCurveParams)
-        : notchedLapelCurve(lapelCurveParams);
-
-      // lapelPoints: [breakPoint, ...outer edge..., peakTip/notchInner, gorgePoint]
-      // We reverse to go gorge → outer → break, then add the facing strip below.
-      const rawLapel = [...lapelResult.lapelPoints].reverse();
-
-      // Use the raw lapel control points directly (straight segments).
-      // FreeSewing's Jaeger also uses straight lines for the lapel outline.
-      const facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
-
-      // Facing strip: break → CF hem → facing inner hem → facing inner top
-      // Tapers from FACING_W (3″) at hem to ~2″ at shoulder/neckline
+    // ── FRONT FACING (shared across peak / notched / shawl) ─────────────
+    // A true facing: mirrors the lapel area of the front panel so its pretty
+    // side shows when the lapel folds back along the roll line, then tapers
+    // into a strip down CF to the hem.
+    //
+    // Panel stitch line along the lapel is the EXACT same points used on the
+    // front panel so the facing sews cleanly to the panel's lapel edge.
+    {
       const FACING_TOP_W = 2.0;
-      facingPoly.push({ x: 0, y: torsoLen });
-      facingPoly.push({ x: FACING_W, y: torsoLen });
-      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
+      const topEnd = neckStop; // gorgePoint (peak/notched) or shoulderNeck (shawl)
 
-      // Per-edge SA: use ⅜″ on the narrow lapel edges to reduce overlap
+      // Lapel outline reused verbatim from the panel build, break → topEnd.
+      const lapelForFacing = [];
+      for (let i = 0; i < lapelResult.lapelPoints.length; i++) {
+        const p = lapelResult.lapelPoints[i];
+        lapelForFacing.push({ x: p.x, y: p.y });
+        if (p.x === topEnd.x && p.y === topEnd.y) break;
+      }
+
+      const facingPoly = [...lapelForFacing];
+      // For shawl, include the neckline curve so the facing inner edge follows
+      // the original (now-hidden) neckline between shoulder-neck and CF.
+      if (opts.collar === 'shawl') {
+        const neckForFacing = frontNeckPts
+          .map(p => ({ x: neckW - p.x, y: p.y }))
+          .filter(p => p.x < neckW - 0.01)
+          .sort((a, b) => b.x - a.x); // shoulder-side → CF-side (descending x)
+        for (const p of neckForFacing) facingPoly.push({ x: p.x, y: p.y });
+      }
+      // Step inward at neckline level and taper down to the hem.
+      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
+      facingPoly.push({ x: FACING_W, y: torsoLen });
+      facingPoly.push({ x: -PLACKET_W, y: torsoLen });
+      facingPoly.push({ x: -PLACKET_W, y: breakPointY });
+      // closes back to breakPoint (= lapelForFacing[0])
+
+      // Per-edge SA: ⅜″ on the narrow lapel edges to keep SA stitch lines clean.
       const lapelSa = 0.375;
-      const lapelEdgeCount = rawLapel.length - 1;
+      const lapelEdgeCount = lapelForFacing.length - 1;
+      const neckEdgeCount = opts.collar === 'shawl'
+        ? (facingPoly.length - lapelForFacing.length - 4) // subtract the 4 closing edges
+        : 0;
       const facingEdges = [];
       for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
-      facingEdges.push({ sa, label: 'CF' });
-      facingEdges.push({ sa: hem, label: 'Hem' });
+      for (let i = 0; i < neckEdgeCount; i++) facingEdges.push({ sa, label: 'Neck' });
+      facingEdges.push({ sa, label: 'Neck-step' });
       facingEdges.push({ sa, label: 'Inner' });
-      facingEdges.push({ sa, label: 'Neck' });
+      facingEdges.push({ sa: hem, label: 'Hem' });
+      facingEdges.push({ sa, label: 'Placket' });
 
-      // Pre-compute SA polygon and clip any self-intersecting loops.
-      // The narrow lapel wing can cause opposite-edge stitch lines to cross.
+      // Pre-compute SA polygon and clip any self-intersecting loops — the
+      // narrow peak/notch wing can cause opposite-edge stitch lines to cross.
       const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
-      // Simple loop clipper: walk the polygon, when an edge crosses a later
-      // edge, jump to the intersection point and skip the loop.
       const clippedSA = [];
       for (let i = 0; i < rawSA.length; i++) {
         clippedSA.push(rawSA[i]);
         const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
-        // Check if this edge crosses any later non-adjacent edge
-        let jumped = false;
         for (let j = i + 2; j < rawSA.length; j++) {
           if (j === rawSA.length - 1 && i === 0) continue;
           const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
@@ -525,62 +609,36 @@ export default {
           const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
           const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
           if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
-            // Found intersection — add the crossing point and skip to j+1
             clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
-            i = j; // skip the loop
-            jumped = true;
+            i = j;
             break;
           }
         }
       }
 
       const facingBB = bbox(facingPoly);
+      const styleLabel = opts.collar === 'peak' ? 'peak' : opts.collar === 'notched' ? 'notched' : 'shawl';
       pieces.push({
         id: 'front-facing',
-        name: 'Front Facing + Lapel',
-        instruction: `Cut 2 (L & R) · Interface with knit fusible · ${fmtInches(FACING_W)} wide facing plus ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel extension`,
+        name: 'Front Facing',
+        instruction: `Cut 2 (L & R mirror) · Interface with knit fusible · Mirrors the ${styleLabel} lapel of the front panel plus a ${fmtInches(FACING_W)} CF strip to the hem`,
         type: 'bodice',
         isCutOnFold: false,
         polygon: facingPoly,
         saPolygon: clippedSA,
         path: polyToPathStr(facingPoly),
         edgeAllowances: facingEdges,
-        // Roll line on the facing: break point → gorge
         rollLine: {
           from: { x: 0, y: breakPointY },
-          to:   { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y },
+          to:   { x: topEnd.x, y: topEnd.y },
           label: 'roll line',
         },
         notches: [
-          { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 },  // gorge — matches upper collar CF
-          { x: 0, y: breakPointY, angle: 180 },                                     // break point — matches front panel
+          { x: topEnd.x, y: topEnd.y, angle: 0 },
+          { x: 0, y: breakPointY, angle: 180 },
         ],
         width: facingBB.maxX - facingBB.minX,
         height: facingBB.maxY - facingBB.minY,
-        isBack: false,
-        sa,
-      });
-    } else {
-      // Shawl collar — combined collar + facing, one piece
-      const halfNeckArc = frontArmArc * 0.3 + neckW + shoulderW * 0.4;
-      const { shawlPoly } = shawlCollarCurve({
-        neckArc: halfNeckArc,
-        collarWidth: 3.5,
-        lapelWidth: lapelW,
-        breakPointY,
-        neckDepthFront: NECK_DEPTH_FRONT,
-        collarStand: 1.25,
-      });
-
-      pieces.push({
-        id: 'shawl-collar',
-        name: 'Shawl Collar + Facing',
-        instruction: 'Cut 2 (outer + facing) on fold at CB · Interface outer with knit fusible · Continuous collar-to-lapel curve, no notch',
-        type: 'bodice',
-        polygon: shawlPoly,
-        path: polyToPathStr(shawlPoly),
-        width: halfNeckArc,
-        height: lapelW + 3.5,
         isBack: false,
         sa,
       });
@@ -813,21 +871,26 @@ export default {
       });
     }
 
-    // ── COLLAR ──
+    // ── COLLAR / LAPEL ──
     if (opts.collar === 'peak' || opts.collar === 'notched') {
       steps.push({
         step: n++, title: 'Prepare collar',
-        detail: `Interface upper collar with knit fusible. Sew upper to under collar {RST} on three sides, leaving neck edge open. Trim SA to 3mm. {clip} corners. Turn, {press} gently — the under collar is 2% smaller so the seam rolls to the underside. {topstitch} 6mm from edge if desired.`,
+        detail: 'Interface upper collar with knit fusible. Sew upper to under collar {RST} on three sides, leaving neck edge open. Trim SA to 3mm. {clip} corners. Turn, {press} gently — the under collar is 2% smaller so the seam rolls to the underside. {topstitch} 6mm from edge if desired.',
       });
 
       steps.push({
-        step: n++, title: 'Prepare front facings and lapels',
-        detail: `Interface facing + lapel pieces with knit fusible. Sew facings to front panels {RST} along the lapel roll line and CF edge. {clip} curves. Turn, {press} gently. The facing creates the ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel shape when folded back.`,
+        step: n++, title: 'Attach front facings',
+        detail: `Interface facings with knit fusible. Pin each facing to its front panel {RST} along the ${opts.collar === 'peak' ? 'peak' : 'notched'} lapel edge and CF down to the hem, matching break-point and gorge notches. Sew. Trim SA, {clip} curves, and turn. {press} gently, rolling the seam 1/16″ to the underside so it stays invisible when the lapel folds back along the roll line. Tack the facing at the shoulder seam and along CF.`,
       });
     } else {
       steps.push({
-        step: n++, title: 'Prepare shawl collar',
-        detail: 'Interface outer shawl collar with knit fusible. Sew outer to facing {RST} around the outer edge, leaving neck edge open. {clip} curves. Turn, {press} gently. The collar flows continuously from the back neck into the lapel with no seam break.',
+        step: n++, title: 'Attach front facings',
+        detail: `Interface facings with knit fusible. Pin each facing to its front panel {RST} along the shawl lapel edge and CF down to the hem, matching break-point and shoulder-neck notches. Sew. {clip} curves, turn. {press} gently, rolling the seam 1/16″ to the underside so it stays invisible when the shawl rolls back along the roll line. Tack the facing at the shoulder seam and along CF.`,
+      });
+
+      steps.push({
+        step: n++, title: 'Prepare back shawl collar',
+        detail: 'Interface back collar with knit fusible. This piece sews shoulder-to-shoulder across the back neck to finish the neckline between the two fronts. The front lapel is already part of the front panel.',
       });
     }
 
@@ -845,8 +908,8 @@ export default {
     steps.push({
       step: n++, title: 'Attach collar to body',
       detail: opts.collar === 'shawl'
-        ? 'Pin shawl collar to neckline {RST}, matching CB and shoulder marks. The collar ends at the break point on each front. Sew. {clip} curve. {press} SA toward collar.'
-        : `Pin collar to neckline {RST}, matching CB and front gorge points. Sew. {clip} curve. The collar meets the lapel facing at the gorge — hand-stitch the gorge junction for a clean finish. {press} SA toward collar.`,
+        ? 'Pin back shawl collar to the back neckline {RST}, matching CB fold and shoulder-neck notches. The collar ends at each shoulder seam; the front shawl lapel (already part of the front panel) continues from there. Sew. {clip} curve. {press} SA toward collar.'
+        : 'Pin collar to neckline {RST}, matching CB and front gorge notches. Sew from shoulder seam to gorge on each side. The collar meets the lapel at the gorge — hand-stitch the gorge junction for a clean finish. {press} SA toward collar.',
     });
 
     steps.push({
