@@ -8,10 +8,11 @@
  */
 
 import {
-  shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
-  armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
+  shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, collarCurve,
+  shoulderDropFromWidth, armholeDepthFromChest, chestEaseDistribution,
+  neckWidthFromCircumference, UPPER_EASE,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W   = 1.5;  // button placket extension each front panel
@@ -196,16 +197,32 @@ export default {
     backPoly.push({ x: shoulderPtX + backChestDepth, y: torsoLen });
     backPoly.push({ x: 0, y: torsoLen });
 
-    // ── SLEEVE (straight, long, no taper) ────────────────────────────────────
+    // ── SLEEVE — one-piece set-in with shaped cap ────────────────────────────
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
-    const slvTopW  = m.bicep / 2 + totalEase * 0.2;
-    const slvBotW  = (m.wrist || m.bicep * 0.8) / 2 + 0.5;
-    const sleevePoly = [
-      { x: 0,           y: 0         },
-      { x: slvTopW * 2, y: 0         },
-      { x: slvTopW * 2, y: slvLength },
-      { x: 0,           y: slvLength },
-    ];
+    const slvTopW  = m.bicep / 2 + totalEase * 0.2;  // half sleeve width at bicep
+    const slvBotW  = (m.wrist || m.bicep * 0.8) / 2 + 0.5;  // half wrist width
+
+    // Armhole arc — used for cap ease validation
+    const frontArmArc = arcLength(frontArmPts);
+    const backArmArc  = arcLength(backArmPts);
+    const armholeArc  = frontArmArc + backArmArc;
+
+    // 4.5″ flat cap: workwear aesthetic, easy to flat-fell topstitch (same as denim jacket)
+    const capH   = 4.5;
+    const capCp  = sleeveCapCurve(m.bicep, capH, slvTopW * 2);
+    const capPts = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 16);
+    const capArc = arcLength(capPts);
+    const capEase = capArc - armholeArc;
+    if (capEase < 0.5 || capEase > 3) {
+      console.warn(`[crop-jacket] Sleeve cap ease out of range: ${capEase.toFixed(2)}″ (expected 0.5–3″). Cap: ${capArc.toFixed(2)}″, Armhole: ${armholeArc.toFixed(2)}″`);
+    }
+    const capEaseNote = `Cap: ${fmtInches(capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
+
+    // Polygon: cap curve at top (crown near y=0, underarm at y=capH), taper to wrist
+    const sleevePoly = [];
+    for (const p of capPts) sleevePoly.push({ x: p.x, y: p.y + capH });
+    sleevePoly.push({ x: slvTopW + slvBotW, y: capH + slvLength });
+    sleevePoly.push({ x: slvTopW - slvBotW, y: capH + slvLength });
 
     // ── LINING POLYGONS ──────────────────────────────────────────────────────
     // Lining pieces follow the actual shell shapes (not rectangles).
@@ -248,19 +265,26 @@ export default {
       }))
     );
 
-    // Sleeve lining: same rectangle, shortened 1″
+    // Sleeve lining: same cap shape as shell, hem shortened 1″
     const sleeveLiningLen = slvLength - LINING_HEM_LIFT;
-    const liningSleevePoly = [
-      { x: 0,           y: 0                },
-      { x: slvTopW * 2, y: 0                },
-      { x: slvTopW * 2, y: sleeveLiningLen  },
-      { x: 0,           y: sleeveLiningLen  },
-    ];
+    const liningSleevePoly = [];
+    for (const p of capPts) liningSleevePoly.push({ x: p.x, y: p.y + capH });
+    liningSleevePoly.push({ x: slvTopW + slvBotW, y: capH + sleeveLiningLen });
+    liningSleevePoly.push({ x: slvTopW - slvBotW, y: capH + sleeveLiningLen });
 
     // ── COLLAR ───────────────────────────────────────────────────────────────
-    // Stand collar: 3″ cut (1.5″ finished stand). Length = neckline circumference.
-    const collarLen   = m.neck + 1; // ease for standing collar
-    const collarH     = 3;          // 1.5″ finished stand
+    // Shaped stand collar: inner (neck) edge arc-matched to bodice neckline.
+    // collarCurve() gives outer edge a slight wave so the collar stands properly.
+    const frontNeckArc = arcLength(frontNeckPts);
+    const backNeckArc  = arcLength(backNeckPts);
+    const halfNeckArc  = frontNeckArc + backNeckArc;
+    const collarH      = 3;  // 1.5″ finished stand
+    const collarResult = collarCurve({
+      neckArc:     halfNeckArc,
+      collarWidth: collarH,
+      style:       opts.collar === 'point' ? 'point' : 'band',
+      standHeight: 1.5,
+    });
 
     // ── FRONT FACING ─────────────────────────────────────────────────────────
     const facingH = torsoLen - NECK_DEPTH_FRONT;
@@ -285,16 +309,11 @@ export default {
       { x: backSideX, y: slopeDrop + armholeDepth * 0.75, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
     ];
 
-    const sleeveNotches = [
-      { x: slvTopW,          y: 0, angle: -90 },  // crown → shoulder seam
-      { x: slvTopW * 0.5,    y: 0, angle: -90 },  // front quarter (single)
-      { x: slvTopW * 1.5,    y: 0, angle: -90 },  // back quarter (double)
-      { x: slvTopW * 1.5 + 0.25, y: 0, angle: -90 },
-    ];
-
-    const frontBB  = bbox(frontPoly);
-    const backBB   = bbox(backPoly);
-    const sleeveBB = bbox(sleevePoly);
+    const frontBB       = bbox(frontPoly);
+    const backBB        = bbox(backPoly);
+    const sleeveBB      = bbox(sleevePoly);
+    const upperCollarBB = bbox(collarResult.upperCollar);
+    const underCollarBB = bbox(collarResult.underCollar);
 
     const pieces = [
       {
@@ -334,30 +353,65 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: 'Cut 2 (mirror L & R) · Straight grain along length · No ease in cap - set flat',
+        instruction: `Cut 2 (mirror L & R) · Straight grain along length · Set-in cap with ease · ${capEaseNote}`,
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),
         width: sleeveBB.maxX - sleeveBB.minX,
         height: sleeveBB.maxY - sleeveBB.minY,
-        capHeight: 0,
+        capHeight: capH,
         sleeveLength: slvLength,
         sleeveWidth: slvTopW * 2,
         sa, hem,
-        notches: sleeveNotches,
+        notches: (() => {
+          const slvFullW = slvTopW * 2;
+          const backAngle = edgeAngle({ x: slvFullW / 2, y: 0 }, { x: slvFullW, y: capH });
+          const bDx = slvFullW / 2, bDy = capH;
+          const bLen = Math.sqrt(bDx * bDx + bDy * bDy);
+          const bStepX = 0.25 * bDx / bLen, bStepY = 0.25 * bDy / bLen;
+          return [
+            { x: slvFullW / 2,             y: 0,            angle: -90 },  // crown → shoulder seam
+            { x: slvFullW * 0.25,          y: capH * 0.5,   angle: edgeAngle({ x: 0, y: capH }, { x: slvFullW / 2, y: 0 }) },  // front (single)
+            { x: slvFullW * 0.75,          y: capH * 0.5,   angle: backAngle },   // back (double)
+            { x: slvFullW * 0.75 + bStepX, y: capH * 0.5 + bStepY, angle: backAngle },
+          ];
+        })(),
         dims: [
-          { label: fmtInches(slvTopW * 2) + ' width', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: slvLength, type: 'v' },
-          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
+          { label: fmtInches(slvTopW * 2) + ' underarm width', x1: 0, y1: capH + 0.4, x2: slvTopW * 2, y2: capH + 0.4, type: 'h' },
+          { label: fmtInches(slvLength) + ' length', x: slvTopW * 2 + 1, y1: capH, y2: capH + slvLength, type: 'v' },
+          { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: capH, y2: capH + effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
       {
-        id: 'collar',
-        name: opts.collar === 'mandarin' ? 'Band Collar' : 'Stand Collar',
-        instruction: `Cut 2 (outer + facing) · Interface outer · ${fmtInches(collarLen)} × ${fmtInches(collarH)} cut · ${opts.collar === 'point' ? 'Shape front corners to a point' : 'Round front corners slightly'}`,
-        type: 'rectangle',
-        dimensions: { length: collarLen, width: collarH },
-        sa,
+        id: 'upper-collar',
+        name: opts.collar === 'mandarin' ? 'Band Collar (Outer)' : 'Stand Collar (Outer)',
+        instruction: `Cut 1 on fold (CB) · Interface · ${fmtInches(collarResult.standLength)} half-length × ${fmtInches(collarH)} cut · ${opts.collar === 'point' ? 'Point tips ¾″ at CF — turn precisely' : 'Square ends at CF'} · Outer visible collar`,
+        type: 'bodice',
+        polygon: collarResult.upperCollar,
+        path: polyToPathStr(collarResult.upperCollar),
+        width: upperCollarBB.maxX - upperCollarBB.minX,
+        height: upperCollarBB.maxY - upperCollarBB.minY,
+        isBack: false,
+        sa, hem: 0,
+        dims: [
+          { label: fmtInches(collarResult.standLength) + ' half length', x1: 0, y1: -0.5, x2: collarResult.standLength, y2: -0.5, type: 'h' },
+          { label: fmtInches(collarH) + ' width', x: upperCollarBB.maxX + 1, y1: upperCollarBB.minY, y2: upperCollarBB.maxY, type: 'v' },
+        ],
+      },
+      {
+        id: 'under-collar',
+        name: opts.collar === 'mandarin' ? 'Band Collar (Facing)' : 'Stand Collar (Facing)',
+        instruction: 'Cut 1 on fold (CB) · Interface with 2 layers · 2% smaller than outer collar so seam rolls under · Inner layer',
+        type: 'bodice',
+        polygon: collarResult.underCollar,
+        path: polyToPathStr(collarResult.underCollar),
+        width: underCollarBB.maxX - underCollarBB.minX,
+        height: underCollarBB.maxY - underCollarBB.minY,
+        isBack: false,
+        sa, hem: 0,
+        dims: [
+          { label: fmtInches(collarResult.standLength / 1.02) + ' half length', x1: 0, y1: -0.5, x2: collarResult.standLength / 1.02, y2: -0.5, type: 'h' },
+        ],
       },
       {
         id: 'front-facing',
@@ -473,13 +527,13 @@ export default {
         path: polyToPathStr(liningSleevePoly),
         width: liningSleeveBB.maxX - liningSleeveBB.minX,
         height: liningSleeveBB.maxY - liningSleeveBB.minY,
-        capHeight: 0,
+        capHeight: capH,
         sleeveLength: sleeveLiningLen,
         sleeveWidth: slvTopW * 2,
         sa, hem: 0,
         dims: [
-          { label: fmtInches(slvTopW * 2) + ' width', x1: 0, y1: -0.4, x2: slvTopW * 2, y2: -0.4, type: 'h' },
-          { label: fmtInches(sleeveLiningLen) + ' length', x: slvTopW * 2 + 1, y1: 0, y2: sleeveLiningLen, type: 'v' },
+          { label: fmtInches(slvTopW * 2) + ' underarm width', x1: 0, y1: capH + 0.4, x2: slvTopW * 2, y2: capH + 0.4, type: 'h' },
+          { label: fmtInches(sleeveLiningLen) + ' length', x: slvTopW * 2 + 1, y1: capH, y2: capH + sleeveLiningLen, type: 'v' },
         ],
       });
     }
@@ -602,7 +656,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare collar',
-      detail: `Interface outer collar with 2 layers. Sew outer to facing {RST} on three sides, leaving neck edge open. Trim seam to 3mm. {clip} corners (point collar) or notch curves. Turn, {press}. For point collar: shape points precisely - use a {point turner}. {topstitch} 3.5mm from edge if desired.`,
+      detail: `Interface outer collar with 2 layers of woven interfacing. Pin outer to under collar {RST}, curved edges aligned. Sew outer edge and both CF ends (3 sides), leaving neck edge open. Trim to 3mm. ${opts.collar === 'point' ? '{clip} diagonally to point corners — 1mm from tip. Turn, use a {point turner} to fully push points. ' : 'Notch outer curve, turn. '}{press} from outer collar side, rolling seam to underside. {topstitch} 3.5mm from outer edge if desired.`,
     });
 
     if (isZip) {
@@ -624,12 +678,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF marks. Sew. {clip} curve. Fold facing SA under, pin to WS covering seam. {topstitch} from RS through all layers.',
+      detail: 'Pin outer collar neck edge to bodice neckline {RST}, matching CB and CF marks. Distribute ease evenly. Sew. {clip} neckline seam allowance every ½″. Fold under-collar neck SA under, slipstitch to WS covering seam. {topstitch} from RS at 3.5mm through all layers if desired.',
     });
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Sew sleeves into armhole {RST}, starting at underarm notch. Ease fullness at cap evenly. Sew. {topstitch} SA toward sleeve at 6mm from seam.',
+      detail: 'Match crown notch (single, at top of cap) to shoulder seam. Match single front notch to front armhole, double back notch to back armhole. Pin {RST} from underarm, working up each side. Ease cap fullness evenly between notches — use your fingers or basting. Sew. {topstitch} SA toward sleeve at 6mm from seam.',
     });
 
     steps.push({
