@@ -1390,6 +1390,20 @@ is covering monthly costs.
 - [ ] Mobile-friendly measurement input
 - [ ] React/Tailwind migration (low priority until scale)
 
+### Performance
+- [x] Defer PostHog (vendor-posthog, 176 KB) to after page idle — PR #219
+- [x] Lazy-load print-layout.js (62 KB) on print button click — PR #219
+- [x] Core Web Vitals tracking (LCP, CLS, INP, FCP, TTFB) via PerformanceObserver — PR #219
+- [ ] **Garment lazy-loading refactor** (~500 KB savings, high effort, high risk)
+      Currently all 69 garment modules (~600 KB) load eagerly via garments/index.js.
+      Plan: create src/garments/manifest.js (id/name/difficulty/category/audience, ~35 KB,
+      zero imports) for carousel/count/dropdown/listing; add loadGarment(id) dynamic import
+      to garments/index.js; make generate/print/buildInputs/buildMeasureStep/buildOptionsStep
+      async in app.js; replace Object.values(GARMENTS) in pattern-page.js with MANIFEST.
+      12 files affected. Main risk: threading async through step-switching logic (~300 lines).
+      Only worth doing once web_vital events confirm the garment bundle is causing real LCP/INP
+      problems in production.
+
 ### Test Avatars — Internal QA measurement profiles
 Run every garment module against diverse body types to catch edge
 cases (negative chestDepth, extreme crotch curves, tiny/huge SA,
