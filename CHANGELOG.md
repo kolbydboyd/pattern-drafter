@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.60] - 2026-04-16
+
+### Added
+- **Moto Jacket** (`moto-jacket`) — new advanced outerwear module with 12 options and 124,416 permutations. Three style modes: Moto / fashion biker, Perfecto (double rider), and Café Racer. Features: asymmetric or center zip, wide/narrow notch lapel or band collar or collarless, optional belt with buckle, shoulder epaulettes, side/chest zip pockets, sleeve zip gusset or snap tab cuff, and full/quilted/half/no lining. Always uses a two-piece tailored sleeve. Pattern pieces: back yoke + panel (CB fold), full front panels L/R, top sleeve + under sleeve, front facing + lapel, upper/under collar, and all conditional hardware pieces.
+- **Café Racer Jacket** (`cafe-racer-jacket`) — variant of moto jacket with center zip, band collar, snap tab cuff, and no hardware.
+- **Perfecto Jacket** (`perfecto-jacket`) — variant of moto jacket with asymmetric zip, wide notch lapel, belt, epaulettes, zip gusset cuffs, and full lining.
+
+---
+
 ## [0.12.59] - 2026-04-16
 
 ### Changed

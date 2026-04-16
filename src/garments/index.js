@@ -70,6 +70,7 @@ import kidsJoggers         from './kids-joggers.js';
 import kidsLeggings        from './kids-leggings.js';
 import kidsShorts          from './kids-shorts.js';
 import kidsDress           from './kids-dress.js';
+import motoJacket         from './moto-jacket.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -137,6 +138,7 @@ const GARMENTS = {
   'kids-leggings':          kidsLeggings,
   'kids-shorts':            kidsShorts,
   'kids-dress':             kidsDress,
+  'moto-jacket':            motoJacket,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────
