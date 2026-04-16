@@ -121,6 +121,13 @@ function bottomRoundedPath(x, y, w, h, cr) {
   return `M${x},${y} h${w} v${h - r} q0,${r} ${-r},${r} h${-(w - 2 * r)} q${-r},0 ${-r},${-r} Z`;
 }
 
+/** SVG path open at the top (left side, bottom, right side only — pocket hem opening) */
+function topOpenPath(x, y, w, h, cr) {
+  const r = Math.min(cr, w / 2, h / 2);
+  if (r <= 0) return `M${x + w},${y} V${y + h} H${x} V${y}`;
+  return `M${x + w},${y} v${h - r} q0,${r} ${-r},${r} h${-(w - 2 * r)} q${-r},0 ${-r},${-r} V${y}`;
+}
+
 /** Drill mark (crosshair) for pocket corners — industry standard fabric transfer mark */
 function drillMark(x, y, size = 4) {
   return `<line x1="${x - size}" y1="${y}" x2="${x + size}" y2="${y}" stroke="#8a4a4a" stroke-width="0.6"/>
@@ -733,6 +740,10 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   const H = dimensions.height  ?? dimensions.width;
   const sa = piece.sa || 0;
   const saOff = sa * DPI;
+  const hemEdge = piece.hemEdge || 'bottom';
+  const hem = piece.hem || 0;
+  const hemAtTop = hemEdge === 'top' && hem > 0;
+  const hemOff = hemAtTop ? hem * DPI : saOff;
 
   const M = compact ? Math.max(0.3, sa > 0 ? sa + 0.08 : 0.3) : MARGIN;
   const wIn = M + W + M;
@@ -746,12 +757,16 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   // SA cut line (outer) + stitch line (inner dashed)
   const crInner = (piece.cornerRadius || 0) * DPI;
   const crOuter = ((piece.cornerRadius || 0) + sa) * DPI;
-  const saRect = sa > 0
+  const saRect = sa > 0 || hemAtTop
     ? (piece.id === 'coin-pocket'
       ? `<path d="${bottomRoundedPath(rx - saOff, ry - saOff, rW + saOff * 2, rH + saOff * 2, crOuter)}"
           stroke="#000" stroke-width="1.5" fill="none"/>`
-      : `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
-          rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`)
+      : hemAtTop
+        // Square top corners (hem folds flat), rounded bottom corners (SA clips at corners)
+        ? `<path d="${bottomRoundedPath(rx - saOff, ry - hemOff, rW + saOff * 2, rH + hemOff + saOff, crOuter)}"
+            stroke="#000" stroke-width="1.5" fill="none"/>`
+        : `<rect x="${rx - saOff}" y="${ry - saOff}" width="${rW + saOff * 2}" height="${rH + saOff * 2}"
+            rx="${crOuter}" stroke="#000" stroke-width="1.5" fill="none"/>`)
     : '';
   const stitchStroke = sa > 0 ? 'stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"' : 'stroke="#2c2a26" stroke-width="2"';
 
@@ -796,8 +811,8 @@ function renderPocketSVG(piece, { compact = false } = {}) {
   }
 
   // SA note at bottom
-  const saNote = sa > 0
-    ? `<text x="${cx}" y="${ry + rH + saOff + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">${fmtInches(sa)} SA included</text>`
+  const saNote = sa > 0 || hemAtTop
+    ? `<text x="${cx}" y="${ry + rH + saOff + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">${hemAtTop ? `${fmtInches(hem)} hem at top · ${fmtInches(sa)} SA on 3 sides` : `${fmtInches(sa)} SA included`}</text>`
     : '';
 
   return {
@@ -809,7 +824,10 @@ function renderPocketSVG(piece, { compact = false } = {}) {
       ${saRect}
       ${piece.id === 'coin-pocket'
         ? `<path d="${bottomRoundedPath(rx, ry, rW, rH, crInner)}" ${stitchStroke} fill="none"/>`
-        : `<rect x="${rx}" y="${ry}" width="${rW}" height="${rH}" rx="${crInner}" ${stitchStroke} fill="none"/>`}
+        : hemAtTop
+          // Open at top: left side, bottom, right side — no top edge dashes
+          ? `<path d="${topOpenPath(rx, ry, rW, rH, crInner)}" ${stitchStroke} fill="none"/>`
+          : `<rect x="${rx}" y="${ry}" width="${rW}" height="${rH}" rx="${crInner}" ${stitchStroke} fill="none"/>`}
       ${marksSvg}
       ${piece.id === 'coin-pocket'
         ? `${drillMark(rx, ry)}${drillMark(rx + rW, ry)}
