@@ -552,7 +552,7 @@ export function renderPanelSVG(piece) {
  * Piece must have: polygon (array of {x,y} in inches), dims (optional), type, name, sa, hem
  */
 export function renderGenericPieceSVG(piece) {
-  const { polygon, dims = [], type, sa = 0.5, hem = 0.75, notches = [], edgeAllowances } = piece;
+  const { polygon, dims = [], type, sa = 0.5, hem = 0.75, hemEdge = 'bottom', notches = [], edgeAllowances } = piece;
 
   // Compute bounding box
   const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
@@ -649,7 +649,26 @@ export function renderGenericPieceSVG(piece) {
       const pts = saPoly.map(toSVG);
       // Check if any points are curve-tagged
       const hasCurve = saPoly.some(p => p.curve);
-      if (!hasCurve) return polyPath(saPoly);
+      if (!hasCurve) {
+        // When hemEdge === 'top', draw 3-sided stitch path (omit the opening edge)
+        if (hemEdge === 'top') {
+          const mapped = saPoly.map(toSVG);
+          let topEdgeIdx = 0, minAvgY = Infinity;
+          for (let i = 0; i < saPoly.length; i++) {
+            const a = mapped[i], b = mapped[(i + 1) % saPoly.length];
+            const avg = (a.y + b.y) / 2;
+            if (avg < minAvgY) { minAvgY = avg; topEdgeIdx = i; }
+          }
+          const si = (topEdgeIdx + 1) % saPoly.length;
+          let d = `M ${mapped[si].x.toFixed(1)} ${mapped[si].y.toFixed(1)}`;
+          for (let s = 1; s < saPoly.length; s++) {
+            const idx = (si + s) % saPoly.length;
+            d += ` L ${mapped[idx].x.toFixed(1)} ${mapped[idx].y.toFixed(1)}`;
+          }
+          return d; // open path — no Z
+        }
+        return polyPath(saPoly);
+      }
       // Copy curve tags to SVG-mapped points
       for (let i = 0; i < pts.length; i++) if (saPoly[i].curve) pts[i].curve = true;
       let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
@@ -731,7 +750,7 @@ export function renderGenericPieceSVG(piece) {
     })()}
     <text x="${svgW/2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG2}
-    <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance</text>
+    <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${hemEdge === 'top' && hem > 0 ? `${fmtInches(hem)} hem at top · ${fmtInches(sa)} SA on 3 sides` : `${fmtInches(sa)} SA included · ${fmtInches(hem)} hem allowance`}</text>
   </svg>`;
 }
 
