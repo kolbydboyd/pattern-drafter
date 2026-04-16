@@ -1,0 +1,9 @@
+# Cloudflare Pages configuration.
+# `pages_build_output_dir` is the key that tells Cloudflare this is a Pages
+# project, not a Worker — no `main` field, no deploy command required.
+# `nodejs_compat` is required for functions/api/affiliate-click.js (node:crypto)
+# and for Node.js globals used by the Supabase and Stripe SDKs in Workers.
+
+pages_build_output_dir = "dist"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]

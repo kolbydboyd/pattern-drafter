@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.58] - 2026-04-16
+
+### Fixed
+- **Cloudflare Pages configuration** — added `wrangler.toml` with `pages_build_output_dir = "dist"` and `compatibility_flags = ["nodejs_compat"]`. The previous migration added then removed `wrangler.toml` because it was formatted as a Workers config (triggering a required deploy command). The correct Pages format uses `pages_build_output_dir` instead of `main`, which signals to Cloudflare that this is a Pages project. Without this file the `nodejs_compat` flag (required by `affiliate-click.js` for `node:crypto`) had to be set manually in the dashboard on every project setup, and `pages_build_output_dir` was similarly undocumented in the repo.
+
+---
+
 ## [0.12.57] - 2026-04-15
 
 ### Added
