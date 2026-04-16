@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.62] - 2026-04-16
+
+### Fixed
+- **Crop Jacket sleeve cap** — the sleeve was a pure rectangle with no cap shaping (`capHeight: 0`), making it impossible to set correctly into the shaped armhole. Replaced with a proper one-piece set-in cap using `sleeveCapCurve()` at 4.5″ cap height (flat workwear cap, same as the denim jacket). The sleeve now tapers from bicep to wrist. Cap ease is computed and validated (warns if outside 0.5–3″). All cap notches updated: crown (single, at cap top → shoulder seam), front quarter (single), back quarter (double). Lining sleeve updated to match the shell cap shape.
+- **Crop Jacket stand collar** — the collar was a plain rectangle (`type: 'rectangle'`), producing no stand. Replaced with `collarCurve()` generating two shaped polygon pieces: outer collar (upper, `type: 'bodice'`, cut 1 on fold at CB) and facing (under collar, 2% smaller so the seam rolls under). The outer edge now has a slight outward wave that causes the collar to stand naturally when sewn to the neckline. Point collar CF tips are geometrically correct (0.75″ extension), not just a sewing instruction. Mandarin/band option uses `style: 'band'` (no CF extension, squared ends).
+- **Crop Jacket seam matching** — collar half-length is now `arcLength(frontNeckPts) + arcLength(backNeckPts)` (actual bodice neckline arc), not the raw `m.neck + 1` approximation. Cap ease note shown in sleeve piece instruction for verification.
+
+---
+
 ## [0.12.61] - 2026-04-16
 
 ### Fixed
