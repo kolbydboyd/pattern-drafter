@@ -4,6 +4,7 @@
 # `nodejs_compat` is required for functions/api/affiliate-click.js (node:crypto)
 # and for Node.js globals used by the Supabase and Stripe SDKs in Workers.
 
+name = "pattern-drafter"
 pages_build_output_dir = "dist"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
