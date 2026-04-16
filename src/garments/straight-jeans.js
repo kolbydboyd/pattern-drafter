@@ -236,7 +236,7 @@ export default {
     if (beltLoopStyle === 'individual') {
       // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long.
       const beltLoopCount = waist > 36 ? 7 : 6;
-      pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { width: 3.5, height: 2.25 }, type: 'rectangle', sa: 0 });
+      pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { length: 3.5, width: 2.25 }, type: 'rectangle', sa: 0 });
     } else if (beltLoopStyle === 'tunnel') {
       // Dickies-style discrete tunnel loops: short, wide patches sewn across
       // the waistband. Each patch is tacked along the existing waistband top
