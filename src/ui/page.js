@@ -72,3 +72,26 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 
 // Auth modal (sign in / account UI in header)
 initAuthModal();
+
+// ── Cart icon injection (all pages using page.js) ─────────────────────────────
+import { getCartCount } from '../lib/cart.js';
+
+(function _injectCartIcon() {
+  const menuBtn = document.getElementById('hdr-menu-btn');
+  if (!menuBtn) return;
+  const btn = document.createElement('a');
+  btn.href = '/checkout';
+  btn.id = 'hdr-cart-btn';
+  btn.className = 'hdr-cart';
+  btn.setAttribute('aria-label', 'Cart');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span id="hdr-cart-badge" class="hdr-cart-badge" hidden>0</span>`;
+  menuBtn.parentNode.insertBefore(btn, menuBtn);
+
+  function _syncBadge() {
+    const n = getCartCount();
+    const badge = document.getElementById('hdr-cart-badge');
+    if (badge) { badge.textContent = n; badge.hidden = n === 0; }
+  }
+  window.addEventListener('cart-updated', _syncBadge);
+  _syncBadge();
+})();

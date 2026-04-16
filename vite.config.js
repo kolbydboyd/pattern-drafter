@@ -16,6 +16,7 @@ function mpaRewrites() {
         if (req.url === '/affiliate')          req.url = '/affiliate.html';
         if (req.url === '/submit-make')       req.url = '/submit-make.html';
         if (req.url.match(/^\/feedback(\?|$)/)) req.url = '/feedback.html';
+        if (req.url.match(/^\/checkout(\?|$)/)) req.url = '/checkout.html';
         next();
       });
     },
@@ -51,6 +52,7 @@ export default defineConfig({
         affiliate: resolve(__dirname, 'affiliate.html'),
         'submit-make': resolve(__dirname, 'submit-make.html'),
         feedback:      resolve(__dirname, 'feedback.html'),
+        checkout:      resolve(__dirname, 'checkout.html'),
       },
       output: {
         // Split content-heavy modules into their own chunks so no single
