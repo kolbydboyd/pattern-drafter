@@ -6,6 +6,11 @@ All notable changes are documented here, newest first.
 
 ## [0.12.60] - 2026-04-16
 
+### Added
+- **Moto Jacket** (`moto-jacket`) — new advanced outerwear module with 12 options and 124,416 permutations. Three style modes: Moto / fashion biker, Perfecto (double rider), and Café Racer. Features: asymmetric or center zip, wide/narrow notch lapel or band collar or collarless, optional belt with buckle, shoulder epaulettes, side/chest zip pockets, sleeve zip gusset or snap tab cuff, and full/quilted/half/no lining. Always uses a two-piece tailored sleeve. Pattern pieces: back yoke + panel (CB fold), full front panels L/R, top sleeve + under sleeve, front facing + lapel, upper/under collar, and all conditional hardware pieces.
+- **Café Racer Jacket** (`cafe-racer-jacket`) — variant of moto jacket with center zip, band collar, snap tab cuff, and no hardware.
+- **Perfecto Jacket** (`perfecto-jacket`) — variant of moto jacket with asymmetric zip, wide notch lapel, belt, epaulettes, zip gusset cuffs, and full lining.
+
 ### Fixed
 - **Athletic Formal Jacket lapel geometry** — the lapel is now cut as part of the front panel (traditional tailoring), not on a separate piece. Previously the front panel rendered with only a roll-line marker and a flat neckline, while a separate "Front Facing + Lapel" piece carried the entire lapel shape. The front panel now extends from the break point out to the peak tip / notch and back to the gorge, for all three collar styles (peak, notched, shawl). The `front-facing` piece becomes a true facing that mirrors the lapel area plus a tapering strip down CF to the hem. Shawl's combined "Shawl Collar + Facing" piece is split into a narrow back-neck collar wrap (sewn shoulder-to-shoulder) plus the shared front facing. Roll line on the front panel now ends at the gorge (peak/notched) or shoulder-neck (shawl) instead of the CF neckline point. Notches on the front panel updated to match the new gorge / shoulder-neck attach points. Construction instructions rewritten to reflect the lapel-on-panel workflow.
 - **`src/engine/upper-body.js`** — added `shawlLapelFront(...)` to generate the smooth (no-notch) lapel outline for the shawl style on the front panel. `shawlCollarCurve(...)` narrowed to a back-neck collar wrap only (CB fold to shoulder-seam), since the front lapel now lives on the front panel.

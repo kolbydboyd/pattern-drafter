@@ -738,6 +738,30 @@ const SEO_DESCRIPTIONS = {
       { q: 'Why no interfacing on the sport polo collar?', a: 'Skipping the interfacing gives the collar a softer, more casual drape — closer to an athletic polo than a traditional dress polo. A heavier piqué fabric will still provide some natural body.' },
     ],
   },
+  'moto-jacket': {
+    metaDescription: 'Generate a custom-fit moto jacket sewing pattern. Asymmetric zip, notched lapel, two-piece tailored sleeve. Made to your exact measurements. Tiled PDF.',
+    pageIntro: 'A moto jacket drafted to your chest, shoulder, and arm measurements. Choose asymmetric or center zip, notch lapel or band collar, with optional belt, epaulettes, and zip pockets.',
+    faq: [
+      { q: 'What fabric works best for a moto jacket?', a: 'Genuine leather (1.2-1.4mm), faux leather / PU, or waxed canvas. Use a leather needle and Teflon or walking foot. Hold seams with clips, not pins.' },
+      { q: 'Do I need a walking foot?', a: 'Yes, strongly recommended for leather and faux leather. A Teflon foot also works. These prevent the material from sticking and distorting under the presser foot.' },
+    ],
+  },
+  'cafe-racer-jacket': {
+    metaDescription: 'Sew a custom café racer jacket from your measurements. Center zip, band collar, 1960s British minimalism. Tiled PDF sewing pattern.',
+    pageIntro: 'A café racer jacket with center zip and mandarin band collar, drafted to your exact measurements. Clean lines inspired by 1960s British motorcycle culture.',
+    faq: [
+      { q: 'What is a café racer jacket?', a: 'A minimalist motorcycle jacket popularized in 1960s British café culture. Center zip, band collar, no lapels or belt — stripped down to essentials.' },
+      { q: 'What fabric should I use?', a: 'Leather or faux leather for the classic look. Waxed canvas gives a softer, more casual interpretation.' },
+    ],
+  },
+  'perfecto-jacket': {
+    metaDescription: 'Sew a Perfecto-style double rider jacket from your measurements. Asymmetric zip, wide notch lapel, belt, and epaulettes. Tiled PDF sewing pattern.',
+    pageIntro: 'A Perfecto (double rider) jacket with asymmetric zip, wide notch lapel, waist belt, and shoulder epaulettes — the quintessential biker jacket silhouette, made to fit your exact body.',
+    faq: [
+      { q: 'What is a Perfecto jacket?', a: 'The original Schott Perfecto (1928) defined the biker jacket: asymmetric zip, wide notch lapel, snap collar, waist belt with buckle, and shoulder epaulettes. Worn by Marlon Brando in The Wild One.' },
+      { q: 'Is this hard to sew?', a: 'Advanced level. Leather requires clips instead of pins, a leather needle, and careful topstitching. The asymmetric zip and lapel facing need patience, but the result is a lifelong garment.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;
