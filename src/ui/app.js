@@ -5,13 +5,12 @@
  */
 
 import '../analytics.js';
-import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest } from '../analytics.js';
+import { trackEvent, initSiteTracking, initHeroABTest, initSocialProofABTest, initWebVitals } from '../analytics.js';
 import { renderMakesGallery } from './real-makes.js';
 import { MEASUREMENTS, OPTIONAL_MEASUREMENTS } from '../engine/measurements.js';
 import { CHILDREN_SIZES, CHILDREN_SIZE_ORDER } from '../lib/children-sizes.js';
 import { fmtInches, sanitizePoly } from '../engine/geometry.js';
 import { renderPanelSVG, renderGenericPieceSVG, renderRectanglePieceSVG, renderTemplateSVG, addWatermark, removeWatermarks } from './pattern-view.js';
-import { generatePrintLayout } from '../pdf/print-layout.js';
 import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { getNewestGarmentIds } from '../garments/release-dates.js';
@@ -1587,7 +1586,7 @@ async function handleDownloadPDF(btn) {
 }
 
 // ═══ PRINT ═══
-function printPattern() {
+async function printPattern() {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
   const pieces       = g.pieces(m, opts);
@@ -1602,6 +1601,7 @@ function printPattern() {
   }
   const materials    = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
+  const { generatePrintLayout } = await import('../pdf/print-layout.js');
   const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize);
   const win = window.open('', '_blank');
   if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
@@ -2547,6 +2547,7 @@ document.getElementById('theme-btn-m')?.addEventListener('click', () => {
 initSiteTracking();
 initHeroABTest();
 initSocialProofABTest();
+initWebVitals();
 
 // ── Cart badge sync ───────────────────────────────────────────────────────────
 function _updateCartBadge() {

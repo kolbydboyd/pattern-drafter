@@ -1,26 +1,65 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
-// PostHog analytics — initialized once on import, helpers exported for use across the app.
+// PostHog analytics — lazily initialized after page load, helpers exported for use across the app.
 
-import posthog from 'posthog-js';
+let _ph    = null;
+let _queue = [];
 
-posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host:          import.meta.env.VITE_POSTHOG_HOST,
-  autocapture:       true,
-  capture_pageview:  true,
-  capture_pageleave: true,
-  session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' },
-});
+const _POSTHOG_KEY  = import.meta.env.VITE_POSTHOG_KEY;
+const _POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST;
+
+async function _initPosthog() {
+  if (_ph) return _ph;
+  const { default: posthog } = await import('posthog-js');
+  posthog.init(_POSTHOG_KEY, {
+    api_host:          _POSTHOG_HOST,
+    autocapture:       true,
+    capture_pageview:  true,
+    capture_pageleave: true,
+    session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' },
+  });
+  _ph = posthog;
+  for (const { name, properties } of _queue) posthog.capture(name, properties);
+  _queue = [];
+  return posthog;
+}
+
+// Defer PostHog until after page load so vendor-posthog chunk stays off the critical path.
+if (document.readyState === 'complete') {
+  requestIdleCallback(_initPosthog);
+} else {
+  window.addEventListener('load', () => requestIdleCallback(_initPosthog), { once: true });
+}
 
 export function trackEvent(name, properties) {
-  posthog.capture(name, properties);
+  if (_ph) {
+    _ph.capture(name, properties);
+  } else {
+    _queue.push({ name, properties });
+  }
 }
 
 export function identifyUser(userId, traits) {
-  posthog.identify(userId, traits);
+  if (_ph) {
+    _ph.identify(userId, traits);
+  } else {
+    _queue.push({ name: '__identify__', properties: { userId, traits } });
+    // Flush immediately so identify fires as soon as PostHog loads.
+    _initPosthog().then(ph => {
+      const idx = _queue.findIndex(e => e.name === '__identify__' && e.properties.userId === userId);
+      if (idx !== -1) {
+        _queue.splice(idx, 1);
+        ph.identify(userId, traits);
+      }
+    });
+  }
 }
 
 export function resetUser() {
-  posthog.reset();
+  if (_ph) {
+    _ph.reset();
+  } else {
+    _initPosthog().then(ph => ph.reset());
+  }
 }
 
 // ── Site-wide tracking ────────────────────────────────────────────────────────
@@ -62,6 +101,77 @@ export function initSiteTracking() {
   }, { passive: true });
 }
 
+// ── Core Web Vitals ───────────────────────────────────────────────────────────
+// Uses native PerformanceObserver and Navigation Timing — no extra libraries.
+
+export function initWebVitals() {
+  const page = location.pathname;
+
+  // TTFB
+  const nav = performance.getEntriesByType('navigation')[0];
+  if (nav) {
+    trackEvent('web_vital', { name: 'TTFB', value: Math.round(nav.responseStart - nav.requestStart), page });
+  }
+
+  // FCP + LCP
+  if ('PerformanceObserver' in window) {
+    try {
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          trackEvent('web_vital', { name: 'FCP', value: Math.round(entry.startTime), page });
+        }
+      }).observe({ type: 'paint', buffered: true });
+    } catch (_) {}
+
+    try {
+      let _lcp = 0;
+      const lcpObs = new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) _lcp = Math.round(entry.startTime);
+      });
+      lcpObs.observe({ type: 'largest-contentful-paint', buffered: true });
+      // Report LCP on page hide (final value)
+      addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && _lcp > 0) {
+          trackEvent('web_vital', { name: 'LCP', value: _lcp, page });
+          lcpObs.disconnect();
+        }
+      }, { once: true });
+    } catch (_) {}
+
+    // CLS
+    try {
+      let _cls = 0;
+      const clsObs = new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          if (!entry.hadRecentInput) _cls += entry.value;
+        }
+      });
+      clsObs.observe({ type: 'layout-shift', buffered: true });
+      addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          trackEvent('web_vital', { name: 'CLS', value: Math.round(_cls * 1000) / 1000, page });
+          clsObs.disconnect();
+        }
+      }, { once: true });
+    } catch (_) {}
+
+    // INP (interaction to next paint)
+    try {
+      let _inp = 0;
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          if (entry.duration > _inp) _inp = entry.duration;
+        }
+      }).observe({ type: 'event', durationThreshold: 16, buffered: true });
+      addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && _inp > 0) {
+          trackEvent('web_vital', { name: 'INP', value: Math.round(_inp), page });
+        }
+      }, { once: true });
+    } catch (_) {}
+  }
+}
+
 // ── Hero A/B test ─────────────────────────────────────────────────────────────
 // Feature flag: 'hero-cta-variant'
 // Control  (default): current copy — tagline + "Get Started" CTA
@@ -74,7 +184,8 @@ export function initSiteTracking() {
 const AB_TAGLINE = 'patterns drafted to your exact measurements';
 const AB_CTA     = 'Generate Your Pattern Free';
 
-export function initHeroABTest() {
+export async function initHeroABTest() {
+  const posthog = await _initPosthog();
   posthog.onFeatureFlags(() => {
     const variant = posthog.getFeatureFlag('hero-cta-variant') ?? 'control';
 
@@ -102,7 +213,8 @@ export function initHeroABTest() {
 //   → Rollout: 50% control / 50% test
 //   → No payload needed; variant name 'test' is the trigger
 
-export function initSocialProofABTest() {
+export async function initSocialProofABTest() {
+  const posthog = await _initPosthog();
   posthog.onFeatureFlags(() => {
     const variant = posthog.getFeatureFlag('social-proof-variant') ?? 'control';
 
