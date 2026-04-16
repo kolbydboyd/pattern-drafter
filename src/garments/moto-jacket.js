@@ -206,17 +206,54 @@ export default {
     backPanelPoly.push({ x: sideX, y: torsoLen });
     backPanelPoly.push({ x: 0, y: torsoLen });
 
-    // Front panels — for asymmetric zip the left panel extends ZIP_OFFSET past CF
+    // Lapel geometry — computed before front panel so the panel can include lapel outline
+    const lapelW        = opts.lapel === 'wide-notch' ? 3.5 : 2.5;
+    const breakPointY   = armholeDepth * 0.85;
+    const hasNotchLapel = opts.lapel === 'wide-notch' || opts.lapel === 'narrow-notch';
+    const frontNeckArc  = arcLength(frontNeckPts);
+    const backNeckArc   = arcLength(backNeckPts);
+    const halfNeckArc   = frontNeckArc + backNeckArc + shoulderW;
+
+    let lapelResult = null, collarResult = null;
+    if (hasNotchLapel) {
+      lapelResult = notchedLapelCurve({
+        neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW,
+        gorgeAngle: opts.lapel === 'wide-notch' ? 35 : 28,
+      });
+      collarResult = collarCurve({ neckArc: halfNeckArc, collarWidth: opts.lapel === 'wide-notch' ? 3.5 : 3.0, style: 'point', standHeight: 1.25 });
+    }
+
+    // Front panels — for asymmetric zip the left panel extends ZIP_OFFSET past CF.
+    // When hasNotchLapel, the panel includes the lapel outline (traditional tailoring).
     const asymmetric = opts.frontZip === 'asymmetric';
     const cfX = asymmetric ? -ZIP_OFFSET : 0;
 
     function buildFrontPanel(cfOffset) {
       const poly = [];
-      for (const p of [...frontNeckPts].reverse()) poly.push({ x: neckW - p.x, y: p.y });
+      poly.push({ x: neckW, y: 0 }); // shoulder-neck junction
       for (let i = 1; i < shoulderPts.length; i++) poly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
       for (let i = 1; i < frontArmPts.length; i++) poly.push({ x: shoulderPtX + frontArmPts[i].x, y: shoulderPtY + frontArmPts[i].y });
       poly.push({ x: sideX, y: torsoLen });
-      poly.push({ x: cfOffset, y: torsoLen });
+      poly.push({ x: cfOffset, y: torsoLen }); // hem to CF (or zip offset for asymmetric)
+      if (hasNotchLapel && lapelResult) {
+        // Up CF / zip line to break point, then lapel outline, then partial neckline
+        poly.push({ x: 0, y: breakPointY });
+        const gorgePt = lapelResult.gorgePoint;
+        for (let i = 1; i < lapelResult.lapelPoints.length; i++) {
+          const p = lapelResult.lapelPoints[i];
+          poly.push({ x: p.x, y: p.y });
+          if (p.x === gorgePt.x && p.y === gorgePt.y) break;
+        }
+        // Partial neckline from gorgePoint → shoulder-neck (gorge-side → shoulder-side)
+        const neckForPanel = frontNeckPts
+          .map(p => ({ x: neckW - p.x, y: p.y }))
+          .filter(p => p.x > gorgePt.x + 0.01);
+        neckForPanel.sort((a, b) => a.x - b.x);
+        for (const p of neckForPanel) poly.push(p);
+      } else {
+        // No lapel — simple reversed neckline CF → shoulder
+        for (const p of [...frontNeckPts].reverse()) poly.push({ x: neckW - p.x, y: p.y });
+      }
       return poly;
     }
     const frontPanelPoly = buildFrontPanel(cfX);
@@ -235,55 +272,6 @@ export default {
     const capEase = sleeveResult.capArc - armholeArc;
     if (capEase < 0.5 || capEase > 3) console.warn(`[moto-jacket] cap ease out of range: ${capEase.toFixed(2)}″`);
     const capEaseNote = `Cap: ${fmtInches(sleeveResult.capArc)}, Armhole: ${fmtInches(armholeArc)}, Ease: ${fmtInches(capEase)}`;
-
-    // Collar / lapel geometry
-    const frontNeckArc = arcLength(frontNeckPts);
-    const backNeckArc  = arcLength(backNeckPts);
-    const halfNeckArc  = frontNeckArc + backNeckArc + shoulderW;
-    const lapelW       = opts.lapel === 'wide-notch' ? 3.5 : 2.5;
-    const breakPointY  = armholeDepth * 0.85;
-    const hasNotchLapel = opts.lapel === 'wide-notch' || opts.lapel === 'narrow-notch';
-
-    let lapelResult = null, facingPoly = null, clippedSA = null, facingEdges = null, collarResult = null;
-
-    if (hasNotchLapel) {
-      lapelResult = notchedLapelCurve({
-        neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW,
-        gorgeAngle: opts.lapel === 'wide-notch' ? 35 : 28,
-      });
-      const rawLapel = [...lapelResult.lapelPoints].reverse();
-      facingPoly = rawLapel.map(p => ({ x: p.x, y: p.y }));
-      facingPoly.push({ x: 0, y: torsoLen });
-      facingPoly.push({ x: FACING_W, y: torsoLen });
-      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
-
-      const lapelSa = Math.min(sa, 0.375);
-      const lapelEdgeCount = rawLapel.length - 1;
-      facingEdges = [];
-      for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
-      facingEdges.push({ sa, label: 'CF' }, { sa: hem, label: 'Hem' }, { sa, label: 'Inner' }, { sa, label: 'Neck' });
-
-      const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
-      clippedSA = [];
-      for (let i = 0; i < rawSA.length; i++) {
-        clippedSA.push(rawSA[i]);
-        const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
-        for (let j = i + 2; j < rawSA.length; j++) {
-          if (j === rawSA.length - 1 && i === 0) continue;
-          const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
-          const d1x = b.x - a.x, d1y = b.y - a.y, d2x = d.x - c.x, d2y = d.y - c.y;
-          const denom = d1x * d2y - d1y * d2x;
-          if (Math.abs(denom) < 1e-10) continue;
-          const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
-          const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
-          if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
-            clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
-            i = j; break;
-          }
-        }
-      }
-      collarResult = collarCurve({ neckArc: halfNeckArc, collarWidth: opts.lapel === 'wide-notch' ? 3.5 : 3.0, style: 'point', standHeight: 1.25 });
-    }
 
     // Bounding boxes
     const byBB  = bbox(backYokePoly);
@@ -391,17 +379,58 @@ export default {
     });
 
     // ── COLLAR / LAPEL ────────────────────────────────────────────────────────
-    if (hasNotchLapel && facingPoly && collarResult) {
+    if (hasNotchLapel && lapelResult && collarResult) {
+      const gorgePt = lapelResult.gorgePoint;
+      // True facing: mirrors the lapel area from the front panel, then tapers as a CF strip.
+      // Reuse the exact same lapelPoints slice used in buildFrontPanel (break → gorgePoint).
+      const lapelForFacing = [];
+      for (let i = 0; i < lapelResult.lapelPoints.length; i++) {
+        const p = lapelResult.lapelPoints[i];
+        lapelForFacing.push({ x: p.x, y: p.y });
+        if (p.x === gorgePt.x && p.y === gorgePt.y) break;
+      }
+      const facingPoly = [...lapelForFacing];
+      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT }); // step inward at neck
+      facingPoly.push({ x: FACING_W, y: torsoLen });              // CF strip to hem
+      facingPoly.push({ x: 0, y: torsoLen });                     // across hem to CF zip line
+      facingPoly.push({ x: 0, y: breakPointY });                  // up CF to break (closes to lapelForFacing[0])
+
+      const lapelSa = Math.min(sa, 0.375);
+      const lapelEdgeCount = lapelForFacing.length - 1;
+      const facingEdges = [];
+      for (let i = 0; i < lapelEdgeCount; i++) facingEdges.push({ sa: lapelSa, label: 'Lapel' });
+      facingEdges.push({ sa, label: 'Neck-step' }, { sa: hem, label: 'Hem' }, { sa, label: 'CF' }, { sa, label: 'Break' });
+
+      const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
+      const clippedSA = [];
+      for (let i = 0; i < rawSA.length; i++) {
+        clippedSA.push(rawSA[i]);
+        const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
+        for (let j = i + 2; j < rawSA.length; j++) {
+          if (j === rawSA.length - 1 && i === 0) continue;
+          const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
+          const d1x = b.x - a.x, d1y = b.y - a.y, d2x = d.x - c.x, d2y = d.y - c.y;
+          const denom = d1x * d2y - d1y * d2x;
+          if (Math.abs(denom) < 1e-10) continue;
+          const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
+          const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
+          if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
+            clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
+            i = j; break;
+          }
+        }
+      }
+
       const fBB = bbox(facingPoly);
       const ucBB = bbox(collarResult.upperCollar);
       const lcBB = bbox(collarResult.underCollar);
       pieces.push({
-        id: 'front-facing', name: `Front Facing + ${opts.lapel === 'wide-notch' ? 'Wide Notch' : 'Narrow Notch'} Lapel`,
-        instruction: `Cut 2 (L & R) · Interface · ${fmtInches(FACING_W)} facing plus notched lapel extension`,
+        id: 'front-facing', name: 'Front Facing',
+        instruction: `Cut 2 (L & R mirror) · Interface · Mirrors the ${opts.lapel === 'wide-notch' ? 'wide notch' : 'narrow notch'} lapel of the front panel plus ${fmtInches(FACING_W)} CF strip to hem`,
         type: 'bodice', polygon: facingPoly, saPolygon: clippedSA, path: pts2path(facingPoly),
         edgeAllowances: facingEdges,
-        rollLine: { from: { x: 0, y: breakPointY }, to: { x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y }, label: 'roll line' },
-        notches: [{ x: lapelResult.gorgePoint.x, y: lapelResult.gorgePoint.y, angle: 0 }, { x: 0, y: breakPointY, angle: 180 }],
+        rollLine: { from: { x: 0, y: breakPointY }, to: { x: gorgePt.x, y: gorgePt.y }, label: 'roll line' },
+        notches: [{ x: gorgePt.x, y: gorgePt.y, angle: 0 }, { x: 0, y: breakPointY, angle: 180 }],
         width: fBB.maxX - fBB.minX, height: fBB.maxY - fBB.minY, isBack: false, sa,
       });
       pieces.push({
