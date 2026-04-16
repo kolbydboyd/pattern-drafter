@@ -202,9 +202,9 @@ function foldIndicatorSVG(fx, fy1, fy2) {
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, opts,
-          crotchBezierSA } = piece;
+          crotchBezierSA, waistWidth = 0 } = piece;
 
-  const mL = 3, mT = 3, mR = 5, mB = 6;
+  const mL = 3, mT = 3, mR = Math.max(5, ext + 3.5), mB = 6;
   const svgW = sc(mL + width + mR);
   const svgH = sc(mT + height + mB);
   const ox = sc(mL + ext);
@@ -323,9 +323,17 @@ export function renderPanelSVG(piece) {
     pocketSVG += `<text x="${(bagL + 2).toFixed(1)}" y="${(midY + 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${col}">side pocket</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'scoop' || opts?.frontPocket === 'square-scoop')) {
-    const scoopInset = 3.5, scoopDepth = 6;
-    const sx1 = ox + sc(width - scoopInset), sy1 = oy;
-    const sx2 = ox + sc(width),             sy2 = oy + sc(scoopDepth);
+    // square-scoop clips at depth 4; curved scoop clips at depth 6
+    const isSquareScoop = opts?.frontPocket === 'square-scoop';
+    const scoopInset = 3.5;
+    const scoopDepth = isSquareScoop ? 4 : 6;
+    // Use waistWidth (x of waist side-seam vertex) not hipWidth for rivet x positions
+    const wx = waistWidth || width;
+    // Compute where the opening ends on the actual side seam (interpolated from hip vertex)
+    const hipPt = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    const endX = hipPt.y > 0 ? wx + (hipPt.x - wx) * (scoopDepth / hipPt.y) : wx;
+    const sx1 = ox + sc(wx - scoopInset), sy1 = oy;
+    const sx2 = ox + sc(endX),            sy2 = oy + sc(scoopDepth);
     const col = '#8a4a4a';
     const dm = (x, y) =>
       `<line x1="${x-3}" y1="${y}" x2="${x+3}" y2="${y}" stroke="${col}" stroke-width=".8"/>` +
@@ -352,7 +360,7 @@ export function renderPanelSVG(piece) {
   if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
-    const tiltDeg = 5;  // positive = side-seam edge higher (correct for back pockets)
+    const tiltDeg = -5;  // negative = side-seam edge higher (CW rotation in SVG y-down coords)
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [

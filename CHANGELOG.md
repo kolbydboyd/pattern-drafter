@@ -8,6 +8,10 @@ All notable changes are documented here, newest first.
 
 ### Fixed
 - **Cloudflare Pages configuration** — added `wrangler.toml` with `pages_build_output_dir = "dist"` and `compatibility_flags = ["nodejs_compat"]`. The previous migration added then removed `wrangler.toml` because it was formatted as a Workers config (triggering a required deploy command). The correct Pages format uses `pages_build_output_dir` instead of `main`, which signals to Cloudflare that this is a Pages project. Without this file the `nodejs_compat` flag (required by `affiliate-click.js` for `node:crypto`) had to be set manually in the dashboard on every project setup, and `pages_build_output_dir` was similarly undocumented in the repo.
+- **Back patch pocket tilt** — placement overlay on the back panel was tilted the wrong way. The rotation formula in SVG (y-down) requires a negative angle to raise the side-seam edge. Changed `tiltDeg` from `+5` to `-5` so the side-seam corner sits higher than the CB corner, matching the yoke seam angle.
+- **Front panel scoop/square-scoop rivet overlay** — rivet markers were placed using `hipWidth` instead of `waistWidth`, making them appear too far toward the side seam and creating a false diagonal. Now uses the actual waist side-seam x (`piece.waistWidth`) and the correct pocket depth (4″ for square-scoop, 6″ for curved scoop) to precisely locate both rivets.
+- **Belt loops SVG broken** — piece had `dimensions: { width, height }` but `renderRectanglePieceSVG` expects `{ length, width }`. Changed to `{ length: 3.5, width: 2.25 }` so the belt loops render correctly with a 3½″ × 2¼″ cut rectangle.
+- **Panel SVG right-margin clipping** — right margin was fixed at 5 SVG-inches regardless of crotch extension. Panels with large back-crotch extensions (e.g. 3¼″) had the outseam dimension label clipped. Right margin is now `max(5, ext + 3.5)` inches, ensuring all dimension labels are fully visible.
 
 ---
 
