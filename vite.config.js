@@ -5,7 +5,7 @@ import { resolve } from 'path';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 // Rewrite /learn/:slug and /patterns/:garment to their MPA entry points
-// (mirrors the Vercel rewrites in vercel.json for local dev)
+// (mirrors the Cloudflare Pages _redirects rules for local dev)
 function mpaRewrites() {
   return {
     name: 'mpa-rewrites',

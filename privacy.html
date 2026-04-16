@@ -155,7 +155,8 @@
           <li><strong>Stripe</strong>: processes payments. We never see your card number. Your body measurements are never sent to Stripe - only your garment choice and order total. (stripe.com)</li>
           <li><strong>PostHog</strong>: anonymous product analytics - tracks which pages you visit and which buttons you click. Does not receive your body measurements or personal information. (posthog.com)</li>
           <li><strong>Resend</strong>: sends transactional emails such as purchase confirmations and fit feedback reminders. Receives your email address only. (resend.com)</li>
-          <li><strong>Vercel</strong>: hosts the application (vercel.com)</li>
+          <li><strong>Cloudflare Pages</strong>: hosts the frontend application (cloudflare.com)</li>
+          <li><strong>Amazon Web Services (AWS Lambda)</strong>: generates PDF pattern files (aws.amazon.com)</li>
         </ul>
         <p class="pg-p">Each service has its own privacy policy. We have specifically designed our data flow so that your body measurements never leave our own database (Supabase). Payment processors, analytics tools, and email services receive only the minimum data needed to perform their function.</p>
       </div>

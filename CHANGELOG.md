@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.59] - 2026-04-16
+
+### Changed
+- **Privacy policy** — updated third-party services section to reflect current hosting stack. Replaced "Vercel: hosts the application" with "Cloudflare Pages: hosts the frontend application" and "AWS Lambda: generates PDF pattern files".
+- **vite.config.js** — updated comment to reference `_redirects` instead of the deleted `vercel.json`.
+
+---
+
 ## [0.12.58] - 2026-04-16
 
 ### Fixed
