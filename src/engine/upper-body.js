@@ -797,18 +797,57 @@ export function notchedLapelCurve({
 }
 
 /**
- * Shawl collar outline — continuous collar + lapel piece with no notch.
- * The collar flows from CB around the neck, over the shoulder, and rolls
- * into the lapel without any seam break. Cut on fold at CB.
+ * Shawl lapel outline for the FRONT PANEL (integrated, no notch).
+ * A shawl has no peak tip and no gorge notch: the lapel outer edge curves
+ * smoothly from the break point up past the shoulder, meeting the shoulder
+ * seam at the neck-shoulder junction. Above that junction the shawl collar
+ * continues as a separate back-neck piece.
  *
- * The returned polygon represents one half (CB fold to CF break point).
+ * Local frame: origin = CF neckline point; x+ = inward (toward body),
+ * negative x = outward beyond CF. Matches peakLapelCurve convention.
  *
  * @param {Object} params
- * @param {number} params.neckArc         - Half neckline arc, CB to CF (in)
- * @param {number} params.collarWidth     - Total collar width at back (in), typically 3–4
- * @param {number} params.lapelWidth      - Width at the lapel/break point (in), typically 3–5
- * @param {number} params.breakPointY     - Y of break point from shoulder baseline (in)
  * @param {number} params.neckDepthFront  - Front neckline depth (in)
+ * @param {number} params.breakPointY     - Y of break point (in)
+ * @param {number} params.lapelWidth      - Width of lapel at widest (in), typically 3–5
+ * @param {number} params.neckW           - Neck half-width (distance CF → shoulder-neck, in)
+ * @returns {{
+ *   lapelPoints: Array<{x:number, y:number}>,
+ *   shoulderNeck: {x:number, y:number},
+ *   breakPoint: {x:number, y:number},
+ * }}
+ */
+export function shawlLapelFront({ neckDepthFront, breakPointY, lapelWidth = 4, neckW }) {
+  const breakPoint   = { x: 0, y: breakPointY };
+  const shoulderNeck = { x: neckW, y: 0 };
+
+  const midY = breakPointY * 0.55;
+
+  // Smooth outer curve: break point → widest → curves back → meets shoulder.
+  // Each intermediate point creates one clean turn angle so offsetPolygon
+  // does not miter-explode (same constraint as peak/notched lapels).
+  const lapelPoints = [
+    breakPoint,
+    { x: -lapelWidth,        y: midY },                          // widest
+    { x: -lapelWidth * 0.75, y: neckDepthFront * 0.5 },           // upper outer shoulder of lapel
+    { x: -lapelWidth * 0.2,  y: -0.25 },                          // passes just above shoulder baseline
+    shoulderNeck,                                                  // meets shoulder-neck junction
+  ];
+
+  return { lapelPoints, shoulderNeck, breakPoint };
+}
+
+/**
+ * Shawl BACK collar — narrow back-neck wrap that sews shoulder-to-shoulder
+ * across the back. The front lapel is part of the front panel (see
+ * shawlLapelFront); this piece finishes the neckline between the two fronts.
+ *
+ * Cut on fold at CB. The returned polygon represents one half (CB fold to
+ * shoulder-neck attach point).
+ *
+ * @param {Object} params
+ * @param {number} params.backNeckArc    - Half back-neck arc, CB to shoulder-neck (in)
+ * @param {number} params.collarWidth    - Total collar width at back (in), typically 3–4
  * @param {number} [params.collarStand=1.25] - Height of collar stand (in)
  * @returns {{
  *   shawlPoly: Array<{x:number, y:number}>,
@@ -816,48 +855,34 @@ export function notchedLapelCurve({
  * }}
  */
 export function shawlCollarCurve({
-  neckArc,
+  backNeckArc,
   collarWidth = 3.5,
-  lapelWidth = 4,
-  breakPointY,
-  neckDepthFront,
   collarStand = 1.25,
 }) {
-  // The shawl collar is drafted flat as a curved rectangle.
-  // Inner edge follows the neckline arc. Outer edge is wider by collarWidth,
-  // widening to lapelWidth at the CF end.
-
-  // 5 points along the collar, from CB fold to CF break point
+  // Drafted flat as a curved band. Inner edge follows the back-neck arc
+  // at y=0; outer edge sits collarWidth away with a gentle outward bow.
   const steps = 5;
   const innerEdge = [];
   const outerEdge = [];
 
   for (let i = 0; i <= steps; i++) {
     const frac = i / steps;
-    const x = neckArc * frac;
-    const innerY = 0; // inner edge (neckline seam) runs along y=0
-
-    // Collar width transitions from collarWidth at CB to lapelWidth at CF
-    const widthHere = collarWidth + (lapelWidth - collarWidth) * frac;
-
-    // Outer edge has a gentle curve — bows outward slightly at back
-    const bowDepth = collarWidth * 0.06;
-    const bow = bowDepth * Math.sin(Math.PI * frac * 0.7);
-
-    innerEdge.push({ x, y: innerY });
-    outerEdge.push({ x, y: -(widthHere + bow) });
+    const x = backNeckArc * frac;
+    const bowDepth = collarWidth * 0.08;
+    const bow = bowDepth * Math.sin(Math.PI * frac);
+    innerEdge.push({ x, y: 0 });
+    outerEdge.push({ x, y: -(collarWidth + bow) });
   }
 
-  // Polygon: inner edge (CB→CF) then outer edge reversed (CF→CB)
+  // Polygon: inner edge (CB→shoulder) then outer edge reversed (shoulder→CB)
   const shawlPoly = [
     ...innerEdge,
     ...outerEdge.reverse(),
   ];
 
-  // Roll line at stand height
   const rollLine = [
     { x: 0, y: -collarStand },
-    { x: neckArc, y: -collarStand },
+    { x: backNeckArc, y: -collarStand },
   ];
 
   return { shawlPoly, rollLine };
