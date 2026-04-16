@@ -1810,6 +1810,62 @@ const FS_WEALTHY = {
   ],
 };
 
+const FS_STYLE = {
+  outfits: [
+    { name: 'Weekend Relaxed', pieces: ['Pleated Trousers', 'Camp Shirt', 'Suede Loafer', 'Fine Chain Necklace'], note: 'Rayon challis camp shirt — let the print do the work. Loafer sockless. Nothing else needed.' },
+    { name: 'Smart Casual', pieces: ['Navy Chinos', 'OCBD Shirt', 'Merino Cardigan', 'Penny Loafer', 'Dress Watch'], note: 'The cardigan replaces a blazer. Chinos tucked in. Watch on a leather strap in cognac or dark brown.' },
+    { name: 'Hot Weather', pieces: ['Linen Trousers', 'White Linen Button-Down', 'Driving Moccasin', 'Waxed Canvas Tote'], note: 'Open collar, sleeves rolled once. Accept the wrinkle — it reads as intentional at this quality level.' },
+    { name: 'Elevated Street', pieces: ['Selvedge Denim', 'Premium Tee', 'White Leather Sneaker', 'Dress Watch'], note: 'Everything clean and unfussy. Watch on a leather strap, not metal bracelet, keeps it from looking too dressed.' },
+    { name: 'Country Weekend', pieces: ['Straight Trousers', 'Polo Shirt', 'Suede Desert Boot', 'Slim Leather Belt'], note: 'Belt and boot in the same leather tone. No socks visible. Polo untucked.' },
+    { name: 'Evening Casual', pieces: ['Straight Trousers', 'Cashmere Crewneck', 'Penny Loafer', 'Dress Watch'], note: 'The crewneck over a collared shirt reads too layered. Wear the crewneck alone with a clean break at the collar.' },
+    { name: 'Texas Heat', pieces: ['Chinos', 'Camp Shirt (Rayon Challis)', 'Boat Shoe'], note: 'Sockless. Nothing extra. The looser the camp shirt the better. This is the whole outfit.' },
+    { name: 'Layered Fall', pieces: ['Straight Trousers', 'OCBD Shirt', 'Chore Coat (open)', 'Suede Desert Boot', 'Cashmere Scarf'], note: 'Chore coat worn open the whole time — it\'s a layer, not a closed garment. Scarf draped loosely, not wrapped.' },
+  ],
+  fitRules: [
+    { rule: 'Trouser Break', detail: 'None to slight only. Maximum 1/2" of fabric resting on the shoe. Anything more reads as sloppy regardless of how good the fabric is.' },
+    { rule: 'Shirt Ease', detail: '2-3" across the chest for a relaxed fit. 1-1.5" for slim. Measure at the widest point. Too tight strains buttons. Too loose loses shape.' },
+    { rule: 'Shoulder Seam', detail: 'Sits exactly at the shoulder point. Overhanging = too big. Riding up toward the neck = too small. The shoulder is the hardest thing to alter — get it right at the pattern stage.' },
+    { rule: 'Shirt Sleeve Length', detail: 'Cuff hits at the wrist bone. When wearing a jacket, 1/4" to 1/2" of shirt cuff should show. No shirt cuff visible at all = jacket too long.' },
+    { rule: 'Shirt Hem (Untucked)', detail: 'Hits at mid-fly. Longer = sloppy overhang. Shorter = unintentional crop. Shirts designed to be tucked need 3-4" more length than untucked hem length.' },
+    { rule: 'Collar Fit', detail: 'Zero gap between the collar band and the neck when buttoned. A gap means the collar is too large. This is the most visible fit flaw on a dress shirt.' },
+    { rule: 'Waistband Placement', detail: 'Sits at the natural waist, not the hips. No pulling, buckling, or horizontal drag lines across the front. Hip-rise trousers are a different category entirely.' },
+  ],
+  gaps: [
+    { garment: 'White Linen Button-Down', status: 'covered', patternId: 'linen-shirt', note: 'Direct match.' },
+    { garment: 'OCBD Shirt', status: 'partial', patternId: 'button-up', note: 'General button-up exists. No oxford cloth variant. Needs ocbd variant with soft collar roll.' },
+    { garment: 'Premium Tee', status: 'covered', patternId: 'tee', note: 'Use fit: fitted (2" ease). Tee and fitted-tee-w both available.' },
+    { garment: 'Merino / Cashmere Crewneck', status: 'covered', patternId: 'crewneck', note: 'Pattern exists. Fabric choice is up to the sewist.' },
+    { garment: 'Navy Chinos', status: 'covered', patternId: 'chinos', note: 'Direct match.' },
+    { garment: 'Straight Trousers (casual)', status: 'partial', patternId: 'wide-leg-trouser-m', note: 'Flat-front option exists but skews formal. Needs a casual straight trouser or new variant.' },
+    { garment: 'Polo Shirt', status: 'covered', patternId: 'polo-shirt', note: 'Direct match with slim, classic, and sport variants.' },
+    { garment: 'Chore Coat / Overshirt', status: 'covered', patternId: 'chore-coat', note: 'Direct match. linen-overshirt variant available.' },
+    { garment: 'Merino Cardigan', status: 'missing', patternId: null, note: 'open-cardigan is unstructured/drop-shoulder. A fitted full-button cardigan does not exist in the catalog.' },
+    { garment: 'Quality Denim', status: 'covered', patternId: 'straight-jeans', note: 'Direct match.' },
+  ],
+  palette: {
+    neutrals: [
+      ['Warm White', '#FDFCF9', '#3E3E3E'],
+      ['Stone', '#F5F0E8', '#3E3E3E'],
+      ['Ecru', '#F5F0DC', '#3E3E3E'],
+      ['Tan', '#C4A882', '#3E2723'],
+      ['Charcoal', '#3E3E3E', '#FDFCF9'],
+    ],
+    colors: [
+      ['Navy', '#1B2A4A', '#FDFCF9'],
+      ['Camel', '#B8976A', '#3E2723'],
+      ['Olive', '#4A5D23', '#FDFCF9'],
+      ['Burgundy', '#722F37', '#FDFCF9'],
+    ],
+  },
+  fabrics: [
+    { name: 'Sea Island Cotton', sources: [{store:'Mood Fabrics',url:'moodfabrics.com'},{store:'Liberty London',url:'libertylondon.com'},{store:'Burnley & Trowbridge',url:'burnleyandtrowbridge.com'}], notes: 'Search specifically for "Sea Island" — not pima, not Egyptian. Expect $40-80/yd. Very limited availability; buy when you find it.' },
+    { name: 'Merino Wool Knit', sources: [{store:'Raspberry Creek Fabrics',url:'raspberrycreekfabrics.com'},{store:'Mood Fabrics',url:'moodfabrics.com'}], notes: 'For crewnecks and cardigans, look for 12-ply or 300g/m² weight. For base layers, 180g/m². Natural stretch, no polyester blend needed.' },
+    { name: 'Tropical Weight Wool', sources: [{store:'B&J Fabrics',url:'bandjfabrics.com'},{store:'Mood Fabrics',url:'moodfabrics.com'},{store:'Emma One Sock',url:'emmaonesock.com'}], notes: 'Search "tropical weight" or "fresco wool." 8-10 oz. Breathes year-round in Houston. B&J Fabrics (NYC) has the best selection of true tropical weights.' },
+    { name: 'Selvedge / Japanese Denim', sources: [{store:'Pacific Blue Denims',url:'pacificbluedenims.com'},{store:'Blackbird Fabrics',url:'blackbirdfabrics.com'}], notes: 'Look for Kurabo, Nisshinbo, or Cone Mills White Oak. 12-14 oz for straight jeans. Pacific Blue Denims is the specialist.' },
+    { name: 'Premium Linen', sources: [{store:'fabrics-store.com',url:'fabrics-store.com'},{store:'Mood Fabrics',url:'moodfabrics.com'},{store:'Blackbird Fabrics',url:'blackbirdfabrics.com'}], notes: 'For shirts: IL019 weight (5.5 oz), pure linen not blend. For trousers: IL020 or heavier (7-9 oz). fabrics-store.com has the widest range of pure linen at fair prices.' },
+  ],
+};
+
 function renderFoundersSelect(profiles = []) {
   const activeProfile = profiles[0];
   const m = activeProfile?.measurements ?? {};
@@ -1899,6 +1955,7 @@ function renderFoundersSelect(profiles = []) {
       <button class="adm-fs-subtab adm-fs-subtab--active" data-fs-view="garments" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--gold);border-bottom:2px solid var(--gold);cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">By Garment (${FS_GARMENTS.length})</button>
       <button class="adm-fs-subtab" data-fs-view="stores" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Store Guide</button>
       <button class="adm-fs-subtab" data-fs-view="wealthy" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Wealthy Men</button>
+      <button class="adm-fs-subtab" data-fs-view="style" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:600;padding:8px 16px;border:none;background:none;color:var(--mid);border-bottom:2px solid transparent;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;margin-bottom:-2px">Men's Style</button>
     </nav>
 
     <div id="adm-fs-garments">
@@ -2044,6 +2101,125 @@ function renderFoundersSelect(profiles = []) {
         `;
       }).join('')}
     </div>
+
+    <div id="adm-fs-style" hidden>
+      <p style="font-size:.8rem;color:var(--mid);margin:0 0 16px">Outfit formulas, fit rules, pattern gaps, old money palette, and where to source luxury fabrics.</p>
+
+      <!-- Outfit Formulas -->
+      <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+        <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong style="font-size:.85rem">Outfit Formulas</strong>
+            <span style="font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);margin-left:8px">${FS_STYLE.outfits.length}</span>
+          </div>
+          <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+        </div>
+        <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+          ${FS_STYLE.outfits.map(o => `
+            <div style="background:var(--bg);border-radius:4px;padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:.82rem;font-weight:700;margin-bottom:6px">${o.name}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+                ${o.pieces.map(p => `<span style="font-size:.7rem;background:var(--card);border:1px solid var(--bdr);color:var(--text);padding:2px 8px;border-radius:12px">${p}</span>`).join('')}
+              </div>
+              <div style="font-size:.75rem;color:var(--mid);line-height:1.55">${o.note}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Fit Rules -->
+      <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+        <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong style="font-size:.85rem">Fit Rules</strong>
+            <span style="font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);margin-left:8px">${FS_STYLE.fitRules.length}</span>
+          </div>
+          <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+        </div>
+        <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+          ${FS_STYLE.fitRules.map(r => `
+            <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr)">
+              <div style="font-size:.75rem;font-weight:700;color:var(--gold);width:160px;flex-shrink:0">${r.rule}</div>
+              <div style="font-size:.78rem;color:var(--text);line-height:1.55">${r.detail}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Pattern Gap Analysis -->
+      <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+        <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong style="font-size:.85rem">Pattern Gap Analysis</strong>
+            <span style="font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);margin-left:8px">${FS_STYLE.gaps.length} garments</span>
+          </div>
+          <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+        </div>
+        <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+          ${FS_STYLE.gaps.map(g => {
+            const badgeColor = g.status === 'covered' ? '#2e7d32' : g.status === 'partial' ? '#b8600c' : '#c62828';
+            const badgeLabel = g.status === 'covered' ? 'Covered' : g.status === 'partial' ? 'Partial' : 'Missing';
+            return `
+              <div style="display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--bdr)">
+                <span style="font-size:.65rem;font-weight:700;color:#fff;background:${badgeColor};padding:2px 7px;border-radius:3px;white-space:nowrap">${badgeLabel}</span>
+                <div style="flex:1">
+                  <span style="font-size:.78rem;font-weight:600">${g.garment}</span>
+                  ${g.patternId ? `<a href="/patterns/${g.patternId}" style="font-size:.68rem;color:var(--gold);margin-left:8px;text-decoration:none">${g.patternId} &rarr;</a>` : ''}
+                  <div style="font-size:.73rem;color:var(--mid);margin-top:2px">${g.note}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Old Money Color Palette -->
+      <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+        <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:.85rem">Old Money Color Palette</strong>
+          <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+        </div>
+        <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+          <div style="margin-bottom:10px">
+            <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Neutrals</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              ${FS_STYLE.palette.neutrals.map(([n,bg,fg]) => `<div style="text-align:center"><div style="width:48px;height:32px;border-radius:4px;background:${bg};border:1px solid var(--bdr)"></div><div style="font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--mid);margin-top:2px">${n}</div><div style="font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--mid)">${bg}</div></div>`).join('')}
+            </div>
+          </div>
+          <div>
+            <div style="font-size:.65rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Colors</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              ${FS_STYLE.palette.colors.map(([n,bg,fg]) => `<div style="text-align:center"><div style="width:48px;height:32px;border-radius:4px;background:${bg};border:1px solid var(--bdr)"></div><div style="font-size:.6rem;font-family:'IBM Plex Mono',monospace;color:var(--mid);margin-top:2px">${n}</div><div style="font-size:.55rem;font-family:'IBM Plex Mono',monospace;color:var(--mid)">${bg}</div></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Luxury Fabric Sourcing -->
+      <div class="adm-roadmap-card adm-fs-card" style="margin-bottom:8px;cursor:pointer">
+        <div class="adm-fs-header" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong style="font-size:.85rem">Luxury Fabric Sourcing</strong>
+            <span style="font-size:.7rem;font-family:'IBM Plex Mono',monospace;color:var(--gold);margin-left:8px">${FS_STYLE.fabrics.length} fabrics</span>
+          </div>
+          <span class="adm-fs-chevron" style="font-size:1rem;color:var(--mid);transition:transform .2s">+</span>
+        </div>
+        <div class="adm-fs-body" hidden style="margin-top:12px;border-top:1px solid var(--bdr);padding-top:12px">
+          ${FS_STYLE.fabrics.map(f => `
+            <div style="background:var(--bg);border-radius:4px;padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:.82rem;font-weight:700;margin-bottom:4px">${f.name}</div>
+              <div style="font-size:.73rem;color:var(--mid);line-height:1.55;margin-bottom:8px">${f.notes}</div>
+              ${f.sources.map(s => `
+                <div style="display:flex;justify-content:space-between;align-items:baseline;padding:3px 0">
+                  <span style="font-size:.75rem"><strong>${s.store}</strong></span>
+                  <span style="font-size:.68rem;color:var(--gold);font-family:'IBM Plex Mono',monospace">${s.url}</span>
+                </div>
+              `).join('')}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -2066,9 +2242,11 @@ function wireFoundersSelect() {
       const garments = section.querySelector('#adm-fs-garments');
       const stores = section.querySelector('#adm-fs-stores');
       const wealthy = section.querySelector('#adm-fs-wealthy');
+      const style = section.querySelector('#adm-fs-style');
       if (garments) garments.hidden = view !== 'garments';
       if (stores) stores.hidden = view !== 'stores';
       if (wealthy) wealthy.hidden = view !== 'wealthy';
+      if (style) style.hidden = view !== 'style';
     });
   });
 
