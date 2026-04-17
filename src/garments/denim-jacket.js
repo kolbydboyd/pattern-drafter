@@ -17,6 +17,7 @@ import {
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 const PLACKET_W = 1.5;  // button placket extension each front panel
 const FACING_W  = 3.0;  // front facing width (interfaced)
@@ -656,17 +657,50 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew front yoke to front panel (flat-fell)',
-      detail: `Sew front yoke to front panel at horizontal yoke seam {RST}. {press} SA toward yoke. Trim panel SA to 3mm. Fold yoke SA over, {topstitch} at 3.5mm. ${opts.yokeStyle === 'pointed' ? 'Match pointed V at center.' : ''}`,
+      detail: (opts.yokeStyle === 'pointed' ? 'Match the pointed V at center precisely — pin from the center point outward. ' : '') + flatFelledSeam({
+        seam: 'front yoke seam',
+        sa: '⅝″',
+        pressDir: 'yoke',
+        trimSide: 'front panel',
+        foldSide: 'yoke',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'gold',
+        extraTip: 'The yoke seam runs horizontally across the chest — use a ruler or seam guide to keep your topstitch rows perfectly parallel to the horizontal seam.',
+      }),
     });
 
     steps.push({
       step: n++, title: 'Sew back yoke to back panel (flat-fell)',
-      detail: `Sew back yoke to back panel at yoke seam {RST}. {press} SA toward yoke. Trim panel SA to 3mm. Fold yoke SA over, {topstitch} at 3.5mm. ${opts.yokeStyle === 'pointed' ? 'Carefully match pointed V - pin from center out.' : 'Keep seam straight and level.'}`,
+      detail: (opts.yokeStyle === 'pointed' ? 'Carefully match the pointed V at center back — pin from the center point outward on each side so the V stays symmetrical. ' : 'Keep the seam straight and level across the back. ') + flatFelledSeam({
+        seam: 'back yoke seam',
+        sa: '⅝″',
+        pressDir: 'yoke',
+        trimSide: 'back panel',
+        foldSide: 'yoke',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'gold',
+        extraTip: 'The back yoke is a focal point of the jacket — take time to press the fell completely flat before stitching. Uneven topstitch rows here are very visible on the finished garment.',
+      }),
     });
 
     steps.push({
       step: n++, title: 'Sew shoulder seams (flat-fell)',
-      detail: 'Join front yoke to back yoke at shoulders {RST}. {press} both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, {topstitch} at 3.5mm.',
+      detail: 'Join front yoke to back yoke at shoulders {RST}.\n\n' + flatFelledSeam({
+        seam: 'shoulder seam',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'gold',
+        extraTip: 'Shoulder seams are short and easy to fell — a good seam to practice the technique before moving on to the longer side seams.',
+      }),
     });
 
     steps.push({
@@ -686,15 +720,40 @@ export default {
     } else {
       steps.push({
         step: n++, title: 'Set sleeves into armholes (flat-fell)',
-        detail: 'Pin sleeve cap to armhole {RST}, matching center cap notch to shoulder seam and quarter notches to pitch points. The low cap has minimal ease - distribute evenly. Sew. Apply flat-fell finish: {press} SA toward body, trim sleeve SA to 3mm, fold body SA over, {topstitch} at 3.5mm from RS. Add second row of {topstitch} close to fold for classic double-needle look.',
+        detail: 'Pin sleeve cap to armhole {RST}, matching the center cap notch to the shoulder seam and the quarter notches to the front and back pitch points. The low cap has minimal ease — distribute any fullness evenly between the notches rather than in one spot.\n\n' + flatFelledSeam({
+          seam: 'armhole seam',
+          sa: '⅝″',
+          pressDir: 'body',
+          trimSide: 'sleeve',
+          foldSide: 'body',
+          trimTo: '3mm (⅛″)',
+          row1: '⅛″',
+          row2: '¼″ (3.5mm)',
+          thread: 'gold',
+          extraTip: 'The armhole is a curve. Before folding, {clip} the trimmed sleeve SA every ½″ around the curve so the fell lies flat without pulling. Two rows of gold topstitching here is the classic denim jacket detail.',
+        }),
       });
     }
 
     steps.push({
       step: n++, title: 'Sew side seams (flat-fell)',
-      detail: opts.sleeveStyle === 'two-piece'
-        ? 'Sew front panel to back panel at side seams from hem to underarm {RST}. Apply flat-fell: {press} toward back, trim front SA to 3mm, fold back SA over, {topstitch} at 3.5mm.'
-        : 'Sew front panel to back panel at side seams {RST}, continuing through underarm to sleeve hem in one continuous seam. Apply flat-fell: {press} toward back, trim front SA to 3mm, fold back SA over, {topstitch} at 3.5mm.',
+      detail: (opts.sleeveStyle === 'two-piece'
+        ? 'Sew front panel to back panel at side seams from hem to underarm {RST}.\n\n'
+        : 'Sew front panel to back panel at side seams {RST}, continuing through the underarm to the sleeve hem in one continuous seam.\n\n'
+      ) + flatFelledSeam({
+        seam: opts.sleeveStyle === 'two-piece' ? 'side seam' : 'side seam (continuing through underarm to sleeve hem)',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'gold',
+        extraTip: opts.sleeveStyle === 'two-piece'
+          ? 'The sleeve underarm seam was already sewn, so this is a straight side seam — one of the easiest fells on the jacket.'
+          : 'At the underarm pivot, {clip} the trimmed SA nearly to the stitching so the fell turns the corner. Work the long seam in sections: fell the body portion, then fell the sleeve portion.',
+      }),
     });
 
     steps.push({

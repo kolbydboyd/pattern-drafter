@@ -16,6 +16,7 @@ import {
   closeYokeDarts, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 export default {
   id: 'straight-jeans',
@@ -358,11 +359,33 @@ export default {
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem. Sew at 5/8\u2033. {press} both SAs toward back. Fell: trim the front (underneath) SA to 3/16\u2033, fold back SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS \u2014 first at 1/8\u2033 then at 1/4\u2033 from the fold. Repeat for the other side.',
+      detail: 'Join front to back at each side seam {RST}, matching notches at hip and hem.\n\n' + flatFelledSeam({
+        seam: 'outseam (side seam)',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3/16″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'gold',
+        extraTip: 'Repeat for the other side seam. Work on one leg at a time while the assembly is still flat — it is much easier than trying to maneuver a closed tube of fabric.',
+      }),
     });
     steps.push({
       step: n++, title: 'Sew inseams',
-      detail: 'At this point each leg is a flat front+back assembly joined only at the side seam. The CB-to-CF crotch curve was already sewn in the seat-curve step, so this step just closes the inner-leg seams. For each leg: align the inseam edges {RST} from hem up to the crotch notch and stitch at 5/8\u2033. {press} SA toward the front. Fell: trim the back (underneath) SA to 3/16\u2033, fold the front SA over the trimmed edge, pin, {press} flat. {topstitch} two rows from RS at 1/8\u2033 and 1/4\u2033 from the fold. Repeat for the other leg. After both inseams are felled, the front and back crotch curves should meet cleanly at the crotch junction. If a small gap remains right at the junction, close it with a short reinforcing seam stitched twice. The pants are now a closed pair.',
+      detail: 'At this point each leg is a flat front+back assembly joined only at the outseam. The crotch curve was already sewn, so this step closes the inner-leg seams. For each leg: align the inseam edges {RST} from hem up to the crotch notch.\n\n' + flatFelledSeam({
+        seam: 'inseam',
+        sa: '⅝″',
+        pressDir: 'front',
+        trimSide: 'back',
+        foldSide: 'front',
+        trimTo: '3/16″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'gold',
+        extraTip: 'On the inseam the fell folds toward the front of the leg. After both inseams are felled, the crotch curves should meet cleanly at the crotch junction. If a small gap remains right at the junction, close it with a short reinforcing seam stitched twice. The pants are now a closed pair.',
+      }),
     });
     if (beltLoopStyle === 'individual') {
       steps.push({

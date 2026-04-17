@@ -14,6 +14,7 @@ import {
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 const PLACKET_W   = 1.5;  // button placket extension each front panel
 const FACING_W    = 3.0;  // front facing width (interfaced)
@@ -673,7 +674,18 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew shoulder seams (flat-fell)',
-      detail: 'Sew front to back at shoulders {RST}. {press} both SAs toward back. Trim front SA to 3mm. Fold back SA over trimmed edge, {press}. {topstitch} at 3.5mm close to fold. Result: two visible rows of {topstitch} on RS.',
+      detail: flatFelledSeam({
+        seam: 'shoulder seam',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'matching or contrasting',
+        extraTip: 'On the shoulder seam the fell runs horizontally across the back — keep your presser foot parallel to the shoulder line for straight rows.',
+      }),
     });
 
     steps.push({
@@ -688,7 +700,18 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew side seams (flat-fell)',
-      detail: 'Sew front to back at side seams {RST}, from hem through underarm continuously to sleeve hem. Apply flat-fell finish: {press} toward back, trim front SA to 3mm, fold back SA over, {topstitch} at 3.5mm.',
+      detail: flatFelledSeam({
+        seam: 'side seam (from jacket hem continuously through the underarm to the sleeve hem in one pass)',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″ (3.5mm)',
+        thread: 'matching or contrasting',
+        extraTip: 'Because this seam runs continuously from hem to sleeve hem, sew and fell in one long pass. At the underarm pivot point, clip the seam allowance nearly to the stitching line so the fell lies flat around the curve.',
+      }),
     });
 
     if (isZip) {

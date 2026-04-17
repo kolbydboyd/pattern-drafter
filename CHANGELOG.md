@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.63] - 2026-04-17
+
+### Added
+- **Flat-felled seam instructions (beginner-friendly)** — added a shared helper `src/lib/seam-techniques.js` exporting `flatFelledSeam()`. Every garment that uses flat-felled seams now receives detailed, step-by-step instructions covering: which SA to trim, how to fold and press, why two topstitch rows are used, needle/thread recommendations, and common pitfalls. Affects: `crop-jacket`, `straight-jeans`, `baggy-jeans`, `button-up`, `chore-coat`, and `denim-jacket` (yoke, shoulder, armhole, and side seam steps). `soloist-jeans` is covered automatically via its `straight-jeans` delegation.
+
+---
+
 ## [0.12.62] - 2026-04-16
 
 ### Fixed
