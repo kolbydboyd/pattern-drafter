@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.64] - 2026-04-17
+
+### Added
+- **Crop Jacket v2 — Detroit-reference upgrade.** Full audit and upgrade of the crop jacket pattern to match Carhartt Detroit silhouette. New options: `fit` (relaxed 6″ / oversized 8″ with layering descriptions), `sleeveStyle` (one-piece / two-piece tailored via `twoPartSleeve()`), `backYoke` (none / straight, generates back yoke + lower panel via `yokeSplit()`), `waistband` (hem / self-fabric or ribbed knit band), `cuff` gains 'band' option, `lining` gains 'quilted' option. Collar `'point'` replaced with `'stand'` (two-piece collar-with-stand: 4 pattern pieces for separated stand + fall). Default closure changed from zipper to button.
+- **Drafting fixes:** bicep ease increased to `totalEase * 0.35` (was 0.20) for hoodie layering. Wrist ease increased to +1.0″ (was +0.5″). Elbow position corrected to 55% of sleeve length (was 45%). Button count scales with jacket length (5 crop / 6 hip).
+- **Materials upgrade:** 7 fabrics (added cotton-twill, corduroy, moleskin, wool-melton). Yardage estimates at 45″/54″/60″ computed from piece dimensions. Canvas sourcing tips (Home Depot drop cloths, Mood deadstock). Button material callout (corozo/horn/metal, avoid plastic). Ribbed knit notion for band options. Rivet/bar-tack upgrade callout. Hong Kong finish callout for unlined builds.
+- **Instructions upgrade:** 16-step canonical workwear construction order. New steps: interface all pieces (step 1), back yoke attachment, two-piece sleeve construction, two-piece collar-with-stand assembly (stand + fall), waistband band attachment, cuff band attachment, dedicated topstitching pass, expanded finishing section with construction-based interior finish options. Fit-critical callouts: shoulder seam placement, pocket symmetry check, collar stand evenness.
+
+---
+
 ## [0.12.63] - 2026-04-17
 
 ### Added
