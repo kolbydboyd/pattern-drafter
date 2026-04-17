@@ -13,6 +13,7 @@ import {
   buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 export default {
   id: 'baggy-jeans',
@@ -236,11 +237,33 @@ export default {
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
-      detail: 'Join front to back at outseam {RST}. The wide leg panels are easier to handle flat \u2014 {press} toward back. {topstitch} outseam fell: fold back panel SA over front, {topstitch} two rows \u215B\u2033 and \u00BC\u2033 from seam edge.',
+      detail: 'Join front to back at each outseam {RST}. The wide leg panels are easier to handle flat at this stage.\n\n' + flatFelledSeam({
+        seam: 'outseam (side seam)',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3/16″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'gold',
+        extraTip: 'The extra volume of baggy jeans means a longer seam to fell — work in short sections, pressing and pinning as you go before you reach the machine.',
+      }),
     });
     steps.push({
       step: n++, title: 'Sew inseam',
-      detail: 'Continuous seam from hem to hem through the dropped crotch. {clip} crotch curve. Fell toward front: fold front inseam SA over, {press}, {topstitch} from RS.',
+      detail: 'This is a continuous seam from hem to hem that runs through the dropped crotch. {clip} the crotch curve every ½″ so it lies flat after sewing.\n\n' + flatFelledSeam({
+        seam: 'inseam (hem to hem through the crotch)',
+        sa: '⅝″',
+        pressDir: 'front',
+        trimSide: 'back',
+        foldSide: 'front',
+        trimTo: '3/16″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'gold',
+        extraTip: 'At the dropped crotch curve, clip the trimmed SA every ½″ before folding so the fell lies flat around the curve without puckering.',
+      }),
     });
     steps.push({
       step: n++, title: 'Construct and attach waistband',

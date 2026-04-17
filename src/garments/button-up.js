@@ -14,6 +14,7 @@ import {
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
 
@@ -630,7 +631,18 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front panels to back at shoulders {RST}. Flat-felled seam: sew RST, {press} both SA to one side, trim inner SA to 3mm, fold outer SA over it, {topstitch}. This gives a clean, durable finish ideal for linen.',
+      detail: 'Join front panels to back at shoulders {RST}.\n\n' + flatFelledSeam({
+        seam: 'shoulder seam',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'matching',
+        extraTip: 'For linen and woven fabrics, pressing thoroughly at each stage is especially important — linen responds very well to a hot iron and a damp press cloth.',
+      }),
     });
 
     if (opts.collar === 'point') {
@@ -647,12 +659,34 @@ export default {
 
     steps.push({
       step: n++, title: 'Set sleeves',
-      detail: 'Mark center of sleeve cap (top edge center). Match to shoulder seam. Pin sleeve to armhole {RST}, ease cap to fit. Flat-felled seam or {serge}. {press} toward sleeve.',
+      detail: 'Mark center of sleeve cap (top edge). Match to shoulder seam. Pin sleeve to armhole {RST} and ease the cap fullness evenly between notches.\n\n' + flatFelledSeam({
+        seam: 'armhole seam',
+        sa: '⅝″',
+        pressDir: 'sleeve',
+        trimSide: 'body',
+        foldSide: 'sleeve',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'matching',
+        extraTip: 'The armhole is a curve, so {clip} the trimmed body SA every ½″ before folding so the fell lies flat without pleating. Alternatively, {serge} and press open if a flat fell on the armhole feels too advanced — both finishes are durable.',
+      }),
     });
 
     steps.push({
       step: n++, title: 'Sew side seams and sleeve seams',
-      detail: 'Sew front to back at side seams in one continuous seam from shirt hem to sleeve hem {RST}. Flat-felled seam: sew, press, trim, fold, topstitch. {press} toward back.',
+      detail: 'Sew front to back at side seams in one continuous seam from shirt hem through the underarm to the sleeve hem {RST}.\n\n' + flatFelledSeam({
+        seam: 'side and sleeve seam (sewn as one continuous pass)',
+        sa: '⅝″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '3mm (⅛″)',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'matching',
+        extraTip: 'At the underarm pivot point, {clip} the trimmed SA nearly to the stitching line so the fell turns the corner smoothly.',
+      }),
     });
 
     if (opts.sleeve === 'long' && opts.cuff === 'barrel') {
