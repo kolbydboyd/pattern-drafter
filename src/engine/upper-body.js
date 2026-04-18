@@ -772,28 +772,23 @@ export function notchedLapelCurve({
     y: gorgePoint.y - Math.sin(gorgeRad) * notchDepth,
   };
 
-  // Notch inner: the lapel's tip at the notch, slightly offset from gorge
-  // The lapel tip extends outward perpendicular to the gorge line
-  const perpRad = gorgeRad - Math.PI / 2; // perpendicular to gorge
-  const notchInner = {
-    x: gorgePoint.x + Math.cos(perpRad) * notchDepth * 0.6,
-    y: gorgePoint.y + Math.sin(perpRad) * notchDepth * 0.6,
+  // Lapel tip: the visible outer corner of the lapel when worn.
+  // Negative x = outward from CF (lapel fold direction).
+  // y slightly below neckline = notched style (points down, not peaked).
+  const lapelTip = {
+    x: -lapelWidth,
+    y: neckDepthFront + 0.5,
   };
-
-  // Lapel outer edge
-  const midY = (breakPointY + gorgePoint.y) / 2;
 
   const lapelPoints = [
     breakPoint,
-    { x: -lapelWidth * 0.6, y: breakPointY * 0.92 }, // lower outer curve
-    { x: -lapelWidth, y: midY },                      // widest point
-    { x: -lapelWidth * 0.7, y: (midY + notchInner.y) / 2 }, // upper outer
-    notchInner,                                        // lapel tip at notch
-    gorgePoint,                                        // gorge junction
-    notchOuter,                                        // collar side of notch
+    { x: -lapelWidth * 0.55, y: breakPointY * 0.55 + lapelTip.y * 0.45 }, // outer sweep
+    lapelTip,       // outer corner — full lapelWidth outward at neckline height
+    gorgePoint,     // gorge junction — nearly horizontal gorge line from tip to gorge
+    notchOuter,     // collar-side notch point (collar construction reference)
   ];
 
-  return { lapelPoints, gorgePoint, notchInner, notchOuter, breakPoint };
+  return { lapelPoints, gorgePoint, lapelTip, notchInner: lapelTip, notchOuter, breakPoint };
 }
 
 /**

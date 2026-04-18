@@ -14,6 +14,7 @@ import {
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
+import { flatFelledSeam } from '../lib/seam-techniques.js';
 
 const PLACKET_W = 1.5;  // button placket extension on each front panel (inches)
 
@@ -421,7 +422,18 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front panels to back at shoulders {RST}. {press} open or {serge} and {press} toward back. {topstitch} if flat-felled.',
+      detail: 'Join front panels to back at shoulders {RST}.\n\nIf using ⅝″ SA: {press} SAs open, then {serge} or zigzag each raw edge separately — or {topstitch} each SA flat to the garment. If using 1″ SA (selected for flat-fell construction), apply a flat-felled finish:\n\n' + flatFelledSeam({
+        seam: 'shoulder seam',
+        sa: '1″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '¼″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'matching or contrasting',
+        extraTip: 'The 1″ seam allowance gives you more fabric to fold, making the fell easier to handle on thick canvas.',
+      }),
     });
 
     steps.push({
@@ -438,7 +450,18 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew side and underarm seams',
-      detail: 'Sew continuously from hem through underarm to sleeve hem {RST}. {clip} at underarm. {press} open or flat-fell. {serge} if raw.',
+      detail: 'Sew continuously from hem through underarm to sleeve hem {RST}. {clip} the underarm curve every ½″ so it turns the corner without pulling.\n\nIf using ⅝″ SA: {press} open and {serge} raw edges. If using 1″ SA, apply a flat-felled finish:\n\n' + flatFelledSeam({
+        seam: 'side and underarm seam (one continuous pass from hem to sleeve hem)',
+        sa: '1″',
+        pressDir: 'back',
+        trimSide: 'front',
+        foldSide: 'back',
+        trimTo: '¼″',
+        row1: '⅛″',
+        row2: '¼″',
+        thread: 'matching or contrasting',
+        extraTip: 'At the underarm, {clip} the trimmed SA nearly to the stitching before folding so the fell turns the curve without bunching.',
+      }),
     });
 
     if (hasBarrel) {

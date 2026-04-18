@@ -603,29 +603,10 @@ export default {
         console.warn(`[athletic-formal-jacket] facingEdges length ${facingEdges.length} !== facingPoly length ${facingPoly.length}`);
       }
 
-      // Pre-compute SA polygon and clip any self-intersecting loops — the
-      // narrow peak/notch wing can cause opposite-edge stitch lines to cross.
-      const rawSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
-      const clippedSA = [];
-      for (let i = 0; i < rawSA.length; i++) {
-        clippedSA.push(rawSA[i]);
-        const a = rawSA[i], b = rawSA[(i + 1) % rawSA.length];
-        for (let j = i + 2; j < rawSA.length; j++) {
-          if (j === rawSA.length - 1 && i === 0) continue;
-          const c = rawSA[j], d = rawSA[(j + 1) % rawSA.length];
-          const d1x = b.x - a.x, d1y = b.y - a.y;
-          const d2x = d.x - c.x, d2y = d.y - c.y;
-          const denom = d1x * d2y - d1y * d2x;
-          if (Math.abs(denom) < 1e-10) continue;
-          const t = ((c.x - a.x) * d2y - (c.y - a.y) * d2x) / denom;
-          const u = ((c.x - a.x) * d1y - (c.y - a.y) * d1x) / denom;
-          if (t > 0.01 && t < 0.99 && u > 0.01 && u < 0.99) {
-            clippedSA.push({ x: a.x + d1x * t, y: a.y + d1y * t });
-            i = j;
-            break;
-          }
-        }
-      }
+      // facingPoly is CW-in-screen (positive shoelace area). offsetPolygon uses
+      // the left-hand normal, which for CW points toward the interior — so a
+      // positive offset goes inward (= correct stitch-line direction).
+      const facingSA = offsetPolygon(facingPoly, (i) => (facingEdges[i]?.sa ?? sa));
 
       const facingBB = bbox(facingPoly);
       const styleLabel = opts.collar === 'peak' ? 'peak' : opts.collar === 'notched' ? 'notched' : 'shawl';
@@ -636,7 +617,7 @@ export default {
         type: 'bodice',
         isCutOnFold: false,
         polygon: facingPoly,
-        saPolygon: clippedSA,
+        saPolygon: facingSA,
         path: polyToPathStr(facingPoly),
         edgeAllowances: facingEdges,
         rollLine: {

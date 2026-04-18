@@ -4,11 +4,27 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.62] - 2026-04-17
+## [0.12.64] - 2026-04-17
 
 ### Changed
 - **Camp Shirt** — full pattern upgrade to industry-standard quality (Helen's Closet Cameron / Closet Core Kalle level). Difficulty downgraded to beginner. Removed worker-collar option. Hem default changed to 1" folded. Shaped camp collar is now a proper trapezoid (pointCut = collarH × 0.5) so it lies flat when open rather than standing up. Added optional back yoke (option: `yoke: 'none' | 'yoke'`, default `none`) using the same shaped-polygon approach as the denim jacket: `yokeDepth = armholeDepth × 0.33`, armhole curve split at `yokeLineY` via linear interpolation, yoke piece cut on fold (outer + lining). Materials list upgraded: rayon challis first, yardage formula for 45" and 60" widths, button quality note. Instructions expanded to 13 steps: stay-stitch first, conditional yoke sandwich step, finishing options section.
 - **Added `classic-camp-yoke` variant** — camp shirt with back yoke enabled by default. New SVG illustration (dashed yoke seam) and SEO description added.
+
+---
+
+## [0.12.63] - 2026-04-17
+
+### Added
+- **Flat-felled seam instructions (beginner-friendly)** — added a shared helper `src/lib/seam-techniques.js` exporting `flatFelledSeam()`. Every garment that uses flat-felled seams now receives detailed, step-by-step instructions covering: which SA to trim, how to fold and press, why two topstitch rows are used, needle/thread recommendations, and common pitfalls. Affects: `crop-jacket`, `straight-jeans`, `baggy-jeans`, `button-up`, `chore-coat`, and `denim-jacket` (yoke, shoulder, armhole, and side seam steps). `soloist-jeans` is covered automatically via its `straight-jeans` delegation.
+
+---
+
+## [0.12.62] - 2026-04-16
+
+### Fixed
+- **Crop Jacket sleeve cap** — the sleeve was a pure rectangle with no cap shaping (`capHeight: 0`), making it impossible to set correctly into the shaped armhole. Replaced with a proper one-piece set-in cap using `sleeveCapCurve()` at 4.5″ cap height (flat workwear cap, same as the denim jacket). The sleeve now tapers from bicep to wrist. Cap ease is computed and validated (warns if outside 0.5–3″). All cap notches updated: crown (single, at cap top → shoulder seam), front quarter (single), back quarter (double). Lining sleeve updated to match the shell cap shape.
+- **Crop Jacket stand collar** — the collar was a plain rectangle (`type: 'rectangle'`), producing no stand. Replaced with `collarCurve()` generating two shaped polygon pieces: outer collar (upper, `type: 'bodice'`, cut 1 on fold at CB) and facing (under collar, 2% smaller so the seam rolls under). The outer edge now has a slight outward wave that causes the collar to stand naturally when sewn to the neckline. Point collar CF tips are geometrically correct (0.75″ extension), not just a sewing instruction. Mandarin/band option uses `style: 'band'` (no CF extension, squared ends).
+- **Crop Jacket seam matching** — collar half-length is now `arcLength(frontNeckPts) + arcLength(backNeckPts)` (actual bodice neckline arc), not the raw `m.neck + 1` approximation. Cap ease note shown in sleeve piece instruction for verification.
 
 ---
 
