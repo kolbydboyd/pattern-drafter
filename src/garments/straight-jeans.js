@@ -164,7 +164,8 @@ export default {
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
-    const backDartIntake = backHipW - backWaistW;
+    const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
+    const backDartIntake = hasYoke ? 0 : (backHipW - backWaistW);
 
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',

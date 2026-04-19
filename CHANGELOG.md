@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.71] - 2026-04-19
+
+### Changed
+- **Jeans back panel — no darts when yoke active** — jeans have a yoke *instead of* darts: the yoke's trapezoidal shape (narrow waist, wider bottom) absorbs the waist-to-hip shaping that would otherwise be closed into darts. Previously the back panel was drafted with a fake wide waist + computed dart intake, then the yoke split closed those darts via rotation (with snap-back fixes to keep the side seam straight). Now, when `yokeStyle !== 'none'`, the back panel is drafted directly with `waistWidth = backWaistW` and `dartIntake = 0` — the diagonal side seam from narrow waist to wider hip runs through both the yoke and lower panel naturally, no dart machinery needed. Trousers still get darts; jeans get a yoke.
+
+---
+
 ## [0.12.70] - 2026-04-19
 
 ### Fixed
