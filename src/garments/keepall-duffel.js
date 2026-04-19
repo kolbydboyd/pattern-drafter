@@ -294,8 +294,6 @@ export default {
       quantity: `1 continuous coil or separating, at least ${fmtInches(zipperLen)} long. YKK #5 coil recommended. Use a Teflon foot over canvas.`,
     });
 
-    notions.push({ name: '¾″ D-rings (handle anchors)', quantity: '4' });
-
     if (opts.shoulderStrap === 'yes') {
       notions.push({ name: '1″ D-rings (strap attachment)', quantity: '2' });
       notions.push({ name: '1″ tri-glide / ladder lock slider', quantity: '1' });
@@ -356,7 +354,7 @@ export default {
     // 1. Cut and mark
     steps.push({
       step: n++, title: 'Cut all pieces and transfer markings',
-      detail: `Cut all pattern pieces with grain lines vertical. On each outer body panel mark the two handle anchor positions: ${anchorOffset} from each short end, 1″ below the top raw edge. On the gusset mark the center-bottom notch and the two pairs of corner-ease zone notches (${fmtInches(Math.round(sideLen * 4) / 4)} and ${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end). These notches tell you exactly where to clip the SA to ease the gusset around the body-panel corners.`,
+      detail: `Cut all pattern pieces with grain lines vertical. On each outer body panel mark two vertical lines for handle anchor placement: ${anchorOffset} from each short end (these indicate horizontal centering of the handle loop — the anchor patch runs from the top raw edge down 2″). On the gusset mark the center-bottom notch and the two pairs of corner-ease zone notches (${fmtInches(Math.round(sideLen * 4) / 4)} and ${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end). These notches tell you exactly where to clip the SA to ease the gusset around the body-panel corners.`,
     });
 
     // 2. Interfacing
@@ -428,7 +426,7 @@ export default {
     // 10. Install zipper
     steps.push({
       step: n++, title: 'Install main zipper on outer shell',
-      detail: `Open the zipper fully. With the outer shell right side out, lay the zipper face down along the top raw edge of the front body panel, tape edge aligned with the fabric raw edge. Using a zipper foot, sew the zipper tape down with a ${fmtInches(parseFloat(opts.sa))} seam. {press} the panel away from the zipper. {topstitch} ¼″ from the zipper teeth. Close the zipper. Align the back body panel to the opposite zipper tape side, pin, and sew the same way. {press} and {topstitch}. Tack the zipper tape ends to the gusset top edge at each short end.`,
+      detail: `Open the zipper fully. With the outer shell right side out, lay the zipper face down along the top raw edge of the front body panel, tape edge aligned with the fabric raw edge. Using a zipper foot, sew the zipper tape down with a ${fmtInches(parseFloat(opts.sa))} seam. {press} the panel away from the zipper. {topstitch} ¼″ from the zipper teeth. Close the zipper. Align the back body panel to the opposite zipper tape side, pin, and sew the same way. {press} and {topstitch}. At each short end of the gusset, fold the zipper tape end over the gusset top edge${hasStrap ? ' (catching the D-ring tab raw ends in this tacking stitch — this is what anchors the shoulder strap hardware to the bag)' : ''} and tack securely through all layers.`,
     });
 
     // 11. Assemble lining
