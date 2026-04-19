@@ -360,22 +360,16 @@ export function renderPanelSVG(piece) {
   if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
-    const tiltDeg = 5;   // positive = center-seam edge higher → pocket tilts toward side seam
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [
       [0, 0], [pw, 0], [pw, psH], [pw / 2, ptH], [0, psH]
     ];
-    const rad = tiltDeg * Math.PI / 180;
-    const cosA = Math.cos(rad), sinA = Math.sin(rad);
 
     // Derive hipLineY from polygon (vertex with max x = hip point)
     const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
     const hipLineY = hipVertex.y;
-    // Center pocket on the seat: pocket midpoint sits 0.5″ below hip line
-    let bpTop = hipLineY - ptH / 2 + 0.5;
 
-    // ── Side-seam clamping ──
     function sideSeamXatY(py) {
       let maxX = 0;
       for (let i = 0; i < polygon.length; i++) {
@@ -388,16 +382,6 @@ export function renderPanelSVG(piece) {
       }
       return maxX || width;
     }
-    let bpInner = 2;
-    for (const [lx, ly] of ppts) {
-      const rx = lx * cosA - ly * sinA;
-      const ry = lx * sinA + ly * cosA;
-      const allowed = sideSeamXatY(bpTop + ry) - 0.75 - rx;
-      if (allowed < bpInner) bpInner = allowed;
-    }
-    bpInner = Math.max(0.5, bpInner);
-
-    // ── Top-edge clamping (prevents pocket crossing yoke seam) ──
     function topEdgeYatX(px) {
       let minY = Infinity;
       for (let i = 0; i < polygon.length; i++) {
@@ -410,6 +394,30 @@ export function renderPanelSVG(piece) {
       }
       return minY === Infinity ? 0 : minY;
     }
+
+    // Auto-derive pocket tilt from the panel's top-edge slope (yoke seam on
+    // lower back panel). Sample across the pocket's expected x-range so CB-deep
+    // / side-shallow yokes rotate the pocket to stay parallel with the seam.
+    const sampleL = Math.max(0.5, width * 0.15);
+    const sampleR = Math.min(width - 0.5, sampleL + pw);
+    const yL = topEdgeYatX(sampleL), yR = topEdgeYatX(sampleR);
+    const rad = sampleR > sampleL ? Math.atan2(yR - yL, sampleR - sampleL) : 0;
+    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+
+    // Center pocket on the seat: pocket midpoint sits 0.5″ below hip line
+    let bpTop = hipLineY - ptH / 2 + 0.5;
+
+    // ── Side-seam clamping ──
+    let bpInner = 2;
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA;
+      const ry = lx * sinA + ly * cosA;
+      const allowed = sideSeamXatY(bpTop + ry) - 0.75 - rx;
+      if (allowed < bpInner) bpInner = allowed;
+    }
+    bpInner = Math.max(0.5, bpInner);
+
+    // ── Top-edge clamping (prevents pocket crossing yoke seam) ──
     for (const [lx, ly] of ppts) {
       const rx = lx * cosA - ly * sinA;
       const ry = lx * sinA + ly * cosA;

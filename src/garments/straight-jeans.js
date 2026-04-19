@@ -82,7 +82,7 @@ export default {
       ],
       default: 'none',
     },
-    yokeDepth: { type: 'number', label: 'Yoke depth at CB (inches)', default: 4, step: 0.25, min: 2.5, max: 5.5 },
+    yokeDepth: { type: 'number', label: 'Yoke depth at CB (inches)', default: 2, step: 0.25, min: 1.5, max: 5.5 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,  max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -179,7 +179,7 @@ export default {
 
     // ── YOKE SPLIT (replaces full back panel with yoke + lower panel) ──
     if (opts.yokeStyle && opts.yokeStyle !== 'none') {
-      const yokeDepthCB = parseFloat(opts.yokeDepth) || 4;
+      const yokeDepthCB = parseFloat(opts.yokeDepth) || 2;
       const backIdx = pieces.findIndex(p => p.id === 'back');
       const backPanel = pieces[backIdx];
       const { yoke, lower } = splitBackYoke(backPanel, { yokeStyle: opts.yokeStyle, yokeDepthCB, hipLineY });
