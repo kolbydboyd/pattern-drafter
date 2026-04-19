@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.70] - 2026-04-19
+
+### Fixed
+- **Jeans back yoke side seam** — dart closure in `splitBackYoke()` was rotating the yoke's two side-seam vertices away from the true side seam. Previously only `y` was forced back to 0 for the side-waist corner; now both corners (side waist at top and yoke-seam/side-seam junction at bottom) are snapped back to their original positions on the back-panel side seam diagonal. This keeps the yoke and lower-panel side seams collinear and eliminates the kink at the junction.
+- **Jeans back yoke rendered as "cut on fold"** — the UI was auto-treating the yoke as a fold piece (no SA on the CB edge, "PLACE ON FOLD" indicator, label "cut on fold") because `isCutOnFold` was unset. Added `isCutOnFold: false` to the yoke piece; it now renders with correct CB seam allowance and "× 2 (mirror)" label, matching its instruction text.
+
+---
+
 ## [0.12.69] - 2026-04-19
 
 ### Changed
