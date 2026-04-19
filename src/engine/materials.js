@@ -98,6 +98,8 @@ export const FABRIC_TYPES = {
   'cotton-twill':     { name: 'Cotton twill', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
   'gabardine':        { name: 'Gabardine', weight: '8–10 oz/yd²', stretch: false, category: 'woven' },
   'cotton-canvas':    { name: 'Cotton canvas', weight: '10–12 oz/yd²', stretch: false, category: 'woven' },
+  'cotton-duck':      { name: 'Cotton duck (duck cloth)', weight: '12–16 oz/yd²', stretch: false, category: 'woven', notes: 'Very stiff and durable; pre-wash in hot water to soften and pre-shrink' },
+  'waxed-canvas':     { name: 'Waxed canvas', weight: '10–14 oz/yd²', stretch: false, category: 'woven', notes: 'Water-resistant; use a Teflon or walking foot. Do not iron — rewax with canvas wax after washing.' },
   'bull-denim':       { name: 'Bull denim', weight: '11–14 oz/yd²', stretch: false, category: 'woven', notes: 'Very sturdy; best washed before cutting' },
   'waxed-cotton':     { name: 'Waxed cotton', weight: '8–10 oz/yd²', stretch: false, category: 'woven', notes: 'Repels water; sew with a Teflon foot' },
   'denim':            { name: 'Denim', weight: '10–14 oz/yd²', stretch: false, category: 'woven' },
@@ -193,6 +195,7 @@ export const STITCH_TYPES = {
   'stretch':       { name: 'Lightning/stretch stitch', length: '2.5mm', width: '1.0mm', use: 'Knit seams (if no serger)' },
   'overlock':      { name: 'Serger/overlock', length: '2.5–3mm', width: '5mm', use: 'Seam + finish in one pass' },
   'coverstitch':   { name: 'Coverstitch', length: '3.0mm', width: 'twin needle', use: 'Knit hems (or use twin needle)' },
+  'topstitch':     { name: 'Topstitch (straight)', length: '3.0–3.5mm', width: '0', use: 'Visible decorative and functional stitching on garment right side' },
   'bartack':       { name: 'Bar tack', length: '0.5mm', width: '3mm', use: 'Stress points: pocket corners, fly' },
   'blindhem':      { name: 'Blind hem stitch', length: '2.5mm', width: '4mm', use: 'Invisible hems on trousers and skirts' },
 };

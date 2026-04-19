@@ -311,6 +311,60 @@ const SVGS = {
   <line x1="50" y1="158" x2="56" y2="158"/>
   <line x1="110" y1="158" x2="104" y2="158"/>`),
 
+  'keepall-duffel': svg(`
+  <!-- bag body: wide horizontal rounded rect -->
+  <rect x="18" y="106" width="124" height="66" rx="8"/>
+  <!-- zipper line at top -->
+  <line x1="28" y1="106" x2="132" y2="106"/>
+  <!-- zipper pull tab -->
+  <rect x="76" y="101" width="8" height="6" rx="1"/>
+  <line x1="80" y1="96" x2="80" y2="101"/>
+  <!-- left handle arch -->
+  <path d="M46,106 L46,82 Q53,70 60,82 L60,106"/>
+  <!-- right handle arch -->
+  <path d="M100,106 L100,82 Q108,70 114,82 L114,106"/>
+  <!-- handle anchor patches -->
+  <rect x="40" y="100" width="26" height="8" rx="1.5"/>
+  <rect x="94" y="100" width="26" height="8" rx="1.5"/>
+  <!-- side gusset stitch lines -->
+  <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
+
+  'keepall-35-canvas': svg(`
+  <!-- bag body -->
+  <rect x="18" y="106" width="124" height="66" rx="8"/>
+  <line x1="28" y1="106" x2="132" y2="106"/>
+  <rect x="76" y="101" width="8" height="6" rx="1"/>
+  <line x1="80" y1="96" x2="80" y2="101"/>
+  <!-- handles -->
+  <path d="M46,106 L46,82 Q53,70 60,82 L60,106"/>
+  <path d="M100,106 L100,82 Q108,70 114,82 L114,106"/>
+  <!-- anchor patches -->
+  <rect x="40" y="100" width="26" height="8" rx="1.5"/>
+  <rect x="94" y="100" width="26" height="8" rx="1.5"/>
+  <!-- gusset stitch lines -->
+  <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
+
+  'keepall-50-canvas': svg(`
+  <!-- bag body (wider for 50) -->
+  <rect x="14" y="112" width="132" height="62" rx="8"/>
+  <line x1="24" y1="112" x2="136" y2="112"/>
+  <rect x="76" y="107" width="8" height="6" rx="1"/>
+  <line x1="80" y1="102" x2="80" y2="107"/>
+  <!-- handles -->
+  <path d="M44,112 L44,88 Q51,76 58,88 L58,112"/>
+  <path d="M102,112 L102,88 Q110,76 116,88 L116,112"/>
+  <!-- anchor patches -->
+  <rect x="38" y="106" width="26" height="8" rx="1.5"/>
+  <rect x="96" y="106" width="26" height="8" rx="1.5"/>
+  <!-- shoulder strap D-ring tabs at ends -->
+  <rect x="14" y="118" width="5" height="12" rx="1"/>
+  <rect x="141" y="118" width="5" height="12" rx="1"/>
+  <!-- gusset stitch lines -->
+  <line x1="22" y1="116" x2="22" y2="170" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="138" y1="116" x2="138" y2="170" stroke-dasharray="3 2" stroke-width="1"/>`),
+
   'moto-jacket': svg(`
   <path d="M66,38 L72,50 L80,44 L88,50 L94,38"/>
   <path d="M68,38 Q80,30 92,38"/>
