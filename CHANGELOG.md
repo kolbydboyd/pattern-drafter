@@ -4,6 +4,20 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.67] - 2026-04-19
+
+### Fixed
+- **Jeans side-seam and no-pocket instructions bug** — `instructions()` used a single `isScoop` boolean to branch pocket assembly steps, so `frontPocket: 'side'` fell into the `else` (slant) branch and got completely wrong instructions (slash-diagonal steps instead of side-seam bag basting steps), and `frontPocket: 'none'` also generated spurious slant-pocket steps. Replaced with explicit `if/else if` branches for each pocket type. Side-seam pocket now has two correct steps: serge/assemble the D-shaped bags, then baste bags to front panels along the side seam edge before the outseam is sewn. `none` generates no pocket steps.
+
+---
+
+## [0.12.66] - 2026-04-19
+
+### Fixed
+- **Soloist/Straight Jeans back yoke waistline kink** — after PR #234 snapped the side-waist vertex back to y=0, the dart left-leg pivot vertices remained in the yoke polygon at y=0, creating a step/kink between the CB-to-dart diagonal and the dart-to-side horizontal segment. Removed the dart left-leg vertices via `yokePoly.splice(1, numDarts)` after dart closure and updated `seamStartIdx = 2`. The yoke top edge is now a clean single diagonal from CB to side seam with no intermediate kink. (Research confirms the yoke waistline after dart closure should be a continuous smooth line — the left-leg vertices are only needed as rotation pivots, not as polygon shape vertices.)
+
+---
+
 ## [0.12.65] - 2026-04-19
 
 ### Fixed
