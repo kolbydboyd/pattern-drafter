@@ -245,7 +245,9 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     const sleeveEase = totalEase * 0.2;
     const slvTopW    = m.bicep / 2 + sleeveEase;
-    const slvBotW    = (m.wrist || m.bicep * 0.7) / 2 + (opts.sleeveStyle === 'long' ? 0.5 : 0);
+    const slvBotW    = opts.sleeveStyle === 'short'
+      ? slvTopW - 0.5                                             // short sleeve: 1″ total taper, nearly straight
+      : (m.wrist || m.bicep * 0.7) / 2 + 0.5;                   // long sleeve: taper to wrist
     const capH       = armholeDepth * 0.55;
     const capCp      = sleeveCapCurve(m.bicep, capH, slvTopW * 2);
     const capPts     = sampleCurve(capCp, 16);
@@ -272,7 +274,7 @@ export default {
     const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
     const collarLen    = necklineLen;
     const collarH      = 3;        // cut height: 1.5″ finished when folded in half
-    const pointCut     = collarH * 0.5; // outer edge inset from each front end (1.5″)
+    const pointCut     = collarH;       // outer edge inset from each front end (3″) — 45° angle visible at scale
 
     const collarPoly = [
       { x: 0,                    y: collarH }, // left CF neckline corner
