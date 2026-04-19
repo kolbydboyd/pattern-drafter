@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.69] - 2026-04-19
+
+### Changed
+- **Soloist Jeans defaults** — updated to match a classic 501 silhouette: `riseStyle` `low` → `mid` (body rise), `frontPocket` `square-scoop` → `scoop`, `legShape` `slim` → `straight`. Header comment updated to reflect the new defaults. Construction still delegates to `straight-jeans.js`.
+- **Global jeans yoke depth** — lowered `yokeDepth` default from 4″ to 2″ (min also lowered from 2.5″ to 1.5″) in `straight-jeans.js` to match real-world references (Levi's 501, Wrangler Retro, Stetson). The previous 4″ default produced a ~5.25″ yoke at CB after `cbRaise`, roughly double what actual jeans show. `splitBackYoke()` fallback updated to match.
+
+### Fixed
+- **Back patch pocket placement tilt** — `pattern-view.js` previously drew the dashed patch-pocket overlay with a hardcoded +5° tilt (CB edge higher), which is the opposite direction of the yoke seam on the lower panel (CB deeper, side shallower). Replaced with an auto-derived tilt computed from the panel's own top-edge slope, so the pocket top always reads parallel to the yoke seam above it regardless of `yokeDepth` / `cbRaise` settings.
+
+---
+
 ## [0.12.68] - 2026-04-19
 
 ### Fixed
