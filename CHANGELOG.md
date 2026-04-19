@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.68] - 2026-04-19
+
+### Fixed
+- **Back patch pocket width** — widened from 5.5″ to 6″ to match industry minimum (standard range 6–6.5″). The previous 5.5″ was below spec and produced a visually narrow pocket.
+- **Coin pocket depth** — reduced from 3.5″ to 2.5″ to match industry standard (2–2.5″). The previous 3.5″ was 1″ deeper than typical, which wastes fabric and looks proportionally odd.
+- **Back pocket step wording when yoke is active** — step 1 now says "lower back panels (the section below the yoke seam)" instead of "back panels" when a yoke style is selected, preventing beginner confusion about which piece to work on.
+- **Coin pocket placement wording for side/none pocket variants** — step 2 previously referenced "just below the front pocket opening" for all pocket types, but side-seam and no-pocket variants have no front opening. The instruction now gives a measurement-based placement description for those variants.
+
+---
+
 ## [0.12.67] - 2026-04-19
 
 ### Fixed
