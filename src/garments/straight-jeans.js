@@ -230,7 +230,7 @@ export default {
         instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
       }));
     }
-    pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template \xb7 Rounded bottom corners', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
+    pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, \u00bd\u2033 SA top (double-fold hem) \xb7 {press} under using cardboard template \xb7 Rounded bottom corners', dimensions: { width: 3, height: 2.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
     pieces.push(buildBackPatchPocket());
 
     // ── BELT LOOPS ──
@@ -296,13 +296,17 @@ export default {
     const waist = m.waist || 32;
     const beltLoopCount = waist > 36 ? 7 : 6;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
+    const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
 
     steps.push({
       step: n++, title: 'Prepare back patch pockets',
-      detail: 'Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on back panels, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.',
+      detail: `Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on the ${hasYoke ? 'lower back panels (the section below the yoke seam)' : 'back panels'}, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.`,
     });
+    const coinPocketPlacement = (opts.frontPocket === 'side' || opts.frontPocket === 'none')
+      ? 'upper outer area of the right front panel, approximately 2½″ from the side seam and 1″ below the waist edge'
+      : 'upper outer area, just below the front pocket opening';
     steps.push({ step: n++, title: 'Attach coin pocket to right front panel',
-      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Position the coin pocket on the RS of the RIGHT front panel using the coin pocket placement notch (upper outer area, just below the front pocket opening). {topstitch} sides and bottom in gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners. The coin pocket is now permanently sewn through the right front denim, before any pocket-bag assembly.' });
+      detail: `Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge ¼″ + ¼″ and {topstitch} at ⅛″ from the fold for a clean finished hem. {press} the ⅜″ SA under on the sides and bottom around the template; {clip} into the bottom corner curves so they lie flat. Remove template. Position the coin pocket on the RS of the RIGHT front panel using the coin pocket placement notch (${coinPocketPlacement}). {topstitch} sides and bottom in gold thread at ⅛″ and again at ¼″ from the folded edges. {bartack} the top two corners. The coin pocket is now permanently sewn through the right front denim, before any pocket-bag assembly.` });
     if (opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop') {
       steps.push({ step: n++, title: 'Prepare pocket backing',
         detail: '{serge} or overlock the curved bottom edge of the pocket backing (self fabric). Leave all other edges raw. This finished edge will hang free inside the assembled pocket.' });
@@ -326,7 +330,6 @@ export default {
         detail: 'On each front panel, align a pocket bag\u2019s straight side-seam edge to the front panel\u2019s side-seam edge {RST}, with the pocket bag opening at the waist. The bag hangs into the body of the front panel. {baste} the side-seam edge at \u215c\u2033 and the top (waist) edge at \u215c\u2033. The bag will be caught automatically when the outseam and waistband are sewn.' });
     }
     // frontPocket === 'none': no pocket assembly steps
-    const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
     if (hasYoke) {
       steps.push({
         step: n++, title: 'Sew back yoke to lower back panels',
@@ -445,7 +448,7 @@ export default {
 
 function buildBackPatchPocket() {
   const pocketSA = 0.375;     // 3/8″ SA for patch pockets (pressed under)
-  const w = 5.5;              // pocket width
+  const w = 6;                // pocket width
   const sideH = 5;            // straight side height before angling inward
   const totalH = 6.5;         // total height (top to point)
 
