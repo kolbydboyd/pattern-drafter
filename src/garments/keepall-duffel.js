@@ -514,13 +514,18 @@ export default {
 
   variants: [
     {
-      id: 'keepall-35-canvas',
-      name: 'Keepall 35 Canvas',
+      id: 'keepall-35',
+      name: 'Keepall 35',
       defaults: { preset: 'keepall-35', shoulderStrap: 'none', interiorPocket: 'slip', handleStyle: 'fabric' },
     },
     {
-      id: 'keepall-50-canvas',
-      name: 'Keepall 50 Weekender',
+      id: 'keepall-45',
+      name: 'Keepall 45',
+      defaults: { preset: 'keepall-45', shoulderStrap: 'none', interiorPocket: 'slip', handleStyle: 'fabric' },
+    },
+    {
+      id: 'keepall-50',
+      name: 'Keepall 50',
       defaults: { preset: 'keepall-50', shoulderStrap: 'yes', interiorPocket: 'zip', handleStyle: 'fabric' },
     },
   ],
