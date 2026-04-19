@@ -15,7 +15,9 @@ const PRESETS = {
   'keepall-50': { bagLen: 19.75, bagHeight: 10.75, bagDepth: 8.25 },
 };
 
-const HANDLE_CUT_LEN = 12; // cut length before folding; finishes to ~9.5" usable loop
+// Handle cut length scales with bag length so the loop has a comfortable arch height.
+// Formula: horizontal span (L/2) + 5″ arch allowance + 3″ for two anchored ends.
+function handleCutLen(L) { return Math.round((L / 2 + 8) * 2) / 2; }
 
 export default {
   id: 'keepall-duffel',
@@ -54,6 +56,14 @@ export default {
         { value: 'zip',  label: 'Zippered flat pocket',  reference: 'zipped pocket sewn to lining' },
       ],
       default: 'slip',
+    },
+    exteriorPocket: {
+      type: 'select', label: 'Exterior zip pocket',
+      values: [
+        { value: 'none',  label: 'None' },
+        { value: 'front', label: 'Front zip pocket', reference: 'flat zip patch pocket on front body panel' },
+      ],
+      default: 'none',
     },
     handleStyle: {
       type: 'select', label: 'Top handles',
@@ -144,7 +154,7 @@ export default {
         `Mark center notch at ${fmtInches(gussetLen / 2)} (bottom center). ` +
         `Mark corner-ease notches ${fmtInches(Math.round(sideLen * 4) / 4)} and ` +
         `${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end. ` +
-        `Clip into SA every ½″ within the ease zones before sewing to body panels.`,
+        `Clip into SA every ½″ to within ⅛″ of the seamline within the ease zones before sewing to body panels.`,
       type: 'rectangle',
       dimensions: { length: gussetLen, width: D },
       sa,
@@ -176,21 +186,22 @@ export default {
     });
 
     // ── Top Handles ───────────────────────────────────────────────────────────
+    const hLen = handleCutLen(L);
     if (opts.handleStyle === 'fabric') {
       pieces.push({
         id: 'handle', name: 'Top Handle',
-        instruction: `Cut 2 · ${fmtInches(HANDLE_CUT_LEN)} long × 2½″ wide · ` +
+        instruction: `Cut 2 · ${fmtInches(hLen)} long × 2½″ wide · ` +
           `Fold in half lengthwise {RST}. Sew long raw edge. Turn right side out. {press} flat, seam centered. {topstitch} both long edges ⅛″ from edge. Fold each end under ½″.`,
         type: 'rectangle',
-        dimensions: { length: HANDLE_CUT_LEN, width: 2.5 },
+        dimensions: { length: hLen, width: 2.5 },
         sa: 0,
       });
     } else {
       pieces.push({
         id: 'handle-webbing', name: 'Top Handle (Webbing)',
-        instruction: `Cut 2 strips of 1″ cotton webbing · ${fmtInches(HANDLE_CUT_LEN)} long each · Seal cut ends with lighter flame. Fold under 1″ at each end before anchoring under patches.`,
+        instruction: `Cut 2 strips of 1″ cotton webbing · ${fmtInches(hLen)} long each · Seal cut ends with lighter flame. Fold under 1″ at each end before anchoring under patches.`,
         type: 'rectangle',
-        dimensions: { length: HANDLE_CUT_LEN, width: 1 },
+        dimensions: { length: hLen, width: 1 },
         sa: 0,
       });
     }
@@ -252,9 +263,25 @@ export default {
         id: 'interior-zip-pocket', name: 'Interior Zip Pocket Panel',
         instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × 6″ tall · ` +
           `Sandwich a ${fmtInches(pW + 1)} zipper between the two panels at the top edge. Sew through all three layers. {press} away from zipper. {topstitch}. ` +
-          `Sew remaining three sides {RST}. Turn right side out. Attach finished pocket to one lining body panel 1½″ below top edge.`,
+          `Sew remaining three sides {RST}. Turn right side out through the open zipper. {press}. Attach finished pocket to one lining body panel 1½″ below top edge.`,
         type: 'rectangle',
         dimensions: { length: 6, width: pW },
+        sa,
+      });
+    }
+
+    // ── Exterior Zip Pocket (optional) ───────────────────────────────────────
+    if (opts.exteriorPocket === 'front') {
+      const epW = Math.min(10, Math.round(L * 0.55 * 4) / 4);
+      const epH = 4.5;
+      pieces.push({
+        id: 'exterior-zip-pocket', name: 'Exterior Zip Pocket Panel',
+        instruction: `Cut 2 in outer fabric · ${fmtInches(epW)} wide × ${fmtInches(epH)} tall · ` +
+          `Place panels {RST} with the zipper face-down along the top edge. Sew the top through all three layers. {press} panels away from the zipper. {topstitch} close to teeth on both panels. ` +
+          `Open zipper. Fold pocket {RST} and sew the bottom and both side edges. Clip corners. Turn right side out through open zipper. {press}. ` +
+          `Center finished pocket on the front outer body panel, 2½″ below the top raw edge. {topstitch} side and bottom edges close to the fold. Bar tack top corners.`,
+        type: 'rectangle',
+        dimensions: { length: epH, width: epW },
         sa,
       });
     }
@@ -294,8 +321,6 @@ export default {
       quantity: `1 continuous coil or separating, at least ${fmtInches(zipperLen)} long. YKK #5 coil recommended. Use a Teflon foot over canvas.`,
     });
 
-    notions.push({ name: '¾″ D-rings (handle anchors)', quantity: '4' });
-
     if (opts.shoulderStrap === 'yes') {
       notions.push({ name: '1″ D-rings (strap attachment)', quantity: '2' });
       notions.push({ name: '1″ tri-glide / ladder lock slider', quantity: '1' });
@@ -308,7 +333,13 @@ export default {
     }
 
     if (opts.handleStyle === 'webbing') {
-      notions.push({ name: '1″ cotton webbing', quantity: `${fmtInches(HANDLE_CUT_LEN * 2)} for two handles` });
+      const hLen = handleCutLen(L);
+      notions.push({ name: '1″ cotton webbing', quantity: `${fmtInches(hLen * 2)} for two handles` });
+    }
+
+    if (opts.exteriorPocket === 'front') {
+      const epW = Math.min(10, Math.round(L * 0.55 * 4) / 4);
+      notions.push({ name: 'Exterior pocket zipper', quantity: `1, at least ${fmtInches(Math.ceil(epW))} long` });
     }
 
     if (opts.interfacing === 'medium') {
@@ -354,9 +385,10 @@ export default {
     const hasStrap    = opts.shoulderStrap === 'yes';
 
     // 1. Cut and mark
+    const hasIntPocket = opts.interiorPocket !== 'none';
     steps.push({
       step: n++, title: 'Cut all pieces and transfer markings',
-      detail: `Cut all pattern pieces with grain lines vertical. On each outer body panel mark the two handle anchor positions: ${anchorOffset} from each short end, 1″ below the top raw edge. On the gusset mark the center-bottom notch and the two pairs of corner-ease zone notches (${fmtInches(Math.round(sideLen * 4) / 4)} and ${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end). These notches tell you exactly where to clip the SA to ease the gusset around the body-panel corners.`,
+      detail: `Cut all pattern pieces with grain lines vertical. On each outer body panel mark two vertical lines for handle anchor placement: ${anchorOffset} from each short end (these indicate horizontal centering of the handle loop — the anchor patch runs from the top raw edge down 2″).${opts.exteriorPocket === 'front' ? ' On the front outer body panel also mark a horizontal line 2½″ below the top raw edge for exterior pocket placement.' : ''} On the gusset mark the center-bottom notch and the two pairs of corner-ease zone notches (${fmtInches(Math.round(sideLen * 4) / 4)} and ${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end). These notches tell you exactly where to clip the SA to ease the gusset around the body-panel corners.${hasIntPocket ? ' On one lining body panel mark the pocket center: horizontally centered, 1½″ below the top raw edge.' : ''}`,
     });
 
     // 2. Interfacing
@@ -367,7 +399,15 @@ export default {
       steps.push({ step: n++, title: 'Apply interfacing', detail: ifDetail });
     }
 
-    // 3. Make handles
+    // 3. Exterior zip pocket (before handles so the front panel is flat)
+    if (opts.exteriorPocket === 'front') {
+      steps.push({
+        step: n++, title: 'Make and attach exterior zip pocket',
+        detail: 'Sew the two exterior pocket panels together with the zipper at the top (sandwich method): one panel face up, zipper face down, second panel face down on top. Sew across the top edge. {press} panels away from zipper. {topstitch} close to teeth on both sides. Open the zipper. Fold the assembly {RST} and sew the bottom and both side edges. Clip corners to reduce bulk. Turn right side out through the open zipper. {press} the finished pocket flat. Center the pocket on the right side of the front outer body panel along the 2½″ placement line. {topstitch} the side and bottom edges close to the fold. Bar tack the top two corners for durability. The pocket is now permanently attached; the zipper faces outward.',
+      });
+    }
+
+    // Make handles
     if (opts.handleStyle === 'fabric') {
       steps.push({
         step: n++, title: 'Make fabric tube handles',
@@ -422,13 +462,13 @@ export default {
     // 9. Sew outer gusset to body panels
     steps.push({
       step: n++, title: 'Sew outer gusset to both outer body panels',
-      detail: `Place the outer gusset and one outer body panel {RST}. Start pinning at the top-right corner of the body panel and work counter-clockwise — down the right side, across the bottom (align the gusset center notch to the body panel bottom center), up the left side. In each corner ease zone, clip the gusset SA every ½″ so the strip bends around the rounded corner; do not clip the body panel. Sew with the body panel face up so you can steer the curve. Use a ${fmtInches(parseFloat(opts.sa))} seam. Backstitch at both top ends. Repeat to sew the second body panel to the opposite long edge of the gusset. You now have a U-shaped outer shell open at the top. Grade seam allowances at the curves to reduce bulk.`,
+      detail: `Place the outer gusset and one outer body panel {RST}. Start pinning at the top-right corner of the body panel and work counter-clockwise — down the right side, across the bottom (align the gusset center notch to the body panel bottom center), up the left side. In each corner ease zone, clip the gusset SA every ½″ to within ⅛″ of the seamline so the strip bends around the rounded corner; do not clip the body panel. Sew with the body panel face up so you can steer the curve. Use a ${fmtInches(parseFloat(opts.sa))} seam. Backstitch at both top ends. Repeat to sew the second body panel to the opposite long edge of the gusset. You now have a U-shaped outer shell open at the top. Grade seam allowances at the curves to reduce bulk.`,
     });
 
     // 10. Install zipper
     steps.push({
       step: n++, title: 'Install main zipper on outer shell',
-      detail: `Open the zipper fully. With the outer shell right side out, lay the zipper face down along the top raw edge of the front body panel, tape edge aligned with the fabric raw edge. Using a zipper foot, sew the zipper tape down with a ${fmtInches(parseFloat(opts.sa))} seam. {press} the panel away from the zipper. {topstitch} ¼″ from the zipper teeth. Close the zipper. Align the back body panel to the opposite zipper tape side, pin, and sew the same way. {press} and {topstitch}. Tack the zipper tape ends to the gusset top edge at each short end.`,
+      detail: `Open the zipper fully. With the outer shell right side out, lay the zipper face down along the top raw edge of the front body panel, tape edge aligned with the fabric raw edge. Using a zipper foot, sew the zipper tape down with a ${fmtInches(parseFloat(opts.sa))} seam. {press} the panel away from the zipper. {topstitch} ¼″ from the zipper teeth. Close the zipper. Align the back body panel to the opposite zipper tape side, pin, and sew the same way. {press} and {topstitch}. At each short end of the gusset, fold the zipper tape end over the gusset top edge${hasStrap ? ' (catching the D-ring tab raw ends in this tacking stitch — this is what anchors the shoulder strap hardware to the bag)' : ''} and tack securely through all layers.`,
     });
 
     // 11. Assemble lining
