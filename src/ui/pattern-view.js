@@ -360,7 +360,7 @@ export function renderPanelSVG(piece) {
   if (isBack && (opts?.backPocket ? opts.backPocket !== 'none' : true)) {
     // Pentagon patch pocket placement: 5.5″ wide × 6.5″ tall, pointed bottom
     const pw = 5.5, psH = 5, ptH = 6.5;
-    const tiltDeg = -5;  // negative = side-seam edge higher (CW rotation in SVG y-down coords)
+    const tiltDeg = 5;   // positive = center-seam edge higher → pocket tilts toward side seam
     const col = '#8a4a4a';
     // Pentagon points (local coords, untilted)
     const ppts = [
