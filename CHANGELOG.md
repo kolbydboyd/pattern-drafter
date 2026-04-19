@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.67] - 2026-04-19
+
+### Fixed
+- **Jeans side-seam and no-pocket instructions bug** — `instructions()` used a single `isScoop` boolean to branch pocket assembly steps, so `frontPocket: 'side'` fell into the `else` (slant) branch and got completely wrong instructions (slash-diagonal steps instead of side-seam bag basting steps), and `frontPocket: 'none'` also generated spurious slant-pocket steps. Replaced with explicit `if/else if` branches for each pocket type. Side-seam pocket now has two correct steps: serge/assemble the D-shaped bags, then baste bags to front panels along the side seam edge before the outseam is sewn. `none` generates no pocket steps.
+
+---
+
 ## [0.12.66] - 2026-04-19
 
 ### Fixed
