@@ -101,6 +101,14 @@ const SEO_DESCRIPTIONS = {
       { q: 'What fabric works for a long-sleeve fitted camp shirt?', a: 'Medium-weight linen is ideal. It drapes well, presses crisply, and softens beautifully with wear.' },
     ],
   },
+  'classic-camp-yoke': {
+    metaDescription: 'Draft a classic camp shirt sewing pattern with a back yoke from your measurements. Camp collar, chest pocket, regular fit. Tiled PDF with construction instructions.',
+    pageIntro: 'A classic camp shirt with a back yoke drafted to your measurements. The shaped back yoke adds structure and an elevated, tailored feel while keeping the relaxed camp collar silhouette.',
+    faq: [
+      { q: 'What does a back yoke do?', a: 'A back yoke is a separate panel sewn across the upper back. It distributes fabric evenly across the shoulders and gives the shirt a more finished, elevated look.' },
+      { q: 'Is the yoke hard to sew?', a: 'Not at all. The yoke uses a simple sandwich construction: the back body seam is enclosed between the outer yoke and lining, then edgestitched from the right side.' },
+    ],
+  },
   'crewneck': {
     metaDescription: 'Generate a custom-fit crewneck sweatshirt sewing pattern from your measurements. Ribbed cuffs and hem, set-in sleeves, and relaxed fit. Tiled PDF pattern.',
     pageIntro: 'A classic crewneck sweatshirt drafted to your chest, shoulder, and sleeve measurements. Ribbed cuffs, collar, and hem band for a clean, comfortable finish.',

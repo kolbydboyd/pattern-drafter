@@ -139,6 +139,16 @@ const SVGS = {
   <circle cx="80" cy="116" r="2"/>
   <rect x="56" y="80" width="18" height="16" rx="1"/>`),
 
+  'classic-camp-yoke': svg(`
+  <path d="M70,44 L80,60 L90,44"/>
+  <path d="M70,44 L50,52 L46,90 L56,90 L54,170 L106,170 L104,90 L114,90 L110,52 L90,44"/>
+  <line x1="80" y1="60" x2="80" y2="170"/>
+  <path d="M50,68 Q80,72 110,68" stroke-dasharray="3 2"/>
+  <circle cx="80" cy="84" r="2"/>
+  <circle cx="80" cy="102" r="2"/>
+  <circle cx="80" cy="120" r="2"/>
+  <rect x="56" y="84" width="18" height="16" rx="1"/>`),
+
   'crewneck': svg(`
   <path d="M68,52 Q80,46 92,52"/>
   <path d="M60,52 L30,70 L30,130 L52,130 L52,170 L108,170 L108,130 L130,130 L130,70 L100,52 L92,52 Q80,62 68,52 Z"/>

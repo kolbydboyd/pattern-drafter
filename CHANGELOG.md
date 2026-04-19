@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.64] - 2026-04-17
+
+### Changed
+- **Camp Shirt** — full pattern upgrade to industry-standard quality (Helen's Closet Cameron / Closet Core Kalle level). Difficulty downgraded to beginner. Removed worker-collar option. Hem default changed to 1" folded. Shaped camp collar is now a proper trapezoid (pointCut = collarH × 0.5) so it lies flat when open rather than standing up. Added optional back yoke (option: `yoke: 'none' | 'yoke'`, default `none`) using the same shaped-polygon approach as the denim jacket: `yokeDepth = armholeDepth × 0.33`, armhole curve split at `yokeLineY` via linear interpolation, yoke piece cut on fold (outer + lining). Materials list upgraded: rayon challis first, yardage formula for 45" and 60" widths, button quality note. Instructions expanded to 13 steps: stay-stitch first, conditional yoke sandwich step, finishing options section.
+- **Added `classic-camp-yoke` variant** — camp shirt with back yoke enabled by default. New SVG illustration (dashed yoke seam) and SEO description added.
+
+---
+
 ## [0.12.63] - 2026-04-17
 
 ### Added
