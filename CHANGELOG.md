@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.65] - 2026-04-19
+
+### Fixed
+- **Soloist/Straight Jeans back yoke waist alignment** — `closeYokeDarts` rotates the side-seam waist vertex off `y=0` when closing back darts, producing a concave dip in the yoke's top edge. Fixed in `splitBackYoke` by truing the waist after dart closure: force `yokePoly[numDarts + 1].y = 0` so the top edge stays flat for waistband attachment. The x-position (shifted inward by the rotation) is preserved and correctly reflects the narrower post-closure waist width. Affects any jeans variant with `yokeStyle: 'pointed'` or `'curved'`.
+
+---
+
 ## [0.12.64] - 2026-04-17
 
 ### Changed
