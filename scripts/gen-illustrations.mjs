@@ -330,7 +330,7 @@ const SVGS = {
   <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
   <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
 
-  'keepall-35-canvas': svg(`
+  'keepall-35': svg(`
   <!-- bag body -->
   <rect x="18" y="106" width="124" height="66" rx="8"/>
   <line x1="28" y1="106" x2="132" y2="106"/>
@@ -346,7 +346,23 @@ const SVGS = {
   <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
   <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
 
-  'keepall-50-canvas': svg(`
+  'keepall-45': svg(`
+  <!-- bag body (mid-size, slightly wider than 35) -->
+  <rect x="16" y="110" width="128" height="64" rx="8"/>
+  <line x1="26" y1="110" x2="134" y2="110"/>
+  <rect x="76" y="105" width="8" height="6" rx="1"/>
+  <line x1="80" y1="100" x2="80" y2="105"/>
+  <!-- handles -->
+  <path d="M45,110 L45,86 Q52,74 59,86 L59,110"/>
+  <path d="M101,110 L101,86 Q109,74 115,86 L115,110"/>
+  <!-- anchor patches -->
+  <rect x="39" y="104" width="26" height="8" rx="1.5"/>
+  <rect x="95" y="104" width="26" height="8" rx="1.5"/>
+  <!-- gusset stitch lines -->
+  <line x1="24" y1="114" x2="24" y2="170" stroke-dasharray="3 2" stroke-width="1"/>
+  <line x1="136" y1="114" x2="136" y2="170" stroke-dasharray="3 2" stroke-width="1"/>`),
+
+  'keepall-50': svg(`
   <!-- bag body (wider for 50) -->
   <rect x="14" y="112" width="132" height="62" rx="8"/>
   <line x1="24" y1="112" x2="136" y2="112"/>
