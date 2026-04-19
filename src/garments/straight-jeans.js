@@ -164,7 +164,8 @@ export default {
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
-    const backDartIntake = backHipW - backWaistW;
+    const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
+    const backDartIntake = hasYoke ? 0 : (backHipW - backWaistW);
 
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
@@ -740,9 +741,13 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   const numDarts = (backDarts || []).filter(d => d && d.intake > 0 && d.length > 0).length;
   const yokePoly = closeYokeDarts(yokePolyRaw, backDarts || []);
 
-  // True side-waist y: dart closure rotates this vertex off y=0, causing a dip.
+  // Dart closure rotates both side-seam vertices away from the true side seam.
+  // The side seam is a garment boundary shared with the front panel — it must
+  // stay on the original diagonal (waistWidth,0) → (hipWidth,hipLineY).
+  // Snap both corners back; the dart intake lives in the yoke seam curve only.
   if (numDarts > 0 && numDarts + 1 < yokePoly.length) {
     yokePoly[numDarts + 1].y = 0;
+    yokePoly[numDarts + 1].x = waistWidth;
   }
   // Remove dart left-leg pivot vertices — they create a kink in the top edge.
   // After splice: [CB_waist, side_waist, yoke_seam_side, ..., yoke_seam_CB]
@@ -752,6 +757,14 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   // seamStartIdx is always 2 after splice (CB_waist + side_waist precede seam)
   const seamStartIdx = 2;
   const yokeSeamLine = yokePoly.slice(seamStartIdx); // side → ... → CB (post-rotation)
+
+  // Snap the yoke-seam/side-seam junction back to its original position.
+  // Dart rotation shifts this endpoint; snapping it keeps the yoke and lower
+  // panel side seams collinear with the original back-panel side seam.
+  if (yokeSeamLine.length > 0) {
+    yokeSeamLine[0].x = sideXAtYoke;
+    yokeSeamLine[0].y = yokeSideDepth;
+  }
 
   // ── LOWER BACK polygon (clockwise) ────────────────────────────────────
   // Top edge is the post-rotation yoke seam in reverse (CB → side), so the
@@ -828,7 +841,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
       { text: 'CB',        x: -0.5,                       y: yokeDepthCB * 0.4, rotation: -90 },
       { text: 'SIDE SEAM', x: yokeSideCornerPost.x + 0.3, y: yokeSideCornerPost.y * 0.5, rotation: 90 },
     ],
-    darts: [], type: 'bodice', opts,
+    darts: [], type: 'bodice', isCutOnFold: false, opts,
   };
 
   const lower = {
