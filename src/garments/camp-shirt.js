@@ -261,34 +261,51 @@ export default {
     sleevePoly.push({ x: slvTopW * 2 - (slvTopW - slvBotW), y: capH + slvLength });
     sleevePoly.push({ x: slvTopW - slvBotW,                  y: capH + slvLength });
 
-    // ── CAMP COLLAR (shaped trapezoid) ────────────────────────────────────────
-    // A plain rectangle collar stands up like a neckband when worn. This trapezoid
-    // has angled front ends (outer edge set back pointCut inches from each CF) so
-    // the collar lies flat when open and the front points create the revere/lapel shape.
+    // ── CAMP COLLAR (curved neckline seam) ───────────────────────────────────
+    // Camp collar lies flat because the neckline seam is concave: it bows toward
+    // the outer/fold edge at CB. A straight neckline seam produces a band collar
+    // that stands up; the concave bow is what allows the collar to open and lie flat.
     //
     // Orientation: y=0 = outer/fold edge (top of piece as laid flat)
-    //              y=collarH = neckline seam (bottom of piece)
+    //              y=collarH = neckline seam baseline at CF corners
     //              x=0 = left CF, x=collarLen = right CF, collarLen/2 = CB (notched)
     const frontNeckArc = arcLength(frontNeckPts);
     const backNeckArc  = arcLength(backNeckPts);
     const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
     const collarLen    = necklineLen;
     const collarH      = 3;        // cut height: 1.5″ finished when folded in half
-    const pointCut     = collarH;       // outer edge inset from each front end (3″) — 45° angle visible at scale
+    const pointCut     = collarH;  // outer edge inset from each CF end — gives 45° visible angle
 
-    const collarPoly = [
-      { x: 0,                    y: collarH }, // left CF neckline corner
-      { x: collarLen,            y: collarH }, // right CF neckline corner
-      { x: collarLen - pointCut, y: 0       }, // right outer front end
-      { x: pointCut,             y: 0       }, // left outer front end
-    ];
+    // Neckline seam: concave arc bowing toward the outer edge at CB by ~0.375"
+    // (half of NECK_DEPTH_BACK). bowCtrl solves: 0.75 * bowCtrl = cbBow at t=0.5.
+    const cbBow       = NECK_DEPTH_BACK * 0.5;
+    const bowCtrl     = cbBow / 0.75;
+    const neckSeamPts = sampleBezier(
+      { x: 0,               y: collarH },
+      { x: collarLen * 0.33, y: collarH - bowCtrl },
+      { x: collarLen * 0.67, y: collarH - bowCtrl },
+      { x: collarLen,        y: collarH },
+      10
+    );
 
+    // Polygon: outer-left → outer-right → right CF neckline → [curved arc] → left CF neckline
+    const collarPoly = [];
+    collarPoly.push({ x: pointCut,             y: 0 }); // left outer front end
+    collarPoly.push({ x: collarLen - pointCut, y: 0 }); // right outer front end
+    for (let i = neckSeamPts.length - 1; i >= 0; i--) {
+      collarPoly.push({ ...neckSeamPts[i], curve: true });
+    }
+    // Untag CF neckline corners (junctions between diagonal and curved seam)
+    delete collarPoly[2].curve;
+    delete collarPoly[collarPoly.length - 1].curve;
+
+    const nNeckSeamEdges = neckSeamPts.length - 1;
     const collarEdgeAllowances = [
-      { sa, label: 'Neckline'   }, // bottom — neckline seam
-      { sa, label: 'Front edge' }, // right front diagonal
-      { sa, label: 'Outer edge' }, // top — outer/fold edge
-      { sa, label: 'Front edge' }, // left front diagonal
+      { sa: 0, label: 'Outer edge' },   // outer-left → outer-right (fold line — no raw edge)
+      { sa,    label: 'Front edge' },   // outer-right → right CF neckline diagonal
     ];
+    for (let i = 0; i < nNeckSeamEdges; i++) collarEdgeAllowances.push({ sa, label: 'Neckline' });
+    collarEdgeAllowances.push({ sa, label: 'Front edge' }); // left CF neckline → outer-left diagonal
 
     // ── PLACKET FACING ────────────────────────────────────────────────────────
     const placketH = torsoLen - NECK_DEPTH_FRONT;
