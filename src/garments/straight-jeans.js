@@ -729,16 +729,22 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   // ── Close the back darts: rotate dart wedges shut, absorbing them into
   // the yoke's seams.  The resulting yoke top edge becomes backWaistW wide,
   // the side seam slants inward, and the bottom (yoke seam) gains a curve.
+  const numDarts = (backDarts || []).filter(d => d && d.intake > 0 && d.length > 0).length;
   const yokePoly = closeYokeDarts(yokePolyRaw, backDarts || []);
+
+  // True the yoke waist: dart closure rotates the side-seam waist vertex off y=0,
+  // creating a concave dip. Snap it back so the top edge stays flat.
+  if (numDarts > 0 && numDarts + 1 < yokePoly.length) {
+    yokePoly[numDarts + 1].y = 0;
+  }
 
   // After closure, indices in yokePoly:
   //   [0]                  CB waist (untouched)
   //   [1 .. numDarts]      one merged dart-leg vertex per dart on top edge
-  //   [numDarts + 1]       side waist (rotated)
+  //   [numDarts + 1]       side waist (rotated, then trued to y=0)
   //   [numDarts + 2]       yoke seam at side (rotated)
   //   [numDarts + 3 .. n-1] yoke seam curve points (rotated by varying amounts)
   //   [last]               yoke seam at CB (untouched, x=0)
-  const numDarts = (backDarts || []).filter(d => d && d.intake > 0 && d.length > 0).length;
   const seamStartIdx = numDarts + 2;
   const yokeSeamLine = yokePoly.slice(seamStartIdx); // side → ... → CB (post-rotation)
 
