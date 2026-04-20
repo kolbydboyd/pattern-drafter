@@ -4,6 +4,19 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.73] - 2026-04-20
+
+### Added
+- **Camp shirt: boxy fit (+8″ ease)** — new fit option added to `camp-shirt.js`; `boxy: 8` added to `UPPER_EASE` in `upper-body.js`.
+- **Camp shirt: side seam vents** — `sideVent: 'vent'` option adds a 2½″ vent underlap extension to the back panel (polygon + per-edge SA), vent-depth notches on front and back, and a dedicated "Finish side vents" instruction step.
+- **Camp shirt: barrel cuff** — `cuff: 'barrel'` option (long sleeve only) adds a separate `sleeve-cuff` rectangle piece, changes the sleeve hem edge to a cuff seam SA, and adds an "Attach barrel cuffs" instruction step.
+- **Camp shirt: dropped shoulder** — `shoulderDrop` option (none / ¾″ / 1½″) recalculates shoulder width, slope, and armhole curves for a relaxed or boxy dropped-shoulder look.
+- **Camp shirt: cross-grain collar annotation** — collar piece now includes a `grainLine` property indicating cross-grain cut direction; instruction text updated accordingly.
+- **Camp shirt: Boxy Camp Shirt variant** — new `boxy-camp-shirt` variant (boxy fit, dropped shoulder, side vents, patch pocket) with hand-crafted SVG illustration.
+- **Camp shirt: existing variants updated** — fitted-linen-camp now defaults to barrel cuff; classic-camp-yoke now defaults to side vents; all variants carry explicit defaults for the three new options.
+
+---
+
 ## [0.12.72] - 2026-04-20
 
 ### Added

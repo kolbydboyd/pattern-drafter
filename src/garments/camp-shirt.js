@@ -19,6 +19,9 @@ const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
 
 // Sleeve length presets
 const SLEEVE_LENGTHS = { short: 9, long: 26 };
+const VENT_DEPTH = 2.5;  // side vent opening height (inches)
+const VENT_W    = 1.25;  // back vent underlap extension width
+const CUFF_H    = 4.5;   // barrel cuff cut height (2.25″ finished when folded)
 
 // Neckline depth for crew-fit camp collar
 const NECK_DEPTH_FRONT = 3.0;
@@ -48,6 +51,7 @@ export default {
         { value: 'fitted',   label: 'Fitted (+2″)',   reference: 'slim, tapered, athletic' },
         { value: 'standard', label: 'Regular (+4″)',  reference: 'classic, off-the-rack'   },
         { value: 'relaxed',  label: 'Relaxed (+6″)',  reference: 'skater, workwear'        },
+        { value: 'boxy',     label: 'Boxy (+8″)',     reference: 'oversized, resort, retro camp' },
       ],
       default: 'standard',
     },
@@ -74,6 +78,31 @@ export default {
         { value: '6', label: '6 buttons' },
       ],
       default: '5',
+    },
+    shoulderDrop: {
+      type: 'select', label: 'Shoulder drop',
+      values: [
+        { value: 'none',   label: 'Natural'                                         },
+        { value: 'slight', label: 'Slight drop (¾″)',  reference: 'relaxed set-in' },
+        { value: 'boxy',   label: 'Dropped (1½″)',     reference: 'oversized, boxy' },
+      ],
+      default: 'none',
+    },
+    sideVent: {
+      type: 'select', label: 'Side vents',
+      values: [
+        { value: 'none', label: 'None'                                                        },
+        { value: 'vent', label: '2½″ vents', reference: 'classic shirting, ease of movement' },
+      ],
+      default: 'none',
+    },
+    cuff: {
+      type: 'select', label: 'Cuff',
+      values: [
+        { value: 'none',   label: 'Hemmed'                         },
+        { value: 'barrel', label: 'Barrel cuff (long sleeve only)' },
+      ],
+      default: 'none',
     },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -104,16 +133,30 @@ export default {
 
     const halfShoulder = m.shoulder / 2;
     const neckW        = neckWidthFromCircumference(m.neck);
-    const shoulderW    = halfShoulder - neckW;
-    const slopeDrop    = shoulderDropFromWidth(shoulderW);
-    const shoulderPtX  = neckW + shoulderW;
+    let   shoulderW    = halfShoulder - neckW;
+    let   slopeDrop    = shoulderDropFromWidth(shoulderW);
+    let   shoulderPtX  = neckW + shoulderW;
     const armholeY     = armholeDepthFromChest(m.chest, 'standard');
-    const armholeDepth = armholeY - slopeDrop;
-    const chestDepth   = panelW - shoulderPtX;
+    let   armholeDepth = armholeY - slopeDrop;
+    let   chestDepth   = panelW - shoulderPtX;
     const torsoLen     = m.torsoLength;
     const slvLength    = SLEEVE_LENGTHS[opts.sleeveStyle] ?? m.sleeveLength ?? 9;
-    const shoulderPtY  = slopeDrop;
-    const sideX        = shoulderPtX + chestDepth;
+    let   shoulderPtY  = slopeDrop;
+    const sideX        = panelW; // = shoulderPtX + chestDepth, invariant to shoulder drop
+
+    const DROP_EXTRA = { none: 0, slight: 0.75, boxy: 1.5 };
+    const dropExtra  = DROP_EXTRA[opts.shoulderDrop] ?? 0;
+    if (dropExtra > 0) {
+      shoulderW    += dropExtra;
+      slopeDrop     = shoulderDropFromWidth(shoulderW);
+      shoulderPtX   = neckW + shoulderW;
+      chestDepth    = Math.max(0.5, panelW - shoulderPtX);
+      armholeDepth  = armholeY - slopeDrop;
+      shoulderPtY   = slopeDrop;
+    }
+
+    const isBarrelCuff = opts.cuff === 'barrel' && opts.sleeveStyle === 'long';
+    const cuffW        = isBarrelCuff ? (m.wrist || m.bicep * 0.65) + 2.5 : 0;
 
     // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
     function sampleCurve(cp, steps = 12) {
@@ -218,7 +261,13 @@ export default {
     if (opts.fit === 'fitted') {
       backPoly.push({ x: sideX - 1, y: torsoLen * 0.42 });
     }
-    backPoly.push({ x: sideX, y: torsoLen });
+    if (opts.sideVent === 'vent') {
+      backPoly.push({ x: sideX,          y: torsoLen - VENT_DEPTH });
+      backPoly.push({ x: sideX + VENT_W, y: torsoLen - VENT_DEPTH });
+      backPoly.push({ x: sideX + VENT_W, y: torsoLen              });
+    } else {
+      backPoly.push({ x: sideX, y: torsoLen });
+    }
     backPoly.push({ x: 0, y: torsoLen });
 
     // ── BACK YOKE ─────────────────────────────────────────────────────────────
@@ -343,16 +392,22 @@ export default {
       for (let i = 0; i < nBackArmPts;  i++) backEdgeAllowances.push({ sa: 0.375, label: 'Armhole'  });
     }
     if (opts.fit === 'fitted') backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
-    backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
+    if (opts.sideVent === 'vent') {
+      backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
+      backEdgeAllowances.push({ sa: 0.375, label: 'Vent top'  });
+      backEdgeAllowances.push({ sa: 0.375, label: 'Vent side' });
+    } else {
+      backEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
+    }
     backEdgeAllowances.push({ sa: hem,   label: 'Hem' });
     while (backEdgeAllowances.length < backPoly.length) backEdgeAllowances.push({ sa: 0, label: 'Fold' });
 
     // Sleeve SA
     const nCapPts = capPts.length;
     const sleeveEdgeAllowances = sleevePoly.map((_, i) => {
-      if (i < nCapPts - 1)   return { sa: 0.375, label: 'Cap'       };
-      if (i === nCapPts - 1) return { sa: 0.625, label: 'Side seam' };
-      if (i === nCapPts)     return { sa: hem,   label: 'Hem'       };
+      if (i < nCapPts - 1)   return { sa: 0.375, label: 'Cap'                                  };
+      if (i === nCapPts - 1) return { sa: 0.625, label: 'Side seam'                            };
+      if (i === nCapPts)     return { sa,        label: isBarrelCuff ? 'Cuff seam' : 'Hem'     };
       return { sa: 0.625, label: 'Side seam' };
     });
 
@@ -393,9 +448,10 @@ export default {
       { x: shoulderMidX, y: shoulderMidY, angle: shoulderAngle },
       { x: sideX,        y: armholeY,     angle: 0 },
       { x: frontNotchBodice.x, y: frontNotchBodice.y, angle: 0 },
+      ...(opts.sideVent === 'vent' ? [{ x: sideX, y: torsoLen - VENT_DEPTH, angle: 90 }] : []),
     ];
 
-    const backNotches = opts.yoke === 'yoke'
+    const backNotchBase = opts.yoke === 'yoke'
       ? [
           { x: yokeArmholeX, y: yokeLineY, angle: 0 },
           { x: sideX,        y: armholeY,  angle: 0 },
@@ -408,6 +464,10 @@ export default {
           { x: backNotch1Bodice.x, y: backNotch1Bodice.y, angle: 0 },
           { x: backNotch2Bodice.x, y: backNotch2Bodice.y, angle: 0 },
         ];
+    const backNotches = [
+      ...backNotchBase,
+      ...(opts.sideVent === 'vent' ? [{ x: sideX, y: torsoLen - VENT_DEPTH, angle: 90 }] : []),
+    ];
 
     const sleeveNotches = [
       { x: slvTopW, y: 0, angle: -90 },
@@ -514,7 +574,7 @@ export default {
       {
         id: 'collar',
         name: 'Camp Collar',
-        instruction: `Cut 2 (outer + undercollar) · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
+        instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
         type: 'bodice',
         polygon: collarPoly,
         path: polyToPathStr(collarPoly),
@@ -523,6 +583,7 @@ export default {
         sa,
         notches: collarNotches,
         edgeAllowances: collarEdgeAllowances,
+        grainLine: { start: { x: collarLen * 0.3, y: collarH / 2 }, end: { x: collarLen * 0.7, y: collarH / 2 } },
         dims: [
           { label: fmtInches(collarLen) + ' neckline', x1: 0, y1: collarH + 0.5, x2: collarLen, y2: collarH + 0.5, type: 'h' },
           { label: fmtInches(collarH) + ' cut height', x: collarLen + 1, y1: 0, y2: collarH, type: 'v' },
@@ -537,6 +598,17 @@ export default {
         sa,
       },
     );
+
+    if (isBarrelCuff) {
+      pieces.push({
+        id: 'sleeve-cuff',
+        name: 'Sleeve Cuff',
+        instruction: `Cut 2 (L & R) · Interface both · ${fmtInches(cuffW)} wide × ${fmtInches(CUFF_H)} cut · Fold in half to ${fmtInches(CUFF_H / 2)} finished height · 1 horizontal buttonhole on overlap end`,
+        type: 'pocket',
+        dimensions: { width: cuffW, height: CUFF_H },
+        sa,
+      });
+    }
 
     if (opts.chestPocket === 'patch') {
       pieces.push({
@@ -615,10 +687,11 @@ export default {
   },
 
   instructions(m, opts) {
-    const steps    = [];
-    let n          = 1;
-    const btnCount = parseInt(opts.buttons) || 5;
-    const hasYoke  = opts.yoke === 'yoke';
+    const steps       = [];
+    let n             = 1;
+    const btnCount    = parseInt(opts.buttons) || 5;
+    const hasYoke     = opts.yoke === 'yoke';
+    const isBarrelCuff = opts.cuff === 'barrel' && opts.sleeveStyle === 'long';
 
     steps.push({
       step: n++, title: 'Stay-stitch curves',
@@ -673,8 +746,15 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew side and underarm seams',
-      detail: 'Sew front to back at side seams in one continuous seam from shirt hem through the underarm to sleeve hem {RST}. {press} toward back.',
+      detail: `Sew front to back at side seams in one continuous seam from shirt hem${opts.sideVent === 'vent' ? ' (stopping at the vent notch)' : ''} through the underarm to sleeve hem {RST}. {press} toward back.`,
     });
+
+    if (opts.sideVent === 'vent') {
+      steps.push({
+        step: n++, title: 'Finish side vents',
+        detail: `Side seams are sewn only from underarm down to the vent notch ${fmtInches(VENT_DEPTH)} above the hem. On each back panel, press the vent extension under ¼″ twice and {topstitch} closed. Press the front side seam allowances toward the back below the notch and {topstitch} from the notch to the hem corner. The back extension overlaps the front when the shirt hangs naturally. {press} vents flat.`,
+      });
+    }
 
     steps.push({
       step: n++, title: 'Finish seam allowances',
@@ -682,9 +762,18 @@ export default {
     });
 
     steps.push({
-      step: n++, title: 'Hem sleeves and body',
-      detail: `Sleeve hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch} close to inner fold. Body hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch}. Clip the hem allowance at the side seam junction to reduce bulk before folding.`,
+      step: n++, title: isBarrelCuff ? 'Hem body' : 'Hem sleeves and body',
+      detail: isBarrelCuff
+        ? `Body hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch}. Clip the hem allowance at the side seam junction to reduce bulk before folding. Sleeve opening will be finished with the barrel cuff.`
+        : `Sleeve hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch} close to inner fold. Body hem: fold up ${fmtInches(parseFloat(opts.hem))} twice, {press}, {topstitch}. Clip the hem allowance at the side seam junction to reduce bulk before folding.`,
     });
+
+    if (isBarrelCuff) {
+      steps.push({
+        step: n++, title: 'Attach barrel cuffs',
+        detail: `Interface both cuff pieces. Fold each cuff {RST} along the long axis, sew the short ends closed, turn RS out and {press} to ${fmtInches(CUFF_H / 2)} finished height. With the sleeve RS out, pin the cuff {RST} to the sleeve opening, matching the cuff seam to the sleeve underarm seam. Sew, grade the seam allowances, {press} toward the cuff. Fold the inner cuff edge under ⅝″ and {edgestitch} from RS or {slipstitch} from WS. Sew 1 horizontal buttonhole on the overlap end of each cuff; attach matching buttons.`,
+      });
+    }
 
     steps.push({
       step: n++, title: 'Buttonholes and buttons',
@@ -700,9 +789,10 @@ export default {
   },
 
   variants: [
-    { id: 'vacation-shirt',    name: 'Vacation Shirt',          defaults: { sleeveStyle: 'short', fit: 'relaxed',  chestPocket: 'patch', yoke: 'none' } },
-    { id: 'fitted-camp-shirt', name: 'Fitted Camp Shirt',       defaults: { sleeveStyle: 'short', fit: 'fitted',   chestPocket: 'none',  yoke: 'none' } },
-    { id: 'fitted-linen-camp', name: 'Fitted Linen Camp Shirt', defaults: { sleeveStyle: 'long',  fit: 'fitted',   chestPocket: 'none',  yoke: 'none' } },
-    { id: 'classic-camp-yoke', name: 'Classic Camp Shirt',      defaults: { sleeveStyle: 'short', fit: 'standard', chestPocket: 'patch', yoke: 'yoke' } },
+    { id: 'vacation-shirt',    name: 'Vacation Shirt',          defaults: { sleeveStyle: 'short', fit: 'relaxed',  chestPocket: 'patch', yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'none'   } },
+    { id: 'fitted-camp-shirt', name: 'Fitted Camp Shirt',       defaults: { sleeveStyle: 'short', fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'none'   } },
+    { id: 'fitted-linen-camp', name: 'Fitted Linen Camp Shirt', defaults: { sleeveStyle: 'long',  fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'barrel' } },
+    { id: 'classic-camp-yoke', name: 'Classic Camp Shirt',      defaults: { sleeveStyle: 'short', fit: 'standard', chestPocket: 'patch', yoke: 'yoke', shoulderDrop: 'none',   sideVent: 'vent', cuff: 'none'   } },
+    { id: 'boxy-camp-shirt',   name: 'Boxy Camp Shirt',         defaults: { sleeveStyle: 'short', fit: 'boxy',     chestPocket: 'patch', yoke: 'none', shoulderDrop: 'boxy',   sideVent: 'vent', cuff: 'none'   } },
   ],
 };
