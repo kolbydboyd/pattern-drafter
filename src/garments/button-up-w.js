@@ -309,6 +309,11 @@ export default {
 
     const frontBB = bbox(frontPoly), backBB = bbox(backPoly), slvBB = bbox(sleevePoly);
     const btnCount = parseInt(opts.buttons) || 7;
+    const btnFirst   = NECK_DEPTH_FRONT + 1.0;
+    const btnLast    = torsoLen - 2.0;
+    const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+    const btnYs      = Array.from({ length: btnCount }, (_, i) => btnFirst + i * btnSpacing);
+    const buttonMarks = btnYs.map(y => ({ type: 'button', x: 0, y }));
 
     const pieces = [
       {
@@ -316,7 +321,7 @@ export default {
         instruction: `Cut 2 (L & R mirror) · ${fmtInches(PLACKET_W)} placket at CF · Left panel: buttonholes · Right panel: buttons${bustDarts.length ? ` · Bust dart: ${fmtInches(bustDarts[0].intake)} intake × ${fmtInches(bustDarts[0].length)} long from side seam` : ''}`,
         type: 'bodice', polygon: frontPoly, path: polyPath(frontPoly),
         width: frontBB.maxX - frontBB.minX, height: frontBB.maxY - frontBB.minY,
-        isBack: false, sa, hem, notches: frontNotches, bustDarts,
+        isBack: false, sa, hem, marks: buttonMarks, notches: frontNotches, bustDarts,
         dims: [{ label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' }],
       },
       {
