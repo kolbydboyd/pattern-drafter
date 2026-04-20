@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.72] - 2026-04-20
+
+### Added
+- **Deep Autumn Color Palette in Admin Reference tab** — added a visual swatch card to the Reference tab showing the 14 core Deep Autumn colors grouped by family (Neutrals, Earth Tones, Greens, Accents). Each swatch displays a colored chip, name, and hex code. Colors sourced from seasonal color analysis research and cross-referenced against the Founder's Select garment color notes.
+
+---
+
 ## [0.12.71] - 2026-04-19
 
 ### Changed

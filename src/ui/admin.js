@@ -1593,11 +1593,69 @@ function renderPricing() {
   `;
 }
 
+// ── Deep Autumn Palette ──────────────────────────────────────────────────────
+const DEEP_AUTUMN_PALETTE = [
+  {
+    group: 'Neutrals',
+    swatches: [
+      { name: 'Cream',         hex: '#EDE4D3' },
+      { name: 'Warm Charcoal', hex: '#3A3835' },
+      { name: 'Chocolate',     hex: '#8C573A' },
+      { name: 'Dark Brown',    hex: '#3D2914' },
+    ],
+  },
+  {
+    group: 'Earth Tones',
+    swatches: [
+      { name: 'Rust',          hex: '#924819' },
+      { name: 'Terracotta',    hex: '#BF4C2B' },
+      { name: 'Mustard',       hex: '#DDA631' },
+      { name: 'Cafe au Lait',  hex: '#A78851' },
+    ],
+  },
+  {
+    group: 'Greens',
+    swatches: [
+      { name: 'Muddy Olive',   hex: '#675100' },
+      { name: 'Army Green',    hex: '#404C24' },
+      { name: 'Spanish Bistre',hex: '#71803C' },
+    ],
+  },
+  {
+    group: 'Accents',
+    swatches: [
+      { name: 'Burgundy',      hex: '#954344' },
+      { name: 'Old Mauve',     hex: '#5E3343' },
+      { name: 'Deep Teal',     hex: '#2A6B6B' },
+      { name: 'Indigo Denim',  hex: '#4A6FA5' },
+    ],
+  },
+];
+
 // ── Section: Reference (social, shipped, seasonal) ───────────────────────────
 
 function renderReference() {
   return `
     <h2 class="adm-section-title">Quick Reference</h2>
+
+    <div class="adm-roadmap-card adm-palette-card">
+      <h3>Deep Autumn Color Palette</h3>
+      <p style="margin-bottom:12px">Dark. Muted. Warm. Earthy tones with golden undertones. These are your foundation colors for fabric shopping and wardrobe planning.</p>
+      ${DEEP_AUTUMN_PALETTE.map(group => `
+        <div class="adm-palette-group">
+          <div class="adm-palette-group-label">${group.group}</div>
+          <div class="adm-swatch-row">
+            ${group.swatches.map(s => `
+              <div class="adm-swatch">
+                <div class="adm-swatch-chip" style="background:${s.hex};" title="${s.name} ${s.hex}"></div>
+                <div class="adm-swatch-name">${s.name}</div>
+                <div class="adm-swatch-hex">${s.hex}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
 
     <div class="adm-roadmap-card">
       <h3>Social Accounts</h3>
