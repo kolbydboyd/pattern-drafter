@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.78] - 2026-04-20
+
+### Fixed
+- **Athletic formal jacket — sleeve cap S-curve** — Bezier Segment 3 of the top sleeve cap (frontPitchPt → tsLeftEdge) had its second control point to the right of the endpoint, creating an S-curve inflection on the front underarm side of the cap. Moved p2.x to `tsLeftEdge.x - factor*0.1` so the curve is a clean concave arc.
+- **Athletic formal jacket — notched lapel gorge angle** — `lapelTip.y` was hardcoded to `neckDepthFront + 0.5`, placing the tip below the gorgePoint and producing a nearly horizontal (~7°) gorge seam. Now computed from `gorgeAngle` as `neckDepthFront - (lapelWidth + collarStand) * tan(gorgeRad)`, giving the correct ~30° diagonal gorge seam.
+- **Athletic formal jacket — peak lapel extension** — Default `peakExtension` increased from 1.0″ to 1.5″, raising the peak tip from 0.77″ to 1.15″ above the gorgePoint for a properly visible and proportionate peak.
+- **Athletic formal jacket — front facing stitch/cut lines inverted** — `offsetPolygon` was called with positive SA values on the facing polygon. Because `sanitizePoly` normalizes polygons to CW-in-standard-math, positive values produce an outward (enlarging) offset, making `facingSA` the cut line rather than the stitch line. Negated the SA values to match the convention used everywhere else; dashed stitch line now correctly appears inside the solid cut line.
+
+---
+
 ## [0.12.77] - 2026-04-20
 
 ### Added
