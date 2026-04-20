@@ -279,10 +279,13 @@ export function renderPanelSVG(piece) {
   if (!isBack && (opts?.frontPocket === 'slant' || opts?.pockets === 'slant')) {
     // The front panel is now cut at the slash line (diagonal edge is part of the piece outline).
     // Show the pocket bag area as a dashed reference overlay.
-    const slashX2 = ox + sc(width);         // side seam at slash exit
+    const sw = waistWidth || width;
+    const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
+    const slashEndX = slashEndPt ? slashEndPt.x : sw;
+    const slashX2 = ox + sc(slashEndX);    // side seam at slash exit
     const slashY2 = oy + sc(6);
-    const bagL = ox + sc(width - 7);        // left edge of bag
-    const bagB = oy + sc(11.5);             // bottom of bag
+    const bagL = ox + sc(sw - 7);          // left edge of bag
+    const bagB = oy + sc(11.5);            // bottom of bag
     pocketSVG += `<path d="M ${bagL} ${oy} L ${bagL} ${bagB} Q ${slashX2} ${bagB} ${slashX2} ${slashY2}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="none"/>
       <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
@@ -455,7 +458,7 @@ export function renderPanelSVG(piece) {
   let dartSVG = '';
   for (const d of darts) {
     const dx = ox + sc(d.x);
-    const dy1 = oy;
+    const dy1 = oy - sc(sa);
     const dy2 = oy + sc(d.length);
     const halfW = sc(d.intake / 2);
     dartSVG += `
