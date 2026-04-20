@@ -39,7 +39,8 @@ export async function onRequest(context) {
 
   // Hash the IP for dedup without storing raw IPs
   const rawIp = (request.headers.get('x-forwarded-for') || '').split(',')[0].trim();
-  const ipHash = rawIp ? createHash('sha256').update(rawIp + env.SUPABASE_SERVICE_ROLE_KEY).digest('hex').slice(0, 16) : null;
+  const ipSalt = env.IP_HASH_SECRET || env.SUPABASE_SERVICE_ROLE_KEY;
+  const ipHash = rawIp ? createHash('sha256').update(rawIp + ipSalt).digest('hex').slice(0, 16) : null;
 
   await supabase.from('affiliate_clicks').insert({
     affiliate_id: affiliate.id,

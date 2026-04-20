@@ -29,7 +29,7 @@ export async function onRequest(context) {
 
   // ── Single pattern ─────────────────────────────────────────────────────────
   if (checkoutMode === 'pattern') {
-    const { garmentId, userId, measurements, opts } = meta;
+    const { garmentId, userId } = meta;
     const price = PATTERN_PRICES[garmentId];
 
     return Response.json({
@@ -38,8 +38,6 @@ export async function onRequest(context) {
       garmentName:  price?.label ?? garmentId,
       amountCents:  session.amount_total,
       userId:       userId || null,
-      measurements: measurements ? JSON.parse(measurements) : {},
-      opts:         opts ? JSON.parse(opts) : {},
       sessionId:    session_id,
       status:       session.payment_status,
     });

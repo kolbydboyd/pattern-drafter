@@ -20,6 +20,11 @@ export async function onRequest(context) {
   const { request, env } = context;
   if (request.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
 
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > 25 * 1024 * 1024) {
+    return Response.json({ error: 'Request too large' }, { status: 413 });
+  }
+
   let body;
   try {
     body = await request.json();

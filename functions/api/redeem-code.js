@@ -31,15 +31,15 @@ export async function onRequest(context) {
 
   const normalized = code.trim().toUpperCase();
 
-  // Look up unredeemed code
+  // Fetch unconditionally first to avoid timing differences between
+  // "code doesn't exist" and "code already redeemed" paths.
   const { data: redeemCode, error: lookupErr } = await supabase
     .from('redemption_codes')
     .select('*')
     .eq('code', normalized)
-    .is('redeemed_by', null)
     .single();
 
-  if (lookupErr || !redeemCode) {
+  if (lookupErr || !redeemCode || redeemCode.redeemed_by !== null) {
     return Response.json({ error: 'Invalid or already redeemed code.' }, { status: 400 });
   }
 

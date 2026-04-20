@@ -9,6 +9,12 @@ export async function onRequest(context) {
     return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }
 
+  const ALLOWED_ORIGINS = new Set(['https://peoplespatterns.com', 'https://www.peoplespatterns.com']);
+  const requestOrigin = request.headers.get('origin') || '';
+  if (requestOrigin && !ALLOWED_ORIGINS.has(requestOrigin)) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -34,8 +40,8 @@ export async function onRequest(context) {
 
     if (existing) {
       return Response.json(
-        { error: 'This email has already claimed the first-order discount.', alreadyUsed: true },
-        { status: 409 },
+        { error: 'Unable to process request.', alreadyUsed: true },
+        { status: 400 },
       );
     }
 
