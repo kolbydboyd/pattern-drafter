@@ -360,9 +360,15 @@ export default {
     const placketH = torsoLen - NECK_DEPTH_FRONT;
 
     // ── BUTTON SPACING ────────────────────────────────────────────────────────
-    const btnCount  = parseInt(opts.buttons) || 5;
-    const btnDiam   = 0.5;
-    const btnholeSz = fmtInches(btnDiam + 0.125);
+    const btnCount   = parseInt(opts.buttons) || 5;
+    const btnDiam    = 0.5;
+    const btnholeSz  = fmtInches(btnDiam + 0.125);
+    // Camp collar stays open at top — first button sits 2″ below the collar seam
+    const btnFirst   = NECK_DEPTH_FRONT + 2.0;
+    const btnLast    = torsoLen - 1.0;
+    const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+    const btnYs      = Array.from({ length: btnCount }, (_, i) => btnFirst + i * btnSpacing);
+    const buttonMarks = btnYs.map(y => ({ type: 'button', x: 0, y }));
 
     // ── PER-EDGE SEAM ALLOWANCES ──────────────────────────────────────────────
     const nNeckPts     = frontNeckPts.length;
@@ -485,7 +491,7 @@ export default {
       {
         id: 'bodice-front',
         name: 'Front Panel (Left)',
-        instruction: `Cut 2 (L & R mirror) · CF edge has ${fmtInches(PLACKET_W)} placket extension · Right front: ${btnCount} horizontal buttonholes at ${btnholeSz} · Left front: ${btnCount} buttons spaced evenly`,
+        instruction: `Cut 2 (L & R mirror) · CF edge has ${fmtInches(PLACKET_W)} placket extension · Top collar stays open (no top button) · Right front: ${btnCount} horizontal buttonholes at ${btnholeSz} · Left front: ${btnCount} buttons at marked positions`,
         type: 'bodice',
         isCutOnFold: false,
         polygon: frontPoly,
@@ -494,6 +500,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: buttonMarks,
         notches: frontNotches,
         edgeAllowances: frontEdgeAllowances,
         dims: [
@@ -678,7 +685,7 @@ export default {
         'Pre-wash before cutting. Rayon challis shrinks 3–5%; cotton lawn 2–3%. Wash cold, hang dry or tumble on low.',
         'Camp shirts need drape. Avoid canvas, duck, denim, heavy linen, or any fabric that holds a crease without ironing.',
         'Interface the outer collar only — not the undercollar. For rayon or lawn, prefer sew-in interfacing; fusible can show through and separate after washing.',
-        `Button spacing: divide placket length by ${btnCount - 1}. Place top button 1″ from neckline, bottom button 1″ from hem, space the rest evenly.`,
+        `Button spacing: ${btnCount} buttons starting 2″ below the collar seam, last button 1″ from hem. No top button — the camp collar sits open. Transfer positions from the marked pattern piece.`,
         'Test buttonhole stitch on a scrap of your fabric layered with interfacing before sewing on the shirt.',
         'Optional upgrades: French seams for rayon or lawn (clean interior, no serger needed — sew WS together at 3mm, trim, fold RST, sew at 6mm) · Flat-felled seams for chambray or linen (very durable, flat interior) · Match print at chest pocket for a bespoke detail.',
         isLong ? 'Long sleeve: consider hemming the sleeve before setting it if your machine struggles sewing inside the full shirt tube.' : '',
@@ -777,7 +784,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Buttonholes and buttons',
-      detail: `Mark ${btnCount} horizontal buttonhole positions on right front placket: first 1″ from neckline, last 1″ from hem, evenly spaced between. Test buttonhole stitch on a layered scrap first. Sew buttonholes. Cut open with a seam ripper, using a pin across the far end to prevent over-cutting. Sew buttons to left placket at matching positions.`,
+      detail: `The camp collar sits open at the top — there is no top button. Transfer the ${btnCount} button marks from the pattern to the right front placket (use a tracing wheel or awl). Sew horizontal buttonholes at each mark. Test buttonhole stitch on a layered scrap first. Cut open with a seam ripper, using a pin at the far end to prevent over-cutting. Sew buttons to the left placket at matching positions.`,
     });
 
     steps.push({
