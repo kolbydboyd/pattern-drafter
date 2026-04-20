@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.79] - 2026-04-20
+
+### Added
+- **Waffle Knit Tee variant** — new `waffle-knit-tee` variant of the T-Shirt pattern. Defaults to fitted long sleeves with thumbhole cuffs. Adds `thumbhole` option to the base `tee` module (cut a 1″ slit at the cuff after sewing the sleeve seam). Adds `cotton-waffle` fabric type to `FABRIC_TYPES` in `materials.js`. Adds SVG illustration for `waffle-knit-tee`.
+
+---
+
 ## [0.12.78] - 2026-04-20
 
 ### Fixed
