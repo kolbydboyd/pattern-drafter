@@ -284,6 +284,11 @@ export default {
     const btnCount   = parseInt(opts.buttons) || 6;
     const btnDiam    = 0.5; // 1/2" default button
     const btnholeSz  = fmtInches(btnDiam + 0.125);
+    const btnFirst   = NECK_DEPTH_FRONT + 1.0;
+    const btnLast    = torsoLen - 2.0;
+    const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+    const btnYs      = Array.from({ length: btnCount }, (_, i) => btnFirst + i * btnSpacing);
+    const buttonMarks = btnYs.map(y => ({ type: 'button', x: 0, y }));
 
     // ── PER-EDGE SEAM ALLOWANCES ─────────────────────────────────────────────
     const nNeckPts     = frontNeckPts.length;          // 13
@@ -382,6 +387,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: buttonMarks,
         notches: frontNotches,
         edgeAllowances: frontEdgeAllowances,
         dims: [

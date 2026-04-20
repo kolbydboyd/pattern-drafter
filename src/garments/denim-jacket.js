@@ -346,6 +346,15 @@ export default {
       { x: backSideX, y: (yokeLineY + armholeY) / 2, angle: edgeAngle({ x: backYokeX, y: yokeLineY }, { x: backSideX, y: armholeY }) },
     ];
 
+    const allButtonMarks = opts.closure === 'button' ? (() => {
+      const btnFirst   = NECK_DEPTH_FRONT + 1.0;
+      const btnLast    = torsoLen - 2.0;
+      const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+      return Array.from({ length: btnCount }, (_, i) => ({ type: 'button', x: 0, y: btnFirst + i * btnSpacing }));
+    })() : [];
+    const yokeButtonMarks  = allButtonMarks.filter(m => m.y <= yokeLineY);
+    const panelButtonMarks = allButtonMarks.filter(m => m.y >  yokeLineY);
+
     // ── ASSEMBLE PIECES ────────────────────────────────────────────────
     const pieces = [
       {
@@ -393,6 +402,7 @@ export default {
         height: frontYokeBB.maxY - frontYokeBB.minY,
         isBack: false,
         sa, hem: 0,
+        marks: yokeButtonMarks,
         notches: yokeNotches,
         dims: [
           { label: fmtInches(panelW + PLACKET_W) + ' width', x1: -PLACKET_W, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' },
@@ -410,6 +420,7 @@ export default {
         height: frontPanelBB.maxY - frontPanelBB.minY,
         isBack: false,
         sa, hem,
+        marks: panelButtonMarks,
         notches: frontPanelNotches,
         dims: [
           { label: fmtInches(panelW + PLACKET_W) + ' width', x1: -PLACKET_W, y1: yokeLineY - 0.5, x2: panelW, y2: yokeLineY - 0.5, type: 'h' },

@@ -14,6 +14,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.77] - 2026-04-20
+
+### Added
+- **Button marks on all button-front patterns** — `{ type: 'button', x, y }` marks now appear on the front panel of every garment with a button closure: button-up, button-up-w, polo-shirt, henley, shirt-dress-w, chore-coat, crop-jacket, denim-jacket, and athletic-formal-jacket. Marks are conditional on `opts.closure === 'button'` where applicable (crop-jacket, denim-jacket, chore-coat). Denim-jacket marks are split between front-yoke and front-panel pieces by yoke seam Y. Athletic-formal-jacket renders a 2×2 grid for double-breasted and 2 vertical marks for single-breasted.
+- **Back-panel notch doubles for athletic-formal-trousers** — hip (side seam) and crotch (inseam) notches now include a second triangle offset by ±0.25″ on back panels, matching the double-notch convention used by baggy-jeans, chinos, wide-leg trousers, and pleated trousers.
+
+---
+
 ## [0.12.76] - 2026-04-20
 
 ### Added (camp-shirt.js)
