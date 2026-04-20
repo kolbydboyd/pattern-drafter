@@ -1383,6 +1383,9 @@ is covering monthly costs.
       Fixed: `armholeCurve()` in upper-body.js clamps chestDepth
       to min 0.5″ with console warning.
 
+### Deferred Garment Features
+- [ ] Split yoke (two-piece CB-seamed yoke) for button-up shirt — tailored men's shirts conventionally have a split yoke that allows fit adjustment and precise pattern matching. Single-piece yoke currently implemented. Requires new geometry in `pieces()` and `yokeSplit()` engine update.
+
 ### UI Improvements
 - [ ] Profile name input (replace prompt() with
       inline field — broken on mobile)

@@ -4,6 +4,24 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.74] - 2026-04-20
+
+### Changed (button-up.js — Oxford and linen shirt improvements)
+
+- **Relaxed fit ease** — increased from +5" to +6" chest ease; +5" was within the range for a loose regular fit, not a true relaxed fit (industry minimum is +6").
+- **Linen Shirt default fit** — changed from `fitted` (+2") to `standard` (+4"). A 2" ease is too snug for a linen shirt after pre-wash shrinkage margin.
+- **Linen pre-wash instruction** — corrected "wash hot, tumble dry" to "wash warm (40 °C), air dry or tumble dry on low heat only." Tumble drying linen hot risks 10-15% additional shrinkage.
+- **Seam finish recommendation for linen** — changed from flat-felled to French seams when linen/linen-light is selected (in both `materials()` notes and the side/sleeve seam instruction step). French seams suit loosely woven cloth; flat-felled adds bulk and can show through.
+
+### Added (button-up.js)
+
+- **French cuff option** — added `french` cuff choice (5" cut width, folds to 2.5", 4 link holes). Appears in cuff options, pieces list, materials (cufflinks notion), and instructions. Available on the men's/unisex button-up module; was previously only in the women's module.
+- **Button-down collar (OCBD)** — added `button-down` collar option: same stand (1.25") and fall (2") geometry as the point collar but no interfacing on the fall (for natural soft roll), buttonhole marks at 1/2" from each collar tip, and 2 small anchor buttons (9mm) in the materials list. Instructions include a step for marking and sewing anchor buttons after fitting collar roll.
+- **Oxford Shirt (OCBD) variant** — new `oxford-shirt` catalog entry defaulting to button-down collar, standard fit, back yoke, barrel cuff.
+- **Oxford Shirt SVG illustration** — `public/garment-illustrations/oxford-shirt.svg` with anchor-button circles at collar tips as the defining visual detail.
+
+---
+
 ## [0.12.73] - 2026-04-20
 
 ### Added
