@@ -539,6 +539,9 @@ function buildFlyShield(rise) {
     labels: [
       { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
     ],
+    notches: [
+      { x: 0, y: flyLen, angle: 270, label: 'fly base' },
+    ],
   };
 }
 
@@ -580,7 +583,10 @@ function buildFlyExtension(rise) {
       { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
     ],
     labels: [
-      { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
+      { text: 'CF / FOLD', x: -0.55, y: h * 0.4, rotation: -90 },
+    ],
+    notches: [
+      { x: 0, y: flyLen, angle: 270, label: 'fly base' },
     ],
   };
 }
@@ -683,6 +689,11 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     // Coin pocket placement (right front only) — sits just below the front
     // pocket opening on the upper outer area of the panel.
     ...(!isBack ? [{ x: sideWaistX - 1.75, y: 2.5, angle: 0, label: 'coin pocket' }] : []),
+    // Pocket opening start on waist edge — matches the slash/scoop start notch on
+    // the pocket bag so the two pieces can be aligned before sewing.
+    ...(!isBack && (hasSlash || hasScoop || hasSquareScoop)
+      ? [{ x: sideWaistX - 3.5, y: 0, angle: 180, label: 'pocket' }]
+      : []),
   ];
 
   return {
