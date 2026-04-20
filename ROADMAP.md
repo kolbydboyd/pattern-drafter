@@ -29,7 +29,7 @@ manufacturer has this. It becomes a licensable asset.
 
 ## What's Done
 
-- [x] 53 garment base modules built and code-complete (52 existing + 1 added 2026-04-14: polo-shirt) — expands to ~104 catalog cards via variants
+- [x] 53 garment base modules built and code-complete (52 existing + 1 added 2026-04-14: polo-shirt) — expands to ~105 catalog cards via variants (added camp-shirt-revere 2026-04-20)
 - [x] Children's patterns — 5 garments covering sizes 2T–14 with child-appropriate ease, elastic waistbands, and growth hem tucks. Children filter tab on /patterns page. Children category in wizard.
 - [x] Pattern generation engine working
 - [x] Print layout with tiling, scale verification, tapered tiling (panel pieces skip blank columns in narrow rows), and US Legal paper size support
