@@ -316,6 +316,13 @@ export default {
     const upperCollarBB = bbox(collarResult.upperCollar);
     const underCollarBB = bbox(collarResult.underCollar);
 
+    const buttonMarks = opts.closure === 'button' ? (() => {
+      const btnFirst   = NECK_DEPTH_FRONT + 1.5;
+      const btnLast    = torsoLen - 2.0;
+      const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+      return Array.from({ length: btnCount }, (_, i) => ({ type: 'button', x: 0, y: btnFirst + i * btnSpacing }));
+    })() : [];
+
     const pieces = [
       {
         id: 'bodice-front',
@@ -328,6 +335,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: buttonMarks,
         notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },

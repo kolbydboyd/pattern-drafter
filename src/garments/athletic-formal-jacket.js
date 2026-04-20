@@ -363,6 +363,18 @@ export default {
     const frontBB  = bbox(frontPoly);
     const backBB   = bbox(backPoly);
 
+    const buttonMarks = isDouble
+      ? [
+          { type: 'button', x:  0,   y: topBtnY },
+          { type: 'button', x: -3.0, y: topBtnY },
+          { type: 'button', x:  0,   y: topBtnY + 4.5 },
+          { type: 'button', x: -3.0, y: topBtnY + 4.5 },
+        ]
+      : [
+          { type: 'button', x: 0, y: topBtnY },
+          { type: 'button', x: 0, y: topBtnY + btnSpacing },
+        ];
+
     // ── PIECES ───────────────────────────────────────────────────────────
     const pieces = [
       {
@@ -377,6 +389,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: buttonMarks,
         notches: frontNotches,
         // Roll line: break point (CF placket edge) → gorge (peak/notched) or shoulder-neck (shawl).
         // The lapel folds back along this line when worn.

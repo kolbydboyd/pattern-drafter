@@ -332,6 +332,13 @@ export default {
       };
     }
 
+    const btnCount   = parseInt(opts.buttonCount) || 7;
+    const btnFirst   = 2.5 + 1.5;  // 2.5 = front neck depth; 1.5" below neckline seam
+    const btnLast    = torsoLen - 1.0;
+    const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+    const btnYs      = Array.from({ length: btnCount }, (_, i) => btnFirst + i * btnSpacing);
+    const buttonMarks = btnYs.map(y => ({ type: 'button', x: frontW, y }));
+
     const pieces = [
       {
         id: 'bodice-front-right', name: 'Front Bodice (Right / buttonhole side)',
@@ -348,6 +355,7 @@ export default {
         type: 'bodice', polygon: frontLeftPoly, path: pp(frontLeftPoly),
         isCutOnFold: false,
         width: frontLeftBB.width, height: frontLeftBB.height, isBack: false, sa, hem,
+        marks: buttonMarks,
         dims: [{ label: fmtInches(frontW + PLACKET_W) + ' half width + placket', x1: 0, y1: -0.5, x2: frontW + PLACKET_W, y2: -0.5, type: 'h' }],
         notches: frontNotches, bustDarts: leftBustDarts,
       },

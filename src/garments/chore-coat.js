@@ -225,6 +225,14 @@ export default {
     const backBB   = bbox(backPoly);
     const sleeveBB = bbox(sleevePoly);
 
+    const btnCount   = opts.pockets === 'chest-lower' ? 11 : opts.pockets === 'chest-only' ? 9 : 7;
+    const buttonMarks = opts.closure !== 'snap' ? (() => {
+      const btnFirst   = NECK_DEPTH_FRONT + 2.0;
+      const btnLast    = hemY - 1.5;
+      const btnSpacing = (btnLast - btnFirst) / (btnCount - 1);
+      return Array.from({ length: btnCount }, (_, i) => ({ type: 'button', x: 0, y: btnFirst + i * btnSpacing }));
+    })() : [];
+
     const pieces = [
       {
         id: 'bodice-back',
@@ -254,6 +262,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: buttonMarks,
         notches: frontNotches,
         dims: [
           { label: fmtInches(panelW) + ' half width', x1: 0, y1: -0.5, x2: panelW, y2: -0.5, type: 'h' },

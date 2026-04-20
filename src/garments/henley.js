@@ -262,6 +262,7 @@ export default {
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
         sa, hem,
+        marks: [{ type: 'button', x: 0, y: bh1 }, { type: 'button', x: 0, y: bh2 }, { type: 'button', x: 0, y: bh3 }],
         notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
