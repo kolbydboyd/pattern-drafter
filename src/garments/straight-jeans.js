@@ -165,13 +165,17 @@ export default {
     }));
 
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
-    const backDartIntake = hasYoke ? 0 : (backHipW - backWaistW);
+    const backDartIntake = hasYoke ? 0 : Math.max(0, backHipW - backWaistW);
+    // Only widen the cut panel when a dart will actually be drawn (intake > 1").
+    // For smaller differences the side-seam taper is sufficient; widening without
+    // a dart creates unaccounted excess at the waist.
+    const effectiveDartIntake = backDartIntake > 1 ? backDartIntake : 0;
 
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
       instruction: `Cut 2 (mirror L & R) · CB raised ${fmtInches(cbRaise)} · Mark knee point`,
-      waistWidth: backWaistW + backDartIntake, hipWidth: backHipW, hipLineY,
-      dartIntake: backDartIntake,
+      waistWidth: backWaistW + effectiveDartIntake, hipWidth: backHipW, hipLineY,
+      dartIntake: effectiveDartIntake,
       height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem,
       isBack: true, shape, opts,
@@ -539,6 +543,9 @@ function buildFlyShield(rise) {
     labels: [
       { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
     ],
+    notches: [
+      { x: 0, y: flyLen, angle: 270, label: 'fly base' },
+    ],
   };
 }
 
@@ -580,7 +587,10 @@ function buildFlyExtension(rise) {
       { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
     ],
     labels: [
-      { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
+      { text: 'CF / FOLD', x: -0.55, y: h * 0.4, rotation: -90 },
+    ],
+    notches: [
+      { x: 0, y: flyLen, angle: 270, label: 'fly base' },
     ],
   };
 }
@@ -646,8 +656,12 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     + dist({ x: inseamKneeX, y: kneeY }, { x: -ext, y: rise });
   const crotchLen = arcLength(curvePts);
 
+  // For back panels with darts, waistWidth is the cut width; subtract dart intake
+  // to get the finished (sewn) measurement shown on the label.
+  const finishedWaistWidth = waistWidth - dartIntake;
+
   const dims = [
-    { label: fmtInches(waistWidth) + ' waist', x1: 0, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
+    { label: fmtInches(finishedWaistWidth) + ' waist', x1: 0, y1: -0.5, x2: sideWaistX, y2: -0.5, type: 'h' },
     { label: fmtInches(hipWidth) + ' hip',     x1: 0,            y1: hipLineY + 0.4, x2: hipWidth, y2: hipLineY + 0.4, type: 'h', color: '#b8963e' },
     { label: fmtInches(kneeW) + ' knee',       x1: inseamKneeX,  y1: kneeY + 0.4, x2: sideKneeX, y2: kneeY + 0.4, type: 'h', color: '#b8963e' },
     { label: fmtInches(hemW)  + ' hem',        x1: inseamHemX,   y1: height - 0.5, x2: sideHemX,  y2: height - 0.5, type: 'h', color: '#b8963e' },
@@ -683,6 +697,11 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     // Coin pocket placement (right front only) — sits just below the front
     // pocket opening on the upper outer area of the panel.
     ...(!isBack ? [{ x: sideWaistX - 1.75, y: 2.5, angle: 0, label: 'coin pocket' }] : []),
+    // Pocket opening start on waist edge — matches the slash/scoop start notch on
+    // the pocket bag so the two pieces can be aligned before sewing.
+    ...(!isBack && (hasSlash || hasScoop || hasSquareScoop)
+      ? [{ x: sideWaistX - 3.5, y: 0, angle: 180, label: 'pocket' }]
+      : []),
   ];
 
   return {

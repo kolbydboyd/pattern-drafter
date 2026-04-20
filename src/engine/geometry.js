@@ -597,6 +597,11 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
     type: 'bodice',
     isCutOnFold: false,
     dimensions: { width, height },
+    notches: [
+      // Slash exit corner: where the side seam meets the scoop curve.
+      // Matches the corresponding notch on the pocket bag and front panel.
+      { x: bagWidth, y: slashDepth, angle: 135, label: 'slash' },
+    ],
   };
 }
 
@@ -634,6 +639,12 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
     type: 'bodice',
     isCutOnFold: false,
     dimensions: { width, height },
+    notches: [
+      // Slash start on waist: matches the pocket notch on the front panel waist edge.
+      { x: slashStartX, y: 0, angle: 180, label: 'slash start' },
+      // Slash end / scoop start: matches the slash notch on the pocket backing.
+      { x: bagWidth, y: slashDepth, angle: 135, label: 'slash end' },
+    ],
   };
 }
 
@@ -805,6 +816,9 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    notches: [
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
+    ],
   };
 }
 
@@ -843,6 +857,10 @@ export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth
     dimensions: { width: bagWidth, height: bagDepth },
     marks: [
       { type: 'fold', axis: 'h', position: scoopDepth },
+    ],
+    notches: [
+      { x: sx,       y: 0,          angle: 180, label: 'opening start' },
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening end'   },
     ],
   };
 }
@@ -926,6 +944,9 @@ export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, 
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    notches: [
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
+    ],
   };
 }
 
@@ -972,6 +993,10 @@ export function buildSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoo
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    notches: [
+      { x: sx,       y: 0,          angle: 180, label: 'opening start' },
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening end'   },
+    ],
   };
 }
 
@@ -1034,6 +1059,10 @@ export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, sc
       if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
       return { sa, label: '' };
     }),
+    notches: [
+      { x: sx,       y: 0,          angle: 180, label: 'opening start' },
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening end'   },
+    ],
   };
 }
 
@@ -1088,5 +1117,9 @@ export function buildFoldOverSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3
       if (i === polygon.length - 1) return { sa: 0, label: 'fold' };
       return { sa, label: '' };
     }),
+    notches: [
+      { x: sx,       y: 0,          angle: 180, label: 'opening start' },
+      { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening end'   },
+    ],
   };
 }
