@@ -28,9 +28,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
-        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed' },
+        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'business suit, classic tailored' },
+        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: '1940s drape, Brioni'           },
+        { value: 'wide',    label: 'Wide (+8\u2033)',      reference: 'Margiela, deconstructed'       },
       ],
       default: 'wide',
     },
@@ -46,11 +46,20 @@ export default {
     pleats: {
       type: 'select', label: 'Pleats (front only)',
       values: [
-        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern' },
-        { value: 'single', label: 'Single pleat', reference: 'classic, Italian'   },
-        { value: 'double', label: 'Double pleat', reference: 'full, Savile Row'   },
+        { value: 'none',   label: 'No pleats',    reference: 'flat front, modern'        },
+        { value: 'single', label: 'Single pleat', reference: 'English, Italian'           },
+        { value: 'double', label: 'Double pleat', reference: 'Savile Row, 1940s full drape' },
       ],
       default: 'double',
+    },
+    pleatDir: {
+      type: 'select', label: 'Pleat direction',
+      values: [
+        { value: 'forward', label: 'Forward (opens toward CF)',   reference: 'Savile Row, most slimming, sharpest crease' },
+        { value: 'reverse', label: 'Reverse (opens toward side)', reference: 'Italian, contemporary RTW, forgiving on fit' },
+      ],
+      default: 'forward',
+      showWhen: { pleats: ['single', 'double'] },
     },
     riseStyle: {
       type: 'select', label: 'Rise style',
@@ -130,10 +139,14 @@ export default {
 
     const pieces = [];
 
+    const pleatDirNote = opts.pleatDir === 'reverse'
+      ? 'Reverse: fold opens toward side seam'
+      : 'Forward: fold opens toward CF (more slimming)';
+
     // Straight leg — hem width matches hip panel (no taper)
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat folded toward side seam, ${fmtInches(PLEAT_DEPTH)} each` : ''}`,
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat ${fmtInches(PLEAT_DEPTH)} each · ${pleatDirNote}` : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
@@ -235,9 +248,12 @@ export default {
       detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
 
     if (numPleats > 0) {
+      const pleatDirLabel = opts.pleatDir === 'reverse'
+        ? 'fold toward the side seam (reverse pleat — opens toward pocket)'
+        : 'fold toward CF (forward pleat — opens toward fly, more slimming)';
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS. Fold each pleat toward side seam enclosing ${fmtInches(PLEAT_DEPTH)}. Pin at waist. {baste} ⅜″ from edge. {press} pleat down 4–5″ with steam from WS, then allow to drape. The pleat should release naturally below the hip.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS. ${pleatDirLabel.charAt(0).toUpperCase() + pleatDirLabel.slice(1)} enclosing ${fmtInches(PLEAT_DEPTH)} per pleat. Pin at waist. {baste} at ⅜″. {press} first 5–6″ from waist with steam — do NOT press full leg length. The pleat should release naturally below the hip.`,
       });
     }
 
@@ -310,8 +326,8 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   ];
 
   const pleats = [];
-  if (!isBack && numPleats >= 1) pleats.push({ x: waistWidth * 0.25, depth: pleatDepth, y1: 0, y2: 4.5 });
-  if (!isBack && numPleats >= 2) pleats.push({ x: waistWidth * 0.5,  depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 1) pleats.push({ x: waistWidth * 0.45, depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 2) pleats.push({ x: waistWidth * 0.65, depth: pleatDepth, y1: 0, y2: 4.5 });
 
   // Waist darts for back panel
   const darts = [];
