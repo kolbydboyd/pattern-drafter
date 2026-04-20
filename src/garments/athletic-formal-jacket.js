@@ -603,10 +603,9 @@ export default {
         console.warn(`[athletic-formal-jacket] facingEdges length ${facingEdges.length} !== facingPoly length ${facingPoly.length}`);
       }
 
-      // facingPoly is CW-in-screen (positive shoelace area). offsetPolygon uses
-      // the left-hand normal, which for CW points toward the interior — so a
-      // positive offset goes inward (= correct stitch-line direction).
-      const facingSA = offsetPolygon(facingPoly, (i) => (facingEdges[i]?.sa ?? sa));
+      // sanitizePoly normalizes to CW-in-standard-math (negative shoelace), so
+      // offsetPolygon with negative values goes inward = correct stitch-line direction.
+      const facingSA = offsetPolygon(facingPoly, (i) => -(facingEdges[i]?.sa ?? sa));
 
       const facingBB = bbox(facingPoly);
       const styleLabel = opts.collar === 'peak' ? 'peak' : opts.collar === 'notched' ? 'notched' : 'shawl';

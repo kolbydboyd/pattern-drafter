@@ -518,7 +518,7 @@ export function twoPartSleeve({
     const tsCap3 = sample(
       frontPitchPt,
       { x: frontPitchPt.x - factor * 0.1, y: frontPitchPt.y + (armY - frontPitchPt.y) * 0.66 },
-      { x: tsLeftEdge.x + factor * 0.3, y: armY },
+      { x: tsLeftEdge.x - factor * 0.1, y: armY },
       tsLeftEdge
     );
     const tsCapPts = [...tsCap1, ...tsCap2.slice(1), ...tsCap3.slice(1)];
@@ -680,7 +680,7 @@ export function peakLapelCurve({
   breakPointY,
   lapelWidth = 3.5,
   gorgeAngle = 50,
-  peakExtension = 1.0,
+  peakExtension = 1.5,
   collarStand = 1.25,
 }) {
   // Break point: where the lapel starts folding back, at CF
@@ -775,10 +775,10 @@ export function notchedLapelCurve({
 
   // Lapel tip: the visible outer corner of the lapel when worn.
   // Negative x = outward from CF (lapel fold direction).
-  // y slightly below neckline = notched style (points down, not peaked).
+  // y computed from gorgeAngle so the gorge seam runs at the correct angle.
   const lapelTip = {
     x: -lapelWidth,
-    y: neckDepthFront + 0.5,
+    y: neckDepthFront - (lapelWidth + collarStand) * Math.tan(gorgeRad),
   };
 
   const lapelPoints = [
