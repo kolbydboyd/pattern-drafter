@@ -85,6 +85,14 @@ export default {
       ],
       default: 'yoke',
     },
+    yokeStyle: {
+      type: 'select', label: 'Back yoke style',
+      values: [
+        { value: 'single', label: 'Single piece (cut on fold)'                               },
+        { value: 'split',  label: 'Split (CB seam, two pieces)', reference: 'dress shirt, Oxford' },
+      ],
+      default: 'single',
+    },
     pocket: {
       type: 'select', label: 'Chest pocket',
       values: [
@@ -483,25 +491,46 @@ export default {
       for (const p of neckBackRev) backYokePoly.push({ x: neckW - p.x, y: p.y });
       for (let i = 1; i < shoulderPts.length; i++)
         backYokePoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      const armPtsInYoke = [];
       for (let i = 1; i < backArmPts.length; i++) {
         const pt = { x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y };
         if (pt.y > yokeLineY) break;
+        armPtsInYoke.push(pt);
         backYokePoly.push(pt);
       }
       backYokePoly.push({ x: backYokeX, y: yokeLineY });
       backYokePoly.push({ x: 0, y: yokeLineY });
       const backYokeBB = bbox(backYokePoly);
+
+      const isSplitYoke = opts.yokeStyle === 'split';
+
+      let yokeEdgeAllowances;
+      if (isSplitYoke) {
+        yokeEdgeAllowances = [];
+        const nNeckEdges = neckBackRev.length - 1;
+        for (let i = 0; i < nNeckEdges; i++)        yokeEdgeAllowances.push({ sa: 0.375, label: 'Neckline'  });
+        const nShoulderEdges = shoulderPts.length - 1;
+        for (let i = 0; i < nShoulderEdges; i++)    yokeEdgeAllowances.push({ sa,       label: 'Shoulder'  });
+        for (let i = 0; i < armPtsInYoke.length; i++) yokeEdgeAllowances.push({ sa: 0.375, label: 'Armhole'   });
+        yokeEdgeAllowances.push({ sa,       label: 'Yoke seam' }); // backYokeX → CB at yokeLineY
+        yokeEdgeAllowances.push({ sa: 0.625, label: 'CB seam'  }); // CB closing edge
+      }
+
       pieces.push({
         id: 'back-yoke',
         name: 'Back Yoke',
-        instruction: 'Cut 2 (outer + lining) - Interface outer - Flat-fell to back panel at yoke seam',
+        instruction: isSplitYoke
+          ? 'Cut 4 (2 outer + 2 lining, mirror) - Interface outer - Sew CB seam RST at 5/8" before attaching to back panel - Flat-fell to back panel at yoke seam'
+          : 'Cut 2 (outer + lining) - Interface outer - Flat-fell to back panel at yoke seam',
         type: 'bodice',
         polygon: backYokePoly,
         path: polyToPathStr(backYokePoly),
         width: backYokeBB.maxX - backYokeBB.minX,
         height: backYokeBB.maxY - backYokeBB.minY,
         isBack: true,
+        isCutOnFold: !isSplitYoke,
         sa, hem: 0,
+        ...(isSplitYoke ? { edgeAllowances: yokeEdgeAllowances } : {}),
         notches: [{ x: backYokeX, y: yokeLineY, angle: 0 }],
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
@@ -556,12 +585,13 @@ export default {
   },
 
   materials(m, opts) {
-    const btnCount  = parseInt(opts.buttons) || 6;
-    const hasCuff   = opts.sleeve === 'long' && opts.cuff === 'barrel';
-    const isFrench  = opts.sleeve === 'long' && opts.cuff === 'french';
-    const isOCBD    = opts.collar === 'button-down';
-    const fabrics   = opts._fabrics || ['linen', 'linen-light'];
-    const isLinen   = fabrics.some(f => f.startsWith('linen'));
+    const btnCount    = parseInt(opts.buttons) || 6;
+    const hasCuff     = opts.sleeve === 'long' && opts.cuff === 'barrel';
+    const isFrench    = opts.sleeve === 'long' && opts.cuff === 'french';
+    const isOCBD      = opts.collar === 'button-down';
+    const isSplitYoke = opts.backDetail === 'yoke' && opts.yokeStyle === 'split';
+    const fabrics     = opts._fabrics || ['linen', 'linen-light'];
+    const isLinen     = fabrics.some(f => f.startsWith('linen'));
 
     const notions = [
       { name: 'Buttons', quantity: `${btnCount + (hasCuff ? 3 : 0) + 1}`, notes: `${fmtInches(0.5)} (shirt buttons) - +1 spare${hasCuff ? ', +2 for cuffs' : ''}` },
@@ -586,6 +616,7 @@ export default {
       `Button spacing: divide placket length by ${btnCount - 1} - place top button 1" from collar stand, bottom button 2" from hem`,
       isLinen ? 'Linen softens beautifully with wear and washing - avoid over-pressing for a relaxed, lived-in look' : '',
       hasCuff ? 'Barrel cuffs: interface one layer, attach with clean finish inside' : '',
+      isSplitYoke ? 'Split yoke: sew CB seam on each yoke half before attaching to back body. The CB seam enables stripe and check matching across the back.' : '',
     ].filter(Boolean);
 
     return buildMaterialsSpec({
@@ -620,9 +651,12 @@ export default {
     }
 
     if (opts.backDetail === 'yoke') {
+      const isSplitYoke = opts.yokeStyle === 'split';
       steps.push({
         step: n++, title: 'Attach back yoke',
-        detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.',
+        detail: isSplitYoke
+          ? 'Sew CB seam on outer yoke halves {RST} at 5/8". Repeat for lining halves. {press} seams open. Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.'
+          : 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.',
       });
     }
 
@@ -766,7 +800,7 @@ export default {
     {
       id: 'oxford-shirt',
       name: 'Oxford Shirt (OCBD)',
-      defaults: { collar: 'button-down', sleeve: 'long', cuff: 'barrel', fit: 'standard', pocket: 'none', backDetail: 'yoke' },
+      defaults: { collar: 'button-down', sleeve: 'long', cuff: 'barrel', fit: 'standard', pocket: 'none', backDetail: 'yoke', yokeStyle: 'split' },
       fabrics: ['chambray', 'cotton-twill'],
     },
   ],

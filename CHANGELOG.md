@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.75] - 2026-04-20
+
+### Added (button-up.js)
+
+- **Split yoke option** — new `yokeStyle` option (`single` | `split`) for the back yoke. When `split`: the half-yoke polygon gains a CB seam edge with 5/8" seam allowance, the piece instruction changes to "Cut 4 (2 outer + 2 lining, mirror)", per-edge allowances are set (neckline 3/8", shoulder/yoke-seam per global SA, armhole 3/8", CB seam 5/8"), and `isCutOnFold` is false. When `single` (default): existing cut-on-fold behavior is preserved unchanged.
+- **Split yoke instruction step** — when `yokeStyle: 'split'`, the "Attach back yoke" instruction step prepends CB seam construction ("Sew CB seam on outer yoke halves RST at 5/8". Repeat for lining halves. Press seams open.") before the standard yoke assembly.
+- **Split yoke materials note** — when split yoke is active, a note is added explaining the CB seam enables stripe and check matching across the back.
+- **Oxford Shirt defaults to split yoke** — `oxford-shirt` variant now defaults to `yokeStyle: 'split'`, consistent with tailored dress-shirt convention.
+
+---
+
 ## [0.12.74] - 2026-04-20
 
 ### Changed (button-up.js — Oxford and linen shirt improvements)

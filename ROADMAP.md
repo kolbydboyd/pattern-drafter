@@ -1384,7 +1384,7 @@ is covering monthly costs.
       to min 0.5″ with console warning.
 
 ### Deferred Garment Features
-- [ ] Split yoke (two-piece CB-seamed yoke) for button-up shirt — tailored men's shirts conventionally have a split yoke that allows fit adjustment and precise pattern matching. Single-piece yoke currently implemented. Requires new geometry in `pieces()` and `yokeSplit()` engine update.
+- [x] Split yoke (two-piece CB-seamed yoke) for button-up shirt — `yokeStyle: 'split'` option added; CB edge gets 5/8" seam allowance, instruction updated to "Cut 4", oxford-shirt variant defaults to split.
 
 ### UI Improvements
 - [ ] Profile name input (replace prompt() with
