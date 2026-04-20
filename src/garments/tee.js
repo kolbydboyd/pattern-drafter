@@ -78,6 +78,14 @@ export default {
       ],
       default: 'none',
     },
+    thumbhole: {
+      type: 'select', label: 'Thumbhole cuffs',
+      values: [
+        { value: 'none', label: 'None' },
+        { value: 'yes',  label: 'Thumbhole (cut after sewing)' },
+      ],
+      default: 'none',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -440,7 +448,7 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · Cap top · ${opts.sleeveStyle === 'short' ? 'Short sleeve' : opts.sleeveStyle === 'three_quarter' ? '¾ sleeve' : 'Long sleeve'} · ${capEaseNote}`,
+        instruction: `Cut 2 (mirror L & R) · Cap top · ${opts.sleeveStyle === 'short' ? 'Short sleeve' : opts.sleeveStyle === 'three_quarter' ? '¾ sleeve' : 'Long sleeve'} · ${capEaseNote}${opts.thumbhole === 'yes' ? ' · Thumbhole: after sewing sleeve seam, cut a 1″ horizontal slit 1″ from cuff edge on thumb-side; waffle knit edges self-stabilize' : ''}`,
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),
@@ -493,7 +501,7 @@ export default {
     }
 
     return buildMaterialsSpec({
-      fabrics: ['cotton-jersey', 'rayon-jersey', 'poly-jersey'],
+      fabrics: ['cotton-jersey', 'rayon-jersey', 'poly-jersey', 'cotton-waffle'],
       notions,
       thread: 'poly-all',
       needle: 'ballpoint-80',
@@ -506,6 +514,7 @@ export default {
         'Neckband cut at 85% of neck opening so it lies flat without gaping',
         'Stretch neckband gently as you sew to match opening - do not stretch the bodice edge',
         opts.fit === 'fitted' ? 'Slim fit: ease is minimal - use 4-way stretch fabric only' : '',
+        opts.thumbhole === 'yes' ? 'Thumbhole cuffs: sew sleeve seam first, then cut a 1″ horizontal slit 1″ from the cuff edge on the thumb side. Waffle knit and jersey edges are stable enough — no finishing needed, the edge will roll slightly.' : '',
       ].filter(Boolean),
     });
   },
@@ -572,5 +581,6 @@ export default {
     { id: 'muscle-tee', name: 'Muscle Tee', defaults: { fit: 'relaxed', sleeveStyle: 'short', hemStyle: 'straight' } },
     { id: 'longline-tee', name: 'Longline Tee', defaults: { fit: 'relaxed', hemStyle: 'shirttail' } },
     { id: 'pocket-tee', name: 'Pocket Tee', defaults: { fit: 'standard', chestPocket: 'patch' } },
+    { id: 'waffle-knit-tee', name: 'Waffle Knit Tee', defaults: { sleeveStyle: 'long', fit: 'fitted', thumbhole: 'yes' }, fabrics: ['cotton-waffle'] },
   ],
 };

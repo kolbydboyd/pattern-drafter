@@ -142,6 +142,7 @@ export const FABRIC_TYPES = {
   'rib-knit':         { name: 'Rib knit (for cuffs/collar)', weight: '6–8 oz/yd²', stretch: true, category: 'knit' },
   'ponte':            { name: 'Ponte (double knit)', weight: '8–10 oz/yd²', stretch: true, category: 'knit', notes: 'Stable stretch; holds shape well; good for structured pieces' },
   'supplex':          { name: 'Supplex nylon or poly-spandex', weight: '4–6 oz/yd²', stretch: true, category: 'knit', notes: '4-way stretch, moisture-wicking' },
+  'cotton-waffle':    { name: 'Cotton waffle knit', weight: '6–8 oz/yd²', stretch: true, category: 'knit', notes: 'Thermal/waffle texture knit; 2-way stretch. Pre-wash before cutting — cotton waffle shrinks 5–8%.' },
 
   // ── Other ─────────────────────────────────────────────────────────────────
   'mesh':             { name: 'Athletic mesh', weight: '2–3 oz/yd²', stretch: true, category: 'knit', notes: 'For pocket linings, liner' },
