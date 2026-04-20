@@ -12,6 +12,7 @@ export async function onRequest(context) {
   // Auth via admin key
   const apiKey = request.headers.get('x-admin-key');
   if (!apiKey || apiKey !== env.ADMIN_API_KEY) {
+    console.warn(JSON.stringify({ event: 'admin_auth_failure', ip: request.headers.get('cf-connecting-ip'), ts: Date.now() }));
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -79,5 +80,6 @@ export async function onRequest(context) {
     .eq('id', makeId);
 
   if (error) return Response.json({ error: error.message }, { status: 500 });
+  console.log(JSON.stringify({ event: 'admin_tester_makes', action, makeId, ip: request.headers.get('cf-connecting-ip'), ts: Date.now() }));
   return Response.json({ ok: true, action, status: newStatus });
 }

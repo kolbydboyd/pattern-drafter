@@ -142,6 +142,12 @@ export const handler = async (event) => {
       return jsonResponse(403, { error: 'Payment not completed' });
     }
 
+    const sessionAgMs = Date.now() - stripeSession.created * 1000;
+    if (sessionAgMs > 48 * 60 * 60 * 1000) {
+      console.warn(`[REJECTED] Session expired | user=${userId} ip=${clientIp} sessionId=${sessionId}`);
+      return jsonResponse(403, { error: 'Payment session has expired. Please contact support.' });
+    }
+
     if (stripeSession.metadata?.user_id !== userId) {
       console.warn(`[REJECTED] Session user mismatch | user=${userId} ip=${clientIp} sessionId=${sessionId}`);
       return jsonResponse(403, { error: 'Session does not match the requesting user' });

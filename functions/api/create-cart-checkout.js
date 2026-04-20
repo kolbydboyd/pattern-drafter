@@ -107,7 +107,9 @@ export async function onRequest(context) {
 
   try {
     const stripe  = new Stripe(env.STRIPE_SECRET_KEY);
-    const origin  = request.headers.get('origin') || 'https://peoplespatterns.com';
+    const ALLOWED_ORIGINS = new Set(['https://peoplespatterns.com', 'https://www.peoplespatterns.com']);
+    const rawOrigin = request.headers.get('origin') || '';
+    const origin  = ALLOWED_ORIGINS.has(rawOrigin) ? rawOrigin : 'https://peoplespatterns.com';
 
     const { lineItems, bundleId, resolvedItems } = _serverPricing(items);
 

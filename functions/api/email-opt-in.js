@@ -39,6 +39,12 @@ export async function onRequest(context) {
     return Response.json({ error: 'Method not allowed' }, { status: 405 });
   }
 
+  const ALLOWED_ORIGINS = new Set(['https://peoplespatterns.com', 'https://www.peoplespatterns.com']);
+  const requestOrigin = request.headers.get('origin') || '';
+  if (requestOrigin && !ALLOWED_ORIGINS.has(requestOrigin)) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   let body;
   try {
     body = await request.json();

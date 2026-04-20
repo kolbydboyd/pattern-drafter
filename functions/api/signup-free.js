@@ -17,7 +17,9 @@ export async function onRequest(context) {
 
   const { email, password } = body ?? {};
   if (!email || !password) return Response.json({ error: 'Email and password are required.' }, { status: 400 });
-  if (password.length < 8) return Response.json({ error: 'Password must be at least 8 characters.' }, { status: 400 });
+  if (password.length < 10 || !/[\d!@#$%^&*()\-_=+[\]{};:'",.<>/?\\|`~]/.test(password)) {
+    return Response.json({ error: 'Password must be at least 10 characters and include a number or symbol.' }, { status: 400 });
+  }
 
   const supabase = createClient(
     env.SUPABASE_URL,
