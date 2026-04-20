@@ -36,8 +36,9 @@ export default {
     collar: {
       type: 'select', label: 'Collar',
       values: [
-        { value: 'point', label: 'Point collar',         reference: 'dress shirt, Oxford' },
-        { value: 'band',  label: 'Band / Mandarin collar', reference: 'Mandarin, Nehru'   },
+        { value: 'point',        label: 'Point collar',               reference: 'dress shirt'              },
+        { value: 'button-down',  label: 'Button-down collar (OCBD)',   reference: 'Oxford cloth button-down' },
+        { value: 'band',         label: 'Band / Mandarin collar',      reference: 'Mandarin, Nehru'          },
       ],
       default: 'point',
     },
@@ -53,8 +54,9 @@ export default {
     cuff: {
       type: 'select', label: 'Cuff (long sleeve)',
       values: [
-        { value: 'barrel', label: 'Barrel cuff (2.5" band)' },
-        { value: 'none',   label: 'No cuff (hem only)'      },
+        { value: 'barrel', label: 'Barrel cuff (2.5" band)'      },
+        { value: 'french', label: 'French cuff (cufflinks)',      reference: 'double cuff, dress shirt' },
+        { value: 'none',   label: 'No cuff (hem only)'           },
       ],
       default: 'barrel',
     },
@@ -63,7 +65,7 @@ export default {
       values: [
         { value: 'fitted',   label: 'Fitted (+2")',   reference: 'slim, tapered, athletic'   },
         { value: 'standard', label: 'Standard (+4")', reference: 'classic, off-the-rack'     },
-        { value: 'relaxed',  label: 'Relaxed (+5")',  reference: 'linen drape, casual'       },
+        { value: 'relaxed',  label: 'Relaxed (+6")',  reference: 'linen drape, casual'       },
       ],
       default: 'fitted',
     },
@@ -82,6 +84,14 @@ export default {
         { value: 'plain', label: 'Plain'     },
       ],
       default: 'yoke',
+    },
+    yokeStyle: {
+      type: 'select', label: 'Back yoke style',
+      values: [
+        { value: 'single', label: 'Single piece (cut on fold)'                               },
+        { value: 'split',  label: 'Split (CB seam, two pieces)', reference: 'dress shirt, Oxford' },
+      ],
+      default: 'single',
     },
     pocket: {
       type: 'select', label: 'Chest pocket',
@@ -122,7 +132,7 @@ export default {
     const sa  = parseFloat(opts.sa);
     const hem = parseFloat(opts.hem);
 
-    const easeVal = opts.fit === 'relaxed' ? 5 : opts.fit === 'fitted' ? 2 : 4;
+    const easeVal = opts.fit === 'relaxed' ? 6 : opts.fit === 'fitted' ? 2 : 4;
     const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
     // Both front and back half-panels are equal so side seams align when sewn
     const panelW = (m.chest + easeVal) / 4;
@@ -438,12 +448,15 @@ export default {
       },
     ];
 
-    // Point collar: separate collar + collar stand
-    if (opts.collar === 'point') {
+    // Point collar and button-down (OCBD) collar: separate collar fall + collar stand
+    if (opts.collar === 'point' || opts.collar === 'button-down') {
+      const isOCBD = opts.collar === 'button-down';
       pieces.push({
         id: 'collar',
-        name: 'Point Collar',
-        instruction: `Cut 2 (outer + undercollar) - Interface outer - ${fmtInches(collarLen)} long x ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) - Neckline seam: ${fmtInches(necklineLen)}`,
+        name: isOCBD ? 'Button-Down Collar Fall' : 'Point Collar',
+        instruction: isOCBD
+          ? `Cut 2 (outer + undercollar) - No interfacing (soft, unlined — allows natural roll) - ${fmtInches(collarLen)} long x ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) - Mark buttonhole 1/2" from each point tip (for anchor buttons on shirt front) - Neckline seam: ${fmtInches(necklineLen)}`
+          : `Cut 2 (outer + undercollar) - Interface outer - ${fmtInches(collarLen)} long x ${fmtInches(fallH * 2 + sa * 2)} cut (${fmtInches(fallH)} finished fall) - Neckline seam: ${fmtInches(necklineLen)}`,
         type: 'rectangle',
         dimensions: { length: collarLen, width: fallH * 2 + sa * 2 },
         sa,
@@ -484,25 +497,46 @@ export default {
       for (const p of neckBackRev) backYokePoly.push({ x: neckW - p.x, y: p.y });
       for (let i = 1; i < shoulderPts.length; i++)
         backYokePoly.push({ x: neckW + shoulderPts[i].x, y: shoulderPts[i].y });
+      const armPtsInYoke = [];
       for (let i = 1; i < backArmPts.length; i++) {
         const pt = { x: shoulderPtX + backArmPts[i].x, y: shoulderPtY + backArmPts[i].y };
         if (pt.y > yokeLineY) break;
+        armPtsInYoke.push(pt);
         backYokePoly.push(pt);
       }
       backYokePoly.push({ x: backYokeX, y: yokeLineY });
       backYokePoly.push({ x: 0, y: yokeLineY });
       const backYokeBB = bbox(backYokePoly);
+
+      const isSplitYoke = opts.yokeStyle === 'split';
+
+      let yokeEdgeAllowances;
+      if (isSplitYoke) {
+        yokeEdgeAllowances = [];
+        const nNeckEdges = neckBackRev.length - 1;
+        for (let i = 0; i < nNeckEdges; i++)        yokeEdgeAllowances.push({ sa: 0.375, label: 'Neckline'  });
+        const nShoulderEdges = shoulderPts.length - 1;
+        for (let i = 0; i < nShoulderEdges; i++)    yokeEdgeAllowances.push({ sa,       label: 'Shoulder'  });
+        for (let i = 0; i < armPtsInYoke.length; i++) yokeEdgeAllowances.push({ sa: 0.375, label: 'Armhole'   });
+        yokeEdgeAllowances.push({ sa,       label: 'Yoke seam' }); // backYokeX → CB at yokeLineY
+        yokeEdgeAllowances.push({ sa: 0.625, label: 'CB seam'  }); // CB closing edge
+      }
+
       pieces.push({
         id: 'back-yoke',
         name: 'Back Yoke',
-        instruction: 'Cut 2 (outer + lining) - Interface outer - Flat-fell to back panel at yoke seam',
+        instruction: isSplitYoke
+          ? 'Cut 4 (2 outer + 2 lining, mirror) - Interface outer - Sew CB seam RST at 5/8" before attaching to back panel - Flat-fell to back panel at yoke seam'
+          : 'Cut 2 (outer + lining) - Interface outer - Flat-fell to back panel at yoke seam',
         type: 'bodice',
         polygon: backYokePoly,
         path: polyToPathStr(backYokePoly),
         width: backYokeBB.maxX - backYokeBB.minX,
         height: backYokeBB.maxY - backYokeBB.minY,
         isBack: true,
+        isCutOnFold: !isSplitYoke,
         sa, hem: 0,
+        ...(isSplitYoke ? { edgeAllowances: yokeEdgeAllowances } : {}),
         notches: [{ x: backYokeX, y: yokeLineY, angle: 0 }],
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
@@ -511,13 +545,15 @@ export default {
       });
     }
 
-    // Barrel cuff (long sleeve only)
-    if (opts.sleeve === 'long' && opts.cuff === 'barrel') {
-      const cuffH = 2.5;
+    // Cuff (long sleeve only)
+    if (opts.sleeve === 'long' && opts.cuff !== 'none') {
+      const cuffH = opts.cuff === 'french' ? 5 : 2.5;
       pieces.push({
         id: 'cuff',
-        name: 'Barrel Cuff',
-        instruction: `Cut 4 (2 outer + 2 facing) - Interface outer - ${fmtInches(m.wrist + 1)} long x ${fmtInches(cuffH + sa * 2)} cut - 1 button per cuff`,
+        name: opts.cuff === 'french' ? 'French Cuff' : 'Barrel Cuff',
+        instruction: opts.cuff === 'french'
+          ? `Cut 4 (2 outer + 2 facing) - Interface outer - ${fmtInches(m.wrist + 1)} long x ${fmtInches(cuffH + sa * 2)} cut (5" finished when unfolded; folds to 2.5" to wear) - Mark 4 link holes: 2 per layer, centered, 1/4" from edge`
+          : `Cut 4 (2 outer + 2 facing) - Interface outer - ${fmtInches(m.wrist + 1)} long x ${fmtInches(cuffH + sa * 2)} cut - 1 button per cuff`,
         type: 'pocket',
         dimensions: { length: m.wrist + 1, width: cuffH + sa * 2 },
       });
@@ -555,21 +591,28 @@ export default {
   },
 
   materials(m, opts) {
-    const btnCount = parseInt(opts.buttons) || 6;
-    const hasCuff  = opts.sleeve === 'long' && opts.cuff === 'barrel';
-    const fabrics  = opts._fabrics || ['linen', 'linen-light'];
-    const isLinen  = fabrics.some(f => f.startsWith('linen'));
+    const btnCount    = parseInt(opts.buttons) || 6;
+    const hasCuff     = opts.sleeve === 'long' && opts.cuff === 'barrel';
+    const isFrench    = opts.sleeve === 'long' && opts.cuff === 'french';
+    const isOCBD      = opts.collar === 'button-down';
+    const isSplitYoke = opts.backDetail === 'yoke' && opts.yokeStyle === 'split';
+    const fabrics     = opts._fabrics || ['linen', 'linen-light'];
+    const isLinen     = fabrics.some(f => f.startsWith('linen'));
 
     const notions = [
       { name: 'Buttons', quantity: `${btnCount + (hasCuff ? 3 : 0) + 1}`, notes: `${fmtInches(0.5)} (shirt buttons) - +1 spare${hasCuff ? ', +2 for cuffs' : ''}` },
       { ref: 'interfacing-light', quantity: '0.75 yard (collar + stand + placket facings + cuffs)' },
+      ...(isOCBD ? [{ name: 'Collar anchor buttons', quantity: '2', notes: '9 mm (~3/8") — sew to shirt front at collar point positions' }] : []),
+      ...(isFrench ? [{ name: 'Cufflinks or link buttons', quantity: '1 pair (2 cufflinks)', notes: 'French cuff — no regular buttons at wrist' }] : []),
     ];
 
     const notes = [
       isLinen
-        ? 'PRE-WASH LINEN: wash hot, tumble dry twice before cutting - linen shrinks 5-8% on first wash'
+        ? 'PRE-WASH LINEN: wash warm (40 °C / 105 °F), air dry or tumble dry on low heat only - linen shrinks 3-8% and tumble drying hot risks 10-15% additional shrinkage'
         : 'Pre-wash fabric before cutting to prevent shrinkage after construction',
-      'Flat-felled seams recommended: sew RST, trim one SA to 3mm, fold the other over it, topstitch - clean finish, very durable',
+      isLinen
+        ? 'French seams recommended for linen: sew WS together at 3/8" from edge, trim to 1/8", fold RST, sew at 1/4" from fold. Encloses raw edges and suits loosely woven cloth.'
+        : 'Flat-felled seams recommended: sew RST, trim one SA to 3mm, fold the other over it, topstitch - clean finish, very durable',
       isLinen
         ? 'Press all seams with steam and high heat - linen loves a hot iron and pressing gives crisp results'
         : 'Press all seams open or to one side with steam for crisp results',
@@ -579,6 +622,7 @@ export default {
       `Button spacing: divide placket length by ${btnCount - 1} - place top button 1" from collar stand, bottom button 2" from hem`,
       isLinen ? 'Linen softens beautifully with wear and washing - avoid over-pressing for a relaxed, lived-in look' : '',
       hasCuff ? 'Barrel cuffs: interface one layer, attach with clean finish inside' : '',
+      isSplitYoke ? 'Split yoke: sew CB seam on each yoke half before attaching to back body. The CB seam enables stripe and check matching across the back.' : '',
     ].filter(Boolean);
 
     return buildMaterialsSpec({
@@ -596,6 +640,7 @@ export default {
     let n = 1;
     const btnCount = parseInt(opts.buttons) || 6;
     const isLinen  = (opts._fabrics || ['linen']).some(f => f.startsWith('linen'));
+    const isOCBD   = opts.collar === 'button-down';
     const interfacingNote = isLinen ? 'sew-in interfacing (fusible can show through linen)' : 'lightweight fusible or sew-in interfacing';
 
     if (opts.pocket === 'patch') {
@@ -612,9 +657,12 @@ export default {
     }
 
     if (opts.backDetail === 'yoke') {
+      const isSplitYoke = opts.yokeStyle === 'split';
       steps.push({
         step: n++, title: 'Attach back yoke',
-        detail: 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.',
+        detail: isSplitYoke
+          ? 'Sew CB seam on outer yoke halves {RST} at 5/8". Repeat for lining halves. {press} seams open. Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.'
+          : 'Sew back body to outer yoke {RST} at yoke seam. {press} up. Place yoke lining over {RST}, sew. Turn and {press}. {edgestitch} from RS.',
       });
     }
 
@@ -622,6 +670,11 @@ export default {
       steps.push({
         step: n++, title: 'Prepare collar and stand',
         detail: `Use ${interfacingNote} on outer collar and one stand piece. Sew outer to undercollar {RST} along outer 3 edges. Trim SA to 3mm, {clip} corners diagonally. Turn RS out, use a {point turner} to push corners out cleanly. {press}. Sew collar to outer stand {RST} along top edge. {press} seam up into stand.`,
+      });
+    } else if (isOCBD) {
+      steps.push({
+        step: n++, title: 'Prepare button-down collar and stand',
+        detail: `No interfacing on the collar fall — leave both layers unlined for the traditional OCBD soft roll. Interface one stand piece only (${interfacingNote}). Sew outer fall to underfall {RST} along outer 3 edges. Trim SA to 3mm, {clip} corners diagonally. Turn RS out, {point turner} to push corners out. {press} lightly — do not over-press; a slight natural roll at the collar break is correct. Work a small buttonhole (9mm) 1/2" from each collar point tip. Sew collar to outer stand {RST} along top edge. {press} seam up into stand.`,
       });
     } else {
       steps.push({
@@ -656,6 +709,11 @@ export default {
         step: n++, title: 'Attach collar and stand',
         detail: 'Pin outer stand (with collar attached) to neckline {RST}, matching CF and CB marks. Sew through outer stand and bodice. {clip} curve. Fold inner stand SA under, pin to cover neckline seam on WS. {slipstitch} or {edgestitch} from RS.',
       });
+    } else if (isOCBD) {
+      steps.push({
+        step: n++, title: 'Attach button-down collar and stand',
+        detail: 'Pin outer stand (with collar attached) to neckline {RST}, matching CF and CB marks. Sew through outer stand and bodice. {clip} curve. Fold inner stand SA under, {slipstitch} or {edgestitch} from RS. With shirt fully buttoned and collar lying flat in its natural roll position, mark the shirt front where each collar point tip naturally falls. Sew the two small anchor buttons (9mm) to the shirt front at those marks. Button collar points down.',
+      });
     } else {
       steps.push({
         step: n++, title: 'Attach band collar',
@@ -681,25 +739,34 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew side seams and sleeve seams',
-      detail: 'Sew front to back at side seams in one continuous seam from shirt hem through the underarm to the sleeve hem {RST}.\n\n' + flatFelledSeam({
-        seam: 'side and sleeve seam (sewn as one continuous pass)',
-        sa: '⅝″',
-        pressDir: 'back',
-        trimSide: 'front',
-        foldSide: 'back',
-        trimTo: '3mm (⅛″)',
-        row1: '⅛″',
-        row2: '¼″',
-        thread: 'matching',
-        extraTip: 'At the underarm pivot point, {clip} the trimmed SA nearly to the stitching line so the fell turns the corner smoothly.',
-      }),
+      detail: isLinen
+        ? 'Sew front to back at side seams in one continuous seam from shirt hem through the underarm to the sleeve hem.\n\nFrench seams: sew WS together at 3/8" from raw edge. {press}. Trim SA to 1/8". Fold RST enclosing raw edge. {press} fold. Sew at 1/4" from fold. At the underarm pivot point, {clip} to stitching line before folding so the seam turns the corner without pulling.'
+        : 'Sew front to back at side seams in one continuous seam from shirt hem through the underarm to the sleeve hem {RST}.\n\n' + flatFelledSeam({
+            seam: 'side and sleeve seam (sewn as one continuous pass)',
+            sa: '⅝″',
+            pressDir: 'back',
+            trimSide: 'front',
+            foldSide: 'back',
+            trimTo: '3mm (⅛″)',
+            row1: '⅛″',
+            row2: '¼″',
+            thread: 'matching',
+            extraTip: 'At the underarm pivot point, {clip} the trimmed SA nearly to the stitching line so the fell turns the corner smoothly.',
+          }),
     });
 
-    if (opts.sleeve === 'long' && opts.cuff === 'barrel') {
-      steps.push({
-        step: n++, title: 'Attach barrel cuffs',
-        detail: `Interface outer cuff with ${interfacingNote}. Sew outer cuff to sleeve opening {RST}, easing fullness. Fold cuff SA under. {slipstitch} or {edgestitch}. Make buttonhole on overlap. Attach button.`,
-      });
+    if (opts.sleeve === 'long' && opts.cuff !== 'none') {
+      if (opts.cuff === 'french') {
+        steps.push({
+          step: n++, title: 'Attach French cuffs',
+          detail: `Interface outer cuff with ${interfacingNote}. Sew outer to facing {RST} on 3 sides (leave one long edge open). Trim SA to 6mm, {clip} corners diagonally. Turn RS out, {press} firmly — crisp edges are important for French cuffs. Fold cuff in half widthwise WS together; this fold is the wear fold. Attach open edge to sleeve hem {RST}. Sew, press SA into sleeve, {slipstitch} or {edgestitch} inner facing over seam. Mark 4 link holes — 2 per folded layer, centered, 1/4" from cuff edge. Work buttonholes or use a {punch and eyelet} tool.`,
+        });
+      } else {
+        steps.push({
+          step: n++, title: 'Attach barrel cuffs',
+          detail: `Interface outer cuff with ${interfacingNote}. Sew outer cuff to sleeve opening {RST}, easing fullness. Fold cuff SA under. {slipstitch} or {edgestitch}. Make buttonhole on overlap. Attach button.`,
+        });
+      }
     }
 
     steps.push({
@@ -727,13 +794,19 @@ export default {
     {
       id: 'linen-shirt',
       name: 'Linen Shirt',
-      defaults: { collar: 'point', sleeve: 'long', cuff: 'barrel', fit: 'fitted', pocket: 'none', backDetail: 'yoke' },
+      defaults: { collar: 'point', sleeve: 'long', cuff: 'barrel', fit: 'standard', pocket: 'none', backDetail: 'yoke' },
       fabrics: ['linen', 'linen-light'],
     },
     {
       id: 'chambray-work-shirt',
       name: 'Chambray Work Shirt',
       defaults: { collar: 'point', sleeve: 'long', cuff: 'barrel', fit: 'standard', pocket: 'dual-patch', backDetail: 'yoke' },
+      fabrics: ['chambray', 'cotton-twill'],
+    },
+    {
+      id: 'oxford-shirt',
+      name: 'Oxford Shirt (OCBD)',
+      defaults: { collar: 'button-down', sleeve: 'long', cuff: 'barrel', fit: 'standard', pocket: 'none', backDetail: 'yoke', yokeStyle: 'split' },
       fabrics: ['chambray', 'cotton-twill'],
     },
   ],

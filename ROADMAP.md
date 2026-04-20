@@ -1383,6 +1383,9 @@ is covering monthly costs.
       Fixed: `armholeCurve()` in upper-body.js clamps chestDepth
       to min 0.5″ with console warning.
 
+### Deferred Garment Features
+- [x] Split yoke (two-piece CB-seamed yoke) for button-up shirt — `yokeStyle: 'split'` option added; CB edge gets 5/8" seam allowance, instruction updated to "Cut 4", oxford-shirt variant defaults to split.
+
 ### UI Improvements
 - [ ] Profile name input (replace prompt() with
       inline field — broken on mobile)

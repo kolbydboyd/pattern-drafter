@@ -4,11 +4,40 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.74] - 2026-04-20
+## [0.12.76] - 2026-04-20
 
 ### Added
 - **Button marks on all button-front patterns** — `{ type: 'button', x, y }` marks now appear on the front panel of every garment with a button closure: button-up, button-up-w, polo-shirt, henley, shirt-dress-w, chore-coat, crop-jacket, denim-jacket, and athletic-formal-jacket. Marks are conditional on `opts.closure === 'button'` where applicable (crop-jacket, denim-jacket, chore-coat). Denim-jacket marks are split between front-yoke and front-panel pieces by yoke seam Y. Athletic-formal-jacket renders a 2×2 grid for double-breasted and 2 vertical marks for single-breasted.
 - **Back-panel notch doubles for athletic-formal-trousers** — hip (side seam) and crotch (inseam) notches now include a second triangle offset by ±0.25″ on back panels, matching the double-notch convention used by baggy-jeans, chinos, wide-leg trousers, and pleated trousers.
+
+---
+
+## [0.12.75] - 2026-04-20
+
+### Added (button-up.js)
+
+- **Split yoke option** — new `yokeStyle` option (`single` | `split`) for the back yoke. When `split`: the half-yoke polygon gains a CB seam edge with 5/8" seam allowance, the piece instruction changes to "Cut 4 (2 outer + 2 lining, mirror)", per-edge allowances are set (neckline 3/8", shoulder/yoke-seam per global SA, armhole 3/8", CB seam 5/8"), and `isCutOnFold` is false. When `single` (default): existing cut-on-fold behavior is preserved unchanged.
+- **Split yoke instruction step** — when `yokeStyle: 'split'`, the "Attach back yoke" instruction step prepends CB seam construction ("Sew CB seam on outer yoke halves RST at 5/8". Repeat for lining halves. Press seams open.") before the standard yoke assembly.
+- **Split yoke materials note** — when split yoke is active, a note is added explaining the CB seam enables stripe and check matching across the back.
+- **Oxford Shirt defaults to split yoke** — `oxford-shirt` variant now defaults to `yokeStyle: 'split'`, consistent with tailored dress-shirt convention.
+
+---
+
+## [0.12.74] - 2026-04-20
+
+### Changed (button-up.js — Oxford and linen shirt improvements)
+
+- **Relaxed fit ease** — increased from +5" to +6" chest ease; +5" was within the range for a loose regular fit, not a true relaxed fit (industry minimum is +6").
+- **Linen Shirt default fit** — changed from `fitted` (+2") to `standard` (+4"). A 2" ease is too snug for a linen shirt after pre-wash shrinkage margin.
+- **Linen pre-wash instruction** — corrected "wash hot, tumble dry" to "wash warm (40 °C), air dry or tumble dry on low heat only." Tumble drying linen hot risks 10-15% additional shrinkage.
+- **Seam finish recommendation for linen** — changed from flat-felled to French seams when linen/linen-light is selected (in both `materials()` notes and the side/sleeve seam instruction step). French seams suit loosely woven cloth; flat-felled adds bulk and can show through.
+
+### Added (button-up.js)
+
+- **French cuff option** — added `french` cuff choice (5" cut width, folds to 2.5", 4 link holes). Appears in cuff options, pieces list, materials (cufflinks notion), and instructions. Available on the men's/unisex button-up module; was previously only in the women's module.
+- **Button-down collar (OCBD)** — added `button-down` collar option: same stand (1.25") and fall (2") geometry as the point collar but no interfacing on the fall (for natural soft roll), buttonhole marks at 1/2" from each collar tip, and 2 small anchor buttons (9mm) in the materials list. Instructions include a step for marking and sewing anchor buttons after fitting collar roll.
+- **Oxford Shirt (OCBD) variant** — new `oxford-shirt` catalog entry defaulting to button-down collar, standard fit, back yoke, barrel cuff.
+- **Oxford Shirt SVG illustration** — `public/garment-illustrations/oxford-shirt.svg` with anchor-button circles at collar tips as the defining visual detail.
 
 ---
 
