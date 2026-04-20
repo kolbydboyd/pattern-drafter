@@ -747,6 +747,11 @@ export function renderGenericPieceSVG(piece) {
         const lx = ox + sc(mk.position);
         const ly1 = oy + sc(minY), ly2 = oy + sc(maxY);
         return `<line x1="${lx}" y1="${ly1}" x2="${lx}" y2="${ly2}" stroke="${mc}" stroke-width="0.8" stroke-dasharray="4,3"/>`;
+      } else if (mk.type === 'button') {
+        const bx = ox + sc(mk.x), by = oy + sc(mk.y);
+        const r = 3.5;
+        return `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${r}" fill="none" stroke="${mc}" stroke-width="0.8"/>` +
+               `<line x1="${(bx - r - 2).toFixed(1)}" y1="${by.toFixed(1)}" x2="${(bx + r + 2).toFixed(1)}" y2="${by.toFixed(1)}" stroke="${mc}" stroke-width="0.8"/>`;
       }
       return '';
     }).join('')}

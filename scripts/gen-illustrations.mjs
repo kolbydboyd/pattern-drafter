@@ -139,6 +139,17 @@ const SVGS = {
   <circle cx="80" cy="116" r="2"/>
   <rect x="56" y="80" width="18" height="16" rx="1"/>`),
 
+  'boxy-camp-shirt': svg(`
+  <path d="M70,44 L80,62 L90,44"/>
+  <path d="M70,44 L42,56 L40,96 L54,96 L52,170 L108,170 L106,96 L120,96 L118,56 L90,44"/>
+  <line x1="80" y1="62" x2="80" y2="170"/>
+  <circle cx="80" cy="84" r="2"/>
+  <circle cx="80" cy="104" r="2"/>
+  <circle cx="80" cy="124" r="2"/>
+  <rect x="56" y="84" width="18" height="16" rx="1"/>
+  <line x1="52" y1="158" x2="52" y2="170" stroke-dasharray="3 2"/>
+  <line x1="108" y1="158" x2="108" y2="170" stroke-dasharray="3 2"/>`),
+
   'classic-camp-yoke': svg(`
   <path d="M70,44 L80,60 L90,44"/>
   <path d="M70,44 L50,52 L46,90 L56,90 L54,170 L106,170 L104,90 L114,90 L110,52 L90,44"/>

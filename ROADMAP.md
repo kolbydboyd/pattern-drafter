@@ -1576,7 +1576,7 @@ All 42 base garments are live on main. 42 style variants expand from these bases
 |---|---|---|---|
 | tee | T-Shirt | ✅ | oversized, muscle, longline, pocket, scoop (W), long-sleeve fitted (W), cropped (W) |
 | fitted-tee-w | Fitted Tee (W) | ✅ | long-sleeve fitted, cropped |
-| camp-shirt | Camp Shirt | ✅ | vacation shirt |
+| camp-shirt | Camp Shirt | ✅ | vacation shirt, fitted camp, fitted linen camp (barrel cuff), classic camp yoke (side vents), boxy camp shirt |
 | button-up | Button-Up Shirt (M) | ✅ | linen shirt, chambray work shirt |
 | button-up-w | Button-Up Shirt (W) | ✅ | poplin blouse, linen tunic |
 | shell-blouse-w | Shell Blouse (W) | ✅ | woven tank |

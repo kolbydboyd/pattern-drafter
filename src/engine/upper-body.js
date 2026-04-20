@@ -28,6 +28,7 @@ export const UPPER_EASE = {
   fitted:    2,
   standard:  4,
   relaxed:   6,
+  boxy:      8,
   oversized: 10,
 };
 
