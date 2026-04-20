@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.80] - 2026-04-20
+
+### Fixed
+- **Straight jeans — slant pocket placement overlay misaligned** — `renderPocketPlacement` and the web panel overlay in `pattern-view.js` both used `piece.width` (hipWidth) for the slash x-coordinates, shifting the dashed indicator to the right of the actual cut edge. Now uses `piece.waistWidth` for the slash start and reads the actual slash-end vertex from the polygon (inserted by `clipPanelAtSlash`) so the overlay aligns exactly with the cut diagonal.
+- **Straight jeans — dart legs stop at stitch line** — Back-panel dart V-lines started at `oy * DPI` (stitch line, y=0 in piece coords) and did not extend to the cut edge. Changed `dy1` to `(oy - sa) * DPI` in the print renderer and `oy - sc(sa)` in the web renderer so dart legs run from the cut line all the way to the apex.
+
+---
+
 ## [0.12.79] - 2026-04-20
 
 ### Added

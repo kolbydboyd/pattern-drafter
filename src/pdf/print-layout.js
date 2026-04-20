@@ -153,9 +153,12 @@ function renderPocketPlacement(piece, ox, oy) {
 
   // ── Slant pocket (front only) ──
   if (!isBack && opts.frontPocket === 'slant') {
-    const sx1 = (ox + width - 3.5) * DPI, sy1 = oy * DPI;
-    const sx2 = (ox + width) * DPI,       sy2 = (oy + 6) * DPI;
-    const bagL = (ox + width - 7) * DPI,  bagB = (oy + 9.5) * DPI;
+    const sw = piece.waistWidth || width;
+    const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
+    const slashEndX = slashEndPt ? slashEndPt.x : sw;
+    const sx1 = (ox + sw - 3.5) * DPI,   sy1 = oy * DPI;
+    const sx2 = (ox + slashEndX) * DPI,  sy2 = (oy + 6) * DPI;
+    const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 9.5) * DPI;
     // Bag outline
     svg += `<path d="M ${sx1} ${sy1} L ${bagL} ${sy1} L ${bagL} ${bagB} Q ${sx2} ${bagB} ${sx2} ${sy2} Z"
       stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
@@ -420,7 +423,7 @@ function renderPanelSVG(piece) {
         fill="#666" text-anchor="middle">${instruction}</text>
       ${darts.map(d => {
         const dx = (ox + d.x) * DPI;
-        const dy1 = oy * DPI;
+        const dy1 = (oy - sa) * DPI;
         const dy2 = (oy + d.length) * DPI;
         const halfW = (d.intake / 2) * DPI;
         return `<line x1="${dx - halfW}" y1="${dy1}" x2="${dx}" y2="${dy2}" stroke="#555" stroke-width="0.8" stroke-dasharray="4,3"/>
