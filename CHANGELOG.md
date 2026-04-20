@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.76] - 2026-04-20
+
+### Added (camp-shirt.js)
+- **Camp Shirt revere collar option** — new `collar: 'revere'` option on `camp-shirt`. When selected: the front panel gains a shaped lapel extension (break point at 7.5″, lapel tip at −2.25″) and a printed roll line annotation; the collar is shortened to back neckline only (back arc × 2 + 0.75″ shoulder extension each side) with its ends sandwiched into the shoulder seams; the flat placket facing is replaced by a shaped revere facing polygon that follows the lapel curve; construction instructions are updated for the revere sequence (no top button, lapel folds naturally along roll line). Default collar style remains `'flat'` — all existing camp shirt variants are unaffected.
+- **`camp-shirt-revere` variant** — new pre-set variant using the revere collar with standard fit and short sleeve.
+- **SVG illustration** for `camp-shirt-revere` in `scripts/gen-illustrations.mjs`.
+- **SEO description** for `camp-shirt-revere` in `src/garments/seo-descriptions.js`.
+
+---
+
 ## [0.12.75] - 2026-04-20
 
 ### Added (button-up.js)
