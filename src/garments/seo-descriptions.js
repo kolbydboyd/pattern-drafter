@@ -85,6 +85,14 @@ const SEO_DESCRIPTIONS = {
       { q: 'What makes a camp collar different from a regular collar?', a: 'A camp collar (also called a revere collar) lays flat and open, with no stand or band. It creates a relaxed, notched-lapel look.' },
     ],
   },
+  'camp-shirt-revere': {
+    metaDescription: 'Draft a custom-fit revere camp shirt sewing pattern from your measurements. Cuban-style open lapel, back-neckline collar, short sleeves. Tiled PDF with construction instructions.',
+    pageIntro: 'A revere-collar camp shirt drafted to your chest, shoulder, and torso measurements. The self-facing lapel folds back along the roll line for a permanently open Cuban collar look.',
+    faq: [
+      { q: 'What is a revere collar?', a: 'A revere (or Cuban) collar uses a self-facing lapel that folds back along a roll line, forming the collar from the front panel itself. The shirt is permanently open at the neckline with no top button.' },
+      { q: 'How does the revere collar attach?', a: 'The short collar piece covers only the back neckline and its ends are sandwiched into the shoulder seams. The front lapels fold back naturally along the printed roll line.' },
+    ],
+  },
   'fitted-camp-shirt': {
     metaDescription: 'Draft a custom-fit fitted camp shirt sewing pattern from your measurements. Tapered waist, camp collar, short sleeves. Tiled PDF with construction instructions.',
     pageIntro: 'A fitted camp collar shirt drafted to your chest, shoulder, and torso measurements. Waist suppression tapers the side seams for a sharp silhouette without sacrificing the relaxed camp collar look.',

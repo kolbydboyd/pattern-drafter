@@ -150,6 +150,17 @@ const SVGS = {
   <line x1="52" y1="158" x2="52" y2="170" stroke-dasharray="3 2"/>
   <line x1="108" y1="158" x2="108" y2="170" stroke-dasharray="3 2"/>`),
 
+  'camp-shirt-revere': svg(`
+  <path d="M50,52 L46,90 L56,90 L54,170 L106,170 L104,90 L114,90 L110,52"/>
+  <path d="M70,44 L68,52 L60,82 L80,108"/>
+  <path d="M90,44 L92,52 L100,82 L80,108"/>
+  <line x1="80" y1="108" x2="80" y2="170"/>
+  <line x1="68" y1="52" x2="75" y2="70" stroke-dasharray="3,2"/>
+  <line x1="92" y1="52" x2="85" y2="70" stroke-dasharray="3,2"/>
+  <circle cx="80" cy="122" r="2"/>
+  <circle cx="80" cy="140" r="2"/>
+  <circle cx="80" cy="158" r="2"/>`),
+
   'classic-camp-yoke': svg(`
   <path d="M70,44 L80,60 L90,44"/>
   <path d="M70,44 L50,52 L46,90 L56,90 L54,170 L106,170 L104,90 L114,90 L110,52 L90,44"/>

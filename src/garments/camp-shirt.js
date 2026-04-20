@@ -2,7 +2,9 @@
 /**
  * Camp Shirt — woven button-front with camp/convertible collar.
  * Front panels split at CF for button placket (+1.5″ each side).
- * Collar drafted as a shaped flat piece (trapezoid) that lies flat when worn open.
+ * Collar option 'flat': shaped flat piece (trapezoid) that lies flat when worn open.
+ * Collar option 'revere': self-facing lapel folds back along roll line; collar
+ *   confined to back neckline only, sandwiched into shoulder seams.
  * Optional back yoke (geometry modeled on denim-jacket.js) for elevated fit.
  * Fabric: rayon challis, cotton lawn, viscose — drapey light wovens 3–5 oz.
  */
@@ -26,6 +28,13 @@ const CUFF_H    = 4.5;   // barrel cuff cut height (2.25″ finished when folded
 // Neckline depth for crew-fit camp collar
 const NECK_DEPTH_FRONT = 3.0;
 const NECK_DEPTH_BACK  = 0.75;
+
+// Revere collar geometry constants
+const BREAK_Y         = 7.5;   // CF break point where roll line lands
+const LAPEL_TIP_X     = -2.25; // lapel tip x — extends past the −PLACKET_W edge
+const LAPEL_TIP_Y     = 5.25;  // lapel tip y
+const COLLAR_EXT      = 0.75;  // revere collar extends this far past each shoulder seam
+const REVERE_COLLAR_H = 2.5;   // revere collar cut height (finished ~1.25″ when folded)
 
 export default {
   id: 'camp-shirt',
@@ -103,6 +112,14 @@ export default {
         { value: 'barrel', label: 'Barrel cuff (long sleeve only)' },
       ],
       default: 'none',
+    },
+    collar: {
+      type: 'select', label: 'Collar style',
+      values: [
+        { value: 'flat',   label: 'Camp collar'   },
+        { value: 'revere', label: 'Revere collar' },
+      ],
+      default: 'flat',
     },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -233,7 +250,13 @@ export default {
     }
     frontPoly.push({ x: sideX, y: torsoLen });
     frontPoly.push({ x: -PLACKET_W, y: torsoLen });
-    frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
+    if (opts.collar === 'revere') {
+      frontPoly.push({ x: -PLACKET_W,  y: BREAK_Y    }); // CF break point
+      frontPoly.push({ x: LAPEL_TIP_X, y: LAPEL_TIP_Y }); // lapel tip
+      // polygon closes back to (0, NECK_DEPTH_FRONT)
+    } else {
+      frontPoly.push({ x: -PLACKET_W, y: NECK_DEPTH_FRONT });
+    }
 
     // ── BACK PANEL ────────────────────────────────────────────────────────────
     const backPoly = [];
@@ -310,54 +333,102 @@ export default {
     sleevePoly.push({ x: slvTopW * 2 - (slvTopW - slvBotW), y: capH + slvLength });
     sleevePoly.push({ x: slvTopW - slvBotW,                  y: capH + slvLength });
 
-    // ── CAMP COLLAR (curved neckline seam) ───────────────────────────────────
-    // Camp collar lies flat because the neckline seam is concave: it bows toward
-    // the outer/fold edge at CB. A straight neckline seam produces a band collar
-    // that stands up; the concave bow is what allows the collar to open and lie flat.
-    //
-    // Orientation: y=0 = outer/fold edge (top of piece as laid flat)
-    //              y=collarH = neckline seam baseline at CF corners
-    //              x=0 = left CF, x=collarLen = right CF, collarLen/2 = CB (notched)
+    // ── COLLAR (flat camp collar OR revere back-neckline collar) ─────────────
     const frontNeckArc = arcLength(frontNeckPts);
     const backNeckArc  = arcLength(backNeckPts);
-    const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
-    const collarLen    = necklineLen;
-    const collarH      = 3;        // cut height: 1.5″ finished when folded in half
-    const pointCut     = collarH;  // outer edge inset from each CF end — gives 45° visible angle
 
-    // Neckline seam: concave arc bowing toward the outer edge at CB by ~0.375"
-    // (half of NECK_DEPTH_BACK). bowCtrl solves: 0.75 * bowCtrl = cbBow at t=0.5.
-    const cbBow       = NECK_DEPTH_BACK * 0.5;
-    const bowCtrl     = cbBow / 0.75;
+    // Shared bow formula: concave neckline seam bows toward fold edge at CB.
+    // bowCtrl solves: 0.75 * bowCtrl = cbBow at t=0.5.
+    const cbBow   = NECK_DEPTH_BACK * 0.5;
+    const bowCtrl = cbBow / 0.75;
+
+    // ── Flat camp collar ──────────────────────────────────────────────────────
+    // Orientation: y=0 = outer fold edge, y=collarH = neckline seam
+    // x=0 = left CF, x=collarLen = right CF
+    const necklineLen = frontNeckArc * 2 + backNeckArc * 2;
+    const collarLen   = necklineLen;
+    const collarH     = 3;       // cut height: 1.5″ finished when folded in half
+    const pointCut    = collarH; // outer edge inset from each CF end — gives 45° visible angle
+
     const neckSeamPts = sampleBezier(
-      { x: 0,               y: collarH },
+      { x: 0,                y: collarH },
       { x: collarLen * 0.33, y: collarH - bowCtrl },
       { x: collarLen * 0.67, y: collarH - bowCtrl },
       { x: collarLen,        y: collarH },
       10
     );
 
-    // Polygon: outer-left → outer-right → right CF neckline → [curved arc] → left CF neckline
     const collarPoly = [];
     collarPoly.push({ x: pointCut,             y: 0 }); // left outer front end
     collarPoly.push({ x: collarLen - pointCut, y: 0 }); // right outer front end
     for (let i = neckSeamPts.length - 1; i >= 0; i--) {
       collarPoly.push({ ...neckSeamPts[i], curve: true });
     }
-    // Untag CF neckline corners (junctions between diagonal and curved seam)
     delete collarPoly[2].curve;
     delete collarPoly[collarPoly.length - 1].curve;
 
     const nNeckSeamEdges = neckSeamPts.length - 1;
     const collarEdgeAllowances = [
-      { sa: 0, label: 'Outer edge' },   // outer-left → outer-right (fold line — no raw edge)
-      { sa,    label: 'Front edge' },   // outer-right → right CF neckline diagonal
+      { sa: 0, label: 'Outer edge' },
+      { sa,    label: 'Front edge' },
     ];
     for (let i = 0; i < nNeckSeamEdges; i++) collarEdgeAllowances.push({ sa, label: 'Neckline' });
-    collarEdgeAllowances.push({ sa, label: 'Front edge' }); // left CF neckline → outer-left diagonal
+    collarEdgeAllowances.push({ sa, label: 'Front edge' });
 
-    // ── PLACKET FACING ────────────────────────────────────────────────────────
+    // ── Revere collar (back neckline only + short shoulder extensions) ────────
+    // Orientation: y=0 = outer fold edge, y=REVERE_COLLAR_H = neckline seam
+    // x=0 = left shoulder end, x=revereCollarLen = right shoulder end
+    // CB is at x = revereCollarLen / 2
+    const revBowCtrl      = (NECK_DEPTH_BACK * 0.4) / 0.75;
+    const revereCollarLen = backNeckArc * 2 + COLLAR_EXT * 2;
+    const revNeckSeamPts  = sampleBezier(
+      { x: 0,                     y: REVERE_COLLAR_H },
+      { x: revereCollarLen * 0.33, y: REVERE_COLLAR_H - revBowCtrl },
+      { x: revereCollarLen * 0.67, y: REVERE_COLLAR_H - revBowCtrl },
+      { x: revereCollarLen,        y: REVERE_COLLAR_H },
+      8
+    );
+
+    // P0(0,0) → P1(len,0) → neckline arc reversed → closes to P0
+    const revereCollarPoly = [];
+    revereCollarPoly.push({ x: 0,               y: 0 });
+    revereCollarPoly.push({ x: revereCollarLen,  y: 0 });
+    for (let i = revNeckSeamPts.length - 1; i >= 0; i--) {
+      revereCollarPoly.push({ ...revNeckSeamPts[i], curve: true });
+    }
+    delete revereCollarPoly[2].curve;
+    delete revereCollarPoly[revereCollarPoly.length - 1].curve;
+
+    const nRevNeckSeamEdges = revNeckSeamPts.length - 1;
+    const revereCollarEdgeAllowances = [
+      { sa: 0,  label: 'Fold edge'   }, // top fold
+      { sa: sa, label: 'Collar end'  }, // right vertical end (shoulder area)
+    ];
+    for (let i = 0; i < nRevNeckSeamEdges; i++) {
+      revereCollarEdgeAllowances.push({ sa: sa, label: 'Neckline' });
+    }
+    revereCollarEdgeAllowances.push({ sa: sa, label: 'Collar end' }); // left closing edge
+
+    // ── PLACKET FACING / REVERE FACING ───────────────────────────────────────
     const placketH = torsoLen - NECK_DEPTH_FRONT;
+
+    // Revere facing follows the lapel edge, then straight to hem as placket strip.
+    // Polygon: inner top (CF neckline) → lapel tip → break point → bottom outer → bottom inner
+    const facingPoly = [
+      { x: 0,           y: NECK_DEPTH_FRONT },
+      { x: LAPEL_TIP_X, y: LAPEL_TIP_Y      },
+      { x: -PLACKET_W,  y: BREAK_Y          },
+      { x: -PLACKET_W,  y: torsoLen         },
+      { x: 0,           y: torsoLen         },
+    ];
+    const facingBB = bbox(facingPoly);
+    const facingEdgeAllowances = [
+      { sa: sa,    label: 'Lapel inner' }, // (0,3) → lapel tip
+      { sa: sa,    label: 'Lapel outer' }, // lapel tip → break point
+      { sa: 0.625, label: 'Placket'    }, // break point → bottom outer
+      { sa: hem,   label: 'Hem'        }, // bottom outer → bottom inner
+      { sa: 0,     label: 'CF fold'    }, // bottom inner → (0,3) — fold, no raw seam
+    ];
 
     // ── BUTTON SPACING ────────────────────────────────────────────────────────
     const btnCount   = parseInt(opts.buttons) || 5;
@@ -383,9 +454,16 @@ export default {
     for (let i = 0; i < nFrontArmPts; i++) frontEdgeAllowances.push({ sa: 0.375, label: 'Armhole'  });
     if (opts.fit === 'fitted') frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
     frontEdgeAllowances.push({ sa: 0.625, label: 'Side seam' });
-    frontEdgeAllowances.push({ sa: hem,   label: 'Hem'       });
-    frontEdgeAllowances.push({ sa: 0.625, label: 'Placket'   });
-    while (frontEdgeAllowances.length < frontPoly.length) frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });
+    if (opts.collar === 'revere') {
+      frontEdgeAllowances.push({ sa: hem,   label: 'Hem'         });
+      frontEdgeAllowances.push({ sa: 0.625, label: 'Placket'     }); // torsoLen → BREAK_Y
+      frontEdgeAllowances.push({ sa: sa,    label: 'Lapel outer' }); // BREAK_Y → lapel tip
+      frontEdgeAllowances.push({ sa: sa,    label: 'Lapel inner' }); // lapel tip → (0, NECK_DEPTH_FRONT) close
+    } else {
+      frontEdgeAllowances.push({ sa: hem,   label: 'Hem'     });
+      frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });
+      while (frontEdgeAllowances.length < frontPoly.length) frontEdgeAllowances.push({ sa: 0.625, label: 'Placket' });
+    }
 
     // Back panel SA (differs when yoke is present)
     const backEdgeAllowances = [];
@@ -429,10 +507,11 @@ export default {
     }
 
     // ── BOUNDING BOXES ────────────────────────────────────────────────────────
-    const frontBB  = bbox(frontPoly);
-    const backBB   = bbox(backPoly);
-    const sleeveBB = bbox(sleevePoly);
-    const collarBB = bbox(collarPoly);
+    const frontBB        = bbox(frontPoly);
+    const backBB         = bbox(backPoly);
+    const sleeveBB       = bbox(sleevePoly);
+    const collarBB       = bbox(collarPoly);
+    const revereCollarBB = bbox(revereCollarPoly);
 
     // ── NOTCHES ───────────────────────────────────────────────────────────────
     const shoulderMidX  = (neckW + shoulderPtX) / 2;
@@ -486,12 +565,21 @@ export default {
       { x: collarLen / 2, y: 0,       angle: -90 }, // CB outer edge mark
     ];
 
+    const revereCollarNotches = [
+      { x: revereCollarLen / 2, y: REVERE_COLLAR_H, angle: 90  }, // CB neckline mark
+      { x: revereCollarLen / 2, y: 0,               angle: -90 }, // CB outer fold mark
+      { x: COLLAR_EXT,                              y: 0, angle: 90 }, // left shoulder seam mark
+      { x: revereCollarLen - COLLAR_EXT,             y: 0, angle: 90 }, // right shoulder seam mark
+    ];
+
     // ── PIECES ────────────────────────────────────────────────────────────────
     const pieces = [
       {
         id: 'bodice-front',
         name: 'Front Panel (Left)',
-        instruction: `Cut 2 (L & R mirror) · CF edge has ${fmtInches(PLACKET_W)} placket extension · Top collar stays open (no top button) · Right front: ${btnCount} horizontal buttonholes at ${btnholeSz} · Left front: ${btnCount} buttons at marked positions`,
+        instruction: opts.collar === 'revere'
+          ? `Cut 2 (L & R mirror) · Lapel folds back along roll line · Right front: ${btnCount - 1} horizontal buttonholes at ${btnholeSz} starting below break point · Left front: buttons at matching positions · No top button`
+          : `Cut 2 (L & R mirror) · CF edge has ${fmtInches(PLACKET_W)} placket extension · Top collar stays open (no top button) · Right front: ${btnCount} horizontal buttonholes at ${btnholeSz} · Left front: ${btnCount} buttons at marked positions`,
         type: 'bodice',
         isCutOnFold: false,
         polygon: frontPoly,
@@ -503,6 +591,13 @@ export default {
         marks: buttonMarks,
         notches: frontNotches,
         edgeAllowances: frontEdgeAllowances,
+        ...(opts.collar === 'revere' ? {
+          rollLine: {
+            from:  { x: neckW, y: NECK_DEPTH_FRONT },
+            to:    { x: 0,     y: BREAK_Y           },
+            label: 'roll line',
+          },
+        } : {}),
         dims: [
           { label: fmtInches(frontW) + ' panel', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
           { label: fmtInches(torsoLen) + ' length', x: frontBB.maxX + 1, y1: 0, y2: torsoLen, type: 'v' },
@@ -578,32 +673,67 @@ export default {
           { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
-      {
-        id: 'collar',
-        name: 'Camp Collar',
-        instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
-        type: 'bodice',
-        polygon: collarPoly,
-        path: polyToPathStr(collarPoly),
-        width: collarBB.maxX - collarBB.minX,
-        height: collarBB.maxY - collarBB.minY,
-        sa,
-        notches: collarNotches,
-        edgeAllowances: collarEdgeAllowances,
-        grainLine: { start: { x: collarLen * 0.3, y: collarH / 2 }, end: { x: collarLen * 0.7, y: collarH / 2 } },
-        dims: [
-          { label: fmtInches(collarLen) + ' neckline', x1: 0, y1: collarH + 0.5, x2: collarLen, y2: collarH + 0.5, type: 'h' },
-          { label: fmtInches(collarH) + ' cut height', x: collarLen + 1, y1: 0, y2: collarH, type: 'v' },
-        ],
-      },
-      {
-        id: 'placket-facing',
-        name: 'Front Placket Facing',
-        instruction: `Cut 2 (L & R) · Interface both · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(placketH)} long`,
-        type: 'pocket',
-        dimensions: { width: PLACKET_W + 0.5, height: placketH },
-        sa,
-      },
+      opts.collar === 'revere'
+        ? {
+            id: 'revere-collar',
+            name: 'Revere Collar',
+            instruction: `Cut 2 (outer + undercollar) · Interface outer only · CB notch at center · Shoulder marks at ${fmtInches(COLLAR_EXT)} from each end — align with shoulder seams · ${fmtInches(revereCollarLen)} total length · Neckline seam left open for attachment`,
+            type: 'bodice',
+            polygon: revereCollarPoly,
+            path: polyToPathStr(revereCollarPoly),
+            width: revereCollarBB.maxX - revereCollarBB.minX,
+            height: revereCollarBB.maxY - revereCollarBB.minY,
+            sa,
+            notches: revereCollarNotches,
+            edgeAllowances: revereCollarEdgeAllowances,
+            dims: [
+              { label: fmtInches(revereCollarLen) + ' total', x1: 0, y1: REVERE_COLLAR_H + 0.5, x2: revereCollarLen, y2: REVERE_COLLAR_H + 0.5, type: 'h' },
+              { label: fmtInches(REVERE_COLLAR_H) + ' cut height', x: revereCollarLen + 1, y1: 0, y2: REVERE_COLLAR_H, type: 'v' },
+            ],
+          }
+        : {
+            id: 'collar',
+            name: 'Camp Collar',
+            instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
+            type: 'bodice',
+            polygon: collarPoly,
+            path: polyToPathStr(collarPoly),
+            width: collarBB.maxX - collarBB.minX,
+            height: collarBB.maxY - collarBB.minY,
+            sa,
+            notches: collarNotches,
+            edgeAllowances: collarEdgeAllowances,
+            grainLine: { start: { x: collarLen * 0.3, y: collarH / 2 }, end: { x: collarLen * 0.7, y: collarH / 2 } },
+            dims: [
+              { label: fmtInches(collarLen) + ' neckline', x1: 0, y1: collarH + 0.5, x2: collarLen, y2: collarH + 0.5, type: 'h' },
+              { label: fmtInches(collarH) + ' cut height', x: collarLen + 1, y1: 0, y2: collarH, type: 'v' },
+            ],
+          },
+      opts.collar === 'revere'
+        ? {
+            id: 'revere-facing',
+            name: 'Revere Facing',
+            instruction: `Cut 2 (L & R mirror) · Interface both · Lapel edge sewn RST to front panel then turned · CF inner edge folded and pressed · Attach facing before shoulder seams`,
+            type: 'pocket',
+            polygon: facingPoly,
+            path: polyToPathStr(facingPoly),
+            width: facingBB.maxX - facingBB.minX,
+            height: facingBB.maxY - facingBB.minY,
+            sa, hem,
+            edgeAllowances: facingEdgeAllowances,
+            dims: [
+              { label: fmtInches(-LAPEL_TIP_X) + ' lapel tip', x1: 0, y1: LAPEL_TIP_Y - 0.5, x2: -LAPEL_TIP_X, y2: LAPEL_TIP_Y - 0.5, type: 'h' },
+              { label: fmtInches(torsoLen - NECK_DEPTH_FRONT) + ' length', x: 1, y1: NECK_DEPTH_FRONT, y2: torsoLen, type: 'v' },
+            ],
+          }
+        : {
+            id: 'placket-facing',
+            name: 'Front Placket Facing',
+            instruction: `Cut 2 (L & R) · Interface both · ${fmtInches(PLACKET_W + 0.5)} wide × ${fmtInches(placketH)} long`,
+            type: 'pocket',
+            dimensions: { width: PLACKET_W + 0.5, height: placketH },
+            sa,
+          },
     );
 
     if (isBarrelCuff) {
@@ -694,11 +824,12 @@ export default {
   },
 
   instructions(m, opts) {
-    const steps       = [];
-    let n             = 1;
-    const btnCount    = parseInt(opts.buttons) || 5;
-    const hasYoke     = opts.yoke === 'yoke';
+    const steps        = [];
+    let n              = 1;
+    const btnCount     = parseInt(opts.buttons) || 5;
+    const hasYoke      = opts.yoke === 'yoke';
     const isBarrelCuff = opts.cuff === 'barrel' && opts.sleeveStyle === 'long';
+    const isRevere     = opts.collar === 'revere';
 
     steps.push({
       step: n++, title: 'Stay-stitch curves',
@@ -712,15 +843,27 @@ export default {
       });
     }
 
-    steps.push({
-      step: n++, title: 'Prepare camp collar',
-      detail: 'Fuse interfacing to outer collar only (not undercollar). Sew outer to undercollar {RST} along both front edges and the outer edge, leaving the neckline edge open. Trim seam allowances to 3mm; {clip} the angled front corners diagonally close to stitching. Turn RS out. {press} flat, rolling the seam slightly toward the undercollar so it stays hidden. {understitch} undercollar along the outer edge if desired — this prevents the seam from rolling forward when worn.',
-    });
+    if (isRevere) {
+      steps.push({
+        step: n++, title: 'Prepare revere collar',
+        detail: 'Fuse interfacing to outer collar only (not undercollar). Sew outer to undercollar {RST} along the fold edge and both short ends only — leave the neckline seam open. Trim to 3mm, {clip} corners. Turn RS out and {press} flat, rolling seam slightly toward undercollar. Set aside.',
+      });
 
-    steps.push({
-      step: n++, title: 'Prepare front plackets',
-      detail: `Fuse interfacing to both placket facing strips. {press} the center front fold line ${fmtInches(PLACKET_W)} from the CF edge on each front panel. Fold placket extension to WS along the fold line, {press}. Sew facing to placket edge {RST}, {press} seam toward facing, fold under, then {slipstitch} or {topstitch} to WS.`,
-    });
+      steps.push({
+        step: n++, title: 'Attach revere facings to front panels',
+        detail: 'Fuse interfacing to both facing pieces. Pin each facing to its front panel {RST}, aligning the lapel outer edge (from CF neckline bottom to break point). Sew along this edge. Trim SA to 3mm, {clip} at the lapel tip. Turn facing to WS of front panel and {press} flat. Fold and {press} the CF inner edge of each facing under ⅝″. {understitch} near the lapel edge to keep seam from rolling to RS.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Prepare camp collar',
+        detail: 'Fuse interfacing to outer collar only (not undercollar). Sew outer to undercollar {RST} along both front edges and the outer edge, leaving the neckline edge open. Trim seam allowances to 3mm; {clip} the angled front corners diagonally close to stitching. Turn RS out. {press} flat, rolling the seam slightly toward the undercollar so it stays hidden. {understitch} undercollar along the outer edge if desired — this prevents the seam from rolling forward when worn.',
+      });
+
+      steps.push({
+        step: n++, title: 'Prepare front plackets',
+        detail: `Fuse interfacing to both placket facing strips. {press} the center front fold line ${fmtInches(PLACKET_W)} from the CF edge on each front panel. Fold placket extension to WS along the fold line, {press}. Sew facing to placket edge {RST}, {press} seam toward facing, fold under, then {slipstitch} or {topstitch} to WS.`,
+      });
+    }
 
     if (hasYoke) {
       steps.push({
@@ -729,10 +872,17 @@ export default {
       });
     }
 
-    steps.push({
-      step: n++, title: 'Sew shoulder seams',
-      detail: 'Join front panels to back at shoulders {RST}. {press} toward back. For French seams: sew WS together at 3mm, trim to 2mm, fold {RST}, sew at 6mm.',
-    });
+    if (isRevere) {
+      steps.push({
+        step: n++, title: 'Sew shoulder seams (sandwich collar)',
+        detail: 'Place the prepared revere collar on the back bodice neckline {RST}, aligning the shoulder marks on the collar with the shoulder seam positions. Baste collar ends in place at shoulder seam line. Join front panels to back at shoulders {RST} — this sandwiches each collar end between facing and back bodice. {press} toward back. The collar ends are now captured in the shoulder seam.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Sew shoulder seams',
+        detail: 'Join front panels to back at shoulders {RST}. {press} toward back. For French seams: sew WS together at 3mm, trim to 2mm, fold {RST}, sew at 6mm.',
+      });
+    }
 
     if (opts.chestPocket === 'patch') {
       steps.push({
@@ -741,10 +891,17 @@ export default {
       });
     }
 
-    steps.push({
-      step: n++, title: 'Attach collar',
-      detail: 'Pin outer collar to neckline {RST}, matching CF marks on each front panel and the CB notch at center back. Sew collar to neckline through outer collar and bodice only — leave undercollar free. {clip} the curve every ½″. Fold undercollar seam allowance under, pin to cover the neckline seam on WS. {slipstitch} or {edgestitch} from RS.',
-    });
+    if (isRevere) {
+      steps.push({
+        step: n++, title: 'Finish back neckline',
+        detail: 'Sew outer collar neckline edge to back bodice neckline {RST}, from shoulder seam to shoulder seam, matching the CB notch to center back. {clip} the curve every ½″. Fold undercollar SA under, pin to cover the neckline seam on WS of back. {slipstitch} or {edgestitch} from RS. The collar does not attach to the front neckline — the lapels cover the front neckline naturally.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Attach collar',
+        detail: 'Pin outer collar to neckline {RST}, matching CF marks on each front panel and the CB notch at center back. Sew collar to neckline through outer collar and bodice only — leave undercollar free. {clip} the curve every ½″. Fold undercollar seam allowance under, pin to cover the neckline seam on WS. {slipstitch} or {edgestitch} from RS.',
+      });
+    }
 
     steps.push({
       step: n++, title: 'Set sleeves',
@@ -782,24 +939,34 @@ export default {
       });
     }
 
-    steps.push({
-      step: n++, title: 'Buttonholes and buttons',
-      detail: `The camp collar sits open at the top — there is no top button. Transfer the ${btnCount} button marks from the pattern to the right front placket (use a tracing wheel or awl). Sew horizontal buttonholes at each mark. Test buttonhole stitch on a layered scrap first. Cut open with a seam ripper, using a pin at the far end to prevent over-cutting. Sew buttons to the left placket at matching positions.`,
-    });
+    if (isRevere) {
+      steps.push({
+        step: n++, title: 'Buttonholes and buttons',
+        detail: `Mark ${btnCount - 1} horizontal buttonhole positions on right front below the break point: first 1″ below break point, last 1″ from hem, evenly spaced between. No top button — the shirt is permanently open at the collar. Test buttonhole stitch on a layered scrap first. Sew buttonholes. Cut open carefully. Sew buttons to left front at matching positions.`,
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Buttonholes and buttons',
+        detail: `The camp collar sits open at the top — there is no top button. Transfer the ${btnCount} button marks from the pattern to the right front placket (use a tracing wheel or awl). Sew horizontal buttonholes at each mark. Test buttonhole stitch on a layered scrap first. Cut open with a seam ripper, using a pin at the far end to prevent over-cutting. Sew buttons to the left placket at matching positions.`,
+      });
+    }
 
     steps.push({
       step: n++, title: 'Final press',
-      detail: '{press} entire shirt with steam. Press collar flat so it lies smoothly against the chest when worn open. Verify button placket hangs straight and collar sits evenly at the neckline.',
+      detail: isRevere
+        ? '{press} entire shirt with steam. Roll lapels back along the roll line and press the crease lightly so the lapels fall open naturally. Press collar flat against the back neckline. Verify the lapels lie symmetrically and the shirt hangs straight at the CF.'
+        : '{press} entire shirt with steam. Press collar flat so it lies smoothly against the chest when worn open. Verify button placket hangs straight and collar sits evenly at the neckline.',
     });
 
     return steps;
   },
 
   variants: [
-    { id: 'vacation-shirt',    name: 'Vacation Shirt',          defaults: { sleeveStyle: 'short', fit: 'relaxed',  chestPocket: 'patch', yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'none'   } },
-    { id: 'fitted-camp-shirt', name: 'Fitted Camp Shirt',       defaults: { sleeveStyle: 'short', fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'none'   } },
-    { id: 'fitted-linen-camp', name: 'Fitted Linen Camp Shirt', defaults: { sleeveStyle: 'long',  fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none',   sideVent: 'none', cuff: 'barrel' } },
-    { id: 'classic-camp-yoke', name: 'Classic Camp Shirt',      defaults: { sleeveStyle: 'short', fit: 'standard', chestPocket: 'patch', yoke: 'yoke', shoulderDrop: 'none',   sideVent: 'vent', cuff: 'none'   } },
-    { id: 'boxy-camp-shirt',   name: 'Boxy Camp Shirt',         defaults: { sleeveStyle: 'short', fit: 'boxy',     chestPocket: 'patch', yoke: 'none', shoulderDrop: 'boxy',   sideVent: 'vent', cuff: 'none'   } },
+    { id: 'vacation-shirt',    name: 'Vacation Shirt',          defaults: { sleeveStyle: 'short', fit: 'relaxed',  chestPocket: 'patch', yoke: 'none', shoulderDrop: 'none', sideVent: 'none', cuff: 'none',   collar: 'flat'   } },
+    { id: 'fitted-camp-shirt', name: 'Fitted Camp Shirt',       defaults: { sleeveStyle: 'short', fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none', sideVent: 'none', cuff: 'none',   collar: 'flat'   } },
+    { id: 'fitted-linen-camp', name: 'Fitted Linen Camp Shirt', defaults: { sleeveStyle: 'long',  fit: 'fitted',   chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none', sideVent: 'none', cuff: 'barrel', collar: 'flat'   } },
+    { id: 'classic-camp-yoke', name: 'Classic Camp Shirt',      defaults: { sleeveStyle: 'short', fit: 'standard', chestPocket: 'patch', yoke: 'yoke', shoulderDrop: 'none', sideVent: 'vent', cuff: 'none',   collar: 'flat'   } },
+    { id: 'boxy-camp-shirt',   name: 'Boxy Camp Shirt',         defaults: { sleeveStyle: 'short', fit: 'boxy',     chestPocket: 'patch', yoke: 'none', shoulderDrop: 'boxy', sideVent: 'vent', cuff: 'none',   collar: 'flat'   } },
+    { id: 'camp-shirt-revere', name: 'Revere Camp Shirt',       defaults: { sleeveStyle: 'short', fit: 'standard', chestPocket: 'none',  yoke: 'none', shoulderDrop: 'none', sideVent: 'none', cuff: 'none',   collar: 'revere' } },
   ],
 };
