@@ -4,13 +4,23 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.76] - 2026-04-20
+## [0.12.78] - 2026-04-20
 
 ### Fixed
 - **Athletic formal jacket — sleeve cap S-curve** — Bezier Segment 3 of the top sleeve cap (frontPitchPt → tsLeftEdge) had its second control point to the right of the endpoint, creating an S-curve inflection on the front underarm side of the cap. Moved p2.x to `tsLeftEdge.x - factor*0.1` so the curve is a clean concave arc.
 - **Athletic formal jacket — notched lapel gorge angle** — `lapelTip.y` was hardcoded to `neckDepthFront + 0.5`, placing the tip below the gorgePoint and producing a nearly horizontal (~7°) gorge seam. Now computed from `gorgeAngle` as `neckDepthFront - (lapelWidth + collarStand) * tan(gorgeRad)`, giving the correct ~30° diagonal gorge seam.
 - **Athletic formal jacket — peak lapel extension** — Default `peakExtension` increased from 1.0″ to 1.5″, raising the peak tip from 0.77″ to 1.15″ above the gorgePoint for a properly visible and proportionate peak.
 - **Athletic formal jacket — front facing stitch/cut lines inverted** — `offsetPolygon` was called with positive SA values on the facing polygon. Because `sanitizePoly` normalizes polygons to CW-in-standard-math, positive values produce an outward (enlarging) offset, making `facingSA` the cut line rather than the stitch line. Negated the SA values to match the convention used everywhere else; dashed stitch line now correctly appears inside the solid cut line.
+
+---
+
+## [0.12.76] - 2026-04-20
+
+### Added (camp-shirt.js)
+- **Camp Shirt revere collar option** — new `collar: 'revere'` option on `camp-shirt`. When selected: the front panel gains a shaped lapel extension (break point at 7.5″, lapel tip at −2.25″) and a printed roll line annotation; the collar is shortened to back neckline only (back arc × 2 + 0.75″ shoulder extension each side) with its ends sandwiched into the shoulder seams; the flat placket facing is replaced by a shaped revere facing polygon that follows the lapel curve; construction instructions are updated for the revere sequence (no top button, lapel folds naturally along roll line). Default collar style remains `'flat'` — all existing camp shirt variants are unaffected.
+- **`camp-shirt-revere` variant** — new pre-set variant using the revere collar with standard fit and short sleeve.
+- **SVG illustration** for `camp-shirt-revere` in `scripts/gen-illustrations.mjs`.
+- **SEO description** for `camp-shirt-revere` in `src/garments/seo-descriptions.js`.
 
 ---
 
