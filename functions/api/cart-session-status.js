@@ -2,6 +2,7 @@
 // Cloudflare Pages Function — returns payment status for a cart checkout session.
 // GET /api/cart-session-status?session_id=cs_xxx
 import Stripe from 'stripe';
+import { withRetry, stripeRetryable } from './_utils/retry.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -17,7 +18,10 @@ export async function onRequest(context) {
 
   try {
     const stripe  = new Stripe(env.STRIPE_SECRET_KEY);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const session = await withRetry(
+      () => stripe.checkout.sessions.retrieve(sessionId),
+      { shouldRetry: stripeRetryable },
+    );
 
     if (session.status === 'complete' && session.payment_status === 'paid') {
       const itemCount = parseInt(session.metadata?.itemCount ?? '0', 10);

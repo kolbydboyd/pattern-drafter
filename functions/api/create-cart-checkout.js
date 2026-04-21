@@ -3,6 +3,7 @@
 // Returns { clientSecret } (not a redirect URL).
 import Stripe from 'stripe';
 import { PATTERN_PRICES, BUNDLES, A0_UPSELL } from '../../src/lib/pricing.js';
+import { withRetry, stripeRetryable } from './_utils/retry.js';
 
 // Server-side bundle pricing — mirrors computeCartPricing() in src/lib/cart.js.
 // Only applies a bundle when it is cheaper than paying individually.
@@ -162,7 +163,10 @@ export async function onRequest(context) {
       sessionParams.allow_promotion_codes = true;
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await withRetry(
+      () => stripe.checkout.sessions.create(sessionParams),
+      { shouldRetry: stripeRetryable },
+    );
 
     return Response.json({ clientSecret: session.client_secret });
 

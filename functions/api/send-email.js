@@ -32,6 +32,7 @@ import {
   weeklyDigestEmail,
   abandonedPatternReminderEmail,
 } from '../../src/lib/email-templates.js';
+import { withRetry, resendRetryable } from './_utils/retry.js';
 
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 export async function sendEmail(env, type, to, data = {}) {
@@ -135,13 +136,16 @@ export async function sendEmail(env, type, to, data = {}) {
       throw new Error(`Unknown email type: ${type}`);
   }
 
-  return resend.emails.send({
-    from:    FROM,
-    to,
-    subject: tmpl.subject,
-    html:    tmpl.html,
-    text:    tmpl.plain,
-  });
+  return withRetry(
+    () => resend.emails.send({
+      from:    FROM,
+      to,
+      subject: tmpl.subject,
+      html:    tmpl.html,
+      text:    tmpl.plain,
+    }),
+    { shouldRetry: resendRetryable },
+  );
 }
 
 // ── HTTP handler (called by other serverless functions or cron) ───────────────

@@ -4,10 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.84] - 2026-04-21
+## [0.12.85] - 2026-04-21
 
 ### Changed
 - **Keepall Duffel — fuller end-panel arch** — Bezier control points on the end-panel arch were pulled only to the top of the bounding box (`y = 0`), which put the peak at 25% archH — the arch only filled ~75% of its allocated zone and read as a soft flattened curve. Moved control points to `y = -archH/3` so the peak at t=0.5 touches `y = 0` exactly, filling the full arch zone. The curve stays within the bounding box, the tangent at each shoulder remains vertical, and the straight-side-to-arch transition stays smooth. Matches real LV Keepall profile more faithfully.
+
+## [0.12.84] - 2026-04-21
+
+### Added
+- **Retry logic with exponential backoff for external API calls** — Added `functions/api/_utils/retry.js` with `withRetry()` (3 attempts, 500ms base delay, 10% jitter, honours Stripe `Retry-After` header) and three service-specific retry predicates: `stripeRetryable` (retries `api_connection_error`, `api_error`, `rate_limit_error`; never retries card/auth errors), `resendRetryable` (retries network failures and 5xx/429), `supabaseRetryable` (retries network errors; never retries PostgreSQL/PostgREST logical errors). Applied to: all 7 Stripe checkout/portal/session calls across `create-checkout.js`, `create-cart-checkout.js`, `create-portal-session.js`, `session-info.js`, `cart-session-status.js`; the centralised `resend.emails.send()` in `send-email.js` (benefits all 30+ email types automatically); the subscription profile upsert in `stripe-webhook.js`. Non-idempotent writes (purchases/orders inserts) are intentionally not wrapped.
+
+---
 
 ## [0.12.83] - 2026-04-21
 

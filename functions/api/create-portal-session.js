@@ -3,6 +3,7 @@
 // for subscription management (upgrade, downgrade, cancel, update payment).
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { withRetry, stripeRetryable } from './_utils/retry.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -43,10 +44,17 @@ export async function onRequest(context) {
   const rawOrigin = request.headers.get('origin') || '';
   const origin = ALLOWED_ORIGINS.has(rawOrigin) ? rawOrigin : 'https://peoplespatterns.com';
 
-  const portalSession = await stripe.billingPortal.sessions.create({
-    customer:   profile.stripe_customer_id,
-    return_url: `${origin}/?account=subscription`,
-  });
-
-  return Response.json({ url: portalSession.url });
+  try {
+    const portalSession = await withRetry(
+      () => stripe.billingPortal.sessions.create({
+        customer:   profile.stripe_customer_id,
+        return_url: `${origin}/?account=subscription`,
+      }),
+      { shouldRetry: stripeRetryable },
+    );
+    return Response.json({ url: portalSession.url });
+  } catch (err) {
+    console.error('Portal session error:', err);
+    return Response.json({ error: err.message || 'Internal server error' }, { status: 500 });
+  }
 }
