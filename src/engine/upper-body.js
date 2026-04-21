@@ -676,27 +676,33 @@ export function yokeSplit(armholeBezier, yokeY, steps = 32) {
  * a front panel. The lapel folds back from the break point, and the
  * gorge line angles upward toward the shoulder (peak direction).
  *
- * Standard conventions (Aldrich, Muller & Sohn):
+ * Standard conventions (Aldrich, Muller & Sohn, Keiji Kaneko DB reference):
  *   - Break point sits 0–0.5″ above the top button
- *   - Lapel width measured perpendicular to the roll line: 3–4″
- *   - Gorge angle from horizontal: 40–60° (higher = more upward peak)
+ *   - Lapel width measured perpendicular to the roll line: 3.5–5″
+ *   - Gorge angle from horizontal: 15–25° (peak lapels have a FLAT gorge seam)
  *   - Collar stand height: 1.25″
- *   - Peak tip extends 0.5–1.5″ above the gorge line
+ *   - Gorge sits 40–50% of the way down the front neckline — NOT at the bottom
+ *   - Peak tip extends OUTWARD (negative x) toward the shoulder, near gorge height
+ *
+ * Geometry
+ *   The gorge seam is the line from peakTip → gorgePoint. peakExtension is the
+ *   LENGTH of that seam (typically 3.5–5″ to span from the inner panel to the
+ *   outer lapel edge). gorgeAngle is how steeply it rises from horizontal (20°
+ *   is typical for a bold peak; 10° for a near-horizontal gorge).
  *
  * Local frame
  *   Origin  CF neckline point (where the neckline meets CF)
- *   x+      toward CF (negative = extension beyond CF into the lapel)
+ *   x+      toward body (positive = inward from CF); negative = extension beyond CF
  *   y+      downward
  *
- * The caller positions the returned points relative to their panel.
- *
  * @param {Object} params
- * @param {number} params.neckDepthFront  - Front neckline depth from shoulder baseline (in)
- * @param {number} params.breakPointY     - Y of break point from shoulder baseline (in), typically at top button
- * @param {number} params.lapelWidth      - Width of lapel measured perpendicular to roll line (in), typically 3–4
- * @param {number} [params.gorgeAngle=50] - Gorge angle in degrees from horizontal (40–60)
- * @param {number} [params.peakExtension=1.0] - How far the peak tip extends above gorge (in)
+ * @param {number} params.neckDepthFront   - Front neckline depth from shoulder baseline (in)
+ * @param {number} params.breakPointY      - Y of break point from shoulder baseline (in)
+ * @param {number} params.lapelWidth       - Width of lapel at widest (in), typically 3.5–5
+ * @param {number} [params.gorgeAngle=20]  - Gorge seam angle in degrees from horizontal (10–30)
+ * @param {number} [params.peakExtension=4.0] - Length of the gorge seam from peakTip to gorgePoint (in)
  * @param {number} [params.collarStand=1.25]  - Height of collar stand (in)
+ * @param {number} [params.gorgeHeightFrac=0.45] - How far down the neckline the gorge sits (0=shoulder, 1=CF)
  * @returns {{
  *   lapelPoints: Array<{x:number, y:number}>,
  *   gorgePoint: {x:number, y:number},
@@ -708,44 +714,42 @@ export function peakLapelCurve({
   neckDepthFront,
   breakPointY,
   lapelWidth = 3.5,
-  gorgeAngle = 50,
-  peakExtension = 1.5,
+  gorgeAngle = 20,
+  peakExtension = 4.0,
   collarStand = 1.25,
+  gorgeHeightFrac = 0.45,
 }) {
   // Break point: where the lapel starts folding back, at CF
   const breakPoint = { x: 0, y: breakPointY };
 
-  // Gorge point: where the collar meets the lapel on the neckline edge.
-  // Sits at the front neckline depth level, offset inward by the collar stand.
+  // Gorge point: where the collar seam terminates on the neckline.
+  // Sits 45% of the way down the neckline (not at the bottom — that was the v1 bug).
+  // x = collarStand inset from CF toward body; y = 45% of front neckline depth.
   const gorgePoint = {
     x: collarStand,
-    y: neckDepthFront,
+    y: neckDepthFront * gorgeHeightFrac,
   };
 
-  // Peak tip: the highest point of the lapel, extending above the gorge.
-  // The gorge angle determines the direction; peak lapels angle upward.
+  // Peak tip: the outward-facing corner of the lapel at gorge height.
+  // Computed by travelling from gorgePoint outward (−x) and upward (−y)
+  // along the gorge seam direction. gorgeAngle ≈ 20° gives the classic
+  // near-horizontal gorge seam of a peaked DB lapel.
   const gorgeRad = gorgeAngle * Math.PI / 180;
   const peakTip = {
-    x: gorgePoint.x - Math.cos(gorgeRad) * peakExtension,
-    y: gorgePoint.y - Math.sin(gorgeRad) * peakExtension,
+    x: gorgePoint.x - Math.cos(gorgeRad) * peakExtension,  // protrudes outward (negative x)
+    y: gorgePoint.y - Math.sin(gorgeRad) * peakExtension,  // rises toward shoulder (smaller y)
   };
 
-  // Lapel outer edge: from break point to peak tip.
-  // The outer edge bows outward from CF by lapelWidth at its widest point
-  // (roughly midway between break point and gorge).
+  // Lapel outer edge: from break point (at CF hem level) outward to widest
+  // point, then curving up and inward to the peak tip.
   const midY = (breakPointY + gorgePoint.y) / 2;
-  const lapelOuterMid = { x: -lapelWidth, y: midY };
 
-  // The lapel outline runs: breakPoint → outer edge → peakTip → gorgePoint
-  // Points between widest point and break must create distinct turn angles —
-  // near-parallel edges cause offsetPolygon miter explosions. Keeping just
-  // one clean turn at the widest point and one on the upper edge avoids this.
   const lapelPoints = [
     breakPoint,
-    lapelOuterMid,                                      // widest point
-    { x: -lapelWidth * 0.85, y: (midY + gorgePoint.y) / 2 }, // upper outer
-    peakTip,                                            // peak tip
-    gorgePoint,                                         // gorge
+    { x: -lapelWidth, y: midY },                               // widest point
+    { x: -lapelWidth * 0.85, y: (midY + gorgePoint.y) / 2 },  // upper outer — transitions to peak
+    peakTip,                                                    // peak tip (outward, near-shoulder)
+    gorgePoint,                                                 // gorge (collar seam terminus)
   ];
 
   return { lapelPoints, gorgePoint, peakTip, breakPoint };
