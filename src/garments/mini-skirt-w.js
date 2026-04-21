@@ -88,12 +88,14 @@ export default {
     // bulging out to the hip then tapers inward to a narrower hem. Hem allowance
     // is baked into the polygon with a mirrored kick at the side edge.
     function buildFrontPanel() {
-      // Slight concave waist curve (dips ~0.15" at midpoint)
+      // Slight concave waist curve (dips ~0.15" from the linear path at midpoint).
+      // Control points interpolate linearly between start y (-tummyAdj) and end y (0)
+      // before adding the dip, so the curve stays monotone when tummyAdj > 0.
       const waistCurve = sampleBezier(
-        { x: 0,              y: -tummyAdj },
-        { x: halfW * 0.33,   y: 0.15      },
-        { x: halfW * 0.67,   y: 0.15      },
-        { x: halfW,          y: 0         },
+        { x: 0,              y: -tummyAdj                  },
+        { x: halfW * 0.33,   y: -tummyAdj * 0.67 + 0.15   },
+        { x: halfW * 0.67,   y: -tummyAdj * 0.33 + 0.15   },
+        { x: halfW,          y: 0                          },
         10,
       ).map((p, i, arr) => (i === 0 || i === arr.length - 1 ? p : { ...p, curve: true }));
 
@@ -283,19 +285,23 @@ export default {
     // Cut 1 on fold. Curved lower edge matches the front waist curve; upper
     // edge is slightly shorter (contoured to sit above the natural waist).
     function buildFrontWaistband() {
+      // Lower edge matches the skirt front waist curve exactly (same control-point
+      // interpolation used in buildFrontPanel), so the two seam lines align.
       const lower = sampleBezier(
-        { x: 0,            y: 0    },
-        { x: halfW * 0.33, y: 0.15 },
-        { x: halfW * 0.67, y: 0.15 },
-        { x: halfW,        y: 0    },
+        { x: 0,            y: -tummyAdj                  },
+        { x: halfW * 0.33, y: -tummyAdj * 0.67 + 0.15   },
+        { x: halfW * 0.67, y: -tummyAdj * 0.33 + 0.15   },
+        { x: halfW,        y: 0                          },
         8,
       ).map((p, i, arr) => (i === 0 || i === arr.length - 1 ? p : { ...p, curve: true }));
 
+      // Upper edge: CF corner rises by tummyAdj to keep waistband height uniform.
+      // Control points interpolate linearly from right (unchanged) to left (raised).
       const upper = sampleBezier(
-        { x: halfW - wbRise,          y: -wbHeight        },
-        { x: (halfW - wbRise) * 0.67, y: -wbHeight + 0.08 },
-        { x: (halfW - wbRise) * 0.33, y: -wbHeight + 0.08 },
-        { x: 0,                       y: -wbHeight        },
+        { x: halfW - wbRise,          y: -wbHeight                          },
+        { x: (halfW - wbRise) * 0.67, y: -wbHeight - tummyAdj * 0.33 + 0.08 },
+        { x: (halfW - wbRise) * 0.33, y: -wbHeight - tummyAdj * 0.67 + 0.08 },
+        { x: 0,                       y: -wbHeight - tummyAdj               },
         8,
       ).map((p, i, arr) => (i === 0 || i === arr.length - 1 ? p : { ...p, curve: true }));
 
@@ -305,7 +311,7 @@ export default {
         ...lower,
         { x: halfW - wbRise, y: -wbHeight },
         ...upper.slice(1),
-        // closes back to lower[0] = (0, 0) along the left fold edge
+        // closes back to lower[0] = (0, -tummyAdj) along the left fold edge
       ];
 
       const edgeAllowances = [

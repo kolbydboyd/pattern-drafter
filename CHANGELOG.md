@@ -4,10 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.82] - 2026-04-21
+
+### Fixed
+- **FBA dart intake formula corrected** — `bustDartIntake()` in `upper-body.js` was using `cupInches × 0.38`, which over-states intake by ~52% at D-cup (1.52″ vs the industry standard 1.0″) and also produced a non-zero value at B-cup. Updated to the Cashmerette / Closet Core standard: `max(0, (cupInches − 2) × 0.5)`. B-cup → 0″ FBA; C → 0.5″; D → 1.0″; F → 2.0″; H → 3.0″ cap.
+- **Mini-skirt-w front panel waist bezier — S-curve with tummyAdj** — Waist curve control points were hardcoded at `y = 0.15` regardless of where CF started. When `tummyAdj > 0` the bezier first swooped below the waistline then turned back up, creating an unnatural shape. Control points now interpolate linearly between the start y (`-tummyAdj`) and end y (`0`) before adding the 0.15″ concave dip, so the curve stays monotone at all tummy adjustment values.
+- **Mini-skirt-w front waistband edge mismatch with tummyAdj** — Front waistband lower edge started at `y = 0` at CF but the skirt front panel waist started at `y = -tummyAdj`, so the two seam lines didn't align when `tummyAdj > 0`. Lower and upper bezier control points now mirror the corrected front panel formula so the waistband attaches flush at all adjustment values.
+
 ## [0.12.81] - 2026-04-21
 
 ### Added
-- **Inclusive sizing: Full Bust Adjustment (FBA)** — Added `highBust` optional measurement (above-bust circumference). `bustDartIntake()` in `upper-body.js` now computes cup-size-aware dart intake (`cupInches × 0.38`) when `highBust` is provided; falls back to the legacy chest-circumference formula otherwise. Applied to `fitted-tee-w`, `shell-blouse-w`, `button-up-w`, and bodice panels in `a-line-dress-w`, `shirt-dress-w`.
+- **Inclusive sizing: Full Bust Adjustment (FBA)** — Added `highBust` optional measurement (above-bust circumference). `bustDartIntake()` in `upper-body.js` now computes cup-size-aware dart intake when `highBust` is provided; falls back to the legacy chest-circumference formula otherwise. Applied to `fitted-tee-w`, `shell-blouse-w`, `button-up-w`, and bodice panels in `a-line-dress-w`, `shirt-dress-w`.
 - **Inclusive sizing: Tummy / prominent belly adjustment** — Added `belly` optional measurement (navel circumference). `tummyAdjustment()` in `geometry.js` raises the CF waist point by up to 1.5″ when belly protrudes past hip/waist. Applied to all 28 pants, shorts, skirt, and dress garments that have separate front panel construction.
 - **Inclusive sizing: new optional measurements** — `highBust` (cup size), `belly` (abdomen), `height` (full standing height). `bicep` max expanded 22→30″; `wrist` max expanded 10→13″.
 - **Inclusive sizing: petite armhole and ease guidance hints** — `relevantOptionalIds()` now surfaces `highBust`, `waistToArmpit`, `height`, and `belly` contextually based on garment type. Dynamic hints in the UI: petite note when `torsoLength < 15` and `waistToArmpit` is not filled; ease callout when `chest > 46″` or `hip > 52″`.
