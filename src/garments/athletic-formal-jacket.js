@@ -27,7 +27,7 @@ import { buildMaterialsSpec } from '../engine/materials.js';
 // ── Constants ────────────────────────────────────────────────────────────────
 const SINGLE_PLACKET_W = 1.5;   // single-breasted button placket extension
 const DOUBLE_PLACKET_W = 3.5;   // double-breasted overlap extension
-const FACING_W         = 3.0;   // front facing width (interfaced)
+const FACING_W         = 3.5;   // front facing width at hem (interfaced; wider for unlined)
 const VENT_LENGTH_FRAC = 0.35;  // vent length as fraction of jacket length
 const VENT_OVERLAP     = 1.5;   // vent overlap/underlap width (inches)
 
@@ -183,7 +183,7 @@ export default {
 
     // ── Neckline depths ──
     const NECK_DEPTH_FRONT = isDouble ? 3.5 : 3.0;
-    const NECK_DEPTH_BACK  = 0.75;
+    const NECK_DEPTH_BACK  = 1.0;   // increased from 0.75 — more comfortable for layering
 
     const frontNeckPts = sampleCurve(necklineCurve(neckW, NECK_DEPTH_FRONT, 'crew'));
     const backNeckPts  = sampleCurve(necklineCurve(neckW, NECK_DEPTH_BACK, 'crew'));
@@ -477,13 +477,13 @@ export default {
 
       const { upperCollar, underCollar, standLength } = collarCurve({
         neckArc: halfNeckArc,
-        collarWidth: opts.collar === 'peak' ? 3.5 : 3,
+        collarWidth: opts.collar === 'peak' ? 4.0 : 3,
         style: 'point',
         standHeight: COLLAR_STAND,
         underShrink: 0.02,
       });
 
-      const collarW = opts.collar === 'peak' ? 3.5 : 3;
+      const collarW = opts.collar === 'peak' ? 4.0 : 3;
       const ucCFEnd = upperCollar[upperCollar.length - 2];
       const ucCBMid = { x: 0, y: collarW / 2 };
       const lcCFEnd = underCollar[underCollar.length - 2];
@@ -509,10 +509,9 @@ export default {
       pieces.push({
         id: 'under-collar',
         name: 'Under Collar',
-        instruction: 'Cut 2 (mirror at CB) · Bias cut · 2% smaller than upper collar for seam roll · Interface with knit fusible',
+        instruction: 'Cut 2 (mirror at CB) · Cut on straight grain (NOT bias — jersey needs directional stretch, not bias drape) · 2% smaller than upper collar for seam roll · Interface with knit fusible',
         type: 'bodice',
         isCutOnFold: false,
-        grainAngle: 45,
         polygon: underCollar,
         path: polyToPathStr(underCollar),
         width: standLength / 1.02,
@@ -557,7 +556,7 @@ export default {
     // Panel stitch line along the lapel is the EXACT same points used on the
     // front panel so the facing sews cleanly to the panel's lapel edge.
     {
-      const FACING_TOP_W = 2.0;
+      const FACING_TOP_W = 2.5;   // wider for unlined: more support at neckline
       const topEnd = neckStop; // gorgePoint (peak/notched) or shoulderNeck (shawl)
 
       // Lapel outline reused verbatim from the panel build, break → topEnd.
@@ -647,7 +646,7 @@ export default {
       pieces.push({
         id: 'hip-patch-pocket',
         name: 'Hip Patch Pocket',
-        instruction: `Cut 2 · Position at hip level on front panels · Top edge: 1½″ hem (fold under ¾″ twice, {topstitch}) · {topstitch} sides + bottom · Bar tack corners`,
+        instruction: `Cut 2 · Round bottom corners with a ½″ radius (trace a coin) for the athletic relaxed look · Top edge: 1½″ hem (fold under ¾″ twice, {topstitch}) · {topstitch} sides + bottom · Bar tack top corners`,
         type: 'pocket',
         dimensions: { width: 7, height: 7 },
         sa, hem: 1.5, hemEdge: 'top',
@@ -675,14 +674,14 @@ export default {
         name: 'Chest Welt Pocket Bag',
         instruction: 'Cut 2 (top + bottom bag)',
         type: 'pocket',
-        dimensions: { width: 5, height: 5 },
+        dimensions: { width: 4.5, height: 4.5 },
       });
       pieces.push({
         id: 'chest-welt-flap',
         name: 'Chest Welt Facing',
         instruction: 'Cut 1 · Interface with knit fusible · Left breast',
         type: 'pocket',
-        dimensions: { width: 5, height: 1.5 },
+        dimensions: { width: 4.5, height: 1.5 },
       });
     }
 
