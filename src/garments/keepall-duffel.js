@@ -103,23 +103,28 @@ export default {
     const pieces = [];
 
     // ── End Panel (arch shape) ────────────────────────────────────────────────
+    // Arch at top (y≈0), bottom straight edge at y=H — consistent with SVG y-down convention.
+    // Bezier goes left-shoulder → arch peak → right-shoulder, curving upward (small y).
+    const archH = H - sh;   // height of arch portion above the shoulder line
     const archPts = sampleBezier(
-      { x: D, y: sh },
-      { x: D, y: H },
-      { x: 0, y: H },
-      { x: 0, y: sh },
-      32
-    );
-    const endPoly = [
+      { x: 0, y: archH },
       { x: 0, y: 0 },
       { x: D, y: 0 },
-      ...archPts,
+      { x: D, y: archH },
+      32
+    );
+    // CW winding: arch (left→right via peak) → bottom-right → bottom-left → close (left side)
+    const endPoly = [
+      ...archPts,            // (0,archH) → peak → (D,archH) — zipper opening edge
+      { x: D, y: H },        // bottom-right corner
+      { x: 0, y: H },        // bottom-left corner
     ];
     const endPath = polyToPath(endPoly);
+    // 33 arch points = 32 arch edges + 1 right side + 1 bottom + 1 left close = 35 total edges
     const endEdges = [
-      { sa, label: 'Bottom — body wrap seam' },
+      ...Array(archPts.length - 1).fill(null).map(() => ({ sa, label: 'Arch — zipper opening edge' })),
       { sa, label: 'Right side — body wrap seam' },
-      ...Array(archPts.length - 2).fill(null).map(() => ({ sa, label: 'Arch — zipper opening edge' })),
+      { sa, label: 'Bottom — body wrap seam' },
       { sa, label: 'Left side — body wrap seam' },
     ];
     const endDims = [
@@ -153,27 +158,15 @@ export default {
     }
 
     // ── Body Wrap (one long rectangle) ────────────────────────────────────────
-    const bodyWrapEdges = [
-      { sa, label: 'Front zipper seam' },
-      { sa, label: 'Front arch transition' },
-      { sa, label: 'Bottom center' },
-      { sa, label: 'Back arch transition' },
-      { sa, label: 'Back zipper seam' },
-      { sa, label: 'Short end — end panel seam' },
-      { sa, label: 'Back zipper seam' },
-      { sa, label: 'Back arch transition' },
-      { sa, label: 'Bottom center' },
-      { sa, label: 'Front arch transition' },
-      { sa, label: 'Front zipper seam' },
-      { sa, label: 'Short end — end panel seam' },
-    ];
+    // Width = wW, measured from front zipper edge (long edge) to back zipper edge.
+    // Zones across width: 0–sh = front face, sh–(sh+D) = bottom, (sh+D)–(2sh+D) = back face, +1″ ease.
+    // Short ends (wW wide) sew to end panel perimeter: right angle corners at sh and sh+D from front long edge.
 
     pieces.push({
       id: 'body-wrap-outer', name: 'Body Wrap (Outer)',
       instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · ` +
-        `Mark notches along both long edges: ${fmtInches(sh)} (front-top), ${fmtInches(sh + D/2)} (front-center), ` +
-        `${fmtInches(sh + D)} (back-top) from front short end. These guide alignment to end panels. ` +
-        `Mark trim-strap positions at ${fmtInches(L/3)} and ${fmtInches(2*L/3)} from front short end.`,
+        `On each short end mark notches across the width at: ${fmtInches(sh)} from front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from front long edge (bottom to back-face corner); also mark ${fmtInches(sh + D/2)} (bottom center — turning gap reference). ` +
+        `Along each long edge mark trim-strap positions at ${fmtInches(L/3)} and ${fmtInches(2*L/3)} from each short end.`,
       type: 'rectangle',
       width: L, height: wW, sa,
       dims: [
@@ -199,7 +192,9 @@ export default {
     }
 
     // ── Trim Straps (structural) ──────────────────────────────────────────────
-    const trimStrapLen = 2*H + D + 12;
+    // Runs front zipper top → down front face (sh) → across bottom (D) → up back face (sh) → back zipper top.
+    // Extra 12″ forms the handle loop arch above the zipper line.
+    const trimStrapLen = 2*sh + D + 12;
     pieces.push({
       id: 'trim-strap', name: 'Trim Strap',
       instruction: `Cut 2 · ${fmtInches(trimStrapLen)} long × 1½″ wide · ` +
@@ -402,7 +397,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Cut all pieces and transfer markings',
-      detail: `Cut all pattern pieces with grain lines vertical. On body wrap mark notches at ${fmtInches(sh)}, ${fmtInches(sh + D / 2)}, and ${fmtInches(sh + D)} from front short end along both long edges. Mark trim-strap positions at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)}. On lining end panels mark pocket placement if chosen.`,
+      detail: `Cut all pattern pieces with grain lines vertical. On each short end of the body wrap, mark notches across the width at ${fmtInches(sh)} from the front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from the front long edge (bottom to back-face corner); mark ${fmtInches(sh + D / 2)} as the bottom center reference for the lining turning gap. Along each long edge of the outer body wrap mark trim-strap positions at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} from each short end. On end panel pieces, mark the shoulder transition point (where arch meets straight side) for reference. On lining end panels mark pocket placement if chosen.`,
     });
 
     if (opts.interfacing !== 'none') {
@@ -454,7 +449,7 @@ export default {
     if (hasStrap) {
       steps.push({
         step: n++, title: 'Make and baste D-ring tabs',
-        detail: 'Fold each tab in half around a 1″ D-ring, raw edges together. Sew close to D-ring. Baste one tab to mid-side of each outer end panel at the arch-to-straight-side transition, raw edges of tab flush with end panel top raw edge.',
+        detail: 'Fold each tab in half around a 1″ D-ring, raw edges together. Sew close to D-ring. Baste one tab to each short end of the outer body wrap, flush with the front long edge (zipper edge side), raw ends of tab even with the body wrap short end. The D-ring tab will be caught in the body-wrap-to-end-panel seam in step 13, placing the D-ring at the top corner of the bag end.',
       });
     }
 
@@ -477,12 +472,12 @@ export default {
 
     steps.push({
       step: n++, title: 'Install zipper on body wrap',
-      detail: `Open zipper fully. Lay front long edge of outer body wrap {RST} to front zipper tape, raw edges even. Using zipper foot, sew with ${fmtInches(sa)} seam. {press} body wrap away from zipper. {topstitch} ¼″ from teeth. Repeat for back body wrap to back zipper tape. Tack zipper ends to top of end panel arches${hasStrap ? ', catching D-ring tab raw ends' : ''}.`,
+      detail: `Open zipper fully. Lay the front long edge of the outer body wrap {RST} against the front zipper tape, raw edges even. Using a zipper foot, sew with a ${fmtInches(sa)} seam. {press} the body wrap away from the zipper. {topstitch} ¼″ from the teeth. Repeat to sew the back long edge to the back zipper tape. Zipper end tabs (folded in the previous step) cap each raw end of the zipper tape — they will be secured in the end-panel seam in the next step.`,
     });
 
     steps.push({
       step: n++, title: 'Sew outer end panels to body wrap',
-      detail: `Place one outer end panel {RST} to one short end of outer body wrap. Clip body wrap SA every ½″ at arch transitions to within ⅛″ of seamline so strip bends around the arch. Align bottom-center notch. Pin and sew with ${fmtInches(sa)} seam, body panel face up to steer curve. Repeat for second end panel.`,
+      detail: `Place one outer end panel {RST} to one short end of the outer body wrap. The short end wraps around the U-shaped perimeter of the end panel: starting from the front zipper edge, down the front face (${fmtInches(sh)}), across the bottom (${fmtInches(D)}), up the back face (${fmtInches(sh)}) to the back zipper edge. Clip the body wrap SA at the two 90° corners (at the ${fmtInches(sh)} and ${fmtInches(sh + D)} notch marks) to within ⅛″ of the seamline so the strip pivots cleanly around each corner. Pin and sew with ${fmtInches(sa)} seam. Zipper end tabs${hasStrap ? ' and D-ring tabs' : ''} are caught in this seam at the front-edge corner. Repeat for the second end panel.`,
     });
 
     steps.push({
