@@ -1,17 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 200" fill="none" stroke="#c9a96e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 
-  <!-- bag body -->
-  <rect x="18" y="106" width="124" height="66" rx="8"/>
-  <line x1="28" y1="106" x2="132" y2="106"/>
-  <rect x="76" y="101" width="8" height="6" rx="1"/>
-  <line x1="80" y1="96" x2="80" y2="101"/>
+  <!-- body: narrower/taller for 35 (most compact) -->
+  <rect x="35" y="75" width="90" height="100" rx="5"/>
+  <!-- arch ends: left and right -->
+  <path d="M35,75 L28,125 Q28,152 35,170"/>
+  <path d="M125,75 L132,125 Q132,152 125,170"/>
+  <!-- zipper across top -->
+  <line x1="35" y1="75" x2="125" y2="75"/>
+  <line x1="40" y1="75" x2="40" y2="72"/><line x1="50" y1="75" x2="50" y2="72"/><line x1="60" y1="75" x2="60" y2="72"/><line x1="70" y1="75" x2="70" y2="72"/><line x1="80" y1="75" x2="80" y2="72"/><line x1="90" y1="75" x2="90" y2="72"/><line x1="100" y1="75" x2="100" y2="72"/><line x1="110" y1="75" x2="110" y2="72"/><line x1="120" y1="75" x2="120" y2="72"/>
+  <!-- zipper pull -->
+  <rect x="76" y="66" width="8" height="6" rx="1"/>
+  <!-- trim straps -->
+  <line x1="52" y1="75" x2="52" y2="170" stroke-width="1.5"/>
+  <line x1="108" y1="75" x2="108" y2="170" stroke-width="1.5"/>
   <!-- handles -->
-  <path d="M46,106 L46,82 Q53,70 60,82 L60,106"/>
-  <path d="M100,106 L100,82 Q108,70 114,82 L114,106"/>
+  <path d="M50,75 Q50,55 52,40 Q54,55 54,75"/>
+  <path d="M106,75 Q106,55 108,40 Q110,55 110,75"/>
   <!-- anchor patches -->
-  <rect x="40" y="100" width="26" height="8" rx="1.5"/>
-  <rect x="94" y="100" width="26" height="8" rx="1.5"/>
-  <!-- gusset stitch lines -->
-  <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
-  <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
+  <rect x="48" y="70" width="8" height="7" rx="1"/>
+  <rect x="104" y="70" width="8" height="7" rx="1"/>
 </svg>

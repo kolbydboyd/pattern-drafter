@@ -340,74 +340,95 @@ const SVGS = {
   <line x1="110" y1="158" x2="104" y2="158"/>`),
 
   'keepall-duffel': svg(`
-  <!-- bag body: wide horizontal rounded rect -->
-  <rect x="18" y="106" width="124" height="66" rx="8"/>
-  <!-- zipper line at top -->
-  <line x1="28" y1="106" x2="132" y2="106"/>
-  <!-- zipper pull tab -->
-  <rect x="76" y="101" width="8" height="6" rx="1"/>
-  <line x1="80" y1="96" x2="80" y2="101"/>
-  <!-- left handle arch -->
-  <path d="M46,106 L46,82 Q53,70 60,82 L60,106"/>
-  <!-- right handle arch -->
-  <path d="M100,106 L100,82 Q108,70 114,82 L114,106"/>
+  <!-- body face: front view -->
+  <rect x="30" y="80" width="100" height="90" rx="6"/>
+  <!-- arch end panels: left and right sides -->
+  <path d="M30,80 L25,120 Q25,145 30,160 L30,170"/>
+  <path d="M130,80 L135,120 Q135,145 130,160 L130,170"/>
+  <!-- zipper line across top -->
+  <line x1="30" y1="80" x2="130" y2="80"/>
+  <!-- zipper teeth marks -->
+  <line x1="35" y1="80" x2="35" y2="76"/><line x1="45" y1="80" x2="45" y2="76"/><line x1="55" y1="80" x2="55" y2="76"/><line x1="65" y1="80" x2="65" y2="76"/><line x1="75" y1="80" x2="75" y2="76"/><line x1="85" y1="80" x2="85" y2="76"/><line x1="95" y1="80" x2="95" y2="76"/><line x1="105" y1="80" x2="105" y2="76"/><line x1="115" y1="80" x2="115" y2="76"/><line x1="125" y1="80" x2="125" y2="76"/>
+  <!-- zipper pull -->
+  <rect x="76" y="70" width="8" height="6" rx="1"/>
+  <!-- trim straps running widthwise -->
+  <line x1="50" y1="80" x2="50" y2="170" stroke-width="1.5"/>
+  <line x1="110" y1="80" x2="110" y2="170" stroke-width="1.5"/>
+  <!-- handles above trim straps -->
+  <path d="M48,80 Q48,60 50,45 Q52,60 52,80"/>
+  <path d="M108,80 Q108,60 110,45 Q112,60 112,80"/>
   <!-- handle anchor patches -->
-  <rect x="40" y="100" width="26" height="8" rx="1.5"/>
-  <rect x="94" y="100" width="26" height="8" rx="1.5"/>
-  <!-- side gusset stitch lines -->
-  <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
-  <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
+  <rect x="45" y="75" width="10" height="8" rx="1"/>
+  <rect x="105" y="75" width="10" height="8" rx="1"/>`),
 
   'keepall-35': svg(`
-  <!-- bag body -->
-  <rect x="18" y="106" width="124" height="66" rx="8"/>
-  <line x1="28" y1="106" x2="132" y2="106"/>
-  <rect x="76" y="101" width="8" height="6" rx="1"/>
-  <line x1="80" y1="96" x2="80" y2="101"/>
+  <!-- body: narrower/taller for 35 (most compact) -->
+  <rect x="35" y="75" width="90" height="100" rx="5"/>
+  <!-- arch ends: left and right -->
+  <path d="M35,75 L28,125 Q28,152 35,170"/>
+  <path d="M125,75 L132,125 Q132,152 125,170"/>
+  <!-- zipper across top -->
+  <line x1="35" y1="75" x2="125" y2="75"/>
+  <line x1="40" y1="75" x2="40" y2="72"/><line x1="50" y1="75" x2="50" y2="72"/><line x1="60" y1="75" x2="60" y2="72"/><line x1="70" y1="75" x2="70" y2="72"/><line x1="80" y1="75" x2="80" y2="72"/><line x1="90" y1="75" x2="90" y2="72"/><line x1="100" y1="75" x2="100" y2="72"/><line x1="110" y1="75" x2="110" y2="72"/><line x1="120" y1="75" x2="120" y2="72"/>
+  <!-- zipper pull -->
+  <rect x="76" y="66" width="8" height="6" rx="1"/>
+  <!-- trim straps -->
+  <line x1="52" y1="75" x2="52" y2="170" stroke-width="1.5"/>
+  <line x1="108" y1="75" x2="108" y2="170" stroke-width="1.5"/>
   <!-- handles -->
-  <path d="M46,106 L46,82 Q53,70 60,82 L60,106"/>
-  <path d="M100,106 L100,82 Q108,70 114,82 L114,106"/>
+  <path d="M50,75 Q50,55 52,40 Q54,55 54,75"/>
+  <path d="M106,75 Q106,55 108,40 Q110,55 110,75"/>
   <!-- anchor patches -->
-  <rect x="40" y="100" width="26" height="8" rx="1.5"/>
-  <rect x="94" y="100" width="26" height="8" rx="1.5"/>
-  <!-- gusset stitch lines -->
-  <line x1="26" y1="110" x2="26" y2="168" stroke-dasharray="3 2" stroke-width="1"/>
-  <line x1="134" y1="110" x2="134" y2="168" stroke-dasharray="3 2" stroke-width="1"/>`),
+  <rect x="48" y="70" width="8" height="7" rx="1"/>
+  <rect x="104" y="70" width="8" height="7" rx="1"/>`),
 
   'keepall-45': svg(`
-  <!-- bag body (mid-size, slightly wider than 35) -->
-  <rect x="16" y="110" width="128" height="64" rx="8"/>
-  <line x1="26" y1="110" x2="134" y2="110"/>
-  <rect x="76" y="105" width="8" height="6" rx="1"/>
-  <line x1="80" y1="100" x2="80" y2="105"/>
+  <!-- body: medium size 45 -->
+  <rect x="28" y="82" width="104" height="86" rx="6"/>
+  <!-- arch ends -->
+  <path d="M28,82 L20,128 Q20,152 28,168"/>
+  <path d="M132,82 L140,128 Q140,152 132,168"/>
+  <!-- zipper across top -->
+  <line x1="28" y1="82" x2="132" y2="82"/>
+  <line x1="33" y1="82" x2="33" y2="79"/><line x1="43" y1="82" x2="43" y2="79"/><line x1="53" y1="82" x2="53" y2="79"/><line x1="63" y1="82" x2="63" y2="79"/><line x1="73" y1="82" x2="73" y2="79"/><line x1="83" y1="82" x2="83" y2="79"/><line x1="93" y1="82" x2="93" y2="79"/><line x1="103" y1="82" x2="103" y2="79"/><line x1="113" y1="82" x2="113" y2="79"/><line x1="123" y1="82" x2="123" y2="79"/>
+  <!-- zipper pull -->
+  <rect x="76" y="73" width="8" height="6" rx="1"/>
+  <!-- trim straps -->
+  <line x1="48" y1="82" x2="48" y2="168" stroke-width="1.5"/>
+  <line x1="112" y1="82" x2="112" y2="168" stroke-width="1.5"/>
   <!-- handles -->
-  <path d="M45,110 L45,86 Q52,74 59,86 L59,110"/>
-  <path d="M101,110 L101,86 Q109,74 115,86 L115,110"/>
+  <path d="M46,82 Q46,62 48,48 Q50,62 50,82"/>
+  <path d="M110,82 Q110,62 112,48 Q114,62 114,82"/>
   <!-- anchor patches -->
-  <rect x="39" y="104" width="26" height="8" rx="1.5"/>
-  <rect x="95" y="104" width="26" height="8" rx="1.5"/>
-  <!-- gusset stitch lines -->
-  <line x1="24" y1="114" x2="24" y2="170" stroke-dasharray="3 2" stroke-width="1"/>
-  <line x1="136" y1="114" x2="136" y2="170" stroke-dasharray="3 2" stroke-width="1"/>`),
+  <rect x="44" y="77" width="8" height="7" rx="1"/>
+  <rect x="108" y="77" width="8" height="7" rx="1"/>`),
 
   'keepall-50': svg(`
-  <!-- bag body (wider for 50) -->
-  <rect x="14" y="112" width="132" height="62" rx="8"/>
-  <line x1="24" y1="112" x2="136" y2="112"/>
-  <rect x="76" y="107" width="8" height="6" rx="1"/>
-  <line x1="80" y1="102" x2="80" y2="107"/>
+  <!-- body: largest 50, widest -->
+  <rect x="22" y="85" width="116" height="82" rx="6"/>
+  <!-- arch ends -->
+  <path d="M22,85 L14,130 Q14,153 22,168"/>
+  <path d="M138,85 L146,130 Q146,153 138,168"/>
+  <!-- zipper across top -->
+  <line x1="22" y1="85" x2="138" y2="85"/>
+  <line x1="27" y1="85" x2="27" y2="82"/><line x1="37" y1="85" x2="37" y2="82"/><line x1="47" y1="85" x2="47" y2="82"/><line x1="57" y1="85" x2="57" y2="82"/><line x1="67" y1="85" x2="67" y2="82"/><line x1="77" y1="85" x2="77" y2="82"/><line x1="87" y1="85" x2="87" y2="82"/><line x1="97" y1="85" x2="97" y2="82"/><line x1="107" y1="85" x2="107" y2="82"/><line x1="117" y1="85" x2="117" y2="82"/><line x1="127" y1="85" x2="127" y2="82"/>
+  <!-- zipper pull -->
+  <rect x="76" y="76" width="8" height="6" rx="1"/>
+  <!-- trim straps -->
+  <line x1="43" y1="85" x2="43" y2="168" stroke-width="1.5"/>
+  <line x1="117" y1="85" x2="117" y2="168" stroke-width="1.5"/>
   <!-- handles -->
-  <path d="M44,112 L44,88 Q51,76 58,88 L58,112"/>
-  <path d="M102,112 L102,88 Q110,76 116,88 L116,112"/>
+  <path d="M41,85 Q41,65 43,50 Q45,65 45,85"/>
+  <path d="M115,85 Q115,65 117,50 Q119,65 119,85"/>
   <!-- anchor patches -->
-  <rect x="38" y="106" width="26" height="8" rx="1.5"/>
-  <rect x="96" y="106" width="26" height="8" rx="1.5"/>
-  <!-- shoulder strap D-ring tabs at ends -->
-  <rect x="14" y="118" width="5" height="12" rx="1"/>
-  <rect x="141" y="118" width="5" height="12" rx="1"/>
-  <!-- gusset stitch lines -->
-  <line x1="22" y1="116" x2="22" y2="170" stroke-dasharray="3 2" stroke-width="1"/>
-  <line x1="138" y1="116" x2="138" y2="170" stroke-dasharray="3 2" stroke-width="1"/>`),
+  <rect x="40" y="80" width="8" height="7" rx="1"/>
+  <rect x="112" y="80" width="8" height="7" rx="1"/>
+  <!-- D-ring tabs at ends (50 has shoulder strap) -->
+  <rect x="22" y="95" width="4" height="10" rx="1"/>
+  <rect x="134" y="95" width="4" height="10" rx="1"/>
+  <!-- small circles for rings -->
+  <circle cx="24" cy="110" r="2" opacity="0.5"/>
+  <circle cx="136" cy="110" r="2" opacity="0.5"/>`),
 
   'moto-jacket': svg(`
   <path d="M66,38 L72,50 L80,44 L88,50 L94,38"/>
