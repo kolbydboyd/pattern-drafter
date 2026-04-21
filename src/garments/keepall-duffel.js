@@ -210,10 +210,13 @@ export default {
     if (opts.handleStyle === 'fabric') {
       pieces.push({
         id: 'handle', name: 'Top Handle',
-        instruction: `Cut 2 · ${fmtInches(hLen)} long × 2½″ wide · ` +
-          `Fold in half lengthwise {RST}. Sew long raw edge. Turn right side out. {press} flat, seam centered. {topstitch} both long edges ⅛″ from edge.`,
+        instruction: `Cut 2 · ${fmtInches(hLen)} long × 3″ wide · ` +
+          `Fold in half lengthwise {RST}. Sew long raw edge with ½″ SA. Turn right side out. ` +
+          `Insert ½″ cotton piping cord (or foam tubing) through the tube. ` +
+          `Using a zipper foot, stitch along the length close to the cord to trap it snugly — do NOT press flat. ` +
+          `Trim cord flush at each end before attaching to anchor patches.`,
         type: 'rectangle',
-        width: hLen, height: 2.5, sa: 0,
+        width: hLen, height: 3, sa: 0,
       });
     } else {
       pieces.push({
@@ -342,6 +345,11 @@ export default {
         name: `1″ cotton webbing, ${fmtInches(2 * handleCutLen(L))}`,
         quantity: 1,
       });
+    } else {
+      notions.push({
+        name: `½″ cotton piping cord or foam tubing, ${fmtInches(2 * handleCutLen(L) + 2)} (core for round handles)`,
+        quantity: 1,
+      });
     }
 
     if (opts.shoulderStrap === 'yes') {
@@ -372,6 +380,12 @@ export default {
       'X-box stitch at handle anchors: rectangle ¼″ from all four patch edges, then both diagonals.',
       'Rub beeswax or zipper wax along zipper teeth before installing — canvas tension makes zippers stiff.',
     );
+
+    if (opts.handleStyle === 'fabric') {
+      notes.push(
+        'Round handles: wrap the 3″ fabric tube snugly around a ½″ cotton piping cord (or foam tubing) core. A zipper foot lets you stitch close to the cord without flattening it — this is what gives the Keepall handle its cylindrical shape rather than the flat-strap profile common to tote-bag handles.',
+      );
+    }
 
     if (opts.interfacing === 'none') {
       notes.push('No interfacing needed for 12 oz or heavier canvas.');
@@ -417,8 +431,13 @@ export default {
 
     if (opts.handleStyle === 'fabric') {
       steps.push({
-        step: n++, title: 'Make fabric tube handles',
-        detail: `Fold each handle in half lengthwise {RST}. Sew long raw edge. Trim SA to ¼″. Turn right side out. {press} flat, seam centered. {topstitch} both long edges ⅛″ from edge.`,
+        step: n++, title: 'Make round fabric tube handles',
+        detail: `Fold each 3″-wide handle strip in half lengthwise {RST}. Sew long raw edge with ½″ SA. ` +
+          `Trim SA to ¼″ and turn right side out using a loop-turner or safety-pin method. ` +
+          `Cut a length of ½″ cotton piping cord (or foam tubing) slightly longer than the handle and feed it through the tube. ` +
+          `Using a zipper foot, stitch along the full length of the tube snug against the core, locking it in place. ` +
+          `Do NOT {press} flat — the handle should keep its cylindrical cross-section. ` +
+          `Trim cord flush at each end before attaching.`,
       });
     } else {
       steps.push({

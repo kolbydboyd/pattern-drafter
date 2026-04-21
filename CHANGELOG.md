@@ -8,6 +8,7 @@ All notable changes are documented here, newest first.
 
 ### Changed
 - **Keepall Duffel — rewritten with correct arch-end + body-wrap construction** — Previous version used tote-bag style (two large panels + narrow gusset). Keepall is actually constructed with two arch-shaped end panels (the short sides, with straight sides ~55% of height then a smooth arch) and one continuous one-piece body wrap (front face → bottom → back face, with zipper across the top long edge). Rebuild features: structural trim straps run widthwise front-to-back (visible vertical elements on front face), D-ring tabs for optional shoulder strap, handles now attach at trim-strap ends on front face. All dimensions and options (presets, shoulderStrap, pockets, interfacing) preserved. Updated SVG illustrations for all four IDs to show arch-end profile view with visible trim straps, handles, and zipper.
+- **Keepall Duffel — round fabric handles** — Fabric handles rebuilt as round (cylindrical) tubes rather than flat pressed straps. Handle cut width increased from 2½″ to 3″ to wrap a ½″ cotton piping cord (or foam tubing) core. Step-4 instruction now directs sewists to insert the cord through the turned tube and stitch along the length with a zipper foot, locking the core in place without pressing flat. Matches the distinct cylindrical handle profile of the real Keepall; webbing-handle variant unchanged.
 
 ## [0.12.82] - 2026-04-21
 
