@@ -106,13 +106,16 @@ export default {
 
     // ── End Panel (arch shape) ────────────────────────────────────────────────
     // Arch at top (y≈0), bottom straight edge at y=H — consistent with SVG y-down convention.
-    // Bezier goes left-shoulder → arch peak → right-shoulder, curving upward (small y).
-    const archH = H - sh;   // height of arch portion above the shoulder line
+    // Cubic bezier CPs at y = -archH/3 so the peak at t=0.5 touches y=0, filling the allocated
+    // arch zone. Tangent at each shoulder stays vertical, so the straight-side → arch transition
+    // stays smooth.
+    const archH   = H - sh;         // height of arch portion above the shoulder line
+    const archCpY = -archH / 3;     // pulls peak all the way to the top edge (y=0)
     const archPts = sampleBezier(
-      { x: 0, y: archH },
-      { x: 0, y: 0 },
-      { x: D, y: 0 },
-      { x: D, y: archH },
+      { x: 0, y: archH   },
+      { x: 0, y: archCpY },
+      { x: D, y: archCpY },
+      { x: D, y: archH   },
       32
     );
     // CW winding: arch (left→right via peak) → bottom-right → bottom-left → close (left side)
