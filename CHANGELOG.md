@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.83] - 2026-04-21
+
+### Changed
+- **Keepall Duffel — rewritten with correct arch-end + body-wrap construction** — Previous version used tote-bag style (two large panels + narrow gusset). Keepall is actually constructed with two arch-shaped end panels (the short sides, with straight sides ~55% of height then a smooth arch) and one continuous one-piece body wrap (front face → bottom → back face, with zipper across the top long edge). Rebuild features: structural trim straps run widthwise front-to-back (visible vertical elements on front face), D-ring tabs for optional shoulder strap, handles now attach at trim-strap ends on front face. All dimensions and options (presets, shoulderStrap, pockets, interfacing) preserved. Updated SVG illustrations for all four IDs to show arch-end profile view with visible trim straps, handles, and zipper.
+- **Keepall Duffel — wrapped fabric handles with ¾″ webbing core** — Fabric handles switched to the wrap method: lay ¾″ cotton webbing centered on a 2″ fabric strip, fold one long edge under ¼″ and press, wrap strip around webbing with raw edge tucked under folded edge, then zipper-foot stitch close to the core. Single-pass construction that matches factory-made corded handles and gives a slim structured profile. Replaces the earlier tube-and-turn attempt.
+
+### Fixed
+- **Keepall Duffel — trim-strap handle attachment on both ends** — Step 7 previously said only the front-face end of each trim strap was left loose for handle attachment, but each trim strap has a handle end on both the front-face top and the back-face top. Updated to 4″ loose at both ends, matching the trim-strap cut length that already accounts for this.
+- **Keepall Duffel — pocket heights now fit the face zone** — Interior slip, interior zip, and exterior zip pockets were dimensioned against full bag height and overflowed the front/back face zone (only `sh = H × 0.55` tall). On Keepall 35 the interior pockets spilled 1½–3″ past the fold onto the bottom band. Pocket heights now scale to `min(sh − 1.5, 6)` for slip, `min(sh − 1.5, 5)` for interior zip, and `min(sh − 2, 4)` for exterior zip. Placement instructions rewritten to reference the face zone with margin above and below.
+
 ## [0.12.82] - 2026-04-21
 
 ### Fixed

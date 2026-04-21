@@ -1,23 +1,25 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
- * Keepall Duffel — lined canvas holdall inspired by the classic European travel duffel.
- * Keepall-35 dimensions by default (35 cm length). Fully lined, top-zip entry, two top handles.
+ * Keepall Duffel — arch-end construction.
+ * Two arch-shaped end panels (short sides) + one continuous body wrap (L × wrapWidth).
+ * Zipper runs along the top long edge. Trim straps (structural) run widthwise front-to-back.
  * All measurements in inches. Seam allowance computed by the engine.
  */
 
-import { fmtInches, polyToPath } from '../engine/geometry.js';
+import { fmtInches, polyToPath, sampleBezier } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
-// Size presets — L × H × D in inches (rounded from cm originals)
+// Dimensions sourced from LV website + luggage review sites and converted from cm.
+// 35 cm is a discontinued size; 45/50 are current Bandoulière models.
 const PRESETS = {
-  'keepall-35': { bagLen: 13.75, bagHeight: 8.25,  bagDepth: 6.75 },
-  'keepall-45': { bagLen: 17.75, bagHeight: 9.75,  bagDepth: 7.75 },
-  'keepall-50': { bagLen: 19.75, bagHeight: 10.75, bagDepth: 8.25 },
+  'keepall-35': { bagLen: 13.75, bagHeight: 8.25,   bagDepth: 6.75  }, // ~35×21×17 cm
+  'keepall-45': { bagLen: 17.75, bagHeight: 10.625, bagDepth: 7.875 }, // 45×27×20 cm
+  'keepall-50': { bagLen: 19.75, bagHeight: 11.375, bagDepth: 8.875 }, // 50×29×22.5 cm
 };
 
-// Handle cut length scales with bag length so the loop has a comfortable arch height.
-// Formula: horizontal span (L/2) + 5″ arch allowance + 3″ for two anchored ends.
 function handleCutLen(L) { return Math.round((L / 2 + 8) * 2) / 2; }
+function shoulderH(H) { return Math.round(H * 0.55 * 4) / 4; }
+function wrapWidth(H, D) { return 2 * shoulderH(H) + D + 1; }
 
 export default {
   id: 'keepall-duffel',
@@ -98,136 +100,155 @@ export default {
     const L   = pre ? pre.bagLen    : (m.bagLen    ?? 13.75);
     const H   = pre ? pre.bagHeight : (m.bagHeight ?? 8.25);
     const D   = pre ? pre.bagDepth  : (m.bagDepth  ?? 6.75);
-    const r   = Math.min(1.25, H * 0.14); // corner radius, max 1.25″
+    const sh  = shoulderH(H);
+    const wW  = wrapWidth(H, D);
     const pieces = [];
 
-    // ── Body Panels (front + back) ────────────────────────────────────────────
-    // Hexagonal polygon: straight top (zipper edge), chamfered bottom corners.
-    const bodyPoly = [
-      { x: 0,     y: 0 },
-      { x: L,     y: 0 },
-      { x: L,     y: H - r },
-      { x: L - r, y: H },
-      { x: r,     y: H },
-      { x: 0,     y: H - r },
+    // ── End Panel (arch shape) ────────────────────────────────────────────────
+    // Arch at top (y≈0), bottom straight edge at y=H — consistent with SVG y-down convention.
+    // Bezier goes left-shoulder → arch peak → right-shoulder, curving upward (small y).
+    const archH = H - sh;   // height of arch portion above the shoulder line
+    const archPts = sampleBezier(
+      { x: 0, y: archH },
+      { x: 0, y: 0 },
+      { x: D, y: 0 },
+      { x: D, y: archH },
+      32
+    );
+    // CW winding: arch (left→right via peak) → bottom-right → bottom-left → close (left side)
+    const endPoly = [
+      ...archPts,            // (0,archH) → peak → (D,archH) — zipper opening edge
+      { x: D, y: H },        // bottom-right corner
+      { x: 0, y: H },        // bottom-left corner
     ];
-    const bodyPath = polyToPath(bodyPoly);
-    const bodyEdges = [
-      { sa, label: 'Top — zipper seam' },
-      { sa, label: 'Side — gusset seam' },
-      { sa, label: 'Corner curve — clip gusset here' },
-      { sa, label: 'Bottom — gusset seam' },
-      { sa, label: 'Corner curve — clip gusset here' },
-      { sa, label: 'Side — gusset seam' },
+    const endPath = polyToPath(endPoly);
+    // 33 arch points = 32 arch edges + 1 right side + 1 bottom + 1 left close = 35 total edges
+    const endEdges = [
+      ...Array(archPts.length - 1).fill(null).map(() => ({ sa, label: 'Arch — zipper opening edge' })),
+      { sa, label: 'Right side — body wrap seam' },
+      { sa, label: 'Bottom — body wrap seam' },
+      { sa, label: 'Left side — body wrap seam' },
     ];
-    const bodyDims = [
-      { label: fmtInches(L) + ' length', x1: 0, y1: -0.6, x2: L,  y2: -0.6, type: 'h' },
-      { label: fmtInches(H) + ' height', x: L + 0.9, y1: 0, y2: H, type: 'v' },
+    const endDims = [
+      { label: fmtInches(D) + ' width', x1: 0, y1: -0.6, x2: D, y2: -0.6, type: 'h' },
+      { label: fmtInches(H) + ' height', x: D + 0.9, y1: 0, y2: H, type: 'v' },
     ];
 
     pieces.push({
-      id: 'body-panel-outer', name: 'Body Panel (Outer)',
-      instruction: `Cut 2 · ${fmtInches(L)} wide × ${fmtInches(H)} tall · Round bottom two corners by ${fmtInches(r)} radius · Top straight edge = zipper`,
-      type: 'bodice', polygon: bodyPoly, path: bodyPath,
-      width: L, height: H, sa,
-      edgeAllowances: bodyEdges, dims: bodyDims,
+      id: 'end-panel-outer', name: 'End Panel (Outer)',
+      instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Arch top is the zipper opening; bottom and sides sew to body wrap`,
+      type: 'bodice', polygon: endPoly, path: endPath,
+      width: D, height: H, sa,
+      edgeAllowances: endEdges, dims: endDims,
     });
 
     pieces.push({
-      id: 'body-panel-lining', name: 'Body Panel (Lining)',
-      instruction: `Cut 2 · ${fmtInches(L)} wide × ${fmtInches(H)} tall · Same shape as outer body panel`,
-      type: 'bodice', polygon: bodyPoly, path: bodyPath,
-      width: L, height: H, sa,
-      edgeAllowances: bodyEdges,
+      id: 'end-panel-lining', name: 'End Panel (Lining)',
+      instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Same arch shape as outer`,
+      type: 'bodice', polygon: endPoly, path: endPath,
+      width: D, height: H, sa,
+      edgeAllowances: endEdges,
     });
 
-    // ── Side + Bottom Gusset ──────────────────────────────────────────────────
-    // Wraps: top-right → down right side → across bottom → up left side → top-left.
-    // Corner ease zones let it bend around the rounded body-panel corners.
-    const arcLen    = (Math.PI / 2) * r;
-    const sideLen   = H - r;
-    const gussetLen = Math.ceil((2 * sideLen + 2 * arcLen + L + 1) * 4) / 4;
+    if (opts.interfacing !== 'none') {
+      pieces.push({
+        id: 'end-panel-interfacing', name: 'End Panel Interfacing',
+        instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Trim ⅛″ inside seamline before fusing`,
+        type: 'bodice', polygon: endPoly, path: endPath,
+        width: D, height: H, sa: 0,
+      });
+    }
+
+    // ── Body Wrap (one long rectangle) ────────────────────────────────────────
+    // Width = wW, measured from front zipper edge (long edge) to back zipper edge.
+    // Zones across width: 0–sh = front face, sh–(sh+D) = bottom, (sh+D)–(2sh+D) = back face, +1″ ease.
+    // Short ends (wW wide) sew to end panel perimeter: right angle corners at sh and sh+D from front long edge.
 
     pieces.push({
-      id: 'gusset-outer', name: 'Side + Bottom Gusset (Outer)',
-      instruction: `Cut 1 · ${fmtInches(gussetLen)} long × ${fmtInches(D)} wide · ` +
-        `Mark center notch at ${fmtInches(gussetLen / 2)} (bottom center). ` +
-        `Mark corner-ease notches ${fmtInches(Math.round(sideLen * 4) / 4)} and ` +
-        `${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end. ` +
-        `Clip into SA every ½″ to within ⅛″ of the seamline within the ease zones before sewing to body panels.`,
+      id: 'body-wrap-outer', name: 'Body Wrap (Outer)',
+      instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · ` +
+        `On each short end mark notches across the width at: ${fmtInches(sh)} from front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from front long edge (bottom to back-face corner); also mark ${fmtInches(sh + D/2)} (bottom center — turning gap reference). ` +
+        `Along each long edge mark trim-strap positions at ${fmtInches(L/3)} and ${fmtInches(2*L/3)} from each short end.`,
       type: 'rectangle',
-      dimensions: { length: gussetLen, width: D },
-      sa,
+      width: L, height: wW, sa,
       dims: [
-        { label: fmtInches(gussetLen) + ' length', x1: 0, y1: -0.6, x2: gussetLen, y2: -0.6, type: 'h' },
-        { label: fmtInches(D) + ' depth', x: gussetLen + 0.9, y1: 0, y2: D, type: 'v' },
+        { label: fmtInches(L) + ' length', x1: 0, y1: -0.6, x2: L, y2: -0.6, type: 'h' },
+        { label: fmtInches(wW) + ' width', x: L + 0.9, y1: 0, y2: wW, type: 'v' },
       ],
     });
 
     pieces.push({
-      id: 'gusset-lining', name: 'Side + Bottom Gusset (Lining)',
-      instruction: `Cut 1 · ${fmtInches(gussetLen)} long × ${fmtInches(D)} wide · ` +
-        `Same as outer gusset. When sewing to lining body panels, leave a 6–7″ turning gap at the center bottom seam.`,
+      id: 'body-wrap-lining', name: 'Body Wrap (Lining)',
+      instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · Leave 6–7″ turning gap at center-bottom when sewing to end panels`,
       type: 'rectangle',
-      dimensions: { length: gussetLen, width: D },
-      sa,
+      width: L, height: wW, sa,
     });
 
-    // ── Zipper End Tabs ───────────────────────────────────────────────────────
-    // Cap the raw ends of the zipper tape; caught in the top seam.
-    const tabW = D + sa * 2;
+    if (opts.interfacing !== 'none') {
+      pieces.push({
+        id: 'body-wrap-interfacing', name: 'Body Wrap Interfacing',
+        instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(2*sh)} wide · Interface only front and back faces; skip bottom band`,
+        type: 'rectangle',
+        width: L, height: 2*sh, sa: 0,
+      });
+    }
+
+    // ── Trim Straps (structural) ──────────────────────────────────────────────
+    // Runs front zipper top → down front face (sh) → across bottom (D) → up back face (sh) → back zipper top.
+    // Extra 12″ forms the handle loop arch above the zipper line.
+    const trimStrapLen = 2*sh + D + 12;
     pieces.push({
-      id: 'zipper-end-tab', name: 'Zipper End Tab',
-      instruction: `Cut 4 (2 outer + 2 lining) · 1½″ long × ${fmtInches(tabW)} wide · ` +
-        `Fold in half lengthwise wrong sides together. Slip one folded tab over each end of zipper tape, covering the raw stop. Baste across end.`,
+      id: 'trim-strap', name: 'Trim Strap',
+      instruction: `Cut 2 · ${fmtInches(trimStrapLen)} long × 1½″ wide · ` +
+        `Fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges.`,
       type: 'rectangle',
-      dimensions: { length: 1.5, width: tabW },
-      sa: 0,
+      width: trimStrapLen, height: 1.5, sa: 0,
     });
 
-    // ── Top Handles ───────────────────────────────────────────────────────────
+    // ── Handles ───────────────────────────────────────────────────────────────
     const hLen = handleCutLen(L);
     if (opts.handleStyle === 'fabric') {
       pieces.push({
         id: 'handle', name: 'Top Handle',
-        instruction: `Cut 2 · ${fmtInches(hLen)} long × 2½″ wide · ` +
-          `Fold in half lengthwise {RST}. Sew long raw edge. Turn right side out. {press} flat, seam centered. {topstitch} both long edges ⅛″ from edge. Fold each end under ½″.`,
+        instruction: `Cut 2 · ${fmtInches(hLen)} long × 2″ wide · ` +
+          `Lay a length of ¾″ cotton webbing centered on the wrong side of the strip. ` +
+          `Fold one long edge under ¼″ and press. Fold the strip around the webbing, raw edge tucked under the folded edge. ` +
+          `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers and locking the webbing core. ` +
+          `Trim webbing flush at each end before attaching to anchor patches.`,
         type: 'rectangle',
-        dimensions: { length: hLen, width: 2.5 },
-        sa: 0,
+        width: hLen, height: 2, sa: 0,
       });
     } else {
       pieces.push({
         id: 'handle-webbing', name: 'Top Handle (Webbing)',
-        instruction: `Cut 2 strips of 1″ cotton webbing · ${fmtInches(hLen)} long each · Seal cut ends with lighter flame. Fold under 1″ at each end before anchoring under patches.`,
+        instruction: `Cut 2 strips of 1″ cotton webbing · ${fmtInches(hLen)} long each · Seal cut ends with lighter flame.`,
         type: 'rectangle',
-        dimensions: { length: hLen, width: 1 },
-        sa: 0,
+        width: hLen, height: 1, sa: 0,
       });
     }
 
     // ── Handle Anchor Patches ─────────────────────────────────────────────────
-    const anchorOffset = Math.round(L / 4 * 4) / 4;
     pieces.push({
       id: 'handle-anchor-patch', name: 'Handle Anchor Patch',
-      instruction: `Cut 4 in outer fabric + 4 in interfacing · 3″ wide × 2″ tall · ` +
-        `Interface all 4 patches. On each outer body panel mark two positions: ${fmtInches(anchorOffset)} from each short end, 1″ below top raw edge. ` +
-        `Tuck handle ends under patches. Sew X-box stitch through patch, handle end, and body panel.`,
+      instruction: `Cut 4 in outer fabric · 3″ wide × 2″ tall · X-box stitch (rectangle + diagonals) through patch, handle end, and body wrap.`,
       type: 'rectangle',
-      dimensions: { length: 2, width: 3 },
-      sa: 0,
+      width: 3, height: 2, sa: 0,
+    });
+
+    pieces.push({
+      id: 'handle-anchor-interfacing', name: 'Handle Anchor Interfacing',
+      instruction: `Cut 4 · 3″ wide × 2″ tall · Fuse or baste to wrong side of anchor patches`,
+      type: 'rectangle',
+      width: 3, height: 2, sa: 0,
     });
 
     // ── D-Ring Tabs + Shoulder Strap (optional) ───────────────────────────────
     if (opts.shoulderStrap === 'yes') {
       pieces.push({
-        id: 'dring-tab', name: 'D-Ring Attachment Tab',
-        instruction: `Cut 2 in outer fabric · 4″ long × 1½″ wide · ` +
-          `Fold each piece in half around a 1″ D-ring, raw edges together. Baste close to the D-ring. ` +
-          `Baste one tab to each short end of the outer gusset, centered, raw edges flush with the gusset top edge. Caught in the top/zipper seam.`,
+        id: 'dring-tab', name: 'D-Ring Tab',
+        instruction: `Cut 2 · 4″ long × 1½″ wide · Fold in half around a 1″ D-ring, raw edges together. Baste close to D-ring.`,
         type: 'rectangle',
-        dimensions: { length: 4, width: 1.5 },
-        sa: 0,
+        width: 4, height: 1.5, sa: 0,
       });
 
       const strapLen = Math.max(56, Math.round(L * 4.5));
@@ -235,54 +256,61 @@ export default {
         id: 'shoulder-strap', name: 'Detachable Shoulder Strap',
         instruction: `Cut 1 · ${fmtInches(strapLen)} long × 2½″ wide · ` +
           `Fold in half lengthwise {RST}. Sew long edge. Turn right side out. {press}. {topstitch} both long edges. ` +
-          `Thread one end through the tri-glide slider, fold back 1½″, sew box stitch. Attach swivel snap to each strap end. Clip snaps to D-rings.`,
+          `Thread one end through tri-glide, fold back 1½″, sew box stitch. Attach swivel snaps.`,
         type: 'rectangle',
-        dimensions: { length: strapLen, width: 2.5 },
-        sa: 0,
+        width: strapLen, height: 2.5, sa: 0,
       });
     }
 
+    // ── Zipper End Tabs ───────────────────────────────────────────────────────
+    const tabW = D + sa * 2;
+    pieces.push({
+      id: 'zipper-end-tab', name: 'Zipper End Tab',
+      instruction: `Cut 4 (2 outer + 2 lining) · 1½″ long × ${fmtInches(tabW)} wide · ` +
+        `Fold in half lengthwise wrong sides together. Slip folded tab over each zipper end. Baste across.`,
+      type: 'rectangle',
+      width: 1.5, height: tabW, sa: 0,
+    });
+
     // ── Interior Pocket ───────────────────────────────────────────────────────
+    // Pocket heights must fit within the face zone (sh tall) with margin for the fold and seamline.
     if (opts.interiorPocket === 'slip') {
-      const pW = Math.min(10, Math.round(L * 0.65 * 4) / 4);
-      const pH = Math.min(7,  Math.round(H * 0.70 * 4) / 4);
+      const pW = Math.min(10, Math.round(L * 0.6 * 4) / 4);
+      const pH = Math.max(2.5, Math.min(6, Math.round((sh - 1.5) * 4) / 4));
       pieces.push({
         id: 'interior-slip-pocket', name: 'Interior Slip Pocket',
         instruction: `Cut 1 in lining fabric · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · ` +
           `Fold top edge under ½″ twice. {press} and {topstitch}. Press remaining three edges under ½″. ` +
-          `Center on one lining body panel 1½″ below top raw edge. {topstitch} sides and bottom close to fold.`,
+          `Center on one lining body wrap back-face zone. {topstitch} sides and bottom close to fold.`,
         type: 'rectangle',
-        dimensions: { length: pH, width: pW },
-        sa, hem: 1.0, hemEdge: 'top',
+        width: pW, height: pH, sa: 0,
       });
     }
 
     if (opts.interiorPocket === 'zip') {
-      const pW = Math.min(10, Math.round(L * 0.65 * 4) / 4);
+      const pW = Math.min(10, Math.round(L * 0.6 * 4) / 4);
+      const pH = Math.max(3, Math.min(5, Math.round((sh - 1.5) * 4) / 4));
       pieces.push({
         id: 'interior-zip-pocket', name: 'Interior Zip Pocket Panel',
-        instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × 6″ tall · ` +
-          `Sandwich a ${fmtInches(pW + 1)} zipper between the two panels at the top edge. Sew through all three layers. {press} away from zipper. {topstitch}. ` +
-          `Sew remaining three sides {RST}. Turn right side out through the open zipper. {press}. Attach finished pocket to one lining body panel 1½″ below top edge.`,
+        instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · ` +
+          `Sandwich a zipper between panels at top. Sew, {press}, {topstitch}. Sew remaining three sides {RST}. ` +
+          `Turn through open zipper. {press}. Attach to lining body wrap back-face zone.`,
         type: 'rectangle',
-        dimensions: { length: 6, width: pW },
-        sa,
+        width: pW, height: pH, sa: 0,
       });
     }
 
-    // ── Exterior Zip Pocket (optional) ───────────────────────────────────────
+    // ── Exterior Zip Pocket (optional) ────────────────────────────────────────
     if (opts.exteriorPocket === 'front') {
       const epW = Math.min(10, Math.round(L * 0.55 * 4) / 4);
-      const epH = 4.5;
+      const epH = Math.max(2.5, Math.min(4, Math.round((sh - 2) * 4) / 4));
       pieces.push({
         id: 'exterior-zip-pocket', name: 'Exterior Zip Pocket Panel',
         instruction: `Cut 2 in outer fabric · ${fmtInches(epW)} wide × ${fmtInches(epH)} tall · ` +
-          `Place panels {RST} with the zipper face-down along the top edge. Sew the top through all three layers. {press} panels away from the zipper. {topstitch} close to teeth on both panels. ` +
-          `Open zipper. Fold pocket {RST} and sew the bottom and both side edges. Clip corners. Turn right side out through open zipper. {press}. ` +
-          `Center finished pocket on the front outer body panel, 2½″ below the top raw edge. {topstitch} side and bottom edges close to the fold. Bar tack top corners.`,
+          `Sandwich zipper at top. Sew, {press}, {topstitch}. Sew remaining edges {RST}. ` +
+          `Turn through open zipper. {press}. Center on front body wrap face zone with 1″ margin above and below. {topstitch} edges.`,
         type: 'rectangle',
-        dimensions: { length: epH, width: epW },
-        sa,
+        width: epW, height: epH, sa: 0,
       });
     }
 
@@ -295,51 +323,50 @@ export default {
     const L   = pre ? pre.bagLen    : (m.bagLen    ?? 13.75);
     const H   = pre ? pre.bagHeight : (m.bagHeight ?? 8.25);
     const D   = pre ? pre.bagDepth  : (m.bagDepth  ?? 6.75);
-    const r   = Math.min(1.25, H * 0.14);
-    const arcLen    = (Math.PI / 2) * r;
-    const sideLen   = H - r;
-    const gussetLen = Math.ceil((2 * sideLen + 2 * arcLen + L + 1) * 4) / 4;
+    const sh  = shoulderH(H);
+    const wW  = wrapWidth(H, D);
 
-    // Yardage: layout on 54-60″ wide fabric
-    // Row 1: both outer body panels side by side (each L wide, so 2L on 54″ wide is fine)
-    // Row 2: gusset (gussetLen × D) + handles + patches
-    const bodyRowH   = H + sa * 2 + 0.5;
-    const gussetRowH = D + sa * 2 + 0.5;
-    const miscRowH   = 4; // handles, patches, tabs
-    const outerIn    = bodyRowH + gussetRowH + miscRowH;
+    const endRowH  = H + sa * 2 + 0.5;
+    const wrapRowH = wW + sa * 2 + 0.5;
+    const miscRowH = 6;
+    const outerIn  = endRowH + wrapRowH + miscRowH;
     const outerYards = Math.ceil((outerIn / 36 + 0.25) * 4) / 4;
 
-    const liningIn    = bodyRowH + gussetRowH + (opts.interiorPocket !== 'none' ? 3 : 0);
+    const liningIn    = endRowH + wrapRowH + (opts.interiorPocket !== 'none' ? 2 : 0);
     const liningYards = Math.ceil((liningIn / 36 + 0.25) * 4) / 4;
 
     const notions = [];
     const notes   = [];
 
-    const zipperLen = Math.ceil(L + 4);
     notions.push({
-      name: 'Main zipper',
-      quantity: `1 continuous coil or separating, at least ${fmtInches(zipperLen)} long. YKK #5 coil recommended. Use a Teflon foot over canvas.`,
+      name: `Continuous coil zipper, ${fmtInches(L + 2)} minimum (YKK #5 non-separating coil)`,
+      quantity: 1,
     });
 
+    if (opts.handleStyle === 'webbing') {
+      notions.push({
+        name: `1″ cotton webbing, ${fmtInches(2 * handleCutLen(L))}`,
+        quantity: 1,
+      });
+    } else {
+      notions.push({
+        name: `¾″ cotton webbing, ${fmtInches(2 * handleCutLen(L) + 2)} (core for wrapped fabric handles)`,
+        quantity: 1,
+      });
+    }
+
     if (opts.shoulderStrap === 'yes') {
-      notions.push({ name: '1″ D-rings (strap attachment)', quantity: '2' });
-      notions.push({ name: '1″ tri-glide / ladder lock slider', quantity: '1' });
-      notions.push({ name: '1″ swivel snap hooks', quantity: '2' });
+      notions.push({ name: '1″ D-rings', quantity: 2 });
+      notions.push({ name: '1″ tri-glide slider', quantity: 1 });
+      notions.push({ name: '1″ swivel snap hooks', quantity: 2 });
     }
 
     if (opts.interiorPocket === 'zip') {
-      const pW = Math.min(10, Math.round(L * 0.65 * 4) / 4);
-      notions.push({ name: 'Interior pocket zipper', quantity: `1, ${fmtInches(Math.ceil(pW + 1))} long` });
-    }
-
-    if (opts.handleStyle === 'webbing') {
-      const hLen = handleCutLen(L);
-      notions.push({ name: '1″ cotton webbing', quantity: `${fmtInches(hLen * 2)} for two handles` });
+      notions.push({ name: 'Interior pocket zipper, 7″', quantity: 1 });
     }
 
     if (opts.exteriorPocket === 'front') {
-      const epW = Math.min(10, Math.round(L * 0.55 * 4) / 4);
-      notions.push({ name: 'Exterior pocket zipper', quantity: `1, at least ${fmtInches(Math.ceil(epW))} long` });
+      notions.push({ name: 'Exterior pocket zipper, 8″', quantity: 1 });
     }
 
     if (opts.interfacing === 'medium') {
@@ -349,17 +376,22 @@ export default {
     }
 
     notes.push(
-      'Outer fabric: use 10–14 oz waxed canvas, cotton duck, or heavyweight cotton canvas. Pre-shrink all natural-fiber fabric before cutting.',
       `Outer fabric: approximately ${outerYards} yard(s) at 54–60″ wide.`,
-      `Lining fabric: approximately ${liningYards} yard(s). Cotton twill, cotton canvas, or similar sturdy woven at 44–60″ wide.`,
-      'Use heavy-duty polyester thread (30 wt) and a size 100/16 or 110/18 needle for all construction seams.',
-      'Grade seam allowances at curved gusset corners: trim gusset SA to ¼″, body panel SA to ⅜″, to reduce bulk.',
-      'Wax zipper teeth with beeswax before installing — canvas tension can make zippers stiff.',
-      'X-box stitch at handle anchors: sew a rectangle ¼″ from all four patch edges, then stitch both diagonals. This is the critical structural step.',
+      `Lining fabric: approximately ${liningYards} yard(s) at 44–60″ wide.`,
+      'Use heavy-duty polyester thread (30 wt) and a size 110/18 or 100/16 needle.',
+      'Clip body-wrap SA at the two 90° corners on each short end (at the front-face/bottom and bottom/back-face notches) to within ⅛″ of seamline so the strip pivots around the corners.',
+      'X-box stitch at handle anchors: rectangle ¼″ from all four patch edges, then both diagonals.',
+      'Rub beeswax or zipper wax along zipper teeth before installing — canvas tension makes zippers stiff.',
     );
 
+    if (opts.handleStyle === 'fabric') {
+      notes.push(
+        'Wrapped handles: lay ¾″ cotton webbing on the wrong side of each 2″ fabric strip, fold one long edge under ¼″ and press, then fold the strip around the webbing with the raw edge tucked under the folded edge. A zipper foot lets you stitch close to the core in a single pass — cleaner than the tube-and-turn method and gives the Keepall handle its slim structured profile.',
+      );
+    }
+
     if (opts.interfacing === 'none') {
-      notes.push('No interfacing is needed for 12 oz or heavier canvas. For 8–10 oz canvas add medium sew-in interfacing to the outer body panels.');
+      notes.push('No interfacing needed for 12 oz or heavier canvas.');
     }
 
     return buildMaterialsSpec({
@@ -378,135 +410,132 @@ export default {
     const pre = PRESETS[opts.preset];
     const L   = pre ? pre.bagLen    : (m.bagLen    ?? 13.75);
     const H   = pre ? pre.bagHeight : (m.bagHeight ?? 8.25);
-    const r   = Math.min(1.25, H * 0.14);
-    const arcLen      = (Math.PI / 2) * r;
-    const sideLen     = H - r;
-    const anchorOffset = fmtInches(Math.round(L / 4 * 4) / 4);
-    const hasStrap    = opts.shoulderStrap === 'yes';
+    const D   = pre ? pre.bagDepth  : (m.bagDepth  ?? 6.75);
+    const sa  = parseFloat(opts.sa);
+    const sh  = shoulderH(H);
+    const hasStrap = opts.shoulderStrap === 'yes';
 
-    // 1. Cut and mark
-    const hasIntPocket = opts.interiorPocket !== 'none';
     steps.push({
       step: n++, title: 'Cut all pieces and transfer markings',
-      detail: `Cut all pattern pieces with grain lines vertical. On each outer body panel mark two vertical lines for handle anchor placement: ${anchorOffset} from each short end (these indicate horizontal centering of the handle loop — the anchor patch runs from the top raw edge down 2″).${opts.exteriorPocket === 'front' ? ' On the front outer body panel also mark a horizontal line 2½″ below the top raw edge for exterior pocket placement.' : ''} On the gusset mark the center-bottom notch and the two pairs of corner-ease zone notches (${fmtInches(Math.round(sideLen * 4) / 4)} and ${fmtInches(Math.round((sideLen + arcLen) * 4) / 4)} from each short end). These notches tell you exactly where to clip the SA to ease the gusset around the body-panel corners.${hasIntPocket ? ' On one lining body panel mark the pocket center: horizontally centered, 1½″ below the top raw edge.' : ''}`,
+      detail: `Cut all pattern pieces with grain lines vertical. On each short end of the body wrap, mark notches across the width at ${fmtInches(sh)} from the front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from the front long edge (bottom to back-face corner); mark ${fmtInches(sh + D / 2)} as the bottom center reference for the lining turning gap. Along each long edge of the outer body wrap mark trim-strap positions at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} from each short end. On end panel pieces, mark the shoulder transition point (where arch meets straight side) for reference. On lining end panels mark pocket placement if chosen.`,
     });
 
-    // 2. Interfacing
     if (opts.interfacing !== 'none') {
       const ifDetail = opts.interfacing === 'heavy'
-        ? 'Fuse heavy fusible interfacing to the wrong side of both outer body panels and the outer gusset. Use a press cloth, firm pressure, no steam. Let cool completely flat — moving pieces while warm causes bubbling.'
-        : 'Baste medium sew-in interfacing to the wrong side of both outer body panels and the outer gusset within the seam allowance. Trim interfacing ⅛″ inside all seamlines to eliminate bulk at seams.';
+        ? 'Fuse heavy fusible interfacing to wrong side of both outer end panels and body wrap front/back faces only (skip bottom band). Use press cloth, firm pressure, no steam. Cool flat.'
+        : 'Baste medium sew-in interfacing to wrong side of outer end panels and body wrap front/back faces. Trim ⅛″ inside seamlines.';
       steps.push({ step: n++, title: 'Apply interfacing', detail: ifDetail });
     }
 
-    // 3. Exterior zip pocket (before handles so the front panel is flat)
-    if (opts.exteriorPocket === 'front') {
-      steps.push({
-        step: n++, title: 'Make and attach exterior zip pocket',
-        detail: 'Sew the two exterior pocket panels together with the zipper at the top (sandwich method): one panel face up, zipper face down, second panel face down on top. Sew across the top edge. {press} panels away from zipper. {topstitch} close to teeth on both sides. Open the zipper. Fold the assembly {RST} and sew the bottom and both side edges. Clip corners to reduce bulk. Turn right side out through the open zipper. {press} the finished pocket flat. Center the pocket on the right side of the front outer body panel along the 2½″ placement line. {topstitch} the side and bottom edges close to the fold. Bar tack the top two corners for durability. The pocket is now permanently attached; the zipper faces outward.',
-      });
-    }
+    steps.push({
+      step: n++, title: 'Make trim straps',
+      detail: 'Fold each 1.5″ strip in half lengthwise {RST}. Sew long edge. Turn right side out. {press}. {topstitch} both long edges. These straps run widthwise across the bag, front-to-bottom-to-back.',
+    });
 
-    // Make handles
     if (opts.handleStyle === 'fabric') {
       steps.push({
-        step: n++, title: 'Make fabric tube handles',
-        detail: `Fold each handle strip in half lengthwise {RST}. Sew the long raw edge. Trim SA to ¼″. Turn right side out using a bodkin or safety pin. {press} flat, seam centered on one face. {topstitch} both long edges ⅛″ from the edge. Set aside.`,
+        step: n++, title: 'Make wrapped fabric handles',
+        detail: `Cut a length of ¾″ cotton webbing slightly longer than each 2″-wide fabric handle strip. ` +
+          `Fold one long edge of the fabric strip under ¼″ and {press}. ` +
+          `Lay the webbing on the wrong side of the strip, aligned with the unfolded long edge. ` +
+          `Fold the strip around the webbing so the folded edge overlaps the raw edge by ¼″. ` +
+          `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers. ` +
+          `The handle should hold a slim structured profile — no turning, no {press} flat. ` +
+          `Trim webbing flush at each end before attaching.`,
       });
     } else {
       steps.push({
         step: n++, title: 'Prepare webbing handles',
-        detail: 'Seal cut ends of each webbing strip by melting briefly with a lighter. Fold each end under 1″. The folded end will be hidden under the anchor patch.',
+        detail: 'Seal cut ends of each webbing strip with a lighter flame. Fold each end under 1″.',
       });
     }
 
-    // 4. Interface anchor patches
     steps.push({
       step: n++, title: 'Interface handle anchor patches',
-      detail: 'Fuse or baste interfacing to the wrong side of all four anchor patch pieces. These small reinforcements spread load from a heavy bag across several inches of canvas, preventing tear-out at the handle roots.',
+      detail: 'Fuse or baste interfacing to wrong side of all four anchor patch pieces.',
     });
 
-    // 5. Attach handles + patches with X-box stitch
+    if (opts.exteriorPocket === 'front') {
+      steps.push({
+        step: n++, title: 'Make and attach exterior zip pocket',
+        detail: `Sew two pocket panels {RST} with zipper at top (sandwich method). {press} panels away from zipper. {topstitch} close to teeth. Open zipper. Fold pocket {RST}, sew remaining edges, clip corners, turn. {press}. Center on the front body wrap face zone (the ${fmtInches(sh)} band along the front long edge) with approximately 1″ margin above and below the pocket. {topstitch} side and bottom edges.`,
+      });
+    }
+
     steps.push({
-      step: n++, title: 'Attach handles and anchor patches to outer body panels',
-      detail: `On the right side of each outer body panel, pin the handle ends at the marked positions (${anchorOffset} from each short end, ends pointing downward, loop arching above). Handle ends should extend 1½″ below the top raw edge. Baste each end in place. Lay one anchor patch right side up over each handle end, top edge flush with the body panel top raw edge. Sew the X-box stitch: stitch a rectangle ¼″ inside all four patch edges, then stitch both diagonals. Repeat for both handles on both body panels.`,
+      step: n++, title: 'Sew trim straps to body wrap',
+      detail: `Position trim straps vertically at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} marks, running front-face-to-bottom-to-back-face. {topstitch} both long edges of each strap to the outer body wrap. Leave the top 4″ of BOTH ends of each strap loose (front-face top and back-face top) — these flaps will sandwich the handle ends under the anchor patches in the next step.`,
     });
 
-    // 6. D-ring tabs (optional)
+    steps.push({
+      step: n++, title: 'Attach handles and anchor patches',
+      detail: 'Each handle has two ends — one attaches at the front-face top of a trim strap, the other at the back-face top of the same trim strap, arching up across the zipper. Tuck each handle end between the loose trim-strap flap and the body wrap, with the handle arching away from the zipper. Lay an anchor patch (raw edges turned under) over each end, top edge flush with the body wrap zipper edge. X-box stitch (rectangle ¼″ inside edges, then both diagonals) through anchor patch + trim strap + handle end + body wrap. Four X-boxes total: two per face.',
+    });
+
     if (hasStrap) {
       steps.push({
         step: n++, title: 'Make and baste D-ring tabs',
-        detail: 'Fold each tab in half around a 1″ D-ring, raw edges together. Sew a box stitch close to the D-ring. Baste one tab to each short end of the outer gusset, centered widthwise, raw edges of tab flush with the gusset top long edge. D-rings point inward at this stage; they will be caught in the zipper seam.',
+        detail: 'Fold each tab in half around a 1″ D-ring, raw edges together. Sew close to D-ring. Baste one tab to each short end of the outer body wrap, flush with the front long edge (zipper edge side), raw ends of tab even with the body wrap short end. The D-ring tab will be caught in the body-wrap-to-end-panel seam in step 13, placing the D-ring at the top corner of the bag end.',
       });
     }
 
-    // 7. Interior pocket
     if (opts.interiorPocket === 'slip') {
       steps.push({
         step: n++, title: 'Attach interior slip pocket to lining',
-        detail: 'Fold the pocket top edge under ½″ twice. {press} and {topstitch}. Press the remaining three edges under ½″. Center the pocket on the right side of one lining body panel, 1½″ below the top raw edge. {topstitch} the sides and bottom close to the folded edge. Bar tack the top two corners.',
+        detail: `Fold pocket top edge under ½″ twice. {press} and {topstitch}. Press remaining three edges under ½″. Center on the lining body wrap back-face zone (the ${fmtInches(sh)} band along the back long edge) with roughly equal margin above and below. {topstitch} sides and bottom.`,
       });
     } else if (opts.interiorPocket === 'zip') {
       steps.push({
         step: n++, title: 'Make and attach interior zippered pocket',
-        detail: 'Layer one pocket panel face up, the zipper face down along its top edge, then the second panel face down — a three-layer sandwich. Sew across the top. {press} panels away from zipper. {topstitch} close to teeth on both sides. Open zipper halfway. Fold pocket {RST} and sew the bottom and both side edges. Clip corners. Turn right side out. {press}. Stitch pocket outer edges to one lining body panel, centered, 1½″ below top edge.',
+        detail: `Sandwich zipper between two pocket panels at top. Sew, {press}, {topstitch} close to teeth. Open zipper, fold {RST}, sew remaining edges, clip corners, turn. {press}. Center on the lining body wrap back-face zone (the ${fmtInches(sh)} band along the back long edge), pocket top 1″ below the back long edge. Edgestitch sides and bottom to lining.`,
       });
     }
 
-    // 8. Zipper end tabs
     steps.push({
       step: n++, title: 'Prepare zipper end tabs',
-      detail: 'Fold each zipper end tab in half lengthwise, wrong sides together. Slip one folded tab over each end of the main zipper tape, covering the raw metal stop. Baste across the end. Fabric tabs create a clean corner when the zipper is sewn in and prevent the teeth from abrading adjacent canvas.',
+      detail: 'Fold each end tab in half lengthwise, wrong sides together. Slip folded tab over each zipper tape end, covering the raw stop. Baste across.',
     });
 
-    // 9. Sew outer gusset to body panels
     steps.push({
-      step: n++, title: 'Sew outer gusset to both outer body panels',
-      detail: `Place the outer gusset and one outer body panel {RST}. Start pinning at the top-right corner of the body panel and work counter-clockwise — down the right side, across the bottom (align the gusset center notch to the body panel bottom center), up the left side. In each corner ease zone, clip the gusset SA every ½″ to within ⅛″ of the seamline so the strip bends around the rounded corner; do not clip the body panel. Sew with the body panel face up so you can steer the curve. Use a ${fmtInches(parseFloat(opts.sa))} seam. Backstitch at both top ends. Repeat to sew the second body panel to the opposite long edge of the gusset. You now have a U-shaped outer shell open at the top. Grade seam allowances at the curves to reduce bulk.`,
+      step: n++, title: 'Install zipper on body wrap',
+      detail: `Open zipper fully. Lay the front long edge of the outer body wrap {RST} against the front zipper tape, raw edges even. Using a zipper foot, sew with a ${fmtInches(sa)} seam. {press} the body wrap away from the zipper. {topstitch} ¼″ from the teeth. Repeat to sew the back long edge to the back zipper tape. Zipper end tabs (folded in the previous step) cap each raw end of the zipper tape — they will be secured in the end-panel seam in the next step.`,
     });
 
-    // 10. Install zipper
     steps.push({
-      step: n++, title: 'Install main zipper on outer shell',
-      detail: `Open the zipper fully. With the outer shell right side out, lay the zipper face down along the top raw edge of the front body panel, tape edge aligned with the fabric raw edge. Using a zipper foot, sew the zipper tape down with a ${fmtInches(parseFloat(opts.sa))} seam. {press} the panel away from the zipper. {topstitch} ¼″ from the zipper teeth. Close the zipper. Align the back body panel to the opposite zipper tape side, pin, and sew the same way. {press} and {topstitch}. At each short end of the gusset, fold the zipper tape end over the gusset top edge${hasStrap ? ' (catching the D-ring tab raw ends in this tacking stitch — this is what anchors the shoulder strap hardware to the bag)' : ''} and tack securely through all layers.`,
+      step: n++, title: 'Sew outer end panels to body wrap',
+      detail: `Place one outer end panel {RST} to one short end of the outer body wrap. The short end wraps around the U-shaped perimeter of the end panel: starting from the front zipper edge, down the front face (${fmtInches(sh)}), across the bottom (${fmtInches(D)}), up the back face (${fmtInches(sh)}) to the back zipper edge. Clip the body wrap SA at the two 90° corners (at the ${fmtInches(sh)} and ${fmtInches(sh + D)} notch marks) to within ⅛″ of the seamline so the strip pivots cleanly around each corner. Pin and sew with ${fmtInches(sa)} seam. Zipper end tabs${hasStrap ? ' and D-ring tabs' : ''} are caught in this seam at the front-edge corner. Repeat for the second end panel.`,
     });
 
-    // 11. Assemble lining
     steps.push({
       step: n++, title: 'Assemble lining',
-      detail: 'Sew the lining gusset to both lining body panels exactly as the outer bag. Leave a 6–7″ turning gap open in the center of the lining gusset bottom seam (not in a corner zone). No zipper in the lining.',
+      detail: `Sew lining end panels to lining body wrap exactly as outer bag, but leave 6–7″ turning gap open at center-bottom of body wrap seam. No zipper in lining.`,
     });
 
-    // 12. Insert lining + slip-stitch to zipper tape
     steps.push({
       step: n++, title: 'Insert lining and slip-stitch to zipper tape',
-      detail: 'Turn the lining right side out. With the outer bag also right side out, nest the lining inside, wrong sides together. Align the top raw edges of the lining with the zipper tape on both sides. Fold the lining raw edges under ½″ and pin the folded edge to the zipper tape, covering the seam stitching. Slip-stitch by hand or machine-edgestitch the folded lining edge to the zipper tape on all four lengths (front and back, each side of the tape). The lining should sit smooth with no gapping.',
+      detail: 'Turn lining right side out. Nest lining inside outer bag, wrong sides together. Fold the front long edge of the lining body wrap under ½″ and pin to the front zipper tape; repeat for the back long edge to the back zipper tape. Fold the lining end panel arch edges under ½″ and pin to the zipper tape near each short end. Slip-stitch by hand or machine-edgestitch close to the folded lining edges, covering the zipper seam stitching.',
     });
 
-    // 13. Close turning gap
     steps.push({
-      step: n++, title: 'Close the lining turning gap',
-      detail: 'Reach through the zipper opening to the gap in the lining gusset bottom. Fold raw edges in ½″ and slip-stitch or edgestitch the gap closed. Push the lining into all four bottom corners of the bag.',
+      step: n++, title: 'Close turning gap',
+      detail: 'Reach through zipper to gap in lining body wrap bottom. Fold raw edges in ½″. Slip-stitch or edgestitch gap closed.',
     });
 
-    // 14. Topstitch outer seams (optional)
     steps.push({
       step: n++, title: 'Topstitch main seams (optional)',
-      detail: 'For a refined finish and added seam strength, {topstitch} along the outside of the bag where body panels meet the gusset, stitching close to the seamline with a 3.5–4 mm stitch length. This step is optional but typical of professional bag construction.',
+      detail: 'For a refined finish, {topstitch} along outside where end panels meet body wrap, close to seamline, 3.5–4 mm stitch length.',
     });
 
-    // 15. Shoulder strap (optional)
     if (hasStrap) {
       steps.push({
         step: n++, title: 'Finish and attach shoulder strap',
-        detail: 'Fold the strap strip in half lengthwise {RST}, sew the long edge, turn right side out, {press}, {topstitch} both long edges. Thread one end through the tri-glide, fold back 1½″, sew a box stitch. Clip a swivel snap to the strap loop at the tri-glide end and to the other strap end. Clip both snaps to the bag D-rings. Adjust length with the tri-glide.',
+        detail: 'Fold strap in half lengthwise {RST}. Sew long edge. Turn right side out. {press}. {topstitch} both long edges. Thread one end through tri-glide, fold back 1½″, sew box stitch. Attach swivel snaps to each end. Clip snaps to D-rings.',
       });
     }
 
-    // 16. Final
     steps.push({
       step: n++, title: 'Final press and inspection',
-      detail: '{press} the entire bag with a heavy press cloth. Push out the gusset corners. Tug each handle firmly to confirm the X-box stitching holds. Open and close the zipper several times; rub teeth with beeswax if stiff. The bag is complete.',
+      detail: '{press} entire bag with heavy press cloth. Push out arch corners. Tug each handle firmly. Open/close zipper; rub teeth with beeswax if stiff. Bag complete.',
     });
 
     return steps;
