@@ -9,7 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -138,6 +138,7 @@ export default {
     const H           = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     const pleatDirNote = opts.pleatDir === 'reverse'
       ? 'Reverse: fold opens toward side seam'
@@ -149,7 +150,7 @@ export default {
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat ${fmtInches(PLEAT_DEPTH)} each · ${pleatDirNote}` : ''}`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts, tummyAdj,
     }));
 
     const backDartIntake = backHipW - backWaistW;
@@ -290,7 +291,7 @@ export default {
 
 // ── Panel builder — straight leg (no knee taper) ──────────────────────────
 
-function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0 }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, dartIntake = 0, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -298,7 +299,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
+  poly.push({ x: 0,            y: isBack ? -cbRaise : -tummyAdj });   // waist at center seam (raised on back, tummy on front)
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: hipWidth,     y: height  });   // hem at side seam

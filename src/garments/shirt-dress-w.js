@@ -9,9 +9,9 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
-  sleeveCapCurve, validateSleeveSeams,
+  sleeveCapCurve, validateSleeveSeams, bustDartIntake,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 const PLACKET_W  = 1.5;
@@ -176,9 +176,9 @@ export default {
     // Bust dart geometry (horizontal side-seam dart)
     const bustDarts = [];
     if (opts.bustDart === 'yes') {
-      const bustLevel = (slopeDrop + armholeY) / 2;
+      const bustLevel  = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
+      const dartIntake = bustDartIntake(m);
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({
@@ -249,6 +249,7 @@ export default {
     const hipHalf = m.hip / 2 + 1.0; // 1″ ease
     const skirtFrontW = hipHalf / 2;
     const skirtBackW  = hipHalf / 2;
+    const tummyAdj = tummyAdjustment(m);
 
     function buildSkirtPanel(id, name, isBack, panelW) {
       const waistDip = 0.375;
@@ -279,8 +280,8 @@ export default {
         } else {
           const fh = flare / 2;
           poly = [
-            { x: fh,              y: 0       },
-            { x: fh + panelW,     y: 0       },
+            { x: fh,              y: -tummyAdj },
+            { x: fh + panelW,     y: 0         },
             { x: panelW + flare,  y: adjSkirtL },
             { x: 0,               y: adjSkirtL },
           ];
@@ -294,7 +295,7 @@ export default {
           ];
         } else {
           poly = [
-            { x: 0,          y: 0          },
+            { x: 0,          y: -tummyAdj  },
             { x: gatheredW,  y: 0          },
             { x: gatheredW,  y: adjSkirtL  },
             { x: 0,          y: adjSkirtL  },
@@ -308,7 +309,7 @@ export default {
           ];
         } else {
           poly = [
-            { x: 0,       y: 0          },
+            { x: 0,       y: -tummyAdj  },
             { x: panelW,  y: 0          },
             { x: panelW,  y: adjSkirtL  },
             { x: 0,       y: adjSkirtL  },

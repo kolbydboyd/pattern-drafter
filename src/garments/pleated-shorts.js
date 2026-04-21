@@ -11,7 +11,7 @@ import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, edgeAngle, insetCrotchBezier,
   buildSlantPocketBacking, clipPanelAtSlash,
-  buildSlantPocketBag, buildSideSeamPocketBag,
+  buildSlantPocketBag, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -144,12 +144,13 @@ export default {
     const H      = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat folded toward side seam, ${fmtInches(PLEAT_DEPTH)} each` : ''}`,
       width: frontW, height: H, rise, inseam,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, numPleats, pleatDepth: PLEAT_DEPTH, opts, tummyAdj,
     }));
 
     pieces.push(buildPanel({
@@ -274,12 +275,12 @@ export default {
 
 // ── Panel builder ─────────────────────────────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, numPleats = 0, pleatDepth = 0, opts, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
-  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist at center seam (raised on back)
+  poly.push({ x: 0,     y: isBack ? -cbRaise : -tummyAdj }); // waist at center seam (raised on back, tummy on front)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });

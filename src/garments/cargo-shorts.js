@@ -8,7 +8,7 @@
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -161,6 +161,7 @@ export default {
     const H = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     // ── FRONT PANEL ──
     pieces.push(buildPanel({
@@ -175,7 +176,7 @@ export default {
       cbRaise: 0,
       sa, hem,
       isBack: false,
-      opts, seatDepth: m.seatDepth,
+      opts, seatDepth: m.seatDepth, tummyAdj,
     }));
 
     // ── BACK PANEL ──
@@ -411,7 +412,7 @@ export default {
 // PANEL BUILDER (shared geometry for front/back)
 // ══════════════════════════════════════════════
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts, seatDepth }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts, seatDepth, tummyAdj = 0 }) {
   // Build polygon points (all in inches, CW winding)
   // LEFT = center seam (crotch curve), RIGHT = side seam (straight)
   const kneeY = rise + inseam * 0.55;
@@ -424,7 +425,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const poly = [];
 
   // Waist: CB to Side
-    poly.push({ x: 0, y: isBack ? -cbRaise : 0 }); // waist at center seam (raised on back)
+    poly.push({ x: 0, y: isBack ? -cbRaise : -tummyAdj }); // waist at center seam (raised on back, tummy on front)
   poly.push({ x: width, y: 0 }); // waist at side seam
 
   // Side seam down (straight for shorts)

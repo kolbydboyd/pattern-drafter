@@ -7,7 +7,7 @@
 
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, insetCrotchBezier
+  fmtInches, insetCrotchBezier, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -124,6 +124,7 @@ export default {
     const backW  = m.hip / 4 + easeBack;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
@@ -131,7 +132,7 @@ export default {
       width: frontW, height: rise + inseam,
       rise, inseam, ext: frontExt, cbRaise: 0,
       sa, hem, isBack: false, shape,
-      calf: m.calf, ankle: m.ankle,
+      calf: m.calf, ankle: m.ankle, tummyAdj,
     }));
 
     pieces.push(buildPanel({
@@ -237,7 +238,7 @@ export default {
 
 // ── Panel builder — adapted from sweatpants.js buildPanel ─────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, calf, ankle }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, calf, ankle, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -252,7 +253,7 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const inseamHemX  = -ext   + hemInward;
 
   const poly = [];
-  poly.push({ x: 0,     y: 0 });
+  poly.push({ x: 0,     y: isBack ? 0 : -tummyAdj });
   poly.push({ x: width,       y: 0      });
   poly.push({ x: sideKneeX,   y: kneeY  });
   poly.push({ x: sideHemX,    y: height });

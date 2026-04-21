@@ -9,9 +9,9 @@
 import {
   armholeCurve, shoulderSlope, necklineCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
-  validateSleeveSeams,
+  validateSleeveSeams, bustDartIntake,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, buildSideSeamPocketBag } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, buildSideSeamPocketBag, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -154,8 +154,8 @@ export default {
     // Bust dart
     const bustDarts = [];
     if (opts.bustDart === 'yes') {
-      const bustLevel = (slopeDrop + armholeY) / 2;
-      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
+      const bustLevel  = (slopeDrop + armholeY) / 2;
+      const dartIntake = bustDartIntake(m);
       const dartLength = Math.max(3, Math.min(sideX - panelW / 2 - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({
@@ -172,6 +172,7 @@ export default {
     // Fold at CF/CB (left edge) must be vertical — all flare to side seam
     const skirtHemW = skirtPanelW + flareAmt / 2;
     const waistDip = 0.375;
+    const tummyAdj = tummyAdjustment(m);
 
     function buildSkirt(isBack) {
       if (isBack) {
@@ -187,8 +188,9 @@ export default {
           { x: 0,         y: skirtL },
         ];
       }
+      // Front: raise CF waist by tummyAdj so fabric travels over the belly
       return [
-        { x: 0,           y: 0 },
+        { x: 0,           y: -tummyAdj },
         { x: skirtPanelW, y: 0 },
         { x: skirtHemW,   y: skirtL },
         { x: 0,           y: skirtL },

@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag,
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -144,6 +144,7 @@ export default {
     const H      = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     // ── FRONT PANEL ──
     pieces.push(buildPanel({
@@ -158,7 +159,7 @@ export default {
       cbRaise: 0,
       sa, hem,
       isBack: false,
-      opts,
+      opts, tummyAdj,
     }));
 
     // ── BACK PANEL ──
@@ -370,13 +371,13 @@ export default {
 // PANEL BUILDER  (mirrors cargo-shorts geometry)
 // ══════════════════════════════════════════════
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
 
-  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
+  poly.push({ x: 0,     y: isBack ? -cbRaise : -tummyAdj }); // waist (raised on back, tummy on front)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });

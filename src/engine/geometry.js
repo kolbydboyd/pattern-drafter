@@ -529,6 +529,26 @@ export function easeDistribution(easeKeyOrTotal) {
 }
 
 /**
+ * Compute front-panel CF length addition for a prominent belly.
+ *
+ * When the abdomen protrudes past the hip/waist reference, the front panel
+ * needs extra length at center front so the fabric can travel over the belly
+ * without pulling the hem up. Formula: 15% of the excess protrusion,
+ * capped at 1.5″ (standard tummy adjustment range per Curvy Sewing Collective).
+ *
+ * Returns 0 when `m.belly` is not provided (no change to existing patterns).
+ *
+ * @param {{ belly?: number, hip?: number, waist?: number }} m - Measurements object
+ * @returns {number} CF length addition in inches (0 if no adjustment needed)
+ */
+export function tummyAdjustment(m) {
+  if (!m.belly) return 0;
+  const ref = Math.max(m.hip || 0, m.waist || 0);
+  if (!ref) return 0;
+  return Math.max(0, Math.min(1.5, (m.belly - ref) * 0.15));
+}
+
+/**
  * Compute the outward-pointing angle (in degrees) at a point on a polygon edge.
  * The angle is perpendicular to the edge direction, pointing away from the
  * polygon interior (assuming CW winding for lower-body, varies for upper).

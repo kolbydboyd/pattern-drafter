@@ -7,7 +7,7 @@
 
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
-  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag,
+  fmtInches, easeDistribution, edgeAngle, insetCrotchBezier, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -131,13 +131,14 @@ export default {
     const H      = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     // ── OUTER PANELS ──
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: 'Cut 2 (mirror L & R) · Nylon taslan outer',
       width: frontW, height: H, rise, inseam,
-      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts,
+      ext: frontExt, cbRaise: 0, sa, hem, isBack: false, opts, tummyAdj,
     }));
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
@@ -156,7 +157,7 @@ export default {
         type: 'front-liner', name: 'Front Liner Panel',
         instruction: 'Cut 2 (mirror) · Athletic mesh · 1″ shorter than outer front',
         width: frontW, height: linerH, rise, inseam: linerInseam,
-        ext: frontExt, cbRaise: 0, sa: 0.375, hem: 0.375, isBack: false, opts,
+        ext: frontExt, cbRaise: 0, sa: 0.375, hem: 0.375, isBack: false, opts, tummyAdj,
       }));
       pieces.push(buildPanel({
         type: 'back-liner', name: 'Back Liner Panel',
@@ -530,12 +531,12 @@ export default {
 
 // ── Panel builder (shared geometry) ──────────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, opts, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
   const poly = [];
-  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
+  poly.push({ x: 0,     y: isBack ? -cbRaise : -tummyAdj }); // waist (raised on back, tummy on front)
   poly.push({ x: width, y: 0 });
   poly.push({ x: width, y: height });
   poly.push({ x: -ext,  y: height });

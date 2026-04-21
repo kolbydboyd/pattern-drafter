@@ -10,7 +10,7 @@
 import {
   crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath, dist, arcLength,
   fmtInches, easeDistribution, LEG_SHAPES, edgeAngle, insetCrotchBezier,
-  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash, buildSideSeamPocketBag,
+  buildSlantPocketBacking, buildSlantPocketBag, clipPanelAtSlash, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -152,6 +152,7 @@ export default {
     const H           = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     // ── FRONT PANEL ──
     pieces.push(buildPanel({
@@ -161,7 +162,7 @@ export default {
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem,
       isBack: false, shape, opts,
-      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth, tummyAdj,
     }));
 
     // ── BACK PANEL ──
@@ -368,7 +369,7 @@ export default {
 
 // ── Panel builder with knee-point leg shaping (adapted from straight-jeans) ──
 
-function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -387,7 +388,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: 0       });
+  poly.push({ x: 0,            y: isBack ? 0 : -tummyAdj });   // waist at center seam (tummy on front)
   poly.push({ x: sideWaistX,   y: 0       });
   poly.push({ x: hipWidth,     y: hipLineY });
   poly.push({ x: sideKneeX,    y: kneeY   });

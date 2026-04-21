@@ -8,7 +8,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE, yokeSplit,
-  validateSleeveSeams,
+  validateSleeveSeams, bustDartIntake,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, ptAtArcLen, dist } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -178,9 +178,9 @@ export default {
     const sideX = shoulderPtX + chestDepth;
     const bustDarts = [];
     if (opts.bustDart === 'yes') {
-      const bustLevel = (slopeDrop + armholeY) / 2;
+      const bustLevel  = (slopeDrop + armholeY) / 2;
       const bustPointX = panelW / 2;
-      const dartIntake = Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
+      const dartIntake = bustDartIntake(m);
       const dartLength = Math.max(3, Math.min(sideX - bustPointX - 1.0, 4.0));
       const dartApexX  = sideX - dartLength;
       bustDarts.push({

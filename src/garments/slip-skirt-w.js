@@ -5,7 +5,7 @@
  * Two darts per panel to absorb waist-hip differential.
  */
 
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -96,7 +96,8 @@ export default {
     const dartW       = Math.max(0.25, Math.min(dartPerUnit, 0.75)); // clamp to reasonable
     const dartL       = 4.0; // dart length from waist
 
-    const L = m.skirtLength || 28;
+    const L        = m.skirtLength || 28;
+    const tummyAdj = tummyAdjustment(m);
 
     function pp(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -122,7 +123,7 @@ export default {
         poly = [...waistPts, { x: hipW, y: L }, { x: 0, y: L }];
       } else {
         poly = [
-          { x: 0,    y: 0 },
+          { x: 0,    y: -tummyAdj },
           { x: hipW, y: 0 },
           { x: hipW, y: L },
           { x: 0,    y: L },

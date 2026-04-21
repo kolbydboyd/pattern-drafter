@@ -10,6 +10,7 @@ import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, easeDistribution, LEG_SHAPES, insetCrotchBezier,
   buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
+  tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -134,6 +135,7 @@ export default {
     const H           = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
@@ -141,7 +143,7 @@ export default {
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, opts,
-      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth, tummyAdj,
     }));
 
     // Back panel waist darts: suppress waist-to-hip difference
@@ -277,7 +279,7 @@ export default {
 
 // ── Panel builder with knee-point leg shaping ─────────────────────────────
 
-function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0 }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -295,7 +297,8 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const sideWaistX = waistWidth;
 
   const poly = [];
-  poly.push({ x: 0,            y: isBack ? -cbRaise : 0 });   // waist at center seam (raised on back)
+  // Front: raise CF by tummyAdj so fabric travels over a prominent belly
+  poly.push({ x: 0,            y: isBack ? -cbRaise : -tummyAdj });
   poly.push({ x: sideWaistX,   y: 0       });   // waist at side seam
   poly.push({ x: hipWidth,     y: hipLineY });   // hip at side seam
   poly.push({ x: sideKneeX,    y: kneeY   });

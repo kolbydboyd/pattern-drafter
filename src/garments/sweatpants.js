@@ -10,6 +10,7 @@ import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, LEG_SHAPES, insetCrotchBezier,
   buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
+  tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -140,13 +141,14 @@ export default {
     const H      = rise + inseam;
 
     const pieces = [];
+    const tummyAdj = tummyAdjustment(m);
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
       instruction: `Cut 2 (mirror L & R) · Stretch stitch all seams${isJogger ? ' · Tapers to rib cuff at hem' : ''}`,
       width: frontW, height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem, isBack: false, shape, opts,
-      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
+      calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth, tummyAdj,
     }));
 
     pieces.push(buildPanel({
@@ -303,7 +305,7 @@ export default {
 
 // ── Panel builder with optional knee taper ────────────────────────────────
 
-function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth }) {
+function buildPanel({ type, name, instruction, width, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, tummyAdj = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -318,7 +320,8 @@ function buildPanel({ type, name, instruction, width, height, rise, inseam, ext,
   const inseamHemX  = -ext   + hemInward;
 
   const poly = [];
-  poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
+  // Front: raise CF by tummyAdj so fabric travels over a prominent belly
+  poly.push({ x: 0,     y: isBack ? -cbRaise : -tummyAdj });
   poly.push({ x: width,       y: 0      });
   poly.push({ x: sideKneeX,   y: kneeY  });
   poly.push({ x: sideHemX,    y: height });

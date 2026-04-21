@@ -7,7 +7,7 @@
  * All measurements in inches. Seam allowance computed by the engine.
  */
 
-import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -87,6 +87,7 @@ export default {
     const dartIntake = hipW - waistW;
     const dartW      = dartIntake > 0.5 ? Math.min(dartIntake / 2, 0.75) : 0;
     const dartL      = 3.5;
+    const tummyAdj   = tummyAdjustment(m);
 
     function pp(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -108,7 +109,7 @@ export default {
         poly = [...waistPts, { x: hemW, y: L }, { x: 0, y: L }];
       } else {
         poly = [
-          { x: 0,    y: 0 },
+          { x: 0,    y: -tummyAdj },
           { x: hipW, y: 0 },
           { x: hemW, y: L },
           { x: 0,    y: L },

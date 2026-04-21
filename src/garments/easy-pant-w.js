@@ -9,7 +9,7 @@
 import {
   edgeAngle, crotchCurvePoints, sampleBezier, offsetPolygon, polyToPath,
   fmtInches, insetCrotchBezier,
-  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag,
+  buildSlantPocketBag, buildSlantPocketBacking, clipPanelAtSlash, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
@@ -153,7 +153,8 @@ export default {
         ? { knee: 1.0, hem: 1.05 }
         : { knee: 0.95, hem: 0.95 }; // straight slight taper
 
-    const kneeY = rise + inseam * 0.55;
+    const kneeY    = rise + inseam * 0.55;
+    const tummyAdj = tummyAdjustment(m);
 
     function buildPanel(type, isBack, width, ext) {
       const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
@@ -167,7 +168,7 @@ export default {
       const ikX     = -ext + kIn,   ihX  = -ext + hIn;
 
       const poly = [];
-            poly.push({ x: 0,     y: isBack ? -cbRaise : 0 }); // waist (raised on back)
+            poly.push({ x: 0,     y: isBack ? -cbRaise : -tummyAdj }); // waist (raised on back, tummy on front)
       poly.push({ x: width, y: 0     });
       poly.push({ x: skX,   y: kneeY });
       poly.push({ x: shkX,  y: H     });

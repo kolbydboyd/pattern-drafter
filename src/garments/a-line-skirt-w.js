@@ -5,7 +5,7 @@
  * Flare amount controls how much wider the hem is than the hip.
  */
 
-import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, buildSideSeamPocketBag, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -97,6 +97,7 @@ export default {
     const waistW = m.waist / 2;
     const hemW  = hipW + flareAmt;       // wider at hem than hip
     const L     = m.skirtLength || 26;
+    const tummyAdj = tummyAdjustment(m);
 
     // Dart intake per panel (hip - waist, spread across 2 darts)
     const dartIntake = hipW - waistW;
@@ -129,8 +130,9 @@ export default {
           { x: 0,               y: L },
         ];
       } else {
+        // Front: raise CF by tummyAdj so fabric travels over a prominent belly
         poly = [
-          { x: 0,               y: 0 },
+          { x: 0,               y: -tummyAdj },
           { x: hipW,            y: 0 },
           { x: hipW + flareAmt, y: L },
           { x: 0,               y: L },
