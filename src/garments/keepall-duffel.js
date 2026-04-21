@@ -9,10 +9,12 @@
 import { fmtInches, polyToPath, sampleBezier } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
+// Dimensions sourced from LV website + luggage review sites and converted from cm.
+// 35 cm is a discontinued size; 45/50 are current Bandoulière models.
 const PRESETS = {
-  'keepall-35': { bagLen: 13.75, bagHeight: 8.25,  bagDepth: 6.75 },
-  'keepall-45': { bagLen: 17.75, bagHeight: 9.75,  bagDepth: 7.75 },
-  'keepall-50': { bagLen: 19.75, bagHeight: 10.75, bagDepth: 8.25 },
+  'keepall-35': { bagLen: 13.75, bagHeight: 8.25,   bagDepth: 6.75  }, // ~35×21×17 cm
+  'keepall-45': { bagLen: 17.75, bagHeight: 10.625, bagDepth: 7.875 }, // 45×27×20 cm
+  'keepall-50': { bagLen: 19.75, bagHeight: 11.375, bagDepth: 8.875 }, // 50×29×22.5 cm
 };
 
 function handleCutLen(L) { return Math.round((L / 2 + 8) * 2) / 2; }
@@ -331,7 +333,7 @@ export default {
     const notes   = [];
 
     notions.push({
-      name: `Separating zipper, ${fmtInches(L + 2)} (YKK #5 coil)`,
+      name: `Continuous coil zipper, ${fmtInches(L + 2)} minimum (YKK #5 non-separating coil)`,
       quantity: 1,
     });
 
@@ -365,9 +367,10 @@ export default {
     notes.push(
       `Outer fabric: approximately ${outerYards} yard(s) at 54–60″ wide.`,
       `Lining fabric: approximately ${liningYards} yard(s) at 44–60″ wide.`,
-      'Use heavy-duty polyester thread (30 wt) and a size 100/16 or 110/18 needle.',
-      'Clip body-wrap SA every ½″ to within ⅛″ of seamline when sewing to arch curve.',
+      'Use heavy-duty polyester thread (30 wt) and a size 110/18 or 100/16 needle.',
+      'Clip body-wrap SA at the two 90° corners on each short end (at the front-face/bottom and bottom/back-face notches) to within ⅛″ of seamline so the strip pivots around the corners.',
       'X-box stitch at handle anchors: rectangle ¼″ from all four patch edges, then both diagonals.',
+      'Rub beeswax or zipper wax along zipper teeth before installing — canvas tension makes zippers stiff.',
     );
 
     if (opts.interfacing === 'none') {
@@ -487,7 +490,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Insert lining and slip-stitch to zipper tape',
-      detail: 'Turn lining right side out. Nest lining inside outer bag, wrong sides together. Fold lining top raw edges under ½″. Pin folded edges to zipper tape on all four sides (front and back, both tape edges). Slip-stitch or machine-edgestitch by hand to tape.',
+      detail: 'Turn lining right side out. Nest lining inside outer bag, wrong sides together. Fold the front long edge of the lining body wrap under ½″ and pin to the front zipper tape; repeat for the back long edge to the back zipper tape. Fold the lining end panel arch edges under ½″ and pin to the zipper tape near each short end. Slip-stitch by hand or machine-edgestitch close to the folded lining edges, covering the zipper seam stitching.',
     });
 
     steps.push({
