@@ -143,25 +143,39 @@ This is the AI angle. The pattern generation engine is valuable. The fit dataset
 
 ## Slide 9: Go-to-Market
 
-**Headline:** Community-first. Organic first. Profitable channels before paid.
+**Headline:** 3 million sewists. Already gathered. Already talking about fit.
+
+**The communities exist. We just need to show up:**
+
+| Channel | Audience Size | Intent |
+|---|---|---|
+| PatternReview.com | 592,000 members | Very high — actively buying patterns |
+| r/sewing | 2.1M members | High — project sharing, fit discussions |
+| r/GarmentSewing | Smaller, focused | Very high — garment sewists only |
+| r/SewingForBeginners | 209,000 members | High — entry-level, price-sensitive |
+| TikTok #SewTok | Millions of views/mo | Discovery — viral fit reveals |
+| Discord (Sewing & Crafts) | 10,240 members | Community — word of mouth |
+| Substack sewing newsletters | Growing rapidly | Trust — high-conversion referrals |
 
 **Phase 1 — Pre-launch (now):**
 - Muslin testing with sewists for fit validation and testimonials
 - Sewn sample photography for product pages and social content
-- Email list seeding through sewing community forums
+- Email list seeding through PatternReview forums and r/sewing
 
 **Phase 2 — Launch:**
-- TikTok and Instagram sew-along content (high organic potential in #sewTok)
-- PatternReview.com listings and r/sewing community engagement
+- PatternReview.com listing (highest purchase-intent community in sewing)
+- TikTok fit-reveal and sew-along content (#SewTok organic)
+- r/sewing and r/GarmentSewing community posts (honest, no hard sell)
 - Affiliate seeding with fabric and notions retailers (mutual benefit)
 
 **Phase 3 — Expansion:**
-- Etsy and Craftsy marketplace listings (high-intent buyers already shopping for patterns)
+- Etsy and Craftsy marketplace listings (high-intent buyers already shopping)
+- Substack sewing newsletter placements
 - Professional tier launch targeting pattern makers and small studios
 - Paid acquisition once organic CAC is benchmarked
 
 **Speaker notes:**
-The sewing community is tight-knit and trust-driven. One honest review on PatternReview or a viral sew-along video converts at rates paid ads can't match. We're not spending to acquire users until we know the organic channels work. This keeps burn low and retention high.
+The sewing community is tight-knit and trust-driven. PatternReview alone has 592,000 members who review patterns by name — a listing there reaches people in active buying mode. One honest post in r/sewing (2.1M members) showing a before/after fit result can drive hundreds of signups in a day. We're not spending to acquire users until we know the organic channels work. The communities already exist. The CAC is nearly zero if the product earns their trust.
 
 ---
 
@@ -270,6 +284,69 @@ The fact that one person built a production-grade, 121-garment pattern generatio
 | Affiliate commission | 30% |
 | Current version | v0.12.83 |
 | Users | Pre-launch |
+
+---
+
+## Appendix: Where Our Customers Already Are
+
+### High Purchase Intent
+
+**[PatternReview.com](https://sewing.patternreview.com)**
+592,000 members. 2,209 new forum topics in 2025. 4,812 project reviews added last year. Sewists here review patterns by brand and name — they are in active buying mode. A listing on PatternReview is the single highest-ROI launch action available.
+
+**[r/sewing](https://reddit.com/r/sewing)**
+2.1 million members, very high activity. Honest community that responds to genuine fit solutions. Before/after fit transformation posts consistently go viral here.
+
+**[r/GarmentSewing](https://reddit.com/r/GarmentSewing)**
+Smaller but focused entirely on garment construction. Direct overlap with People's Patterns' catalog.
+
+**[r/SewingForBeginners](https://reddit.com/r/SewingForBeginners)**
+209,000 members. Price-sensitive and eager for beginner-friendly patterns. Perfect match for the Simple tier ($9).
+
+---
+
+### Discovery and Virality
+
+**TikTok / #SewTok**
+Gen Z sewing renaissance. Fit reveal videos, sew-alongs, and before/afters drive organic reach. One video showing "I got a custom pattern in 2 minutes for $9" is a natural viral format.
+
+**YouTube**
+Long-form sew-along content. Larger sewist channels (hundreds of thousands of subscribers) are open to sponsorships and collaborations.
+
+**Instagram**
+Active among pattern designers and fabric shops. Hashtags like #sewingpattern and #handmadewardrobe are high-traffic entry points.
+
+---
+
+### Community and Word-of-Mouth
+
+**[Discord — Sewing and Crafts](https://discord.com/invite/sewingandcrafts)**
+10,240 members in real-time chat. Good for early community seeding and honest fit feedback.
+
+**[Textillia](https://www.textillia.com)**
+Forums and pattern database. Underused by indie pattern brands — early-mover opportunity.
+
+**[Threadloop](https://threadloop.app)**
+93,000+ patterns indexed, community-driven. Getting listed here puts People's Patterns in discovery search.
+
+**[SewShare](https://craftindustryalliance.org/sewshare-a-brand-new-sewing-community-and-marketplace/)**
+New marketplace and community hybrid. Early presence here captures a growing audience.
+
+**Substack sewing newsletters**
+Fast-growing. Engaged, paying readers. A single mention in the right newsletter drives qualified signups at near-zero CAC.
+
+**Facebook Groups**
+Older demographic (35–55) with disposable income and serious sewing habits. Groups in the 500K+ member range are still active.
+
+---
+
+### Priority Launch Sequence
+
+1. PatternReview.com listing
+2. r/sewing + r/GarmentSewing organic posts
+3. TikTok fit-reveal content
+4. Etsy marketplace listing
+5. Substack sewing newsletter placements
 
 ---
 
