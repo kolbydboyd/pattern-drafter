@@ -3,6 +3,7 @@
 // Supports three modes: single pattern, bundle, and subscription.
 import Stripe from 'stripe';
 import { PATTERN_PRICES, A0_UPSELL, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../../src/lib/pricing.js';
+import { withRetry, stripeRetryable } from './_utils/retry.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -62,21 +63,24 @@ export async function onRequest(context) {
         lineItems.push({ price: A0_UPSELL.priceId, quantity: 1 });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        line_items: lineItems,
-        allow_promotion_codes: true,
-        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/?garment=${garmentId}`,
-        metadata: {
-          checkoutMode: 'pattern',
-          userId:       userId ?? '',
-          garmentId,
-          pendingId:    pendingRow.id,
-          a0_addon:     addA0 ? 'true' : 'false',
-          affiliateCode,
-        },
-      });
+      const session = await withRetry(
+        () => stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: lineItems,
+          allow_promotion_codes: true,
+          success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${origin}/?garment=${garmentId}`,
+          metadata: {
+            checkoutMode: 'pattern',
+            userId:       userId ?? '',
+            garmentId,
+            pendingId:    pendingRow.id,
+            a0_addon:     addA0 ? 'true' : 'false',
+            affiliateCode,
+          },
+        }),
+        { shouldRetry: stripeRetryable },
+      );
 
       return Response.json({ url: session.url });
     }
@@ -99,21 +103,24 @@ export async function onRequest(context) {
         }
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        line_items: [{ price: bundle.priceId, quantity: 1 }],
-        allow_promotion_codes: true,
-        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/pricing`,
-        metadata: {
-          checkoutMode: 'bundle',
-          userId:       userId ?? '',
-          bundleId,
-          garmentIds:   JSON.stringify(garmentIds),
-          patternCount: String(bundle.patternCount),
-          affiliateCode,
-        },
-      });
+      const session = await withRetry(
+        () => stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: [{ price: bundle.priceId, quantity: 1 }],
+          allow_promotion_codes: true,
+          success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${origin}/pricing`,
+          metadata: {
+            checkoutMode: 'bundle',
+            userId:       userId ?? '',
+            bundleId,
+            garmentIds:   JSON.stringify(garmentIds),
+            patternCount: String(bundle.patternCount),
+            affiliateCode,
+          },
+        }),
+        { shouldRetry: stripeRetryable },
+      );
 
       return Response.json({ url: session.url });
     }
@@ -127,26 +134,29 @@ export async function onRequest(context) {
         return Response.json({ error: `Unknown plan: ${planId}` }, { status: 400 });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'subscription',
-        line_items: [{ price: plan.priceId, quantity: 1 }],
-        allow_promotion_codes: true,
-        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/pricing`,
-        metadata: {
-          checkoutMode: 'subscription',
-          userId:       userId ?? '',
-          planId,
-          affiliateCode,
-        },
-        subscription_data: {
+      const session = await withRetry(
+        () => stripe.checkout.sessions.create({
+          mode: 'subscription',
+          line_items: [{ price: plan.priceId, quantity: 1 }],
+          allow_promotion_codes: true,
+          success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${origin}/pricing`,
           metadata: {
-            userId:   userId ?? '',
+            checkoutMode: 'subscription',
+            userId:       userId ?? '',
             planId,
-            credits:  String(plan.credits),
+            affiliateCode,
           },
-        },
-      });
+          subscription_data: {
+            metadata: {
+              userId:   userId ?? '',
+              planId,
+              credits:  String(plan.credits),
+            },
+          },
+        }),
+        { shouldRetry: stripeRetryable },
+      );
 
       return Response.json({ url: session.url });
     }
@@ -178,17 +188,20 @@ export async function onRequest(context) {
         return Response.json({ error: 'A0 + projector file already included in this purchase' }, { status: 400 });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        line_items: [{ price: A0_UPSELL.priceId, quantity: 1 }],
-        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/account`,
-        metadata: {
-          checkoutMode: 'a0_upgrade',
-          userId:       userId ?? '',
-          purchaseId,
-        },
-      });
+      const session = await withRetry(
+        () => stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: [{ price: A0_UPSELL.priceId, quantity: 1 }],
+          success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${origin}/account`,
+          metadata: {
+            checkoutMode: 'a0_upgrade',
+            userId:       userId ?? '',
+            purchaseId,
+          },
+        }),
+        { shouldRetry: stripeRetryable },
+      );
 
       return Response.json({ url: session.url });
     }
@@ -202,19 +215,22 @@ export async function onRequest(context) {
         return Response.json({ error: `Unknown credit pack: ${packId}` }, { status: 400 });
       }
 
-      const session = await stripe.checkout.sessions.create({
-        mode: 'payment',
-        line_items: [{ price: pack.priceId, quantity: 1 }],
-        allow_promotion_codes: true,
-        success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/pricing`,
-        metadata: {
-          checkoutMode: 'credit_pack',
-          userId:       userId ?? '',
-          packId,
-          creditCount:  String(pack.creditCount),
-        },
-      });
+      const session = await withRetry(
+        () => stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: [{ price: pack.priceId, quantity: 1 }],
+          allow_promotion_codes: true,
+          success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url:  `${origin}/pricing`,
+          metadata: {
+            checkoutMode: 'credit_pack',
+            userId:       userId ?? '',
+            packId,
+            creditCount:  String(pack.creditCount),
+          },
+        }),
+        { shouldRetry: stripeRetryable },
+      );
 
       return Response.json({ url: session.url });
     }

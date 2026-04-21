@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.84] - 2026-04-21
+
+### Added
+- **Retry logic with exponential backoff for external API calls** — Added `functions/api/_utils/retry.js` with `withRetry()` (3 attempts, 500ms base delay, 10% jitter, honours Stripe `Retry-After` header) and three service-specific retry predicates: `stripeRetryable` (retries `api_connection_error`, `api_error`, `rate_limit_error`; never retries card/auth errors), `resendRetryable` (retries network failures and 5xx/429), `supabaseRetryable` (retries network errors; never retries PostgreSQL/PostgREST logical errors). Applied to: all 7 Stripe checkout/portal/session calls across `create-checkout.js`, `create-cart-checkout.js`, `create-portal-session.js`, `session-info.js`, `cart-session-status.js`; the centralised `resend.emails.send()` in `send-email.js` (benefits all 30+ email types automatically); the subscription profile upsert in `stripe-webhook.js`. Non-idempotent writes (purchases/orders inserts) are intentionally not wrapped.
+
+---
+
 ## [0.12.83] - 2026-04-21
 
 ### Changed

@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendEmail } from './send-email.js';
 import { SUBSCRIPTION_PRICES } from '../../src/lib/pricing.js';
+import { withRetry, supabaseRetryable } from './_utils/retry.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -219,14 +220,18 @@ async function handleSubscriptionCreated(session, stripe, supabase, env) {
   const subscriptionId = session.subscription;
   const plan = SUBSCRIPTION_PRICES[planId];
 
-  // Store subscription info in profiles
-  await supabase.from('profiles').update({
-    stripe_customer_id:   session.customer,
-    stripe_subscription_id: subscriptionId,
-    subscription_plan:    planId,
-    subscription_status:  'active',
-    subscription_credits: plan?.credits ?? 0,
-  }).eq('id', userId);
+  // Store subscription info in profiles — retry on transient network errors since
+  // this is the highest-value idempotent write; Stripe retries the webhook anyway.
+  await withRetry(async () => {
+    const { error } = await supabase.from('profiles').update({
+      stripe_customer_id:     session.customer,
+      stripe_subscription_id: subscriptionId,
+      subscription_plan:      planId,
+      subscription_status:    'active',
+      subscription_credits:   plan?.credits ?? 0,
+    }).eq('id', userId);
+    if (error) throw error;
+  }, { shouldRetry: supabaseRetryable });
 
   // Record in subscriptions table for history
   await supabase.from('subscriptions').insert({
