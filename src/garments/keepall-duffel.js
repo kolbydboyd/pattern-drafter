@@ -170,7 +170,7 @@ export default {
         `On each short end mark notches across the width at: ${fmtInches(sh)} from front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from front long edge (bottom to back-face corner); also mark ${fmtInches(sh + D/2)} (bottom center — turning gap reference). ` +
         `Along each long edge mark trim-strap positions at ${fmtInches(L/3)} and ${fmtInches(2*L/3)} from each short end.`,
       type: 'rectangle',
-      width: L, height: wW, sa,
+      dimensions: { length: L, width: wW }, sa,
       dims: [
         { label: fmtInches(L) + ' length', x1: 0, y1: -0.6, x2: L, y2: -0.6, type: 'h' },
         { label: fmtInches(wW) + ' width', x: L + 0.9, y1: 0, y2: wW, type: 'v' },
@@ -181,7 +181,7 @@ export default {
       id: 'body-wrap-lining', name: 'Body Wrap (Lining)',
       instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · Leave 6–7″ turning gap at center-bottom when sewing to end panels`,
       type: 'rectangle',
-      width: L, height: wW, sa,
+      dimensions: { length: L, width: wW }, sa,
     });
 
     if (opts.interfacing !== 'none') {
@@ -189,20 +189,20 @@ export default {
         id: 'body-wrap-interfacing', name: 'Body Wrap Interfacing',
         instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(2*sh)} wide · Interface only front and back faces; skip bottom band`,
         type: 'rectangle',
-        width: L, height: 2*sh, sa: 0,
+        dimensions: { length: L, width: 2*sh }, sa: 0,
       });
     }
 
     // ── Trim Straps (structural) ──────────────────────────────────────────────
     // Runs front zipper top → down front face (sh) → across bottom (D) → up back face (sh) → back zipper top.
-    // Extra 12″ forms the handle loop arch above the zipper line.
+    // Extra 12″ forms 4″ loose flaps at both ends for handle attachment.
     const trimStrapLen = 2*sh + D + 12;
     pieces.push({
       id: 'trim-strap', name: 'Trim Strap',
       instruction: `Cut 2 · ${fmtInches(trimStrapLen)} long × 1½″ wide · ` +
         `Fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges.`,
       type: 'rectangle',
-      width: trimStrapLen, height: 1.5, sa: 0,
+      dimensions: { length: trimStrapLen, width: 1.5 }, sa: 0,
     });
 
     // ── Handles ───────────────────────────────────────────────────────────────
@@ -216,14 +216,14 @@ export default {
           `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers and locking the webbing core. ` +
           `Trim webbing flush at each end before attaching to anchor patches.`,
         type: 'rectangle',
-        width: hLen, height: 2, sa: 0,
+        dimensions: { length: hLen, width: 2 }, sa: 0,
       });
     } else {
       pieces.push({
         id: 'handle-webbing', name: 'Top Handle (Webbing)',
         instruction: `Cut 2 strips of 1″ cotton webbing · ${fmtInches(hLen)} long each · Seal cut ends with lighter flame.`,
         type: 'rectangle',
-        width: hLen, height: 1, sa: 0,
+        dimensions: { length: hLen, width: 1 }, sa: 0,
       });
     }
 
@@ -232,14 +232,14 @@ export default {
       id: 'handle-anchor-patch', name: 'Handle Anchor Patch',
       instruction: `Cut 4 in outer fabric · 3″ wide × 2″ tall · X-box stitch (rectangle + diagonals) through patch, handle end, and body wrap.`,
       type: 'rectangle',
-      width: 3, height: 2, sa: 0,
+      dimensions: { length: 2, width: 3 }, sa: 0,
     });
 
     pieces.push({
       id: 'handle-anchor-interfacing', name: 'Handle Anchor Interfacing',
       instruction: `Cut 4 · 3″ wide × 2″ tall · Fuse or baste to wrong side of anchor patches`,
       type: 'rectangle',
-      width: 3, height: 2, sa: 0,
+      dimensions: { length: 2, width: 3 }, sa: 0,
     });
 
     // ── D-Ring Tabs + Shoulder Strap (optional) ───────────────────────────────
@@ -248,7 +248,7 @@ export default {
         id: 'dring-tab', name: 'D-Ring Tab',
         instruction: `Cut 2 · 4″ long × 1½″ wide · Fold in half around a 1″ D-ring, raw edges together. Baste close to D-ring.`,
         type: 'rectangle',
-        width: 4, height: 1.5, sa: 0,
+        dimensions: { length: 4, width: 1.5 }, sa: 0,
       });
 
       const strapLen = Math.max(56, Math.round(L * 4.5));
@@ -258,7 +258,7 @@ export default {
           `Fold in half lengthwise {RST}. Sew long edge. Turn right side out. {press}. {topstitch} both long edges. ` +
           `Thread one end through tri-glide, fold back 1½″, sew box stitch. Attach swivel snaps.`,
         type: 'rectangle',
-        width: strapLen, height: 2.5, sa: 0,
+        dimensions: { length: strapLen, width: 2.5 }, sa: 0,
       });
     }
 
@@ -269,7 +269,7 @@ export default {
       instruction: `Cut 4 (2 outer + 2 lining) · 1½″ long × ${fmtInches(tabW)} wide · ` +
         `Fold in half lengthwise wrong sides together. Slip folded tab over each zipper end. Baste across.`,
       type: 'rectangle',
-      width: 1.5, height: tabW, sa: 0,
+      dimensions: { length: 1.5, width: tabW }, sa: 0,
     });
 
     // ── Interior Pocket ───────────────────────────────────────────────────────
@@ -283,7 +283,7 @@ export default {
           `Fold top edge under ½″ twice. {press} and {topstitch}. Press remaining three edges under ½″. ` +
           `Center on one lining body wrap back-face zone. {topstitch} sides and bottom close to fold.`,
         type: 'rectangle',
-        width: pW, height: pH, sa: 0,
+        dimensions: { length: pH, width: pW }, sa: 0,
       });
     }
 
@@ -296,7 +296,7 @@ export default {
           `Sandwich a zipper between panels at top. Sew, {press}, {topstitch}. Sew remaining three sides {RST}. ` +
           `Turn through open zipper. {press}. Attach to lining body wrap back-face zone.`,
         type: 'rectangle',
-        width: pW, height: pH, sa: 0,
+        dimensions: { length: pH, width: pW }, sa: 0,
       });
     }
 
@@ -310,7 +310,7 @@ export default {
           `Sandwich zipper at top. Sew, {press}, {topstitch}. Sew remaining edges {RST}. ` +
           `Turn through open zipper. {press}. Center on front body wrap face zone with 1″ margin above and below. {topstitch} edges.`,
         type: 'rectangle',
-        width: epW, height: epH, sa: 0,
+        dimensions: { length: epH, width: epW }, sa: 0,
       });
     }
 
