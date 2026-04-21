@@ -210,13 +210,13 @@ export default {
     if (opts.handleStyle === 'fabric') {
       pieces.push({
         id: 'handle', name: 'Top Handle',
-        instruction: `Cut 2 · ${fmtInches(hLen)} long × 3″ wide · ` +
-          `Fold in half lengthwise {RST}. Sew long raw edge with ½″ SA. Turn right side out. ` +
-          `Insert ½″ cotton piping cord (or foam tubing) through the tube. ` +
-          `Using a zipper foot, stitch along the length close to the cord to trap it snugly — do NOT press flat. ` +
-          `Trim cord flush at each end before attaching to anchor patches.`,
+        instruction: `Cut 2 · ${fmtInches(hLen)} long × 2″ wide · ` +
+          `Lay a length of ¾″ cotton webbing centered on the wrong side of the strip. ` +
+          `Fold one long edge under ¼″ and press. Fold the strip around the webbing, raw edge tucked under the folded edge. ` +
+          `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers and locking the webbing core. ` +
+          `Trim webbing flush at each end before attaching to anchor patches.`,
         type: 'rectangle',
-        width: hLen, height: 3, sa: 0,
+        width: hLen, height: 2, sa: 0,
       });
     } else {
       pieces.push({
@@ -273,9 +273,10 @@ export default {
     });
 
     // ── Interior Pocket ───────────────────────────────────────────────────────
+    // Pocket heights must fit within the face zone (sh tall) with margin for the fold and seamline.
     if (opts.interiorPocket === 'slip') {
       const pW = Math.min(10, Math.round(L * 0.6 * 4) / 4);
-      const pH = Math.min(7,  Math.round(H * 0.6 * 4) / 4);
+      const pH = Math.max(2.5, Math.min(6, Math.round((sh - 1.5) * 4) / 4));
       pieces.push({
         id: 'interior-slip-pocket', name: 'Interior Slip Pocket',
         instruction: `Cut 1 in lining fabric · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · ` +
@@ -288,26 +289,28 @@ export default {
 
     if (opts.interiorPocket === 'zip') {
       const pW = Math.min(10, Math.round(L * 0.6 * 4) / 4);
+      const pH = Math.max(3, Math.min(5, Math.round((sh - 1.5) * 4) / 4));
       pieces.push({
         id: 'interior-zip-pocket', name: 'Interior Zip Pocket Panel',
-        instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × 6″ tall · ` +
+        instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · ` +
           `Sandwich a zipper between panels at top. Sew, {press}, {topstitch}. Sew remaining three sides {RST}. ` +
           `Turn through open zipper. {press}. Attach to lining body wrap back-face zone.`,
         type: 'rectangle',
-        width: pW, height: 6, sa: 0,
+        width: pW, height: pH, sa: 0,
       });
     }
 
     // ── Exterior Zip Pocket (optional) ────────────────────────────────────────
     if (opts.exteriorPocket === 'front') {
       const epW = Math.min(10, Math.round(L * 0.55 * 4) / 4);
+      const epH = Math.max(2.5, Math.min(4, Math.round((sh - 2) * 4) / 4));
       pieces.push({
         id: 'exterior-zip-pocket', name: 'Exterior Zip Pocket Panel',
-        instruction: `Cut 2 in outer fabric · ${fmtInches(epW)} wide × 3.5″ tall · ` +
+        instruction: `Cut 2 in outer fabric · ${fmtInches(epW)} wide × ${fmtInches(epH)} tall · ` +
           `Sandwich zipper at top. Sew, {press}, {topstitch}. Sew remaining edges {RST}. ` +
-          `Turn through open zipper. {press}. Center on front body wrap face zone, 2½″ below top. {topstitch} edges.`,
+          `Turn through open zipper. {press}. Center on front body wrap face zone with 1″ margin above and below. {topstitch} edges.`,
         type: 'rectangle',
-        width: epW, height: 3.5, sa: 0,
+        width: epW, height: epH, sa: 0,
       });
     }
 
@@ -347,7 +350,7 @@ export default {
       });
     } else {
       notions.push({
-        name: `½″ cotton piping cord or foam tubing, ${fmtInches(2 * handleCutLen(L) + 2)} (core for round handles)`,
+        name: `¾″ cotton webbing, ${fmtInches(2 * handleCutLen(L) + 2)} (core for wrapped fabric handles)`,
         quantity: 1,
       });
     }
@@ -383,7 +386,7 @@ export default {
 
     if (opts.handleStyle === 'fabric') {
       notes.push(
-        'Round handles: wrap the 3″ fabric tube snugly around a ½″ cotton piping cord (or foam tubing) core. A zipper foot lets you stitch close to the cord without flattening it — this is what gives the Keepall handle its cylindrical shape rather than the flat-strap profile common to tote-bag handles.',
+        'Wrapped handles: lay ¾″ cotton webbing on the wrong side of each 2″ fabric strip, fold one long edge under ¼″ and press, then fold the strip around the webbing with the raw edge tucked under the folded edge. A zipper foot lets you stitch close to the core in a single pass — cleaner than the tube-and-turn method and gives the Keepall handle its slim structured profile.',
       );
     }
 
@@ -431,13 +434,14 @@ export default {
 
     if (opts.handleStyle === 'fabric') {
       steps.push({
-        step: n++, title: 'Make round fabric tube handles',
-        detail: `Fold each 3″-wide handle strip in half lengthwise {RST}. Sew long raw edge with ½″ SA. ` +
-          `Trim SA to ¼″ and turn right side out using a loop-turner or safety-pin method. ` +
-          `Cut a length of ½″ cotton piping cord (or foam tubing) slightly longer than the handle and feed it through the tube. ` +
-          `Using a zipper foot, stitch along the full length of the tube snug against the core, locking it in place. ` +
-          `Do NOT {press} flat — the handle should keep its cylindrical cross-section. ` +
-          `Trim cord flush at each end before attaching.`,
+        step: n++, title: 'Make wrapped fabric handles',
+        detail: `Cut a length of ¾″ cotton webbing slightly longer than each 2″-wide fabric handle strip. ` +
+          `Fold one long edge of the fabric strip under ¼″ and {press}. ` +
+          `Lay the webbing on the wrong side of the strip, aligned with the unfolded long edge. ` +
+          `Fold the strip around the webbing so the folded edge overlaps the raw edge by ¼″. ` +
+          `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers. ` +
+          `The handle should hold a slim structured profile — no turning, no {press} flat. ` +
+          `Trim webbing flush at each end before attaching.`,
       });
     } else {
       steps.push({
@@ -454,18 +458,18 @@ export default {
     if (opts.exteriorPocket === 'front') {
       steps.push({
         step: n++, title: 'Make and attach exterior zip pocket',
-        detail: 'Sew two pocket panels {RST} with zipper at top (sandwich method). {press} panels away from zipper. {topstitch} close to teeth. Open zipper. Fold pocket {RST}, sew remaining edges, clip corners, turn. {press}. Center on front body wrap face zone, 2½″ below top edge. {topstitch} side and bottom edges.',
+        detail: `Sew two pocket panels {RST} with zipper at top (sandwich method). {press} panels away from zipper. {topstitch} close to teeth. Open zipper. Fold pocket {RST}, sew remaining edges, clip corners, turn. {press}. Center on the front body wrap face zone (the ${fmtInches(sh)} band along the front long edge) with approximately 1″ margin above and below the pocket. {topstitch} side and bottom edges.`,
       });
     }
 
     steps.push({
       step: n++, title: 'Sew trim straps to body wrap',
-      detail: `Position trim straps vertically at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} marks, running front-to-bottom-to-back. {topstitch} both long edges to outer body wrap. Leave top 4″ of front-face end loose for handle attachment.`,
+      detail: `Position trim straps vertically at ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} marks, running front-face-to-bottom-to-back-face. {topstitch} both long edges of each strap to the outer body wrap. Leave the top 4″ of BOTH ends of each strap loose (front-face top and back-face top) — these flaps will sandwich the handle ends under the anchor patches in the next step.`,
     });
 
     steps.push({
       step: n++, title: 'Attach handles and anchor patches',
-      detail: 'Pin handle ends at marked positions on front-face zone of each trim strap top, loop pointing up. Lay anchor patch over each end, top edge at body wrap top raw edge. X-box stitch (rectangle ¼″ inside edges, then diagonals) through all layers.',
+      detail: 'Each handle has two ends — one attaches at the front-face top of a trim strap, the other at the back-face top of the same trim strap, arching up across the zipper. Tuck each handle end between the loose trim-strap flap and the body wrap, with the handle arching away from the zipper. Lay an anchor patch (raw edges turned under) over each end, top edge flush with the body wrap zipper edge. X-box stitch (rectangle ¼″ inside edges, then both diagonals) through anchor patch + trim strap + handle end + body wrap. Four X-boxes total: two per face.',
     });
 
     if (hasStrap) {
@@ -478,12 +482,12 @@ export default {
     if (opts.interiorPocket === 'slip') {
       steps.push({
         step: n++, title: 'Attach interior slip pocket to lining',
-        detail: 'Fold pocket top edge under ½″ twice. {press} and {topstitch}. Press remaining three edges under ½″. Center on lining body wrap back-face zone, 1½″ below top. {topstitch} sides and bottom.',
+        detail: `Fold pocket top edge under ½″ twice. {press} and {topstitch}. Press remaining three edges under ½″. Center on the lining body wrap back-face zone (the ${fmtInches(sh)} band along the back long edge) with roughly equal margin above and below. {topstitch} sides and bottom.`,
       });
     } else if (opts.interiorPocket === 'zip') {
       steps.push({
         step: n++, title: 'Make and attach interior zippered pocket',
-        detail: 'Sandwich zipper between two pocket panels at top. Sew, {press}, {topstitch} close to teeth. Open zipper, fold {RST}, sew remaining edges, clip corners, turn. {press}. Attach to lining body wrap back-face zone.',
+        detail: `Sandwich zipper between two pocket panels at top. Sew, {press}, {topstitch} close to teeth. Open zipper, fold {RST}, sew remaining edges, clip corners, turn. {press}. Center on the lining body wrap back-face zone (the ${fmtInches(sh)} band along the back long edge), pocket top 1″ below the back long edge. Edgestitch sides and bottom to lining.`,
       });
     }
 
