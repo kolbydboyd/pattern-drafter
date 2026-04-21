@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-04-08 · v0.7.0_
+_Last updated: 2026-04-21 · v0.7.0_
 
 ---
 
@@ -678,8 +678,8 @@ _From 2026-03-31 market research._
 
 **Differentiators to emphasize:**
 - Gender-inclusive sizing (measurements, not gendered size charts)
-- Plus-size support above XXL/46" chest - the entire men's market ignores this
-- Short/tall proportional adjustment - not just length changes, full proportional redesign
+- Plus-size and cup-size support: FBA (Full Bust Adjustment) engine, tummy accommodation across all lower-body garments, bicep max expanded to 30" (shipped v0.7.0)
+- Short/tall proportional adjustment: petite armhole guidance, waist-to-armpit promotion, height-aware hints (shipped v0.7.0)
 - Sustainability angle: make what you need, not fast fashion
 
 **Underserved segments to target:**

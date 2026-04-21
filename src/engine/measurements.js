@@ -93,14 +93,14 @@ export const MEASUREMENTS = {
     label: 'Bicep circumference',
     instruction: 'Around the fullest part of your bicep, arm relaxed at side.',
     category: 'upper',
-    min: 6, max: 22, step: 0.25, default: 13,
+    min: 6, max: 30, step: 0.25, default: 13,
   },
   wrist: {
     id: 'wrist',
     label: 'Wrist circumference',
     instruction: 'Around your wrist at the wrist bone.',
     category: 'upper',
-    min: 5.5, max: 10, step: 0.25, default: 7,
+    min: 5.5, max: 13, step: 0.25, default: 7,
   },
   torsoLength: {
     id: 'torsoLength',
@@ -111,6 +111,14 @@ export const MEASUREMENTS = {
   },
 
   // ── Optional — Lower Body ──
+  belly: {
+    id: 'belly',
+    label: 'Belly / abdomen (fullest)',
+    instruction: 'Around the fullest part of your abdomen, typically at the navel. Only needed if your belly protrudes past your hips.',
+    category: 'lower',
+    optional: true,
+    min: 24, max: 72, step: 0.25, default: 36,
+  },
   outseam: {
     id: 'outseam',
     label: 'Outseam',
@@ -153,6 +161,14 @@ export const MEASUREMENTS = {
   },
 
   // ── Optional — Upper Body ──
+  highBust: {
+    id: 'highBust',
+    label: 'High bust (chest plate)',
+    instruction: 'Around your body just above the bust, under the arms, across the chest plate. Used to compute cup size and set dart intake accurately.',
+    category: 'upper',
+    optional: true,
+    min: 26, max: 62, step: 0.25, default: 35,
+  },
   waistToArmpit: {
     id: 'waistToArmpit',
     label: 'Waist to armpit',
@@ -176,6 +192,16 @@ export const MEASUREMENTS = {
     category: 'upper',
     optional: true,
     min: 10, max: 18, step: 0.25, default: 14,
+  },
+
+  // ── Optional — Height ──
+  height: {
+    id: 'height',
+    label: 'Height',
+    instruction: 'Your full standing height in inches (e.g. 5\'4″ = 64″). Used to surface petite armhole guidance and proportional notes.',
+    category: 'upper',
+    optional: true,
+    min: 48, max: 84, step: 0.5, default: 65,
   },
 
   // ── Full Body (dresses) ──

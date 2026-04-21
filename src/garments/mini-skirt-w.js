@@ -7,7 +7,7 @@
  * Loosely inspired by the shaping approach in unfetteredpatterns UP1008.
  */
 
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -75,6 +75,7 @@ export default {
     const dartCx      = backWaistW * 0.42;
     const dartLip     = backDartW / 2;
     const backKickX   = (backHipW - hemIn) + (hemIn * hemAlw) / (L - hipY);
+    const tummyAdj    = tummyAdjustment(m);
 
     function pp(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -89,10 +90,10 @@ export default {
     function buildFrontPanel() {
       // Slight concave waist curve (dips ~0.15" at midpoint)
       const waistCurve = sampleBezier(
-        { x: 0,              y: 0    },
-        { x: halfW * 0.33,   y: 0.15 },
-        { x: halfW * 0.67,   y: 0.15 },
-        { x: halfW,          y: 0    },
+        { x: 0,              y: -tummyAdj },
+        { x: halfW * 0.33,   y: 0.15      },
+        { x: halfW * 0.67,   y: 0.15      },
+        { x: halfW,          y: 0         },
         10,
       ).map((p, i, arr) => (i === 0 || i === arr.length - 1 ? p : { ...p, curve: true }));
 

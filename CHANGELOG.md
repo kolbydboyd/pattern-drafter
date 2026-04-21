@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.81] - 2026-04-21
+
+### Added
+- **Inclusive sizing: Full Bust Adjustment (FBA)** — Added `highBust` optional measurement (above-bust circumference). `bustDartIntake()` in `upper-body.js` now computes cup-size-aware dart intake (`cupInches × 0.38`) when `highBust` is provided; falls back to the legacy chest-circumference formula otherwise. Applied to `fitted-tee-w`, `shell-blouse-w`, `button-up-w`, and bodice panels in `a-line-dress-w`, `shirt-dress-w`.
+- **Inclusive sizing: Tummy / prominent belly adjustment** — Added `belly` optional measurement (navel circumference). `tummyAdjustment()` in `geometry.js` raises the CF waist point by up to 1.5″ when belly protrudes past hip/waist. Applied to all 28 pants, shorts, skirt, and dress garments that have separate front panel construction.
+- **Inclusive sizing: new optional measurements** — `highBust` (cup size), `belly` (abdomen), `height` (full standing height). `bicep` max expanded 22→30″; `wrist` max expanded 10→13″.
+- **Inclusive sizing: petite armhole and ease guidance hints** — `relevantOptionalIds()` now surfaces `highBust`, `waistToArmpit`, `height`, and `belly` contextually based on garment type. Dynamic hints in the UI: petite note when `torsoLength < 15` and `waistToArmpit` is not filled; ease callout when `chest > 46″` or `hip > 52″`.
+
+---
+
 ## [0.12.80] - 2026-04-20
 
 ### Fixed

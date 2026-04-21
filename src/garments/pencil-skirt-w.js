@@ -5,7 +5,7 @@
  * Waistband, closure, dart, and lining code reused from slip-skirt.
  */
 
-import { sampleBezier, fmtInches, edgeAngle } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -110,6 +110,7 @@ export default {
     const dartPerUnit  = totalIntake / dartCount;
     const dartW        = Math.max(0.25, Math.min(dartPerUnit, 0.75));
     const dartL        = 4.0;
+    const tummyAdj     = tummyAdjustment(m);
 
     function pp(poly) {
       let d = `M ${poly[0].x.toFixed(2)} ${poly[0].y.toFixed(2)}`;
@@ -137,7 +138,7 @@ export default {
         ];
       } else {
         poly = [
-          { x: 0,    y: 0 },
+          { x: 0,    y: -tummyAdj },
           { x: hipW, y: 0 },
           { x: hemW, y: L },
           { x: 0,    y: L },

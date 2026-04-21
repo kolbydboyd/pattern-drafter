@@ -90,12 +90,16 @@ const GARMENT_CATEGORIES = [
 function relevantOptionalIds(garment) {
   const has = id => garment.measurements.includes(id);
   const ids = [];
-  if (has('thigh'))                      { ids.push('calf', 'ankle'); }
-  if (has('inseam') || has('hip'))       { ids.push('outseam'); }
-  if (has('hip'))                        { ids.push('seatDepth'); }
-  if (has('rise'))                       { ids.push('crotchArc'); }
-  if (has('shoulder'))                   { ids.push('crossBack'); }
+  if (has('thigh'))                        { ids.push('calf', 'ankle'); }
+  if (has('inseam') || has('hip'))         { ids.push('outseam'); }
+  if (has('hip'))                          { ids.push('seatDepth'); }
+  if (has('rise'))                         { ids.push('crotchArc'); }
+  if (has('shoulder'))                     { ids.push('crossBack'); }
   if (has('sleeveLength') || has('bicep')) { ids.push('armToElbow'); }
+  // Inclusive sizing: surface bust cup and tummy measurements contextually
+  if (has('chest'))                        { ids.push('highBust'); }
+  if (has('shoulder') || has('chest'))     { ids.push('waistToArmpit', 'height'); }
+  if (has('waist') || has('hip'))          { ids.push('belly'); }
   return [...new Set(ids)];
 }
 
@@ -360,12 +364,14 @@ function buildInputs() {
         <div class="hint">${mDef.instruction}</div>
         <input type="number" id="m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
     }
+    html += `<div id="petite-hint" class="adv-hint" style="display:none"></div>`;
     html += `</details>`;
   }
 
   // Options (variant defaults override base defaults when present)
   const variantDefaults = g._variantDefaults || {};
   html += `<hr class="dv"><h2>Options</h2>`;
+  html += `<div id="ease-guidance" class="adv-hint" style="display:none"></div>`;
   for (const [key, opt] of Object.entries(g.options)) {
     const effectiveDefault = key in variantDefaults ? variantDefaults[key] : opt.default;
     if (opt.type === 'select') {
@@ -387,6 +393,43 @@ function buildInputs() {
     <button class="btn-s" id="reset-btn">Reset to Defaults</button>`;
 
   panel.innerHTML = html;
+
+  // Inclusive sizing hints — petite armhole and large-size ease guidance
+  function updateInclusiveSizingHints() {
+    const torsoLengthEl   = document.getElementById('m-torsoLength');
+    const waistToArmpitEl = document.getElementById('m-waistToArmpit');
+    const chestEl         = document.getElementById('m-chest');
+    const hipEl           = document.getElementById('m-hip');
+
+    const petiteHint  = document.getElementById('petite-hint');
+    const easeGuidEl  = document.getElementById('ease-guidance');
+
+    if (petiteHint) {
+      const torsoLength    = parseFloat(torsoLengthEl?.value) || 0;
+      const hasWaistToArmpit = waistToArmpitEl && waistToArmpitEl.value.trim() !== '';
+      if (torsoLength > 0 && torsoLength < 15 && !hasWaistToArmpit) {
+        petiteHint.textContent = 'Petite fit tip. Your torso is shorter than average. Add your waist-to-armpit measurement above for accurate armhole placement.';
+        petiteHint.style.display = '';
+      } else {
+        petiteHint.style.display = 'none';
+      }
+    }
+
+    if (easeGuidEl) {
+      const chest = parseFloat(chestEl?.value) || 0;
+      const hip   = parseFloat(hipEl?.value)   || 0;
+      if (chest > 46 || hip > 52) {
+        easeGuidEl.textContent = 'At your measurements, consider going up one ease level. Larger circumferences need proportionally more ease for comfortable movement.';
+        easeGuidEl.style.display = '';
+      } else {
+        easeGuidEl.style.display = 'none';
+      }
+    }
+  }
+  updateInclusiveSizingHints();
+  ['m-torsoLength', 'm-waistToArmpit', 'm-chest', 'm-hip'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateInclusiveSizingHints);
+  });
 
   // Rise style auto-fill
   const riseStyleEl    = document.getElementById('o-riseStyle');

@@ -18,6 +18,33 @@
  * without coupling to a specific block layout.
  */
 
+// ── Inclusive sizing helpers ───────────────────────────────────────────────
+
+/**
+ * Compute side-seam bust dart intake from measurements.
+ *
+ * When `m.highBust` is provided, uses the cup-size method (Aldrich / Cashmerette):
+ *   cupInches = fullBust − highBust
+ *   intake    = max(0.75, cupInches × 0.38)
+ *   B cup (2″ diff) ≈ 0.76″ (rounds to minimum)
+ *   D cup (4″ diff) ≈ 1.52″
+ *   F cup (6″ diff) ≈ 2.28″
+ *
+ * Without highBust, falls back to the chest-circumference approximation that
+ * was used in all garments before inclusive sizing was added.
+ *
+ * @param {{ chest: number, highBust?: number }} m - Measurements object
+ * @returns {number} Dart intake in inches (always ≥ 0.75, capped at 3.5)
+ */
+export function bustDartIntake(m) {
+  if (m.highBust && m.highBust > 0) {
+    const cupInches = Math.max(0, m.chest - m.highBust);
+    return Math.max(0.75, Math.min(3.5, cupInches * 0.38));
+  }
+  // Legacy chest-circumference approximation (unchanged for existing users)
+  return Math.max(0.75, Math.min(3.0, (m.chest - 30) * 0.11 + 0.75));
+}
+
 // ── Ease tables ────────────────────────────────────────────────────────────
 
 /**

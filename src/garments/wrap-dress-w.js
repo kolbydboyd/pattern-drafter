@@ -10,7 +10,7 @@ import {
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
   sleeveCapCurve, validateSleeveSeams,
 } from '../engine/upper-body.js';
-import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist } from '../engine/geometry.js';
+import { sampleBezier, fmtInches, edgeAngle, ptAtArcLen, dist, tummyAdjustment } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 
 export default {
@@ -204,6 +204,7 @@ export default {
     const lengthMod  = opts.length === 'mini' ? -10 : opts.length === 'knee' ? -5 : opts.length === 'maxi' ? 8 : 0;
     const adjSkirtL  = skirtL + lengthMod;
     const hipHalf    = m.hip / 2 + easeVal * 0.5;
+    const tummyAdj   = tummyAdjustment(m);
 
     function buildSkirtPanel(id, name, isBack) {
       const panelW = hipHalf / 2 + (isBack ? 0 : wrapExt);
@@ -236,10 +237,10 @@ export default {
         } else {
           const fh = flare / 2;
           poly = [
-            { x: fh,              y: 0          },
-            { x: fh + panelW,     y: 0          },
-            { x: panelW + flare,  y: adjSkirtL  },
-            { x: 0,               y: adjSkirtL  },
+            { x: fh,              y: -tummyAdj  },
+            { x: fh + panelW,     y: 0           },
+            { x: panelW + flare,  y: adjSkirtL   },
+            { x: 0,               y: adjSkirtL   },
           ];
         }
       } else if (opts.skirtShape === 'flowy') {
@@ -251,11 +252,12 @@ export default {
             { x: 0,      y: adjSkirtL  },
           ];
         } else {
+          const off = (flowW - panelW) / 2;
           poly = [
-            { x: (flowW - panelW) / 2,          y: 0          },
-            { x: (flowW - panelW) / 2 + panelW, y: 0          },
-            { x: flowW,                          y: adjSkirtL  },
-            { x: 0,                              y: adjSkirtL  },
+            { x: off,           y: -tummyAdj  },
+            { x: off + panelW,  y: 0           },
+            { x: flowW,         y: adjSkirtL   },
+            { x: 0,             y: adjSkirtL   },
           ];
         }
       } else {
@@ -266,10 +268,10 @@ export default {
           ];
         } else {
           poly = [
-            { x: 0,       y: 0          },
-            { x: panelW,  y: 0          },
-            { x: panelW,  y: adjSkirtL  },
-            { x: 0,       y: adjSkirtL  },
+            { x: 0,       y: -tummyAdj  },
+            { x: panelW,  y: 0           },
+            { x: panelW,  y: adjSkirtL   },
+            { x: 0,       y: adjSkirtL   },
           ];
         }
       }
