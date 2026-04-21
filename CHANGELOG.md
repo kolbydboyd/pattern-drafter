@@ -4,6 +4,11 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.84] - 2026-04-21
+
+### Changed
+- **Keepall Duffel — fuller end-panel arch** — Bezier control points on the end-panel arch were pulled only to the top of the bounding box (`y = 0`), which put the peak at 25% archH — the arch only filled ~75% of its allocated zone and read as a soft flattened curve. Moved control points to `y = -archH/3` so the peak at t=0.5 touches `y = 0` exactly, filling the full arch zone. The curve stays within the bounding box, the tangent at each shoulder remains vertical, and the straight-side-to-arch transition stays smooth. Matches real LV Keepall profile more faithfully.
+
 ## [0.12.83] - 2026-04-21
 
 ### Changed
