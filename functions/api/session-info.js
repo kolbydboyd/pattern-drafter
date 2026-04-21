@@ -3,6 +3,7 @@
 // Supports single pattern, bundle, and subscription sessions.
 import Stripe from 'stripe';
 import { PATTERN_PRICES, BUNDLES, SUBSCRIPTION_PRICES, CREDIT_PACKS } from '../../src/lib/pricing.js';
+import { withRetry, stripeRetryable } from './_utils/retry.js';
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -19,7 +20,10 @@ export async function onRequest(context) {
 
   let session;
   try {
-    session = await stripe.checkout.sessions.retrieve(session_id);
+    session = await withRetry(
+      () => stripe.checkout.sessions.retrieve(session_id),
+      { shouldRetry: stripeRetryable },
+    );
   } catch (err) {
     return Response.json({ error: 'Invalid session' }, { status: 400 });
   }
