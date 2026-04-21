@@ -203,12 +203,18 @@ export default {
 
     // Lapel width: wider for peak/double-breasted, narrower for notched
     const lapelW = opts.collar === 'peak'
-      ? (isDouble ? 4 : 3.5)
+      ? (isDouble ? 4.5 : 3.5)
       : opts.collar === 'notched'
         ? 3
         : 3.5; // shawl
 
-    const lapelParams = { neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW, collarStand: COLLAR_STAND };
+    const lapelParams = {
+      neckDepthFront: NECK_DEPTH_FRONT,
+      breakPointY,
+      lapelWidth: lapelW,
+      collarStand: COLLAR_STAND,
+      gorgeHeightFrac: 0.45,  // gorge at 45% of neckline depth — collar sits close to neck
+    };
     const lapelResult =
       opts.collar === 'peak'    ? peakLapelCurve(lapelParams) :
       opts.collar === 'notched' ? notchedLapelCurve(lapelParams) :
@@ -258,26 +264,12 @@ export default {
       // the under collar gorge, not the panel.
       if (p.x === neckStop.x && p.y === neckStop.y) break;
     }
-    // Partial neckline from neckStop → shoulder-neck junction.
-    // Shawl: lapel already ended at shoulder-neck, so polygon is closed.
-    // Peak/notched: push neckline points outside the gorge (panel x > neckStop.x),
-    // from CF-side to shoulder-side.
+    // Seam from gorge to shoulder-neck junction.
+    // gorgePoint does not sit on the natural neckline bezier, so a straight diagonal
+    // seam is correct here — standard practice in tailored jacket construction.
+    // The collar pattern is drafted to this same straight seam length.
     if (opts.collar !== 'shawl') {
-      // frontNeckPts is CF→shoulder in lapel-local frame; we want panel frame (neckW - p.x)
-      // and we want to traverse gorge → shoulder (panel-x increasing).
-      const neckForPanel = frontNeckPts
-        .map(p => ({ ...p, x: neckW - p.x }))
-        .filter(p => p.x > neckStop.x + 0.01);
-      // Sort ascending so we go gorge-side → shoulder-side
-      neckForPanel.sort((a, b) => a.x - b.x);
-      for (const p of neckForPanel) frontPoly.push({ ...p });
-      // ── JUNCTION UNTAGGING — bezier sampled points at segment boundaries ──
-      // First neckline point after the straight gorge segment, and the last
-      // one before the shoulder-neck corner, must not carry curve:true.
-      if (neckForPanel.length > 0) {
-        delete frontPoly[frontPoly.length - neckForPanel.length].curve;
-        delete frontPoly[frontPoly.length - 1].curve;
-      }
+      frontPoly.push({ x: neckW, y: 0 });
     }
 
     // ── BACK PANEL (left — cut 2, mirror L & R, joined at CB seam) ──────
@@ -320,7 +312,7 @@ export default {
       wrist: m.wrist || m.bicep * 0.55,
       armholeArc,
       capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
-      sleeveBend: 6,          // slight elbow bend — jersey needs less than woven (denim uses 10°)
+      sleeveBend: 2,          // jersey stretch eliminates structural elbow shaping (denim uses 10°, woven 6°)
       bicepEase: 0.15,
       capHeightRatio: 0.40,   // lower cap for knit
     });
@@ -479,7 +471,9 @@ export default {
     // ── COLLAR PIECES ────────────────────────────────────────────────────
     // Upper/under collar for peak + notched. Narrow back-neck collar for shawl.
     if (opts.collar === 'peak' || opts.collar === 'notched') {
-      const halfNeckArc = frontArmArc * 0.3 + neckW + shoulderW * 0.4; // approximate half-neck arc
+      // Collar arc = back neckline arc + straight gorge-to-shoulder seam on front panel.
+      const frontGorgeLen = Math.sqrt((neckW - neckStop.x) ** 2 + neckStop.y ** 2);
+      const halfNeckArc = arcLength(backNeckPts) + frontGorgeLen;
 
       const { upperCollar, underCollar, standLength } = collarCurve({
         neckArc: halfNeckArc,
