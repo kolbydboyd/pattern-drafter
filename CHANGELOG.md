@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.87] - 2026-04-22
+
+### Added
+- **Security.txt** — Added `public/.well-known/security.txt` per RFC 9116 so security researchers have a clear, standard disclosure contact (`security@peoplespatterns.com`). Expires 2027-04-22.
+
+---
+
 ## [0.12.86] - 2026-04-21
 
 ### Fixed
