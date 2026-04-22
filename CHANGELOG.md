@@ -4,7 +4,7 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.89] - 2026-04-22
+## [0.12.90] - 2026-04-22
 
 ### Added
 - **Build-time edge-allowance validator** — `scripts/validate-edge-allowances.mjs` runs every garment module with synthetic measurements, applies `sanitizePoly`, and asserts `edgeAllowances.length === polygon.length` for all pieces where the polygon survives sanitization unchanged. Runs as the second step of `npm run build`. Catches the class of bug that caused the mini-skirt crash before it reaches production.
@@ -14,10 +14,21 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.88] - 2026-04-22
+## [0.12.89] - 2026-04-22
 
 ### Fixed
 - **Mini Skirt — "undefined is not an object (evaluating 'e[m].label')" crash on pattern preview** — `edgeSALabels` in `pattern-view.js` iterated all polygon edges (`n = polygon.length`) and blindly accessed `edgeAllowances[j]`, which is `undefined` for any index beyond the array length. Added a bounds check (`i >= edgeAllowances.length` breaks the loop; inner loop also guards with `j < edgeAllowances.length`). Root cause in the mini skirt: `edgeAllowances` had 5 semantic entries while the bezier-sampled polygon has 24 edges (front) and 36 edges (back). Expanded all four mini-skirt piece `edgeAllowances` to per-edge arrays (one object per polygon edge) so SA labels render correctly on every edge.
+
+---
+
+## [0.12.88] - 2026-04-22
+
+### Changed
+- **Keepall Duffel — pattern pieces now self-contained (notches, guide lines, trim line, welt pocket)** — Previously several construction details were written as prose instructions that asked the sewist to measure and mark the pattern themselves. Now these are drawn directly on the pieces:
+  - **Body wrap (outer + lining):** ten perimeter notches mark the front-face ↔ bottom ↔ back-face zone corners (both short ends, plus bottom-center turning reference) and trim-strap positions (both long edges at L/3 and 2L/3). Five dashed gold guide lines visualize the bottom band boundaries, the bottom-center line, and the two trim-strap lines across the length.
+  - **Body-wrap interfacing + end-panel interfacing:** dashed brown inner outline offset ⅛″ inside the seamline shows exactly where to trim the interfacing before fusing — no more measuring.
+  - **Interior zip pocket rebuilt as welt/window construction:** the real LV Keepall uses a faced zipper window with the pocket bag sewn INTO the lining, not an applied pouch on top. The lining back-face zone now shows a red zip-window rectangle indicating the exact size and position to slash. The pocket itself is a single rectangle (folded in half) with instructions for the slash-and-flip window facing technique.
+- **Renderer extensions (purely additive):** `renderRectanglePieceSVG` now consumes optional `notches`, `guides`, `trimOffset`, and `windows` piece properties; `renderGenericPieceSVG` consumes an optional `trimOffset` (polygon variant via `offsetPolygon`). Legends auto-update when these features are active. All new properties default to no-op when absent, so other garments render identically.
 
 ---
 
