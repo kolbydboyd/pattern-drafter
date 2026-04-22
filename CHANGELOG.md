@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.87] - 2026-04-22
+
+### Fixed
+- **Mini Skirt — "undefined is not an object (evaluating 'e[m].label')" crash on pattern preview** — `edgeSALabels` in `pattern-view.js` iterated all polygon edges (`n = polygon.length`) and blindly accessed `edgeAllowances[j]`, which is `undefined` for any index beyond the array length. Added a bounds check (`i >= edgeAllowances.length` breaks the loop; inner loop also guards with `j < edgeAllowances.length`). Root cause in the mini skirt: `edgeAllowances` had 5 semantic entries while the bezier-sampled polygon has 24 edges (front) and 36 edges (back). Expanded all four mini-skirt piece `edgeAllowances` to per-edge arrays (one object per polygon edge) so SA labels render correctly on every edge.
+
+---
+
 ## [0.12.86] - 2026-04-21
 
 ### Fixed

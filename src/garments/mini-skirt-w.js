@@ -138,22 +138,14 @@ export default {
         { x: 0, y: L, angle: 180 },                      // hem fold at CF
       ];
 
-      // Edge allowances are per-polygon-edge in order. The polygon has many
-      // bezier-sampled edges along the waist/side curves plus four structural
-      // edges at the end. sanitizePoly preserves curve points, but edge count
-      // is dynamic, so we tag by start-point y-coord ranges inside the fn.
-      // Simpler: use a fixed array ordered by polygon edges with the hem
-      // corners matching the hem/fold structural edges.
-      //
-      // Because our polygon's edges walk: waist curve(many) → side curve(many)
-      // → taper → kick → raw hem → fold, we instead use an edge-match
-      // function so the engine picks SA per edge based on coordinate ranges.
+      // One entry per polygon edge (CW walk): 9 waist-curve edges, 12 side-seam
+      // edges (sideCurve×11 pts + hip→hem taper), then 3 structural hem edges.
       const edgeAllowances = [
-        { sa,      label: 'Waist' },       // curve segments near y ≈ 0 at top
-        { sa,      label: 'Side seam' },   // segments from (halfW, 0) down to (halfH - hemIn, L)
-        { sa: 0,   label: 'Hem kick' },    // taper corner → kick corner
-        { sa: 0,   label: 'Raw hem' },     // kick corner → rawHemFold
-        { sa: 0,   label: 'Fold' },        // rawHemFold → (0, 0) (CF fold)
+        ...Array(9).fill(null).map(() => ({ sa, label: 'Waist' })),
+        ...Array(12).fill(null).map(() => ({ sa, label: 'Side seam' })),
+        { sa: 0, label: 'Hem kick' },
+        { sa: 0, label: 'Raw hem' },
+        { sa: 0, label: 'Fold' },
       ];
 
       return {
@@ -252,12 +244,14 @@ export default {
         { x: 0, y: L, angle: 180 },                         // hem fold at CB
       ];
 
+      // One entry per polygon edge: 21 waist edges (preDart×7 + dartArch×9 + postDart×5),
+      // 12 side-seam edges (sideCurve×11 + hip→hem taper), then 3 structural + CB closing.
       const edgeAllowances = [
-        { sa,      label: 'Waist' },
-        { sa,      label: 'Side seam' },
-        { sa: 0,   label: 'Hem kick' },
-        { sa: 0,   label: 'Raw hem' },
-        { sa,      label: 'Center back (zip)' },
+        ...Array(21).fill(null).map(() => ({ sa, label: 'Waist' })),
+        ...Array(12).fill(null).map(() => ({ sa, label: 'Side seam' })),
+        { sa: 0, label: 'Hem kick' },
+        { sa: 0, label: 'Raw hem' },
+        { sa, label: 'Center back (zip)' },
       ];
 
       return {
@@ -314,10 +308,11 @@ export default {
         // closes back to lower[0] = (0, -tummyAdj) along the left fold edge
       ];
 
+      // One entry per polygon edge: lower(8 pts)→7 edges, 1 side seam, upper.slice(1)(7 pts)→7 edges, 1 fold.
       const edgeAllowances = [
-        { sa, label: 'Lower (to skirt)' },
+        ...Array(7).fill(null).map(() => ({ sa, label: 'Lower (to skirt)' })),
         { sa, label: 'Side seam' },
-        { sa, label: 'Upper' },
+        ...Array(7).fill(null).map(() => ({ sa, label: 'Upper' })),
         { sa: 0, label: 'Fold' },
       ];
 
@@ -363,10 +358,11 @@ export default {
         ...upper.slice(1),
       ];
 
+      // One entry per polygon edge: 1 lower, 1 side seam, upper.slice(1)(7 pts)→7 edges, 1 CB closing.
       const edgeAllowances = [
         { sa, label: 'Lower (to skirt)' },
         { sa, label: 'Side seam' },
-        { sa, label: 'Upper' },
+        ...Array(7).fill(null).map(() => ({ sa, label: 'Upper' })),
         { sa, label: 'Center back' },
       ];
 

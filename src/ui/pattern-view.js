@@ -112,9 +112,10 @@ function edgeSALabels(polygon, edgeAllowances, ox, oy) {
   let svg = '';
   let i = 0;
   while (i < n) {
+    if (i >= edgeAllowances.length) break;
     const { sa: saVal, label } = edgeAllowances[i];
     let j = i;
-    while (j < n && edgeAllowances[j].label === label) j++;
+    while (j < n && j < edgeAllowances.length && edgeAllowances[j].label === label) j++;
     // Skip center seam and crotch edges — redundant with the bottom SA note
     if (label === 'Center' || label === 'Crotch') { i = j; continue; }
     // Skip fold edges and zero-length groups
