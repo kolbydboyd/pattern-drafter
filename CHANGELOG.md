@@ -4,6 +4,17 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.88] - 2026-04-22
+
+### Changed
+- **Keepall Duffel — pattern pieces now self-contained (notches, guide lines, trim line, welt pocket)** — Previously several construction details were written as prose instructions that asked the sewist to measure and mark the pattern themselves. Now these are drawn directly on the pieces:
+  - **Body wrap (outer + lining):** ten perimeter notches mark the front-face ↔ bottom ↔ back-face zone corners (both short ends, plus bottom-center turning reference) and trim-strap positions (both long edges at L/3 and 2L/3). Five dashed gold guide lines visualize the bottom band boundaries, the bottom-center line, and the two trim-strap lines across the length.
+  - **Body-wrap interfacing + end-panel interfacing:** dashed brown inner outline offset ⅛″ inside the seamline shows exactly where to trim the interfacing before fusing — no more measuring.
+  - **Interior zip pocket rebuilt as welt/window construction:** the real LV Keepall uses a faced zipper window with the pocket bag sewn INTO the lining, not an applied pouch on top. The lining back-face zone now shows a red zip-window rectangle indicating the exact size and position to slash. The pocket itself is a single rectangle (folded in half) with instructions for the slash-and-flip window facing technique.
+- **Renderer extensions (purely additive):** `renderRectanglePieceSVG` now consumes optional `notches`, `guides`, `trimOffset`, and `windows` piece properties; `renderGenericPieceSVG` consumes an optional `trimOffset` (polygon variant via `offsetPolygon`). Legends auto-update when these features are active. All new properties default to no-op when absent, so other garments render identically.
+
+---
+
 ## [0.12.87] - 2026-04-22
 
 ### Added

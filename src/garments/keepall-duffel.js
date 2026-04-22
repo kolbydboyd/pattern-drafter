@@ -55,7 +55,7 @@ export default {
       values: [
         { value: 'none', label: 'None' },
         { value: 'slip', label: 'Flat slip pocket',      reference: 'open patch pocket sewn to lining' },
-        { value: 'zip',  label: 'Zippered flat pocket',  reference: 'zipped pocket sewn to lining' },
+        { value: 'zip',  label: 'Zippered welt pocket',  reference: 'faced zipper window with pocket bag sewn into the lining' },
       ],
       default: 'slip',
     },
@@ -156,9 +156,11 @@ export default {
     if (opts.interfacing !== 'none') {
       pieces.push({
         id: 'end-panel-interfacing', name: 'End Panel Interfacing',
-        instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Trim ⅛″ inside seamline before fusing`,
+        instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · ` +
+          `Trim along the dashed inner line (⅛″ inside the seamline) before fusing.`,
         type: 'bodice', polygon: endPoly, path: endPath,
         width: D, height: H, sa: 0,
+        trimOffset: 0.125,
       });
     }
 
@@ -167,32 +169,75 @@ export default {
     // Zones across width: 0–sh = front face, sh–(sh+D) = bottom, (sh+D)–(2sh+D) = back face, +1″ ease.
     // Short ends (wW wide) sew to end panel perimeter: right angle corners at sh and sh+D from front long edge.
 
+    // Shared perimeter notches: zone boundaries on each short end (y=0, y=L),
+    // trim-strap positions on each long edge (x=0, x=wW). Rectangle axes:
+    // x spans wrap width (front-face → bottom → back-face), y spans bag length.
+    const bodyWrapNotches = [
+      { x: sh,       y: 0, angle: 90  },
+      { x: sh + D/2, y: 0, angle: 90  },
+      { x: sh + D,   y: 0, angle: 90  },
+      { x: sh,       y: L, angle: 270 },
+      { x: sh + D/2, y: L, angle: 270 },
+      { x: sh + D,   y: L, angle: 270 },
+      { x: 0,  y: L/3,   angle: 0   },
+      { x: 0,  y: 2*L/3, angle: 0   },
+      { x: wW, y: L/3,   angle: 180 },
+      { x: wW, y: 2*L/3, angle: 180 },
+    ];
+    const bodyWrapGuides = [
+      { type: 'v', x: sh,       label: 'bottom band' },
+      { type: 'v', x: sh + D },
+      { type: 'v', x: sh + D/2, label: 'center' },
+      { type: 'h', y: L/3,      label: 'trim strap' },
+      { type: 'h', y: 2*L/3 },
+    ];
+
     pieces.push({
       id: 'body-wrap-outer', name: 'Body Wrap (Outer)',
       instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · ` +
-        `On each short end mark notches across the width at: ${fmtInches(sh)} from front long edge (front-face to bottom corner) and ${fmtInches(sh + D)} from front long edge (bottom to back-face corner); also mark ${fmtInches(sh + D/2)} (bottom center — turning gap reference). ` +
-        `Along each long edge mark trim-strap positions at ${fmtInches(L/3)} and ${fmtInches(2*L/3)} from each short end.`,
+        `Notches on the short ends mark the front-face ↔ bottom ↔ back-face corners and the bottom-center turning reference. ` +
+        `Notches on the long edges mark trim-strap positions. ` +
+        `Dashed guide lines visualize the zones — they are not cut.`,
       type: 'rectangle',
       dimensions: { length: L, width: wW }, sa,
+      notches: bodyWrapNotches,
+      guides: bodyWrapGuides,
       dims: [
         { label: fmtInches(L) + ' length', x1: 0, y1: -0.6, x2: L, y2: -0.6, type: 'h' },
         { label: fmtInches(wW) + ' width', x: L + 0.9, y1: 0, y2: wW, type: 'v' },
       ],
     });
 
-    pieces.push({
+    const liningPiece = {
       id: 'body-wrap-lining', name: 'Body Wrap (Lining)',
-      instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · Leave 6–7″ turning gap at center-bottom when sewing to end panels`,
+      instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(wW)} wide · Notches and guides match the outer wrap. ` +
+        `When sewing to the end panels, leave a 6–7″ turning gap along the bottom-band centerline.`,
       type: 'rectangle',
       dimensions: { length: L, width: wW }, sa,
-    });
+      notches: bodyWrapNotches,
+      guides: bodyWrapGuides,
+    };
+    if (opts.interiorPocket === 'zip') {
+      const winW = 7;
+      const winH = 0.5;
+      const cx = sh + D + sh / 2; // centered on a back-face zone
+      const cy = L / 2;
+      liningPiece.windows = [{
+        x: cx - winW / 2, y: cy - winH / 2,
+        width: winW, height: winH,
+        label: 'zip window',
+      }];
+    }
+    pieces.push(liningPiece);
 
     if (opts.interfacing !== 'none') {
       pieces.push({
         id: 'body-wrap-interfacing', name: 'Body Wrap Interfacing',
-        instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(2*sh)} wide · Interface only front and back faces; skip bottom band`,
+        instruction: `Cut 1 · ${fmtInches(L)} long × ${fmtInches(2*sh)} wide · Interface only front and back faces; skip bottom band. ` +
+          `Trim along the dashed inner line (⅛″ inside the seamline) before fusing so the interfacing sits just inside the seam.`,
         type: 'rectangle',
         dimensions: { length: L, width: 2*sh }, sa: 0,
+        trimOffset: 0.125,
       });
     }
 
@@ -291,15 +336,22 @@ export default {
     }
 
     if (opts.interiorPocket === 'zip') {
-      const pW = Math.min(10, Math.round(L * 0.6 * 4) / 4);
-      const pH = Math.max(3, Math.min(5, Math.round((sh - 1.5) * 4) / 4));
+      // Welt-style pocket sewn INTO the lining: faced zipper window (marked as
+      // the red rectangle on the body-wrap lining) backed by a single rectangle
+      // folded in half to form the pocket bag.
+      const bagW = 8;                                     // slightly wider than the 7″ window
+      const bagH = Math.max(6, Math.min(10, sh + 1));     // pocket depth
       pieces.push({
-        id: 'interior-zip-pocket', name: 'Interior Zip Pocket Panel',
-        instruction: `Cut 2 in lining fabric · ${fmtInches(pW)} wide × ${fmtInches(pH)} tall · ` +
-          `Sandwich a zipper between panels at top. Sew, {press}, {topstitch}. Sew remaining three sides {RST}. ` +
-          `Turn through open zipper. {press}. Attach to lining body wrap back-face zone.`,
+        id: 'interior-zip-pocket-bag', name: 'Interior Zip Pocket Bag',
+        instruction: `Cut 1 in lining fabric · ${fmtInches(bagW)} wide × ${fmtInches(bagH * 2)} tall · ` +
+          `With {RST}, center this rectangle over the red zip-window rectangle on the lining back-face zone. ` +
+          `Stitch a narrow box exactly the size of the window through both layers, then slash down the center of the box and snip into the corners. ` +
+          `Push the rectangle through the slash to the wrong side and {press} so the window edges are crisp. ` +
+          `Place a 7″ zipper behind the window and {topstitch} around the window through the zipper tape and rectangle. ` +
+          `Fold the rectangle in half {RST} so the zipper sits at the fold, then sew the three remaining raw edges to close the pocket bag. ` +
+          `The bag hangs on the wrong side of the lining; the window + zipper shows on the right side.`,
         type: 'rectangle',
-        dimensions: { length: pH, width: pW }, sa: 0,
+        dimensions: { length: bagH * 2, width: bagW }, sa: 0,
       });
     }
 
@@ -489,8 +541,8 @@ export default {
       });
     } else if (opts.interiorPocket === 'zip') {
       steps.push({
-        step: n++, title: 'Make and attach interior zippered pocket',
-        detail: `Sandwich zipper between two pocket panels at top. Sew, {press}, {topstitch} close to teeth. Open zipper, fold {RST}, sew remaining edges, clip corners, turn. {press}. Center on the lining body wrap back-face zone (the ${fmtInches(sh)} band along the back long edge), pocket top 1″ below the back long edge. Edgestitch sides and bottom to lining.`,
+        step: n++, title: 'Sew interior welt-style zip pocket into the lining',
+        detail: `The pocket is sewn INTO the lining behind a faced zipper window. Lay the pocket bag rectangle {RST} over the red zip-window mark on the lining back-face zone. Stitch a narrow box exactly the size of the window through both layers, then slash down the center and snip into the corners. Push the pocket bag through the slash to the wrong side and {press} so the window edges are crisp. Place the 7″ zipper behind the window and {topstitch} around the window through the zipper tape and pocket bag. Fold the pocket bag in half {RST} so the zipper sits at the fold, then sew the three remaining raw edges to close the bag. On the outside of the lining you see the window + zipper; the pocket bag hangs behind.`,
       });
     }
 

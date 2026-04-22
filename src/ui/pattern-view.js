@@ -639,6 +639,12 @@ export function renderGenericPieceSVG(piece) {
     <text x="${(ax - 8).toFixed(1)}" y="${(ay - 5).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">dart</text>`;
   }
 
+  // Optional trim-offset inner outline (e.g. interfacing trimmed 1/8" inside the seamline)
+  const trimOffset = piece.trimOffset || 0;
+  const trimPolySVG = trimOffset > 0
+    ? `<path d="${polyPath(offsetPolygon(polygon, () => -trimOffset))}" stroke="#a64" stroke-width="0.6" stroke-dasharray="2,2" fill="none"/>`
+    : '';
+
   const pieceLabel = type === 'sleeve'
     ? 'SLEEVE × 2 (mirror)'
     : cutOnFold
@@ -653,7 +659,9 @@ export function renderGenericPieceSVG(piece) {
     <line x1="148" y1="${legY2-3}" x2="164" y2="${legY2-3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
     <text x="168" y="${legY2}" font-family="IBM Plex Mono" font-size="9" fill="#888">fold line</text>
     <line x1="218" y1="${legY2-3}" x2="234" y2="${legY2-3}" stroke="#c44" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <text x="238" y="${legY2}" font-family="IBM Plex Mono" font-size="9" fill="#888">pocket placement</text>`;
+    <text x="238" y="${legY2}" font-family="IBM Plex Mono" font-size="9" fill="#888">pocket placement</text>
+    ${trimOffset > 0 ? `<line x1="320" y1="${legY2-3}" x2="336" y2="${legY2-3}" stroke="#a64" stroke-width="0.6" stroke-dasharray="2,2"/>
+    <text x="340" y="${legY2}" font-family="IBM Plex Mono" font-size="9" fill="#888">trim line</text>` : ''}`;
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${piece.id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
@@ -726,6 +734,7 @@ export function renderGenericPieceSVG(piece) {
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
       : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
+    ${trimPolySVG}
     ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
       const x = ox + sc(l.x), y = oy + sc(l.y);
       return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
@@ -814,6 +823,42 @@ export function renderRectanglePieceSVG(piece) {
     ? `M ${(stX + stW).toFixed(1)} ${stY.toFixed(1)} L ${stX.toFixed(1)} ${stY.toFixed(1)} L ${stX.toFixed(1)} ${(stY + stH).toFixed(1)} L ${(stX + stW).toFixed(1)} ${(stY + stH).toFixed(1)} L ${(stX + stW).toFixed(1)} ${stY.toFixed(1)}`
     : null;
 
+  // Optional trim-offset line (e.g. interfacing trimmed 1/8" inside the seamline)
+  const trimOffset = piece.trimOffset || 0;
+  const trimSVG = trimOffset > 0
+    ? `<rect x="${(stX + sc(trimOffset)).toFixed(1)}" y="${(stY + sc(trimOffset)).toFixed(1)}" width="${(stW - 2 * sc(trimOffset)).toFixed(1)}" height="${(stH - 2 * sc(trimOffset)).toFixed(1)}" stroke="#a64" stroke-width="0.6" stroke-dasharray="2,2" fill="none"/>`
+    : '';
+
+  // Optional internal guide lines (zone boundaries, strap positions, etc.)
+  const guidesSVG = (piece.guides || []).map(g => {
+    if (g.type === 'h') {
+      const y  = oy + sc(g.y);
+      const x1 = ox + sc(g.x1 ?? 0);
+      const x2 = ox + sc(g.x2 ?? pieceW);
+      return `<line x1="${x1.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#b8963e" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.75"/>${g.label ? `<text x="${(x1 + 4).toFixed(1)}" y="${(y - 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e">${g.label}</text>` : ''}`;
+    }
+    const x  = ox + sc(g.x);
+    const y1 = oy + sc(g.y1 ?? 0);
+    const y2 = oy + sc(g.y2 ?? pieceL);
+    return `<line x1="${x.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#b8963e" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.75"/>${g.label ? `<text x="${(x + 3).toFixed(1)}" y="${(y1 + 10).toFixed(1)}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e">${g.label}</text>` : ''}`;
+  }).join('');
+
+  // Optional cut-out windows (e.g. welt-pocket zipper window)
+  const windowsSVG = (piece.windows || []).map(w => {
+    const x = ox + sc(w.x), y = oy + sc(w.y);
+    const wSc = sc(w.width), hSc = sc(w.height);
+    return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${wSc.toFixed(1)}" height="${hSc.toFixed(1)}" stroke="#c44" stroke-width="1" fill="none"/>${w.label ? `<text x="${(x + wSc/2).toFixed(1)}" y="${(y + hSc/2 + 3).toFixed(1)}" font-family="IBM Plex Mono" font-size="8" fill="#c44" text-anchor="middle">${w.label}</text>` : ''}`;
+  }).join('');
+
+  // Optional perimeter notches (snapped to the rectangle's 4 edges)
+  const rectPoly = [
+    { x: 0,      y: 0      },
+    { x: pieceW, y: 0      },
+    { x: pieceW, y: pieceL },
+    { x: 0,      y: pieceL },
+  ];
+  const notchesSVG = renderNotchesSVG(rectPoly, piece.notches || [], ox, oy);
+
   // Grain line — vertical through horizontal center
   const gx = ox + sc(pieceW / 2);
   const gy1 = oy + sc(pieceL * 0.2);
@@ -841,13 +886,30 @@ export function renderRectanglePieceSVG(piece) {
     <text x="${dimVx + 10}" y="${dimVmy}" font-family="IBM Plex Mono" font-size="12" fill="#555" text-anchor="start" font-weight="500" transform="rotate(90,${dimVx + 10},${dimVmy})">${dimVlabel}</text>`;
 
   const legY = svgH - 28;
-  const legendSVG = `
-    <line x1="10" y1="${legY - 3}" x2="26" y2="${legY - 3}" stroke="#000" stroke-width="1.5"/>
-    <text x="30" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">cut here</text>
-    <line x1="72" y1="${legY - 3}" x2="88" y2="${legY - 3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="92" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">stitch line</text>
-    ${onFold ? `<line x1="148" y1="${legY - 3}" x2="164" y2="${legY - 3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="168" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">fold line</text>` : ''}`;
+  let legX = 10;
+  const legendEntries = [
+    `<line x1="${legX}" y1="${legY - 3}" x2="${legX + 16}" y2="${legY - 3}" stroke="#000" stroke-width="1.5"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">cut here</text>`,
+  ];
+  legX += 62;
+  legendEntries.push(`<line x1="${legX}" y1="${legY - 3}" x2="${legX + 16}" y2="${legY - 3}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">stitch line</text>`);
+  legX += 76;
+  if (onFold) {
+    legendEntries.push(`<line x1="${legX}" y1="${legY - 3}" x2="${legX + 16}" y2="${legY - 3}" stroke="#4a8a5a" stroke-width="0.8" stroke-dasharray="4,3"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">fold line</text>`);
+    legX += 66;
+  }
+  if (trimOffset > 0) {
+    legendEntries.push(`<line x1="${legX}" y1="${legY - 3}" x2="${legX + 16}" y2="${legY - 3}" stroke="#a64" stroke-width="0.6" stroke-dasharray="2,2"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">trim line</text>`);
+    legX += 66;
+  }
+  if ((piece.guides || []).length) {
+    legendEntries.push(`<line x1="${legX}" y1="${legY - 3}" x2="${legX + 16}" y2="${legY - 3}" stroke="#b8963e" stroke-width="0.5" stroke-dasharray="3,3"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">guide line</text>`);
+    legX += 68;
+  }
+  if ((piece.windows || []).length) {
+    legendEntries.push(`<rect x="${legX}" y="${legY - 7}" width="16" height="8" stroke="#c44" stroke-width="1" fill="none"/><text x="${legX + 20}" y="${legY}" font-family="IBM Plex Mono" font-size="9" fill="#888">cut window</text>`);
+    legX += 72;
+  }
+  const legendSVG = legendEntries.join('');
 
   const pieceLabel = onFold ? `${name?.toUpperCase()} (cut on fold)` : `${name?.toUpperCase()} × 2 (mirror)`;
   const saNote = hemAtTop
@@ -863,9 +925,13 @@ export function renderRectanglePieceSVG(piece) {
     ${stitch3Side
       ? `<path d="${stitch3Side}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`
       : `<rect x="${stX.toFixed(1)}" y="${stY.toFixed(1)}" width="${stW.toFixed(1)}" height="${stH.toFixed(1)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`}
+    ${trimSVG}
+    ${guidesSVG}
+    ${windowsSVG}
     ${grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
     ${onFold ? foldIndicatorSVG(cutX, cutY, cutY + cutH) : ''}
     ${dimsSVG}
+    ${notchesSVG}
     <text x="${svgW / 2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${saNote}</text>
