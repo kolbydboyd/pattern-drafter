@@ -4,7 +4,7 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.86] - 2026-04-21
+## [0.12.88] - 2026-04-22
 
 ### Changed
 - **Keepall Duffel — pattern pieces now self-contained (notches, guide lines, trim line, welt pocket)** — Previously several construction details were written as prose instructions that asked the sewist to measure and mark the pattern themselves. Now these are drawn directly on the pieces:
@@ -12,6 +12,29 @@ All notable changes are documented here, newest first.
   - **Body-wrap interfacing + end-panel interfacing:** dashed brown inner outline offset ⅛″ inside the seamline shows exactly where to trim the interfacing before fusing — no more measuring.
   - **Interior zip pocket rebuilt as welt/window construction:** the real LV Keepall uses a faced zipper window with the pocket bag sewn INTO the lining, not an applied pouch on top. The lining back-face zone now shows a red zip-window rectangle indicating the exact size and position to slash. The pocket itself is a single rectangle (folded in half) with instructions for the slash-and-flip window facing technique.
 - **Renderer extensions (purely additive):** `renderRectanglePieceSVG` now consumes optional `notches`, `guides`, `trimOffset`, and `windows` piece properties; `renderGenericPieceSVG` consumes an optional `trimOffset` (polygon variant via `offsetPolygon`). Legends auto-update when these features are active. All new properties default to no-op when absent, so other garments render identically.
+
+---
+
+## [0.12.87] - 2026-04-22
+
+### Added
+- **Security.txt** — Added `public/.well-known/security.txt` per RFC 9116 so security researchers have a clear, standard disclosure contact (`security@peoplespatterns.com`). Expires 2027-04-22.
+
+---
+
+## [0.12.86] - 2026-04-21
+
+### Fixed
+- **Athletic Formal Jacket v2 — peak lapel gorge height corrected** — `peakLapelCurve` in `upper-body.js` hard-coded `gorgePoint.y = neckDepthFront`, placing the gorge at the very bottom of the front neckline. The gorge now sits at `neckDepthFront × 0.45` (~1.6″ below shoulder for a 38″ chest), so the collar wraps close to the neck as on a properly-fitted tailored jacket. New `gorgeHeightFrac` parameter (default 0.45) controls this fraction.
+- **Athletic Formal Jacket v2 — peak tip now protrudes outward** — With the old 50° gorge angle and 1.5″ extension, `peakTip.x` evaluated to ~+0.3 (barely inward from CF). Changed `gorgeAngle` default from 50° → 20° and `peakExtension` default from 1.5″ → 4.0″. Result: peak tip protrudes ~2.5″ outward from CF at near-shoulder height, matching the wide-lapel Keiji Kaneko × Fruit of the Loom reference silhouette.
+- **Athletic Formal Jacket v2 — front panel neckline polygon fixed** — The panel stitched bezier neckline points for panel-x > gorgePoint.x, but gorgePoint was not on the neckline bezier, causing a backward spike in the polygon (up to 1.75″ with the corrected gorge height). The neckline-slice is now replaced with a single straight line from gorgePoint to shoulder-neck junction, which is standard in tailored jacket construction.
+- **Athletic Formal Jacket v2 — collar half-neckline arc corrected** — Replaced the rough approximation (`frontArmArc × 0.3 + neckW + shoulderW × 0.4`) with the geometric sum: half back-neck arc + straight gorge-to-shoulder seam length, matching the actual seam the collar is sewn to.
+- **Athletic Formal Jacket v2 — sleeve elbow bend reduced for jersey** — `sleeveBend` reduced from 6° to 2°. 12oz cotton jersey's inherent stretch eliminates the need for structural elbow shaping used in woven fabrics. 2° is retained only for aesthetic arm hang.
+
+### Changed
+- **Athletic Formal Jacket v2 — DB lapel width widened** — Default double-breasted peak lapel width increased from 4″ to 4.5″ to match the broad Kaneko silhouette.
+
+---
 
 ## [0.12.85] - 2026-04-21
 
