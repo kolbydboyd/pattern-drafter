@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.88] - 2026-04-22
+
+### Added
+- **Build-time edge-allowance validator** — `scripts/validate-edge-allowances.mjs` runs every garment module with synthetic measurements, applies `sanitizePoly`, and asserts `edgeAllowances.length === polygon.length` for all pieces where the polygon survives sanitization unchanged. Runs as the second step of `npm run build`. Catches the class of bug that caused the mini-skirt crash before it reaches production.
+
+### Fixed
+- **Mini Skirt front waistband — SA labels missing on 2 edges** — `sampleBezier(n=8)` returns 9 points (t=0…1 inclusive), so each bezier curve contributes 8 edges, not 7. The front waistband `edgeAllowances` had `Array(7)` for both curves (16 total entries) while the polygon has 18 edges. Updated to `Array(8)` × 2 (18 total entries); the validator now enforces this going forward.
+
+---
+
 ## [0.12.87] - 2026-04-22
 
 ### Fixed

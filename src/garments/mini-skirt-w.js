@@ -308,11 +308,12 @@ export default {
         // closes back to lower[0] = (0, -tummyAdj) along the left fold edge
       ];
 
-      // One entry per polygon edge: lower(8 pts)→7 edges, 1 side seam, upper.slice(1)(7 pts)→7 edges, 1 fold.
+      // sampleBezier(n=8) returns 9 pts (t=0..1 inclusive) → 8 edges per curve.
+      // Polygon: lower(9)→8 edges, 1 side seam, upper.slice(1)(8 pts)→8 edges, 1 fold = 18 total.
       const edgeAllowances = [
-        ...Array(7).fill(null).map(() => ({ sa, label: 'Lower (to skirt)' })),
+        ...Array(8).fill(null).map(() => ({ sa, label: 'Lower (to skirt)' })),
         { sa, label: 'Side seam' },
-        ...Array(7).fill(null).map(() => ({ sa, label: 'Upper' })),
+        ...Array(8).fill(null).map(() => ({ sa, label: 'Upper' })),
         { sa: 0, label: 'Fold' },
       ];
 
