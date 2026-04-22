@@ -197,8 +197,8 @@ export default {
     const COLLAR_STAND = 1.25;
     const btnSpacing = isDouble ? 4.5 : 5;
     const btnCount   = isDouble ? 4 : 2;
-    // Top button Y: below the neckline depth for double-breasted
-    const topBtnY     = isDouble ? NECK_DEPTH_FRONT + 2 : NECK_DEPTH_FRONT + 3;
+    // Top button Y: at underarm level for DB (mid-chest placement), below neckline for SB
+    const topBtnY     = isDouble ? armholeY : NECK_DEPTH_FRONT + 3;
     const breakPointY = topBtnY - 0.5; // break point sits just above top button
 
     // Lapel width: wider for peak/double-breasted, narrower for notched
@@ -315,6 +315,7 @@ export default {
       sleeveBend: 2,          // jersey stretch eliminates structural elbow shaping (denim uses 10°, woven 6°)
       bicepEase: 0.15,
       capHeightRatio: 0.40,   // lower cap for knit
+      cuffEase: 0.25,         // jersey stretches; 40% default produces an unacceptably wide opening
     });
     const topSlvBB   = bbox(sleeveResult.topSleeve);
     const underSlvBB = bbox(sleeveResult.underSleeve);
@@ -386,7 +387,7 @@ export default {
         // Roll line: break point (CF placket edge) → gorge (peak/notched) or shoulder-neck (shawl).
         // The lapel folds back along this line when worn.
         rollLine: {
-          from: { x: -PLACKET_W, y: breakPointY },
+          from: { x: 0, y: breakPointY },
           to:   { x: neckStop.x, y: neckStop.y },
           label: 'roll line',
         },
@@ -709,8 +710,8 @@ export default {
     for (const p of neckBackForFacing) backFacingPoly.push({ ...p, x: neckW - p.x });
     delete backFacingPoly[0].curve;
     delete backFacingPoly[backFacingPoly.length - 1].curve;
-    // Inner edge: offset 2.5″ below neckline
-    backFacingPoly.push({ x: shoulderPtX, y: slopeDrop + BACK_FACING_W });
+    // Inner edge: BACK_FACING_W below the neckline, spanning only CB → shoulder-neck (neckW)
+    backFacingPoly.push({ x: neckW, y: BACK_FACING_W });
     backFacingPoly.push({ x: 0, y: NECK_DEPTH_BACK + BACK_FACING_W });
     const backFacingBB = bbox(backFacingPoly);
 
