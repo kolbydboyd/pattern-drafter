@@ -369,7 +369,7 @@ export default {
 
     const nNeckSeamEdges = neckSeamPts.length - 1;
     const collarEdgeAllowances = [
-      { sa: 0, label: 'Outer edge' },
+      { sa,    label: 'Outer edge' },
       { sa,    label: 'Front edge' },
     ];
     for (let i = 0; i < nNeckSeamEdges; i++) collarEdgeAllowances.push({ sa, label: 'Neckline' });
@@ -686,6 +686,7 @@ export default {
             sa,
             notches: revereCollarNotches,
             edgeAllowances: revereCollarEdgeAllowances,
+            grainLine: { start: { x: revereCollarLen * 0.3, y: REVERE_COLLAR_H / 2 }, end: { x: revereCollarLen * 0.7, y: REVERE_COLLAR_H / 2 } },
             dims: [
               { label: fmtInches(revereCollarLen) + ' total', x1: 0, y1: REVERE_COLLAR_H + 0.5, x2: revereCollarLen, y2: REVERE_COLLAR_H + 0.5, type: 'h' },
               { label: fmtInches(REVERE_COLLAR_H) + ' cut height', x: revereCollarLen + 1, y1: 0, y2: REVERE_COLLAR_H, type: 'v' },
@@ -694,7 +695,7 @@ export default {
         : {
             id: 'collar',
             name: 'Camp Collar',
-            instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
+            instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · Place RST, sew outer edge + front points, clip corners, turn RS out, press flat · CB notch at center · ${fmtInches(collarLen)} neckline seam`,
             type: 'bodice',
             polygon: collarPoly,
             path: polyToPathStr(collarPoly),
@@ -714,11 +715,13 @@ export default {
             id: 'revere-facing',
             name: 'Revere Facing',
             instruction: `Cut 2 (L & R mirror) · Interface both · Lapel edge sewn RST to front panel then turned · CF inner edge folded and pressed · Attach facing before shoulder seams`,
-            type: 'pocket',
+            type: 'bodice',
+            isCutOnFold: false,
             polygon: facingPoly,
             path: polyToPathStr(facingPoly),
             width: facingBB.maxX - facingBB.minX,
             height: facingBB.maxY - facingBB.minY,
+            isBack: false,
             sa, hem,
             edgeAllowances: facingEdgeAllowances,
             dims: [

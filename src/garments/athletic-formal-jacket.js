@@ -343,6 +343,7 @@ export default {
     ];
 
     const backNotches = [
+      { x: neckW, y: 0, angle: 90 },  // shoulder-neck junction — matches collar shoulder notch
       { x: shoulderMidX, y: shoulderMidY, angle: edgeAngle({ x: neckW, y: 0 }, { x: shoulderPtX, y: slopeDrop }) },
       { x: backSideX, y: armholeY, angle: 0 },
       { x: shoulderPtX, y: slopeDrop + armholeDepth * 0.25, angle: edgeAngle({ x: shoulderPtX, y: slopeDrop }, { x: backSideX, y: armholeY }) },
@@ -489,6 +490,9 @@ export default {
       const ucCBMid = { x: 0, y: collarW / 2 };
       const lcCFEnd = underCollar[underCollar.length - 2];
       const lcCBMid = { x: 0, y: (collarW / 1.02) / 2 };
+      // Shoulder-seam position on collar: where back neckline seam meets front gorge seam.
+      const backNeckLen = arcLength(backNeckPts);
+      const collarShoulderX = standLength * (backNeckLen / halfNeckArc);
 
       pieces.push({
         id: 'upper-collar',
@@ -502,8 +506,9 @@ export default {
         isBack: false,
         sa,
         notches: [
-          { x: ucCFEnd.x, y: ucCFEnd.y, angle: 0 },   // CF end — matches panel gorge
-          { x: ucCBMid.x, y: ucCBMid.y, angle: 180 },  // CB fold — alignment mark
+          { x: ucCFEnd.x,       y: ucCFEnd.y, angle: 0   }, // CF end — matches panel gorge notch
+          { x: ucCBMid.x,       y: ucCBMid.y, angle: 180 }, // CB fold — alignment mark
+          { x: collarShoulderX, y: ucCFEnd.y, angle: 90  }, // shoulder seam — matches back panel shoulder-neck
         ],
       });
 
@@ -520,8 +525,9 @@ export default {
         isBack: false,
         sa,
         notches: [
-          { x: lcCFEnd.x, y: lcCFEnd.y, angle: 0 },   // CF end — matches panel gorge
-          { x: lcCBMid.x, y: lcCBMid.y, angle: 180 },  // CB seam — alignment mark
+          { x: lcCFEnd.x,                 y: lcCFEnd.y, angle: 0   }, // CF end — matches panel gorge notch
+          { x: lcCBMid.x,                 y: lcCBMid.y, angle: 180 }, // CB seam — alignment mark
+          { x: collarShoulderX / 1.02,    y: lcCFEnd.y, angle: 90  }, // shoulder seam — matches back panel shoulder-neck
         ],
       });
     } else {
@@ -578,8 +584,11 @@ export default {
             .sort((a, b) => b.x - a.x) // shoulder-side → CF-side (descending x)
         : [];
       for (const p of neckForFacing) facingPoly.push({ x: p.x, y: p.y });
-      // Step inward at neckline level and taper down to the hem.
-      facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
+      // Shawl: neckForFacing ends near CF, so step right to facing width before tapering.
+      // Peak/notched: gorgePoint is already inset from CF — go straight to hem width.
+      if (opts.collar === 'shawl') {
+        facingPoly.push({ x: FACING_TOP_W, y: NECK_DEPTH_FRONT });
+      }
       facingPoly.push({ x: FACING_W, y: torsoLen });
       facingPoly.push({ x: -PLACKET_W, y: torsoLen });
       facingPoly.push({ x: -PLACKET_W, y: breakPointY });
@@ -589,18 +598,18 @@ export default {
       // so the array MUST have exactly `facingPoly.length` entries — the last
       // slot is the closing edge back to vertex 0. Missing slots crash
       // `edgeSALabels` (src/ui/pattern-view.js) at render.
-      // Lapel edges use ⅜″ for clean stitch lines on the narrow peak.
-      const lapelSa = 0.375;
       const facingEdges = [];
       // Lapel: K-1 edges between the K lapelForFacing points.
       for (let i = 0; i < lapelForFacing.length - 1; i++) {
-        facingEdges.push({ sa: lapelSa, label: 'Lapel' });
+        facingEdges.push({ sa, label: 'Lapel' });
       }
-      // Shawl only: N 'Neck' edges = 1 (shoulderNeck → neck[0]) + N-1 (between neck pts).
+      // Shawl only: neckline curve edges + step from neckline to facing inner width.
       for (let i = 0; i < neckForFacing.length; i++) {
         facingEdges.push({ sa, label: 'Neck' });
       }
-      facingEdges.push({ sa,      label: 'Neck-step' }); // neckStop → (FACING_TOP_W, ND)
+      if (opts.collar === 'shawl') {
+        facingEdges.push({ sa, label: 'Neck-step' }); // shawl: step CF → FACING_TOP_W
+      }
       facingEdges.push({ sa,      label: 'Inner' });     // → (FACING_W, torso)
       facingEdges.push({ sa: hem, label: 'Hem' });       // → (-PLACKET_W, torso)
       facingEdges.push({ sa,      label: 'Placket' });   // → (-PLACKET_W, breakPointY)
