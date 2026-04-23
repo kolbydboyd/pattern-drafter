@@ -4,6 +4,23 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.90] - 2026-04-22
+
+### Added
+- **Build-time edge-allowance validator** — `scripts/validate-edge-allowances.mjs` runs every garment module with synthetic measurements, applies `sanitizePoly`, and asserts `edgeAllowances.length === polygon.length` for all pieces where the polygon survives sanitization unchanged. Runs as the second step of `npm run build`. Catches the class of bug that caused the mini-skirt crash before it reaches production.
+
+### Fixed
+- **Mini Skirt front waistband — SA labels missing on 2 edges** — `sampleBezier(n=8)` returns 9 points (t=0…1 inclusive), so each bezier curve contributes 8 edges, not 7. The front waistband `edgeAllowances` had `Array(7)` for both curves (16 total entries) while the polygon has 18 edges. Updated to `Array(8)` × 2 (18 total entries); the validator now enforces this going forward.
+
+---
+
+## [0.12.89] - 2026-04-22
+
+### Fixed
+- **Mini Skirt — "undefined is not an object (evaluating 'e[m].label')" crash on pattern preview** — `edgeSALabels` in `pattern-view.js` iterated all polygon edges (`n = polygon.length`) and blindly accessed `edgeAllowances[j]`, which is `undefined` for any index beyond the array length. Added a bounds check (`i >= edgeAllowances.length` breaks the loop; inner loop also guards with `j < edgeAllowances.length`). Root cause in the mini skirt: `edgeAllowances` had 5 semantic entries while the bezier-sampled polygon has 24 edges (front) and 36 edges (back). Expanded all four mini-skirt piece `edgeAllowances` to per-edge arrays (one object per polygon edge) so SA labels render correctly on every edge.
+
+---
+
 ## [0.12.88] - 2026-04-22
 
 ### Changed
