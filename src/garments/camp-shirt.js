@@ -369,7 +369,7 @@ export default {
 
     const nNeckSeamEdges = neckSeamPts.length - 1;
     const collarEdgeAllowances = [
-      { sa: 0, label: 'Outer edge' },
+      { sa,    label: 'Outer edge' },
       { sa,    label: 'Front edge' },
     ];
     for (let i = 0; i < nNeckSeamEdges; i++) collarEdgeAllowances.push({ sa, label: 'Neckline' });
@@ -695,7 +695,7 @@ export default {
         : {
             id: 'collar',
             name: 'Camp Collar',
-            instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · CB notch at center · ${fmtInches(collarLen)} neckline seam · Fold in half lengthwise (WS together) to verify symmetry before sewing`,
+            instruction: `Cut 2 (outer + undercollar) on cross-grain · Interface outer only · Place RST, sew outer edge + front points, clip corners, turn RS out, press flat · CB notch at center · ${fmtInches(collarLen)} neckline seam`,
             type: 'bodice',
             polygon: collarPoly,
             path: polyToPathStr(collarPoly),
