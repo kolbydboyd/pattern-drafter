@@ -686,6 +686,7 @@ export default {
             sa,
             notches: revereCollarNotches,
             edgeAllowances: revereCollarEdgeAllowances,
+            grainLine: { start: { x: revereCollarLen * 0.3, y: REVERE_COLLAR_H / 2 }, end: { x: revereCollarLen * 0.7, y: REVERE_COLLAR_H / 2 } },
             dims: [
               { label: fmtInches(revereCollarLen) + ' total', x1: 0, y1: REVERE_COLLAR_H + 0.5, x2: revereCollarLen, y2: REVERE_COLLAR_H + 0.5, type: 'h' },
               { label: fmtInches(REVERE_COLLAR_H) + ' cut height', x: revereCollarLen + 1, y1: 0, y2: REVERE_COLLAR_H, type: 'v' },
