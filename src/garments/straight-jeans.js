@@ -468,21 +468,21 @@ function buildBackPatchPocket() {
   ];
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
-    // Top edge gets 1/2″ SA (double fold for clean finish)
-    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -0.5;
+    // Top edge gets 3/4″ SA (double fold ⅜″+⅜″ — industry standard for jeans patch pockets)
+    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -0.75;
     return -pocketSA;
   });
 
   return {
     id: 'back-pocket',
     name: 'Back Patch Pocket',
-    instruction: 'Cut 2 · ½″ hem at top (fold under ¼″ twice, {topstitch}) · ⅜″ SA sides/bottom · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
+    instruction: 'Cut 2 · ¾″ hem at top (fold under ⅜″ twice, {topstitch}) · ⅜″ SA sides/bottom · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: totalH,
-    sa: pocketSA, hem: 0.5, hemEdge: 'top', type: 'bodice',
+    sa: pocketSA, hem: 0.75, hemEdge: 'top', type: 'bodice',
     isCutOnFold: false,
     dimensions: [
       { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
