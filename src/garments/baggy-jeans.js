@@ -149,7 +149,7 @@ export default {
       dartIntake: backDartIntake,
       height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem,
-      isBack: true, shape, opts,
+      isBack: true, shape, opts: { ...opts, backPockets: 'welt2' },
       seatDepth: m.seatDepth,
       // Intentionally omit calf/ankle — baggy silhouette uses shape ratios only
     }));
