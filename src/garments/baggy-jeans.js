@@ -203,10 +203,10 @@ export default {
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
         'Rigid (non-stretch) denim holds the baggy silhouette best and breaks in over time. Stretch denim will drape more but may lose the structured Y2K look',
-        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look. Use a {topstitch} needle for heavier thread',
+        '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look',
+        'Two needles, two jobs: Jeans 100/16 for construction seams (sharp point pierces dense denim); switch to a Topstitch 90/14 for every topstitching row. The topstitch needle has a wider eye and a deeper front groove that protect 30wt thread from shredding. A jeans needle will shred heavy thread even at low speed',
         'Fell seams on inseam and outseam: after sewing, {press} seam to one side, fold raw edge under, {topstitch} from RS two rows visible',
         'Pre-wash denim once (hot wash, dry on high) to pre-shrink before cutting',
-        'Use a denim needle (100/16) and heavy polyester thread 30wt; lighter thread will break under tension',
         'Copper rivet all high-stress points: bottom of front pocket openings, coin pocket sides, crotch junction',
         '{press} denim with a damp cloth. Dry pressing may leave shine marks on dark denim',
         'Extra-wide legs require more fabric \u2014 allow 15\u201320% more yardage than standard jeans',

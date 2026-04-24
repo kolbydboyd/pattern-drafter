@@ -176,7 +176,9 @@ export const NEEDLE_TYPES = {
   'ballpoint-80':   { name: 'Ballpoint/Jersey 80/12', use: 'Knits (jersey, french terry, ponte)' },
   'ballpoint-90':   { name: 'Ballpoint/Jersey 90/14', use: 'Medium-heavy knits (fleece, sweatshirt)' },
   'stretch-75':     { name: 'Stretch 75/11', use: 'Lycra, spandex blends' },
-  'denim-100':      { name: 'Denim/Jeans 100/16', use: 'Denim, heavy twill, multiple layers' },
+  'denim-100':      { name: 'Denim/Jeans 100/16', use: 'Denim, heavy twill, multiple layers — construction seams only' },
+  'topstitch-90':   { name: 'Topstitch 90/14', use: 'Heavy decorative thread (30–40wt); wider eye + deeper groove prevent shredding' },
+  'topstitch-100':  { name: 'Topstitch 100/16', use: 'Heavy decorative thread on thick layers (multiple denim); wider eye + deeper groove' },
 };
 
 /**
