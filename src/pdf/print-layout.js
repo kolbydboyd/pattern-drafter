@@ -237,16 +237,23 @@ function renderPocketPlacement(piece, ox, oy) {
   }
 
   // ── Back patch pocket ──
-  if (isBack && opts.backPocket && opts.backPocket !== 'none') {
-    const bpX = (ox + width * 0.35) * DPI, bpY = (oy + 1.8) * DPI;
-    const bpW = p(3), bpH = p(3.5);
-    svg += `<rect x="${bpX}" y="${bpY}" width="${bpW}" height="${bpH}" rx="${p(0.2)}"
+  if (isBack && piece.id !== 'back-yoke' && opts.backPocket && opts.backPocket !== 'none') {
+    const pw = 6, psH = 5, ptH = 6.5;
+    const bpLeft = ox + Math.max((width - pw) / 2, 0.5);
+    const bpTop  = oy + 1.8;
+    const bpX = bpLeft * DPI, bpY = bpTop * DPI;
+    const pts = [
+      `${bpX},${bpY}`,
+      `${bpX + p(pw)},${bpY}`,
+      `${bpX + p(pw)},${bpY + p(psH)}`,
+      `${bpX + p(pw / 2)},${bpY + p(ptH)}`,
+      `${bpX},${bpY + p(psH)}`,
+    ].join(' ');
+    svg += `<polygon points="${pts}"
       stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     svg += drillMark(bpX, bpY);
-    svg += drillMark(bpX + bpW, bpY);
-    svg += drillMark(bpX, bpY + bpH);
-    svg += drillMark(bpX + bpW, bpY + bpH);
-    svg += `<text x="${bpX + 3}" y="${bpY + bpH + 10}"
+    svg += drillMark(bpX + p(pw), bpY);
+    svg += `<text x="${bpX + 3}" y="${bpY + p(ptH) + 10}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">patch pocket</text>`;
   }
 
