@@ -453,7 +453,8 @@ export default {
 // ── Back patch pocket (pentagon with pointed bottom) ────────────────────
 
 function buildBackPatchPocket() {
-  const pocketSA = 0.375;     // 3/8″ SA for patch pockets (pressed under)
+  const pocketSA = 0.5;       // 1/2″ SA sides/bottom (standard for cardboard-template pressing)
+  const topHem = 0.75;        // 3/4″ top hem (fold under ⅜″ twice — 1 cm + 1 cm)
   const w = 6;                // pocket width
   const sideH = 5;            // straight side height before angling inward
   const totalH = 6.5;         // total height (top to point)
@@ -468,22 +469,27 @@ function buildBackPatchPocket() {
   ];
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
-    // Top edge gets 3/4″ SA (double fold ⅜″+⅜″ — industry standard for jeans patch pockets)
-    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -0.75;
+    // Top edge: 3/4″ (double fold ⅜″+⅜″); sides/bottom: 1/2″ press-under
+    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -topHem;
     return -pocketSA;
   });
 
   return {
     id: 'back-pocket',
     name: 'Back Patch Pocket',
-    instruction: 'Cut 2 · ¾″ hem at top (fold under ⅜″ twice, {topstitch}) · ⅜″ SA sides/bottom · {press} under using cardboard template · {topstitch} to back panel · Add arcuate stitching',
+    instruction: 'Cut 2 · ¾″ hem at top (fold under ⅜″ twice, {topstitch}) · ½″ SA sides/bottom · {press} under using cardboard template · Trim top corners diagonally to reduce bulk · {topstitch} to back panel · Add arcuate stitching',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: totalH,
-    sa: pocketSA, hem: 0.75, hemEdge: 'top', type: 'bodice',
+    sa: pocketSA, hem: topHem, hemEdge: 'top', type: 'bodice',
     isCutOnFold: false,
+    // Diagonal trim marks at top corners — cut along these lines to remove corner bulk before pressing
+    trimMarks: [
+      { x1: pocketSA, y1: 0,       x2: 0, y2: topHem },  // top-left corner
+      { x1: w - pocketSA, y1: 0,   x2: w, y2: topHem },  // top-right corner
+    ],
     dimensions: [
       { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
       { label: fmtInches(totalH) + ' height', x: w + 0.8, y1: 0, y2: totalH, type: 'v' },
