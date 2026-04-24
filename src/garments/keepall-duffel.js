@@ -142,6 +142,7 @@ export default {
       instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Arch top is the zipper opening; bottom and sides sew to body wrap`,
       type: 'bodice', polygon: endPoly, path: endPath,
       width: D, height: H, sa,
+      isCutOnFold: false,
       edgeAllowances: endEdges, dims: endDims,
     });
 
@@ -150,6 +151,7 @@ export default {
       instruction: `Cut 2 · ${fmtInches(D)} wide × ${fmtInches(H)} tall · Same arch shape as outer`,
       type: 'bodice', polygon: endPoly, path: endPath,
       width: D, height: H, sa,
+      isCutOnFold: false,
       edgeAllowances: endEdges,
     });
 
@@ -160,6 +162,7 @@ export default {
           `Trim along the dashed inner line (⅛″ inside the seamline) before fusing.`,
         type: 'bodice', polygon: endPoly, path: endPath,
         width: D, height: H, sa: 0,
+        isCutOnFold: false,
         trimOffset: 0.125,
       });
     }
