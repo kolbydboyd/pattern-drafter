@@ -933,6 +933,7 @@ export function renderRectanglePieceSVG(piece) {
     ${onFold ? foldIndicatorSVG(cutX, cutY, cutY + cutH) : ''}
     ${dimsSVG}
     ${notchesSVG}
+    ${Math.max(pieceW, pieceL) > 11 && pieceW >= 3 ? `<text x="${ox + sc(pieceW / 2)}" y="${oy + sc(pieceL / 2) + 20}" font-family="IBM Plex Mono" font-size="10" fill="#b8963e" text-anchor="middle">Plain rectangle. Mark and cut directly on fabric with a ruler.</text>` : ''}
     <text x="${svgW / 2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${saNote}</text>
