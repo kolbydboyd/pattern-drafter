@@ -393,6 +393,9 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .wiz-step-header{padding:28px 28px 14px}
 .wiz-step-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:400;color:var(--text);margin-bottom:4px}
 .wiz-step-desc{font-size:.78rem;color:var(--mid)}
+.wiz-listing-toolbar{display:flex;flex-wrap:wrap;align-items:flex-start;gap:16px;padding:12px 28px 4px}
+.wiz-listing-filters{display:flex;flex-direction:column;gap:8px}
+.wiz-listing-toolbar .filter-tabs{margin-bottom:0}
 .wiz-back-cat{background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--mid);cursor:pointer;padding:0;margin-bottom:8px;letter-spacing:.4px}
 .wiz-back-cat:hover{color:var(--text)}
 .cat-grid{display:flex;flex-wrap:wrap;gap:16px;padding:20px 28px}
