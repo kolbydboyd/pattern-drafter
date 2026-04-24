@@ -236,24 +236,79 @@ function renderPocketPlacement(piece, ox, oy) {
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">cargo</text>`;
   }
 
-  // ── Back patch pocket ──
+  // ── Back patch pocket — placement mirrors pattern-view.js exactly ──
   if (isBack && piece.id !== 'back-yoke' && opts.backPocket && opts.backPocket !== 'none') {
     const pw = 6, psH = 5, ptH = 6.5;
-    const bpLeft = ox + Math.max((width - pw) / 2, 0.5);
-    const bpTop  = oy + 1.8;
-    const bpX = bpLeft * DPI, bpY = bpTop * DPI;
-    const pts = [
-      `${bpX},${bpY}`,
-      `${bpX + p(pw)},${bpY}`,
-      `${bpX + p(pw)},${bpY + p(psH)}`,
-      `${bpX + p(pw / 2)},${bpY + p(ptH)}`,
-      `${bpX},${bpY + p(psH)}`,
-    ].join(' ');
-    svg += `<polygon points="${pts}"
+    const ppts = [[0,0],[pw,0],[pw,psH],[pw/2,ptH],[0,psH]];
+
+    // Hip line from the widest polygon vertex (same as pattern-view.js)
+    const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    const hipLineY = hipVertex.y;
+
+    function bpSideSeamXatY(py) {
+      let maxX = 0;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const yMin = Math.min(a.y, b.y), yMax = Math.max(a.y, b.y);
+        if (yMin <= py && py <= yMax && Math.abs(b.y - a.y) > 0.01) {
+          const x = a.x + (py - a.y) / (b.y - a.y) * (b.x - a.x);
+          if (x > maxX) maxX = x;
+        }
+      }
+      return maxX || width;
+    }
+    function bpTopEdgeYatX(px) {
+      let minY = Infinity;
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const xMin = Math.min(a.x, b.x), xMax = Math.max(a.x, b.x);
+        if (xMin <= px && px <= xMax && Math.abs(b.x - a.x) > 0.01) {
+          const y = a.y + (px - a.x) / (b.x - a.x) * (b.y - a.y);
+          if (y < minY) minY = y;
+        }
+      }
+      return minY === Infinity ? 0 : minY;
+    }
+
+    // Tilt to match yoke seam slope
+    const sampleL = Math.max(0.5, width * 0.15);
+    const sampleR = Math.min(width - 0.5, sampleL + pw);
+    const rad = sampleR > sampleL
+      ? Math.atan2(bpTopEdgeYatX(sampleR) - bpTopEdgeYatX(sampleL), sampleR - sampleL) : 0;
+    const cosA = Math.cos(rad), sinA = Math.sin(rad);
+
+    // Center vertically on seat (0.5″ below hip line)
+    let bpTop = hipLineY - ptH / 2 + 0.5;
+    let bpInner = 2;
+
+    // Side-seam clamp (0.75″ clearance)
+    for (const [lx, ly] of ppts) {
+      const allowed = bpSideSeamXatY(bpTop + lx * sinA + ly * cosA) - 0.75 - (lx * cosA - ly * sinA);
+      if (allowed < bpInner) bpInner = allowed;
+    }
+    bpInner = Math.max(0.5, bpInner);
+
+    // Top-edge clamp (0.75″ clearance, keeps pocket below yoke seam)
+    for (const [lx, ly] of ppts) {
+      const rx = lx * cosA - ly * sinA, ry = lx * sinA + ly * cosA;
+      const needed = bpTopEdgeYatX(bpInner + rx) + 0.75 - ry;
+      if (needed > bpTop) bpTop = needed;
+    }
+
+    const svgPts = ppts.map(([lx, ly]) => {
+      const rx = lx * cosA - ly * sinA, ry = lx * sinA + ly * cosA;
+      return `${((ox + bpInner + rx) * DPI).toFixed(1)},${((oy + bpTop + ry) * DPI).toFixed(1)}`;
+    }).join(' ');
+    svg += `<polygon points="${svgPts}"
       stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
-    svg += drillMark(bpX, bpY);
-    svg += drillMark(bpX + p(pw), bpY);
-    svg += `<text x="${bpX + 3}" y="${bpY + p(ptH) + 10}"
+
+    // Drill marks at rotated top-left and top-right corners
+    svg += drillMark((ox + bpInner) * DPI, (oy + bpTop) * DPI);
+    svg += drillMark((ox + bpInner + pw * cosA) * DPI, (oy + bpTop + pw * sinA) * DPI);
+
+    const lblX = ((ox + bpInner + pw * 0.3 * cosA) * DPI).toFixed(1);
+    const lblY = ((oy + bpTop + pw * 0.3 * sinA + ptH) * DPI + 10).toFixed(1);
+    svg += `<text x="${lblX}" y="${lblY}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">patch pocket</text>`;
   }
 
