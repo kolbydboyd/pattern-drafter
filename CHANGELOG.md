@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.95] - 2026-05-01
+
+### Fixed
+- **Straight jeans print — back pocket placement wrong with custom measurements** — `renderPocketPlacement()` used global max-x to find the hip vertex. For wide-leg shapes (`sideHemX > hipWidth`) or bodies where `waistWidth > hipWidth`, the hem or waist vertex was incorrectly selected, making `hipLineY` resolve to the hem or waist y-value. This pushed `bpTop` to a large negative number, caused the side-seam clamp to query y-values outside the polygon, and pinned the pocket hard against the CB seam allowance at `bpInner = 0.5"`. Fixed by searching for the vertex where `x ≈ piece.width` (which is `hipWidth`) and `0 < y < rise`, which is the explicit hip point added to the polygon at construction time. Falls back to global max-x for non-panel pieces.
+
+---
+
 ## [0.12.94] - 2026-05-01
 
 ### Fixed

@@ -241,8 +241,12 @@ function renderPocketPlacement(piece, ox, oy) {
     const pw = 6, psH = 5, ptH = 6.5;
     const ppts = [[0,0],[pw,0],[pw,psH],[pw/2,ptH],[0,psH]];
 
-    // Hip line from the widest polygon vertex (same as pattern-view.js)
-    const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    // Hip line: find the explicit hip vertex (x ≈ piece.width, 0 < y < rise).
+    // Global max-x fails for wide-leg shapes where sideHemX > hipWidth, or when
+    // waistWidth > hipWidth — both push bpTop negative and pin the pocket to the CB seam.
+    const riseY = rise || height * 0.4;
+    const hipVertex = polygon.find(pt => Math.abs(pt.x - width) < 0.2 && pt.y > 0 && pt.y < riseY)
+      || polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
     const hipLineY = hipVertex.y;
 
     function bpSideSeamXatY(py) {
