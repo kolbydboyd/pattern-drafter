@@ -179,7 +179,7 @@ export default {
       dartIntake: effectiveDartIntake,
       height: H, rise, inseam,
       ext: backExt, cbRaise, sa, hem,
-      isBack: true, shape, opts,
+      isBack: true, shape, opts: { ...opts, backPocket: 'patch' },
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth,
     }));
 
