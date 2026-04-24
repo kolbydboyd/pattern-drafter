@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.91] - 2026-04-24
+
+### Changed
+- **Generator step 1 — search and filters added** — The garment picker now has a persistent toolbar with a live search input, an audience filter (All / Menswear / Womenswear / Children), and a difficulty filter (All levels / Beginner / Intermediate / Advanced). When any filter or search term is active the two-tier category flow is replaced by a flat filtered grid across all garments, matching the discovery experience on the patterns page. The category grid is preserved as the default browse mode.
+
+---
+
 ## [0.12.90] - 2026-04-22
 
 ### Added

@@ -72,6 +72,9 @@ let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
+let _wizFilter = 'all';   // 'all' | 'menswear' | 'womenswear' | 'childrens'
+let _wizDiff   = 'all';   // 'all' | 'beginner' | 'intermediate' | 'advanced'
+let _wizSearch = '';
 // Fit-library state: set when user applies a reference garment, cleared on garment change
 let _fitEaseOverride = null; // { snappedValue, optionKey } — applied in readInputs()
 
@@ -1735,9 +1738,78 @@ async function _toggleWishlist(garmentId, heartBtn) {
   heartBtn.setAttribute('aria-pressed', String(_wishlistSet.has(garmentId)));
 }
 
+function _wizIsKids(g)   { return g.audience === 'kids'; }
+function _wizIsWomen(g)  { return g.id.endsWith('-w') && !_wizIsKids(g); }
+function _wizHasFilter() { return _wizFilter !== 'all' || _wizDiff !== 'all' || _wizSearch !== ''; }
+function _wizFiltered() {
+  let list = Object.values(GARMENTS);
+  if (_wizFilter === 'womenswear')     list = list.filter(_wizIsWomen);
+  else if (_wizFilter === 'childrens') list = list.filter(_wizIsKids);
+  else if (_wizFilter === 'menswear')  list = list.filter(g => !_wizIsWomen(g) && !_wizIsKids(g));
+  if (_wizDiff !== 'all') list = list.filter(g => g.difficulty === _wizDiff);
+  if (_wizSearch) {
+    const q = _wizSearch.toLowerCase();
+    list = list.filter(g =>
+      g.name.toLowerCase().includes(q) ||
+      (g.category || '').toLowerCase().includes(q) ||
+      (g.difficulty || '').toLowerCase().includes(q)
+    );
+  }
+  return list;
+}
+
+function _buildGmtCard(id) {
+  const g = GARMENTS[id];
+  const wishlisted = _wishlistSet.has(id);
+  const owned = _purchasedSet.has(id);
+  const price = PATTERN_PRICES[id];
+  const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
+  return `<button class="gmt-card" data-garment="${id}">
+    <div class="gmt-card-img">
+      <img src="/garment-illustrations/${id}.svg" alt="${g.name} illustration" width="80" height="100" loading="lazy">
+    </div>
+    <div class="gmt-card-info">
+      <div class="gmt-name">${g.name}</div>
+      <div class="gmt-card-meta">
+        ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
+        ${owned ? `<span class="gmt-owned-badge">Owned</span>` : dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
+      </div>
+    </div>
+    <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
+  </button>`;
+}
+
 function renderStep1() {
   const el = document.getElementById('wiz-step-1');
-  if (selectedCategory) {
+
+  const toolbarHtml = `
+    <div class="wiz-listing-toolbar">
+      <div class="wiz-listing-filters">
+        <div class="filter-tabs" role="tablist" aria-label="Audience filter">
+          ${[['all','All'],['menswear','Menswear'],['womenswear','Womenswear'],['childrens','Children']].map(([v,l]) =>
+            `<button class="filter-tab${_wizFilter===v?' filter-tab-active':''}" data-wiz-filter="${v}" role="tab" aria-selected="${_wizFilter===v}">${l}</button>`
+          ).join('')}
+        </div>
+        <div class="filter-tabs" role="tablist" aria-label="Difficulty filter">
+          ${[['all','All levels'],['beginner','Beginner'],['intermediate','Intermediate'],['advanced','Advanced']].map(([v,l]) =>
+            `<button class="filter-tab${_wizDiff===v?' filter-tab-active':''}" data-wiz-diff="${v}" role="tab" aria-selected="${_wizDiff===v}">${l}</button>`
+          ).join('')}
+        </div>
+      </div>
+      <input type="search" id="wiz-search" class="pat-pg-search" placeholder="Search patterns..." aria-label="Search patterns" value="${_wizSearch.replace(/"/g,'&quot;')}">
+    </div>`;
+
+  if (_wizHasFilter()) {
+    const results = _wizFiltered();
+    el.innerHTML = `
+      <div class="wiz-step-header">
+        <h2 class="wiz-step-title">Choose a garment</h2>
+      </div>
+      ${toolbarHtml}
+      ${results.length === 0
+        ? `<p class="pat-pg-listing-empty">No patterns match your search.</p>`
+        : `<div class="gmt-grid">${results.map(g => _buildGmtCard(g.id)).join('')}</div>`}`;
+  } else if (selectedCategory) {
     const cat = GARMENT_CATEGORIES.find(c => c.id === selectedCategory);
     el.innerHTML = `
       <div class="wiz-step-header">
@@ -1745,61 +1817,18 @@ function renderStep1() {
         <h2 class="wiz-step-title">${cat.label}</h2>
         <p class="wiz-step-desc">Select a garment to continue</p>
       </div>
+      ${toolbarHtml}
       <div class="gmt-grid">
-        ${cat.ids.filter(id => GARMENTS[id]).map(id => {
-          const g = GARMENTS[id];
-          const wishlisted = _wishlistSet.has(id);
-          const owned = _purchasedSet.has(id);
-          const price = PATTERN_PRICES[id];
-          const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
-          return `<button class="gmt-card" data-garment="${id}">
-            <div class="gmt-card-img">
-              <img src="/garment-illustrations/${id}.svg" alt="${g.name} illustration" width="80" height="100" loading="lazy">
-            </div>
-            <div class="gmt-card-info">
-              <div class="gmt-name">${g.name}</div>
-              <div class="gmt-card-meta">
-                ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
-                ${owned ? `<span class="gmt-owned-badge">Owned</span>` : dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
-              </div>
-            </div>
-            <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
-          </button>`;
-        }).join('')}
+        ${cat.ids.filter(id => GARMENTS[id]).map(id => _buildGmtCard(id)).join('')}
       </div>`;
     el.querySelector('#wiz-back-cat').onclick = () => { selectedCategory = null; renderStep1(); };
-    el.querySelectorAll('.gmt-heart').forEach(hBtn => {
-      hBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        _toggleWishlist(hBtn.dataset.garment, hBtn);
-      });
-    });
-    el.querySelectorAll('.gmt-card').forEach(btn => {
-      btn.onclick = e => {
-        if (e.target.closest('.gmt-heart')) return;
-        const newGarment = btn.dataset.garment;
-        if (newGarment !== currentGarment) {
-          currentGarment = newGarment;
-          _syncGarmentUrl(currentGarment);
-          stepsCompleted = 1;
-          renderedGarment = null;
-          activeTab = 'pieces';
-        }
-        if (renderedGarment !== currentGarment) {
-          buildMeasureStep();
-          buildOptionsStep();
-          renderedGarment = currentGarment;
-        }
-        stepsCompleted = Math.max(stepsCompleted, 1);
-        goToStep(2);
-      };
-    });
   } else {
     el.innerHTML = `
       <div class="wiz-step-header">
         <h2 class="wiz-step-title">Choose a garment</h2>
         <p class="wiz-step-desc">Select a category to browse patterns</p>
       </div>
+      ${toolbarHtml}
       <div class="cat-grid">
         ${GARMENT_CATEGORIES.map(cat => `
           <button class="cat-card" data-cat="${cat.id}">
@@ -1811,6 +1840,60 @@ function renderStep1() {
       btn.onclick = () => { selectedCategory = btn.dataset.cat; Promise.all([_loadWishlist(), _loadPurchases()]).then(renderStep1); };
     });
   }
+
+  // Filter tab handlers
+  el.querySelectorAll('[data-wiz-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _wizFilter = btn.dataset.wizFilter;
+      renderStep1();
+    });
+  });
+  el.querySelectorAll('[data-wiz-diff]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _wizDiff = btn.dataset.wizDiff;
+      renderStep1();
+    });
+  });
+
+  // Search handler
+  const searchEl = el.querySelector('#wiz-search');
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      _wizSearch = searchEl.value.trim();
+      renderStep1();
+      // Restore focus and cursor position after re-render
+      const next = el.querySelector('#wiz-search');
+      if (next) { next.focus(); next.setSelectionRange(next.value.length, next.value.length); }
+    });
+  }
+
+  // Heart and garment card handlers
+  el.querySelectorAll('.gmt-heart').forEach(hBtn => {
+    hBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      _toggleWishlist(hBtn.dataset.garment, hBtn);
+    });
+  });
+  el.querySelectorAll('.gmt-card').forEach(btn => {
+    btn.onclick = e => {
+      if (e.target.closest('.gmt-heart')) return;
+      const newGarment = btn.dataset.garment;
+      if (newGarment !== currentGarment) {
+        currentGarment = newGarment;
+        _syncGarmentUrl(currentGarment);
+        stepsCompleted = 1;
+        renderedGarment = null;
+        activeTab = 'pieces';
+      }
+      if (renderedGarment !== currentGarment) {
+        buildMeasureStep();
+        buildOptionsStep();
+        renderedGarment = currentGarment;
+      }
+      stepsCompleted = Math.max(stepsCompleted, 1);
+      goToStep(2);
+    };
+  });
 }
 
 function buildMeasureStep() {
