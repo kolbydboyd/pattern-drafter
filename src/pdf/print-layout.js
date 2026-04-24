@@ -482,10 +482,11 @@ function renderBodiceOrSleeveSVG(piece) {
   const ox = mL - minX;
   const oy = mT - minY;
 
-  // Compute SA outline using shared offsetPolygon (fold-edge = 0 offset)
+  // Use pre-computed saPolygon when available (preserves per-edge hem/SA from the module).
+  // Fall back to uniform offsetPolygon for pieces that don't supply one.
   const cutOnFold = type !== 'sleeve' && piece.isCutOnFold !== false;
   const ea = piece.edgeAllowances;
-  const saPoints = offsetPolygon(polygon, (i, a, b) => {
+  const saPoints = piece.saPolygon || offsetPolygon(polygon, (i, a, b) => {
     if (ea && ea[i]) return -ea[i].sa;
     if (cutOnFold && Math.abs(a.x - minX) < 0.01 && Math.abs(b.x - minX) < 0.01) return 0;
     return -sa;
