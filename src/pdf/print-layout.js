@@ -585,6 +585,15 @@ function renderBodiceOrSleeveSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
       ${renderNotchesPrint(polygon, notches, ox, oy)}
+      ${(piece.trimMarks || []).map(m => {
+        const x1 = (ox + m.x1) * DPI, y1 = (oy + m.y1) * DPI;
+        const x2 = (ox + m.x2) * DPI, y2 = (oy + m.y2) * DPI;
+        const lx = (x1 + x2) / 2, ly = Math.min(y1, y2) - 5;
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+          stroke="#333" stroke-width="1" stroke-linecap="round"/>
+          <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
+            font-family="'IBM Plex Mono',monospace" font-size="7" fill="#333" text-anchor="middle">trim</text>`;
+      }).join('\n')}
       ${(piece.bustDarts || []).map(d => {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;
         const ux = (ox + d.sideX) * DPI, uy = (oy + d.upperY) * DPI;
