@@ -4,6 +4,16 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.92] - 2026-04-24
+
+### Added
+- **Topstitch needle types in materials engine** — added `topstitch-90` (Topstitch 90/14) and `topstitch-100` (Topstitch 100/16) to `NEEDLE_TYPES` in `src/engine/materials.js`. These needles have a wider eye and deeper front groove specifically designed for 30–40wt decorative thread.
+
+### Fixed
+- **Denim garments — topstitch thread shredding tip** — `straight-jeans`, `baggy-jeans`, and `denim-jacket` previously told sewists to use a Denim/Jeans 100/16 needle for everything, which shreds 30wt topstitch thread because the jeans needle's groove is too shallow for heavy thread. Updated the materials notes to clearly distinguish: Jeans 100/16 for construction seams, Topstitch 90/14 for all topstitching rows.
+
+---
+
 ## [0.12.91] - 2026-04-24
 
 ### Changed

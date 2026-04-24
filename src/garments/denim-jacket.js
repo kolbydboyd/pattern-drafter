@@ -625,6 +625,7 @@ export default {
       stitches: ['straight-3', 'straight-3.5', 'bartack', 'topstitch'],
       notes: [
         '{topstitch} all seams at 3.5mm with contrasting gold thread for classic denim look',
+        'Two needles, two jobs: Jeans 100/16 for construction seams (sharp point pierces dense denim); switch to a Topstitch 90/14 for every topstitching row. The topstitch needle has a wider eye and a deeper front groove that protect 30wt thread from shredding. A jeans needle will shred heavy thread even at low speed',
         '{flat-fell} seams on yoke, shoulder, and side seams: sew, {press} to one side, trim lower SA to 3mm, fold upper SA over, {topstitch}',
         'Pre-wash denim to preshrink and soften - raw denim can shrink 3–5% on first wash',
         'Interface collar with 2 layers of medium woven interfacing for structure',
