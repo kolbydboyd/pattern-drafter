@@ -242,19 +242,36 @@ export default {
       });
     }
 
-    // ── Trim Straps (structural) ──────────────────────────────────────────────
-    // Face sections (sh each) topstitch to front/back faces. Center D section is tucked
-    // into the body-wrap seam at the bottom — not wrapped over the exterior. Each end
-    // extends 5″ above the zipper edge to fold around a 1″ square ring (ring tab).
+    // ── Body Wrap Trim Straps (structural, handle attachment) ─────────────────
+    // Two straps run widthwise on the body wrap: front face → across bottom → back face.
+    // They wrap continuously over the exterior — not tucked into a seam.
+    // Each top end (5″) extends above the zipper edge and folds around a 1″ square ring
+    // for handle attachment. Four ring tabs total.
     const trimStrapLen = 2*sh + D + 10;
     pieces.push({
-      id: 'trim-strap', name: 'Trim Strap',
+      id: 'trim-strap', name: 'Body Wrap Trim Strap',
       instruction: `Cut 2 · ${fmtInches(trimStrapLen)} long × 1½″ wide · ` +
         `Fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges. ` +
-        `Mark the center ${fmtInches(D)} section with chalk — this is basted into the body-wrap bottom seam. ` +
-        `Each top end (5″) folds around a 1″ square ring and is topstitched 1½″ from the ring to form the handle ring tab.`,
+        `The strap wraps continuously: front face (${fmtInches(sh)}) → across bottom (${fmtInches(D)}) → back face (${fmtInches(sh)}). ` +
+        `Each top end (5″) folds over a 1″ square ring and is topstitched 1½″ from the ring to form the handle ring tab.`,
       type: 'rectangle',
       dimensions: { length: trimStrapLen, width: 1.5 }, sa: 0,
+    });
+
+    // ── End Panel Trim Straps (structural, D-ring mount) ──────────────────────
+    // One strap centered on each end panel, running from the body-wrap-to-end-panel
+    // bottom seam up to the top zipper edge. If a shoulder strap is included, the top
+    // 4″ folds around a D-ring. Bottom end is basted into the seam before assembly.
+    const epStrapLen = H + (opts.shoulderStrap === 'yes' ? 4 : 0.5);
+    pieces.push({
+      id: 'end-panel-trim-strap', name: 'End Panel Trim Strap',
+      instruction: `Cut 2 · ${fmtInches(epStrapLen)} long × 1½″ wide · ` +
+        `Fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges. ` +
+        (opts.shoulderStrap === 'yes'
+          ? `Bottom end is basted into the body-wrap-to-end-panel seam at the bottom. Top 4″ folds around a 1″ D-ring and is topstitched to form the shoulder strap attachment tab.`
+          : `Bottom end is basted into the body-wrap-to-end-panel seam at the bottom. Top end finishes flush at the zipper edge.`),
+      type: 'rectangle',
+      dimensions: { length: epStrapLen, width: 1.5 }, sa: 0,
     });
 
     // ── Handles ───────────────────────────────────────────────────────────────
@@ -266,7 +283,7 @@ export default {
           `Lay a length of ¾″ cotton webbing centered on the wrong side of the strip. ` +
           `Fold one long edge under ¼″ and press. Fold the strip around the webbing, raw edge tucked under the folded edge. ` +
           `Using a zipper foot, stitch close to the webbing along the full length, catching both fabric layers and locking the webbing core. ` +
-          `Trim webbing flush at each end before attaching to anchor patches.`,
+          `Trim webbing flush at each end before threading through square rings.`,
         type: 'rectangle',
         dimensions: { length: hLen, width: 2 }, sa: 0,
       });
@@ -280,15 +297,9 @@ export default {
     }
 
 
-    // ── D-Ring Tabs + Shoulder Strap (optional) ───────────────────────────────
+    // ── Shoulder Strap (optional) ─────────────────────────────────────────────
+    // D-ring mount is handled by the end panel trim strap top fold — no separate tab needed.
     if (opts.shoulderStrap === 'yes') {
-      pieces.push({
-        id: 'dring-tab', name: 'D-Ring Tab',
-        instruction: `Cut 2 · 4″ long × 1½″ wide · Fold in half around a 1″ D-ring, raw edges together. Baste close to D-ring.`,
-        type: 'rectangle',
-        dimensions: { length: 4, width: 1.5 }, sa: 0,
-      });
-
       const strapLen = Math.max(56, Math.round(L * 4.5));
       pieces.push({
         id: 'shoulder-strap', name: 'Detachable Shoulder Strap',
@@ -475,8 +486,17 @@ export default {
     }
 
     steps.push({
-      step: n++, title: 'Make trim straps and ring tabs',
-      detail: `Fold each 1½″ strip in half lengthwise {RST}. Sew long edge. Turn right side out. {press}. {topstitch} both long edges. Mark the center ${fmtInches(D)} of each strap with chalk — this is the bottom-seam section. At each end, fold the last 5″ of the strap over a 1″ square ring (ring flush with the fold end), then topstitch across 1½″ from the ring to lock it. Four ring tabs total — one at each top end of each strap.`,
+      step: n++, title: 'Make body wrap trim straps and ring tabs',
+      detail: `For each body wrap trim strap: fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges. At each top end, fold the last 5″ over a 1″ square ring (ring flush with the fold end) and topstitch 1½″ from the ring to lock it. Four ring tabs total.`,
+    });
+
+    steps.push({
+      step: n++, title: 'Make end panel trim straps' + (hasStrap ? ' and D-ring tabs' : ''),
+      detail: `For each end panel trim strap: fold in half lengthwise {RST}, sew long edge, turn right side out, {press}, {topstitch} both long edges.` +
+        (hasStrap
+          ? ` Fold the top 4″ of each strap around a 1″ D-ring and topstitch 1½″ from the ring to lock it. The D-ring hangs at the top of the end panel for the shoulder strap.`
+          : ` Top end will finish flush at the zipper edge.`) +
+        ` Baste the bottom raw end of each strap into the seam allowance at the center bottom of each end panel (the end panel will be sewn to the body wrap in a later step, trapping the strap end in the seam).`,
     });
 
     if (opts.handleStyle === 'fabric') {
@@ -505,8 +525,8 @@ export default {
     }
 
     steps.push({
-      step: n++, title: 'Baste and sew trim straps to body wrap',
-      detail: `Align the chalked center ${fmtInches(D)} section of each strap with the bottom band of one short end of the outer body wrap (between the two bottom-corner notches). Baste the strap into the seam allowance along that edge — the center section will be locked into the end-panel seam in a later step. Lay each face section (${fmtInches(sh)}) against the front-face and back-face zones at the ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} marks. {topstitch} both long edges of the face sections to the outer body wrap. The ring tabs extend above the zipper edge and hang free.`,
+      step: n++, title: 'Sew body wrap trim straps to body wrap',
+      detail: `Position each body wrap trim strap at the ${fmtInches(L / 3)} and ${fmtInches(2 * L / 3)} marks on the outer body wrap, running continuously across front face (${fmtInches(sh)}) → bottom (${fmtInches(D)}) → back face (${fmtInches(sh)}). The strap wraps over the exterior — it does not tuck into any seam. {topstitch} both long edges of the full wrap length. The ring tabs at each top end hang free above the zipper edge.`,
     });
 
     steps.push({
@@ -514,12 +534,6 @@ export default {
       detail: `Each handle arches from one trim strap to the other across the zipper. Thread one handle end through the front ring tab of one trim strap and the other end through the front ring tab of the second trim strap. Repeat for the back ring tabs with the second handle. Fold each handle end back 1½″ and sew a box stitch (rectangle + both diagonals) through the folded handle to lock it in the ring. The rings bear the load and no external patch is needed.`,
     });
 
-    if (hasStrap) {
-      steps.push({
-        step: n++, title: 'Make and baste D-ring tabs',
-        detail: 'Fold each tab in half around a 1″ D-ring, raw edges together. Sew close to D-ring. Baste one tab to each short end of the outer body wrap, flush with the front long edge (zipper edge side), raw ends of tab even with the body wrap short end. The D-ring tab will be caught in the body-wrap-to-end-panel seam in step 13, placing the D-ring at the top corner of the bag end.',
-      });
-    }
 
     if (opts.interiorPocket === 'slip') {
       steps.push({
@@ -545,7 +559,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Sew outer end panels to body wrap',
-      detail: `Place one outer end panel {RST} to one short end of the outer body wrap. The short end wraps around the U-shaped perimeter of the end panel: starting from the front zipper edge, down the front face (${fmtInches(sh)}), across the bottom (${fmtInches(D)}), up the back face (${fmtInches(sh)}) to the back zipper edge. Clip the body wrap SA at the two 90° corners (at the ${fmtInches(sh)} and ${fmtInches(sh + D)} notch marks) to within ⅛″ of the seamline so the strip pivots cleanly around each corner. Pin and sew with ${fmtInches(sa)} seam. Zipper end tabs${hasStrap ? ', D-ring tabs,' : ''} and the basted trim strap center section are all caught in this seam — the trim strap emerges from each bottom corner running up the face zones. Repeat for the second end panel.`,
+      detail: `Place one outer end panel {RST} to one short end of the outer body wrap. The short end wraps around the U-shaped perimeter of the end panel: starting from the front zipper edge, down the front face (${fmtInches(sh)}), across the bottom (${fmtInches(D)}), up the back face (${fmtInches(sh)}) to the back zipper edge. Clip the body wrap SA at the two 90° corners (at the ${fmtInches(sh)} and ${fmtInches(sh + D)} notch marks) to within ⅛″ of the seamline so the strip pivots cleanly around each corner. Pin and sew with ${fmtInches(sa)} seam. The basted bottom end of the end panel trim strap is caught in this seam at the bottom center, locking the strap structurally into the bag. Zipper end tabs are caught at each front and back zipper-edge corner. Repeat for the second end panel.`,
     });
 
     steps.push({
