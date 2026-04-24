@@ -789,6 +789,9 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       ${instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
         fill="#666" text-anchor="middle">${instruction}</text>` : ''}
+      ${Math.max(fullLen, fullWid) > 11 && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 28 : 40)}"
+        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 9}"
+        fill="#b8963e" text-anchor="middle">Plain rectangle. Mark and cut directly on fabric with a ruler.</text>` : ''}
       ${piece.id === 'waistband'
         ? `${drillMark(cx, ry + rH)}
            <circle cx="${cx}" cy="${ry + rH}" r="5" stroke="${PKT_COL}" stroke-width="0.8" fill="none"/>
