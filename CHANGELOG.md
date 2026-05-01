@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.97] - 2026-05-01
+
+### Fixed
+- **Print layout — RS/WS labels now rendered on pocket pieces in PDF** — The `renderBodiceOrSleeveSVG()` function was not consuming the `labels` array on piece objects. Pocket pieces (slant backing, slant bag, scoop backing, square-scoop backing, fold-over scoop bag, fold-over square-scoop bag) now render their 'RS / OUTSIDE' and 'RS / BODY SIDE' center labels in the printed PDF output, matching the on-screen pattern view.
+
+---
+
 ## [0.12.96] - 2026-05-01
 
 ### Changed
