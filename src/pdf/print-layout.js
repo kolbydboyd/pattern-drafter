@@ -1646,9 +1646,9 @@ function buildMaterialsPage(materials, instructions) {
   const threadHtml = materials.thread
     ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} · ${expandGlossaryPrint(materials.thread.notes || '')}</td></tr>`
     : '';
-  const needleHtml = materials.needle
-    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} · ${expandGlossaryPrint(materials.needle.use || '')}</td></tr>`
-    : '';
+  const needleHtml = (materials.needles?.length ? materials.needles : materials.needle ? [materials.needle] : [])
+    .map((n, i) => `<tr><td>${i === 0 ? 'Needle' : ''}</td><td>${n.name || ''} · ${expandGlossaryPrint(n.use || '')}</td></tr>`)
+    .join('');
 
   return `<div class="page mat-page">
     <h2 class="page-head">Materials &amp; Stitch Guide</h2>
@@ -1819,9 +1819,9 @@ function buildTabloidPreamble(garment, pieces, materials, instructions, measurem
   const threadHtml = materials.thread
     ? `<tr><td>Thread</td><td>${materials.thread.name || ''} ${materials.thread.weight ? '(' + materials.thread.weight + ')' : ''} \u2014 ${materials.thread.notes || ''}</td></tr>`
     : '';
-  const needleHtml = materials.needle
-    ? `<tr><td>Needle</td><td>${materials.needle.name || ''} \u2014 ${materials.needle.use || ''}</td></tr>`
-    : '';
+  const needleHtml = (materials.needles?.length ? materials.needles : materials.needle ? [materials.needle] : [])
+    .map((n, i) => `<tr><td>${i === 0 ? 'Needle' : ''}</td><td>${n.name || ''} \u2014 ${n.use || ''}</td></tr>`)
+    .join('');
   const notesHtml = materials.notes?.length
     ? `<div class="mat-notes">
         <h3 class="sect-head" style="margin-top:0.18in">Important Notes</h3>

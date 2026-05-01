@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.96] - 2026-05-01
+
+### Added
+- **Denim garments — topstitch needle annotated on print file and instructions** — `buildMaterialsSpec` now accepts `needle` as an array; all denim garments pass `['denim-100', 'topstitch-90']` so both needles appear as separate rows in the print materials table. `print-layout.js` updated to render all needles (was hard-coded to one row). A "Needle setup" step added as step 1 in `straight-jeans`, `baggy-jeans`, and `denim-jacket` instructions explaining when to switch between needles.
+
+---
+
 ## [0.12.95] - 2026-05-01
 
 ### Fixed

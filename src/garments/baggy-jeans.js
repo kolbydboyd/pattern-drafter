@@ -200,7 +200,7 @@ export default {
       fabrics: ['denim', 'stretch-denim'],
       notions,
       thread: 'poly-heavy',
-      needle: 'denim-100',
+      needle: ['denim-100', 'topstitch-90'],
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
         'Rigid (non-stretch) denim holds the baggy silhouette best and breaks in over time. Stretch denim will drape more but may lose the structured Y2K look',
@@ -218,6 +218,11 @@ export default {
   instructions(m, opts) {
     const steps = [];
     let n = 1;
+
+    steps.push({
+      step: n++, title: 'Needle setup',
+      detail: 'Load a Jeans/Denim 100/16 needle for all construction seams — its sharp point is designed to pierce dense denim cleanly. Before any topstitching row (pockets, fly, waistband, hem): switch to a Schmetz Topstitch 90/14. The topstitch needle has a wider eye and a deeper front groove that protect 30wt heavy thread from shredding at sewing speed. Switch back to the jeans needle when returning to seam work.',
+    });
 
     steps.push({
       step: n++, title: 'Prepare back welt pockets',

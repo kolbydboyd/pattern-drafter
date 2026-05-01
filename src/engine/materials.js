@@ -270,7 +270,11 @@ export function buildMaterialsSpec(config) {
   }
 
   const rawThread = typeof config.thread === 'string' ? THREAD_TYPES[config.thread] : config.thread;
-  const rawNeedle = typeof config.needle === 'string' ? NEEDLE_TYPES[config.needle] : config.needle;
+  // needle accepts a single string/object or an array of strings/objects
+  const rawNeedles = (Array.isArray(config.needle) ? config.needle : [config.needle])
+    .filter(Boolean)
+    .map(n => typeof n === 'string' ? NEEDLE_TYPES[n] : n);
+  const rawNeedle = rawNeedles[0] || null;
 
   // Determine fabric categories used by this garment
   const fabricEntries = config.fabrics.map(f =>
@@ -319,6 +323,7 @@ export function buildMaterialsSpec(config) {
     ),
     thread: enrichThread(rawThread),
     needle: enrichNeedle(rawNeedle),
+    needles: rawNeedles.map(enrichNeedle),
     stitches: config.stitches.map(s =>
       typeof s === 'string' ? STITCH_TYPES[s] : s
     ),
