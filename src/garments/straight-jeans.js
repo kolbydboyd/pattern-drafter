@@ -355,7 +355,7 @@ export default {
     }
     steps.push({
       step: n++, title: 'Prep fly pieces',
-      detail: 'Interface the outer fly shield piece. {staystitch} both the left and right CF edges of the front panels 3/8\u2033 from the edge to stabilize the curve. Sew the two fly shield pieces {RST}, leaving the straight CF edge open. Trim, {clip} the J-curve, turn RS out, {press}. {topstitch} the J-curve at 3/16\u2033 from RS.',
+      detail: 'Interface one layer of the fly backing (shield). {staystitch} both the left and right CF edges of the front panels 3/8\u2033 from the edge to stabilize the curve. Fold the backing {RST} at the CF fold line. Sew the short curved bottom edge \u00bc\u2033 from the raw edge. {clip} the curve. Turn RS out. {press}. {topstitch} the J-curve at 3/16\u2033 from RS.',
     });
     steps.push({
       step: n++, title: 'Sew CF curve below fly',
@@ -371,7 +371,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Attach fly shield, topstitch J, bartack',
-      detail: 'Place the prepared fly shield on the left extension WS, straight CF edges aligned, and {baste} together. Close the zipper. Fold everything to the RS and {baste} the fly layers together from the RS to hold position. {topstitch} the J-curve from RS (transfer the J-curve shape from the pattern piece using chalk or a tracing wheel). {bartack} the fly base: 8\u201310 zig-zag stitches at 0mm stitch length across the seam. Check that the zipper opens cleanly from the RS.',
+      detail: 'Place the prepared fly shield on the left extension WS, straight CF edges aligned, and {baste} together. Close the zipper. Fold everything to the RS and {baste} the fly layers together from the RS to hold position. Before topstitching, check from the RS that the fly overlap completely hides the zipper teeth and pull. Adjust pin placement if needed before committing to the J-curve topstitch. {topstitch} the J-curve from RS (transfer the J-curve shape from the pattern piece using chalk or a tracing wheel). {bartack} the fly base: 8\u201310 zig-zag stitches at 0mm stitch length across the seam. Check that the zipper opens cleanly from the RS.',
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
@@ -537,20 +537,20 @@ function buildFlyShield(rise) {
   return {
     id: 'fly-shield',
     name: 'Fly Shield',
-    instruction: 'Cut 2 (outer + lining) · Interface outer · ¼″ SA · Sew {RST}, turn, {press} · {topstitch} J-curve from RS',
+    instruction: 'Cut 1 on fold · Interface 1 layer · ¼″ SA · Fold {RST} at CF · Sew short curved bottom edge · {clip} curve · Turn RS out · {press} · {topstitch} J-curve from RS',
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
     saPath: polyToPath(saPoly),
     width: w, height: h,
     sa: shieldSA, type: 'bodice',
-    isCutOnFold: false,
+    isCutOnFold: true,
     dimensions: [
       { label: fmtInches(w) + ' width',  x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
       { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
     ],
     labels: [
-      { text: 'CF', x: -0.4, y: h * 0.4, rotation: -90 },
+      { text: 'CF / FOLD', x: -0.55, y: h * 0.4, rotation: -90 },
     ],
     notches: [
       { x: 0, y: flyLen, angle: 270, label: 'fly base' },
@@ -563,7 +563,7 @@ function buildFlyShield(rise) {
 
 function buildFlyExtension(rise) {
   const extSA = 0.25;                    // 1/4″ SA
-  const w = 1.375;                       // ~1⅜″ wide
+  const w = 1.5;                         // 1½″ wide — ensures full coverage over zipper tape
   const flyLen = Math.ceil(rise * 0.6);  // matches fly shield calc
   const h = flyLen + 1;                  // extends 1″ below fly base
 
