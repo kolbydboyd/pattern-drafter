@@ -4,6 +4,14 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.93] - 2026-05-01
+
+### Fixed
+- **Straight jeans — waist ease recalibrated to denim industry standard** — The ease options previously used trouser-scale values (+2.5/+4/+6″) that produced jeans 2–3″ too loose at the waist compared to RTW rigid denim. Updated to jeans-specific values: Slim +½″, Regular +1½″, Relaxed +3″. These match real-world rigid denim benchmarks (e.g. a classic straight in size 31 finishes at ~33″ wearing circumference = ~1.5″ ease). Existing saved profiles that stored 'slim'/'regular'/'relaxed' as string keys are handled gracefully via the `JEANS_EASE` local map.
+- **Waistband length missing fly closure overlap — 6 garments** — The waistband formula `waist + ease + sa×2` was missing the ⅝″ button underlap + 1¼″ buttonhole overlap (1.875″ total) needed for the fly closure to extend past CF on both sides. Without it the finished waistband ends flush at the CF seam with no overlap material, making a proper button closure impossible. Fixed in: `straight-jeans`, `baggy-jeans`, `chinos`, `baggy-shorts`, `pleated-shorts`, `pleated-trousers`. Garments that already included a closure overlap (`874-work-pants`, `cargo-work-pants`, `cargo-shorts`, `athletic-formal-trousers`) are unaffected.
+
+---
+
 ## [0.12.92] - 2026-04-24
 
 ### Added

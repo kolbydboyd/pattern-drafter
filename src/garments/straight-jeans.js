@@ -31,9 +31,9 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+2.5\u2033) , stretch fabric only', reference: 'fitted, tailored'    },
-        { value: 'regular', label: 'Regular (+4\u2033)', reference: 'classic, off-the-rack' },
-        { value: 'relaxed', label: 'Relaxed (+6\u2033)',   reference: 'skater, workwear'      },
+        { value: 'slim',    label: 'Slim (+\u00bd\u2033)',    reference: 'fitted, rigid or stretch' },
+        { value: 'regular', label: 'Regular (+1\u00bd\u2033)', reference: 'classic, off-the-rack'   },
+        { value: 'relaxed', label: 'Relaxed (+3\u2033)',   reference: 'skater, workwear'         },
       ],
       default: 'regular',
     },
@@ -113,7 +113,8 @@ export default {
   },
 
   pieces(m, opts) {
-    const ease     = easeDistribution(opts.ease);
+    const JEANS_EASE = { slim: 0.5, regular: 1.5, relaxed: 3.0 };
+    const ease     = easeDistribution(JEANS_EASE[opts.ease] ?? parseFloat(opts.ease) ?? 1.5);
     const sa       = parseFloat(opts.sa)       || 0.625;
     const hem      = parseFloat(opts.hem)      || 1;
     const frontExt = parseFloat(opts.frontExt) || 2;
@@ -193,7 +194,8 @@ export default {
     }
 
     // ── WAISTBAND ──
-    const wbLen = waist + ease.total + sa * 2;
+    const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
+    const wbLen = waist + ease.total + FLY_OVERLAP + sa * 2;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const beltLoopCountForBand = waist > 36 ? 7 : 6;
     const wbInstr = beltLoopStyle === 'tunnel'

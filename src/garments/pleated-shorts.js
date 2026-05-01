@@ -161,7 +161,8 @@ export default {
     }));
 
     // ── WAISTBAND ──
-    const wbLen = m.waist + ease.total + pleatExtra * 2 + sa * 2;
+    const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
+    const wbLen = m.waist + ease.total + pleatExtra * 2 + FLY_OVERLAP + sa * 2;
     const wbW   = opts.waistband === 'curtain' ? 3 : 3;  // both 1.5″ finished = 3″ cut
     pieces.push({
       id: 'waistband',

@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-04-24 · v0.7.0_
+_Last updated: 2026-05-01 · v0.7.0_
 
 ---
 
