@@ -617,6 +617,9 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
     type: 'bodice',
     isCutOnFold: false,
     dimensions: { width, height },
+    labels: [
+      { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     notches: [
       // Slash exit corner: where the side seam meets the scoop curve.
       // Matches the corresponding notch on the pocket bag and front panel.
@@ -650,7 +653,7 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
   return {
     id: 'slant-bag',
     name: 'Slant Pocket Bag',
-    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 Pocket back (against body)',
+    instruction: instruction || 'Cut 2 (1 + 1 mirror) \xb7 Lining fabric \xb7 RS faces body side (inside pocket)',
     polygon,
     sa,
     hem: sa,
@@ -659,6 +662,9 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
     type: 'bodice',
     isCutOnFold: false,
     dimensions: { width, height },
+    labels: [
+      { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     notches: [
       // Slash start on waist: matches the pocket notch on the front panel waist edge.
       { x: slashStartX, y: 0, angle: 180, label: 'slash start' },
@@ -836,6 +842,9 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    labels: [
+      { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     notches: [
       { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
     ],
@@ -964,6 +973,9 @@ export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, 
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
+    labels: [
+      { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     notches: [
       { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
     ],
@@ -1064,12 +1076,15 @@ export function buildFoldOverScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, sc
   return {
     id: 'scoop-bag',
     name: 'Scoop Pocket Bag (Fold-Over)',
-    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 RS faces body side \xb7 French seam at bottom after attaching to panel',
     polygon, sa, hem: sa,
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: true,
     foldEdge: 'left',
     dimensions: { width: bagWidth, height: bagDepth },
+    labels: [
+      { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     marks: [
       { type: 'fold', axis: 'v', position: 0 },
     ],
@@ -1122,12 +1137,15 @@ export function buildFoldOverSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3
   return {
     id: 'square-scoop-bag',
     name: 'Square Scoop Pocket Bag (Fold-Over)',
-    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 French seam at bottom after attaching to panel',
+    instruction: instruction || 'Cut 2 on fold (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Fold line at inner (left) edge \xb7 RS faces body side \xb7 French seam at bottom after attaching to panel',
     polygon, sa, hem: sa,
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: true,
     foldEdge: 'left',
     dimensions: { width: bagWidth, height: bagDepth },
+    labels: [
+      { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
+    ],
     marks: [
       { type: 'fold', axis: 'v', position: 0 },
     ],
