@@ -166,7 +166,7 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 \xb7 Interface \xb7 {topstitch} curve visible from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 on fold \xb7 Interface 1 layer \xb7 Fold {RST} at CF \xb7 Sew short curved bottom edge \xb7 {clip} \xb7 Turn RS out \xb7 {press} \xb7 {topstitch} J-curve from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
@@ -235,7 +235,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Install zip fly',
-      detail: 'Interface fly shield. {staystitch} CF seam allowances. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Pin and {topstitch} the fly J-curve from RS using {topstitch} thread. Secure fly shield to inside.',
+      detail: 'Interface one layer of the fly backing (shield). {staystitch} CF seam allowances. Fold the backing {RST} at the CF fold line. Sew the short curved bottom edge ¼″ from the raw edge. {clip} the curve. Turn RS out. {press}. Sew front panels at CF from crotch point up to bottom of fly. Sew zipper (RS up) to right CF extension. Sew fly shield to left extension. Before topstitching, check from the RS that the fly overlap completely hides the zipper teeth and pull. {topstitch} the fly J-curve from RS using {topstitch} thread. Secure fly shield to inside.',
     });
     steps.push({
       step: n++, title: 'Sew outseams (side seams)',
