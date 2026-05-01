@@ -21,7 +21,7 @@ All notable changes are documented here, newest first.
 ## [0.12.94] - 2026-05-01
 
 ### Fixed
-- **Jeans fly backing — cut on fold (straight-jeans, baggy-jeans)** — The fly shield (backing) piece was previously labeled "Cut 2 (outer + lining)" and described as two separate pieces sewn RST. Updated to the industry-standard technique: cut 1 on fold at the CF edge, fold RST, sew only the short curved bottom edge with ¼″ SA, clip the curve, turn RS out, and press. Pattern piece now shows `isCutOnFold: true` with a CF / FOLD indicator. Construction steps in both garments updated to match.
+- **Jeans fly backing — cut on fold (straight-jeans, baggy-jeans)** — The fly shield (backing) piece was previously labeled "Cut 2 (outer + lining)" and described as two separate pieces sewn RST. Updated to the industry-standard technique: cut 1 on fold at the CF edge, fold RST, sew only the short curved bottom edge with ¼″ SA, clip the curve, turn RS out, and press. Pattern piece now shows `isCutOnFold: true` with a CF / FOLD indicator. Construction steps in both garments updated to match. Baggy-jeans fly shield also gains a dashed "CF / FOLD" mark on the printed pattern piece (via `marks` array) and the piece name now reads "Fly Shield (cut on fold)" since it renders via the pocket renderer which doesn't auto-suffix from `isCutOnFold`.
 - **Jeans fly extension width widened (straight-jeans)** — Fly extension increased from 1⅜″ (1.375″) to 1½″ (1.5″) to provide a safer margin beyond the YKK #5 metal zipper tape (~1.1″ wide) and ensure the overlap fully conceals the zipper. The "Attach fly shield" step now includes an explicit check to verify the fly overlap hides the zipper teeth and pull before committing to the J-curve topstitch.
 
 ---
