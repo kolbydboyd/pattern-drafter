@@ -527,7 +527,7 @@ function renderPanelSVG(piece) {
  * Returns { svg, wIn, hIn }.
  */
 function renderBodiceOrSleeveSVG(piece) {
-  const { polygon, sa = 0.5, hem = 0.75, name, type, notches = [] } = piece;
+  const { polygon, sa = 0.5, hem = 0.75, name, type, notches = [], labels = [] } = piece;
 
   const xs = polygon.map(p => p.x), ys = polygon.map(p => p.y);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
@@ -644,6 +644,12 @@ function renderBodiceOrSleeveSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
       ${renderNotchesPrint(polygon, notches, ox, oy)}
+      ${labels.map(l => {
+        const lx = (ox + l.x) * DPI, ly = (oy + l.y) * DPI;
+        return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
+          font-family="'IBM Plex Mono',monospace" font-size="9" fill="#b8963e"
+          text-anchor="middle" transform="rotate(${l.rotation || 0},${lx.toFixed(1)},${ly.toFixed(1)})">${l.text}</text>`;
+      }).join('\n')}
       ${(piece.trimMarks || []).map(m => {
         const x1 = (ox + m.x1) * DPI, y1 = (oy + m.y1) * DPI;
         const x2 = (ox + m.x2) * DPI, y2 = (oy + m.y2) * DPI;
