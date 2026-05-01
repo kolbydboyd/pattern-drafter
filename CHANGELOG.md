@@ -4,6 +4,13 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.96] - 2026-05-01
+
+### Changed
+- **Straight jeans — front pocket RS/WS/inside/outside labels and clearer assembly steps** — Pocket pieces now carry explicit RS/WS labels on the pattern piece itself: backing pieces are marked 'RS / OUTSIDE' (visible from the pocket opening) and bag pieces are marked 'RS / BODY SIDE' (faces the wearer). Updated construction step text for slant, scoop, square-scoop, and side-seam front pockets to state orientation at every hand-off (e.g. "lay backing RS-up, place bag RS-down on top: {RST}" for slant; "WS-to-WS because backing RS must end up facing outward" for scoop fold-over). Fixed a factual error in the slant bag cut instruction which incorrectly said "Cut 2 on fold / Inner edge on fold" — the slant bag is cut as two separate pieces and the inner edge is sewn, not folded.
+
+---
+
 ## [0.12.95] - 2026-05-01
 
 ### Fixed
