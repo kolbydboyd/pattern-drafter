@@ -4,17 +4,10 @@ All notable changes are documented here, newest first.
 
 ---
 
-## [0.12.97] - 2026-05-01
+## [0.12.98] - 2026-05-01
 
-### Fixed
-- **Print layout — RS/WS labels now rendered on pocket pieces in PDF** — The `renderBodiceOrSleeveSVG()` function was not consuming the `labels` array on piece objects. Pocket pieces (slant backing, slant bag, scoop backing, square-scoop backing, fold-over scoop bag, fold-over square-scoop bag) now render their 'RS / OUTSIDE' and 'RS / BODY SIDE' center labels in the printed PDF output, matching the on-screen pattern view.
-
----
-
-## [0.12.96] - 2026-05-01
-
-### Changed
-- **Straight jeans — front pocket RS/WS/inside/outside labels and clearer assembly steps** — Pocket pieces now carry explicit RS/WS labels on the pattern piece itself: backing pieces are marked 'RS / OUTSIDE' (visible from the pocket opening) and bag pieces are marked 'RS / BODY SIDE' (faces the wearer). Updated construction step text for slant, scoop, square-scoop, and side-seam front pockets to state orientation at every hand-off (e.g. "lay backing RS-up, place bag RS-down on top: {RST}" for slant; "WS-to-WS because backing RS must end up facing outward" for scoop fold-over). Fixed a factual error in the slant bag cut instruction which incorrectly said "Cut 2 on fold / Inner edge on fold" — the slant bag is cut as two separate pieces and the inner edge is sewn, not folded.
+### Added
+- **Denim garments — topstitch needle annotated on print file and instructions** — `buildMaterialsSpec` now accepts `needle` as an array; all denim garments pass `['denim-100', 'topstitch-90']` so both needles appear as separate rows in the print materials table. `print-layout.js` updated to render all needles (was hard-coded to one row). A "Needle setup" step added as step 1 in `straight-jeans`, `baggy-jeans`, and `denim-jacket` instructions explaining when to switch between needles.
 
 ---
 

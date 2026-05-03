@@ -285,7 +285,7 @@ export default {
       fabrics: ['denim', 'stretch-denim'],
       notions,
       thread: 'poly-heavy',
-      needle: 'denim-100',
+      needle: ['denim-100', 'topstitch-90'],
       stitches: ['straight-2.5', 'straight-3.5', 'bartack'],
       notes: [
         '{topstitch} with 3.5mm stitch and contrasting gold/amber thread for the classic jeans look',
@@ -305,6 +305,11 @@ export default {
     const beltLoopCount = waist > 36 ? 7 : 6;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
+
+    steps.push({
+      step: n++, title: 'Needle setup',
+      detail: 'Load a Jeans/Denim 100/16 needle for all construction seams — its sharp point is designed to pierce dense denim cleanly. Before any topstitching row (pockets, yoke, fly, waistband, hem): switch to a Schmetz Topstitch 90/14. The topstitch needle has a wider eye and a deeper front groove that protect 30wt heavy thread from shredding at sewing speed. A jeans needle will shred heavy decorative thread even on low speed. Switch back to the jeans needle when returning to seam work.',
+    });
 
     steps.push({
       step: n++, title: 'Prepare back patch pockets',
