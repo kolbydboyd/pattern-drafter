@@ -166,7 +166,8 @@ export default {
     });
 
     // ── FLY ──
-    pieces.push({ id: 'fly-shield', name: 'Fly Shield', instruction: 'Cut 1 on fold \xb7 Interface 1 layer \xb7 Fold {RST} at CF \xb7 Sew short curved bottom edge \xb7 {clip} \xb7 Turn RS out \xb7 {press} \xb7 {topstitch} J-curve from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa });
+    pieces.push({ id: 'fly-shield', name: 'Fly Shield (cut on fold)', instruction: 'Cut 1 on fold \xb7 Interface 1 layer \xb7 Fold {RST} at CF \xb7 Sew short curved bottom edge \xb7 {clip} \xb7 Turn RS out \xb7 {press} \xb7 {topstitch} J-curve from RS', dimensions: { width: 2.5, height: rise }, type: 'pocket', sa,
+      marks: [{ type: 'fold', axis: 'v', position: -sa, label: 'CF / FOLD' }] });
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
