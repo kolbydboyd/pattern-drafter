@@ -1,7 +1,7 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 /**
  * 874 Work Pants - classic American workwear trousers.
- * High rise (11.5" default), relaxed fit (+6" ease), slight taper.
+ * High rise (11.5" default), wide fit default (+8" ease), slight taper.
  * Slant front pockets, welt back pockets x2 with button, zip fly.
  * Hook-and-eye + button waistband closure, 1.75" finished waistband.
  * 7 tunnel belt loops (1" finished width).
@@ -31,10 +31,10 @@ export default {
     ease: {
       type: 'select', label: 'Fit',
       values: [
-        { value: 'slim',    label: 'Slim (+1.5")',    reference: 'fitted, modern slim'     },
-        { value: 'regular', label: 'Regular (+2.5")', reference: 'classic, off-the-rack'   },
-        { value: 'relaxed', label: 'Relaxed (+4")',   reference: 'skater, workwear'        },
-        { value: 'wide',    label: 'Wide (+6")',      reference: 'original 874, loose fit'  },
+        { value: 'slim',    label: 'Slim (+2.5")',    reference: 'fitted, modern slim'     },
+        { value: 'regular', label: 'Regular (+4")',  reference: 'classic, off-the-rack'   },
+        { value: 'relaxed', label: 'Relaxed (+6")',  reference: 'skater, workwear'        },
+        { value: 'wide',    label: 'Wide (+8")',      reference: 'original 874, loose fit'  },
       ],
       default: 'wide',
     },

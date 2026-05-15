@@ -181,7 +181,7 @@ export default {
 
     // ── WAISTBAND ──
     if (opts.waistband === 'flexbelt') {
-      const pantsWaist = (frontWaistW + backHipW) * 2; // actual waist opening of assembled pants
+      const pantsWaist = (frontWaistW + backWaistW) * 2; // actual waist opening of assembled pants
       const wbLength = pantsWaist + sa * 2;
       pieces.push({
         id: 'waistband',

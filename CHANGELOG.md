@@ -4,6 +4,20 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.12.99] - 2026-05-15
+
+### Fixed
+- **straight-trouser-w — elastic waistband used hip variables instead of waist** — The elastic-path formula `(frontHipW + backHipW) * 2` used the hip-width panel variables instead of the waist-width variables. For test set A (waist=28", hip=38", relaxed ease): this produced a ~43" casing instead of the correct ~32" — an 11" error. Fixed to `(frontWaistW + backWaistW) * 2`.
+- **straight-trouser-w — structured waistband missing 1" closure extension** — The structured-band formula matched the trouser waist seam exactly, leaving no material for the stated "1″ CF overlap." Added `CLOSURE_EXT = 1.0` to the formula. Both the structured and elastic branches were incorrect in the same piece.
+- **wide-leg-trouser-w — identical elastic-path and closure-extension bugs** — Same two bugs as `straight-trouser-w`. The elastic path used `(frontHipW + backHipW) * 2` (hip variables) and the structured path omitted the 1" closure extension. Both corrected identically.
+- **cargo-work-pants — flexbelt waistband mixed front-waist and back-hip variables** — `pantsWaist = (frontWaistW + backHipW) * 2` mixed the front waist-width variable with the back hip-width variable, producing an inconsistent casing that was ~5" too large under relaxed ease (set A). Fixed to `(frontWaistW + backWaistW) * 2`.
+- **874-work-pants — ease option labels off by 1-2" across all four options** — The ease option labels read Slim +1.5", Regular +2.5", Relaxed +4", Wide +6", but `easeDistribution()` maps these keys to 2.5/4/6/8". Corrected labels to match the actual values delivered.
+
+### Added
+- **`scripts/audit-patterns.mjs` — full pattern simulation audit script** — Runs all 132 body-measurement garments (10 accessory/bag garments skipped) against 5 standard test measurement sets (A=standard proportional, B=hip-dominant, C=petite, D=plus/full figure, E=tall narrow). Extracts waistband, neckband, and cuff dimensions from drafted pieces and flags: waistband shorter than body waist (FAIL), waistband delta >10" (FAIL), delta >6" (WARN), neckband >110% or <60% of body neck (WARN). Produces a human-readable table and JSON report. Confirmed 0 drafting errors and identified the three waistband bugs above.
+
+---
+
 ## [0.12.98] - 2026-05-01
 
 ### Added
