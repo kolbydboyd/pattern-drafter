@@ -4,6 +4,29 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Pattern formula audit** — Full audit of all 67 garment modules against FreeSewing v4.7.0,
+  JBlockCreator (Harwood et al. 2020), Aldrich, Armstrong, BMV ease chart, and Müller & Sohn
+  references. Results documented in `AUDIT.md`.
+- **`audit-references/` library** — 16 markdown reference files organized into sub-folders:
+  FreeSewing formulas, JBlockCreator methods, textbook formulas (Aldrich, Armstrong, Müller & Sohn),
+  ease tables (BMV chart, knit stretch formula, MTM minimums), measurement standards, and
+  per-piece formula references. Includes `INDEX.md` cross-mapping garment pieces to references.
+
+### Findings (from AUDIT.md)
+- **DEFECT (High)** — Crotch extension defaults are absolute values (front 2", back 3") instead of
+  hip-derived (Aldrich: front ≈ hip/16, back ≈ hip/8). Causes seat tightness for bodies with
+  hip > 40"; back max of 4.5" is insufficient for hip ≥ 44". Affects all 19 woven trouser garments.
+- **WARN** — Armhole depth fallback `chest/4` is ~3" deeper than Aldrich for 38" chest; acceptable
+  for casual garments but users should be prompted for `waistToArmpit` measurement.
+- **WARN** — Upper body knit garments use positive ease only; no stretch-ratio negative ease.
+  Tracked as known gap in ROADMAP.
+- **PASS** — Circle skirt radius formula, neckline width, shoulder slope, dart intake, MTM minimums.
+
+---
+
 ## [0.13.0] - 2026-05-15
 
 ### Added
