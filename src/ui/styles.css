@@ -1359,3 +1359,22 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .cart-toast-link{color:var(--gold);text-decoration:none;margin-left:8px;pointer-events:auto}
 [data-theme='dark'] .cart-toast{box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .adm-theme-btn svg{width:18px;height:18px;display:block}
+
+/* ── FOUC guard — hide until locale applied ──────────────────────────────────── */
+html:not([lang]){visibility:hidden}
+
+/* ── Language switcher ───────────────────────────────────────────────────────── */
+.lang-switcher{position:relative;display:inline-flex;align-items:center}
+.lang-switcher__btn{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid rgba(255,255,255,.25);border-radius:4px;color:var(--hdr-text);cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:500;padding:3px 7px;transition:border-color .15s,background .15s;white-space:nowrap}
+.lang-switcher__btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
+.lang-switcher__flag{font-size:.85rem;line-height:1}
+.lang-switcher__code{letter-spacing:.03em}
+.lang-switcher__arrow{font-size:.55rem;opacity:.7;transition:transform .15s}
+.lang-switcher[aria-expanded='true'] .lang-switcher__arrow{transform:rotate(180deg)}
+.lang-switcher__dropdown{position:absolute;top:calc(100% + 4px);right:0;min-width:110px;background:var(--card);border:1px solid var(--bdr);border-radius:5px;box-shadow:0 4px 16px rgba(0,0,0,.15);list-style:none;padding:4px 0;z-index:1200}
+[data-theme='dark'] .lang-switcher__dropdown{box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.lang-switcher__option{display:flex;align-items:center;gap:6px;padding:6px 12px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--text);transition:background .1s}
+.lang-switcher__option:hover{background:var(--ibg)}
+.lang-switcher__option--active{color:var(--gold);font-weight:600}
+.lang-switcher__option .lang-switcher__flag{font-size:.82rem}
+@media(max-width:600px){.lang-switcher__dropdown{right:auto;left:0}}

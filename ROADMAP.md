@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-05-01 · v0.7.0_
+_Last updated: 2026-05-15 · v0.7.0_
 
 ---
 
@@ -47,6 +47,7 @@ manufacturer has this. It becomes a licensable asset.
 - [x] Gift cards (account dashboard)
 - [x] Social icons on landing page
 - [x] Repo made private
+- [x] Multi-language support (i18n) — 6 locales: en, en-CA, fr-CA, es, nl, de. Language switcher in header. Garment names, UI strings, measurements, and PDF generation all locale-aware.
 - [x] Domain: peoplespatterns.com
 - [x] All social handles secured
 - [x] Brand kit complete (fonts, colors, avatars, banners)

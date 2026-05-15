@@ -82,7 +82,9 @@ export const handler = async (event) => {
   }
 
   const clientIp = (headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
-  const { garmentId, measurements, opts, sessionId, paperSize: reqPaperSize } = body;
+  const { garmentId, measurements, opts, sessionId, paperSize: reqPaperSize, locale: reqLocale } = body;
+  const SUPPORTED_LOCALES = ['en', 'en-CA', 'fr-CA', 'es', 'nl', 'de'];
+  const pdfLocale = SUPPORTED_LOCALES.includes(reqLocale) ? reqLocale : 'en';
   // Map client paper size to Puppeteer format string. A0 and projector are
   // handled as separate addon files; the primary PDF uses the requested size.
   const PUPPETEER_FORMATS = { letter: 'Letter', a4: 'A4', legal: 'Legal', tabloid: 'Tabloid' };
@@ -252,14 +254,14 @@ export const handler = async (event) => {
 
   // 6. Generate HTML print layout.
   const { generatePrintLayout } = await import('../src/pdf/print-layout.js');
-  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize);
+  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize, pdfLocale);
 
   const needsA0 = purchase?.a0_addon === true;
   const htmlA0  = needsA0
-    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0')
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale)
     : null;
   const htmlProjector = needsA0
-    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector')
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector', pdfLocale)
     : null;
 
   // 7. Render to PDF.
