@@ -5,6 +5,16 @@ import { initAuthModal } from './auth-modal.js';
 
 import '../analytics.js';
 import { onUserChange, getCurrentUser } from './auth-modal.js';
+import { initLocale, loadLocale, applyI18nDOM } from '../lib/i18n.js';
+import { initLangSwitcher } from './lang-switcher.js';
+
+// Locale init — must happen before any rendering
+const _locale = initLocale();
+loadLocale(_locale).then(() => {
+  applyI18nDOM(document.body);
+  const langContainer = document.getElementById('hdr-lang-slot');
+  if (langContainer) initLangSwitcher(langContainer);
+});
 import GARMENTS from '../garments/index.js';
 
 // Inject dynamic garment count on pages that reference it

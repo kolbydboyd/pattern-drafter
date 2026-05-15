@@ -5,9 +5,22 @@ import '../analytics.js';
 import { ARTICLES as STATIC_ARTICLES } from '../content/articles.js';
 import { supabase } from '../lib/supabase.js';
 import GARMENTS from '../garments/index.js';
+import { initLocale, loadLocale } from '../lib/i18n.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
+
+const _learnLocale = initLocale();
+
+async function loadLocaleArticles(locale) {
+  if (locale === 'en') return STATIC_ARTICLES;
+  try {
+    const mod = await import(`../locales/${locale}/articles.js`);
+    return mod.default || STATIC_ARTICLES;
+  } catch {
+    return STATIC_ARTICLES;
+  }
+}
 
 const SITE_URL = 'https://peoplespatterns.com';
 
@@ -45,9 +58,9 @@ async function loadArticles() {
       }));
     }
   } catch (_) {
-    // Supabase unavailable — fall through to static
+    // Supabase unavailable — fall through to locale static
   }
-  return STATIC_ARTICLES;
+  return loadLocaleArticles(_learnLocale);
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
