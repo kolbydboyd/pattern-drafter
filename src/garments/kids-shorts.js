@@ -80,8 +80,8 @@ export default {
 
     const sa      = parseFloat(opts.sa) || 0.375;
     const hem     = 1;   // 1″ hem for clean finish
-    const frontExt = 1.5; // front crotch extension
-    const backExt  = 2.75; // back crotch extension
+    const frontExt = m.hip / 16 + 0.2; // Aldrich: scales with hip
+    const backExt  = m.hip / 8  + 0.5; // Aldrich: scales with hip
     const cbRaise  = 0.75;
     const rise     = m.rise || 6.5;
     const inseam   = INSEAM_PRESETS[opts.length] ?? (m.inseam || 5);

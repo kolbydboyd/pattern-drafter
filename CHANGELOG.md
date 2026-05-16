@@ -25,6 +25,16 @@ All notable changes are documented here, newest first.
   Tracked as known gap in ROADMAP.
 - **PASS** — Circle skirt radius formula, neckline width, shoulder slope, dart intake, MTM minimums.
 
+### Fixed
+- **Hip-derived crotch extensions** — All 20 woven lower-body garments (straight-jeans, baggy-jeans,
+  soloist-jeans, athletic-formal-trousers, pleated-trousers, chinos, wide-leg-trouser-w,
+  wide-leg-trouser-m, straight-trouser-w, 874-work-pants, cargo-work-pants, gym-shorts,
+  baggy-shorts, cargo-shorts, pleated-shorts, easy-pant-w, pajama-pants, lounge-shorts,
+  kids-shorts, kids-joggers) now compute crotch extensions from hip measurement using the Aldrich
+  formula: `frontExt = hip/16 + 0.2"`, `backExt = hip/8 + 0.5"`. For option-based garments,
+  entering 0 re-enables the auto formula; manual values > 0 override it. Max back extension
+  increased from 4.5" to 8". Closes AUDIT.md §C DEFECT; resolves ROADMAP KI-016.
+
 ---
 
 ## [0.13.0] - 2026-05-15

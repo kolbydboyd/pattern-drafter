@@ -15,7 +15,7 @@ Aldrich *Metric Pattern Cutting* (6th ed.), Armstrong *Patternmaking for Fashion
 |--------|--------|----------|-------|
 | A. Armhole depth (fallback formula) | WARN | Medium | `upper-body.js:95` |
 | B. Sleeve cap height methodology | WARN | Low-Medium | `upper-body.js:328`, all garment files |
-| C. Crotch extension defaults (woven trousers) | **DEFECT** | High | `geometry.js:528`, all lower-body woven |
+| C. Crotch extension defaults (woven trousers) | **FIXED** | High | `geometry.js:528`, all lower-body woven |
 | D. Upper-body ease distribution (55/45 front/back) | WARN | Low | `upper-body.js:71` |
 | E. Lower-body ease distribution (40/60) | PASS | — | `geometry.js:528` |
 | F. Ease override inconsistencies | WARN | Low | 2 garment files |
@@ -134,7 +134,7 @@ Add a code comment in `upper-body.js` near `sleeveCapCurve()` explaining:
 
 ---
 
-## C. Crotch Extension Defaults — DEFECT (High)
+## C. Crotch Extension Defaults — FIXED (was DEFECT High)
 
 ### Current defaults across all woven trouser/pant garments
 

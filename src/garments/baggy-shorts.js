@@ -50,8 +50,8 @@ export default {
       ],
       default: 'slant',
     },
-    frontExt: { type: 'number', label: 'Front crotch ext', default: 2, step: 0.25, min: 0.5, max: 3   },
-    backExt:  { type: 'number', label: 'Back crotch ext',  default: 3.0, step: 0.25, min: 1,   max: 4.5 },
+    frontExt: { type: 'number', label: 'Front crotch ext (0=auto)', default: 0, step: 0.25, min: 0, max: 5   },
+    backExt:  { type: 'number', label: 'Back crotch ext (0=auto)',  default: 0, step: 0.25, min: 0, max: 8 },
     riseStyle: {
       type: 'select', label: 'Rise style',
       values: [
@@ -89,8 +89,10 @@ export default {
     const ease       = easeDistribution(easeTotal);
     const sa       = parseFloat(opts.sa);
     const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
+    const autoFront = m.hip / 16 + 0.2;
+    const autoBack  = m.hip / 8  + 0.5;
+    const frontExt = parseFloat(opts.frontExt) || autoFront;
+    const backExt  = parseFloat(opts.backExt)  || autoBack;
     const cbRaise  = parseFloat(opts.cbRaise);
     const RISE_OFFSETS = { low: -1.5, mid: 0, high: 1.5, 'ultra-high': 3.0 };
     const baseRise  = m.rise || 10;

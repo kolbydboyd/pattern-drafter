@@ -79,8 +79,8 @@ export default {
 
     const sa      = parseFloat(opts.sa) || 0.375;
     const hem     = 1.5; // extra growth hem tuck built in
-    const frontExt = 1.25;  // front crotch extension — shorter than adult
-    const backExt  = 2.5;   // back crotch extension
+    const frontExt = m.hip / 16 + 0.2;  // Aldrich: scales with hip size
+    const backExt  = m.hip / 8  + 0.5;  // Aldrich: scales with hip size
     const cbRaise  = 0.75;  // back CB raise
     const rise     = m.rise || 6.5;
     const inseam   = m.inseam || 16;

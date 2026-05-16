@@ -1375,11 +1375,13 @@ is covering monthly costs.
 - [x] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
       Fixed: upper-body.js uses cup-size method (Cashmerette / Closet Core) when
       highBust is provided; chest-circumference scaling fallback for legacy users.
-- [ ] KI-016 Crotch extension defaults are absolute values (front 2", back 3")
+- [x] KI-016 Crotch extension defaults are absolute values (front 2", back 3")
       instead of hip-derived (Aldrich: front ≈ hip/16, back ≈ hip/8). For bodies
       with hip > 44" the current max backExt of 4.5" is insufficient (should be
-      5.5"+). Affects all 19 woven trouser/pant garments. Fix: default to
-      hip/16 + 0.2" front, hip/8 + 0.5" back; increase max to 8". See AUDIT.md §C.
+      5.5"+). Affects all 19 woven trouser/pant garments.
+      Fixed: all 20 woven lower-body garments now default to hip/16 + 0.2" front,
+      hip/8 + 0.5" back; max increased to 5"/8". User can override with manual value;
+      entering 0 re-enables auto formula. See AUDIT.md §C.
 - [x] KI-012 Dual PDF renderer removed (accepted risk)
 - [x] KI-013 Scale check depends on CSS class name
       Fixed: uses `data-scale-check` attribute on the 2" square rect
