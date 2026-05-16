@@ -63,7 +63,9 @@ export const UPPER_EASE = {
 
 /**
  * Distribute total chest ease across front and back panels.
- * Front gets 55% (more ease over bust), back 45%.
+ * Front gets 55% (more ease over bust apex for inclusive sizing — larger
+ * cup sizes need the extra front width). Back gets 45%. Aldrich uses 50/50
+ * for a standard cup; the 5% front bias is intentional for MTM sizing.
  *
  * @param {number} ease - Total chest ease in inches
  * @returns {{ front: number, back: number, total: number }}

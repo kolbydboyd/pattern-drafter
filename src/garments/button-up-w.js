@@ -25,8 +25,8 @@ export default {
   category: 'upper',
   difficulty: 'advanced',
   priceTier: 'tailored',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26, waistToArmpit: 8 },
 
   options: {
     collar: {
@@ -123,6 +123,8 @@ export default {
     const sa  = parseFloat(opts.sa);
     const hem = parseFloat(opts.hem);
 
+    // 1" less ease at each level than the men's button-up (fitted:2/3, std:3/4, relaxed:5/6).
+    // Women's woven tops are traditionally cut closer to the body.
     const easeVal = opts.fit === 'fitted' ? 2 : opts.fit === 'relaxed' ? 5 : 3;
     const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
     // Both front and back half-panels are equal so side seams align when sewn
