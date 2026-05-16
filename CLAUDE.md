@@ -41,7 +41,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 
 ## Hard Constraints (NEVER deviate)
 
-- Pure vanilla JS (ES modules) + Vite. **NO frameworks, NO Tailwind, NO new libraries.**
+- Pure vanilla JS (ES modules) + Vite. **NO frameworks, NO Tailwind.**
 - Follow the folder structure in Source Layout above. New API handlers go in `functions/api/` (Cloudflare Pages Functions format — use `onRequest`/`onRequestPost`/etc. exports, `context.env` for env vars, Web API `Request`/`Response`). Never add new handlers to `api/`.
 - Every new garment MUST follow `docs/GARMENT-MODULE-SPEC.md` exactly (required exports: `id`, `name`, `category`, `measurements`, `options`, `pieces()`, `materials()`, `instructions()`).
 - Every new garment (including variants) MUST have a specific hand-crafted SVG illustration added to the `SVGS` object in `scripts/gen-illustrations.mjs`. The build fails if any registered garment ID is missing an SVG file. Design system: `viewBox="0 0 160 200"`, `stroke="#c9a96e"`, `stroke-width="1.5"`, `stroke-linecap="round"`, `stroke-linejoin="round"`.
@@ -59,7 +59,7 @@ Made-to-measure sewing patterns, generated in the browser from your measurements
 
 ## Current State
 
-- **38 garment modules** implemented across categories: lower, upper, skirt, dress (plus `TEMPLATE.js` for reference)
+- Multiple garment modules implemented across categories: lower, upper, skirt, dress (plus `TEMPLATE.js` for reference)
 - Full wizard + auth (Supabase) + Stripe 3-tier pricing ($9/$14/$19) working
 - `learn.html` loads content dynamically via `src/ui/learn-page.js` from `src/content/articles.js` (3 articles published)
 - PostHog analytics with A/B testing via feature flags
