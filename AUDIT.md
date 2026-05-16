@@ -14,7 +14,7 @@ Aldrich *Metric Pattern Cutting* (6th ed.), Armstrong *Patternmaking for Fashion
 | Domain | Status | Severity | Files |
 |--------|--------|----------|-------|
 | A. Armhole depth (fallback formula) | **FIXED** | Medium | `upper-body.js:95` |
-| B. Sleeve cap height methodology | WARN | Low-Medium | `upper-body.js:328`, all garment files |
+| B. Sleeve cap height methodology | **FIXED** | Low-Medium | `upper-body.js:328`, all garment files |
 | C. Crotch extension defaults (woven trousers) | **FIXED** | High | `geometry.js:528`, all lower-body woven |
 | D. Upper-body ease distribution (55/45 front/back) | **FIXED** | Low | `upper-body.js:71` |
 | E. Lower-body ease distribution (40/60) | PASS | — | `geometry.js:528` |

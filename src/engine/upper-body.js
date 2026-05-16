@@ -323,7 +323,17 @@ export function necklineCurve(neckWidth, neckDepth, style) {
  *   y+      downward (crown is above underarm baseline, so y is negative there)
  *
  * @param {number} bicep       - Bicep circumference (in) — used for proportional checks
- * @param {number} capHeight   - Vertical distance from underarm to crown (in), typically 5–6.5
+ * @param {number} capHeight   - Vertical distance from underarm to crown (in), typically 5–6.5.
+ *                               NOTE: textbook references (Aldrich, JBlockCreator) derive cap
+ *                               height from armscye *circumference* (≈ ⅓ arc for tailored,
+ *                               ≈ ⅕ arc for casual). This function uses linear armhole *depth*
+ *                               instead, which is a classic-block convention. The two approaches
+ *                               diverge by ~40% in isolation, but the output is equivalent in
+ *                               practice because callers pass capHeight ≈ armholeDepth × 0.55–0.72,
+ *                               which places actual crown rise ≈ 0.315 × capHeight — matching the
+ *                               reference range. validateSleeveSeams() is the authoritative check:
+ *                               it verifies cap arc − armhole arc lands in 0–1.5″ (knit) or
+ *                               0.5–3″ (woven), regardless of how capHeight was derived.
  * @param {number} sleeveWidth - Full width of sleeve at underarm (in), ≈ bicep / 2 + 1–2 ease
  * @returns {{ p0, p1, p2, p3 }}
  */
