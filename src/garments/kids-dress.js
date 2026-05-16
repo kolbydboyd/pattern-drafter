@@ -24,7 +24,7 @@ export default {
   audience: 'kids',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'waist', 'hip', 'torsoLength', 'fullLength'],
+  measurements: ['chest', 'shoulder', 'neck', 'waist', 'hip', 'torsoLength', 'fullLength', 'waistToArmpit'],
   measurementDefaults: {
     chest: 25, shoulder: 11.5, neck: 11.5, waist: 22, hip: 24, torsoLength: 13, fullLength: 26,
   },
@@ -95,7 +95,7 @@ export default {
     const slopeDrop   = shoulderDropFromWidth(shoulderW);
     const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
-    const armholeY    = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth  = panelW - shoulderPtX;
     const torsoLen    = m.torsoLength;

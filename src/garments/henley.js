@@ -24,8 +24,8 @@ export default {
   category: 'upper',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26},
 
   options: {
     fit: {
@@ -62,6 +62,16 @@ export default {
       ],
       default: 'straight',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -85,7 +95,8 @@ export default {
     const hem = parseFloat(opts.hemAllowance);
 
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
-    const panelW    = (m.chest + totalEase) / 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
+    const panelW    = (m.chest + totalEase) * (1 - sf) / 4;
     const frontW    = panelW;
     const backW     = panelW;
 
@@ -96,7 +107,7 @@ export default {
     const shoulderPtX  = halfShoulder;
 
     const armholeStyle = opts.fit === 'oversized' ? 'oversized' : 'standard';
-    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
+    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle, m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
 
@@ -180,7 +191,7 @@ export default {
     backPoly.push({ x: 0, y: neckDepthBack });
 
     // ── SLEEVE ───────────────────────────────────────────────────────────────
-    const slvFullWidth = m.bicep + 2;
+    const slvFullWidth = (m.bicep + 2) * (1 - sf);
     const capHeight    = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capPts       = sampleCurve(capCp, 32);

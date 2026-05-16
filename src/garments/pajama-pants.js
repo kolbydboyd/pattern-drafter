@@ -101,9 +101,9 @@ export default {
     const easeBack  = easeVal * 0.3;
     const elasticW  = parseFloat(opts.elasticWidth) || 1;
 
-    // Simplified crotch extensions per ROADMAP spec
-    const frontExt = 1.5;
-    const backExt  = 2.5;
+    // Aldrich formula: scales crotch extension with hip size
+    const frontExt = m.hip / 16 + 0.2;
+    const backExt  = m.hip / 8  + 0.5;
     const cbRaise  = 1.0;
 
     const rise   = m.rise  || 10;

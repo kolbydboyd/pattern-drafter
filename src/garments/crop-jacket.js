@@ -25,8 +25,8 @@ export default {
   category: 'upper',
   difficulty: 'advanced',
   priceTier: 'tailored',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26},
 
   options: {
     length: {
@@ -131,7 +131,7 @@ export default {
     const shoulderW     = halfShoulder - neckW;
     const slopeDrop     = shoulderDropFromWidth(shoulderW);
     const shoulderPtX   = neckW + shoulderW;
-    const armholeY      = armholeDepthFromChest(m.chest, 'oversized'); // extra depth for layers
+    const armholeY      = armholeDepthFromChest(m.chest, 'oversized', m.waistToArmpit); // extra depth for layers
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
     // Back armhole must also end at panelW for vertical side seam.

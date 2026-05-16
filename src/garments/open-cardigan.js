@@ -22,8 +22,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 28 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 28},
 
   options: {
     fit: {
@@ -102,7 +102,7 @@ export default {
     const dropShoulderX = shoulderPtX + DROP_EXT;
 
     // Armhole level: deeper for drop shoulder/oversized
-    const armholeY = armholeDepthFromChest(m.chest, 'oversized');
+    const armholeY = armholeDepthFromChest(m.chest, 'oversized', m.waistToArmpit);
 
     const lengthAdd = opts.length === 'midthigh' ? 8 : 4;
     const hemY      = m.torsoLength + lengthAdd;

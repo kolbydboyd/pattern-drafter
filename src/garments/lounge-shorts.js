@@ -98,8 +98,8 @@ export default {
     const easeBack  = easeVal * 0.3;
     const elasticW  = parseFloat(opts.elasticWidth) || 1;
 
-    const frontExt = 1.25;
-    const backExt  = 2.0;
+    const frontExt = m.hip / 16 + 0.2;
+    const backExt  = m.hip / 8  + 0.5;
     const cbRaise  = 0.75;
 
     const rise   = m.rise || 10;

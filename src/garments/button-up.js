@@ -20,8 +20,6 @@ const PLACKET_W = 1.5; // button placket extension on each front panel (inches)
 
 const SLEEVE_LENGTHS = { short: 9, three_quarter: 18, long: 26 };
 
-const NECK_DEPTH_FRONT = 3.0;
-const NECK_DEPTH_BACK  = 0.75;
 
 export default {
   id: 'button-up',
@@ -29,8 +27,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26},
 
   options: {
     collar: {
@@ -141,10 +139,13 @@ export default {
 
     const halfShoulder  = m.shoulder / 2;
     const neckW         = neckWidthFromCircumference(m.neck);
+    // Neck depth scales with neckW so the opening fits all neck circumferences
+    const NECK_DEPTH_FRONT = neckW + 0.5;
+    const NECK_DEPTH_BACK  = neckW * 0.25;
     const shoulderW     = halfShoulder - neckW;
     const slopeDrop     = shoulderDropFromWidth(shoulderW);
     const shoulderPtX   = neckW + shoulderW;
-    const armholeY      = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY      = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth  = armholeY - slopeDrop;
     const chestDepth    = panelW - shoulderPtX;
     const backChestDepth = chestDepth;

@@ -29,7 +29,7 @@ export default {
   audience: 'kids',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
   measurementDefaults: {
     chest: 25, shoulder: 11.5, neck: 11.5, sleeveLength: 15, bicep: 9, torsoLength: 13,
   },
@@ -67,6 +67,16 @@ export default {
       ],
       default: 'straight',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -91,7 +101,8 @@ export default {
 
     // ── Ease + panel widths ──────────────────────────────────────────────────
     const totalEase = KIDS_UPPER_EASE[opts.fit] ?? 2;
-    const panelW    = (m.chest + totalEase) / 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
+    const panelW    = (m.chest + totalEase) * (1 - sf) / 4;
 
     // ── Shoulder geometry ─────────────────────────────────────────────────────
     const halfShoulder = m.shoulder / 2;
@@ -102,7 +113,7 @@ export default {
 
     // ── Armhole geometry ──────────────────────────────────────────────────────
     const armholeStyle = 'standard';
-    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
+    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle, m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
 
@@ -170,7 +181,7 @@ export default {
 
     // ── SLEEVE ────────────────────────────────────────────────────────────────
     // Kids sleeves get slightly more armhole ease for free movement
-    const slvFullWidth = m.bicep + 2.5;
+    const slvFullWidth = (m.bicep + 2.5) * (1 - sf);
     const capHeight    = armholeDepth * 0.60;
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capPts       = sampleBezier(capCp.p0, capCp.p1, capCp.p2, capCp.p3, 32)

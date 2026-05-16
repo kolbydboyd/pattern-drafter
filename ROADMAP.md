@@ -927,7 +927,7 @@ not yet covered, it has higher catalog value.
 | Lining (full garment) | blazer, slip-skirt-w, coat, vest, evening gown | partial (slip skirt) |
 | Bias cut | bias-cut skirt, slip dress, necktie | not yet |
 | Knit / stretch construction | tee, leggings, boxers, bralette, bodycon | partial (tee), full with leggings |
-| Negative ease / compression | leggings, bodycon, bike shorts, sports bra, swimwear | not yet - needs stretch block |
+| Negative ease / compression | leggings, bodycon, bike shorts, sports bra, swimwear | partial — upper body knits use stretchFactor option (0-15%); lower body leggings use STRETCH_EASE; swimwear/sports bra still needed |
 | Flat-felled seam | straight-jeans, denim-jacket, flannel | done |
 | French seam | shell-blouse-w, slip-skirt-w, PJ pants | done |
 | Cylinder construction | duffle bag | not yet |
@@ -1372,7 +1372,16 @@ is covering monthly costs.
 - [x] KI-009 Category 'tops' vs 'upper' inconsistency
       Not a bug: 'tops' is a UI display label, 'upper' is measurement category.
 - [x] KI-010 edgeAllowances/sanitizePoly interaction (mitigated by design)
-- [ ] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
+- [x] KI-011 Bust dart intake fixed at 1.5" (should scale with cup size)
+      Fixed: upper-body.js uses cup-size method (Cashmerette / Closet Core) when
+      highBust is provided; chest-circumference scaling fallback for legacy users.
+- [x] KI-016 Crotch extension defaults are absolute values (front 2", back 3")
+      instead of hip-derived (Aldrich: front ≈ hip/16, back ≈ hip/8). For bodies
+      with hip > 44" the current max backExt of 4.5" is insufficient (should be
+      5.5"+). Affects all 19 woven trouser/pant garments.
+      Fixed: all 20 woven lower-body garments now default to hip/16 + 0.2" front,
+      hip/8 + 0.5" back; max increased to 5"/8". User can override with manual value;
+      entering 0 re-enables auto formula. See AUDIT.md §C.
 - [x] KI-012 Dual PDF renderer removed (accepted risk)
 - [x] KI-013 Scale check depends on CSS class name
       Fixed: uses `data-scale-check` attribute on the 2" square rect

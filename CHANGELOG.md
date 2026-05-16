@@ -4,6 +4,55 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [Unreleased]
+
+### Added
+- **stretchFactor option for upper body knit garments** — tee, crewneck, henley, fitted-tee-w,
+  tank-top, turtleneck, kids-tee, hoodie, scholar-hoodie now have a `stretchFactor` select option
+  (0% / 5% / 10% / 15%, default 5%). The pattern scales panel width by `(1 - stretchFactor)` so
+  knit garments drafted for stretchy fabric have the correct negative ease. Closes AUDIT.md §G.
+- **Pattern formula audit** — Full audit of all 67 garment modules against FreeSewing v4.7.0,
+  JBlockCreator (Harwood et al. 2020), Aldrich, Armstrong, BMV ease chart, and Müller & Sohn
+  references. Results documented in `AUDIT.md`.
+- **`audit-references/` library** — 16 markdown reference files organized into sub-folders:
+  FreeSewing formulas, JBlockCreator methods, textbook formulas (Aldrich, Armstrong, Müller & Sohn),
+  ease tables (BMV chart, knit stretch formula, MTM minimums), measurement standards, and
+  per-piece formula references. Includes `INDEX.md` cross-mapping garment pieces to references.
+
+### Findings (from AUDIT.md)
+- **DEFECT (High)** — Crotch extension defaults are absolute values (front 2", back 3") instead of
+  hip-derived (Aldrich: front ≈ hip/16, back ≈ hip/8). Causes seat tightness for bodies with
+  hip > 40"; back max of 4.5" is insufficient for hip ≥ 44". Affects all 19 woven trouser garments.
+- **WARN** — Armhole depth fallback `chest/4` is ~3" deeper than Aldrich for 38" chest; acceptable
+  for casual garments but users should be prompted for `waistToArmpit` measurement.
+- **WARN** — Upper body knit garments use positive ease only; no stretch-ratio negative ease.
+  Tracked as known gap in ROADMAP.
+- **PASS** — Circle skirt radius formula, neckline width, shoulder slope, dart intake, MTM minimums.
+
+### Fixed
+- **waistToArmpit measurement promoted** — All 24 upper-body garments that call
+  `armholeDepthFromChest()` now declare `waistToArmpit` in their `measurements` array
+  (default 8") and pass `m.waistToArmpit` as the third argument. When measured, the wizard
+  uses the MTM-correct armhole depth; when omitted, the chest/4 fallback activates.
+  Partially closes AUDIT.md §A.
+- **Neck depth scales with neck circumference** — `button-up.js` neck depth constants moved
+  from module scope into `pieces()` and recomputed as `neckW + 0.5"` (front) and
+  `neckW × 0.25` (back). Neck openings now scale correctly for all collar sizes.
+  Closes AUDIT.md §J.
+- **Ease deviation comments** — `a-line-dress-w.js` and `button-up-w.js` now document why
+  they use reduced ease vs the UPPER_EASE table. `upper-body.js` `chestEaseDistribution()`
+  JSDoc explains the 55/45 front/back rationale. Closes AUDIT.md §D, §F.
+- **Hip-derived crotch extensions** — All 20 woven lower-body garments (straight-jeans, baggy-jeans,
+  soloist-jeans, athletic-formal-trousers, pleated-trousers, chinos, wide-leg-trouser-w,
+  wide-leg-trouser-m, straight-trouser-w, 874-work-pants, cargo-work-pants, gym-shorts,
+  baggy-shorts, cargo-shorts, pleated-shorts, easy-pant-w, pajama-pants, lounge-shorts,
+  kids-shorts, kids-joggers) now compute crotch extensions from hip measurement using the Aldrich
+  formula: `frontExt = hip/16 + 0.2"`, `backExt = hip/8 + 0.5"`. For option-based garments,
+  entering 0 re-enables the auto formula; manual values > 0 override it. Max back extension
+  increased from 4.5" to 8". Closes AUDIT.md §C DEFECT; resolves ROADMAP KI-016.
+
+---
+
 ## [0.13.0] - 2026-05-15
 
 ### Added

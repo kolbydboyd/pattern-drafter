@@ -35,7 +35,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: {},
 
   options: {
     fit: {
@@ -98,7 +99,7 @@ export default {
     const shoulderPtX  = halfShoulder;
 
     // ── Armhole geometry ─────────────────────────────────────────────────────
-    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
 
