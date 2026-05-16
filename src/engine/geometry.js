@@ -3,6 +3,8 @@
  * Core geometry engine for pattern drafting.
  * All measurements in inches. SVG scale applied at render time.
  */
+import { Clipper, FillRule } from 'clipper2-ts';
+const _CLIP_SCALE = 10000; // integer precision for Clipper2 (0.0001" resolution)
 
 /**
  * Normalize a 2-D vector to unit length.
@@ -345,16 +347,18 @@ export function offsetPolygon(poly, edgeOffsetFn) {
       const ix = p1.x + t * d1.x;
       const iy = p1.y + t * d1.y;
 
-      // Cap miter distance: at most 2.5× the larger offset, to prevent spikes
-      const maxDist = maxOff * 2.5;
+      // Cap miter distance: at most 2.0× the larger offset (industry default — Clipper2 MiterLimit=2.0)
+      const maxDist = maxOff * 2.0;
       const distSq  = (ix - curr.x) ** 2 + (iy - curr.y) ** 2;
 
       if (distSq <= maxDist * maxDist) {
         result.push({ x: ix, y: iy, ...tag });
       } else if (curr.curve) {
-        // Curve point: cap the miter distance instead of creating a step
-        const scale = maxDist / Math.sqrt(distSq);
-        result.push({ x: curr.x + (ix - curr.x) * scale, y: curr.y + (iy - curr.y) * scale, ...tag });
+        // Curve point beyond cap: fall back to averaged-normal offset (same as short-edge path)
+        const nx = (nIn.x + nOut.x) / 2, ny = (nIn.y + nOut.y) / 2;
+        const nl = Math.sqrt(nx * nx + ny * ny) || 1;
+        const avgOff = (oIn + oOut) / 2;
+        result.push({ x: curr.x + nx / nl * avgOff, y: curr.y + ny / nl * avgOff, ...tag });
       } else {
         // Structural corner: two-point step for clean SA transitions (e.g. hem)
         result.push(p1);
@@ -363,6 +367,17 @@ export function offsetPolygon(poly, edgeOffsetFn) {
     }
   }
 
+  // Clipper2 Boolean Union: remove any remaining self-intersections
+  try {
+    const scaled = [result.map(p => ({ x: Math.round(p.x * _CLIP_SCALE), y: Math.round(p.y * _CLIP_SCALE) }))];
+    const cleaned = Clipper.union(scaled, [], FillRule.Positive);
+    if (cleaned && cleaned.length) {
+      const best = cleaned.reduce((a, b) =>
+        Math.abs(a.length - result.length) <= Math.abs(b.length - result.length) ? a : b
+      );
+      return best.map(p => ({ x: p.x / _CLIP_SCALE, y: p.y / _CLIP_SCALE }));
+    }
+  } catch (_) { /* fall through */ }
   return result;
 }
 
