@@ -3,6 +3,8 @@
  * Core geometry engine for pattern drafting.
  * All measurements in inches. SVG scale applied at render time.
  */
+import { Clipper, FillRule } from 'clipper2-ts';
+const _CLIP_SCALE = 10000; // integer precision for Clipper2 (0.0001" resolution)
 
 /**
  * Normalize a 2-D vector to unit length.
@@ -365,6 +367,17 @@ export function offsetPolygon(poly, edgeOffsetFn) {
     }
   }
 
+  // Clipper2 Boolean Union: remove any remaining self-intersections
+  try {
+    const scaled = [result.map(p => ({ x: Math.round(p.x * _CLIP_SCALE), y: Math.round(p.y * _CLIP_SCALE) }))];
+    const cleaned = Clipper.union(scaled, [], FillRule.Positive);
+    if (cleaned && cleaned.length) {
+      const best = cleaned.reduce((a, b) =>
+        Math.abs(a.length - result.length) <= Math.abs(b.length - result.length) ? a : b
+      );
+      return best.map(p => ({ x: p.x / _CLIP_SCALE, y: p.y / _CLIP_SCALE }));
+    }
+  } catch (_) { /* fall through */ }
   return result;
 }
 
