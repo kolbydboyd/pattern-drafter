@@ -22,8 +22,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 25 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 25},
 
   options: {
     fit: {
@@ -50,6 +50,16 @@ export default {
       ],
       default: 'none',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -73,9 +83,10 @@ export default {
     const hem = parseFloat(opts.hem);
 
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
     const { front: frontEase, back: backEase } = chestEaseDistribution(totalEase);
     // Both front and back half-panels are equal so side seams align when sewn
-    const panelW = (m.chest + totalEase) / 4;
+    const panelW = (m.chest + totalEase) * (1 - sf) / 4;
     const frontW = panelW;
     const backW  = panelW;
 
@@ -84,7 +95,7 @@ export default {
     const shoulderW    = halfShoulder - neckW;
     const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
-    const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, opts.fit === 'oversized' ? 'oversized' : 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     // Back armhole must also end at panelW for vertical side seam.

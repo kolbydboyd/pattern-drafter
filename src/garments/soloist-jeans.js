@@ -27,8 +27,8 @@ export default {
     riseStyle:   { ...straightJeans.options.riseStyle,   default: 'mid'      },
     frontPocket: { ...straightJeans.options.frontPocket, default: 'scoop'    },
     yokeStyle:   { ...straightJeans.options.yokeStyle,   default: 'pointed'      },
-    frontExt:    { ...straightJeans.options.frontExt,    default: 1.75           },
-    backExt:     { ...straightJeans.options.backExt,     default: 3.25           },
+    frontExt:    { ...straightJeans.options.frontExt,    default: 0              },
+    backExt:     { ...straightJeans.options.backExt,     default: 0              },
   },
 
   pieces(m, opts) {

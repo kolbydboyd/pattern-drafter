@@ -20,8 +20,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'tailored',
-  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
-  measurementDefaults: { torsoLength: 16, skirtLength: 24 },
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength', 'waistToArmpit'],
+  measurementDefaults: { torsoLength: 16, skirtLength: 24},
 
   options: {
     neckline: {
@@ -98,6 +98,8 @@ export default {
   pieces(m, opts) {
     const sa   = parseFloat(opts.sa);
     const hem  = 0.75;
+    // Reduced ease (2-3") vs UPPER_EASE (4-6"): the flared skirt provides volume;
+    // a loose bodice block would overwhelm the silhouette.
     const easeVal = opts.fit === 'relaxed' ? 3 : 2;
     const flareAmt = parseFloat(opts.flare);
 
@@ -107,7 +109,7 @@ export default {
     const slopeDrop   = shoulderDropFromWidth(shoulderW);
     const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
-    const armholeY    = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth  = panelW - shoulderPtX;
     const torsoLen    = m.torsoLength;

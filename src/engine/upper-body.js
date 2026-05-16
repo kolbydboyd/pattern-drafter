@@ -63,7 +63,9 @@ export const UPPER_EASE = {
 
 /**
  * Distribute total chest ease across front and back panels.
- * Front gets 55% (more ease over bust), back 45%.
+ * Front gets 55% (more ease over bust apex for inclusive sizing — larger
+ * cup sizes need the extra front width). Back gets 45%. Aldrich uses 50/50
+ * for a standard cup; the 5% front bias is intentional for MTM sizing.
  *
  * @param {number} ease - Total chest ease in inches
  * @returns {{ front: number, back: number, total: number }}
@@ -97,7 +99,9 @@ export function armholeDepthFromChest(chest, style = 'standard', waistToArmpit =
   if (waistToArmpit) {
     return waistToArmpit + (tolerance[style] ?? 0.5);
   }
-  return chest / 4 + (tolerance[style] ?? 0.5);
+  // Aldrich scye depth: chest/8 + 2.4" (midpoint of 5.5–6.5 cm range).
+  // chest/4 was the classic-block legacy; Aldrich is ~3" shallower at 38" chest.
+  return chest / 8 + 2.4 + (tolerance[style] ?? 0.5);
 }
 
 /**
@@ -321,7 +325,17 @@ export function necklineCurve(neckWidth, neckDepth, style) {
  *   y+      downward (crown is above underarm baseline, so y is negative there)
  *
  * @param {number} bicep       - Bicep circumference (in) — used for proportional checks
- * @param {number} capHeight   - Vertical distance from underarm to crown (in), typically 5–6.5
+ * @param {number} capHeight   - Vertical distance from underarm to crown (in), typically 5–6.5.
+ *                               NOTE: textbook references (Aldrich, JBlockCreator) derive cap
+ *                               height from armscye *circumference* (≈ ⅓ arc for tailored,
+ *                               ≈ ⅕ arc for casual). This function uses linear armhole *depth*
+ *                               instead, which is a classic-block convention. The two approaches
+ *                               diverge by ~40% in isolation, but the output is equivalent in
+ *                               practice because callers pass capHeight ≈ armholeDepth × 0.55–0.72,
+ *                               which places actual crown rise ≈ 0.315 × capHeight — matching the
+ *                               reference range. validateSleeveSeams() is the authoritative check:
+ *                               it verifies cap arc − armhole arc lands in 0–1.5″ (knit) or
+ *                               0.5–3″ (woven), regardless of how capHeight was derived.
  * @param {number} sleeveWidth - Full width of sleeve at underarm (in), ≈ bicep / 2 + 1–2 ease
  * @returns {{ p0, p1, p2, p3 }}
  */

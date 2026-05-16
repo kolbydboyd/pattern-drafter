@@ -53,7 +53,17 @@ export default {
       min: 1,
       max: 4,
     },
-    hoodLining: { ...hoodie.options.hoodLining },
+    hoodLining:    { ...hoodie.options.hoodLining },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa:         { ...hoodie.options.sa },
     hem:        { ...hoodie.options.hem },
   },
@@ -65,7 +75,8 @@ export default {
 
     // ── Hard-coded: Scholar is always oversized pullover ────────────────────
     const totalEase = UPPER_EASE.oversized;                // +10″
-    const panelW    = (m.chest + totalEase) / 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
+    const panelW    = (m.chest + totalEase) * (1 - sf) / 4;
     const frontW    = panelW;
     const backW     = panelW;
 

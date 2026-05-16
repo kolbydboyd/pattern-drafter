@@ -26,8 +26,8 @@ export default {
   category: 'upper',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 25 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 25},
 
   options: {
     collarStyle: {
@@ -56,6 +56,16 @@ export default {
       ],
       default: 'long',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -79,7 +89,8 @@ export default {
     const hem = parseFloat(opts.hem) || 0.75;
 
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
-    const panelW    = (m.chest + totalEase) / 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
+    const panelW    = (m.chest + totalEase) * (1 - sf) / 4;
 
     const halfShoulder = m.shoulder / 2;
     const neckW        = neckWidthFromCircumference(m.neck);
@@ -87,7 +98,7 @@ export default {
     const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = halfShoulder;
 
-    const armholeY    = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
 
@@ -138,7 +149,7 @@ export default {
     backPoly.push({ x: 0,      y: neckDepthBack });
 
     // ── Sleeve ────────────────────────────────────────────────────────────────
-    const slvFullWidth = m.bicep + 2;
+    const slvFullWidth = (m.bicep + 2) * (1 - sf);
     const capHeight    = armholeDepth * 0.60;
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capSampled   = curvePts(capCp, 32);

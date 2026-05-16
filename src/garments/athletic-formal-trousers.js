@@ -128,8 +128,8 @@ export default {
       default: 'mid',
     },
     riseOverride: { type: 'number', label: 'Rise override (inches)', default: 0, step: 0.25, min: 0, max: 18 },
-    frontExt: { type: 'number', label: 'Front crotch ext', default: 2, step: 0.25, min: 0.5, max: 3   },
-    backExt:  { type: 'number', label: 'Back crotch ext',  default: 3.0, step: 0.25, min: 1,   max: 4.5 },
+    frontExt: { type: 'number', label: 'Front crotch ext (0=auto)', default: 0, step: 0.25, min: 0, max: 5   },
+    backExt:  { type: 'number', label: 'Back crotch ext (0=auto)',  default: 0, step: 0.25, min: 0, max: 8 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 0.75, step: 0.25, min: 0,   max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -154,8 +154,10 @@ export default {
 
     const sa       = parseFloat(opts.sa);
     const hem      = parseFloat(opts.hem);
-    const frontExt = parseFloat(opts.frontExt);
-    const backExt  = parseFloat(opts.backExt);
+    const autoFront = m.hip / 16 + 0.2;
+    const autoBack  = m.hip / 8  + 0.5;
+    const frontExt = parseFloat(opts.frontExt) || autoFront;
+    const backExt  = parseFloat(opts.backExt)  || autoBack;
     const cbRaise  = parseFloat(opts.cbRaise);
 
     const numOuttucks  = opts.outtucks === 'double' ? 2 : opts.outtucks === 'single' ? 1 : 0;
