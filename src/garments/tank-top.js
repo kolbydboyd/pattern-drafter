@@ -19,8 +19,8 @@ export default {
   category: 'upper',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'torsoLength'],
-  measurementDefaults: {},
+  measurements: ['chest', 'shoulder', 'neck', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { waistToArmpit: 8 },
 
   options: {
     neckline: {
@@ -96,7 +96,7 @@ export default {
     const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = halfShoulder;
 
-    const armholeY    = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth  = panelW - shoulderPtX;
 

@@ -29,9 +29,9 @@ export default {
   audience: 'kids',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
   measurementDefaults: {
-    chest: 25, shoulder: 11.5, neck: 11.5, sleeveLength: 15, bicep: 9, torsoLength: 13,
+    chest: 25, shoulder: 11.5, neck: 11.5, sleeveLength: 15, bicep: 9, torsoLength: 13, waistToArmpit: 8,
   },
 
   options: {
@@ -102,7 +102,7 @@ export default {
 
     // ── Armhole geometry ──────────────────────────────────────────────────────
     const armholeStyle = 'standard';
-    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
+    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle, m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
 

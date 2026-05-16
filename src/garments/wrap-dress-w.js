@@ -19,8 +19,8 @@ export default {
   category: 'upper',
   difficulty: 'advanced',
   priceTier: 'tailored',
-  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength'],
-  measurementDefaults: { torsoLength: 16, skirtLength: 28 },
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength', 'waistToArmpit'],
+  measurementDefaults: { torsoLength: 16, skirtLength: 28, waistToArmpit: 8 },
 
   options: {
     fabric: {
@@ -102,7 +102,7 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
-    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     const backChestDepth = chestDepth;

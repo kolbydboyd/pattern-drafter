@@ -109,7 +109,7 @@ export default {
     const slopeDrop   = shoulderDropFromWidth(shoulderW);
     const shoulderPtX = neckW + shoulderW;
     const shoulderPtY = slopeDrop;
-    const armholeY    = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth  = panelW - shoulderPtX;
     const torsoLen    = m.torsoLength;

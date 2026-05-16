@@ -42,8 +42,8 @@ export default {
   category: 'upper',
   difficulty: 'beginner',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26, waistToArmpit: 8 },
 
   options: {
     sleeveStyle: {
@@ -153,7 +153,7 @@ export default {
     let   shoulderW    = halfShoulder - neckW;
     let   slopeDrop    = shoulderDropFromWidth(shoulderW);
     let   shoulderPtX  = neckW + shoulderW;
-    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     let   armholeDepth = armholeY - slopeDrop;
     let   chestDepth   = panelW - shoulderPtX;
     const torsoLen     = m.torsoLength;

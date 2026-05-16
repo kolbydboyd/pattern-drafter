@@ -30,8 +30,8 @@ export default {
   category: 'upper',
   difficulty: 'beginner',
   priceTier: 'simple',
-  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 25 },
+  measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 25, waistToArmpit: 8 },
 
   options: {
     neckline: {
@@ -130,7 +130,7 @@ export default {
     // armholeDepth: depth from shoulder point → passed to armholeCurve
     // chestDepth: horizontal extent shoulder pt → side seam at underarm level
     const armholeStyle = opts.fit === 'oversized' ? 'oversized' : 'standard';
-    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle);
+    const armholeY     = armholeDepthFromChest(m.chest, armholeStyle, m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     // Back armhole must also end at panelW for vertical side seam.

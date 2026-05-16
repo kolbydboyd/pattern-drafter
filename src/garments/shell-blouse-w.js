@@ -25,8 +25,8 @@ export default {
   category: 'upper',
   difficulty: 'intermediate',
   priceTier: 'core',
-  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength'],
-  measurementDefaults: {},
+  measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { waistToArmpit: 8 },
 
   options: {
     neckline: {
@@ -116,7 +116,7 @@ export default {
     const shoulderW    = m.shoulder / 2 - neckW;
     const slopeDrop    = shoulderDropFromWidth(shoulderW);
     const shoulderPtX  = neckW + shoulderW;
-    const armholeY     = armholeDepthFromChest(m.chest, 'standard');
+    const armholeY     = armholeDepthFromChest(m.chest, 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth   = panelW - shoulderPtX;
     // Back armhole must also end at panelW for vertical side seam.

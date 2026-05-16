@@ -30,8 +30,8 @@ export default {
   category:   'upper',
   difficulty: 'advanced',
   priceTier:  'tailored',
-  measurements: ['chest', 'waist', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength'],
-  measurementDefaults: { sleeveLength: 26 },
+  measurements: ['chest', 'waist', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
+  measurementDefaults: { sleeveLength: 26, waistToArmpit: 8 },
 
   options: {
     style: {
@@ -149,7 +149,7 @@ export default {
     const shoulderW   = (m.shoulder / 2) - neckW;
     const slopeDrop   = shoulderDropFromWidth(shoulderW);
     const shoulderPtX = neckW + shoulderW;
-    const armholeY    = armholeDepthFromChest(m.chest, opts.fit === 'relaxed' ? 'oversized' : 'standard');
+    const armholeY    = armholeDepthFromChest(m.chest, opts.fit === 'relaxed' ? 'oversized' : 'standard', m.waistToArmpit);
     const armholeDepth = armholeY - slopeDrop;
     const chestDepth  = panelW - shoulderPtX;
     const torsoLen    = m.torsoLength + (opts.length === 'standard' ? 2 : 0);
