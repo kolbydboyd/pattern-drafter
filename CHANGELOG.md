@@ -26,6 +26,18 @@ All notable changes are documented here, newest first.
 - **PASS** — Circle skirt radius formula, neckline width, shoulder slope, dart intake, MTM minimums.
 
 ### Fixed
+- **waistToArmpit measurement promoted** — All 24 upper-body garments that call
+  `armholeDepthFromChest()` now declare `waistToArmpit` in their `measurements` array
+  (default 8") and pass `m.waistToArmpit` as the third argument. When measured, the wizard
+  uses the MTM-correct armhole depth; when omitted, the chest/4 fallback activates.
+  Partially closes AUDIT.md §A.
+- **Neck depth scales with neck circumference** — `button-up.js` neck depth constants moved
+  from module scope into `pieces()` and recomputed as `neckW + 0.5"` (front) and
+  `neckW × 0.25` (back). Neck openings now scale correctly for all collar sizes.
+  Closes AUDIT.md §J.
+- **Ease deviation comments** — `a-line-dress-w.js` and `button-up-w.js` now document why
+  they use reduced ease vs the UPPER_EASE table. `upper-body.js` `chestEaseDistribution()`
+  JSDoc explains the 55/45 front/back rationale. Closes AUDIT.md §D, §F.
 - **Hip-derived crotch extensions** — All 20 woven lower-body garments (straight-jeans, baggy-jeans,
   soloist-jeans, athletic-formal-trousers, pleated-trousers, chinos, wide-leg-trouser-w,
   wide-leg-trouser-m, straight-trouser-w, 874-work-pants, cargo-work-pants, gym-shorts,

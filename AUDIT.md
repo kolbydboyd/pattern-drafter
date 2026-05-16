@@ -13,16 +13,16 @@ Aldrich *Metric Pattern Cutting* (6th ed.), Armstrong *Patternmaking for Fashion
 
 | Domain | Status | Severity | Files |
 |--------|--------|----------|-------|
-| A. Armhole depth (fallback formula) | WARN | Medium | `upper-body.js:95` |
+| A. Armhole depth (fallback formula) | **FIXED** | Medium | `upper-body.js:95` |
 | B. Sleeve cap height methodology | WARN | Low-Medium | `upper-body.js:328`, all garment files |
 | C. Crotch extension defaults (woven trousers) | **FIXED** | High | `geometry.js:528`, all lower-body woven |
-| D. Upper-body ease distribution (55/45 front/back) | WARN | Low | `upper-body.js:71` |
+| D. Upper-body ease distribution (55/45 front/back) | **FIXED** | Low | `upper-body.js:71` |
 | E. Lower-body ease distribution (40/60) | PASS | — | `geometry.js:528` |
-| F. Ease override inconsistencies | WARN | Low | 2 garment files |
+| F. Ease override inconsistencies | **FIXED** | Low | 2 garment files |
 | G. Knit negative ease — upper body | WARN | Medium | `tee.js`, `crewneck.js`, etc. |
 | H. Circle skirt radius | PASS | — | `circle-skirt-w.js:103` |
 | I. Neckline width formula | PASS | — | `upper-body.js:421` |
-| J. Absolute neck depth constants | WARN | Low | `button-up.js:23` |
+| J. Absolute neck depth constants | **FIXED** | Low | `button-up.js:23` |
 | K. MTM wearing-ease minimums | PASS | — | all garments |
 | L. Bust dart intake | PASS | — | `upper-body.js:38` |
 | M. Shoulder slope angle | PASS | — | `upper-body.js:114` |
