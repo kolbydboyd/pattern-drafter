@@ -194,16 +194,19 @@ export default {
 
     // ── WAISTBAND ────────────────────────────────────────────────────────────
     // Elastic waistband matches garment waist opening (sum of panel tops).
-    // Structured/contoured sits at body waist measurement.
-    const garmentWaist = (frontHipW + backHipW) * 2;
-    const wbCirc = (opts.waistband === 'elastic') ? garmentWaist + sa * 2 : m.waist + ease.total + pleatExtra * 2 + sa * 2;
+    // Structured waistband adds a 1″ closure extension for button/hook overlap.
+    // Using hip-width vars here was a bug (hip ≠ waist seam) — corrected to
+    // frontWaistW + backWaistW.
+    const CLOSURE_EXT = 1.0;
+    const garmentWaist = (frontWaistW + backWaistW) * 2;
+    const wbCirc = (opts.waistband === 'elastic') ? garmentWaist + sa * 2 : m.waist + ease.total + pleatExtra * 2 + CLOSURE_EXT + sa * 2;
 
     if (opts.waistband === 'structured') {
       // 1.5″ finished = 3″ cut
       pieces.push({
         id: 'waistband',
         name: 'Waistband (Structured)',
-        instruction: `Cut 1 · Interface · 1.5″ finished · Button + hook-and-eye closure · CF right side 1″ overlap extension`,
+        instruction: `Cut 1 · Interface · 1.5″ finished · Button + hook-and-eye closure · includes ${fmtInches(CLOSURE_EXT)} CF overlap extension`,
         dimensions: { length: wbCirc, width: 3 },
         type: 'rectangle', sa,
       });
