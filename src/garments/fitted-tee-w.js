@@ -86,6 +86,16 @@ export default {
       ],
       default: 'regular',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -109,9 +119,10 @@ export default {
     const hem = parseFloat(opts.hem);
 
     const easeVal = opts.fit === 'relaxed' ? 4 : 2;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
     const { front: frontEase, back: backEase } = chestEaseDistribution(easeVal);
     // Both front and back half-panels are equal so side seams align when sewn
-    const panelW = (m.chest + easeVal) / 4;
+    const panelW = (m.chest + easeVal) * (1 - sf) / 4;
     const frontW = panelW;
     const backW  = panelW;
 

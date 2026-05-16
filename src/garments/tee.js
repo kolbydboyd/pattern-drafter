@@ -86,6 +86,16 @@ export default {
       ],
       default: 'none',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -110,8 +120,9 @@ export default {
 
     // ── Ease + panel widths ──────────────────────────────────────────────────
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
     // Each half-panel = (chest + ease) / 4 so front and back side seams align
-    const panelW = (m.chest + totalEase) / 4;
+    const panelW = (m.chest + totalEase) * (1 - sf) / 4;
     const frontW = panelW;
     const backW  = panelW;
 
@@ -247,7 +258,7 @@ export default {
     const effArmToElbow = m.armToElbow || (slvLength * 0.45);
     // Full flat width at underarm = bicep + 2" ease (standard block rule)
     // Cap height 5–6": taller cap = more ease, better shoulder fit on wovens
-    const slvFullWidth = m.bicep + 2;
+    const slvFullWidth = (m.bicep + 2) * (1 - sf);
     const capHeight    = armholeDepth * (opts.fit === 'oversized' ? 0.55 : 0.60);
     const capCp        = sleeveCapCurve(m.bicep, capHeight, slvFullWidth);
     const capPts       = curveToPoints(capCp, 32);

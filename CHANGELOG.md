@@ -7,6 +7,10 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Added
+- **stretchFactor option for upper body knit garments** — tee, crewneck, henley, fitted-tee-w,
+  tank-top, turtleneck, kids-tee, hoodie, scholar-hoodie now have a `stretchFactor` select option
+  (0% / 5% / 10% / 15%, default 5%). The pattern scales panel width by `(1 - stretchFactor)` so
+  knit garments drafted for stretchy fabric have the correct negative ease. Closes AUDIT.md §G.
 - **Pattern formula audit** — Full audit of all 67 garment modules against FreeSewing v4.7.0,
   JBlockCreator (Harwood et al. 2020), Aldrich, Armstrong, BMV ease chart, and Müller & Sohn
   references. Results documented in `AUDIT.md`.

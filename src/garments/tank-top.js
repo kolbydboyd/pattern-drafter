@@ -65,6 +65,16 @@ export default {
       ],
       default: 'straight',
     },
+    stretchFactor: {
+      type: 'select', label: 'Fabric stretch',
+      values: [
+        { value: '0',    label: 'Stable knit (0% — not stretchy)'        },
+        { value: '0.05', label: 'Low stretch — fleece, sweatshirt (5%)'  },
+        { value: '0.10', label: 'Medium stretch — jersey, modal (10%)'   },
+        { value: '0.15', label: 'High stretch — bamboo, rayon knit (15%)'},
+      ],
+      default: '0.05',
+    },
     sa: {
       type: 'select', label: 'Seam allowance',
       values: [
@@ -88,7 +98,8 @@ export default {
     const hem = parseFloat(opts.hem);
 
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
-    const panelW    = (m.chest + totalEase) / 4;
+    const sf = parseFloat(opts.stretchFactor ?? 0.05);
+    const panelW    = (m.chest + totalEase) * (1 - sf) / 4;
 
     const halfShoulder = m.shoulder / 2;
     const neckW        = neckWidthFromCircumference(m.neck);

@@ -19,7 +19,7 @@ Aldrich *Metric Pattern Cutting* (6th ed.), Armstrong *Patternmaking for Fashion
 | D. Upper-body ease distribution (55/45 front/back) | **FIXED** | Low | `upper-body.js:71` |
 | E. Lower-body ease distribution (40/60) | PASS | — | `geometry.js:528` |
 | F. Ease override inconsistencies | **FIXED** | Low | 2 garment files |
-| G. Knit negative ease — upper body | WARN | Medium | `tee.js`, `crewneck.js`, etc. |
+| G. Knit negative ease — upper body | **FIXED** | Medium | `tee.js`, `crewneck.js`, etc. |
 | H. Circle skirt radius | PASS | — | `circle-skirt-w.js:103` |
 | I. Neckline width formula | PASS | — | `upper-body.js:421` |
 | J. Absolute neck depth constants | **FIXED** | Low | `button-up.js:23` |

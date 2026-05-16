@@ -927,7 +927,7 @@ not yet covered, it has higher catalog value.
 | Lining (full garment) | blazer, slip-skirt-w, coat, vest, evening gown | partial (slip skirt) |
 | Bias cut | bias-cut skirt, slip dress, necktie | not yet |
 | Knit / stretch construction | tee, leggings, boxers, bralette, bodycon | partial (tee), full with leggings |
-| Negative ease / compression | leggings, bodycon, bike shorts, sports bra, swimwear | not yet - needs stretch block |
+| Negative ease / compression | leggings, bodycon, bike shorts, sports bra, swimwear | partial — upper body knits use stretchFactor option (0-15%); lower body leggings use STRETCH_EASE; swimwear/sports bra still needed |
 | Flat-felled seam | straight-jeans, denim-jacket, flannel | done |
 | French seam | shell-blouse-w, slip-skirt-w, PJ pants | done |
 | Cylinder construction | duffle bag | not yet |
