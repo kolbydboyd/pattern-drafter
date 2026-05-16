@@ -21,7 +21,7 @@ export default {
   difficulty: 'intermediate',
   priceTier: 'tailored',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'waist', 'hip', 'torsoLength', 'skirtLength', 'waistToArmpit'],
-  measurementDefaults: { torsoLength: 16, skirtLength: 24, waistToArmpit: 8 },
+  measurementDefaults: { torsoLength: 16, skirtLength: 24},
 
   options: {
     neckline: {

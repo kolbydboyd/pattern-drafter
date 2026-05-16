@@ -31,7 +31,7 @@ export default {
   difficulty: 'advanced',
   priceTier:  'tailored',
   measurements: ['chest', 'waist', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'wrist', 'torsoLength', 'waistToArmpit'],
-  measurementDefaults: { sleeveLength: 26, waistToArmpit: 8 },
+  measurementDefaults: { sleeveLength: 26},
 
   options: {
     style: {

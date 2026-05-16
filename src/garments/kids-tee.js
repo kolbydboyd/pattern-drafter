@@ -31,7 +31,7 @@ export default {
   priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
   measurementDefaults: {
-    chest: 25, shoulder: 11.5, neck: 11.5, sleeveLength: 15, bicep: 9, torsoLength: 13, waistToArmpit: 8,
+    chest: 25, shoulder: 11.5, neck: 11.5, sleeveLength: 15, bicep: 9, torsoLength: 13,
   },
 
   options: {

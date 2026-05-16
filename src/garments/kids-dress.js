@@ -26,7 +26,7 @@ export default {
   priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'waist', 'hip', 'torsoLength', 'fullLength', 'waistToArmpit'],
   measurementDefaults: {
-    chest: 25, shoulder: 11.5, neck: 11.5, waist: 22, hip: 24, torsoLength: 13, fullLength: 26, waistToArmpit: 8,
+    chest: 25, shoulder: 11.5, neck: 11.5, waist: 22, hip: 24, torsoLength: 13, fullLength: 26,
   },
 
   options: {

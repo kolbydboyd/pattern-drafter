@@ -23,7 +23,7 @@ export default {
   difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'waistToArmpit'],
-  measurementDefaults: { sleeveLength: 25, waistToArmpit: 8 },
+  measurementDefaults: { sleeveLength: 25},
 
   options: {
     fit: {

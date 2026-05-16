@@ -99,7 +99,9 @@ export function armholeDepthFromChest(chest, style = 'standard', waistToArmpit =
   if (waistToArmpit) {
     return waistToArmpit + (tolerance[style] ?? 0.5);
   }
-  return chest / 4 + (tolerance[style] ?? 0.5);
+  // Aldrich scye depth: chest/8 + 2.4" (midpoint of 5.5–6.5 cm range).
+  // chest/4 was the classic-block legacy; Aldrich is ~3" shallower at 38" chest.
+  return chest / 8 + 2.4 + (tolerance[style] ?? 0.5);
 }
 
 /**

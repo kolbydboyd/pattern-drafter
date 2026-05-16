@@ -26,7 +26,7 @@ export default {
   difficulty: 'intermediate',
   priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'bicep', 'torsoLength', 'waistToArmpit'],
-  measurementDefaults: { waistToArmpit: 8 },
+  measurementDefaults: {},
 
   options: {
     neckline: {

@@ -28,7 +28,7 @@ export default {
   difficulty: 'beginner',
   priceTier: 'core',
   measurements: ['chest', 'shoulder', 'neck', 'sleeveLength', 'bicep', 'torsoLength', 'hip', 'skirtLength', 'waistToArmpit'],
-  measurementDefaults: { sleeveLength: 7, skirtLength: 24, waistToArmpit: 8 },
+  measurementDefaults: { sleeveLength: 7, skirtLength: 24},
 
   options: {
     neckline: {

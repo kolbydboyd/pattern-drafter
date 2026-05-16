@@ -20,7 +20,7 @@ export default {
   difficulty: 'beginner',
   priceTier: 'simple',
   measurements: ['chest', 'shoulder', 'neck', 'torsoLength', 'waistToArmpit'],
-  measurementDefaults: { waistToArmpit: 8 },
+  measurementDefaults: {},
 
   options: {
     neckline: {
