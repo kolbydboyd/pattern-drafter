@@ -296,7 +296,7 @@ export default {
       neckArc: halfNeckArc,
       collarWidth: 3,
       style: 'point',
-      standHeight: 1.25,
+      standHeight: 1.18, // Müller denim jacket: 3 cm collar stand
     });
 
     // ── CUFF ───────────────────────────────────────────────────────────

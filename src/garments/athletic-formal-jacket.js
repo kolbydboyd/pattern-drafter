@@ -194,7 +194,7 @@ export default {
     // ── LAPEL GEOMETRY ────────────────────────────────────────────────────
     // Lapel is cut AS PART OF the front panel (traditional tailoring).
     // Computed here so the panel can incorporate it directly.
-    const COLLAR_STAND = 1.25;
+    const COLLAR_STAND = isDouble ? 1.0 : 0.75;  // Müller: DB 2.5 cm, SB 1.5–2 cm
     const btnSpacing = isDouble ? 4.5 : 5;
     const btnCount   = isDouble ? 4 : 2;
     // Top button Y: at underarm level for DB (mid-chest placement), below neckline for SB
@@ -539,6 +539,7 @@ export default {
         backNeckArc: halfBackArc,
         collarWidth: SHAWL_COLLAR_W,
         collarStand: COLLAR_STAND,
+        neckDepthBack: NECK_DEPTH_BACK,
       });
 
       pieces.push({

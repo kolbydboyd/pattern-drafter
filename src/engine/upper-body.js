@@ -772,6 +772,7 @@ export function peakLapelCurve({
  * @param {number} [params.gorgeAngle=30] - Gorge angle in degrees from horizontal
  * @param {number} [params.notchDepth=0.75] - Depth of the V-notch (in)
  * @param {number} [params.collarStand=1.25] - Height of collar stand (in)
+ * @param {number} [params.gorgeHeightFrac=0.45] - How far down the neckline the gorge sits (matches peakLapelCurve)
  * @returns {{
  *   lapelPoints: Array<{x:number, y:number}>,
  *   gorgePoint: {x:number, y:number},
@@ -787,13 +788,15 @@ export function notchedLapelCurve({
   gorgeAngle = 30,
   notchDepth = 0.75,
   collarStand = 1.25,
+  gorgeHeightFrac = 0.45,
 }) {
   const breakPoint = { x: 0, y: breakPointY };
 
-  // Gorge point at neckline level
+  // Gorge point: same height formula as peakLapelCurve — lapel style determines the
+  // shape of the notch/tip, not the vertical gorge position.
   const gorgePoint = {
     x: collarStand,
-    y: neckDepthFront,
+    y: neckDepthFront * gorgeHeightFrac,
   };
 
   // Notch geometry: the gorge line runs from gorgePoint outward at gorgeAngle.
@@ -808,10 +811,10 @@ export function notchedLapelCurve({
 
   // Lapel tip: the visible outer corner of the lapel when worn.
   // Negative x = outward from CF (lapel fold direction).
-  // y computed from gorgeAngle so the gorge seam runs at the correct angle.
+  // y derived from gorgePoint so the gorge seam runs at gorgeAngle from gorgePoint outward.
   const lapelTip = {
     x: -lapelWidth,
-    y: neckDepthFront - (lapelWidth + collarStand) * Math.tan(gorgeRad),
+    y: gorgePoint.y - (lapelWidth + collarStand) * Math.tan(gorgeRad),
   };
 
   const lapelPoints = [
@@ -887,9 +890,13 @@ export function shawlCollarCurve({
   backNeckArc,
   collarWidth = 3.5,
   collarStand = 1.25,
+  neckDepthBack,
 }) {
-  // Drafted flat as a curved band. Inner edge follows the back-neck arc
-  // at y=0; outer edge sits collarWidth away with a gentle outward bow.
+  // Drafted flat as a curved band.
+  // Inner (neckline) edge bows concavely toward the fold edge at CB to match the garment's
+  // concave back-neckline arc — a straight inner seam cannot follow a curved neckline.
+  // Outer (fold) edge bows away from the neckline to allow the collar to drape over the shoulders.
+  const innerBow = neckDepthBack ?? backNeckArc * 0.08;
   const steps = 5;
   const innerEdge = [];
   const outerEdge = [];
@@ -899,7 +906,10 @@ export function shawlCollarCurve({
     const x = backNeckArc * frac;
     const bowDepth = collarWidth * 0.08;
     const bow = bowDepth * Math.sin(Math.PI * frac);
-    innerEdge.push({ x, y: 0 });
+    // Neckline seam curves concavely (toward fold edge, i.e. negative y) so it matches
+    // the concave back neckline of the garment body.
+    const neckCurve = innerBow * Math.sin(Math.PI * frac);
+    innerEdge.push({ x, y: -neckCurve });
     outerEdge.push({ x, y: -(collarWidth + bow) });
   }
 
@@ -926,8 +936,10 @@ export function shawlCollarCurve({
  * used on denim jackets, blazers, and structured coats. The collar is drafted
  * as a flat rectangle that is then shaped with a curved outer (fall) edge.
  *
- * The under collar is cut ~2% smaller so that when the collar is turned and
- * pressed, the seam rolls to the underside and stays invisible from the front.
+ * The under collar's outer (fall) edge is shifted inward by `underShrink × collarWidth`
+ * (turn-of-cloth allowance) so that when the collar is turned and pressed, the seam
+ * rolls to the underside. The neckline seam stays identical between pieces so it
+ * matches the garment neckline exactly.
  *
  * Both pieces are cut on fold at CB. The returned polygons represent one half
  * (CB fold to CF point).
@@ -1007,12 +1019,17 @@ export function collarCurve({
   ];
 
   // ── Under collar polygon ───────────────────────────────────────────
-  // Shrunk by underShrink fraction so the seam rolls underneath
-  const shrink = 1 + underShrink;
-  const underCollar = upperCollar.map(p => ({
-    x: p.x / shrink,
-    y: p.y / shrink,
-  }));
+  // Turn-of-cloth: shift only the outer (fall) edge inward by toc inches.
+  // The neckline edge (cfBottom, cbBottom) stays identical — it must match the garment seam.
+  // Applying a uniform scale would wrongly shrink the neckline seam too.
+  const toc = underShrink * collarWidth;  // e.g. 0.02 × 3" = 0.06" ≈ 1.5 mm
+  const underCollar = [
+    { x: 0,         y: toc },                                              // CB outer, shifted in
+    ...outerEdge.slice(1, -1).map(p => ({ x: p.x, y: p.y + toc })),     // intermediate outer
+    { x: cfTopX,    y: cfTopY + toc },                                    // CF tip, shifted in
+    { x: cfBottomX, y: cfBottomY },                                       // CF neckline — unchanged
+    { ...cbBottom },                                                       // CB neckline — unchanged
+  ];
 
   // ── Roll line (straight line at stand height) ──────────────────────
   const rollLine = [
