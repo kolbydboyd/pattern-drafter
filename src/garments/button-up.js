@@ -274,7 +274,7 @@ export default {
     const backNeckArc  = arcLength(backNeckPts);
     const necklineLen  = frontNeckArc * 2 + backNeckArc * 2;
     const collarLen    = necklineLen;
-    const standH       = 1.25;  // collar stand height (finished)
+    const standH       = 1.375; // collar stand height (finished); Mood Fabrics: 1 3/8″ for shirt band
     const fallH        = 2.0;   // collar fall height (finished)
 
     // ── PLACKET FACING ───────────────────────────────────────────────────────
