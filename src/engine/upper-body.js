@@ -438,6 +438,92 @@ export function neckWidthFromCircumference(neckCircumference) {
 // ── Two-part sleeve ──────────────────────────────────────────────────────
 
 /**
+ * Fit profile presets for twoPartSleeve().
+ *
+ * Each preset bundles the numerical seeds from Aldrich, Müller & Sohn, and
+ * the London Pattern Cutter for a specific construction context.
+ *
+ * capEasePct        — cap ease as a fraction of armhole circumference
+ * shoulderPitchOffset — crown displacement rearward from tsW/2 (in). Aldrich 1.0 cm = 0.394";
+ *                       Müller 1.5 cm = 0.591".
+ * hindarmEase       — extra length (in) on topsleeve back seam eased onto undersleeve at elbow
+ * frontCapEasePct   — fraction of ease distributed to the front cap half (Aldrich 0; Italian > 0)
+ */
+export const FIT_PROFILES = {
+  industrial_slim:     { capEasePct: 0.06, shoulderPitchOffset: 0.394, hindarmEase: 0.8,  frontCapEasePct: 0    },
+  industrial_standard: { capEasePct: 0.07, shoulderPitchOffset: 0.394, hindarmEase: 1.0,  frontCapEasePct: 0    },
+  mtm_slim:            { capEasePct: 0.09, shoulderPitchOffset: 0.394, hindarmEase: 1.0,  frontCapEasePct: 0    },
+  mtm_standard:        { capEasePct: 0.11, shoulderPitchOffset: 0.394, hindarmEase: 1.0,  frontCapEasePct: 0    },
+  bespoke_standard:    { capEasePct: 0.12, shoulderPitchOffset: 0.591, hindarmEase: 1.2,  frontCapEasePct: 0    },
+  neapolitan_soft:     { capEasePct: 0.14, shoulderPitchOffset: 0.591, hindarmEase: 0.5,  frontCapEasePct: 0.04 },
+};
+
+/**
+ * Resolve sleeve cap height using one of three named industry formulas.
+ *
+ * Priority:
+ *   1. capHeightRatio + fullWidth (manual override — unchanged from previous behaviour)
+ *   2. Aldrich — scyeDepth − 2 cm (= scyeDepth − 0.787")
+ *   3. Müller  — armholeHeight / 2 + 1 cm (= armholeHeight / 2 + 0.394")
+ *   4. Classroom (UoF / SMC #8) — armholeCircumference / 3 + 6 mm (= armholeCirc / 3 + 0.236")
+ *
+ * When more than one formula is available and they disagree by > 1 cm (0.394"), returns
+ * the smaller value (per Aldrich/Müller reconciliation note in the research doc).
+ *
+ * All values in inches.
+ *
+ * @param {Object} p
+ * @param {number|null} p.scyeDepth            - Scye depth (in)
+ * @param {number|null} p.armholeHeight        - Armhole height on flat pattern (in)
+ * @param {number|null} p.armholeCircumference - Total armhole arc length (in)
+ * @param {number|null} p.capHeightRatio       - Manual override ratio
+ * @param {number|null} p.fullWidth            - Full sleeve width (in), needed for ratio
+ * @returns {number|null} Cap height in inches, or null if no inputs supplied
+ */
+export function resolveCapHeight({ scyeDepth, armholeHeight, armholeCircumference, capHeightRatio, fullWidth }) {
+  if (capHeightRatio != null && fullWidth != null) return fullWidth * capHeightRatio * 0.5;
+  const candidates = [];
+  if (scyeDepth != null)            candidates.push(scyeDepth - 0.787);               // Aldrich: scyeDepth − 2 cm
+  if (armholeHeight != null)        candidates.push(armholeHeight / 2 + 0.394);       // Müller: ÷2 + 1 cm
+  if (armholeCircumference != null) candidates.push(armholeCircumference / 3 + 0.236); // Classroom: ÷3 + 6 mm
+  if (candidates.length === 0) return null;
+  if (candidates.length > 1 && Math.abs(candidates[0] - candidates[1]) > 0.394) return Math.min(...candidates);
+  return candidates[0];
+}
+
+/**
+ * Validate sleeve parameters before calling twoPartSleeve().
+ *
+ * Returns an array of warning strings (empty = all clear). Callers should
+ * log or surface these warnings before generating the pattern.
+ *
+ * The hard caps (stiffFabric 6% limit, 6 cm absolute ceiling) are enforced
+ * silently inside twoPartSleeve() itself.
+ *
+ * @param {Object} p
+ * @param {number} p.bicep         - Body bicep circumference (in)
+ * @param {number} p.bicepPattern  - Pattern bicep (body + ease, in)
+ * @param {number} p.capEasePct    - Resolved cap ease as fraction of armhole
+ * @param {number} p.sleeveLength  - Total sleeve length (in)
+ * @param {number} [p.armToElbow]  - Shoulder-to-elbow distance (in)
+ * @param {boolean} [p.hasPad]     - Whether a shoulder pad is included
+ * @returns {string[]} Array of warning strings
+ */
+export function validateSleeveParams({ bicep, bicepPattern, capEasePct, sleeveLength, armToElbow, hasPad = false }) {
+  const warnings = [];
+  if (bicepPattern - bicep < 1.575) // 4 cm
+    warnings.push('SWITCH_ONE_PIECE: Pattern bicep ease < 4 cm (1.575″). Two-piece sleeve will pinch; consider one-piece block.');
+  if (armToElbow && sleeveLength) {
+    const ratio = armToElbow / sleeveLength;
+    if (Math.abs(ratio - 0.55) > 0.055)
+      warnings.push(`ELBOW_RATIO: arm-to-elbow/sleeve-length = ${ratio.toFixed(2)} (expected 0.55 ± 10%). Verify custom elbow placement.`);
+  }
+  if (capEasePct > 0.12 && !hasPad)
+    warnings.push('PUCKER_RISK: Cap ease > 12% with no shoulder pad. Sleeve head will likely pucker.');
+  return warnings;
+}
+
+/**
  * Two-part sleeve — top sleeve (outer arm) + under sleeve (inner arm).
  *
  * Used for tailored jackets, blazers, overcoats, and denim jackets where a
@@ -463,17 +549,38 @@ export function neckWidthFromCircumference(neckCircumference) {
  * @param {number} params.armToElbow        - Shoulder to elbow (in), or 0 for auto
  * @param {number} params.wrist             - Wrist circumference (in)
  * @param {number} params.armholeArc        - Total bodice armhole arc length (in)
- * @param {number} params.capEaseTarget     - Desired cap ease (in), typically 1–2
- * @param {number} [params.sleeveBend=10]   - Elbow bend angle in degrees (0–20)
- * @param {number} [params.bicepEase=0.15]  - Fraction of bicep added as ease
- * @param {number} [params.cuffEase=0.40]   - Fraction of wrist added as ease
- * @param {number} [params.capHeightRatio=0.45] - Cap height as fraction of eased bicep
+ * @param {number} params.capEaseTarget     - Desired cap ease (in). Overrides fitProfile
+ *                                         percentage when explicitly provided.
+ * @param {number} [params.fitProfile='mtm_standard'] - Key into FIT_PROFILES. Used to derive
+ *                                         capEaseTarget as a percentage of armholeArc when
+ *                                         capEaseTarget is not supplied. Also seeds
+ *                                         shoulderPitchOffset and frontCapEasePct.
+ * @param {number} [params.sleeveBend=10]  - Elbow bend angle in degrees (0–20)
+ * @param {number} [params.bicepEase=0.15] - Fraction of bicep added as ease
+ * @param {number} [params.cuffEase=0.40]  - Fraction of wrist added as ease
+ * @param {number} [params.capHeightRatio=0.45] - Cap height as fraction of eased bicep.
+ *                                         Manual override; use resolveCapHeight() for
+ *                                         armhole-referenced formulas.
+ * @param {number} [params.capHeightAdjust=0] - Signed correction applied after capH is
+ *                                         resolved (in). Use −0.197 for jersey/no-canvas.
+ * @param {number} [params.forearmDisplacement=1.181] - Distance from front fold to the
+ *                                         forearm seam (in). 3 cm = 1.181" (Aldrich).
+ * @param {number} [params.hindarmDisplacement=1.181] - Distance from back fold to the
+ *                                         hindarm seam (in). 3 cm = 1.181" (Aldrich).
+ * @param {boolean} [params.stiffFabric=false] - Denim, leather, heavy canvas. Silently
+ *                                         clamps cap ease to ≤ 6 cm (London Pattern Cutter).
+ * @param {number} [params.scyeDepth]      - Vertical scye depth from pattern top to underarm (in).
+ *                                         Used by resolveCapHeight() for Aldrich formula.
+ * @param {number} [params.armholeHeight]  - Armhole height on flat pattern (in).
+ *                                         Used by resolveCapHeight() for Müller formula.
  * @returns {{
  *   topSleeve: Array<{x:number, y:number}>,
  *   underSleeve: Array<{x:number, y:number}>,
  *   capHeight: number,
  *   topSleeveWidth: number,
  *   underSleeveWidth: number,
+ *   forearmDisplacement: number,
+ *   hindarmDisplacement: number,
  *   elbowY: number,
  *   capArc: number,
  *   iterations: number,
@@ -481,13 +588,28 @@ export function neckWidthFromCircumference(neckCircumference) {
  */
 export function twoPartSleeve({
   bicep, sleeveLength, armToElbow, wrist,
-  armholeArc, capEaseTarget = 1.5,
+  armholeArc, capEaseTarget = null,
+  fitProfile = 'mtm_standard',
   sleeveBend = 10, bicepEase = 0.15, cuffEase = 0.40,
-  capHeightRatio = 0.45,
+  capHeightRatio = 0.45, capHeightAdjust = 0,
+  forearmDisplacement = 1.181, hindarmDisplacement = 1.181,
+  stiffFabric = false,
+  scyeDepth = null, armholeHeight = null,
 }) {
+  const profile = FIT_PROFILES[fitProfile] ?? FIT_PROFILES.mtm_standard;
+
+  // capEaseTarget: explicit inches override, else derive from profile percentage.
+  // Hard cap: London Pattern Cutter's absolute maximum is 6 cm = 2.362".
+  // Stiff fabric (denim, leather) further caps at industrial_slim (6%).
+  let resolvedEaseTarget = (capEaseTarget != null)
+    ? capEaseTarget
+    : armholeArc * profile.capEasePct;
+  if (stiffFabric) resolvedEaseTarget = Math.min(resolvedEaseTarget, armholeArc * 0.06);
+  resolvedEaseTarget = Math.min(resolvedEaseTarget, 2.362); // 6 cm absolute ceiling
+
   const elbowY    = armToElbow || sleeveLength * 0.55;
   const wristCirc = wrist * (1 + cuffEase);
-  const target    = armholeArc + capEaseTarget;
+  const target    = armholeArc + resolvedEaseTarget;
 
   // Helper: cubic bezier sample as polyline
   function sample(p0, p1, p2, p3, n = 24) {
@@ -520,11 +642,21 @@ export function twoPartSleeve({
   do {
     const easedQB = (bicep / 4) * (1 + bicepEase) * tweak;
     const fullW   = easedQB * 4; // full sleeve width at bicep
-    capH = fullW * capHeightRatio * 0.5;
 
-    // Top sleeve is ~60% of the width, under sleeve ~40%
-    tsW = fullW * 0.60;
-    usW = fullW * 0.40;
+    // Aldrich split: forearm seam at forearmDisplacement from front fold,
+    // hindarm seam at hindarmDisplacement from back fold (default 3 cm each).
+    // Top sleeve = wide outer piece; under sleeve = narrow inner strip.
+    tsW = fullW - forearmDisplacement - hindarmDisplacement;
+    usW = forearmDisplacement + hindarmDisplacement; // ≈ 2.36" (6 cm) for 3+3 cm default
+
+    // Cap height: use armhole-referenced formula when available, else ratio fallback.
+    const resolvedCapH = resolveCapHeight({
+      scyeDepth, armholeHeight, armholeCircumference: armholeArc,
+      capHeightRatio, fullWidth: fullW,
+    });
+    capH = (resolvedCapH ?? fullW * capHeightRatio * 0.5) + capHeightAdjust;
+    capH = Math.max(capH, 2.0); // safety floor
+
     const factor = fullW / 4;
 
     // ── Key landmarks ──────────────────────────────────────────────────
@@ -538,8 +670,9 @@ export function twoPartSleeve({
     // Front pitch point: on the inner (front) side, ~60% down
     const frontPitchPt = { x: 0, y: armY * 0.6 };
 
-    // Crown (top of cap)
-    const crown = { x: tsW * 0.5, y: crownY };
+    // Crown: slightly rearward of tsW centre for natural forward hang (Aldrich/Müller).
+    // shoulderPitchOffset from profile; x+ is toward front so rearward = subtract.
+    const crown = { x: tsW * 0.5 - profile.shoulderPitchOffset, y: crownY };
 
     // ── Top sleeve cap (3 bezier segments: back→crown→front→tsLeftEdge)
     // Segment 1: backPitch → crown
@@ -549,30 +682,38 @@ export function twoPartSleeve({
       { x: crown.x + factor * 0.6, y: crownY },
       crown
     );
-    // Segment 2: crown → frontPitch
+    // Segment 2: crown → frontPitch.
+    // frontCapEasePct (from profile) shifts the front pitch point outward to
+    // distribute a small amount of cap ease toward the front half (Müller/Italian).
+    // Aldrich default is 0 — all ease lives in the back half.
+    const fcp = profile.frontCapEasePct ?? 0;
+    const fppX = frontPitchPt.x * (1 + fcp);
     const tsCap2 = sample(
       crown,
       { x: crown.x - factor * 0.6, y: crownY },
-      { x: frontPitchPt.x + factor * 0.28, y: frontPitchPt.y - capH * 0.15 },
-      frontPitchPt
+      { x: fppX + factor * 0.28, y: frontPitchPt.y - capH * 0.15 },
+      { x: fppX, y: frontPitchPt.y }
     );
     // Segment 3: frontPitch → tsLeftEdge (underarm front)
     const tsLeftEdge = { x: -factor * 0.25, y: armY };
+    const adjFrontPitchPt = { x: fppX, y: frontPitchPt.y };
     const tsCap3 = sample(
-      frontPitchPt,
-      { x: frontPitchPt.x - factor * 0.1, y: frontPitchPt.y + (armY - frontPitchPt.y) * 0.66 },
+      adjFrontPitchPt,
+      { x: fppX - factor * 0.1, y: adjFrontPitchPt.y + (armY - adjFrontPitchPt.y) * 0.66 },
       { x: tsLeftEdge.x - factor * 0.1, y: armY },
       tsLeftEdge
     );
     const tsCapPts = [...tsCap1, ...tsCap2.slice(1), ...tsCap3.slice(1)];
 
-    // ── Under sleeve cap (single flatter curve: usTip → usLeftEdge)
-    const usTip     = { x: backPitchPt.x - factor * 0.25, y: backPitchPt.y };
-    const usLeftEdge = { x: factor * 0.25, y: armY };
+    // ── Under sleeve cap (Aldrich narrow strip at hindarm seam)
+    // usTip  = hindarm seam position (matches backPitchPt.x exactly)
+    // usLeftEdge = forearm side of the undersleeve, usW inches to the left
+    const usTip      = { x: tsW,       y: armY / 3 };
+    const usLeftEdge = { x: tsW - usW, y: armY };
     const usCapPts = sample(
       usTip,
-      { x: usTip.x - factor * 0.3, y: usTip.y + (armY - usTip.y) * 0.4 },
-      { x: usLeftEdge.x + factor * 0.4, y: armY - capH * 0.05 },
+      { x: usTip.x - usW * 0.3, y: usTip.y + (armY - usTip.y) * 0.4 },
+      { x: usLeftEdge.x + usW * 0.4, y: armY - capH * 0.05 },
       usLeftEdge
     );
 
@@ -584,9 +725,9 @@ export function twoPartSleeve({
     const elbowRight = { x: tsW + factor / 9, y: elbowY + capH };
     const tsRightEdge = { x: tsW + factor / 9, y: armY };
 
-    // Wrist points — apply elbow bend rotation around elbow
-    const topWristW   = wristCirc / 2 + factor / 5;
-    const underWristW = wristCirc / 2 - factor / 5;
+    // Wrist widths proportional to the Aldrich split so seam arcs remain compatible.
+    const underWristW = wristCirc * (usW / fullW);
+    const topWristW   = wristCirc - underWristW;
     const tsWristRight = {
       x: elbowRight.x + Math.sin(bendRad) * (wristY - elbowY - capH),
       y: wristY,
@@ -598,7 +739,8 @@ export function twoPartSleeve({
 
     // Elbow points
     const tsElbowLeft = { x: tsLeftEdge.x - factor / 9, y: elbowY + capH };
-    const usElbowLeft = { x: usLeftEdge.x + factor / 2.4, y: elbowY + capH };
+    // Undersleeve forearm elbow: tracks the forearm seam side of the narrow strip
+    const usElbowLeft = { x: tsW - usW - factor * 0.05, y: elbowY + capH };
 
     // Top sleeve polygon: cap → right edge down → wrist → left edge up
     // Note: tsCapPts already ends at tsLeftEdge — do not push it again.
@@ -625,7 +767,7 @@ export function twoPartSleeve({
 
     // Capture key landmark points for notch placement (overwritten each iteration;
     // final values reflect the converged geometry).
-    landmarks = { crown, backPitchPt, frontPitchPt, tsLeftEdge, usLeftEdge, tsElbowLeft, usElbowLeft };
+    landmarks = { crown, backPitchPt, frontPitchPt: adjFrontPitchPt, tsLeftEdge, usLeftEdge, tsElbowLeft, usElbowLeft };
 
     runs++;
     const delta = capArc - target;
@@ -639,6 +781,8 @@ export function twoPartSleeve({
     capHeight: capH,
     topSleeveWidth: tsW,
     underSleeveWidth: usW,
+    forearmDisplacement,
+    hindarmDisplacement,
     elbowY: elbowY + capH,
     capArc,
     iterations: runs,

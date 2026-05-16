@@ -13,7 +13,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference,
-  UPPER_EASE, twoPartSleeve, yokeSplit, collarCurve,
+  UPPER_EASE, twoPartSleeve, yokeSplit, collarCurve, validateSleeveParams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -247,15 +247,20 @@ export default {
     // Two-piece tailored sleeve (European workwear)
     let sleeveResult = null;
     if (isTwoPiece) {
+      const bicepPattern = m.bicep * (1 + (totalEase > 4 ? 0.20 : 0.15));
+      const capEasePct = 0.07; // industrial_standard
+      const slvWarnings = validateSleeveParams({ bicep: m.bicep, bicepPattern, capEasePct, sleeveLength: slvLength, armToElbow: effArmToElbow });
+      slvWarnings.forEach(w => console.warn(`[denim-jacket] ${w}`));
       sleeveResult = twoPartSleeve({
         bicep: m.bicep,
         sleeveLength: slvLength,
         armToElbow: effArmToElbow,
         wrist: m.wrist || m.bicep * 0.55,
         armholeArc,
-        capEaseTarget: 1.5,
+        fitProfile: 'industrial_standard',
         sleeveBend: 10,
         bicepEase: totalEase > 4 ? 0.20 : 0.15,
+        stiffFabric: true,
       });
     }
 
