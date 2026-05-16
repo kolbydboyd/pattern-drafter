@@ -4,6 +4,15 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.13.1] - 2026-05-16
+
+### Fixed
+- **Seam allowance spikes at sharp corners** — `offsetPolygon` in `src/engine/geometry.js` no longer produces spikes on cut lines at acute-angle vertices (e.g. collar points, fold corners, crotch/waist junction).
+  - Tightened miter cap from 2.5× to 2.0× the seam allowance — matches Clipper2/industry default; any corner under 60° internal angle now falls through to the step path instead of spiking.
+  - Fixed curve-point cap fallback: when a `.curve`-tagged vertex exceeds the cap, the code now uses the averaged-normal offset (same as the short-edge guard) instead of scaling the miter vector — eliminates the shorter spike that remained after capping.
+
+---
+
 ## [0.13.0] - 2026-05-15
 
 ### Added

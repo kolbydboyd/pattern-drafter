@@ -345,16 +345,18 @@ export function offsetPolygon(poly, edgeOffsetFn) {
       const ix = p1.x + t * d1.x;
       const iy = p1.y + t * d1.y;
 
-      // Cap miter distance: at most 2.5× the larger offset, to prevent spikes
-      const maxDist = maxOff * 2.5;
+      // Cap miter distance: at most 2.0× the larger offset (industry default — Clipper2 MiterLimit=2.0)
+      const maxDist = maxOff * 2.0;
       const distSq  = (ix - curr.x) ** 2 + (iy - curr.y) ** 2;
 
       if (distSq <= maxDist * maxDist) {
         result.push({ x: ix, y: iy, ...tag });
       } else if (curr.curve) {
-        // Curve point: cap the miter distance instead of creating a step
-        const scale = maxDist / Math.sqrt(distSq);
-        result.push({ x: curr.x + (ix - curr.x) * scale, y: curr.y + (iy - curr.y) * scale, ...tag });
+        // Curve point beyond cap: fall back to averaged-normal offset (same as short-edge path)
+        const nx = (nIn.x + nOut.x) / 2, ny = (nIn.y + nOut.y) / 2;
+        const nl = Math.sqrt(nx * nx + ny * ny) || 1;
+        const avgOff = (oIn + oOut) / 2;
+        result.push({ x: curr.x + nx / nl * avgOff, y: curr.y + ny / nl * avgOff, ...tag });
       } else {
         // Structural corner: two-point step for clean SA transitions (e.g. hem)
         result.push(p1);
