@@ -220,7 +220,7 @@ export default {
         neckDepthFront: NECK_DEPTH_FRONT, breakPointY, lapelWidth: lapelW,
         gorgeAngle: opts.lapel === 'wide-notch' ? 35 : 28,
       });
-      collarResult = collarCurve({ neckArc: halfNeckArc, collarWidth: opts.lapel === 'wide-notch' ? 3.5 : 3.0, style: 'point', standHeight: 1.25 });
+      collarResult = collarCurve({ neckArc: halfNeckArc, collarWidth: opts.lapel === 'wide-notch' ? 3.5 : 3.0, style: 'point', standHeight: 1.18 }); // Müller casual jacket: 3 cm stand
     }
 
     // Front panels — for asymmetric zip the left panel extends ZIP_OFFSET past CF.

@@ -2755,7 +2755,7 @@ body { background:#fff; }
  * @param {string} [paperSize]  — key from PAPER_SIZES, default 'letter'
  * @returns {string} Complete HTML document
  */
-export function generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, paperSize = 'letter') {
+export function generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, paperSize = 'letter', locale = 'en') {
   const size = PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
   const PW  = size.w;
   const PH  = size.h;

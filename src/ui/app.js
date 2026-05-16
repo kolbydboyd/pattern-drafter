@@ -27,9 +27,15 @@ import {
   FLAT_LAY_FIELDS, deriveEaseFromBrand, deriveEaseFromFlatLay, deriveEaseFromCommunity,
   formatEaseSummary,
 } from '../lib/fit-library/index.js';
+import { initLocale, loadLocale, applyI18nDOM, getLocale, t, tGarment } from '../lib/i18n.js';
+import { initLangSwitcher } from './lang-switcher.js';
 
 // Check for affiliate referral on every page load
 checkAndSetAffiliateCookie();
+
+// ── Locale init ───────────────────────────────────────────────────────────────
+const _appLocale = initLocale();
+const _localeReady = loadLocale(_appLocale);
 
 // ── Beta mode ─────────────────────────────────────────────────────────────────
 // When true: everyone gets free downloads via email gate. No purchase required.
@@ -1601,6 +1607,7 @@ async function handleDownloadPDF(btn) {
         measurements: m,
         opts,
         paperSize:    selectedPaperSize === 'a0' ? 'letter' : selectedPaperSize,
+        locale:       getLocale(),
       }),
     });
     const json = await res.json();
@@ -1648,7 +1655,7 @@ async function printPattern() {
   const materials    = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
   const { generatePrintLayout } = await import('../pdf/print-layout.js');
-  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize);
+  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize, getLocale());
   const win = window.open('', '_blank');
   if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
   win.document.open();
@@ -1764,18 +1771,19 @@ function _buildGmtCard(id) {
   const owned = _purchasedSet.has(id);
   const price = PATTERN_PRICES[id];
   const dollars = price ? `$${(price.cents / 100).toFixed(0)}` : '';
+  const displayName = tGarment(id, 'name') || g.name;
   return `<button class="gmt-card" data-garment="${id}">
     <div class="gmt-card-img">
-      <img src="/garment-illustrations/${id}.svg" alt="${g.name} illustration" width="80" height="100" loading="lazy">
+      <img src="/garment-illustrations/${id}.svg" alt="${displayName} illustration" width="80" height="100" loading="lazy">
     </div>
     <div class="gmt-card-info">
-      <div class="gmt-name">${g.name}</div>
+      <div class="gmt-name">${displayName}</div>
       <div class="gmt-card-meta">
         ${g.difficulty ? `<span class="diff-badge diff-${g.difficulty}">${g.difficulty}</span>` : ''}
         ${owned ? `<span class="gmt-owned-badge">Owned</span>` : dollars ? `<span class="gmt-price">${dollars}</span>` : ''}
       </div>
     </div>
-    <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${g.name}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
+    <button class="gmt-heart${wishlisted ? ' gmt-heart--on' : ''}" data-garment="${id}" aria-label="Wishlist ${displayName}" aria-pressed="${wishlisted}" title="Save to wishlist"><svg viewBox="0 0 24 24" width="14" height="14" fill="${wishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 21C12 21 3 14.5 3 8.5A5.5 5.5 0 0 1 12 5.5 5.5 5.5 0 0 1 21 8.5C21 14.5 12 21 12 21Z"/></svg></button>
   </button>`;
 }
 
@@ -1803,19 +1811,19 @@ function renderStep1() {
     const results = _wizFiltered();
     el.innerHTML = `
       <div class="wiz-step-header">
-        <h2 class="wiz-step-title">Choose a garment</h2>
+        <h2 class="wiz-step-title">${t('wiz.s1.title')}</h2>
       </div>
       ${toolbarHtml}
       ${results.length === 0
-        ? `<p class="pat-pg-listing-empty">No patterns match your search.</p>`
+        ? `<p class="pat-pg-listing-empty">${t('wiz.s1.no-results')}</p>`
         : `<div class="gmt-grid">${results.map(g => _buildGmtCard(g.id)).join('')}</div>`}`;
   } else if (selectedCategory) {
     const cat = GARMENT_CATEGORIES.find(c => c.id === selectedCategory);
     el.innerHTML = `
       <div class="wiz-step-header">
-        <button class="wiz-back-cat" id="wiz-back-cat">← All categories</button>
-        <h2 class="wiz-step-title">${cat.label}</h2>
-        <p class="wiz-step-desc">Select a garment to continue</p>
+        <button class="wiz-back-cat" id="wiz-back-cat">${t('wiz.s1.back')}</button>
+        <h2 class="wiz-step-title">${t('cat.' + cat.id + '.label') || cat.label}</h2>
+        <p class="wiz-step-desc">${t('wiz.s1.cat-desc')}</p>
       </div>
       ${toolbarHtml}
       <div class="gmt-grid">
@@ -1825,15 +1833,15 @@ function renderStep1() {
   } else {
     el.innerHTML = `
       <div class="wiz-step-header">
-        <h2 class="wiz-step-title">Choose a garment</h2>
-        <p class="wiz-step-desc">Select a category to browse patterns</p>
+        <h2 class="wiz-step-title">${t('wiz.s1.title')}</h2>
+        <p class="wiz-step-desc">${t('wiz.s1.desc')}</p>
       </div>
       ${toolbarHtml}
       <div class="cat-grid">
         ${GARMENT_CATEGORIES.map(cat => `
           <button class="cat-card" data-cat="${cat.id}">
-            <div class="cat-label">${cat.label}</div>
-            <p class="cat-desc">${cat.desc}</p>
+            <div class="cat-label">${t('cat.' + cat.id + '.label') || cat.label}</div>
+            <p class="cat-desc">${t('cat.' + cat.id + '.desc') || cat.desc}</p>
           </button>`).join('')}
       </div>`;
     el.querySelectorAll('.cat-card').forEach(btn => {
@@ -2415,6 +2423,13 @@ window.addEventListener('pp:redownload', e => {
 });
 
 initAuthModal();
+
+// ── i18n DOM walker + lang switcher ──────────────────────────────────────────
+_localeReady.then(() => {
+  applyI18nDOM(document.body);
+  const langSlot = document.getElementById('hdr-lang-slot');
+  if (langSlot) initLangSwitcher(langSlot);
+});
 
 // ── Promo banner (logged-out only) ────────────────────────────────────────────
 const _promoBanner = document.getElementById('promo-banner');

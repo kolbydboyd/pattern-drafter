@@ -4,6 +4,31 @@ All notable changes are documented here, newest first.
 
 ---
 
+## [0.13.0] - 2026-05-15
+
+### Added
+- **Multi-language support (i18n)** — Full infrastructure for 6 locales: `en`, `en-CA`, `fr-CA`, `es`, `nl`, `de`.
+  - New `src/lib/i18n.js` — core i18n module: `initLocale()`, `loadLocale()`, `t()`, `tGarment()`, `tMeasure()`, `translatePieces()`, `translateInstructions()`, `applyI18nDOM()`, `setLocale()`.
+  - Locale detection chain: `?lang=` URL param → `localStorage('pp-lang')` → `navigator.language` → `'en'`.
+  - Dynamic imports (Vite code splitting) for non-English locale files — English is always the fallback.
+  - New `src/ui/lang-switcher.js` — flag + code dropdown widget, injected into every page header via `hdr-lang-slot`.
+  - Locale files created for all 6 locales: `ui.js` (~250 keys), `garments.js` (70+ garment names), `measurements.js` (32 measurements), `articles.js` (stub — re-exports English until translated).
+  - `src/ui/styles.css` — FOUC guard (`html:not([lang]) { visibility: hidden }`) and lang-switcher CSS (dark mode aware).
+  - `src/ui/page.js` — locale init + DOM walker + lang switcher injection at startup.
+  - `src/ui/app.js` — locale init, DOM walker, lang switcher, translated garment names and category labels in wizard, locale forwarded to PDF generation endpoint.
+  - `src/ui/learn-page.js` — locale-aware article loading.
+  - `src/pdf/print-layout.js` — `locale` parameter added to `generatePrintLayout()`.
+  - `lambda/generate-pattern.js` — reads `locale` from event body, forwards to `generatePrintLayout()`.
+  - `supabase/migrations/012_add_preferred_locale.sql` — `preferred_locale` column on `profiles`.
+  - All 16 HTML pages — `hdr-lang-slot` div added for language switcher injection.
+- **en-CA locale** — Canadian English spelling overrides (colour, centre, etc.).
+- **fr-CA locale** — Full French Canadian translations: UI, garment names, measurements.
+- **es locale** — Full Spanish translations: UI, garment names, measurements.
+- **nl locale** — Full Dutch (Netherlands) translations: UI, garment names, measurements.
+- **de locale** — Full German translations: UI, garment names, measurements.
+
+---
+
 ## [0.12.99] - 2026-05-15
 
 ### Fixed
