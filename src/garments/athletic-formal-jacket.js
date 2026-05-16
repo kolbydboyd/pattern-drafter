@@ -19,7 +19,7 @@
 import {
   shoulderSlope, necklineCurve, armholeCurve, sleeveCapCurve, shoulderDropFromWidth,
   armholeDepthFromChest, chestEaseDistribution, neckWidthFromCircumference, UPPER_EASE,
-  peakLapelCurve, notchedLapelCurve, shawlLapelFront, shawlCollarCurve, collarCurve, twoPartSleeve,
+  peakLapelCurve, notchedLapelCurve, shawlLapelFront, shawlCollarCurve, collarCurve, twoPartSleeve, validateSleeveParams,
 } from '../engine/upper-body.js';
 import { sampleBezier, fmtInches, edgeAngle, arcLength, offsetPolygon } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
@@ -305,17 +305,22 @@ export default {
     const backArmArc  = arcLength(backArmPts);
     const armholeArc  = frontArmArc + backArmArc;
 
+    const bicepPatternAF = m.bicep * (1 + 0.15);
+    const capEasePctAF = 0.11; // mtm_standard
+    validateSleeveParams({ bicep: m.bicep, bicepPattern: bicepPatternAF, capEasePct: capEasePctAF, sleeveLength: slvLength, armToElbow: effArmToElbow })
+      .forEach(w => console.warn(`[athletic-formal-jacket] ${w}`));
     const sleeveResult = twoPartSleeve({
       bicep: m.bicep,
       sleeveLength: slvLength,
       armToElbow: effArmToElbow,
       wrist: m.wrist || m.bicep * 0.55,
       armholeArc,
-      capEaseTarget: 1.0,    // knit fabric eases readily — less cap ease
-      sleeveBend: 2,          // jersey stretch eliminates structural elbow shaping (denim uses 10°, woven 6°)
+      fitProfile: 'mtm_standard',
+      sleeveBend: 2,       // jersey stretch eliminates structural elbow shaping
       bicepEase: 0.15,
-      capHeightRatio: 0.40,   // lower cap for knit
-      cuffEase: 0.25,         // jersey stretches; 40% default produces an unacceptably wide opening
+      capHeightRatio: 0.40, // lower cap for knit (manual override, takes precedence over formula)
+      capHeightAdjust: -0.197, // −0.5 cm: jersey has no canvas to hold the cap up
+      cuffEase: 0.25,       // jersey stretches; 40% default produces an unacceptably wide opening
     });
     const topSlvBB   = bbox(sleeveResult.topSleeve);
     const underSlvBB = bbox(sleeveResult.underSleeve);
