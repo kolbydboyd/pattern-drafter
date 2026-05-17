@@ -7,9 +7,13 @@ import { PATTERN_PRICES } from '../lib/pricing.js';
 import SEO_DESCRIPTIONS from '../garments/seo-descriptions.js';
 import { renderMakesGallery, extractTesters, renderAsSeenOn } from './real-makes.js';
 import { getRecommendations } from '../engine/recommendations.js';
+import { getHiddenGarments } from '../lib/db.js';
+import { getUser } from '../lib/auth.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
+
+const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
 
 const SITE_URL = 'https://peoplespatterns.com';
 
@@ -219,6 +223,23 @@ root.innerHTML = `
 
 </div>`;
 
+// ── Visibility gate — replace with 404 if hidden and not admin ───────────────
+(async function checkVisibility() {
+  const [hiddenIds, { user }] = await Promise.all([getHiddenGarments(), getUser()]);
+  if (hiddenIds.includes(garmentId) && user?.email !== ADMIN_EMAIL) {
+    root.innerHTML = `
+      <div class="pat-pg-notfound">
+        <p class="pat-pg-404-num">404</p>
+        <h2 class="pat-pg-404-heading">Pattern not found.</h2>
+        <p class="pat-pg-404-sub">This page doesn't exist or may have been moved.</p>
+        <div class="pat-pg-404-btns">
+          <a href="/" class="btn-primary">Go Home</a>
+          <a href="/patterns" class="btn-secondary">Browse Patterns</a>
+        </div>
+      </div>`;
+  }
+})();
+
 // ── Real Makes gallery + "As seen on" attribution ───────────────────────────
 (async function loadMakes() {
   const galleryEl = document.getElementById('pat-pg-makes-gallery');
@@ -308,7 +329,10 @@ function _attachHeartHandlers(container) {
 
 async function renderPatternListing() {
   document.title = "All Sewing Patterns | People's Patterns";
-  const allGarments = Object.values(GARMENTS);
+
+  const [hiddenIds, { user }] = await Promise.all([getHiddenGarments(), getUser()]);
+  const isAdmin = user?.email === ADMIN_EMAIL;
+  const allGarments = Object.values(GARMENTS).filter(g => isAdmin || !hiddenIds.includes(g.id));
 
   function isKidswear(g)   { return g.audience === 'kids'; }
   function isWomenswear(g) { return g.id.endsWith('-w') && !isKidswear(g); }

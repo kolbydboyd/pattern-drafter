@@ -7,8 +7,9 @@
 import { getUser } from '../lib/auth.js';
 import { BUNDLES, PATTERN_PRICES } from '../lib/pricing.js';
 import { ARTICLES } from '../content/articles.js';
-import { getMeasurementProfiles, saveMeasurementProfile, updateMeasurementProfile } from '../lib/db.js';
+import { getMeasurementProfiles, saveMeasurementProfile, updateMeasurementProfile, getHiddenGarments } from '../lib/db.js';
 import { MEASUREMENTS } from '../engine/measurements.js';
+import GARMENTS from '../garments/index.js';
 import {
   getGarmentCatalog, updateGarment,
   getGarmentPhotos, getAllPhotos, uploadGarmentPhoto, deleteGarmentPhoto, getPhotoUrl,
@@ -16,6 +17,7 @@ import {
   getFunnelStats, getAllFitFeedback, getPopularGarments,
   getContentPipeline, createContentItem, updateContentItem, deleteContentItem,
   getPinterestPinStats,
+  hidePattern, showPattern,
 } from '../lib/admin-db.js';
 
 const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
@@ -110,7 +112,7 @@ async function render(user) {
   if (user) _adminUser = user;
   root.innerHTML = '<div style="text-align:center;padding:40px 0;color:var(--mid);font-size:.83rem;">Loading dashboard...</div>';
 
-  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes, pinStatsRes, profilesRes] = await Promise.all([
+  const [catalogRes, revenueRes, funnelRes, feedbackRes, popularRes, photosRes, pipelineRes, pinStatsRes, profilesRes, hiddenIds] = await Promise.all([
     getGarmentCatalog(),
     getRevenueStats(),
     getFunnelStats(),
@@ -120,6 +122,7 @@ async function render(user) {
     getContentPipeline(_adminUser.id),
     getPinterestPinStats(),
     getMeasurementProfiles(_adminUser.id),
+    getHiddenGarments(),
   ]);
 
   const catalog = catalogRes.data;
@@ -160,6 +163,7 @@ async function render(user) {
     { id: 'content', label: 'Content' },
     { id: 'reference', label: 'Reference' },
     { id: 'founders-select', label: "Founder's Select" },
+    { id: 'visibility', label: 'Visibility' },
   ];
 
   root.innerHTML = `
@@ -192,6 +196,7 @@ async function render(user) {
     <div id="adm-s-content" hidden>${renderContent(pipeline, pinStats)}</div>
     <div id="adm-s-reference" hidden>${renderReference()}</div>
     <div id="adm-s-founders-select" hidden>${renderFoundersSelect(myProfiles)}</div>
+    <div id="adm-s-visibility" hidden>${renderVisibility(hiddenIds)}</div>
   `;
 
   wireNavTabs();
@@ -200,6 +205,7 @@ async function render(user) {
   wireChecklists();
   wireContentPipeline(pipeline);
   wireFoundersSelect();
+  wireVisibility();
 }
 
 // ── Nav tabs ─────────────────────────────────────────────────────────────────
@@ -2377,6 +2383,76 @@ function wireFoundersSelect() {
       body.hidden = false;
       if (chevron) { chevron.textContent = '\u2212'; chevron.style.transform = 'rotate(0deg)'; }
     }
+  });
+}
+
+// ── Section: Visibility ───────────────────────────────────────────────────────
+
+function renderVisibility(hiddenIds) {
+  const hidden = new Set(hiddenIds ?? []);
+  const allGarments = Object.values(GARMENTS).sort((a, b) => a.name.localeCompare(b.name));
+  const total = allGarments.length;
+  const hiddenCount = allGarments.filter(g => hidden.has(g.id)).length;
+  const visibleCount = total - hiddenCount;
+
+  const rows = allGarments.map(g => {
+    const isHidden = hidden.has(g.id);
+    return `
+      <label class="adm-vis-row${isHidden ? ' adm-vis-row--hidden' : ''}" data-garment-id="${g.id}">
+        <input type="checkbox" class="adm-vis-toggle" data-garment-id="${g.id}" ${isHidden ? '' : 'checked'}>
+        <span class="adm-vis-name">${g.name}</span>
+        <span class="adm-badge adm-badge--${g.difficulty || 'beginner'}">${g.difficulty || ''}</span>
+        <span class="adm-vis-id">${g.id}</span>
+        ${isHidden ? '<span class="adm-badge adm-badge--hidden">Hidden</span>' : ''}
+      </label>`;
+  }).join('');
+
+  return `
+    <h2 class="adm-section-title">Pattern Visibility</h2>
+    <p class="adm-section-sub" id="adm-vis-summary"><strong>${visibleCount}</strong> of <strong>${total}</strong> patterns visible to the public. Toggle to show or hide individual patterns.</p>
+    <div class="adm-vis-list">${rows}</div>`;
+}
+
+function wireVisibility() {
+  const section = $(`#adm-s-visibility`);
+  if (!section) return;
+
+  section.addEventListener('change', async e => {
+    const toggle = e.target.closest('.adm-vis-toggle');
+    if (!toggle) return;
+
+    const garmentId = toggle.dataset.garmentId;
+    const visible = toggle.checked;
+    const row = section.querySelector(`.adm-vis-row[data-garment-id="${garmentId}"]`);
+
+    const { error } = visible ? await showPattern(garmentId) : await hidePattern(garmentId);
+
+    if (error) {
+      toast('Error updating visibility');
+      toggle.checked = !visible; // revert
+      return;
+    }
+
+    if (row) {
+      row.classList.toggle('adm-vis-row--hidden', !visible);
+      const existingBadge = row.querySelector('.adm-badge--hidden');
+      if (!visible && !existingBadge) {
+        row.insertAdjacentHTML('beforeend', '<span class="adm-badge adm-badge--hidden">Hidden</span>');
+      } else if (visible && existingBadge) {
+        existingBadge.remove();
+      }
+    }
+
+    // Update summary count
+    const allRows = section.querySelectorAll('.adm-vis-row');
+    const hiddenCount = [...allRows].filter(r => r.classList.contains('adm-vis-row--hidden')).length;
+    const total = allRows.length;
+    const summary = section.querySelector('#adm-vis-summary');
+    if (summary) {
+      summary.innerHTML = `<strong>${total - hiddenCount}</strong> of <strong>${total}</strong> patterns visible to the public. Toggle to show or hide individual patterns.`;
+    }
+
+    toast(visible ? `${garmentId} is now public` : `${garmentId} is now hidden`);
   });
 }
 

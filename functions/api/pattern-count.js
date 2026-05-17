@@ -16,8 +16,22 @@ export async function onRequestGet(context) {
   const supabase   = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
   const garment_id = new URL(request.url).searchParams.get('garment_id');
 
+  // Exclude hidden patterns from counts
+  const { data: hiddenData } = await supabase.from('pattern_hidden').select('garment_id');
+  const hiddenIds = hiddenData?.map(r => r.garment_id) ?? [];
+
+  if (garment_id && hiddenIds.includes(garment_id)) {
+    return Response.json({ count: 0 }, {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    });
+  }
+
   let query = supabase.from('pattern_sessions').select('*', { count: 'exact', head: true });
-  if (garment_id) query = query.eq('garment_id', garment_id);
+  if (garment_id) {
+    query = query.eq('garment_id', garment_id);
+  } else if (hiddenIds.length > 0) {
+    query = query.not('garment_id', 'in', `(${hiddenIds.join(',')})`);
+  }
   const { count, error } = await query;
 
   if (error) {

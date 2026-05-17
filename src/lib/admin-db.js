@@ -261,3 +261,16 @@ export async function getPopularGarments() {
 
   return { data: combined, error: purchasesRes.error || wishlistRes.error || null };
 }
+
+
+// ── Pattern visibility ────────────────────────────────────────────────────────
+
+export async function hidePattern(garmentId) {
+  const { error } = await supabase.from('pattern_hidden').upsert({ garment_id: garmentId });
+  return { error };
+}
+
+export async function showPattern(garmentId) {
+  const { error } = await supabase.from('pattern_hidden').delete().eq('garment_id', garmentId);
+  return { error };
+}
