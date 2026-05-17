@@ -400,3 +400,9 @@ export async function getTesterProfile(userId) {
     .single();
   return { data, error };
 }
+
+export async function getHiddenGarments() {
+  const { data, error } = await supabase.from('pattern_hidden').select('garment_id');
+  if (error) return [];
+  return data.map(r => r.garment_id);
+}

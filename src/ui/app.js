@@ -15,7 +15,7 @@ import { renderMeasurementTeacher } from './measurement-teacher.js';
 import GARMENTS from '../garments/index.js';
 import { getNewestGarmentIds } from '../garments/release-dates.js';
 import { initAuthModal, openAuthModal, getCurrentUser, onUserChange } from './auth-modal.js';
-import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits, submitCommunityGarment, getCommunityGarments } from '../lib/db.js';
+import { hasPurchased, saveMeasurementProfile, updateMeasurementProfile, updateProfileLastUsed, getMeasurementProfiles, logMeasurementDelta, getWishlist, addToWishlist, removeFromWishlist, getPurchases, getFreeCredits, submitCommunityGarment, getCommunityGarments, getHiddenGarments } from '../lib/db.js';
 import { getRecommendations } from '../engine/recommendations.js';
 import { expandGlossary, GLOSSARY } from '../engine/glossary.js';
 import { PATTERN_PRICES } from '../lib/pricing.js';
@@ -78,6 +78,8 @@ let activeTab = 'pieces';
 let selectedPaperSize = 'letter';
 let _wishlistSet = new Set(); // garment IDs in user's wishlist
 let _purchasedSet = new Set(); // garment IDs user has purchased/credited
+let _hiddenGarments = new Set(); // garment IDs hidden by admin
+let _isAdminUser = false; // true if logged-in user is the admin
 let _wizFilter = 'all';   // 'all' | 'menswear' | 'womenswear' | 'childrens'
 let _wizDiff   = 'all';   // 'all' | 'beginner' | 'intermediate' | 'advanced'
 let _wizSearch = '';
@@ -1750,6 +1752,7 @@ function _wizIsWomen(g)  { return g.id.endsWith('-w') && !_wizIsKids(g); }
 function _wizHasFilter() { return _wizFilter !== 'all' || _wizDiff !== 'all' || _wizSearch !== ''; }
 function _wizFiltered() {
   let list = Object.values(GARMENTS);
+  if (!_isAdminUser) list = list.filter(g => !_hiddenGarments.has(g.id));
   if (_wizFilter === 'womenswear')     list = list.filter(_wizIsWomen);
   else if (_wizFilter === 'childrens') list = list.filter(_wizIsKids);
   else if (_wizFilter === 'menswear')  list = list.filter(g => !_wizIsWomen(g) && !_wizIsKids(g));
@@ -1827,7 +1830,7 @@ function renderStep1() {
       </div>
       ${toolbarHtml}
       <div class="gmt-grid">
-        ${cat.ids.filter(id => GARMENTS[id]).map(id => _buildGmtCard(id)).join('')}
+        ${cat.ids.filter(id => GARMENTS[id] && (_isAdminUser || !_hiddenGarments.has(id))).map(id => _buildGmtCard(id)).join('')}
       </div>`;
     el.querySelector('#wiz-back-cat').onclick = () => { selectedCategory = null; renderStep1(); };
   } else {
@@ -2439,6 +2442,14 @@ function _updatePromoBanner(user) {
 _updatePromoBanner(getCurrentUser());
 onUserChange(_updatePromoBanner);
 
+// Track admin state so hidden patterns are visible to the admin
+const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
+function _updateAdminState(user) {
+  _isAdminUser = user?.email === ADMIN_EMAIL;
+}
+_updateAdminState(getCurrentUser());
+onUserChange(_updateAdminState);
+
 // Landing email capture
 document.getElementById('land-email-btn')?.addEventListener('click', async () => {
   const input = document.getElementById('land-email-input');
@@ -2571,6 +2582,13 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
   // Hide arrow buttons - marquee scrolls continuously on its own.
   document.querySelector('.lp-newest-prev')?.setAttribute('hidden', '');
   document.querySelector('.lp-newest-next')?.setAttribute('hidden', '');
+})();
+
+// Load hidden garment IDs — re-render step 1 if already visible
+(async function loadHiddenGarments() {
+  const hidden = await getHiddenGarments().catch(() => []);
+  _hiddenGarments = new Set(hidden);
+  if (currentStep === 1) renderStep1();
 })();
 
 // Pattern generation counter — fetch once and display

@@ -1290,6 +1290,18 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 [data-theme='dark'] .adm-chip--core{border-left-color:#7ab0d0}
 [data-theme='dark'] .adm-chip--tailored{border-left-color:#a090d0}
 
+/* ── Admin: Visibility tab ──────────────────────────────────────────────────── */
+.adm-section-sub{font-size:.83rem;color:var(--mid);margin:0 0 20px}
+.adm-vis-list{display:flex;flex-direction:column;gap:2px}
+.adm-vis-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;background:var(--ibg);border:1px solid var(--bdr);cursor:pointer;font-size:.83rem;transition:background .15s}
+.adm-vis-row:hover{background:var(--hover)}
+.adm-vis-row--hidden{opacity:.6}
+.adm-vis-toggle{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.adm-vis-name{flex:1;font-family:'IBM Plex Mono',monospace;font-size:.78rem}
+.adm-vis-id{font-size:.68rem;color:var(--mid);font-family:'IBM Plex Mono',monospace}
+.adm-badge--hidden{background:#f0dddd;color:#8a4a4a;font-size:.65rem;padding:1px 6px;border-radius:3px}
+[data-theme='dark'] .adm-badge--hidden{background:#3a1a1a;color:#e08080}
+
 .adm-photos{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
 .adm-photo-wrap{position:relative;display:inline-block}
 .adm-photo-thumb{width:60px;height:60px;object-fit:cover;border-radius:3px;border:1px solid var(--bdr)}
