@@ -165,6 +165,7 @@ function generateArticle(article) {
     author: { '@type': 'Organization', name: "People's Patterns" },
     publisher: { '@type': 'Organization', name: "People's Patterns", url: SITE_URL },
     datePublished: article.datePublished || '2026-03-27',
+    dateModified: article.dateModified || article.datePublished || TODAY,
     url: canonUrl,
   };
 

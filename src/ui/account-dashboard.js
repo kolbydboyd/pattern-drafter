@@ -17,6 +17,7 @@ import {
 } from '../lib/db.js';
 import { supabase } from '../lib/supabase.js';
 import { createBodyMap } from './body-map.js';
+import { trackEvent } from '../analytics.js';
 
 // ── Sync profile to wizard localStorage so dropdown stays current ─────────────
 const PROFILES_KEY = 'pd-profiles';
@@ -600,6 +601,7 @@ async function _renderPatterns(main, user, tab = 'active') {
       btn.disabled = true;
       btn.textContent = 'Redirecting\u2026';
       try {
+        trackEvent('checkout_started', { mode: 'a0_upgrade' });
         const { session } = await getSession();
         const res = await fetch('/api/create-checkout', {
           method: 'POST',

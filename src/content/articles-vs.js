@@ -6,7 +6,7 @@ import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
 export const ARTICLES_VS = [
   {
     slug: 'peoples-patterns-vs-ditto-patterns',
-    title: 'People\'s Patterns vs Ditto Patterns: Honest Comparison ${CURRENT_YEAR}',
+    title: `People's Patterns vs Ditto Patterns: Honest Comparison ${CURRENT_YEAR}`,
     description: 'Ditto Patterns vs People\'s Patterns compared: projector cost, subscriptions, instant generation, and total 12-month ownership breakdown.',
     category: 'vs',
     tags: ['ditto-patterns', 'pattern-projector', 'comparison', 'custom-fit', 'made-to-measure', 'projector-sewing'],
@@ -1691,7 +1691,7 @@ export const ARTICLES_VS = [
   {
     slug: 'best-made-to-measure-sewing-patterns',
     title: `Best Made-to-Measure Sewing Patterns in ${CURRENT_YEAR}: Full Comparison`,
-    description: 'Compare all made-to-measure sewing pattern services in ${CURRENT_YEAR}. Speed, price, library size, and beginner-friendliness rated side by side.',
+    description: `Compare all made-to-measure sewing pattern services in ${CURRENT_YEAR}. Speed, price, library size, and beginner-friendliness rated side by side.`,
     category: 'vs',
     tags: ['best-of', 'made-to-measure', 'comparison', '2026', 'custom-fit', 'roundup'],
     youtubeId: null,
@@ -1923,5 +1923,247 @@ export const ARTICLES_VS = [
 <div class="faq-item"><h3>How many garments are available on People's Patterns?</h3><p>There are currently ${GARMENT_COUNT} garment modules, including tops, bottoms, dresses, skirts, shorts, and outerwear. The library grows regularly based on community feedback and demand.</p></div>
 <div class="faq-item"><h3>What happens if my body measurements change?</h3><p>You can update your measurements at any time and re-generate any pattern you have purchased for free. There is no limit on re-generations. Your patterns evolve with your body at no additional cost.</p></div>
 </section>`,
+  },
+
+  {
+    slug: 'peoples-patterns-vs-tailornova',
+    title: `People's Patterns vs Tailornova: Which Is Right for Home Sewists in ${CURRENT_YEAR}?`,
+    description: `Tailornova vs People's Patterns compared: monthly subscription cost, 3D design complexity, custom fit approach, and which platform actually suits home sewists in ${CURRENT_YEAR}.`,
+    category: 'vs',
+    tags: ['tailornova', 'comparison', 'custom-fit', 'made-to-measure', '3d-fashion-design', 'pattern-software'],
+    youtubeId: null,
+    datePublished: '2026-08-20',
+    faqSchema: [
+      { question: 'Does Tailornova generate made-to-measure patterns?', answer: 'Yes. Tailornova lets you enter body measurements to set up a custom 3D avatar, and the patterns it generates are sized to those measurements. However, Tailornova is primarily a fashion design tool, so you are expected to design the garment yourself before generating the pattern. People\'s Patterns skips the design step entirely and generates a ready-to-sew pattern from your measurements directly.' },
+      { question: 'How much does Tailornova cost compared to People\'s Patterns?', answer: 'Tailornova charges a monthly subscription of $29 per month on the Personal plan or $39 per month on the Commercial plan, with no free tier. People\'s Patterns charges $9 to $19 per pattern with no subscription required, and your first pattern is free with no credit card needed.' },
+      { question: 'Do I need fashion design experience to use Tailornova?', answer: 'Tailornova is designed for fashion designers and enthusiast sewists who already understand garment construction and pattern fitting. Reviewers consistently note that the tool rewards users who can evaluate fit and design independently. People\'s Patterns is designed for home sewists of all experience levels, with a guided wizard that handles all the drafting automatically.' },
+      { question: 'Can I see my pattern before purchasing on either platform?', answer: 'People\'s Patterns shows a live in-browser preview of your pattern pieces as you enter measurements and select options. You see exactly what you are getting before you pay. Tailornova provides a 3D rendered preview of the garment design, which is helpful for visualizing the look but differs from seeing the actual flat pattern pieces.' },
+    ],
+    body: `
+<h2>Two Different Tools for Two Different Goals</h2>
+<p>Tailornova and People's Patterns both promise custom-fit sewing patterns generated from your measurements. But they are built for fundamentally different users with fundamentally different goals.</p>
+<p><a href="https://tailornova.com" target="_blank" rel="noopener">Tailornova</a> is a 3D fashion design platform. It gives you a customizable digital avatar, tools to design garments visually, and a pattern engine that outputs those designs sized to your measurements. It is aimed at fashion designers, indie brands, and technically advanced sewists who want to create original designs from scratch.</p>
+<p>People's Patterns is a made-to-measure pattern generation tool. You enter your measurements, choose a garment from the catalog, pick your options, and get a finished pattern ready to cut and sew. It is aimed at home sewists who want a pattern that fits their body without needing design experience or a monthly subscription.</p>
+<p>Both platforms are well-made. The question is which one solves the problem you actually have.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Side-by-side showing a 3D garment design interface on the left and a flat sewing pattern preview in a browser on the right">[ Image: Two browser windows side by side. Left shows a 3D rendered dress on a digital avatar. Right shows flat pattern pieces with measurement labels updating in real time. ]</div><figcaption>Tailornova centers on designing the garment. People's Patterns centers on fitting the pattern to your body.</figcaption></figure>
+
+<h2>At-a-Glance Comparison</h2>
+<table>
+  <thead>
+    <tr><th>Feature</th><th>Tailornova</th><th>People's Patterns</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Primary purpose</td><td>Fashion design tool with pattern output</td><td>Made-to-measure pattern generation</td></tr>
+    <tr><td>Pricing</td><td>$29/mo (Personal) or $39/mo (Commercial)</td><td>$9, $14, or $19 per pattern. First pattern free.</td></tr>
+    <tr><td>Free option</td><td>Free trial only</td><td>First pattern free, no credit card required</td></tr>
+    <tr><td>Custom fit</td><td>Yes, via custom 3D avatar from measurements</td><td>Yes, parametric drafting engine from measurements</td></tr>
+    <tr><td>Design step required</td><td>Yes, you design the garment yourself</td><td>No, choose from ${GARMENT_COUNT} ready garment modules</td></tr>
+    <tr><td>3D preview</td><td>Yes, rendered 3D garment on avatar</td><td>No 3D, live flat pattern preview in browser</td></tr>
+    <tr><td>Output format</td><td>Downloadable pattern pieces (PDF)</td><td>Tiled PDF (US Letter + A4) + A0 copy-shop file</td></tr>
+    <tr><td>Projector file</td><td>Not standard</td><td>$4 add-on</td></tr>
+    <tr><td>Skill level required</td><td>Intermediate to advanced</td><td>Beginner-friendly</td></tr>
+    <tr><td>Instructions included</td><td>Auto-generated illustrated instructions</td><td>Full step-by-step construction instructions</td></tr>
+    <tr><td>Re-generation on measurement change</td><td>Update avatar, re-export</td><td>Free unlimited re-generation</td></tr>
+    <tr><td>Fit feedback tracking</td><td>Not built-in</td><td>Built-in fit feedback system</td></tr>
+  </tbody>
+</table>
+
+<h2>The Subscription Question</h2>
+<p>Tailornova's monthly subscription is the first thing most home sewists notice. The Personal plan runs $29 per month, and the Commercial plan is $39 per month. There is no free tier. If you stop subscribing, you lose access.</p>
+<p>For a fashion designer or small studio producing original collections, that subscription cost is easy to justify. For a home sewist who sews a few garments a year, it is harder to make the math work. At $29 per month, a year of Tailornova access costs $348 before you have generated a single pattern.</p>
+<p>People's Patterns charges per pattern: $9 for Simple styles, $14 for Core styles, $19 for Tailored styles. Your first pattern is always free. If you sew four patterns in a year, you might spend $50 to $60. If you sew more often, the Club membership at $12 per month or Wardrobe membership at $24 per month brings the per-pattern cost down further.</p>
+<p>For sewists who sew occasionally or who are trying custom-fit patterns for the first time, the per-pattern model is far more accessible. You pay for what you use, not for time on a platform.</p>
+
+<h2>Design Tool vs Fit Tool</h2>
+<p>This is the core distinction, and it is worth being direct about it.</p>
+<p>Tailornova is a design tool. You start with a blank canvas, pick pattern pieces (necklines, sleeves, silhouettes), combine them to create a garment, visualize it in 3D on your avatar, and then generate the pattern. The creative work is yours. The tool executes it. If you have strong ideas about garment design and the skills to evaluate fit on a 3D model, Tailornova is genuinely powerful. The platform boasts billions of possible design combinations.</p>
+<p>People's Patterns is a fit tool. You start by picking a garment from the catalog, enter your measurements, and adjust options like fit style, length, pockets, and closures. The drafting engine handles all the geometry. You get a pattern sized to your body, ready to cut. The creative work is in the fabric choice, the color, and the making. The fitting work is handled for you.</p>
+<p>Neither approach is wrong. They reflect different relationships with the craft. If you want to design from scratch, Tailornova gives you the tools. If you want a well-fitting pattern for an established garment style, People's Patterns gets you there faster.</p>
+
+<h2>Does Tailornova Actually Require Pattern-Making Experience?</h2>
+<p>Honestly: yes, to get good results. Multiple Tailornova reviewers have noted the same thing. The 3D preview shows you what the garment looks like on an avatar, but evaluating whether the fit is truly correct requires pattern-making knowledge. If the shoulder seam is sitting in the wrong place, you need to understand why and know how to fix it. The tool does not coach you through that process.</p>
+<p>One frequently cited reviewer put it plainly: Tailornova is not a magic wand. If you do not know pattern making or do not have solid knowledge in sewing and pattern fitting, it can feel complicated to use. That is not a criticism of the tool. It is an honest statement about what the tool is for.</p>
+<p>People's Patterns is built around the opposite assumption. The parametric engine handles the drafting math automatically. The guided wizard walks you through measurements and options. The output is a complete, print-ready pattern with instructions. You do not need to know how the pattern was drafted to use it successfully.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="A home sewist assembling a printed tiled PDF pattern on a cutting mat, no design software visible">[ Image: A sewist laying out printed tiled PDF pattern pieces on a cutting mat, scissors and fabric visible. Clean, approachable scene. ]</div><figcaption>People's Patterns delivers a print-ready pattern with instructions. No design step required.</figcaption></figure>
+
+<h2>Output Quality and Print Experience</h2>
+<p>Tailornova patterns download as PDF files. The platform generates illustrated sewing instructions automatically alongside the pattern, which is a genuinely useful feature. The 3D to flat-pattern pipeline works well for the design-forward use case the platform is built around.</p>
+<p>People's Patterns includes a tiled PDF sized for US Letter or A4 home printing, plus an A0 file for copy-shop printing. Every pattern comes with step-by-step construction instructions, a materials list, and a cutting layout. A $4 add-on option generates a projector-ready file for sewists with a compatible setup.</p>
+<p>Both platforms produce usable, complete pattern packages. The difference is the path to get there: design first in Tailornova, fit first in People's Patterns.</p>
+
+<h2>Who Should Choose Tailornova?</h2>
+<ul>
+  <li>You are a fashion designer or advanced sewist who wants to create original garment designs</li>
+  <li>You have strong pattern-fitting knowledge and can evaluate fit on a 3D avatar</li>
+  <li>You want to mix and match pattern elements to generate unique silhouettes</li>
+  <li>You produce patterns regularly enough to justify a $29 to $39 monthly subscription</li>
+  <li>You want a 3D visualization of the garment before committing to a cut</li>
+</ul>
+
+<h2>Who Should Choose People's Patterns?</h2>
+<ul>
+  <li>You want a custom-fit pattern for a specific garment without a design step</li>
+  <li>You prefer paying per pattern rather than maintaining a monthly subscription</li>
+  <li>You are new to custom-fit patterns and want a guided, beginner-friendly experience</li>
+  <li>You want to see the flat pattern preview in your browser before purchasing</li>
+  <li>You want unlimited free re-generation when your measurements change</li>
+  <li>You want to try a custom-fit pattern for free before spending anything</li>
+</ul>
+
+<h2>Why We Built People's Patterns This Way</h2>
+<p>People's Patterns was built on one conviction: custom-fit sewing patterns should require no design experience and no subscription. The parametric drafting engine does the math. The wizard handles the options. The result is a pattern that fits your body, delivered in five minutes, with a free first pattern so you can experience it before committing. That is the product home sewists have been waiting for.</p>
+
+<h2>Final Verdict</h2>
+<p>Tailornova is a serious design tool for serious designers. If you want to create original fashion from scratch and have the skills to evaluate what you are building, it delivers real power. People's Patterns is a fit tool for home sewists. If you want a custom-fit pattern for a specific garment, generated from your measurements, with no design step and no subscription, People's Patterns is the faster and more accessible path.</p>
+<p>Try People's Patterns for free and see how quickly a made-to-measure pattern can go from measurements to print-ready.</p>
+<p class="learn-cta-inline">Ready to feel the difference? <a href="/patterns">Get your first custom pattern free &rarr;</a></p>
+
+<section class="faq">
+<h2>Frequently Asked Questions</h2>
+
+<div class="faq-item">
+<h3>Does Tailornova generate made-to-measure patterns?</h3>
+<p>Yes. Tailornova lets you enter body measurements to set up a custom 3D avatar, and the patterns it generates are sized to those measurements. However, Tailornova is primarily a fashion design tool, so you are expected to design the garment yourself before generating the pattern. People's Patterns skips the design step entirely and generates a ready-to-sew pattern from your measurements directly.</p>
+</div>
+
+<div class="faq-item">
+<h3>How much does Tailornova cost compared to People's Patterns?</h3>
+<p>Tailornova charges a monthly subscription of $29 per month on the Personal plan or $39 per month on the Commercial plan, with no free tier. People's Patterns charges $9 to $19 per pattern with no subscription required, and your first pattern is free with no credit card needed.</p>
+</div>
+
+<div class="faq-item">
+<h3>Do I need fashion design experience to use Tailornova?</h3>
+<p>Tailornova is designed for fashion designers and enthusiast sewists who already understand garment construction and pattern fitting. Reviewers consistently note that the tool rewards users who can evaluate fit and design independently. People's Patterns is designed for home sewists of all experience levels, with a guided wizard that handles all the drafting automatically.</p>
+</div>
+
+<div class="faq-item">
+<h3>Can I see my pattern before purchasing on either platform?</h3>
+<p>People's Patterns shows a live in-browser preview of your pattern pieces as you enter measurements and select options. You see exactly what you are getting before you pay. Tailornova provides a 3D rendered preview of the garment design, which is helpful for visualizing the look but differs from seeing the actual flat pattern pieces.</p>
+</div>
+</section>
+`,
+  },
+
+  {
+    slug: 'peoples-patterns-vs-patternlab-london',
+    title: `People's Patterns vs PatternLab London: Blocks vs Finished Patterns in ${CURRENT_YEAR}`,
+    description: `PatternLab London vs People's Patterns compared: basic blocks vs finished garment patterns, who each tool is actually for, and which one gets you to a sewable pattern faster.`,
+    category: 'vs',
+    tags: ['patternlab-london', 'comparison', 'custom-fit', 'basic-blocks', 'slopers', 'made-to-measure'],
+    youtubeId: null,
+    datePublished: '2026-08-22',
+    faqSchema: [
+      { question: 'What is the difference between a basic block and a finished sewing pattern?', answer: 'A basic block (also called a sloper) is a close-fitting foundation pattern with no design features, ease beyond ease of movement, or seam allowances. It is a starting tool that pattern makers use to develop finished designs. A finished pattern includes all design details, ease, seam allowances, and instructions needed to cut and sew a wearable garment. PatternLab London generates basic blocks. People\'s Patterns generates finished, ready-to-sew garment patterns.' },
+      { question: 'Does PatternLab London generate finished sewing patterns?', answer: 'No. PatternLab London generates basic blocks and slopers. These are foundational pattern templates that pattern makers then develop into finished garment designs. If you want to sew directly from the output, you will need to add ease, seam allowances, design details, and instructions yourself. People\'s Patterns generates complete garment patterns ready to print and sew.' },
+      { question: 'What file formats does PatternLab London support?', answer: 'PatternLab London offers downloads in PDF, AI (Adobe Illustrator), and SVG formats. This makes it a strong choice for pattern makers who work in professional design software. People\'s Patterns provides a tiled PDF for home printing, an A0 file for copy-shop printing, and an optional projector-ready file.' },
+      { question: 'Which platform is better for beginners?', answer: 'People\'s Patterns is designed for home sewists at all skill levels, including beginners. The guided wizard walks you through measurements and options, and every pattern comes with full construction instructions. PatternLab London is aimed at pattern makers and advanced sewists who understand how to develop a basic block into a finished garment.' },
+    ],
+    body: `
+<h2>The Same Starting Point, Very Different Destinations</h2>
+<p>PatternLab London and People's Patterns both generate custom-fit sewing output from your body measurements. But what they generate, and who they generate it for, are quite different.</p>
+<p><a href="https://patternlab.london" target="_blank" rel="noopener">PatternLab London</a> generates basic blocks and slopers. These are foundational pattern templates sized to your body. A bodice block, a trouser block, a skirt block. They fit close to the body with minimal ease and no design details. A professional pattern maker uses these as the starting point for developing original garment designs. PatternLab London is a tool for that person.</p>
+<p>People's Patterns generates finished garment patterns. You choose a garment, enter your measurements, select your options, and get a print-ready pattern with construction instructions included. You print it, cut it, and sew it. No further development required. People's Patterns is a tool for home sewists.</p>
+<p>Both platforms serve real needs. But they are positioned at different stages of the pattern-making process, and choosing the wrong one means either getting output you cannot use directly or missing features that make the process easier.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Two patterns side by side: a plain close-fitting bodice block on the left and a finished shirt pattern with collar, pockets, and seam allowances on the right">[ Image: Two pattern layouts side by side. Left shows a plain bodice block with no design features. Right shows a finished shirt pattern with collar pieces, pocket, button placket, seam allowances marked, and grain lines. ]</div><figcaption>A basic block is a foundation tool. A finished garment pattern is ready to cut and sew.</figcaption></figure>
+
+<h2>At-a-Glance Comparison</h2>
+<table>
+  <thead>
+    <tr><th>Feature</th><th>PatternLab London</th><th>People's Patterns</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Output type</td><td>Basic blocks and slopers</td><td>Finished, ready-to-sew garment patterns</td></tr>
+    <tr><td>Seam allowances included</td><td>No (blocks have none by default)</td><td>Yes, per-edge seam allowances computed automatically</td></tr>
+    <tr><td>Design details</td><td>None (blocks are plain templates)</td><td>Yes: pockets, closures, length options, fit styles</td></tr>
+    <tr><td>Construction instructions</td><td>Not included</td><td>Included with every pattern</td></tr>
+    <tr><td>Garment types</td><td>Bodice, dress, trouser, skirt blocks</td><td>${GARMENT_COUNT} garment modules across all categories</td></tr>
+    <tr><td>Pricing</td><td>Free to draft, pay to download</td><td>$9 / $14 / $19 per pattern. First pattern free.</td></tr>
+    <tr><td>Download formats</td><td>PDF, AI (Adobe Illustrator), SVG</td><td>Tiled PDF (US Letter + A4) + A0 copy-shop file</td></tr>
+    <tr><td>Projector file</td><td>SVG can be used</td><td>$4 add-on</td></tr>
+    <tr><td>Target user</td><td>Pattern makers, advanced sewists</td><td>Home sewists of all skill levels</td></tr>
+    <tr><td>Skill required to use output</td><td>Pattern making experience required</td><td>Standard sewing skills sufficient</td></tr>
+    <tr><td>Re-generation policy</td><td>60-day edit window after purchase</td><td>Unlimited free re-generation always</td></tr>
+    <tr><td>Multiple measurement profiles</td><td>Not specified</td><td>Yes, unlimited profiles</td></tr>
+    <tr><td>Fit feedback tracking</td><td>Not available</td><td>Built-in fit feedback system</td></tr>
+  </tbody>
+</table>
+
+<h2>What Is a Basic Block, and Do You Need One?</h2>
+<p>A basic block (also called a sloper or foundation pattern) is a close-fitting template pattern with no seam allowances, no design details, and no ease beyond the minimum needed for movement. It follows your body's shape exactly, which makes it a useful starting tool for professional pattern makers. They trace the block, add design lines, grade in ease, add seam allowances, and develop the finished design from there.</p>
+<p>If you are a pattern maker, designer, or advanced sewist who develops your own original designs, a custom-fit block from PatternLab London is a genuinely valuable tool. It replaces the need to draft your own block from scratch, and the digital formats (AI, SVG) integrate well with professional design software.</p>
+<p>If you are a home sewist who wants to sew a specific garment, a basic block is step one of a multi-step process that requires additional skills and time. You would still need to add ease, add seam allowances, add design details, and write your own instructions before you could cut a single piece of fabric. That process is meaningful and rewarding for pattern makers who know how to do it. But it is not what most home sewists are looking for when they search for a custom-fit sewing pattern.</p>
+
+<h2>Pricing and Access</h2>
+<p>PatternLab London lets you draft your custom block for free, which is a generous offering. You enter your measurements, see the block generated on screen, and customize the fit, dart placement, and length. Downloading the result requires payment. The platform offers PDF, AI, and SVG formats, and purchases include a 60-day window to update your measurements and re-download. Exact pricing is not prominently displayed, but reviews consistently describe it as low cost.</p>
+<p>People's Patterns charges $9 to $19 per finished garment pattern depending on complexity. Your first pattern is always free with no credit card required. After that, the Club membership at $12 per month or Wardrobe membership at $24 per month provides credits at reduced per-pattern cost. There is no time limit on re-generation. Any pattern you purchase can be re-generated with updated measurements for free, at any point in the future.</p>
+<p>The pricing approaches are different in part because the outputs are different. A basic block is a single foundational piece. A finished garment pattern includes multiple developed pieces, seam allowances, notches, grain lines, cutting layouts, and instructions. The additional engineering in a finished pattern is reflected in the price.</p>
+
+<h2>File Formats: Professional vs Practical</h2>
+<p>PatternLab London's support for AI and SVG formats is a real advantage for pattern makers who work in Illustrator, Inkscape, or other vector tools. You can open the block directly in your design software, trace over it, add seam lines, and develop the pattern digitally without any re-digitizing step. That workflow matters if you are building a pattern-making practice or a small design business.</p>
+<p>People's Patterns produces tiled PDFs formatted for home printing on US Letter or A4 paper, plus an A0 file for copy-shop printing. Both come with every purchase. A $4 add-on generates a projector-ready file for sewists with a compatible projector setup.</p>
+<p>For home sewists who print at home or visit a copy shop, the PDF and A0 formats cover everything. For professional pattern makers who want to develop blocks digitally, PatternLab London's vector formats offer something People's Patterns does not.</p>
+
+<h2>Customization Depth</h2>
+<p>PatternLab London offers meaningful block customization: fit style, dart placement, length, seam allowance options, and sleeve variations. For a basic block tool, this level of control is impressive and gives you a foundation that more closely matches the design you have in mind.</p>
+<p>People's Patterns offers deep customization at the finished garment level. Each of the ${GARMENT_COUNT} garment modules includes options for fit style (slim, regular, relaxed), length, pocket styles, closure type, collar options, and more. Because the customization is built into the finished garment pattern, you see the result immediately in the live browser preview. What you see is what you print.</p>
+
+<figure class="learn-img-placeholder"><div class="learn-img-box" role="img" aria-label="Browser showing People's Patterns wizard with fit style and length options selected and pattern pieces updating in real time">[ Image: People's Patterns browser wizard showing dropdown options for fit style, length, and pockets, with the flat pattern pieces updating live on screen. ]</div><figcaption>Every option you select updates the pattern preview in real time, so you know exactly what you are getting before you purchase.</figcaption></figure>
+
+<h2>Who Should Choose PatternLab London?</h2>
+<ul>
+  <li>You are a pattern maker or advanced sewist who develops your own original garment designs</li>
+  <li>You need a custom-fit basic block or sloper as a foundation for your design work</li>
+  <li>You work in professional design software and want AI or SVG files you can develop digitally</li>
+  <li>You understand how to add ease, seam allowances, and design details to a block</li>
+  <li>You want the most foundational, flexible starting point for pattern development</li>
+</ul>
+
+<h2>Who Should Choose People's Patterns?</h2>
+<ul>
+  <li>You want a finished, ready-to-sew garment pattern drafted to your measurements</li>
+  <li>You do not want to develop a block into a design before you can cut and sew</li>
+  <li>You are a home sewist at any skill level, not a professional pattern maker</li>
+  <li>You want construction instructions included with your pattern</li>
+  <li>You want to see a live preview of your pattern pieces before purchasing</li>
+  <li>You want unlimited re-generation as your measurements change over time</li>
+  <li>You want to try your first custom-fit pattern for free</li>
+</ul>
+
+<h2>Why We Built People's Patterns This Way</h2>
+<p>Basic blocks are genuinely useful. But they are the beginning of a process, not the end of one. The sewists we built People's Patterns for are not looking to develop blocks into designs. They want a pattern that fits their body, ready to print this afternoon. The parametric drafting engine handles everything from measurement input to finished pattern output, including seam allowances, notches, grainlines, and construction instructions. That complete pipeline is what makes the difference between a tool for professionals and a tool for everyone.</p>
+
+<h2>Final Verdict</h2>
+<p>PatternLab London fills a genuine gap for pattern makers who need a custom-fit basic block to develop designs from. It is well-built, affordable, and the AI and SVG formats are a legitimate advantage for professional workflows.</p>
+<p>People's Patterns fills a different gap: the home sewist who wants a custom-fit finished pattern for a specific garment, ready to print and sew, with no additional development required. Both tools do exactly what they say. The choice is about where you are in the pattern-making process and what you want to walk away with.</p>
+<p>If you want to skip the block development step entirely and go straight to a print-ready custom-fit pattern, People's Patterns is the faster path.</p>
+<p class="learn-cta-inline">Ready to feel the difference? <a href="/patterns">Get your first custom pattern free &rarr;</a></p>
+
+<section class="faq">
+<h2>Frequently Asked Questions</h2>
+
+<div class="faq-item">
+<h3>What is the difference between a basic block and a finished sewing pattern?</h3>
+<p>A basic block (also called a sloper) is a close-fitting foundation pattern with no design features, ease beyond ease of movement, or seam allowances. It is a starting tool that pattern makers use to develop finished designs. A finished pattern includes all design details, ease, seam allowances, and instructions needed to cut and sew a wearable garment. PatternLab London generates basic blocks. People's Patterns generates finished, ready-to-sew garment patterns.</p>
+</div>
+
+<div class="faq-item">
+<h3>Does PatternLab London generate finished sewing patterns?</h3>
+<p>No. PatternLab London generates basic blocks and slopers. These are foundational pattern templates that pattern makers then develop into finished garment designs. If you want to sew directly from the output, you will need to add ease, seam allowances, design details, and instructions yourself. People's Patterns generates complete garment patterns ready to print and sew.</p>
+</div>
+
+<div class="faq-item">
+<h3>What file formats does PatternLab London support?</h3>
+<p>PatternLab London offers downloads in PDF, AI (Adobe Illustrator), and SVG formats. This makes it a strong choice for pattern makers who work in professional design software. People's Patterns provides a tiled PDF for home printing, an A0 file for copy-shop printing, and an optional projector-ready file.</p>
+</div>
+
+<div class="faq-item">
+<h3>Which platform is better for beginners?</h3>
+<p>People's Patterns is designed for home sewists at all skill levels, including beginners. The guided wizard walks you through measurements and options, and every pattern comes with full construction instructions. PatternLab London is aimed at pattern makers and advanced sewists who understand how to develop a basic block into a finished garment.</p>
+</div>
+</section>
+`,
   },
 ];

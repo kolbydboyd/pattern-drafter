@@ -138,8 +138,8 @@ Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
 - [ ] **Fix any fit issues found during muslin testing**
 - [ ] **Test full purchase flow end-to-end** — checkout, webhook, PDF generation, download, re-download
 - [ ] **Test print layout at 1:1 scale** — verify scale square, tiles assemble, no clipping
-- [ ] **Wire peoplespatterns.com to Vercel** — DNS records in Porkbun
-- [ ] **Set up Google Search Console** and submit sitemap
+- [x] **Site live on Cloudflare Pages** — DNS via Porkbun (was Vercel, migrated to Cloudflare Pages)
+- [x] **Set up Google Search Console** and submit sitemap
 - [ ] **Update pricing in Stripe** to match new 3-tier structure if not already done
 
 ---
@@ -154,13 +154,11 @@ Thread Theory, Wardrobe By Me, TikTok, Reddit r/sewing._
 - [ ] Create individual pattern pages with SEO meta tags
 - [ ] Post branded avatars and banners to all social accounts
 
-### Email Flows (templates exist, verify sequences work)
-- [ ] Welcome sequence:
-      Email 1: "Here's how to measure yourself"
-      Email 2: "Your first pattern — what to expect"
-      Email 3: "How tiled PDFs work"
-- [ ] Generated-not-purchased follow-up
-- [ ] Post-sew fit feedback request
+### Email Flows
+- [x] Welcome sequence built (cron-emails.js + GitHub Actions cron): Email 1 "measure yourself", Email 2 "your first pattern", Email 3 "tiled PDFs"
+- [x] Generated-not-purchased follow-up built (trigger 1 in cron-emails.js)
+- [x] Post-sew fit feedback request built (cron-emails.js)
+- [ ] Verify Resend API key and templates are active in production
 
 ### Privacy / Technical
 - [ ] Move body measurements out of Stripe session metadata
