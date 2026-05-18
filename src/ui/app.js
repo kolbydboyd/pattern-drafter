@@ -1524,6 +1524,7 @@ function _promptA0Upgrade() {
         .limit(1)
         .maybeSingle();
       if (!purchase) throw new Error('Purchase not found. Try from My Patterns.');
+      trackEvent('checkout_started', { mode: 'a0_upgrade' });
       const { session } = await getSession();
       const res = await fetch('/api/create-checkout', {
         method: 'POST',

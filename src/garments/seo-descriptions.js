@@ -778,6 +778,71 @@ const SEO_DESCRIPTIONS = {
       { q: 'Is this hard to sew?', a: 'Advanced level. Leather requires clips instead of pins, a leather needle, and careful topstitching. The asymmetric zip and lapel facing need patience, but the result is a lifelong garment.' },
     ],
   },
+
+  // ── Style variant additions ───────────────────────────────────────────────
+
+  'waffle-knit-tee': {
+    metaDescription: 'Draft a custom-fit waffle knit tee sewing pattern from your measurements. Long sleeve, fitted silhouette, optional thumbhole cuffs. Tiled PDF.',
+    pageIntro: 'A fitted long-sleeve tee cut from cotton waffle knit, drafted to your chest, shoulder, and sleeve measurements. The textured waffle weave adds warmth and visual interest without bulk. Optional thumbhole cuffs at the wrist.',
+    faq: [
+      { q: 'What is waffle knit fabric?', a: 'Waffle knit is a textured cotton knit with a grid-like raised pattern. It is slightly thicker and warmer than plain jersey, making it ideal for long-sleeve layering pieces.' },
+      { q: 'How do I finish the cuffs with thumbholes?', a: 'The pattern marks the thumbhole opening on the cuff piece. Sew the cuff seam, leaving a 1-inch opening at the thumb position. Reinforce with a bar tack at each end. No buttonhole required.' },
+    ],
+  },
+
+  'boxy-camp-shirt': {
+    metaDescription: 'Draft a custom-fit boxy camp shirt sewing pattern. Oversized silhouette, flat camp collar, patch pockets, short sleeves. Tiled PDF with instructions.',
+    pageIntro: 'A boxy, relaxed camp collar shirt drafted to your chest and shoulder measurements. Extra ease through the body, a flat open collar, and patch chest pockets give it a casual, streetwear-ready silhouette.',
+    faq: [
+      { q: 'How boxy is the boxy camp shirt?', a: 'The boxy version adds significantly more ease than the regular or fitted camp shirt — the side seams drop straight from the underarm with no waist tapering, and the shoulder drops slightly past the natural shoulder point.' },
+      { q: 'What fabric works best for a boxy camp shirt?', a: 'Lightweight wovens with good drape: rayon, cotton lawn, linen, or chambray. A fabric that flows freely shows off the relaxed silhouette best.' },
+    ],
+  },
+
+  'oxford-shirt': {
+    metaDescription: 'Draft a custom-fit Oxford cloth button-up sewing pattern from your measurements. Collar stand, button-down collar points, and a relaxed fit. Tiled PDF with full construction guide.',
+    pageIntro: 'An Oxford cloth button-down (OCBD) shirt drafted to your chest, shoulder, neck, and sleeve measurements. Button-down collar points, a relaxed chest fit, and classic workwear construction.',
+    faq: [
+      { q: 'What is Oxford cloth?', a: 'Oxford cloth is a basket-weave cotton with a slightly textured, matte surface. It is stiffer and more durable than poplin, making it the standard fabric for the classic American button-down shirt.' },
+      { q: 'What makes an OCBD different from a regular button-up?', a: 'The Oxford shirt uses a softer roll line on the collar and a slightly roomier chest fit. The button-down collar points stay flat without collar stays — the buttons do that job.' },
+    ],
+  },
+
+  'keepall-duffel': {
+    metaDescription: 'Sew a custom Keepall-style structured duffel bag from your exact dimensions. Arch-end construction, top zip, trim handles, and optional shoulder strap. Tiled PDF sewing pattern.',
+    pageIntro: 'A structured cylindrical duffel bag inspired by the classic Keepall silhouette. Two arch-shaped end panels, a continuous body wrap, top zipper, and fabric trim handles. Choose from three preset sizes or enter custom dimensions.',
+    faq: [
+      { q: 'What fabric works best for a structured duffel?', a: 'Waxed canvas, heavy cotton canvas (10-12 oz), or vegan leather give the right structure. A fusible interfacing or foam stabilizer on the body and end panels keeps the arch shape.' },
+      { q: 'What is arch-end construction?', a: 'Arch-end construction uses two rounded (ellipse-like) end panels instead of flat rectangle sides. The body wraps continuously around the arch from one end to the other. This creates the barrel shape characteristic of the Keepall.' },
+    ],
+  },
+
+  'keepall-35': {
+    metaDescription: 'Sew a Keepall 35-size duffel bag from your own fabric. Day bag dimensions (13¾ × 8¼ × 6¾ in), arch-end construction, top zip, trim handles. Tiled PDF sewing pattern.',
+    pageIntro: 'The smallest Keepall size — a compact day bag at 13¾ × 8¼ × 6¾ inches. Arch-end construction with a top zip and fabric handles. The perfect everyday bag or gym carry.',
+    faq: [
+      { q: 'How much does a Keepall 35 hold?', a: 'The 35 size holds roughly the equivalent of a light gym bag — a change of clothes, shoes, and a few accessories. It is the most compact of the three sizes, better as a day bag than an overnight.' },
+      { q: 'Can I add an interior pocket to the Keepall 35?', a: 'Yes — the pattern includes an optional slip pocket or zip pocket on the interior body panel. The slip pocket is the fastest to sew; the zip pocket adds more security.' },
+    ],
+  },
+
+  'keepall-45': {
+    metaDescription: 'Sew a Keepall 45-size duffel bag from your own fabric. Weekend bag dimensions (17¾ × 10⅝ × 7⅞ in), arch-end construction, top zip. Tiled PDF sewing pattern.',
+    pageIntro: 'The Keepall 45 is the classic weekend bag size — 17¾ × 10⅝ × 7⅞ inches. Large enough for a two-night trip, compact enough to carry by hand or over the shoulder with an optional strap.',
+    faq: [
+      { q: 'Is the Keepall 45 a carry-on?', a: 'The 45 fits most overhead bins but is not technically carry-on sized for all airlines. The Keepall 50 is sized specifically for carry-on use. The 45 is best as a personal item or underseat bag.' },
+      { q: 'Should I add a shoulder strap to the Keepall 45?', a: 'Recommended. The 45 is heavy when full, and the Bandouliere-style adjustable shoulder strap (included as an option in the pattern) makes it much more comfortable to carry.' },
+    ],
+  },
+
+  'keepall-50': {
+    metaDescription: 'Sew a Keepall 50-size duffel bag from your own fabric. Carry-on dimensions (19¾ × 11⅜ × 8⅞ in), arch-end construction, shoulder strap. Tiled PDF sewing pattern.',
+    pageIntro: 'The Keepall 50 is the most popular size — carry-on dimensions at 19¾ × 11⅜ × 8⅞ inches. Large enough for a 3-5 day trip, fits most airline overhead compartments. Detachable shoulder strap included.',
+    faq: [
+      { q: 'Will the Keepall 50 fit in an overhead bin?', a: 'The 50 is sized to fit most major airline carry-on requirements (typically 22 × 14 × 9 inches). Soft-sided bags often compress slightly, and the structured ends help maintain shape without taking extra space.' },
+      { q: 'What fabric is best for a carry-on duffel?', a: 'Waxed canvas or ballistic nylon for durability. Either handles the abrasion of overhead bins and checked baggage carousels. Add a foam interfacing to the body and end panels to maintain the arch shape under load.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;

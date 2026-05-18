@@ -7,6 +7,24 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Added
+- **SEO descriptions for 7 missing garment variant IDs** — `waffle-knit-tee`, `boxy-camp-shirt`,
+  `oxford-shirt`, `keepall-duffel`, `keepall-35`, `keepall-45`, `keepall-50` added to
+  `src/garments/seo-descriptions.js`. Fixes build warnings and ensures pattern pages for these
+  variants have proper meta descriptions, page intros, and FAQ JSON-LD.
+- **`dateModified` in Article JSON-LD** — `scripts/generate-learn-pages.js` now emits
+  `dateModified` on every Article schema block (`article.dateModified ?? article.datePublished ??
+  TODAY`). Google treats absence of `dateModified` as stale content.
+- **`checkout_started` event for a0_upgrade flow** — Added `trackEvent('checkout_started',
+  { mode: 'a0_upgrade' })` in both `src/ui/app.js` (pattern page upsell dialog) and
+  `src/ui/account-dashboard.js` (My Patterns A0 upsell). Closes funnel gap between
+  `download_initiated` and `a0_upgrade_completed`.
+
+### Changed
+- **ROADMAP.md** — Marked confirmed-done items: Google Search Console (live), Cloudflare Pages
+  deployment (replaced Vercel), email sequences (built in `cron-emails.js` + GitHub Actions cron).
+  Clarified email flows section to reflect current state.
+
+### Added
 - **stretchFactor option for upper body knit garments** — tee, crewneck, henley, fitted-tee-w,
   tank-top, turtleneck, kids-tee, hoodie, scholar-hoodie now have a `stretchFactor` select option
   (0% / 5% / 10% / 15%, default 5%). The pattern scales panel width by `(1 - stretchFactor)` so
