@@ -6,7 +6,7 @@ import { GARMENT_COUNT, CURRENT_YEAR } from './article-constants.js';
 export const ARTICLES_VS = [
   {
     slug: 'peoples-patterns-vs-ditto-patterns',
-    title: 'People\'s Patterns vs Ditto Patterns: Honest Comparison ${CURRENT_YEAR}',
+    title: `People's Patterns vs Ditto Patterns: Honest Comparison ${CURRENT_YEAR}`,
     description: 'Ditto Patterns vs People\'s Patterns compared: projector cost, subscriptions, instant generation, and total 12-month ownership breakdown.',
     category: 'vs',
     tags: ['ditto-patterns', 'pattern-projector', 'comparison', 'custom-fit', 'made-to-measure', 'projector-sewing'],
@@ -1691,7 +1691,7 @@ export const ARTICLES_VS = [
   {
     slug: 'best-made-to-measure-sewing-patterns',
     title: `Best Made-to-Measure Sewing Patterns in ${CURRENT_YEAR}: Full Comparison`,
-    description: 'Compare all made-to-measure sewing pattern services in ${CURRENT_YEAR}. Speed, price, library size, and beginner-friendliness rated side by side.',
+    description: `Compare all made-to-measure sewing pattern services in ${CURRENT_YEAR}. Speed, price, library size, and beginner-friendliness rated side by side.`,
     category: 'vs',
     tags: ['best-of', 'made-to-measure', 'comparison', '2026', 'custom-fit', 'roundup'],
     youtubeId: null,
@@ -1932,7 +1932,7 @@ export const ARTICLES_VS = [
     category: 'vs',
     tags: ['tailornova', 'comparison', 'custom-fit', 'made-to-measure', '3d-fashion-design', 'pattern-software'],
     youtubeId: null,
-    datePublished: '2026-08-04',
+    datePublished: '2026-08-20',
     faqSchema: [
       { question: 'Does Tailornova generate made-to-measure patterns?', answer: 'Yes. Tailornova lets you enter body measurements to set up a custom 3D avatar, and the patterns it generates are sized to those measurements. However, Tailornova is primarily a fashion design tool, so you are expected to design the garment yourself before generating the pattern. People\'s Patterns skips the design step entirely and generates a ready-to-sew pattern from your measurements directly.' },
       { question: 'How much does Tailornova cost compared to People\'s Patterns?', answer: 'Tailornova charges a monthly subscription of $29 per month on the Personal plan or $39 per month on the Commercial plan, with no free tier. People\'s Patterns charges $9 to $19 per pattern with no subscription required, and your first pattern is free with no credit card needed.' },
@@ -2053,7 +2053,7 @@ export const ARTICLES_VS = [
     category: 'vs',
     tags: ['patternlab-london', 'comparison', 'custom-fit', 'basic-blocks', 'slopers', 'made-to-measure'],
     youtubeId: null,
-    datePublished: '2026-08-06',
+    datePublished: '2026-08-22',
     faqSchema: [
       { question: 'What is the difference between a basic block and a finished sewing pattern?', answer: 'A basic block (also called a sloper) is a close-fitting foundation pattern with no design features, ease beyond ease of movement, or seam allowances. It is a starting tool that pattern makers use to develop finished designs. A finished pattern includes all design details, ease, seam allowances, and instructions needed to cut and sew a wearable garment. PatternLab London generates basic blocks. People\'s Patterns generates finished, ready-to-sew garment patterns.' },
       { question: 'Does PatternLab London generate finished sewing patterns?', answer: 'No. PatternLab London generates basic blocks and slopers. These are foundational pattern templates that pattern makers then develop into finished garment designs. If you want to sew directly from the output, you will need to add ease, seam allowances, design details, and instructions yourself. People\'s Patterns generates complete garment patterns ready to print and sew.' },
