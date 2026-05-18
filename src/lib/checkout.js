@@ -1,9 +1,11 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 
 import { getAffiliateCode } from './affiliate.js';
+import { trackEvent } from '../analytics.js';
 
 // ── Single pattern checkout ──────────────────────────────────────────────────
 export async function buyPattern(garmentId, measurements, opts, userId, profileId, addA0 = false) {
+  trackEvent('checkout_started', { mode: 'pattern', garment_id: garmentId });
   const res = await fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,6 +21,7 @@ export async function buyPattern(garmentId, measurements, opts, userId, profileI
 
 // ── Bundle checkout ──────────────────────────────────────────────────────────
 export async function buyBundle(bundleId, userId, garmentIds = []) {
+  trackEvent('checkout_started', { mode: 'bundle', bundle_id: bundleId });
   const res = await fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -34,6 +37,7 @@ export async function buyBundle(bundleId, userId, garmentIds = []) {
 
 // ── Credit pack checkout ────────────────────────────────────────────────────
 export async function buyCreditPack(packId, userId) {
+  trackEvent('checkout_started', { mode: 'credit_pack', pack_id: packId });
   const res = await fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -49,6 +53,7 @@ export async function buyCreditPack(packId, userId) {
 
 // ── Subscription checkout ────────────────────────────────────────────────────
 export async function buySubscription(planId, userId) {
+  trackEvent('checkout_started', { mode: 'subscription', plan_id: planId });
   const res = await fetch('/api/create-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

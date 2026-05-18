@@ -1,6 +1,6 @@
 // Copyright (c) 2026 People's Patterns LLC. All rights reserved.
 import { signUp, signIn, signOut, getUser, onAuthStateChange, resetPassword } from '../lib/auth.js';
-import { trackEvent, identifyUser } from '../analytics.js';
+import { trackEvent, identifyUser, resetUser } from '../analytics.js';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let _modalState    = 'login';   // 'login' | 'signup' | 'verify'
@@ -26,6 +26,7 @@ onAuthStateChange((user, event) => {
   if (_awaitingVerification && user?.email_confirmed_at) {
     _awaitingVerification = false;
   }
+  if (!user) resetUser();
   _broadcast(user);
   updateHeaderAuth(user);
 });

@@ -18,7 +18,10 @@ async function _initPosthog() {
     session_recording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' },
   });
   _ph = posthog;
-  for (const { name, properties } of _queue) posthog.capture(name, properties);
+  for (const { name, properties } of _queue) {
+    if (name === '__identify__') posthog.identify(properties.userId, properties.traits);
+    else posthog.capture(name, properties);
+  }
   _queue = [];
   return posthog;
 }
@@ -43,14 +46,6 @@ export function identifyUser(userId, traits) {
     _ph.identify(userId, traits);
   } else {
     _queue.push({ name: '__identify__', properties: { userId, traits } });
-    // Flush immediately so identify fires as soon as PostHog loads.
-    _initPosthog().then(ph => {
-      const idx = _queue.findIndex(e => e.name === '__identify__' && e.properties.userId === userId);
-      if (idx !== -1) {
-        _queue.splice(idx, 1);
-        ph.identify(userId, traits);
-      }
-    });
   }
 }
 
@@ -118,7 +113,8 @@ export function initWebVitals() {
     try {
       new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
-          trackEvent('web_vital', { name: 'FCP', value: Math.round(entry.startTime), page });
+          if (entry.name === 'first-contentful-paint')
+            trackEvent('web_vital', { name: 'FCP', value: Math.round(entry.startTime), page });
         }
       }).observe({ type: 'paint', buffered: true });
     } catch (_) {}

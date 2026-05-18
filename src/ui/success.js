@@ -63,9 +63,11 @@ function initPatternSuccess(info) {
   elAmount.textContent = info.amountCents ? `- $${(info.amountCents / 100).toFixed(2)}` : '';
   elState.hidden = false;
 
+  const _TIERS = { 900: 'simple', 1400: 'core', 1900: 'tailored' };
   trackEvent('purchase_completed', {
     garment_id:     info.garmentId,
     amount:         info.amountCents ? info.amountCents / 100 : undefined,
+    price_tier:     _TIERS[info.amountCents] ?? undefined,
     payment_method: 'stripe',
   });
 
