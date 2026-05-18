@@ -1,0 +1,24 @@
+name: Cron — Daily Deploy (article drip-feed)
+
+# Triggers a Cloudflare Pages rebuild every day so that articles whose
+# datePublished <= TODAY are pre-rendered and go live on schedule.
+#
+# Required GitHub secret:
+#   CF_DEPLOY_HOOK — Cloudflare Pages deploy hook URL.
+#   Create it at: Cloudflare Dashboard → Pages → <project> →
+#                 Settings → Builds & deployments → Deploy hooks → Add hook.
+#   Name it "daily-drip", copy the URL, save as CF_DEPLOY_HOOK.
+
+on:
+  schedule:
+    # 7:15 AM UTC daily — 15 min after sitemap cron (06:00) so the sitemap
+    # is already fresh before the deploy starts.
+    - cron: '15 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages deploy
+        run: curl --fail -X POST "${{ secrets.CF_DEPLOY_HOOK }}"

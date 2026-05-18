@@ -1106,10 +1106,11 @@ function renderContent(pipeline, pinStats) {
   if (overduePins > 0) alerts.push(`${overduePins} pin${overduePins > 1 ? 's' : ''} overdue`);
 
   const subTabs = [
-    { id: 'c-articles', label: 'Articles', badge: `${articlesLive}/${ARTICLES.length}` },
-    { id: 'c-pins', label: 'Pins', badge: `${pinsPosted}/${pinStats.length}` },
-    { id: 'c-videos', label: 'Videos', badge: `${videosUploaded}/${videosTotal}` },
+    { id: 'c-articles',  label: 'Articles',  badge: `${articlesLive}/${ARTICLES.length}` },
+    { id: 'c-pins',      label: 'Pins',      badge: `${pinsPosted}/${pinStats.length}` },
+    { id: 'c-videos',    label: 'Videos',    badge: `${videosUploaded}/${videosTotal}` },
     { id: 'c-checklist', label: 'Checklist' },
+    { id: 'c-playbooks', label: 'Playbooks' },
   ];
 
   // ── Videos sub-tab content ─────────────────────────────────────────────────
@@ -1186,6 +1187,130 @@ function renderContent(pipeline, pinStats) {
     <div id="adm-content-sub-c-pins" hidden>${renderPinTracker(pinStats)}</div>
     <div id="adm-content-sub-c-videos" hidden>${videosContent}</div>
     <div id="adm-content-sub-c-checklist" hidden>${checklistContent}</div>
+    <div id="adm-content-sub-c-playbooks" hidden>${renderPlaybooks()}</div>
+  `;
+}
+
+// ── Playbooks ────────────────────────────────────────────────────────────────
+
+function renderPlaybooks() {
+  const PB_STYLE = `
+    font-size:.82rem;line-height:1.6;color:var(--fg);
+  `;
+  const sectionStyle = `margin-bottom:28px`;
+  const h3Style = `font-size:.88rem;font-weight:700;color:var(--gold);margin:0 0 10px`;
+  const h4Style = `font-size:.8rem;font-weight:700;color:var(--fg);margin:14px 0 6px`;
+  const ulStyle = `margin:0 0 8px;padding-left:18px`;
+  const liStyle = `margin-bottom:4px`;
+  const tagStyle = `display:inline-block;font-size:.68rem;padding:2px 7px;border-radius:3px;background:var(--bdr);color:var(--mid);margin:2px 3px 2px 0;font-family:'IBM Plex Mono',monospace`;
+  const alertStyle = `font-size:.78rem;padding:10px 14px;border-radius:6px;background:rgba(201,169,110,.08);border-left:3px solid var(--gold);margin-bottom:14px`;
+  const doStyle = `font-size:.78rem;padding:10px 14px;border-radius:6px;background:rgba(80,160,80,.08);border-left:3px solid #4a9;margin-bottom:8px`;
+  const dontStyle = `font-size:.78rem;padding:10px 14px;border-radius:6px;background:rgba(220,80,80,.08);border-left:3px solid #e05858;margin-bottom:8px`;
+
+  return `
+    <div style="${PB_STYLE}">
+
+      <h2 style="font-size:1rem;font-weight:700;margin:0 0 4px">Community Playbooks</h2>
+      <p style="color:var(--mid);font-size:.78rem;margin:0 0 24px">Step-by-step guides for community channels. Reference these before posting anywhere.</p>
+
+      <!-- ── PatternReview.com ── -->
+      <div class="adm-roadmap-card" style="${sectionStyle}">
+        <h3 style="${h3Style}">PatternReview.com</h3>
+        <p style="color:var(--mid);font-size:.75rem;margin:0 0 14px">593k members. The most influential sewing community online. Reviews here carry real social proof.</p>
+
+        <div style="${alertStyle}">
+          <strong>Step 0 — Check listing status first.</strong> Email PatternReview (contact form on site) asking them to add People's Patterns to the Pattern Companies database. Provide company name, website, and category (PDF / digital / made-to-measure). Do this before anything else.
+        </div>
+
+        <h4 style="${h4Style}">Account Setup</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}">Create a free member account at sewing.patternreview.com — no paid tier needed.</li>
+          <li style="${liStyle}">Write a genuine member bio. Include the company story and why made-to-measure matters. Do not use it as an ad.</li>
+          <li style="${liStyle}">Link to peoplespatterns.com in your profile (commercial links in profiles are allowed).</li>
+        </ul>
+
+        <h4 style="${h4Style}">Listing Patterns</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}">Once listed in the Pattern Companies database, patterns can be registered/reviewed by members.</li>
+          <li style="${liStyle}">You cannot write reviews of your own patterns — PR requires impartial reviews.</li>
+          <li style="${liStyle}">Tag all patterns clearly. Good tags for us:</li>
+        </ul>
+        <div style="margin:0 0 10px 18px">
+          <span style="${tagStyle}">PDF</span>
+          <span style="${tagStyle}">digital</span>
+          <span style="${tagStyle}">made-to-measure</span>
+          <span style="${tagStyle}">custom-fit</span>
+          <span style="${tagStyle}">tiled PDF</span>
+          <span style="${tagStyle}">beginner</span>
+          <span style="${tagStyle}">knit</span>
+          <span style="${tagStyle}">woven</span>
+          <span style="${tagStyle}">men's</span>
+          <span style="${tagStyle}">women's</span>
+          <span style="${tagStyle}">pants</span>
+        </div>
+
+        <h4 style="${h4Style}">First Reviews — How to Get Them</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}">Seed 5–10 free downloads to active PR members who already write reviews (check their review count). Ask them to try the pattern and review it honestly. Do not ask for positive reviews.</li>
+          <li style="${liStyle}">Ask purchase customers to review on PatternReview when sending the post-purchase email.</li>
+          <li style="${liStyle}">First 10 genuine reviews unlock real discoverability.</li>
+        </ul>
+
+        <h4 style="${h4Style}">Community Engagement (do this before promoting)</h4>
+        <div style="${doStyle}">
+          <strong>Do:</strong> Answer fit questions in discussion threads. "Waist fits but hip is tight" is exactly our domain. Help people understand how MTM solves this — without pitching directly.
+        </div>
+        <div style="${doStyle}">
+          <strong>Do:</strong> Share useful info — measurement tips, how to choose ease, how tiled PDFs work. Position as a knowledgeable community member first.
+        </div>
+        <div style="${dontStyle}">
+          <strong>Don't:</strong> Post promotional content in discussion threads. PR prohibits commercial advertising in posts. Your profile link is the promotion channel.
+        </div>
+        <div style="${dontStyle}">
+          <strong>Don't:</strong> Mass-message members or ask for reviews from your own account. This will get you flagged.
+        </div>
+
+        <h4 style="${h4Style}">Featured Company Opportunity</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}">PatternReview features indie brands in their "Featured Company" blog series.</li>
+          <li style="${liStyle}">Reach out via the contact form once you have 10+ reviews and active community presence.</li>
+          <li style="${liStyle}">Pitch angle: "first made-to-measure digital pattern company on the platform — patterns that generate from your measurements, no grading needed."</li>
+        </ul>
+
+        <h4 style="${h4Style}">Timeline</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}"><strong>Week 1:</strong> Email PR to request listing. Create member account. Write bio.</li>
+          <li style="${liStyle}"><strong>Week 2–4:</strong> Participate in 2–3 fit/measurement discussions. No pitching.</li>
+          <li style="${liStyle}"><strong>Month 2:</strong> Seed pattern to 5–10 active reviewers. Ask for honest reviews.</li>
+          <li style="${liStyle}"><strong>Month 3+:</strong> Pitch Featured Company once reviews are in.</li>
+        </ul>
+      </div>
+
+      <!-- ── Reddit ── -->
+      <div class="adm-roadmap-card" style="${sectionStyle}">
+        <h3 style="${h3Style}">Reddit — r/sewing, r/sewhelp, r/myog</h3>
+        <p style="color:var(--mid);font-size:.75rem;margin:0 0 14px">r/sewing: 1.2M members. High quality, anti-spam culture. Works only if you genuinely participate.</p>
+
+        <div style="${alertStyle}">
+          <strong>Rule of thumb:</strong> 9 helpful comments for every 1 self-promotional post. Never link to the homepage. Link only to specific articles that directly answer the question being asked.
+        </div>
+
+        <h4 style="${h4Style}">What Works</h4>
+        <div style="${doStyle}"><strong>Do:</strong> Answer "how do I measure for a pants pattern" questions with a link to our measurement article. This is useful, not spam.</div>
+        <div style="${doStyle}"><strong>Do:</strong> Post the before/after fit video to r/sewing as original content (TikTok reposts get removed — export without watermark).</div>
+        <div style="${doStyle}"><strong>Do:</strong> "I made a thing" posts with finished garment photos — these perform well. Mention people's patterns in the comments when asked about the pattern.</div>
+        <div style="${dontStyle}"><strong>Don't:</strong> Post "check out our new pattern site" cold promo. Instant downvotes and removal.</div>
+        <div style="${dontStyle}"><strong>Don't:</strong> Use a brand account username. Use a personal-sounding account that happens to be the founder.</div>
+
+        <h4 style="${h4Style}">Best Article Links for Reddit</h4>
+        <ul style="${ulStyle}">
+          <li style="${liStyle}">"How to take your own measurements" — paste in fit help threads</li>
+          <li style="${liStyle}">"How tiled PDFs work" — answer "I'm scared of tiling" questions</li>
+          <li style="${liStyle}">"Why standard sizes don't fit" — link in "RTW never fits me" threads</li>
+        </ul>
+      </div>
+
+    </div>
   `;
 }
 

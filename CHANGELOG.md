@@ -7,6 +7,15 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Added
+- **Daily Cloudflare Pages deploy cron** (`cron-deploy.yml`) — triggers a full site rebuild at
+  7:15 AM UTC daily so future-dated articles go live on their `datePublished` date without a
+  manual push. Requires `CF_DEPLOY_HOOK` GitHub secret (Cloudflare Pages → Settings → Deploy
+  hooks → "daily-drip"). Runs 15 min after the sitemap cron so the sitemap is already fresh.
+- **PatternReview.com playbook** in admin panel Content → Playbooks tab — step-by-step guide
+  covering account setup, pattern listing, first review strategy, community engagement dos/don'ts,
+  Featured Company pitch angle, and timeline. Reddit playbook also included.
+- **Admin panel Playbooks tab** — new sub-tab alongside Articles/Pins/Videos/Checklist in the
+  Content section. Renders `renderPlaybooks()` with all community channel guides.
 - **SEO descriptions for 7 missing garment variant IDs** — `waffle-knit-tee`, `boxy-camp-shirt`,
   `oxford-shirt`, `keepall-duffel`, `keepall-35`, `keepall-45`, `keepall-50` added to
   `src/garments/seo-descriptions.js`. Fixes build warnings and ensures pattern pages for these
