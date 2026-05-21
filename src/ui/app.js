@@ -2590,6 +2590,12 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
   const hidden = await getHiddenGarments().catch(() => []);
   _hiddenGarments = new Set(hidden);
   if (currentStep === 1) renderStep1();
+
+  // Update visible garment count (total minus admin-hidden garments)
+  const visibleCount = Object.keys(GARMENTS).length - _hiddenGarments.size;
+  document.querySelectorAll('.js-pattern-count').forEach(el => {
+    el.textContent = visibleCount;
+  });
 })();
 
 // Pattern generation counter — fetch once and display
