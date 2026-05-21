@@ -843,6 +843,17 @@ const SEO_DESCRIPTIONS = {
       { q: 'What fabric is best for a carry-on duffel?', a: 'Waxed canvas or ballistic nylon for durability. Either handles the abrasion of overhead bins and checked baggage carousels. Add a foam interfacing to the body and end panels to maintain the arch shape under load.' },
     ],
   },
+
+  'chest-rig': {
+    metaDescription: 'Sew a custom MYOG chest rig and plate carrier. Parametric pattern for AR-15 magazine pouches, SAPI plate pockets, padded shoulder straps, and MOLLE/PALS webbing panel. Tiled PDF sewing pattern.',
+    pageIntro: 'A fully parametric MYOG chest rig and plate carrier pattern. Configure magazine capacity (3, 4, or 6 AR-15 30-round mags), SAPI plate pockets (small through XL), MOLLE webbing rows, and a padded H-harness system. Built to milspec geometry: PALS grid at 1.5" spacing, SAPI clearances, and hard armor gusset depth.',
+    faq: [
+      { q: 'What fabric should I use for a chest rig?', a: '500D Cordura nylon is the standard for modern tactical gear. It is durable, PU-coated for water resistance, and light enough for comfortable wear. Use 1000D Cordura if you want maximum abrasion resistance and do not mind the extra weight.' },
+      { q: 'What is MOLLE/PALS webbing?', a: 'MOLLE (Modular Lightweight Load-carrying Equipment) uses a grid of 1-inch nylon webbing strips sewn in rows with 1.5-inch bartack spacing. Compatible pouches weave through the webbing rows to attach. This pattern generates a panel with the correct grid dimensions and marks all bartack positions.' },
+      { q: 'Will this fit standard SAPI plates?', a: 'Yes. The plate pocket is sized to SAPI specifications for small (7¼ × 9½"), medium (8¾ × 11¼"), large (9½ × 12¼"), and XL (10½ × 13¼") plates with 3/8" clearance per side and a 1.25" gusset depth to accommodate hard armor up to about 1.1" thick.' },
+      { q: 'What thread should I use?', a: 'Use bonded nylon thread TEX 70 or heavier for all seams and bartacks. Standard polyester thread will not hold under the load of plates and magazines. A denim 100/16 needle handles multiple layers of Cordura without skipped stitches.' },
+    ],
+  },
 };
 
 export default SEO_DESCRIPTIONS;

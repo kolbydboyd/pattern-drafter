@@ -72,6 +72,7 @@ import kidsShorts          from './kids-shorts.js';
 import kidsDress           from './kids-dress.js';
 import motoJacket         from './moto-jacket.js';
 import keepallDuffel      from './keepall-duffel.js';
+import chestRig           from './chest-rig.js';
 
 const GARMENTS = {
   'cargo-shorts':         cargoShorts,
@@ -141,6 +142,7 @@ const GARMENTS = {
   'kids-dress':             kidsDress,
   'moto-jacket':            motoJacket,
   'keepall-duffel':         keepallDuffel,
+  'chest-rig':              chestRig,
 };
 
 // ── Expand style variants into standalone registry entries ────────────────────

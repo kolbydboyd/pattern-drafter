@@ -430,6 +430,46 @@ const SVGS = {
   <circle cx="24" cy="110" r="2" opacity="0.5"/>
   <circle cx="136" cy="110" r="2" opacity="0.5"/>`),
 
+  'chest-rig': svg(`
+  <!-- front panel -->
+  <rect x="18" y="50" width="124" height="108" rx="3"/>
+  <!-- 3 mag pouches along bottom -->
+  <rect x="26" y="122" width="34" height="30" rx="2"/>
+  <rect x="63" y="122" width="34" height="30" rx="2"/>
+  <rect x="100" y="122" width="34" height="30" rx="2"/>
+  <!-- bungee line across pouch tops -->
+  <line x1="26" y1="130" x2="60" y2="130"/>
+  <line x1="63" y1="130" x2="97" y2="130"/>
+  <line x1="100" y1="130" x2="134" y2="130"/>
+  <!-- 2 MOLLE webbing rows -->
+  <line x1="22" y1="90" x2="138" y2="90"/>
+  <line x1="22" y1="104" x2="138" y2="104"/>
+  <!-- MOLLE bartack tick marks — row 1 -->
+  <line x1="34" y1="87" x2="34" y2="93"/>
+  <line x1="49" y1="87" x2="49" y2="93"/>
+  <line x1="64" y1="87" x2="64" y2="93"/>
+  <line x1="79" y1="87" x2="79" y2="93"/>
+  <line x1="94" y1="87" x2="94" y2="93"/>
+  <line x1="109" y1="87" x2="109" y2="93"/>
+  <line x1="124" y1="87" x2="124" y2="93"/>
+  <!-- MOLLE bartack tick marks — row 2 -->
+  <line x1="34" y1="101" x2="34" y2="107"/>
+  <line x1="49" y1="101" x2="49" y2="107"/>
+  <line x1="64" y1="101" x2="64" y2="107"/>
+  <line x1="79" y1="101" x2="79" y2="107"/>
+  <line x1="94" y1="101" x2="94" y2="107"/>
+  <line x1="109" y1="101" x2="109" y2="107"/>
+  <line x1="124" y1="101" x2="124" y2="107"/>
+  <!-- shoulder straps curving upward from top corners -->
+  <path d="M28,50 Q22,28 36,14"/>
+  <path d="M132,50 Q138,28 124,14"/>
+  <!-- shoulder buckles -->
+  <rect x="29" y="10" width="14" height="6" rx="1"/>
+  <rect x="117" y="10" width="14" height="6" rx="1"/>
+  <!-- D-ring circles at panel top corners -->
+  <circle cx="28" cy="50" r="3"/>
+  <circle cx="132" cy="50" r="3"/>`),
+
   'moto-jacket': svg(`
   <path d="M66,38 L72,50 L80,44 L88,50 L94,38"/>
   <path d="M68,38 Q80,30 92,38"/>

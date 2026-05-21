@@ -93,7 +93,8 @@ const GARMENT_CATEGORIES = [
   { id:'skirts',      label:'Skirts',      desc:'Slip, A-line, pencil, mini & circle skirts',   ids:['slip-skirt-w','a-line-skirt-w','pencil-skirt-w','mini-skirt-w','micro-skirt-w','maxi-skirt-w','maxi-skirt-elastic-w','maxi-skirt-zip-w','circle-skirt-w','mini-circle-skirt-w','midi-circle-skirt-w'] },
   { id:'dresses',     label:'Dresses',     desc:'Shirt, wrap, slip, T-shirt & A-line dresses', ids:['shirt-dress-w','linen-shirt-dress-w','wrap-dress-w','maxi-wrap-dress-w','tshirt-dress-w','long-sleeve-tee-dress-w','maxi-tee-dress-w','slip-dress-w','maxi-slip-dress-w','a-line-dress-w','midi-aline-dress-w','trapeze-dress-w','sundress-w','maxi-sundress-w','tiered-sundress-w'] },
   { id:'outerwear',   label:'Outerwear',   desc:'Jackets & coats',                        ids:['crop-jacket','denim-jacket','lightweight-denim-jacket','moto-jacket','cafe-racer-jacket','perfecto-jacket','chore-coat','linen-overshirt','canvas-work-coat','athletic-formal-jacket'] },
-  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties, bags & more',           ids:['apron','bow-tie','tote-bag','market-tote','beach-tote','keepall-duffel','keepall-35','keepall-45','keepall-50','scrunchie','mini-scrunchie','oversized-scrunchie','dog-bandana','zippered-pouch','makeup-bag','pencil-case'] },
+  { id:'gear',        label:'Gear',        desc:'Bags, carry systems & tactical accessories', ids:['tote-bag','market-tote','beach-tote','keepall-duffel','keepall-35','keepall-45','keepall-50','zippered-pouch','makeup-bag','pencil-case','chest-rig'] },
+  { id:'accessories', label:'Accessories', desc:'Aprons, bow ties & wearable accessories',  ids:['apron','bow-tie','scrunchie','mini-scrunchie','oversized-scrunchie','dog-bandana'] },
   { id:'children',   label:'Children',   desc:"Kids T-shirts, joggers, leggings, dresses & shorts (sizes 2T\u201314)", ids:['kids-tee','kids-joggers','kids-leggings','kids-shorts','kids-dress'] },
 ];
 
