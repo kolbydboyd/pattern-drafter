@@ -202,14 +202,15 @@ function renderPocketPlacement(piece, ox, oy) {
     const slashEndX = slashEndPt ? slashEndPt.x : sw;
     const sx1 = (ox + sw - 3.5) * DPI,   sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI,  sy2 = (oy + 6) * DPI;
-    const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 9.5) * DPI;
-    // Bag outline
-    svg += `<path d="M ${sx1} ${sy1} L ${bagL} ${sy1} L ${bagL} ${bagB} Q ${sx2} ${bagB} ${sx2} ${sy2} Z"
+    const swX = (ox + sw) * DPI;                       // side seam x at waist level
+    const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 12) * DPI;
+    // Bag outline: bag top-left → side seam at waist → slash exit → scoop → close up left edge
+    svg += `<path d="M ${bagL} ${sy1} L ${swX} ${sy1} L ${sx2} ${sy2} Q ${sx2} ${bagB} ${bagL} ${bagB} Z"
       stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     // Slash opening (solid)
     svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
       stroke="${PKT_COL}" stroke-width="1"/>`;
-    // Drill marks at key corners
+    // Drill marks at slash opening endpoints
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
     svg += drillMark(bagL, sy1);
