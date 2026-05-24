@@ -11,6 +11,12 @@ let _fallback    = {};  // English base — always loaded
 let _garmentMsgs = {};  // current locale garment strings
 let _measureMsgs = {};  // current locale measurement strings
 
+// Glob maps registered at build time so Vite/Rollup bundles all locale chunks.
+// Dynamic template-literal import() alone is not statically analyzable by Rollup.
+const _uiGlob      = import.meta.glob('../locales/*/ui.js');
+const _measGlob    = import.meta.glob('../locales/*/measurements.js');
+const _garmentGlob = import.meta.glob('../locales/*/garments.js');
+
 export function getLocale() { return _locale; }
 
 export function setLocale(locale) {
@@ -67,21 +73,24 @@ export async function loadLocale(locale) {
   _fallback    = enUiMod.default;
   const enMeas = enMeasMod.default;
 
+  const loadGlob = (globMap, loc, file) => {
+    const key = `../locales/${loc}/${file}`;
+    return globMap[key]
+      ? globMap[key]().then(m => m.default).catch(() => ({}))
+      : Promise.resolve({});
+  };
+
   if (_locale === 'en') {
     _messages    = _fallback;
     _measureMsgs = enMeas;
-    _garmentMsgs = {};
-    try { const m = await import('../locales/en/garments.js'); _garmentMsgs = m.default; } catch {}
+    _garmentMsgs = await loadGlob(_garmentGlob, 'en', 'garments.js');
     return;
   }
 
-  // Load locale-specific files gracefully (empty obj on missing file)
-  const load = path => import(path).then(m => m.default).catch(() => ({}));
-
   const [locUi, locMeas, locGarments] = await Promise.all([
-    load(`../locales/${_locale}/ui.js`),
-    load(`../locales/${_locale}/measurements.js`),
-    load(`../locales/${_locale}/garments.js`),
+    loadGlob(_uiGlob,      _locale, 'ui.js'),
+    loadGlob(_measGlob,    _locale, 'measurements.js'),
+    loadGlob(_garmentGlob, _locale, 'garments.js'),
   ]);
 
   _messages    = { ..._fallback,  ...locUi    };

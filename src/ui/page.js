@@ -69,7 +69,6 @@ function _updateBanner(user) {
   if (!_promoBanner) return;
   _promoBanner.style.display = user ? 'none' : '';
 }
-_updateBanner(getCurrentUser());
 onUserChange(_updateBanner);
 
 document.getElementById('theme-btn-m')?.addEventListener('click', () => {
