@@ -653,13 +653,16 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
 export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
   const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
 
-  // CW polygon: waist to slash start → slash diagonal to slash exit →
-  // scoop curve to bottom-left → left side up
+  // Full D-shape: waist across full width → side seam down to slash exit →
+  // scoop curve to bottom-left → left side up.
+  // The slash opening is marked by notches at slashStartX and (bagWidth, slashDepth);
+  // it is a seam on the backing, not a cut edge on the bag.
   const slashStartX = bagWidth - slashInset;
   const polygon = [
     { x: 0, y: 0 },                       // top-left (waist, inner edge)
-    { x: slashStartX, y: 0 },             // slash start on waist
-    ...scoopPts,                           // slash exit then scoop to bottom-left
+    { x: bagWidth, y: 0 },                // top-right (waist at side seam)
+    { x: bagWidth, y: slashDepth },        // side seam down to slash exit level
+    ...scoopPts.slice(1),                  // scoop from slash exit to bottom-left
     // closes back to top-left
   ];
   const width = bagWidth;
@@ -872,22 +875,16 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
  * bottom edge follows the bag scoop curve.
  */
 export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, sa = 0.625, instruction = '' } = {}) {
-  // Curved opening edge from (bagWidth - scoopInset, 0) to (bagWidth, scoopDepth)
-  // CP2 at same y as endpoint → horizontal tangent at side seam (no slant at junction)
   const sx = bagWidth - scoopInset;
-  const openingPts = sampleBezier(
-    { x: sx, y: 0 },
-    { x: sx, y: scoopDepth * 0.45 },
-    { x: bagWidth - scoopInset * 0.3, y: scoopDepth },
-    { x: bagWidth, y: scoopDepth },
-    12,
-  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
-
+  // Full D-shape: waist across full width → side seam down to scoop exit →
+  // scoop curve to bottom-left. The scoop opening is on the backing only;
+  // notches mark its position on the bag for alignment.
   const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
 
   const polygon = [
     { x: 0, y: 0 },
-    ...openingPts,
+    { x: bagWidth, y: 0 },
+    { x: bagWidth, y: scoopDepth },
     ...bottomPts.slice(1),
   ];
 
@@ -899,9 +896,6 @@ export function buildScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth
     width: bagWidth, height: bagDepth,
     type: 'bodice', isCutOnFold: false,
     dimensions: { width: bagWidth, height: bagDepth },
-    marks: [
-      { type: 'fold', axis: 'h', position: scoopDepth },
-    ],
     notches: [
       { x: sx,       y: 0,          angle: 180, label: 'opening start' },
       { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening end'   },
@@ -1004,31 +998,15 @@ export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, 
  */
 export function buildSquareScoopPocketBag({ bagWidth = 7, scoopInset = 3.5, scoopDepth = 6, bagDepth = 11.5, cornerRadius = 0.75, sa = 0.625, instruction = '' } = {}) {
   const sx = bagWidth - scoopInset;
-  const r = Math.min(cornerRadius, scoopInset, scoopDepth);
-  const k = 0.5523;
-
-  // L-shaped opening edge matching clipPanelAtSquareScoop
-  const arcPts = sampleBezier(
-    { x: sx, y: scoopDepth - r },
-    { x: sx, y: scoopDepth - r + r * k },
-    { x: sx + r - r * k, y: scoopDepth },
-    { x: sx + r, y: scoopDepth },
-    6,
-  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
-
-  const openingPts = [
-    { x: sx, y: 0 },
-    { x: sx, y: scoopDepth - r },
-    ...arcPts.slice(1, -1),
-    { x: sx + r, y: scoopDepth },
-    { x: bagWidth, y: scoopDepth },
-  ];
-
+  // Full D-shape: waist across full width → side seam down to scoop exit →
+  // scoop curve to bottom-left. The L-shaped opening is on the backing only;
+  // notches mark its position on the bag for alignment.
   const bottomPts = slantPocketScoop(bagWidth, scoopDepth, bagDepth);
 
   const polygon = [
     { x: 0, y: 0 },
-    ...openingPts,
+    { x: bagWidth, y: 0 },
+    { x: bagWidth, y: scoopDepth },
     ...bottomPts.slice(1),
   ];
 
