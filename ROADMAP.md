@@ -1,6 +1,6 @@
 # People's Patterns — Roadmap
 
-_Last updated: 2026-05-15 · v0.7.0_
+_Last updated: 2026-05-21 · v0.7.0_
 
 ---
 
@@ -29,7 +29,8 @@ manufacturer has this. It becomes a licensable asset.
 
 ## What's Done
 
-- [x] 53 garment base modules built and code-complete (52 existing + 1 added 2026-04-14: polo-shirt) — expands to ~106 catalog cards via variants (added camp-shirt-revere 2026-04-20, waffle-knit-tee 2026-04-20)
+- [x] 54 garment base modules built and code-complete (added chest-rig 2026-05-21: MYOG chest rig / plate carrier with AR-15 mag pouches, SAPI plate pockets, MOLLE webbing, padded straps) — expands to ~107+ catalog cards via variants
+- [x] 53 garment base modules (53 existing + 1 added 2026-04-14: polo-shirt) — expands to ~106 catalog cards via variants (added camp-shirt-revere 2026-04-20, waffle-knit-tee 2026-04-20)
 - [x] Children's patterns — 5 garments covering sizes 2T–14 with child-appropriate ease, elastic waistbands, and growth hem tucks. Children filter tab on /patterns page. Children category in wizard.
 - [x] Pattern generation engine working
 - [x] Print layout with tiling, scale verification, tapered tiling (panel pieces skip blank columns in narrow rows), and US Legal paper size support
