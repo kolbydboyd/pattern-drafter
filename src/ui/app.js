@@ -2440,7 +2440,6 @@ const _promoBanner = document.getElementById('promo-banner');
 function _updatePromoBanner(user) {
   if (_promoBanner) _promoBanner.style.display = user ? 'none' : '';
 }
-_updatePromoBanner(getCurrentUser());
 onUserChange(_updatePromoBanner);
 
 // Track admin state so hidden patterns are visible to the admin
