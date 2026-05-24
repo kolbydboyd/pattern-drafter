@@ -2138,6 +2138,15 @@ function buildLargeFormatPreamble(garment, pieces, materials, instructions, meas
   </div>`;
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+/** Inject the .lp class into every top-level .page div in an HTML snippet.
+ * Used for A0 preamble pages so they print at letter size (8.5×11) while
+ * the pattern tile pages in the same document remain at A0. */
+function addLetterPageClass(html) {
+  return html.replace(/<div class="page /g, '<div class="page lp ');
+}
+
 // ── Shared print CSS ───────────────────────────────────────────────────────
 
 function buildCSS(PW, PH) {
@@ -2147,6 +2156,7 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
 
 @page           { size:${PW}in ${PH}in; margin:0; }
 @page landscape-page { size:${PH}in ${PW}in; margin:0; }
+@page letter-page { size:8.5in 11in; margin:0; }
 
 .page {
   width:${PW}in; height:${PH}in;
@@ -2157,6 +2167,8 @@ body { background:#777; font-family:'IBM Plex Mono',monospace; }
   page-break-after:always;
   break-after:page;
 }
+/* Letter-sized preamble pages inside an A0 document */
+.lp { width:8.5in !important; height:11in !important; min-height:11in !important; page:letter-page; }
 
 /* ── Cover ── */
 .cover-page { padding:0.8in 1in 0.5in; }
@@ -2808,8 +2820,18 @@ ${body}
   }
 
   // ── Preamble pages ──────────────────────────────────────────────────────
+  // For A0/large-format: preamble pages are US Letter (8.5×11) so customers
+  // can print them at home; the tile pages that follow remain A0 for the
+  // plotter/copy shop. CSS named pages (@page letter-page) handle the
+  // mixed page sizes within a single PDF.
   const preamblePages = isLargeFormat
-    ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
+    ? addLetterPageClass(
+        buildCoverPage(garment, measurements, opts)
+        + buildScalePage(pieces, PW, PH, OV)
+        + buildMaterialsPage(materials, instructions)
+        + buildGlossaryPage(materials, instructions)
+        + buildInstructionsPage(instructions, 11)
+      )
     : isTabloid
     ? buildTabloidPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)
