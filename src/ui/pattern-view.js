@@ -283,13 +283,14 @@ export function renderPanelSVG(piece) {
     const sw = waistWidth || width;
     const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
     const slashEndX = slashEndPt ? slashEndPt.x : sw;
-    const slashX2 = ox + sc(slashEndX);    // side seam at slash exit
+    const slashX1 = ox + sc(sw - 3.5);     // slash start on waist edge
+    const slashX2 = ox + sc(slashEndX);    // slash exit on side seam
     const slashY2 = oy + sc(6);
-    const swX = ox + sc(sw);               // side seam x at waist level
-    const bagL = ox + sc(sw - 7);          // left edge of bag
+    const bagL = ox + sc(sw - 7);          // inner left edge of bag
     const bagB = oy + sc(12);              // bottom of bag (bag depth = 12)
-    // Bag outline: bag top-left → side seam at waist → slash exit → scoop → close up left edge
-    pocketSVG += `<path d="M ${bagL} ${oy} L ${swX} ${oy} L ${slashX2} ${slashY2} Q ${slashX2} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+    // Bag outline: inner-left → slash start → slash diagonal → scoop → close up left edge
+    // Right boundary IS the slash diagonal, so it aligns exactly with the front panel cut.
+    pocketSVG += `<path d="M ${bagL} ${oy} L ${slashX1} ${oy} L ${slashX2} ${slashY2} Q ${slashX2} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
