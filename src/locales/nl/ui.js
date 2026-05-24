@@ -84,7 +84,7 @@ export default {
 
   // ── Garment categories ───────────────────────────────────────────────────────
   'cat.pants.label':      'Broeken',
-  'cat.pants.desc':       'Jeans, chino\'s, joggingbroeken en meer',
+  'cat.pants.desc':       "Jeans, chino\'s, joggingbroeken en meer",
   'cat.shorts.label':     'Shorts',
   'cat.shorts.desc':      'Casual, sport en geklede shorts',
   'cat.tops.label':       'Tops',
@@ -257,7 +257,7 @@ export default {
   'pdf.scale.inches':       'Moet precies 2 × 2 in zijn',
   'pdf.scale.cm':           'Moet precies 5 × 5 cm zijn',
   'pdf.tile.assembly':      'Vel-montageplattegrond',
-  'pdf.drafted':            'Ontworpen op {date} · People's Patterns',
+  'pdf.drafted':            "Ontworpen op {date} · People's Patterns",
   'pdf.paper.letter':       'US Letter',
   'pdf.paper.legal':        'US Legal',
   'pdf.paper.a4':           'A4',

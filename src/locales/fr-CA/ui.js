@@ -22,8 +22,8 @@ export default {
   'promo.cta':            'Commencer →',
 
   // ── Landing hero ─────────────────────────────────────────────────────────────
-  'hero.h1':              'Des patrons de couture qui s'adaptent vraiment à ton corps',
-  'hero.sub':             'Entre 5 mensurations. Obtiens un patron PDF sur mesure en quelques secondes. Pas de tableaux de tailles. Pas de modifications. Commence à coudre aujourd'hui.',
+  'hero.h1':              "Des patrons de couture qui s'adaptent vraiment à ton corps",
+  'hero.sub':             "Entre 5 mensurations. Obtiens un patron PDF sur mesure en quelques secondes. Pas de tableaux de tailles. Pas de modifications. Commence à coudre aujourd'hui.",
   'hero.cta':             'Obtenir mon patron',
   'hero.sub-cta':         'Prend 5 minutes · Téléchargement instantané',
   'hero.proof-line':      '{count} patrons · Tous les corps · Parfait dès la première fois',
@@ -35,9 +35,9 @@ export default {
   'proof.attr1':          'Testeuse taille 2X. Première réalisation.',
   'proof.q2':             '"À 1,57 m je dois toujours tout modifier. Ces patrons ont bien ajusté dès la première fois. Aucun bricolage."',
   'proof.attr2':          'Petite couturière. 1,57 m.',
-  'proof.q3':             '"Mon deuxième projet de couture et le pantalon s'adapte parfaitement à mon corps. Les instructions l'ont rendu réalisable."',
+  'proof.q3':             '"Mon deuxième projet de couture et le pantalon s\'adapte parfaitement à mon corps. Les instructions l\'ont rendu réalisable."',
   'proof.attr3':          'Couturière débutante.',
-  'proof.q4':             '"Grande et avec des courbes. Chaque entreprise de patrons ignore l'un ou l'autre. Celle-ci a juste pris mes mensurations."',
+  'proof.q4':             '"Grande et avec des courbes. Chaque entreprise de patrons ignore l\'un ou l\'autre. Celle-ci a juste pris mes mensurations."',
   'proof.attr4':          "1,80 m. Curviligne selon sa propre description.",
 
   // ── Problem section ───────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ export default {
   'how.step1.title':      'Choisis un vêtement',
   'how.step1.desc':       'Choisis parmi {count} styles du quotidien : hauts, pantalons, robes, jupes et plus.',
   'how.step2.title':      'Entre 5 mensurations',
-  'how.step2.desc':       'Utilise un mètre ruban et suis le guide à l'écran. Prend environ 5 minutes.',
+  'how.step2.desc':       "Utilise un mètre ruban et suis le guide à l'écran. Prend environ 5 minutes.",
   'how.step3.title':      'Télécharge et couds',
   'how.step3.desc':       'Ton PDF sur mesure apparaît instantanément. Imprime à la maison, découpe et couds le même jour.',
   'how.cta':              'Obtenir mon patron',
@@ -65,15 +65,15 @@ export default {
 
   // ── Benefits ─────────────────────────────────────────────────────────────────
   'benefits.h2':          "Pourquoi les couturières choisissent People's Patterns",
-  'benefits.1':           'Créé à partir de tes vraies mensurations, pas d'un tableau de tailles générique',
+  'benefits.1':           "Créé à partir de tes vraies mensurations, pas d'un tableau de tailles générique",
   'benefits.2':           'Ajustement parfait dès la première fois, pour tous les corps',
   'benefits.3':           'Livraison instantanée. Prêt en secondes',
   'benefits.4':           'Instructions claires pour débutantes et listes de matériaux incluses',
-  'benefits.5':           'Fonctionne avec n'importe quel tissu que tu as déjà',
+  'benefits.5':           "Fonctionne avec n'importe quel tissu que tu as déjà",
   'benefits.6':           'Plus de temps ni de tissu gaspillés en modifications',
 
   // ── Guarantee ─────────────────────────────────────────────────────────────────
-  'guarantee.badge':      'Garantie d'ajustement 100%',
+  'guarantee.badge':      "Garantie d'ajustement 100%",
   'guarantee.text':       'Si ton patron ne te va pas après avoir suivi les instructions, on le refera gratuitement.',
   'guarantee.fine':       'Couvre la confection du patron et les instructions. Ne couvre pas les mensurations incorrectes ni les erreurs de couture.',
 
@@ -93,7 +93,7 @@ export default {
   'cat.skirts.desc':      'Jupe nuisette, évasée, droite, mini et circulaire',
   'cat.dresses.label':    'Robes',
   'cat.dresses.desc':     'Robe chemisier, portefeuille, nuisette et t-shirt',
-  'cat.outerwear.label':  'Vêtements d'extérieur',
+  'cat.outerwear.label':  "Vêtements d'extérieur",
   'cat.outerwear.desc':   'Vestes et manteaux',
   'cat.accessories.label':'Accessoires',
   'cat.accessories.desc': 'Tabliers, nœuds papillon, sacs et plus',
@@ -143,7 +143,7 @@ export default {
   'wiz.s4.tab.pieces':    'Pièces du patron',
   'wiz.s4.tab.materials': 'Matériaux',
   'wiz.s4.tab.instructions': 'Instructions',
-  'wiz.s4.print':         'Mise en page d'impression',
+  'wiz.s4.print':         "Mise en page d'impression",
 
   // ── Stepper labels ────────────────────────────────────────────────────────────
   'step.choose':          ' Choisir',
@@ -166,7 +166,7 @@ export default {
   'btn.download-free':    'Télécharger gratuitement (1 crédit)',
   'btn.join':             'Rejoindre',
   'btn.done':             'Terminé',
-  'btn.yes-please':       'Oui, s'il te plaît',
+  'btn.yes-please':       "Oui, s'il te plaît",
   'btn.maybe-later':      'Peut-être plus tard',
   'btn.save':             'Sauvegarder',
 
@@ -178,16 +178,16 @@ export default {
   'msg.a0-downloading':   'Tes fichiers A0 + projecteur se téléchargent aussi. Aucun assemblage requis.',
   'msg.profile-saved':    'Ton profil est sauvegardé. Reviens quand tu veux.',
   'msg.confirm-reset':    'Réinitialiser toutes les mensurations et options aux valeurs par défaut?',
-  'msg.allow-popups':     'Autorise les fenêtres contextuelles pour ouvrir la mise en page d'impression.',
+  'msg.allow-popups':     "Autorise les fenêtres contextuelles pour ouvrir la mise en page d'impression.",
 
   // ── Watermark / purchase banners ──────────────────────────────────────────────
   'wm.free-first':        'Ton premier patron est gratuit. Aucune carte de crédit requise.',
   'wm.create-dl':         'Créer un compte gratuit et télécharger',
-  'wm.free-credit':       'Tu as 1 téléchargement de patron gratuit. L'utiliser pour {name}?',
+  'wm.free-credit':       "Tu as 1 téléchargement de patron gratuit. L'utiliser pour {name}?",
   'wm.purchase':          'Achète {name} pour télécharger le PDF haute résolution ({price})',
   'wm.a0-label':          'Ajouter les fichiers A0 / Projecteur / Reprographie (+4$) · sans assemblage',
   'wm.redeem-create':     'Échange du code pour {name}. Crée un compte gratuit pour télécharger.',
-  'wm.redeem-ready':      'Ton code débloque un {name} sur mesure. Gratuit avec ton code d'échange.',
+  'wm.redeem-ready':      "Ton code débloque un {name} sur mesure. Gratuit avec ton code d'échange.",
 
   // ── Free signup modal ────────────────────────────────────────────────────────
   'signup.body':          'Crée un compte gratuit pour télécharger. Ton premier patron est gratuit, aucune carte requise.',
@@ -206,8 +206,8 @@ export default {
   'auth.header.title':             "Bienvenue chez People's Patterns",
   'auth.benefits.heading':         'Sauvegarde tes mensurations et obtiens:',
   'auth.benefits.0':               'Profils de mensurations : entre une fois, utilise toujours',
-  'auth.benefits.1':               'Historique d'achats : retélécharge à tout moment',
-  'auth.benefits.2':               'Historique d'ajustement : suis ce qui fonctionne pour ton corps',
+  'auth.benefits.1':               "Historique d'achats : retélécharge à tout moment",
+  'auth.benefits.2':               "Historique d'ajustement : suis ce qui fonctionne pour ton corps",
   'auth.benefits.3':               'Notifications pour les nouveaux patrons',
   'auth.login.tab':                'Connexion',
   'auth.signup.tab':               'Inscription',
@@ -245,19 +245,19 @@ export default {
   'pdf.cover.measurements': 'Mensurations corporelles',
   'pdf.cover.options':      'Options du patron',
   'pdf.cover.how-to':       'Comment assembler',
-  'pdf.cover.assem1':       'Imprimer à <strong>100% de l'échelle</strong>. Ne jamais utiliser "ajuster à la page".',
+  'pdf.cover.assem1':       'Imprimer à <strong>100% de l\'échelle</strong>. Ne jamais utiliser "ajuster à la page".',
   'pdf.cover.assem2':       'Découper chaque feuille le long du trait de coupe gris.',
   'pdf.cover.assem3':       'Aligner les marques ▲ sur les bords des feuilles.',
-  'pdf.cover.assem4':       'Chevaucher les feuilles d'un carreau et coller du côté imprimé.',
+  'pdf.cover.assem4':       "Chevaucher les feuilles d'un carreau et coller du côté imprimé.",
   'pdf.cover.assem5':       'Découper les pièces du patron le long des lignes de coupe continues.',
   'pdf.cover.assem6':       'Reporter tous les crans, lignes de droit fil et étiquettes sur le tissu.',
   'pdf.cover.sa-note':      'La valeur de couture est incluse sur tous les bords. Voir les pièces du patron pour les valeurs par bord.',
-  'pdf.scale.title':        'Page de vérification de l'échelle',
-  'pdf.scale.check':        'Avant d'imprimer, vérifie que ce carré mesure exactement',
+  'pdf.scale.title':        "Page de vérification de l'échelle",
+  'pdf.scale.check':        "Avant d'imprimer, vérifie que ce carré mesure exactement",
   'pdf.scale.inches':       'Doit mesurer exactement 2 × 2 po',
   'pdf.scale.cm':           'Doit mesurer exactement 5 × 5 cm',
-  'pdf.tile.assembly':      'Plan d'assemblage des feuilles',
-  'pdf.drafted':            'Créé le {date} · People's Patterns',
+  'pdf.tile.assembly':      "Plan d'assemblage des feuilles",
+  'pdf.drafted':            "Créé le {date} · People's Patterns",
   'pdf.paper.letter':       'Lettre US',
   'pdf.paper.legal':        'Légal US',
   'pdf.paper.a4':           'A4',
@@ -269,7 +269,7 @@ export default {
   'pdf.grain-line':         'droit fil',
 
   // ── Fit library ───────────────────────────────────────────────────────────────
-  'fit.could-not-compute':  'Impossible de calculer l'aisance.',
+  'fit.could-not-compute':  "Impossible de calculer l'aisance.",
   'fit.choose-size':        '- choisir la taille -',
   'fit.no-community':       'Aucune soumission de la communauté pour ce type de vêtement. Sois la première à contribuer.',
   'fit.community-error':    'Impossible de charger les données de la communauté.',
@@ -288,8 +288,8 @@ export default {
   'account.sign-out':       'Déconnexion',
 
   // ── Hints ─────────────────────────────────────────────────────────────────────
-  'hint.petite':            'Conseil pour les petites tailles. Ton buste est plus court que la moyenne. Ajoute ta mensuration taille-à-aisselle pour un placement précis de l'emmanchure.',
-  'hint.ease-up':           'Avec tes mensurations, envisage de monter d'un niveau d'aisance. Les grandes circonférences nécessitent proportionnellement plus d'aisance pour bouger confortablement.',
+  'hint.petite':            "Conseil pour les petites tailles. Ton buste est plus court que la moyenne. Ajoute ta mensuration taille-à-aisselle pour un placement précis de l'emmanchure.",
+  'hint.ease-up':           "Avec tes mensurations, envisage de monter d'un niveau d'aisance. Les grandes circonférences nécessitent proportionnellement plus d'aisance pour bouger confortablement.",
 
   // ── Pricing ───────────────────────────────────────────────────────────────────
   'pricing.h1':           'Des prix simples et transparents',
@@ -310,19 +310,19 @@ export default {
 
   // ── 404 ───────────────────────────────────────────────────────────────────────
   '404.h1':               'Page introuvable',
-  '404.body':             'Nous n'avons pas trouvé cette page.',
+  '404.body':             "Nous n'avons pas trouvé cette page.",
   '404.cta':              'Voir les patrons',
 
   // ── Email ─────────────────────────────────────────────────────────────────────
   'email.welcome.subject':     "Bienvenue chez People's Patterns",
   'email.welcome.preheader':   'Des patrons sur mesure à partir de 9$. Voici comment commencer.',
   'email.purchase.subject':    'Ton patron {garment} est prêt',
-  'email.fit-feedback.subject':'Comment t'a ajusté ton {garment}?',
+  'email.fit-feedback.subject':"Comment t'a ajusté ton {garment}?",
   'email.password-reset.subject': "Réinitialise ton mot de passe People's Patterns",
 
   // ── Error codes ───────────────────────────────────────────────────────────────
   'err.RATE_LIMIT':            'Trop de requêtes. Réessaie plus tard.',
-  'err.GENERAL':               'Une erreur s'est produite. Réessaie.',
+  'err.GENERAL':               "Une erreur s'est produite. Réessaie.",
   'err.EMAIL_EXISTS':          'Un compte avec ce courriel existe déjà. Connecte-toi.',
   'err.ALREADY_APPLIED':       'Tu as déjà une demande en attente.',
 };

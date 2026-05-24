@@ -257,7 +257,7 @@ export default {
   'pdf.scale.inches':       'Muss genau 2 × 2 Zoll sein',
   'pdf.scale.cm':           'Muss genau 5 × 5 cm sein',
   'pdf.tile.assembly':      'Seitenmontagekarte',
-  'pdf.drafted':            'Erstellt am {date} · People's Patterns',
+  'pdf.drafted':            "Erstellt am {date} · People's Patterns",
   'pdf.paper.letter':       'US Letter',
   'pdf.paper.legal':        'US Legal',
   'pdf.paper.a4':           'A4',
