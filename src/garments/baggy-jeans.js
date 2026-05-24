@@ -173,8 +173,8 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 9.5, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Visible pocket front' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 Pocket back (against body)' }));
     }
     if (opts.frontPocket === 'side') {
       pieces.push(buildSideSeamPocketBag({
@@ -182,7 +182,7 @@ export default {
         instruction: `Cut 4 (2 per side) · ${fmtInches(7)} wide × ${fmtInches(9)} deep · D-shaped · Straight edge along side seam · Serge all edges before assembly`,
       }));
     }
-    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 · Right front only · Top edge: ½″ hem (double-fold, {topstitch}) · Sides + bottom: ⅜″ SA · {press} under using cardboard template', dimensions: { width: 3, height: 3.5 }, type: 'pocket', sa, hem: 0.5, hemEdge: 'top' });
+    pieces.push({ id: 'coin-pocket',  name: 'Coin Pocket',         instruction: 'Cut 1 · Right front only · Top edge: 1″ hem (double-fold ½″ + ½″, {topstitch}) · Sides + bottom: ⅜″ SA · {press} under using cardboard template', dimensions: { width: 3.75, height: 3.5 }, type: 'pocket', sa, hem: 1, hemEdge: 'top' });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
@@ -234,9 +234,9 @@ export default {
     steps.push({ step: n++, title: 'Sew pocket backing to pocket bag',
       detail: 'Place the pocket backing (self fabric) on the pocket bag (lining) {RST}. Sew along the curved bottom edge and the straight left side. Leave the top (waist), right side seam edge, and slash diagonal open. {clip} the curved seam allowance. Turn right side out so the backing faces outward. {press} flat. {topstitch} \u00bc\u2033 from the curved edge if desired. The pocket unit is now one piece with two layers.' });
     steps.push({ step: n++, title: 'Attach pocket to front panel',
-      detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
+      detail: 'The front panel is cut off at the slash line (the diagonal from waist to side seam). Align the pocket unit\u2019s slash diagonal edge to the front panel\u2019s slash edge {RST}. The pocket backing should face the front panel RS. Sew along the slash. {clip} the seam allowance. Turn the pocket to the wrong side of the panel. {press}. {understitch} through the pocket backing and both SAs so the seam rolls to the inside. {topstitch} from the RS: first row at \u215b\u2033 from the slash edge, second row at \u00bc\u2033 from the slash edge. {baste} the pocket\u2019s top edge to the panel\u2019s waist SA. {baste} the pocket\u2019s side seam edge to the panel\u2019s side SA. The pocket is now enclosed when the waist and side seams are sewn.' });
     steps.push({ step: n++, title: 'Prepare coin pocket',
-      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbc\u2033 + \xbc\u2033 and {topstitch} at \u215b\u2033 from the fold for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} the bottom corner curves so they lie flat. Remove template. Position on the RS of the right front panel in the upper right corner of the pocket opening. {topstitch} sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
+      detail: 'Make a cardboard press template the finished coin pocket size (no SA). Double-fold the top edge \xbd\u2033 + \xbd\u2033 and {topstitch} at \u215b\u2033 from the top folded edge for a clean finished hem. {press} the \u215c\u2033 SA under on the sides and bottom around the template; {clip} the bottom corner curves so they lie flat. Remove template. Position on the RS of the right front panel in the upper right corner of the pocket opening. {topstitch} sides and bottom with contrasting gold thread at \u215b\u2033 and again at \xbc\u2033 from the folded edges. {bartack} the top two corners.' });
     steps.push({
       step: n++, title: 'Sew back yoke (if applicable) & join back panels',
       detail: 'Join back panels at CB crotch seam. {clip} curve. Fell seam toward left back or {press} open for stretch denim.',
