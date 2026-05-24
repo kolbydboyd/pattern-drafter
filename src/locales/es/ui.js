@@ -257,7 +257,7 @@ export default {
   'pdf.scale.inches':       'Debe medir exactamente 2 × 2 in',
   'pdf.scale.cm':           'Debe medir exactamente 5 × 5 cm',
   'pdf.tile.assembly':      'Mapa de ensamblaje de hojas',
-  'pdf.drafted':            'Diseñado el {date} · People's Patterns',
+  'pdf.drafted':            "Diseñado el {date} · People's Patterns",
   'pdf.paper.letter':       'US Letter',
   'pdf.paper.legal':        'US Legal',
   'pdf.paper.a4':           'A4',

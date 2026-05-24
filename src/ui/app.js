@@ -1031,6 +1031,13 @@ async function _applyWatermarkState(garmentId) {
     return;
   }
 
+  // ── ADMIN BYPASS: full access including A0 for all patterns ──────────────
+  if (getCurrentUser()?.email === ADMIN_EMAIL) {
+    _currentPurchased = true;
+    _currentHasA0 = true;
+    return;
+  }
+
   // ── REDEMPTION CODE MODE ─────────────────────────────────────────────────
   if (_isRedemptionMode && garmentId === _redemptionGarment) {
     const user = getCurrentUser();

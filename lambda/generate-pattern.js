@@ -106,6 +106,8 @@ export const handler = async (event) => {
   }
 
   const userId = authUser.id;
+  const ADMIN_EMAIL = 'kolbyboyd970@gmail.com';
+  const isAdmin = authUser.email === ADMIN_EMAIL;
 
   // 1. Rate limiting: max RATE_LIMIT_MAX generations per user per hour.
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW * 1000).toISOString();
@@ -129,7 +131,9 @@ export const handler = async (event) => {
   // 2. Purchase verification.
   let purchase = null;
 
-  if (sessionId) {
+  if (isAdmin) {
+    purchase = { a0_addon: true }; // admin has full access including A0, no payment check
+  } else if (sessionId) {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     let stripeSession;
     try {
@@ -190,7 +194,7 @@ export const handler = async (event) => {
   }
 
   // 3. Subscription monthly download limit (10/month).
-  if (purchase && !purchase.stripe_payment_intent) {
+  if (purchase && !purchase.stripe_payment_intent && !isAdmin) {
     const now        = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const { data: subPurchases } = await supabase
