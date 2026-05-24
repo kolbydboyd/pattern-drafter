@@ -31,6 +31,50 @@ const px     = in_ => in_ * DPI;
 const SM     = 0.4; // safe (unprintable) margin in inches — keep all content inside this boundary
 const MARGIN = 1.5; // generous padding around each piece — prevents SA miter clipping on all edges
 
+// ── Info block helper ─────────────────────────────────────────────────────
+// Renders the small "cut-info" label inside a piece outline.
+// Falls back to a -90° rotated layout for narrow pieces so text stays inside bounds.
+function _infoBlock(lines, infoX_in, infoY_in, availW_in, availH_in) {
+  const filtered = lines.filter(Boolean);
+  if (!filtered.length) return '';
+
+  const fontSize = 8;
+  const lh       = 11; // px between baselines
+  const charW    = fontSize * 0.6; // IBM Plex Mono ~0.6em per char
+  const estTextW = Math.max(...filtered.map(l => l.length)) * charW; // px
+  const estTextH = filtered.length * lh;                              // px
+
+  const availW_px = availW_in * DPI;
+  const availH_px = availH_in * DPI;
+  const infoX = infoX_in * DPI;
+  const infoY = infoY_in * DPI;
+
+  const fitsHoriz   = estTextW <= availW_px;
+  // Rotated (-90°): footprint swaps to estTextH wide × estTextW tall
+  const fitsRotated = estTextH <= availW_px && estTextW <= availH_px;
+
+  if (!fitsHoriz && !fitsRotated) return '';
+
+  if (fitsHoriz) {
+    return filtered.map((line, i) =>
+      `<text x="${infoX}" y="${infoY + i * lh}"
+        font-family="'IBM Plex Mono',monospace" font-size="${fontSize}"
+        fill="#555">${line}</text>`
+    ).join('\n');
+  }
+
+  // Rotate -90° around (infoX, infoY): lines that were stacked vertically
+  // (y + i*lh) appear side-by-side in document space; text content flows upward.
+  const cx = infoX, cy = infoY;
+  return `<g transform="rotate(-90, ${cx}, ${cy})">
+    ${filtered.map((line, i) =>
+      `<text x="${cx}" y="${cy + i * lh}"
+        font-family="'IBM Plex Mono',monospace" font-size="${fontSize}"
+        fill="#555">${line}</text>`
+    ).join('\n')}
+  </g>`;
+}
+
 // ── Piece SVG rendering at 1:1 scale ───────────────────────────────────────
 
 /**
@@ -501,22 +545,13 @@ function renderPanelSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444">
         ${fmtInches(sa)} SA all seams incl. waist \xb7 ${fmtInches(hem)} hem
       </text>
-      ${(() => {
-        // Info block at bottom-left inside the piece outline (visible after cutting)
-        const infoX = (ox + 0.3) * DPI;
-        const infoY = (oy + height - hem - 1.6) * DPI;
-        const lh = 11; // line height in px
-        const lines = [
-          `${name} \xd7 2 (mirror)`,
-          instruction,
-          `${fmtInches(sa)} SA all seams \xb7 ${fmtInches(hem)} hem`,
-        ].filter(Boolean);
-        return lines.map((line, i) =>
-          `<text x="${infoX}" y="${infoY + i * lh}"
-            font-family="'IBM Plex Mono',monospace" font-size="8"
-            fill="#999">${line}</text>`
-        ).join('\n');
-      })()}
+      ${_infoBlock(
+        [`${name} \xd7 2 (mirror)`, instruction, `${fmtInches(sa)} SA all seams \xb7 ${fmtInches(hem)} hem`],
+        ox + 0.3,
+        oy + height - hem - 1.6,
+        width - sa - 0.6,
+        height - hem - sa - 0.5,
+      )}
       ${renderPocketPlacement(piece, ox, oy)}
     </svg>`,
   };
@@ -670,25 +705,13 @@ function renderBodiceOrSleeveSVG(piece) {
       <text x="${titleX}" y="${noteY}"
         font-family="'IBM Plex Mono',monospace" font-size="10" fill="#444"
         text-anchor="middle">${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem</text>
-      ${(() => {
-        // Info block at bottom-left inside the piece outline (visible after cutting)
-        // Skip for very small pieces where text wouldn't fit
-        if (pW < 3 || pH < 3) return '';
-        const infoX = (ox + minX + sa + 0.3) * DPI;
-        const infoY = (oy + maxY - 1.4) * DPI;
-        const lh = 11;
-        const instruction = piece.instruction || '';
-        const lines = [
-          pieceLabel,
-          instruction,
-          `${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem`,
-        ].filter(Boolean);
-        return lines.map((line, i) =>
-          `<text x="${infoX}" y="${infoY + i * lh}"
-            font-family="'IBM Plex Mono',monospace" font-size="8"
-            fill="#999">${line}</text>`
-        ).join('\n');
-      })()}
+      ${_infoBlock(
+        [pieceLabel, piece.instruction || '', `${fmtInches(sa)} SA \xb7 ${fmtInches(hem)} hem`],
+        ox + minX + sa + 0.3,
+        oy + maxY - 1.4,
+        pW - sa * 2 - 0.6,
+        pH - sa - 1.0,
+      )}
       ${(() => {
         if (piece.id !== 'scoop-backing' && piece.id !== 'square-scoop-backing') return '';
         const bW = piece.width || 7;
@@ -1353,12 +1376,15 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
   if (smallPieces.length === 0) return '';
   const availW = PW - 2 * SM;
   const availH = PH - 2 * SM - 0.4; // reserve bottom strip for footer
-  const GAP = 0.3; // gap between pieces in inches
+  const GAP = 0.1; // gap between pieces in inches
+
+  // Sort tallest-first so each shelf row is filled as densely as possible
+  const sorted = [...smallPieces].sort((a, b) => b.rendered.hIn - a.rendered.hIn);
 
   const pages = [];
   let current = [], shelfX = 0, shelfY = 0, shelfH = 0;
 
-  for (const { rendered, piece } of smallPieces) {
+  for (const { rendered, piece } of sorted) {
     const { svg, wIn, hIn } = rendered;
 
     if (shelfX > 0 && shelfX + wIn > availW) {
