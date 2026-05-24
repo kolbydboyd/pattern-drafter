@@ -7,6 +7,8 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Added
+- **Hoodie cinch clip waist option** — new `waistHem` select option on `hoodie` (`'rib'` default / `'cinch'`). Cinch mode skips the rib waistband piece and instead builds a ¾″ double-fold casing at the body hem with 2× ¼″ grommets at CF and a cord lock / cinch clip through a 60″ flat drawcord. Bodice pieces get `hem: 1.5` for the casing fold allowance. Scholar hoodie unaffected (its own rib hem is separate).
+- **Hoodie folded wrist hem** — rib sleeve cuffs removed from `hoodie` (and `scholar-hoodie` via delegation). Sleeve wrist is now always a double-fold hem (½″ folded twice = 1″ total). Sleeve panel extended +2″ to maintain the same finished sleeve length after removing the ~1″ net rib cuff contribution. Sleeve piece carries `hem: 1`.
 - **Daily Cloudflare Pages deploy cron** (`cron-deploy.yml`) — triggers a full site rebuild at
   7:15 AM UTC daily so future-dated articles go live on their `datePublished` date without a
   manual push. Requires `CF_DEPLOY_HOOK` GitHub secret (Cloudflare Pages → Settings → Deploy

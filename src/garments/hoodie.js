@@ -49,6 +49,14 @@ export default {
       ],
       default: 'unlined',
     },
+    waistHem: {
+      type: 'select', label: 'Waist hem',
+      values: [
+        { value: 'rib',   label: 'Rib knit waistband' },
+        { value: 'cinch', label: 'Cinch clip casing'  },
+      ],
+      default: 'rib',
+    },
     stretchFactor: {
       type: 'select', label: 'Fabric stretch',
       values: [
@@ -78,8 +86,9 @@ export default {
   },
 
   pieces(m, opts) {
-    const sa  = parseFloat(opts.sa);
-    const hem = parseFloat(opts.hem);
+    const sa       = parseFloat(opts.sa);
+    const hem      = parseFloat(opts.hem);
+    const waistHem = opts.waistHem ?? 'rib';
 
     const totalEase = UPPER_EASE[opts.fit] ?? 4;
     const sf = parseFloat(opts.stretchFactor ?? 0.05);
@@ -102,6 +111,8 @@ export default {
     const backChestDepth = chestDepth;
     const torsoLen     = m.torsoLength;
     const slvLength    = m.sleeveLength ?? 25;
+    // Extend panel by 2″: compensates for rib cuff removal (net ~1″ finished) + 1″ hem fold.
+    const slvPanelLen  = slvLength + 2;
     const isFullZip    = opts.frontStyle === 'fullzip';
 
     // ── CURVE TAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
@@ -182,8 +193,8 @@ export default {
     // ── SLEEVE JUNCTION UNTAGGING — VERIFIED WORKING, DO NOT CHANGE UNLESS NECESSARY ──
     delete sleevePoly[0].curve;
     delete sleevePoly[capPts.length - 1].curve;
-    sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvLength });
-    sleevePoly.push({ x: 0, y: capHeight + slvLength });
+    sleevePoly.push({ x: slvWidth * 2, y: capHeight + slvPanelLen });
+    sleevePoly.push({ x: 0, y: capHeight + slvPanelLen });
 
     // ── HOOD PANELS ──────────────────────────────────────────────────────────
     // Two-panel hood construction per standard drafting:
@@ -236,10 +247,9 @@ export default {
       hoodPoly.push(faceOpenPts[i]);
     }
 
-    // ── RIB TRIM ─────────────────────────────────────────────────────────────
+    // ── HEM CALCULATIONS ─────────────────────────────────────────────────────
     const hemCirc = (frontW + backW) * 2;
     const wbLen   = hemCirc * 0.90;
-    const cuffLen = slvWidth * 2 * 0.85;
 
     // ── NOTCH MARKS ─────────────────────────────────────────────────────────
     // Industry convention: single notch = front, double notch = back.
@@ -361,7 +371,7 @@ export default {
         width: frontBB.maxX - frontBB.minX,
         height: frontBB.maxY - frontBB.minY,
         isBack: false,
-        sa, hem,
+        sa, hem: waistHem === 'cinch' ? 1.5 : hem,
         notches: frontNotches,
         dims: [
           { label: fmtInches(frontW) + ' half width', x1: 0, y1: -0.5, x2: frontW, y2: -0.5, type: 'h' },
@@ -378,7 +388,7 @@ export default {
         width: backBB.maxX - backBB.minX,
         height: backBB.maxY - backBB.minY,
         isBack: true,
-        sa, hem,
+        sa, hem: waistHem === 'cinch' ? 1.5 : hem,
         notches: backNotches,
         dims: [
           { label: fmtInches(backW) + ' half width', x1: 0, y1: -0.5, x2: backW, y2: -0.5, type: 'h' },
@@ -388,20 +398,20 @@ export default {
       {
         id: 'sleeve',
         name: 'Sleeve',
-        instruction: `Cut 2 (mirror L & R) · Cap top, set into armhole · ${capEaseNote}`,
+        instruction: `Cut 2 (mirror L & R) · Cap top, set into armhole · Fold wrist hem ½″ twice, {topstitch} · ${capEaseNote}`,
         type: 'sleeve',
         polygon: sleevePoly,
         path: polyToPathStr(sleevePoly),
         width: sleeveBB.maxX - sleeveBB.minX,
         height: sleeveBB.maxY - sleeveBB.minY,
         capHeight,
-        sleeveLength: slvLength,
+        sleeveLength: slvPanelLen,
         sleeveWidth: slvWidth * 2,
-        sa, hem,
+        sa, hem: 1,
         notches: sleeveNotches,
         dims: [
           { label: fmtInches(slvWidth * 2) + ' underarm', x1: 0, y1: capHeight + 0.4, x2: slvWidth * 2, y2: capHeight + 0.4, type: 'h' },
-          { label: fmtInches(slvLength) + ' length', x: slvWidth * 2 + 1, y1: capHeight, y2: capHeight + slvLength, type: 'v' },
+          { label: fmtInches(slvPanelLen) + ' panel length', x: slvWidth * 2 + 1, y1: capHeight, y2: capHeight + slvPanelLen, type: 'v' },
           { label: fmtInches(effArmToElbow) + ' to elbow', x: -1.5, y1: 0, y2: effArmToElbow, type: 'v', color: '#b8963e' },
         ],
       },
@@ -461,23 +471,19 @@ export default {
           ],
         };
       })(),
-      {
+    ];
+
+    // Sleeve cuffs removed — wrist is now a double-fold hem on the sleeve piece itself.
+    if (waistHem === 'rib') {
+      pieces.push({
         id: 'waistband',
         name: 'Waistband (rib)',
         instruction: `Cut 1 from rib knit on fold · ${fmtInches(wbLen)} long × 3″ cut (1.5″ finished) · 90% of body hem circumference`,
         type: 'rectangle',
         dimensions: { length: wbLen, width: 3 },
         sa,
-      },
-      {
-        id: 'cuff',
-        name: 'Sleeve Cuff (rib)',
-        instruction: `Cut 2 from rib knit on fold · ${fmtInches(cuffLen)} long × 3″ cut (1.5″ finished) · 85% of sleeve opening`,
-        type: 'rectangle',
-        dimensions: { length: cuffLen, width: 3 },
-        sa,
-      },
-    ];
+      });
+    }
 
     if (isFullZip) {
       const zipLength = torsoLen + 2; // body + buffer (zipper ends at neckline, not through hood)
@@ -497,14 +503,21 @@ export default {
   materials(m, opts) {
     const isFullZip   = opts.frontStyle === 'fullzip';
     const isLined     = opts.hoodLining === 'lined';
+    const isCinch     = (opts.waistHem ?? 'rib') === 'cinch';
     const headCircEst = Math.max(m.neck * 1.45, 22);
     const hoodH       = headCircEst / 2 + 2;
 
-    const notions = [
-      { name: 'Rib knit', quantity: '0.75 yard', notes: 'For waistband and cuffs (high recovery 2×2 rib)' },
-      { name: 'Flat cord drawstring', quantity: '54″', notes: 'Cotton or poly flat cord, ¼″–⅜″ wide, with aglets' },
-      { name: 'Grommets or eyelets', quantity: '2', notes: '¼″ grommets at CF hood opening for cord exits' },
-    ];
+    const notions = [];
+    if (!isCinch) {
+      notions.push({ name: 'Rib knit', quantity: '0.5 yard', notes: 'For waistband only, high recovery 2×2 rib. Wrist cuffs are now a folded hem — no rib needed there.' });
+    }
+    notions.push({ name: 'Flat cord drawstring (hood)', quantity: '54″', notes: 'Cotton or poly flat cord, ¼″–⅜″ wide, with aglets' });
+    notions.push({ name: 'Grommets or eyelets (hood)', quantity: '2', notes: '¼″ grommets at CF hood opening for cord exits' });
+    if (isCinch) {
+      notions.push({ name: 'Cinch clip / cord lock', quantity: '1', notes: 'Single cord lock threaded through both cord ends at CF waist' });
+      notions.push({ name: 'Flat cord (waist)', quantity: '60″', notes: '5/8″ flat cotton drawcord for waist casing. Exits at CF through 2 grommets.' });
+      notions.push({ name: 'Grommets or eyelets (waist)', quantity: '2', notes: '¼″ grommets at CF body hem for drawcord exits' });
+    }
 
     if (isFullZip) {
       notions.push({ name: 'Separating zipper', quantity: `${Math.ceil(m.torsoLength + 2)}″`, notes: 'Full-length separating zipper. Runs hem to neckline only (not through hood)' });
@@ -522,9 +535,11 @@ export default {
         'Use stretch stitch or serger for all body seams',
         'Hood casing: fold face opening under ¾″ twice, {topstitch} to create drawstring channel',
         'Install grommets at CF of hood casing before joining hood to body',
-        'Pre-wash fleece before cutting - knits can shrink 3–5%',
+        'Sleeve wrists: double-fold hem — fold ½″ twice, {press}, {topstitch} with twin needle or zigzag',
+        'Pre-wash fleece before cutting — knits can shrink 3–5%',
         isFullZip ? 'Full zip: sew zipper tape extensions first, then {baste} zipper in place, {topstitch} from RS' : '',
         isLined ? 'Lined hood: sew outer and lining with RS together around face opening, turn, {press}, then treat as one layer for attaching to body' : '',
+        isCinch ? 'Waist casing: fold body hem up ¾″ twice, install ¼″ grommets at CF, {topstitch} casing, thread cord, attach cinch clip' : '',
       ].filter(Boolean),
     });
   },
@@ -534,6 +549,7 @@ export default {
     let n = 1;
     const isFullZip = opts.frontStyle === 'fullzip';
     const isLined   = opts.hoodLining === 'lined';
+    const waistHem  = opts.waistHem ?? 'rib';
 
     steps.push({
       step: n++, title: 'Attach kangaroo pocket',
@@ -585,9 +601,21 @@ export default {
     });
 
     steps.push({
-      step: n++, title: 'Attach sleeve cuffs and waistband',
-      detail: 'Fold each rib piece in half lengthwise {WST}. Divide cuff/waistband and opening into quarters. Sew with stretch stitch, stretching rib to match opening. {press} SA into body.',
+      step: n++, title: 'Hem sleeve wrists',
+      detail: 'Fold each sleeve wrist hem up ½″ to WS, {press}. Fold up another ½″, {press}. {topstitch} close to inner fold using a twin needle or zigzag stitch.',
     });
+
+    if (waistHem === 'rib') {
+      steps.push({
+        step: n++, title: 'Attach waistband',
+        detail: 'Fold rib waistband in half lengthwise {WST}. Divide waistband and body hem into quarters. Sew waistband to body hem {RST} with stretch stitch, stretching rib to match opening. {press} SA into body.',
+      });
+    } else {
+      steps.push({
+        step: n++, title: 'Make waist cinch casing',
+        detail: 'Fold body hem up ¾″ to WS, {press}. Fold up another ¾″, {press}. Install two ¼″ grommets at CF body hem, centered in casing. {topstitch} close to upper fold edge, leaving a ½″ gap near each grommet for cord insertion. Thread 60″ cord in one grommet, through casing, and out the other. Even the ends and attach cinch clip through both cord ends.',
+      });
+    }
 
     steps.push({
       step: n++, title: 'Thread drawstring',
