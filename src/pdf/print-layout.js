@@ -204,9 +204,10 @@ function renderPocketPlacement(piece, ox, oy) {
     const sx1 = (ox + sw - 3.5) * DPI,   sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI,  sy2 = (oy + 6) * DPI;
     const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 12) * DPI;
-    // Bag outline: bag inner-left → slash start on waist → slash diagonal → scoop → close up left edge
-    // Right boundary follows the slash diagonal exactly, so angles match the front panel cut.
-    svg += `<path d="M ${bagL} ${sy1} L ${sx1} ${sy1} L ${sx2} ${sy2} Q ${sx2} ${bagB} ${bagL} ${bagB} Z"
+    // Bag outline: full 7" top (inner-left → side seam at waist) → taper down side seam → scoop → close
+    // The slash opening line is drawn separately on top; the bag top must span the full 7" from side seam.
+    const bagRT = (ox + sw) * DPI;  // bag top-right = side seam at waist
+    svg += `<path d="M ${bagL} ${sy1} L ${bagRT} ${sy1} L ${sx2} ${sy2} Q ${sx2} ${bagB} ${bagL} ${bagB} Z"
       stroke="${PKT_COL}" stroke-width="1.2" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     // Slash opening (solid)
     svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
