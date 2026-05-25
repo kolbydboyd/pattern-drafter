@@ -281,18 +281,33 @@ export function renderPanelSVG(piece) {
     // The front panel is now cut at the slash line (diagonal edge is part of the piece outline).
     // Show the pocket bag area as a dashed reference overlay.
     const sw = waistWidth || width;
-    const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
-    const slashEndX = slashEndPt ? slashEndPt.x : sw;
-    const slashX1 = ox + sc(sw - 3.5);     // slash start on waist edge
-    const slashX2 = ox + sc(slashEndX);    // slash exit on side seam
-    const slashY2 = oy + sc(6);
-    const bagL = ox + sc(sw - 7);          // inner left edge of bag
-    const bagB = oy + sc(12);              // bottom of bag (bag depth = 12)
-    // Bag outline: full 7" top (inner-left → side seam at waist) → taper down side seam → scoop → close
-    // The slash opening line is drawn separately on top; the bag top must span the full 7" from side seam.
-    const bagRT = ox + sc(sw);  // bag top-right = side seam at waist
-    pocketSVG += `<path d="M ${bagL} ${oy} L ${bagRT} ${oy} L ${slashX2} ${slashY2} Q ${slashX2} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
+    const bagDepth = 12;
+    // Walk polygon side seam from slash exit (y≈6) down to bag bottom (y=bagDepth)
+    const sideSeamPts = [{ x: sw, y: 0 }, { x: sw, y: 6 }];
+    const slashExitIdx = polygon.findIndex(p => !p.curve && Math.abs(p.y - 6) < 0.5 && p.x > sw * 0.3);
+    if (slashExitIdx >= 0) {
+      for (let i = slashExitIdx + 1; i < polygon.length; i++) {
+        const pt = polygon[i];
+        const prev = sideSeamPts[sideSeamPts.length - 1];
+        if (pt.y >= bagDepth) {
+          if (pt.y > prev.y) {
+            const frac = (bagDepth - prev.y) / (pt.y - prev.y);
+            sideSeamPts.push({ x: prev.x + frac * (pt.x - prev.x), y: bagDepth });
+          }
+          break;
+        }
+        sideSeamPts.push({ x: pt.x, y: pt.y });
+      }
+    }
+    const bagRB = sideSeamPts[sideSeamPts.length - 1].x;
+    const bagLB = bagRB - 7;
+    let bagPathD = `M ${ox + sc(sw - 7)} ${oy} L ${ox + sc(sw)} ${oy}`;
+    for (let i = 1; i < sideSeamPts.length; i++) {
+      bagPathD += ` L ${(ox + sc(sideSeamPts[i].x)).toFixed(1)} ${(oy + sc(sideSeamPts[i].y)).toFixed(1)}`;
+    }
+    bagPathD += ` L ${(ox + sc(bagLB)).toFixed(1)} ${(oy + sc(bagDepth)).toFixed(1)} Z`;
+    pocketSVG += `<path d="${bagPathD}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${ox + sc(sw - 7) + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
     // Side-seam pocket: D-shaped bag extending inward from side seam.
