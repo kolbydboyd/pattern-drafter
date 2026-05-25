@@ -794,17 +794,29 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
-  // Interpolate the actual side seam x at slashDepth — the side seam tapers from waist to hip,
-  // so the slash exit tracks with it rather than being forced straight down.
-  const hipPt = poly[(idx + 1) % poly.length];
-  const endX = hipPt.y > 0
-    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
-    : waistSideX;
+  // Slash exit lands at (waistSideX, slashDepth) so the panel slash matches the
+  // pocket bag's slash angle exactly (run = slashInset, rise = slashDepth).
+  // Then bezier-curve from the slash exit to the hip vertex, tangent to the
+  // hip→next-leg direction at the hip — this removes the kink at the hip vertex.
+  const hipPt   = poly[(idx + 1) % poly.length];
+  const nextLeg = poly[(idx + 2) % poly.length];
+  const slashEnd = { x: waistSideX, y: slashDepth };
 
-  // Replace the corner vertex with the two slash endpoints
-  poly.splice(idx, 1,
+  const legDx = nextLeg.x - hipPt.x;
+  const legDy = nextLeg.y - hipPt.y;
+  const legLen = Math.hypot(legDx, legDy) || 1;
+  const ux = legDx / legLen, uy = legDy / legLen;
+  const span = Math.hypot(hipPt.x - slashEnd.x, hipPt.y - slashEnd.y);
+  const t = span * 0.5;
+  const cp1 = { x: slashEnd.x, y: slashEnd.y + (hipPt.y - slashEnd.y) * 0.5 };
+  const cp2 = { x: hipPt.x - ux * t, y: hipPt.y - uy * t };
+  const curvePts = sampleBezier(slashEnd, cp1, cp2, hipPt, 10)
+    .map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
+
+  // Replace the waist corner AND the hip vertex (curve ends at hipPt; splicing 2 avoids duplication)
+  poly.splice(idx, 2,
     { x: waistSideX - slashInset, y: 0 },    // slash start on waist
-    { x: endX, y: slashDepth },               // slash exit on actual tapered side seam
+    ...curvePts,                              // slashEnd → curve through hip vertex
   );
   return poly;
 }
