@@ -794,12 +794,18 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
-  // Slash exit lands at (waistSideX, slashDepth) so the panel slash matches the
-  // pocket bag's slash angle exactly (run = slashInset, rise = slashDepth).
-  // Replace only the waist corner; hip vertex and everything below stay unchanged.
+  // Slash exit lands on the straight side seam at slashDepth — interpolate the
+  // actual x position from waistSideX toward the hip vertex.
+  const hipPt = poly[(idx + 1) % poly.length];
+  const endX = hipPt.y > 0
+    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
+    : waistSideX;
+
+  // Replace only the waist-at-side-seam vertex; keep hipPt in place so
+  // the side seam from slash exit → hip remains on the original straight line.
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },  // slash start on waist
-    { x: waistSideX, y: slashDepth },       // slash exit on side seam
+    { x: endX, y: slashDepth },             // slash exit on side seam
   );
   return poly;
 }
