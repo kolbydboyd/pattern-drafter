@@ -216,6 +216,7 @@ function renderPocketPlacement(piece, ox, oy) {
     svg += drillMark(sx2, sy2);
     svg += drillMark(bagL, sy1);
     svg += drillMark(bagL, bagB);
+    svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing top-right corner
     // Label
     svg += `<text x="${bagL + 3}" y="${(oy + rise * 0.85) * DPI}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
@@ -690,11 +691,13 @@ function renderBodiceOrSleeveSVG(piece) {
       ${(piece.trimMarks || []).map(m => {
         const x1 = (ox + m.x1) * DPI, y1 = (oy + m.y1) * DPI;
         const x2 = (ox + m.x2) * DPI, y2 = (oy + m.y2) * DPI;
-        const lx = (x1 + x2) / 2, ly = Math.min(y1, y2) - 5;
+        const stroke = m.stroke || '#333';
+        const dash = m.dash ? `stroke-dasharray="${m.dash}"` : '';
+        const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 - 8;
         return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
-          stroke="#333" stroke-width="1" stroke-linecap="round"/>
-          <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
-            font-family="'IBM Plex Mono',monospace" font-size="7" fill="#333" text-anchor="middle">trim</text>`;
+          stroke="${stroke}" stroke-width="1" stroke-linecap="round" ${dash}/>
+          ${m.label ? `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}"
+            font-family="'IBM Plex Mono',monospace" font-size="7" fill="${stroke}" text-anchor="middle">${m.label}</text>` : ''}`;
       }).join('\n')}
       ${(piece.bustDarts || []).map(d => {
         const ax = (ox + d.apexX) * DPI, ay = (oy + d.apexY) * DPI;

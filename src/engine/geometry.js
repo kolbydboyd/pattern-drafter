@@ -636,8 +636,11 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
       { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
     notches: [
-      // Slash exit corner: where the side seam meets the scoop curve.
-      // Matches the corresponding notch on the pocket bag and front panel.
+      // Slash start on waistline — matches the 'pocket' notch on the front panel waist edge.
+      { x: bagWidth - slashInset, y: 0, angle: 180, label: 'slash start' },
+      // Side seam at waistline — backing top-right aligns with front panel's (sw, 0) drill mark.
+      { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
+      // Slash exit — where side seam meets scoop curve. Matches front panel drill mark.
       { x: bagWidth, y: slashDepth, angle: 135, label: 'slash' },
     ],
   };
@@ -683,11 +686,22 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
     labels: [
       { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
-    notches: [
-      // Slash start on waist: matches the pocket notch on the front panel waist edge.
-      { x: slashStartX, y: 0, angle: 180, label: 'slash start' },
-      // Slash end / scoop start: matches the slash notch on the pocket backing.
-      { x: bagWidth, y: slashDepth, angle: 135, label: 'slash end' },
+    notches: [],
+    // Slash line drawn on the bag so the sewist can see both halves of the piece.
+    // Slash vector (3.5, 6): perp inward unit = (-0.864, 0.504).
+    trimMarks: [
+      {
+        x1: slashStartX, y1: 0,
+        x2: bagWidth,    y2: slashDepth,
+        stroke: '#8a4a4a', dash: '6,3',
+        label: 'parallel',
+      },
+      {
+        x1: slashStartX - 0.864 * sa, y1: 0.504 * sa,
+        x2: bagWidth    - 0.864 * sa, y2: slashDepth + 0.504 * sa,
+        stroke: '#8a4a4a', dash: '2,2',
+        label: '',
+      },
     ],
   };
 }
@@ -780,16 +794,11 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
-  // Interpolate the actual side seam x at slashDepth (side seam tapers from waist to hip)
-  const hipPt = poly[(idx + 1) % poly.length];
-  const endX = hipPt.y > 0
-    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
-    : waistSideX;
-
-  // Replace the corner vertex with two slash endpoints
+  // Replace the corner vertex with two slash endpoints.
+  // The slash exit is straight down from the side seam waist point — matching the pocket bag/backing right edge exactly.
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },    // slash start on waist
-    { x: endX, y: slashDepth },               // slash end on actual side seam
+    { x: waistSideX, y: slashDepth },         // slash exit directly below side seam waist point
   );
   return poly;
 }
