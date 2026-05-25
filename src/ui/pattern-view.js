@@ -288,9 +288,10 @@ export function renderPanelSVG(piece) {
     const slashY2 = oy + sc(6);
     const bagL = ox + sc(sw - 7);          // inner left edge of bag
     const bagB = oy + sc(12);              // bottom of bag (bag depth = 12)
-    // Bag outline: inner-left → slash start → slash diagonal → scoop → close up left edge
-    // Right boundary IS the slash diagonal, so it aligns exactly with the front panel cut.
-    pocketSVG += `<path d="M ${bagL} ${oy} L ${slashX1} ${oy} L ${slashX2} ${slashY2} Q ${slashX2} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+    // Bag outline: full 7" top (inner-left → side seam at waist) → taper down side seam → scoop → close
+    // The slash opening line is drawn separately on top; the bag top must span the full 7" from side seam.
+    const bagRT = ox + sc(sw);  // bag top-right = side seam at waist
+    pocketSVG += `<path d="M ${bagL} ${oy} L ${bagRT} ${oy} L ${slashX2} ${slashY2} Q ${slashX2} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
       <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
