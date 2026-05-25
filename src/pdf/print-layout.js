@@ -257,9 +257,10 @@ function renderPocketPlacement(piece, ox, oy) {
 
   // ── Scoop / Square-scoop pocket (front only) — rivet positions at opening endpoints ──
   if (!isBack && (opts.frontPocket === 'scoop' || opts.frontPocket === 'square-scoop')) {
-    const scoopInset = 3.5, scoopDepth = 6;
-    const sx1 = (ox + width - scoopInset) * DPI, sy1 = oy * DPI;
-    const sx2 = (ox + width) * DPI,             sy2 = (oy + scoopDepth) * DPI;
+    const scoopInset = 3.5, scoopDepth = opts.frontPocket === 'square-scoop' ? 4 : 5;
+    const sw = piece.waistWidth || width;
+    const sx1 = (ox + sw - scoopInset) * DPI, sy1 = oy * DPI;
+    const sx2 = (ox + sw) * DPI,              sy2 = (oy + scoopDepth) * DPI;
     svg += drillMark(sx1, sy1);
     svg += `<text x="${sx1 + 5}" y="${sy1 + 9}"
       font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">rivet</text>`;
