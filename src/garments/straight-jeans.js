@@ -652,6 +652,9 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const hasScoop = !isBack && opts?.frontPocket === 'scoop';
   const hasSquareScoop = !isBack && opts?.frontPocket === 'square-scoop';
   if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 6);
+  // Precompute slash exit x so renderPocketPlacement can use it directly after
+  // sanitizePoly may have removed the vertex as collinear.
+  const slashEndX = hasSlash ? sideWaistX + (hipWidth - sideWaistX) * (6 / hipLineY) : null;
   if (hasScoop) clipPanelAtScoop(poly, sideWaistX, 3.5, 5);
   if (hasSquareScoop) clipPanelAtSquareScoop(poly, sideWaistX, 3.5, 4);
 
@@ -724,7 +727,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     id: type, name, instruction,
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
-    dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack,
+    dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack, slashEndX,
     notches, crotchBezier: ccp,
     // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.

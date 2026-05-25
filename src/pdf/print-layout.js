@@ -180,7 +180,7 @@ function drillMark(x, y, size = 4) {
 
 /** Pocket placement colour constants (matches pattern-view.js) */
 const PKT_COL = '#8a4a4a';
-const PKT_FILL = 'rgba(138,74,74,.03)';
+const PKT_FILL = 'rgba(138,74,74,.08)';
 const PKT_DASH = '2,3';
 
 /**
@@ -199,17 +199,18 @@ function renderPocketPlacement(piece, ox, oy) {
   if (!isBack && opts.frontPocket === 'slant') {
     const sw = piece.waistWidth || width;
     const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
-    const slashEndX = slashEndPt ? slashEndPt.x : sw;
+    // piece.slashEndX is set by buildPanel before sanitizePoly can remove the vertex
+    const slashEndX = piece.slashEndX ?? (slashEndPt ? slashEndPt.x : sw);
     const sx1 = (ox + sw - 3.5) * DPI,   sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI,  sy2 = (oy + 6) * DPI;
     const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 12) * DPI;
     // Bag outline: bag inner-left → slash start on waist → slash diagonal → scoop → close up left edge
     // Right boundary follows the slash diagonal exactly, so angles match the front panel cut.
     svg += `<path d="M ${bagL} ${sy1} L ${sx1} ${sy1} L ${sx2} ${sy2} Q ${sx2} ${bagB} ${bagL} ${bagB} Z"
-      stroke="${PKT_COL}" stroke-width="0.6" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
+      stroke="${PKT_COL}" stroke-width="1.2" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     // Slash opening (solid)
     svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
-      stroke="${PKT_COL}" stroke-width="1"/>`;
+      stroke="${PKT_COL}" stroke-width="1.5"/>`;
     // Drill marks at slash opening endpoints
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
