@@ -198,28 +198,48 @@ function renderPocketPlacement(piece, ox, oy) {
   // ── Slant pocket (front only) ──
   if (!isBack && opts.frontPocket === 'slant') {
     const sw = piece.waistWidth || width;
-    const slashEndPt = polygon.find(p => p.y > 4.5 && p.y < 7.5 && !p.curve && p.x > sw * 0.3);
-    // piece.slashEndX is set by buildPanel before sanitizePoly can remove the vertex
-    const slashEndX = piece.slashEndX ?? (slashEndPt ? slashEndPt.x : sw);
-    const sx1 = (ox + sw - 3.5) * DPI,   sy1 = oy * DPI;
-    const sx2 = (ox + slashEndX) * DPI,  sy2 = (oy + 6) * DPI;
-    const bagL = (ox + sw - 7) * DPI,    bagB = (oy + 12) * DPI;
-    // Bag outline: full 7" top (inner-left → side seam at waist) → taper down side seam → scoop → close
-    // The slash opening line is drawn separately on top; the bag top must span the full 7" from side seam.
-    const bagRT = (ox + sw) * DPI;  // bag top-right = side seam at waist
-    svg += `<path d="M ${bagL} ${sy1} L ${bagRT} ${sy1} L ${sx2} ${sy2} Q ${sx2} ${bagB} ${bagL} ${bagB} Z"
+    const bagDepth = 12;
+    // Slash opening points (for line + drill marks)
+    const slashEndX = piece.slashEndX ?? sw;
+    const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
+    const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + 6) * DPI;
+    // Walk polygon side seam from slash exit (y≈6) down to bag bottom (y=bagDepth)
+    const sideSeamPts = [{ x: sw, y: 0 }, { x: sw, y: 6 }];
+    const slashExitIdx = polygon.findIndex(p => !p.curve && Math.abs(p.y - 6) < 0.5 && p.x > sw * 0.3);
+    if (slashExitIdx >= 0) {
+      for (let i = slashExitIdx + 1; i < polygon.length; i++) {
+        const pt = polygon[i];
+        const prev = sideSeamPts[sideSeamPts.length - 1];
+        if (pt.y >= bagDepth) {
+          if (pt.y > prev.y) {
+            const frac = (bagDepth - prev.y) / (pt.y - prev.y);
+            sideSeamPts.push({ x: prev.x + frac * (pt.x - prev.x), y: bagDepth });
+          }
+          break;
+        }
+        sideSeamPts.push({ x: pt.x, y: pt.y });
+      }
+    }
+    const bagRB = sideSeamPts[sideSeamPts.length - 1].x;
+    const bagLB = bagRB - 7;
+    let bagPathD = `M ${(ox + sw - 7) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
+    for (let i = 1; i < sideSeamPts.length; i++) {
+      bagPathD += ` L ${((ox + sideSeamPts[i].x) * DPI).toFixed(1)} ${((oy + sideSeamPts[i].y) * DPI).toFixed(1)}`;
+    }
+    bagPathD += ` L ${((ox + bagLB) * DPI).toFixed(1)} ${((oy + bagDepth) * DPI).toFixed(1)} Z`;
+    svg += `<path d="${bagPathD}"
       stroke="${PKT_COL}" stroke-width="1.2" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     // Slash opening (solid)
     svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
       stroke="${PKT_COL}" stroke-width="1.5"/>`;
-    // Drill marks at slash opening endpoints
+    // Drill marks at slash opening endpoints + bag corners
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
-    svg += drillMark(bagL, sy1);
-    svg += drillMark(bagL, bagB);
+    svg += drillMark((ox + sw - 7) * DPI, sy1);
+    svg += drillMark((ox + bagLB) * DPI, (oy + bagDepth) * DPI);
     svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing top-right corner
     // Label
-    svg += `<text x="${bagL + 3}" y="${(oy + rise * 0.85) * DPI}"
+    svg += `<text x="${(ox + sw - 7) * DPI + 3}" y="${(oy + rise * 0.85) * DPI}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
   }
 
