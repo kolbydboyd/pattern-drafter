@@ -753,6 +753,16 @@ export function renderGenericPieceSVG(piece) {
           <text x="${mx.toFixed(1)}" y="${(my - 4).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#4a8a5a" text-anchor="middle" transform="rotate(${angle.toFixed(1)},${mx.toFixed(1)},${(my - 4).toFixed(1)})">${r.label || 'roll line'}</text>`;
       })() : ''
     }
+    ${(piece.trimMarks || []).map(m => {
+      const x1 = ox + sc(m.x1), y1 = oy + sc(m.y1);
+      const x2 = ox + sc(m.x2), y2 = oy + sc(m.y2);
+      const stroke = m.stroke || '#333';
+      const dash = m.dash ? `stroke-dasharray="${m.dash}"` : '';
+      const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 - 6;
+      return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+        stroke="${stroke}" stroke-width="0.8" ${dash}/>
+        ${m.label ? `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${stroke}" text-anchor="middle">${m.label}</text>` : ''}`;
+    }).join('')}
     ${(piece.marks || []).map(mk => {
       const mc = '#4a8a5a';
       if (mk.type === 'fold' && mk.axis === 'h') {

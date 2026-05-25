@@ -636,8 +636,11 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
       { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
     notches: [
-      // Slash exit corner: where the side seam meets the scoop curve.
-      // Matches the corresponding notch on the pocket bag and front panel.
+      // Slash start on waistline — matches the 'pocket' notch on the front panel waist edge.
+      { x: bagWidth - slashInset, y: 0, angle: 180, label: 'slash start' },
+      // Side seam at waistline — backing top-right aligns with front panel's (sw, 0) drill mark.
+      { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
+      // Slash exit — where side seam meets scoop curve. Matches front panel drill mark.
       { x: bagWidth, y: slashDepth, angle: 135, label: 'slash' },
     ],
   };
@@ -683,11 +686,22 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
     labels: [
       { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
-    notches: [
-      // Slash start on waist: matches the pocket notch on the front panel waist edge.
-      { x: slashStartX, y: 0, angle: 180, label: 'slash start' },
-      // Slash end / scoop start: matches the slash notch on the pocket backing.
-      { x: bagWidth, y: slashDepth, angle: 135, label: 'slash end' },
+    notches: [],
+    // Slash line drawn on the bag so the sewist can see both halves of the piece.
+    // Slash vector (3.5, 6): perp inward unit = (-0.864, 0.504).
+    trimMarks: [
+      {
+        x1: slashStartX, y1: 0,
+        x2: bagWidth,    y2: slashDepth,
+        stroke: '#8a4a4a', dash: '6,3',
+        label: 'parallel',
+      },
+      {
+        x1: slashStartX - 0.864 * sa, y1: 0.504 * sa,
+        x2: bagWidth    - 0.864 * sa, y2: slashDepth + 0.504 * sa,
+        stroke: '#8a4a4a', dash: '2,2',
+        label: '',
+      },
     ],
   };
 }
@@ -780,16 +794,11 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
   }
   if (idx < 0 || bestDist > 1) return poly; // safety: no match found
 
-  // Interpolate the actual side seam x at slashDepth (side seam tapers from waist to hip)
-  const hipPt = poly[(idx + 1) % poly.length];
-  const endX = hipPt.y > 0
-    ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
-    : waistSideX;
-
-  // Replace the corner vertex with two slash endpoints
+  // Replace the corner vertex with two slash endpoints.
+  // The slash exit is straight down from the side seam waist point — matching the pocket bag/backing right edge exactly.
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },    // slash start on waist
-    { x: endX, y: slashDepth },               // slash end on actual side seam
+    { x: waistSideX, y: slashDepth },         // slash exit directly below side seam waist point
   );
   return poly;
 }
@@ -816,20 +825,13 @@ export function clipPanelAtScoop(poly, waistSideX, scoopInset = 3.5, scoopDepth 
   }
   if (idx < 0 || bestDist > 1) return poly;
 
-  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
-  const hipPt = poly[(idx + 1) % poly.length];
-  const endX = hipPt.y > 0
-    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
-    : waistSideX;
-
-  // Concave J-curve from waist (inset) to side seam (depth)
-  // CP1 vertical → CP2 at same depth as endpoint → horizontal tangent at side seam
+  // Scoop lands straight down at the waist side-seam point — matches pocket bag/backing right edge.
   const sx = waistSideX - scoopInset;
   const curvePts = sampleBezier(
     { x: sx, y: 0 },
     { x: sx, y: scoopDepth * 0.45 },
     { x: waistSideX - scoopInset * 0.3, y: scoopDepth },
-    { x: endX, y: scoopDepth },
+    { x: waistSideX, y: scoopDepth },
     12,
   ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
 
@@ -864,6 +866,8 @@ export function buildScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, scoopD
       { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
     notches: [
+      { x: bagWidth - scoopInset, y: 0, angle: 180, label: 'opening start' },
+      { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
       { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
     ],
   };
@@ -928,12 +932,7 @@ export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoop
   }
   if (idx < 0 || bestDist > 1) return poly;
 
-  // Interpolate the actual side seam x at scoopDepth (side seam tapers from waist to hip)
-  const hipPt = poly[(idx + 1) % poly.length];
-  const endX = hipPt.y > 0
-    ? waistSideX + (hipPt.x - waistSideX) * (scoopDepth / hipPt.y)
-    : waistSideX;
-
+  // Square-scoop lands straight down at the waist side-seam point — matches pocket bag/backing right edge.
   const sx = waistSideX - scoopInset;
   const r = Math.min(cornerRadius, scoopInset, scoopDepth);
   const k = 0.5523; // bezier approximation of quarter-circle
@@ -951,8 +950,8 @@ export function clipPanelAtSquareScoop(poly, waistSideX, scoopInset = 3.5, scoop
     { x: sx, y: 0 },                // opening start on waist
     { x: sx, y: scoopDepth - r },   // bottom of vertical segment (arc start)
     ...arcPts.slice(1, -1),          // arc mid-points (skip endpoints, already covered)
-    { x: sx + r, y: scoopDepth },   // end of arc / start of horizontal
-    { x: endX, y: scoopDepth },     // opening end on actual side seam
+    { x: sx + r, y: scoopDepth },       // end of arc / start of horizontal
+    { x: waistSideX, y: scoopDepth },  // opening end straight below side seam waist point
   ];
 
   poly.splice(idx, 1, ...pts);
@@ -986,6 +985,8 @@ export function buildSquareScoopPocketBacking({ bagWidth = 7, scoopInset = 3.5, 
       { text: 'RS / OUTSIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
     notches: [
+      { x: bagWidth - scoopInset, y: 0, angle: 180, label: 'opening start' },
+      { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
       { x: bagWidth, y: scoopDepth, angle: 135, label: 'opening' },
     ],
   };
