@@ -203,14 +203,14 @@ function renderPocketPlacement(piece, ox, oy) {
     const slashEndX = piece.slashEndX ?? sw;
     const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + slashDepth) * DPI;
-    // Bag overlay: anchored to sw so right edge is vertical and left edge is perfectly vertical.
-    const c1x = ((ox + sw) * DPI).toFixed(1),
+    // Bag overlay: right edge diagonal to slash exit (slashEndX) along side seam; scoop ends at sw-bagW.
+    const c1x = ((ox + slashEndX) * DPI).toFixed(1),
           c1y = ((oy + slashDepth + (bagDepth - slashDepth) * 2 / 3) * DPI).toFixed(1);
     const c2x = ((ox + sw - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
     const p3x = ((ox + sw - bagW) * DPI).toFixed(1),      p3y = c2y;
-    // Top edge: (sw-bagW,0)→(sw,0). Right edge: vertical down to (sw,slashDepth).
+    // Top: (sw-bagW,0)→(sw,0). Right: diagonal to (slashEndX,slashDepth) along side seam.
     let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
-    bagPathD += ` L ${(ox + sw) * DPI} ${(oy + slashDepth) * DPI}`;
+    bagPathD += ` L ${(ox + slashEndX) * DPI} ${(oy + slashDepth) * DPI}`;
     bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
     bagPathD += ` Z`;
     svg += `<path d="${bagPathD}"

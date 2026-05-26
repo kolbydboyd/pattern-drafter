@@ -805,32 +805,10 @@ export function clipPanelAtSlash(poly, waistSideX, slashInset = 3.5, slashDepth 
     ? waistSideX + (hipPt.x - waistSideX) * (slashDepth / hipPt.y)
     : waistSideX;
 
-  // Unit vectors: slash incoming direction, side-seam outgoing direction
-  const slashInsetX = waistSideX - slashInset;
-  const slDx = endX - slashInsetX, slDy = slashDepth;
-  const slLen = Math.hypot(slDx, slDy);
-  const slUx = slDx / slLen, slUy = slDy / slLen;
-
-  const smDx = hipPt.x - endX, smDy = hipPt.y - slashDepth;
-  const smLen = Math.hypot(smDx, smDy) || 1;
-  const smUx = smDx / smLen, smUy = smDy / smLen;
-
-  // 0.75" corner-blend: smooth the kink at the slash/side-seam junction.
-  // p0 is 0.75" before the junction along the slash; p3 is 0.75" after along the seam.
-  const r = 0.75;
-  const p0 = { x: endX - slUx * r, y: slashDepth - slUy * r };
-  const p3 = { x: endX + smUx * r, y: slashDepth + smUy * r };
-  const blend = sampleBezier(
-    p0,
-    { x: p0.x + slUx * r * 0.552, y: p0.y + slUy * r * 0.552 },
-    { x: p3.x - smUx * r * 0.552, y: p3.y - smUy * r * 0.552 },
-    p3, 6,
-  ).map((p, i, arr) => ({ ...p, ...(i > 0 && i < arr.length - 1 ? { curve: true } : {}) }));
-
   // Splice only the waist vertex; hipPt stays in place.
   poly.splice(idx, 1,
     { x: waistSideX - slashInset, y: 0 },
-    ...blend,
+    { x: endX, y: slashDepth },
   );
   return poly;
 }
