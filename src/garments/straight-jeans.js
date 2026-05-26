@@ -219,11 +219,11 @@ export default {
 
     // ── POCKETS ──
     if (opts.frontPocket === 'slant') {
-      // Facing: self-fabric, extends ~1″ below slash opening (7″ deep). Visible from outside.
-      // Vertical right edge (sideTaper=0 default) is the industry-standard cut for pocket bags.
-      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 7, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
-      // Bag: lining. RS faces body side; inner left edge is sewn to the backing.
-      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 12, sa, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 RS faces body side \xb7 Curved bottom = pocket back' }));
+      // sideTaper = side-seam horizontal shift from waist to slash depth; makes slash angle on
+      // backing and bag match the front panel slash so notches and trim marks align.
+      const pocketSideTaper = (frontHipW - frontWaistW) * (6 / hipLineY);
+      pieces.push(buildSlantPocketBacking({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 7, sa, sideTaper: pocketSideTaper, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Self fabric (denim) \xb7 Pocket facing (visible from outside)' }));
+      pieces.push(buildSlantPocketBag({ bagWidth: 7, slashInset: 3.5, slashDepth: 6, bagDepth: 12, sa, sideTaper: pocketSideTaper, instruction: 'Cut 2 (1 + 1 mirror) \xb7 Lining (muslin or drill) \xb7 RS faces body side \xb7 Curved bottom = pocket back' }));
     }
     if (opts.frontPocket === 'scoop') {
       // Facing: self-fabric. Serge curved bottom edge before assembling.
