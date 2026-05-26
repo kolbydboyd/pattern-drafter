@@ -609,14 +609,12 @@ function slantPocketScoop(bagWidth, slashDepth, bagDepth, startX = bagWidth) {
 export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, sideTaper = 0, instruction = '' } = {}) {
   const rightEdgeBottom = bagWidth + sideTaper;
 
-  // Straight trapezoid — no scoop needed. The backing only extends 1" below the slash to cover
-  // the opening; a curved bottom adds no functional value for this piece.
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth, rightEdgeBottom);
   const polygon = [
     { x: 0, y: 0 },
     { x: bagWidth, y: 0 },
     { x: rightEdgeBottom, y: slashDepth },
-    { x: rightEdgeBottom, y: bagDepth },
-    { x: 0, y: bagDepth },
+    ...scoopPts.slice(1),
   ];
   const width = rightEdgeBottom;
   const height = bagDepth;
