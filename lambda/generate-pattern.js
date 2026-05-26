@@ -273,14 +273,15 @@ export const handler = async (event) => {
     ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector', pdfLocale)
     : null;
 
-  // 7. Render to PDF.
+  // 7. Render to PDF — sequential to stay within 1024 MB Lambda memory.
+  // Parallel Chromium instances each consume ~300-500 MB; running them
+  // concurrently causes OOM on A0+projector combos. Sequential is safer.
   let pdfBuffer, pdfA0Buffer, pdfA0PreambleBuffer, pdfProjectorBuffer;
   try {
-    const renders = [generatePDF(html, primaryFormat)];
-    if (htmlA0Pattern)  renders.push(generatePDF(htmlA0Pattern, 'A0'));
-    if (htmlA0Preamble) renders.push(generatePDF(htmlA0Preamble, 'Letter'));
-    if (htmlProjector)  renders.push(generatePDF(htmlProjector, 'Letter')); // projector uses custom CSS sizing
-    [pdfBuffer, pdfA0Buffer, pdfA0PreambleBuffer, pdfProjectorBuffer] = await Promise.all(renders);
+    pdfBuffer = await generatePDF(html, primaryFormat);
+    if (htmlA0Pattern)  pdfA0Buffer        = await generatePDF(htmlA0Pattern,  'A0');
+    if (htmlA0Preamble) pdfA0PreambleBuffer = await generatePDF(htmlA0Preamble, 'Letter');
+    if (htmlProjector)  pdfProjectorBuffer  = await generatePDF(htmlProjector,  'Letter');
   } catch (err) {
     console.error('PDF generation failed:', err);
     return jsonResponse(500, { error: 'PDF generation failed' });
