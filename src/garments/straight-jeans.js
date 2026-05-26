@@ -18,6 +18,8 @@ import {
 import { buildMaterialsSpec } from '../engine/materials.js';
 import { flatFelledSeam } from '../lib/seam-techniques.js';
 
+const PLEAT_DEPTH = 1.5; // inches of fabric taken up per pleat fold
+
 export default {
   id: 'straight-jeans',
   name: 'Straight Jeans',
@@ -58,6 +60,15 @@ export default {
         { value: 'none',         label: 'None'            },
       ],
       default: 'slant',
+    },
+    frontPleats: {
+      type: 'select', label: 'Front pleats',
+      values: [
+        { value: 'none',   label: 'None (flat front)',  reference: 'classic 5-pocket' },
+        { value: 'single', label: 'Single pleat',       reference: '90s relaxed, Italian' },
+        { value: 'double', label: 'Double pleat',       reference: '1940s full drape'     },
+      ],
+      default: 'none',
     },
     frontExt: { type: 'number', label: 'Front crotch ext (0=auto)', default: 0, step: 0.25, min: 0, max: 5   },
     backExt:  { type: 'number', label: 'Back crotch ext (0=auto)',  default: 0, step: 0.25, min: 0, max: 8 },
@@ -131,12 +142,15 @@ export default {
     const inseam   = m.inseam || (m.outseam ? Math.max(1, m.outseam - rise) : 31);
     const shape    = LEG_SHAPES[opts.legShape] || LEG_SHAPES.straight;
 
+    const numPleats  = opts.frontPleats === 'double' ? 2 : opts.frontPleats === 'single' ? 1 : 0;
+    const pleatExtra = numPleats * PLEAT_DEPTH;
+
     const hip   = m.hip   || 36;
     const waist = m.waist || 32;
 
-    let frontHipW   = hip / 4 + ease.front + 0.5;
+    let frontHipW   = hip / 4 + ease.front + 0.5 + pleatExtra;
     let backHipW    = hip / 4 + ease.back;
-    const frontWaistW = waist / 4 + ease.front;
+    const frontWaistW = waist / 4 + ease.front + pleatExtra;
     const backWaistW  = waist / 4 + ease.back;
     const hipLineY    = m.seatDepth || 7;
 
@@ -160,11 +174,12 @@ export default {
 
     pieces.push(buildPanel({
       type: 'front', name: 'Front Panel',
-      instruction: 'Cut 2 (mirror L & R) · Curve on CENTER · Mark knee point',
+      instruction: `Cut 2 (mirror L & R)${numPleats > 0 ? ` · ${numPleats === 2 ? 'Double' : 'Single'} pleat ${fmtInches(PLEAT_DEPTH)} each · Fold toward CF` : ''} · Curve on CENTER · Mark knee point`,
       waistWidth: frontWaistW, hipWidth: frontHipW, hipLineY,
       height: H, rise, inseam,
       ext: frontExt, cbRaise: 0, sa, hem,
       isBack: false, shape, opts,
+      numPleats, pleatDepth: PLEAT_DEPTH,
       calf: m.calf, ankle: m.ankle, seatDepth: m.seatDepth, tummyAdj,
     }));
 
@@ -197,7 +212,7 @@ export default {
 
     // ── WAISTBAND ──
     const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
-    const wbLen = waist + ease.total + FLY_OVERLAP + sa * 2;
+    const wbLen = waist + ease.total + pleatExtra * 2 + FLY_OVERLAP + sa * 2;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const beltLoopCountForBand = waist > 36 ? 7 : 6;
     const wbInstr = beltLoopStyle === 'tunnel'
@@ -308,6 +323,7 @@ export default {
     const beltLoopCount = waist > 36 ? 7 : 6;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
+    const numPleats = opts.frontPleats === 'double' ? 2 : opts.frontPleats === 'single' ? 1 : 0;
 
     steps.push({
       step: n++, title: 'Needle setup',
@@ -346,6 +362,14 @@ export default {
         detail: 'On each front panel, align a pocket bag\u2019s straight side-seam edge to the front panel\u2019s side-seam edge {RST}, with the pocket bag opening at the waist. The bag hangs into the body of the front panel. {baste} the side-seam edge at \u215c\u2033 and the top (waist) edge at \u215c\u2033. The bag will be caught automatically when the outseam and waistband are sewn.' });
     }
     // frontPocket === 'none': no pocket assembly steps
+
+    if (numPleats > 0) {
+      steps.push({
+        step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS using the pattern notches. Fold each pleat toward the center front (fly side), enclosing ${fmtInches(PLEAT_DEPTH)} per pleat. Pin flat at the waist. {baste} across the waist at ⅜″. {press} the first 5–6″ from the waist with steam — do not press the full leg length. The pleat releases naturally below the hip and provides ease through the seat and thigh.`,
+      });
+    }
+
     if (hasYoke) {
       steps.push({
         step: n++, title: 'Sew back yoke to lower back panels',
@@ -615,7 +639,7 @@ function buildFlyExtension(rise) {
 
 // ── Panel builder with knee-point leg shaping ─────────────────────────────
 
-function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0, tummyAdj = 0 }) {
+function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, height, rise, inseam, ext, cbRaise, sa, hem, isBack, shape, opts, calf, ankle, seatDepth, dartIntake = 0, tummyAdj = 0, numPleats = 0, pleatDepth = 0 }) {
   const ccp      = crotchCurvePoints(0, 0, rise, ext, isBack, cbRaise);
   const curvePts = sampleBezier(ccp.p0, ccp.p1, ccp.p2, ccp.p3, 96);
 
@@ -704,6 +728,11 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     }
   }
 
+  // Front pleats — positioned toward center front, clear of the pocket opening
+  const pleats = [];
+  if (!isBack && numPleats >= 1) pleats.push({ x: waistWidth * 0.45, depth: pleatDepth, y1: 0, y2: 4.5 });
+  if (!isBack && numPleats >= 2) pleats.push({ x: waistWidth * 0.65, depth: pleatDepth, y1: 0, y2: 4.5 });
+
   // Notch marks: hip on side seam, crotch junction, knee on both seams.
   // Front panels also get a coin-pocket placement notch in the upper-right
   // pocket area (right front only, but marked on both since panels are mirrors).
@@ -732,7 +761,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
     polygon: poly, saPolygon: saPoly,
     path: polyToPath(poly), saPath: polyToPath(saPoly),
     dimensions: dims, waistWidth, hipWidth, width: hipWidth, height, rise, inseam, ext, cbRaise, sa, hem, isBack, slashEndX,
-    notches, crotchBezier: ccp,
+    notches, pleats, darts, crotchBezier: ccp,
     // LOCKED — crotch curve cut & stitch lines are finalized. Do not modify
     // crotchBezier, crotchBezierSA, or their rendering in pattern-view.js.
     crotchBezierSA: insetCrotchBezier(ccp, sa),
@@ -740,7 +769,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
     ],
-    darts, type: 'panel', opts,
+    type: 'panel', opts,
   };
 }
 
