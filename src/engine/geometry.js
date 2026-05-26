@@ -609,12 +609,11 @@ function slantPocketScoop(bagWidth, slashDepth, bagDepth, startX = bagWidth) {
 export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, sideTaper = 0, instruction = '' } = {}) {
   const rightEdgeBottom = bagWidth + sideTaper;
 
-  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth, rightEdgeBottom);
   const polygon = [
     { x: 0, y: 0 },
     { x: bagWidth, y: 0 },
     { x: rightEdgeBottom, y: slashDepth },
-    ...scoopPts.slice(1),
+    { x: 0, y: bagDepth },
   ];
   const width = rightEdgeBottom;
   const height = bagDepth;
