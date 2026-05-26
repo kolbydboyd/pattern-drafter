@@ -206,7 +206,7 @@ function renderPocketPlacement(piece, ox, oy) {
     // Bag overlay: 7" wide at top → slash diagonal → Q-scoop to bottom (9.5" deep)
     const cpX = ((ox + slashEndX) * DPI).toFixed(1), cpY = ((oy + bagDepth) * DPI).toFixed(1);
     const botX = ((ox + slashEndX - bagW) * DPI).toFixed(1), botY = cpY;
-    let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
+    let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw - 3.5) * DPI} ${sy1}`;
     bagPathD += ` L ${sx2} ${sy2}`;
     bagPathD += ` Q ${cpX} ${cpY} ${botX} ${botY}`;
     bagPathD += ` L ${((ox + sw - bagW) * DPI).toFixed(1)} ${((oy + bagDepth) * DPI).toFixed(1)} Z`;

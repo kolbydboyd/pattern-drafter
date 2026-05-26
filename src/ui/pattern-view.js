@@ -285,7 +285,9 @@ export function renderPanelSVG(piece) {
     const bagW = 7, slashDepth = 6, bagDepth = 9.5;
     const cpX = (ox + sc(endX)).toFixed(1), cpY = (oy + sc(bagDepth)).toFixed(1);
     const botX = (ox + sc(endX - bagW)).toFixed(1), botY = cpY;
-    let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw)} ${oy}`;
+    // Top-right stops at the slash start (sw-3.5), then follows the slash line to endX.
+    // Using sw would extend outside the cut panel outline.
+    let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw - 3.5)} ${oy}`;
     bagPathD += ` L ${(ox + sc(endX)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
     bagPathD += ` Q ${cpX} ${cpY} ${botX} ${botY}`;
     bagPathD += ` L ${(ox + sc(sw - bagW)).toFixed(1)} ${(oy + sc(bagDepth)).toFixed(1)} Z`;
