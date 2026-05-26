@@ -608,16 +608,15 @@ function slantPocketScoop(bagWidth, slashDepth, bagDepth, startX = bagWidth) {
  */
 export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, sideTaper = 0, instruction = '' } = {}) {
   const rightEdgeBottom = bagWidth + sideTaper;
-  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth, rightEdgeBottom);
 
-  // CW polygon: waist across → side seam down to slash exit → scoop curve to bottom-left → left side up
-  // sideTaper shifts the bottom-right of the right edge to match the panel's side-seam taper.
+  // Straight trapezoid — no scoop needed. The backing only extends 1" below the slash to cover
+  // the opening; a curved bottom adds no functional value for this piece.
   const polygon = [
-    { x: 0, y: 0 },                           // top-left (waist, inner edge)
-    { x: bagWidth, y: 0 },                    // top-right (waist at side seam)
-    { x: rightEdgeBottom, y: slashDepth },    // side seam down to slash exit (tapered to match panel)
-    ...scoopPts.slice(1),                      // scoop from slash exit to bottom-left
-    // closes back to top-left
+    { x: 0, y: 0 },
+    { x: bagWidth, y: 0 },
+    { x: rightEdgeBottom, y: slashDepth },
+    { x: rightEdgeBottom, y: bagDepth },
+    { x: 0, y: bagDepth },
   ];
   const width = rightEdgeBottom;
   const height = bagDepth;
@@ -639,7 +638,7 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
     ],
     notches: [
       // Slash start on waistline — matches the 'pocket' notch on the front panel waist edge.
-      { x: bagWidth - slashInset, y: 0, angle: 180, label: 'slash start' },
+      { x: bagWidth - 3.5, y: 0, angle: 180, label: 'slash start' },
       // Side seam at waistline — backing top-right aligns with front panel's (sw, 0) drill mark.
       { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
       // Slash exit — where side seam meets scoop curve. Matches front panel drill mark.
@@ -662,7 +661,10 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
   // Full D-shape: waist across full width → side seam down to slash exit →
   // scoop curve to bottom-left → left side up.
   // sideTaper shifts the bottom-right to match the panel's side-seam taper so stitch lines align.
-  const slashStartX = bagWidth - slashInset;
+  // Slash always starts 3.5" from the side seam at the waist (physical pocket opening width).
+  // sideTaper shifts the right-edge bottom rightward to match the panel's side-seam taper,
+  // so the actual slash horizontal span in piece space = 3.5 + sideTaper = pocketSlashInset.
+  const slashStartX = bagWidth - 3.5;
   const polygon = [
     { x: 0, y: 0 },                           // top-left (waist, inner edge)
     { x: bagWidth, y: 0 },                    // top-right (waist at side seam)
@@ -672,11 +674,11 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
   ];
   const width = rightEdgeBottom;
   const height = bagDepth;
-  // Perpendicular to slash direction (inward left of travel), computed from actual slashInset.
-  // For default slashInset=3.5, slashDepth=6: perpX=-0.864, perpY=0.504.
-  const slashLen = Math.hypot(slashInset, slashDepth);
+  // Perpendicular to slash direction computed from actual slash vector (3.5+sideTaper, slashDepth).
+  const slashHspan = 3.5 + sideTaper;
+  const slashLen = Math.hypot(slashHspan, slashDepth);
   const perpX = -slashDepth / slashLen;
-  const perpY =  slashInset / slashLen;
+  const perpY =  slashHspan / slashLen;
 
   return {
     id: 'slant-bag',
