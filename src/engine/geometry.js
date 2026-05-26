@@ -588,10 +588,10 @@ export function edgeAngle(a, b) {
  *
  * Cubic bezier approximation of the quadratic Q(bagWidth,bagDepth).
  */
-function slantPocketScoop(bagWidth, slashDepth, bagDepth) {
+function slantPocketScoop(bagWidth, slashDepth, bagDepth, startX = bagWidth) {
   const scoopPts = sampleBezier(
-    { x: bagWidth, y: slashDepth },                                            // start: slash exit on side seam
-    { x: bagWidth, y: slashDepth + (bagDepth - slashDepth) * 2 / 3 },         // cp1: pulls down along side seam
+    { x: startX, y: slashDepth },                                              // start: slash exit (may be wider than bagWidth due to side-seam taper)
+    { x: startX, y: slashDepth + (bagDepth - slashDepth) * 2 / 3 },           // cp1: pulls down along right edge
     { x: bagWidth * 2 / 3, y: bagDepth },                                     // cp2: pulls across at bottom
     { x: 0, y: bagDepth },                                                    // end: bottom-left
     16,
@@ -606,18 +606,20 @@ function slantPocketScoop(bagWidth, slashDepth, bagDepth) {
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
-export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
+export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, sideTaper = 0, instruction = '' } = {}) {
+  const rightEdgeBottom = bagWidth + sideTaper;
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth, rightEdgeBottom);
 
   // CW polygon: waist across → side seam down to slash exit → scoop curve to bottom-left → left side up
+  // sideTaper shifts the bottom-right of the right edge to match the panel's side-seam taper.
   const polygon = [
-    { x: 0, y: 0 },                       // top-left (waist, inner edge)
-    { x: bagWidth, y: 0 },                // top-right (waist at side seam)
-    { x: bagWidth, y: slashDepth },        // side seam down to slash exit level
-    ...scoopPts.slice(1),                  // scoop from slash exit to bottom-left (skip first, it's the same point)
+    { x: 0, y: 0 },                           // top-left (waist, inner edge)
+    { x: bagWidth, y: 0 },                    // top-right (waist at side seam)
+    { x: rightEdgeBottom, y: slashDepth },    // side seam down to slash exit (tapered to match panel)
+    ...scoopPts.slice(1),                      // scoop from slash exit to bottom-left
     // closes back to top-left
   ];
-  const width = bagWidth;
+  const width = rightEdgeBottom;
   const height = bagDepth;
 
   return {
@@ -641,7 +643,7 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
       // Side seam at waistline — backing top-right aligns with front panel's (sw, 0) drill mark.
       { x: bagWidth, y: 0, angle: 90, label: 'side seam' },
       // Slash exit — where side seam meets scoop curve. Matches front panel drill mark.
-      { x: bagWidth, y: slashDepth, angle: 135, label: 'slash' },
+      { x: rightEdgeBottom, y: slashDepth, angle: 135, label: 'slash' },
     ],
   };
 }
@@ -653,22 +655,22 @@ export function buildSlantPocketBacking({ bagWidth = 7, slashInset = 3.5, slashD
  *
  * @param {{ bagWidth?: number, slashInset?: number, slashDepth?: number, bagDepth?: number, sa?: number, instruction?: string }} opts
  */
-export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, instruction = '' } = {}) {
-  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth);
+export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth = 6, bagDepth = 9.5, sa = 0.625, sideTaper = 0, instruction = '' } = {}) {
+  const rightEdgeBottom = bagWidth + sideTaper;
+  const scoopPts = slantPocketScoop(bagWidth, slashDepth, bagDepth, rightEdgeBottom);
 
   // Full D-shape: waist across full width → side seam down to slash exit →
   // scoop curve to bottom-left → left side up.
-  // The slash opening is marked by notches at slashStartX and (bagWidth, slashDepth);
-  // it is a seam on the backing, not a cut edge on the bag.
+  // sideTaper shifts the bottom-right to match the panel's side-seam taper so stitch lines align.
   const slashStartX = bagWidth - slashInset;
   const polygon = [
-    { x: 0, y: 0 },                       // top-left (waist, inner edge)
-    { x: bagWidth, y: 0 },                // top-right (waist at side seam)
-    { x: bagWidth, y: slashDepth },        // side seam down to slash exit level
-    ...scoopPts.slice(1),                  // scoop from slash exit to bottom-left
+    { x: 0, y: 0 },                           // top-left (waist, inner edge)
+    { x: bagWidth, y: 0 },                    // top-right (waist at side seam)
+    { x: rightEdgeBottom, y: slashDepth },    // side seam down to slash exit (tapered to match panel)
+    ...scoopPts.slice(1),                      // scoop from slash exit to bottom-left
     // closes back to top-left
   ];
-  const width = bagWidth;
+  const width = rightEdgeBottom;
   const height = bagDepth;
   // Perpendicular to slash direction (inward left of travel), computed from actual slashInset.
   // For default slashInset=3.5, slashDepth=6: perpX=-0.864, perpY=0.504.
@@ -694,14 +696,14 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
     notches: [],
     trimMarks: [
       {
-        x1: slashStartX, y1: 0,
-        x2: bagWidth,    y2: slashDepth,
+        x1: slashStartX,           y1: 0,
+        x2: rightEdgeBottom,       y2: slashDepth,
         stroke: '#8a4a4a', dash: '6,3',
         label: 'parallel',
       },
       {
-        x1: slashStartX + perpX * sa, y1: perpY * sa,
-        x2: bagWidth    + perpX * sa, y2: slashDepth + perpY * sa,
+        x1: slashStartX    + perpX * sa, y1: perpY * sa,
+        x2: rightEdgeBottom + perpX * sa, y2: slashDepth + perpY * sa,
         stroke: '#8a4a4a', dash: '2,2',
         label: '',
       },
