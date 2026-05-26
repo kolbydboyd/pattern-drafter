@@ -278,23 +278,13 @@ export function renderPanelSVG(piece) {
   // Pocket indicators
   let pocketSVG = '';
   if (!isBack && (opts?.frontPocket === 'slant' || opts?.pockets === 'slant')) {
-    // Show the pocket bag area as a dashed reference overlay.
-    // Geometry matches the actual bag piece: 7" wide, 9.5" deep, Q-scoop bottom.
     const sw = waistWidth || width;
     const endX = slashEndX != null ? slashEndX : sw;
-    const bagW = 7, slashDepth = 6, bagDepth = 12;
-    const c1x = (ox + sc(endX)).toFixed(1),
-          c1y = (oy + sc(slashDepth + (bagDepth - slashDepth) * 2 / 3)).toFixed(1);
-    const c2x = (ox + sc(sw - bagW / 3)).toFixed(1), c2y = (oy + sc(bagDepth)).toFixed(1);
-    const p3x = (ox + sc(sw - bagW)).toFixed(1),      p3y = c2y;
-    // Top: (sw-bagW,0)→(sw,0). Right: diagonal to (endX,slashDepth) along side seam.
-    // Scoop ends at (sw-bagW,bagDepth) so the left edge is vertical.
-    let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw)} ${oy}`;
-    bagPathD += ` L ${(ox + sc(endX)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
-    bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
-    bagPathD += ` Z`;
-    pocketSVG += `<path d="${bagPathD}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${ox + sc(sw - bagW / 2)}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
+    const slashDepth = 6;
+    // Slash opening line (start to exit) for visual reference.
+    const slashCol = '#8a4a4a';
+    pocketSVG += `<line x1="${(ox + sc(sw - 3.5)).toFixed(1)}" y1="${oy}" x2="${(ox + sc(endX)).toFixed(1)}" y2="${(oy + sc(slashDepth)).toFixed(1)}" stroke="${slashCol}" stroke-width="1" stroke-dasharray="3,2"/>`;
+    pocketSVG += `<text x="${(ox + sc(sw - 3.5) - 4).toFixed(1)}" y="${(oy + sc(slashDepth / 2)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="${slashCol}">pocket</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
     // Side-seam pocket: D-shaped bag extending inward from side seam.
