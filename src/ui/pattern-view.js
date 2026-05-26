@@ -281,17 +281,18 @@ export function renderPanelSVG(piece) {
     // Show the pocket bag area as a dashed reference overlay.
     // Geometry matches the actual bag piece: 7" wide, 9.5" deep, Q-scoop bottom.
     const sw = waistWidth || width;
+    const endX = slashEndX != null ? slashEndX : sw;
     const bagW = 7, slashDepth = 6, bagDepth = 12;
-    const c1x = (ox + sc(sw)).toFixed(1),
+    const c1x = (ox + sc(endX)).toFixed(1),
           c1y = (oy + sc(slashDepth + (bagDepth - slashDepth) * 2 / 3)).toFixed(1);
-    const c2x = (ox + sc(sw - bagW / 3)).toFixed(1), c2y = (oy + sc(bagDepth)).toFixed(1);
-    const p3x = (ox + sc(sw - bagW)).toFixed(1),      p3y = c2y;
-    let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw)} ${oy}`;
-    bagPathD += ` L ${(ox + sc(sw)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
+    const c2x = (ox + sc(endX - bagW / 3)).toFixed(1), c2y = (oy + sc(bagDepth)).toFixed(1);
+    const p3x = (ox + sc(endX - bagW)).toFixed(1),      p3y = c2y;
+    let bagPathD = `M ${ox + sc(endX - bagW)} ${oy} L ${ox + sc(endX)} ${oy}`;
+    bagPathD += ` L ${(ox + sc(endX)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
     bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
     bagPathD += ` Z`;
     pocketSVG += `<path d="${bagPathD}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${ox + sc(sw - bagW) + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
+      <text x="${ox + sc(endX - bagW) + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
     // Side-seam pocket: D-shaped bag extending inward from side seam.

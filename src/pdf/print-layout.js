@@ -203,13 +203,13 @@ function renderPocketPlacement(piece, ox, oy) {
     const slashEndX = piece.slashEndX ?? sw;
     const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + slashDepth) * DPI;
-    // Bag overlay: matches buildSlantPocketBag — vertical right edge, cubic scoop, 12" deep
-    const c1x = ((ox + sw) * DPI).toFixed(1),
+    // Bag overlay: anchored to slashEndX so right edge aligns with side seam at slash exit
+    const c1x = ((ox + slashEndX) * DPI).toFixed(1),
           c1y = ((oy + slashDepth + (bagDepth - slashDepth) * 2 / 3) * DPI).toFixed(1);
-    const c2x = ((ox + sw - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
-    const p3x = ((ox + sw - bagW) * DPI).toFixed(1),      p3y = c2y;
-    let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
-    bagPathD += ` L ${(ox + sw) * DPI} ${(oy + slashDepth) * DPI}`;
+    const c2x = ((ox + slashEndX - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
+    const p3x = ((ox + slashEndX - bagW) * DPI).toFixed(1),      p3y = c2y;
+    let bagPathD = `M ${(ox + slashEndX - bagW) * DPI} ${sy1} L ${(ox + slashEndX) * DPI} ${sy1}`;
+    bagPathD += ` L ${(ox + slashEndX) * DPI} ${(oy + slashDepth) * DPI}`;
     bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
     bagPathD += ` Z`;
     svg += `<path d="${bagPathD}"
@@ -220,11 +220,11 @@ function renderPocketPlacement(piece, ox, oy) {
     // Drill marks
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
-    svg += drillMark((ox + sw - bagW) * DPI, sy1);
-    svg += drillMark((ox + sw - bagW) * DPI, (oy + bagDepth) * DPI);
+    svg += drillMark((ox + slashEndX - bagW) * DPI, sy1);
+    svg += drillMark((ox + slashEndX - bagW) * DPI, (oy + bagDepth) * DPI);
     svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing top-right corner
     // Label
-    svg += `<text x="${(ox + sw - bagW) * DPI + 3}" y="${(oy + rise * 0.85) * DPI}"
+    svg += `<text x="${(ox + slashEndX - bagW) * DPI + 3}" y="${(oy + rise * 0.85) * DPI}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
   }
 
