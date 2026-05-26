@@ -2824,7 +2824,13 @@ ${body}
   // plotter/copy shop. CSS named pages (@page letter-page) handle the
   // mixed page sizes within a single PDF.
   const preamblePages = isLargeFormat
-    ? buildLargeFormatPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
+    ? addLetterPageClass(
+        buildCoverPage(garment, measurements, opts)
+        + buildScalePage(pieces, PW, PH, OV)
+        + buildMaterialsPage(materials, instructions)
+        + buildGlossaryPage(materials, instructions)
+        + buildInstructionsPage(instructions, 11)
+      )
     : isTabloid
     ? buildTabloidPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)
