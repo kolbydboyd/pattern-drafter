@@ -203,7 +203,7 @@ function foldIndicatorSVG(fx, fy1, fy2) {
 export function renderPanelSVG(piece) {
   const { width, height, rise, inseam, ext, sa, hem, isBack, cbRaise,
           polygon, saPolygon, dimensions, labels, pleats = [], darts = [], notches = [], edgeAllowances, opts,
-          crotchBezierSA, waistWidth = 0 } = piece;
+          crotchBezierSA, waistWidth = 0, slashEndX = null } = piece;
 
   const mL = 3, mT = 3, mR = Math.max(5, ext + 3.5), mB = 6;
   const svgW = sc(mL + width + mR);
@@ -278,14 +278,21 @@ export function renderPanelSVG(piece) {
   // Pocket indicators
   let pocketSVG = '';
   if (!isBack && (opts?.frontPocket === 'slant' || opts?.pockets === 'slant')) {
-    // The front panel is now cut at the slash line (diagonal edge is part of the piece outline).
     // Show the pocket bag area as a dashed reference overlay.
+    // Geometry matches the actual bag piece: 7" wide, 9.5" deep, Q-scoop bottom.
     const sw = waistWidth || width;
-    const bagL  = ox + sc(sw - 7);
-    const bagRT = ox + sc(sw);
-    const bagB  = oy + sc(12);
-    pocketSVG += `<path d="M ${bagL} ${oy} L ${bagRT} ${oy} L ${bagRT} ${oy + sc(6)} Q ${bagRT} ${bagB} ${bagL} ${bagB} Z" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
-      <text x="${bagL + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
+    const endX = slashEndX != null ? slashEndX : sw;
+    const bagW = 7, slashDepth = 6, bagDepth = 9.5;
+    const cpX = (ox + sc(endX)).toFixed(1), cpY = (oy + sc(bagDepth)).toFixed(1);
+    const botX = (ox + sc(endX - bagW)).toFixed(1), botY = cpY;
+    // Top-right stops at the slash start (sw-3.5), then follows the slash line to endX.
+    // Using sw would extend outside the cut panel outline.
+    let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw - 3.5)} ${oy}`;
+    bagPathD += ` L ${(ox + sc(endX)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
+    bagPathD += ` Q ${cpX} ${cpY} ${botX} ${botY}`;
+    bagPathD += ` L ${(ox + sc(sw - bagW)).toFixed(1)} ${(oy + sc(bagDepth)).toFixed(1)} Z`;
+    pocketSVG += `<path d="${bagPathD}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
+      <text x="${ox + sc(sw - bagW) + 2}" y="${(oy + sc(rise * 0.85)).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#8a4a4a">pocket bag area</text>`;
   }
   if (!isBack && (opts?.frontPocket === 'side' || opts?.pockets === 'side')) {
     // Side-seam pocket: D-shaped bag extending inward from side seam.

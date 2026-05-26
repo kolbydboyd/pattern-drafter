@@ -654,7 +654,7 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   if (hasSlash) clipPanelAtSlash(poly, sideWaistX, 3.5, 6);
   // Precompute slash exit x so renderPocketPlacement can use it directly after
   // sanitizePoly may have removed the vertex as collinear.
-  const slashEndX = hasSlash ? sideWaistX : null;
+  const slashEndX = hasSlash ? sideWaistX + (hipWidth - sideWaistX) * (6 / hipLineY) : null;
   if (hasScoop) clipPanelAtScoop(poly, sideWaistX, 3.5, 5);
   if (hasSquareScoop) clipPanelAtSquareScoop(poly, sideWaistX, 3.5, 4);
 
