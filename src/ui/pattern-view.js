@@ -283,14 +283,14 @@ export function renderPanelSVG(piece) {
     const sw = waistWidth || width;
     const endX = slashEndX != null ? slashEndX : sw;
     const bagW = 7, slashDepth = 6, bagDepth = 12;
-    const c1x = (ox + sc(endX)).toFixed(1),
+    const c1x = (ox + sc(sw)).toFixed(1),
           c1y = (oy + sc(slashDepth + (bagDepth - slashDepth) * 2 / 3)).toFixed(1);
-    const c2x = (ox + sc(endX - bagW / 3)).toFixed(1), c2y = (oy + sc(bagDepth)).toFixed(1);
-    const p3x = (ox + sc(endX - bagW)).toFixed(1),      p3y = c2y;
-    // Top edge aligns with panel waist/side-seam corner (sw,0).
-    // Right edge follows the side seam taper diagonally from (sw,0) to the slash exit (endX,slashDepth).
+    const c2x = (ox + sc(sw - bagW / 3)).toFixed(1), c2y = (oy + sc(bagDepth)).toFixed(1);
+    const p3x = (ox + sc(sw - bagW)).toFixed(1),      p3y = c2y;
+    // Top edge: (sw-bagW,0)→(sw,0). Right edge: vertical down to (sw,slashDepth).
+    // Scoop anchored to sw so left edge (sw-bagW,0)→(sw-bagW,bagDepth) is perfectly vertical.
     let bagPathD = `M ${ox + sc(sw - bagW)} ${oy} L ${ox + sc(sw)} ${oy}`;
-    bagPathD += ` L ${(ox + sc(endX)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
+    bagPathD += ` L ${(ox + sc(sw)).toFixed(1)} ${(oy + sc(slashDepth)).toFixed(1)}`;
     bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
     bagPathD += ` Z`;
     pocketSVG += `<path d="${bagPathD}" stroke="#8a4a4a" stroke-width=".6" stroke-dasharray="2,3" fill="rgba(138,74,74,.03)"/>
@@ -411,7 +411,8 @@ export function renderPanelSVG(piece) {
     const sampleL = Math.max(0.5, width * 0.15);
     const sampleR = Math.min(width - 0.5, sampleL + pw);
     const yL = topEdgeYatX(sampleL), yR = topEdgeYatX(sampleR);
-    const rad = sampleR > sampleL ? Math.atan2(yR - yL, sampleR - sampleL) : 0;
+    const rawRad = sampleR > sampleL ? Math.atan2(yR - yL, sampleR - sampleL) : 0;
+    const rad = Math.min(Math.max(rawRad, -0.052), 0.052); // cap at ±3°
     const cosA = Math.cos(rad), sinA = Math.sin(rad);
 
     // Center pocket on the seat: pocket midpoint sits 0.5″ below hip line

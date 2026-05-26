@@ -203,15 +203,14 @@ function renderPocketPlacement(piece, ox, oy) {
     const slashEndX = piece.slashEndX ?? sw;
     const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + slashDepth) * DPI;
-    // Bag overlay: anchored to slashEndX so right edge aligns with side seam at slash exit
-    const c1x = ((ox + slashEndX) * DPI).toFixed(1),
+    // Bag overlay: anchored to sw so right edge is vertical and left edge is perfectly vertical.
+    const c1x = ((ox + sw) * DPI).toFixed(1),
           c1y = ((oy + slashDepth + (bagDepth - slashDepth) * 2 / 3) * DPI).toFixed(1);
-    const c2x = ((ox + slashEndX - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
-    const p3x = ((ox + slashEndX - bagW) * DPI).toFixed(1),      p3y = c2y;
-    // Top edge aligns with panel waist/side-seam corner (sw,0).
-    // Right edge follows the side seam taper diagonally from (sw,0) to the slash exit (slashEndX,slashDepth).
+    const c2x = ((ox + sw - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
+    const p3x = ((ox + sw - bagW) * DPI).toFixed(1),      p3y = c2y;
+    // Top edge: (sw-bagW,0)→(sw,0). Right edge: vertical down to (sw,slashDepth).
     let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
-    bagPathD += ` L ${(ox + slashEndX) * DPI} ${(oy + slashDepth) * DPI}`;
+    bagPathD += ` L ${(ox + sw) * DPI} ${(oy + slashDepth) * DPI}`;
     bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
     bagPathD += ` Z`;
     svg += `<path d="${bagPathD}"
@@ -223,7 +222,7 @@ function renderPocketPlacement(piece, ox, oy) {
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
     svg += drillMark((ox + sw - bagW) * DPI, sy1);                              // bag top-left
-    svg += drillMark((ox + slashEndX - bagW) * DPI, (oy + bagDepth) * DPI);   // bag bottom-left (scoop end)
+    svg += drillMark((ox + sw - bagW) * DPI, (oy + bagDepth) * DPI);           // bag bottom-left (scoop end)
     svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing/bag top-right corner
     // Label
     svg += `<text x="${(ox + sw - bagW / 2) * DPI}" y="${(oy + rise * 0.85) * DPI}"
@@ -333,8 +332,9 @@ function renderPocketPlacement(piece, ox, oy) {
     // Tilt to match yoke seam slope
     const sampleL = Math.max(0.5, width * 0.15);
     const sampleR = Math.min(width - 0.5, sampleL + pw);
-    const rad = sampleR > sampleL
+    const rawRad = sampleR > sampleL
       ? Math.atan2(bpTopEdgeYatX(sampleR) - bpTopEdgeYatX(sampleL), sampleR - sampleL) : 0;
+    const rad = Math.min(Math.max(rawRad, -0.052), 0.052); // cap at ±3°
     const cosA = Math.cos(rad), sinA = Math.sin(rad);
 
     // Center vertically on seat (0.5″ below hip line)
