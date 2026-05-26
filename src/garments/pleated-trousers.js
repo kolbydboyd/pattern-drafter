@@ -168,7 +168,7 @@ export default {
 
     // ── CURTAIN WAISTBAND (2″ finished) ──
     const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
-    const wbLen = m.waist + ease.total + pleatExtra * 2 + FLY_OVERLAP + sa * 2;
+    const wbLen = m.waist + ease.total + FLY_OVERLAP + sa * 2;
     const wbW   = 4;  // 2″ finished = 4″ cut (doubled + SA)
     pieces.push({
       id: 'waistband',
