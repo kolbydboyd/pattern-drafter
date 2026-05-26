@@ -1621,7 +1621,13 @@ async function handleDownloadPDF(btn) {
         locale:       getLocale(),
       }),
     });
-    const json = await res.json();
+    let json;
+    try {
+      json = await res.json();
+    } catch {
+      // Non-JSON response — typically a Lambda timeout (504) or cold-start error
+      throw new Error(`Server returned ${res.status} (${res.statusText}). The pattern may be too complex to generate in time. Please try again.`);
+    }
     if (!res.ok || json.error) {
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
       return;
@@ -1649,7 +1655,8 @@ async function handleDownloadPDF(btn) {
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
-    alert('Download failed. Please try again.');
+    console.error('Download failed:', err);
+    alert('Download failed. Please try again. If this keeps happening, try a smaller paper size first.');
   } finally {
     btn.disabled    = false;
     btn.textContent = origText;
