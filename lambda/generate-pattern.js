@@ -261,35 +261,43 @@ export const handler = async (event) => {
   const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize, pdfLocale);
 
   const needsA0 = purchase?.a0_addon === true;
-  const htmlA0  = needsA0
-    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale)
+  // A0: generate two separate PDFs — pattern-only (A0 size) + preamble-only (Letter size).
+  // User prints the letter PDF at home and sends the A0 PDF to the print shop.
+  const htmlA0Pattern  = needsA0
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale, 'pattern')
+    : null;
+  const htmlA0Preamble = needsA0
+    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale, 'preamble')
     : null;
   const htmlProjector = needsA0
     ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector', pdfLocale)
     : null;
 
   // 7. Render to PDF.
-  let pdfBuffer, pdfA0Buffer, pdfProjectorBuffer;
+  let pdfBuffer, pdfA0Buffer, pdfA0PreambleBuffer, pdfProjectorBuffer;
   try {
     const renders = [generatePDF(html, primaryFormat)];
-    if (htmlA0)        renders.push(generatePDF(htmlA0, 'A0'));
-    if (htmlProjector) renders.push(generatePDF(htmlProjector, 'Letter')); // projector uses custom CSS sizing
-    [pdfBuffer, pdfA0Buffer, pdfProjectorBuffer] = await Promise.all(renders);
+    if (htmlA0Pattern)  renders.push(generatePDF(htmlA0Pattern, 'A0'));
+    if (htmlA0Preamble) renders.push(generatePDF(htmlA0Preamble, 'Letter'));
+    if (htmlProjector)  renders.push(generatePDF(htmlProjector, 'Letter')); // projector uses custom CSS sizing
+    [pdfBuffer, pdfA0Buffer, pdfA0PreambleBuffer, pdfProjectorBuffer] = await Promise.all(renders);
   } catch (err) {
     console.error('PDF generation failed:', err);
     return jsonResponse(500, { error: 'PDF generation failed' });
   }
 
   // 8. Upload to Supabase Storage.
-  const timestamp     = Date.now();
-  const path          = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
-  const pathA0        = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
-  const pathProjector = `${userId || 'anon'}/${garmentId}/${timestamp}-projector.pdf`;
+  const timestamp        = Date.now();
+  const path             = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
+  const pathA0           = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
+  const pathA0Preamble   = `${userId || 'anon'}/${garmentId}/${timestamp}-a0-instructions.pdf`;
+  const pathProjector    = `${userId || 'anon'}/${garmentId}/${timestamp}-projector.pdf`;
 
   const uploads = [
     supabase.storage.from('patterns').upload(path, pdfBuffer, { contentType: 'application/pdf', upsert: true }),
   ];
   if (pdfA0Buffer)        uploads.push(supabase.storage.from('patterns').upload(pathA0, pdfA0Buffer, { contentType: 'application/pdf', upsert: true }));
+  if (pdfA0PreambleBuffer) uploads.push(supabase.storage.from('patterns').upload(pathA0Preamble, pdfA0PreambleBuffer, { contentType: 'application/pdf', upsert: true }));
   if (pdfProjectorBuffer) uploads.push(supabase.storage.from('patterns').upload(pathProjector, pdfProjectorBuffer, { contentType: 'application/pdf', upsert: true }));
 
   const uploadResults = await Promise.all(uploads);
@@ -302,16 +310,18 @@ export const handler = async (event) => {
   // 9. Generate signed URLs (48 hours).
   const signedUrls = await Promise.all([
     supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48),
-    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)]        : []),
-    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48)] : []),
+    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)]          : []),
+    ...(pdfA0PreambleBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0Preamble, 60 * 60 * 48)] : []),
+    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48)]   : []),
   ]);
 
   const { data: signed, error: signErr } = signedUrls[0];
   if (signErr) return jsonResponse(500, { error: 'Could not generate download URL' });
 
   let urlIdx = 1;
-  const a0Signed        = pdfA0Buffer        ? (signedUrls[urlIdx++]?.data ?? null) : null;
-  const projectorSigned = pdfProjectorBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
+  const a0Signed          = pdfA0Buffer        ? (signedUrls[urlIdx++]?.data ?? null) : null;
+  const a0PreambleSigned  = pdfA0PreambleBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
+  const projectorSigned   = pdfProjectorBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
 
   // 10. Increment download_count.
   if (userId) {
@@ -329,9 +339,10 @@ export const handler = async (event) => {
       const { purchaseConfirmationEmail } = await import('../src/lib/email-templates.js');
       const tmpl = purchaseConfirmationEmail({
         garmentName,
-        downloadUrl:          signed.signedUrl,
-        a0DownloadUrl:        a0Signed?.signedUrl ?? null,
-        projectorDownloadUrl: projectorSigned?.signedUrl ?? null,
+        downloadUrl:            signed.signedUrl,
+        a0DownloadUrl:          a0Signed?.signedUrl ?? null,
+        a0PreambleDownloadUrl:  a0PreambleSigned?.signedUrl ?? null,
+        projectorDownloadUrl:   projectorSigned?.signedUrl ?? null,
         measurements,
         expiresHours: 48,
       });
@@ -342,7 +353,8 @@ export const handler = async (event) => {
   }
 
   const response = { downloadUrl: signed.signedUrl };
-  if (a0Signed)        response.a0DownloadUrl        = a0Signed.signedUrl;
-  if (projectorSigned) response.projectorDownloadUrl = projectorSigned.signedUrl;
+  if (a0Signed)         response.a0DownloadUrl          = a0Signed.signedUrl;
+  if (a0PreambleSigned) response.a0PreambleDownloadUrl  = a0PreambleSigned.signedUrl;
+  if (projectorSigned)  response.projectorDownloadUrl   = projectorSigned.signedUrl;
   return jsonResponse(200, response);
 };

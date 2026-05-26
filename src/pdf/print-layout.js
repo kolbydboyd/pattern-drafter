@@ -2818,12 +2818,36 @@ ${body}
 </html>`;
   }
 
+  // ── A0 preamble-only: letter-sized pages for printing at home ───────────
+  // When section === 'preamble', return a standalone letter PDF with cover,
+  // scale page, materials, glossary, and instructions — no pattern tiles.
+  // User prints this at home and sends the separate A0 pattern PDF to the shop.
+  if (isLargeFormat && section === 'preamble') {
+    const LW = 8.5, LH = 11;
+    const body = buildCoverPage(garment, measurements, opts)
+      + buildScalePage(pieces, LW, LH, OV)
+      + buildMaterialsPage(materials, instructions)
+      + buildGlossaryPage(materials, instructions)
+      + buildInstructionsPage(instructions, LH);
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${garment.name} | Instructions (Letter)</title>
+<style>${buildCSS(LW, LH)}</style>
+</head>
+<body>
+${body}
+</body>
+</html>`;
+  }
+
   // ── Preamble pages ──────────────────────────────────────────────────────
-  // For A0/large-format: preamble pages are US Letter (8.5×11) so customers
-  // can print them at home; the tile pages that follow remain A0 for the
-  // plotter/copy shop. CSS named pages (@page letter-page) handle the
-  // mixed page sizes within a single PDF.
-  const preamblePages = isLargeFormat
+  // For A0 with section === 'pattern': skip preamble (separate preamble PDF
+  // is generated and downloaded alongside the A0 pattern PDF).
+  const preamblePages = (isLargeFormat && section === 'pattern')
+    ? ''
+    : isLargeFormat
     ? addLetterPageClass(
         buildCoverPage(garment, measurements, opts)
         + buildScalePage(pieces, PW, PH, OV)

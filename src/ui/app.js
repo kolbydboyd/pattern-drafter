@@ -1630,15 +1630,22 @@ async function handleDownloadPDF(btn) {
     // attribute works (it's ignored for cross-origin Supabase URLs otherwise)
     await _blobDownload(json.downloadUrl, `${currentGarment}-pattern.pdf`);
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
-    // If A0 addon was purchased, trigger A0 + projector downloads and show a notice
+    // If A0 addon was purchased, trigger A0 pattern + preamble + projector downloads
     if (json.a0DownloadUrl) {
       setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
+      let nextDelay = 1600;
+      if (json.a0PreambleDownloadUrl) {
+        setTimeout(() => _blobDownload(json.a0PreambleDownloadUrl, `${currentGarment}-instructions-letter.pdf`), nextDelay);
+        nextDelay += 800;
+      }
       if (json.projectorDownloadUrl) {
-        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), 1600);
+        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), nextDelay);
       }
       const notice = document.createElement('p');
       notice.className = 'a0-download-notice';
-      notice.textContent = 'Your A0 + projector files are also downloading. No taping required.';
+      notice.textContent = json.a0PreambleDownloadUrl
+        ? 'Two A0 files downloading. Send the A0 PDF to the print shop. Print the instructions PDF at home on letter paper.'
+        : 'Your A0 + projector files are also downloading. No taping required.';
       btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
