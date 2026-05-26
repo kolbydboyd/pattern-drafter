@@ -198,18 +198,20 @@ function renderPocketPlacement(piece, ox, oy) {
   // ── Slant pocket (front only) ──
   if (!isBack && opts.frontPocket === 'slant') {
     const sw = piece.waistWidth || width;
-    const bagW = 7, slashDepth = 6, bagDepth = 9.5;
+    const bagW = 7, slashDepth = 6, bagDepth = 12;
     // Slash opening points (for line + drill marks)
     const slashEndX = piece.slashEndX ?? sw;
     const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + slashDepth) * DPI;
-    // Bag overlay: 7" wide at top → slash diagonal → Q-scoop to bottom (9.5" deep)
-    const cpX = ((ox + slashEndX) * DPI).toFixed(1), cpY = ((oy + bagDepth) * DPI).toFixed(1);
-    const botX = ((ox + slashEndX - bagW) * DPI).toFixed(1), botY = cpY;
+    // Bag overlay: matches buildSlantPocketBag — vertical right edge, cubic scoop, 12" deep
+    const c1x = ((ox + sw) * DPI).toFixed(1),
+          c1y = ((oy + slashDepth + (bagDepth - slashDepth) * 2 / 3) * DPI).toFixed(1);
+    const c2x = ((ox + sw - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
+    const p3x = ((ox + sw - bagW) * DPI).toFixed(1),      p3y = c2y;
     let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
-    bagPathD += ` L ${sx2} ${sy2}`;
-    bagPathD += ` Q ${cpX} ${cpY} ${botX} ${botY}`;
-    bagPathD += ` L ${((ox + sw - bagW) * DPI).toFixed(1)} ${((oy + bagDepth) * DPI).toFixed(1)} Z`;
+    bagPathD += ` L ${(ox + sw) * DPI} ${(oy + slashDepth) * DPI}`;
+    bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
+    bagPathD += ` Z`;
     svg += `<path d="${bagPathD}"
       stroke="${PKT_COL}" stroke-width="1.2" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
     // Slash opening (solid)
@@ -219,7 +221,7 @@ function renderPocketPlacement(piece, ox, oy) {
     svg += drillMark(sx1, sy1);
     svg += drillMark(sx2, sy2);
     svg += drillMark((ox + sw - bagW) * DPI, sy1);
-    svg += drillMark(parseFloat(botX), (oy + bagDepth) * DPI);
+    svg += drillMark((ox + sw - bagW) * DPI, (oy + bagDepth) * DPI);
     svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing top-right corner
     // Label
     svg += `<text x="${(ox + sw - bagW) * DPI + 3}" y="${(oy + rise * 0.85) * DPI}"
