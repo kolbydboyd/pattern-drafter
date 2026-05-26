@@ -203,27 +203,13 @@ function renderPocketPlacement(piece, ox, oy) {
     const slashEndX = piece.slashEndX ?? sw;
     const sx1 = (ox + sw - 3.5) * DPI,  sy1 = oy * DPI;
     const sx2 = (ox + slashEndX) * DPI, sy2 = (oy + slashDepth) * DPI;
-    // Bag overlay: right edge diagonal to slash exit (slashEndX) along side seam; scoop ends at sw-bagW.
-    const c1x = ((ox + slashEndX) * DPI).toFixed(1),
-          c1y = ((oy + slashDepth + (bagDepth - slashDepth) * 2 / 3) * DPI).toFixed(1);
-    const c2x = ((ox + sw - bagW / 3) * DPI).toFixed(1), c2y = ((oy + bagDepth) * DPI).toFixed(1);
-    const p3x = ((ox + sw - bagW) * DPI).toFixed(1),      p3y = c2y;
-    // Top: (sw-bagW,0)→(sw,0). Right: diagonal to (slashEndX,slashDepth) along side seam.
-    let bagPathD = `M ${(ox + sw - bagW) * DPI} ${sy1} L ${(ox + sw) * DPI} ${sy1}`;
-    bagPathD += ` L ${(ox + slashEndX) * DPI} ${(oy + slashDepth) * DPI}`;
-    bagPathD += ` C ${c1x} ${c1y} ${c2x} ${c2y} ${p3x} ${p3y}`;
-    bagPathD += ` Z`;
-    svg += `<path d="${bagPathD}"
-      stroke="${PKT_COL}" stroke-width="1.2" stroke-dasharray="${PKT_DASH}" fill="${PKT_FILL}"/>`;
-    // Slash opening (solid)
+    // Slash opening line (solid) + drill marks at all four notch points.
     svg += `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}"
       stroke="${PKT_COL}" stroke-width="1.5"/>`;
-    // Drill marks
-    svg += drillMark(sx1, sy1);
-    svg += drillMark(sx2, sy2);
-    svg += drillMark((ox + sw - bagW) * DPI, sy1);                              // bag top-left
-    svg += drillMark((ox + sw - bagW) * DPI, (oy + bagDepth) * DPI);           // bag bottom-left (scoop end)
-    svg += drillMark((ox + sw) * DPI, oy * DPI); // side seam at waistline = backing/bag top-right corner
+    svg += drillMark(sx1, sy1);                                    // slash start (sw-3.5, 0)
+    svg += drillMark(sx2, sy2);                                    // slash exit  (slashEndX, 6)
+    svg += drillMark((ox + sw - bagW) * DPI, sy1);                 // bag inner waist corner (sw-7, 0)
+    svg += drillMark((ox + sw) * DPI, oy * DPI);                   // side seam at waistline  (sw, 0)
     // Label
     svg += `<text x="${(ox + sw - bagW / 2) * DPI}" y="${(oy + rise * 0.85) * DPI}"
       font-family="'IBM Plex Mono',monospace" font-size="8" fill="${PKT_COL}">slant pocket</text>`;
