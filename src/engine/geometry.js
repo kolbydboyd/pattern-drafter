@@ -670,6 +670,11 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
   ];
   const width = bagWidth;
   const height = bagDepth;
+  // Perpendicular to slash direction (inward left of travel), computed from actual slashInset.
+  // For default slashInset=3.5, slashDepth=6: perpX=-0.864, perpY=0.504.
+  const slashLen = Math.hypot(slashInset, slashDepth);
+  const perpX = -slashDepth / slashLen;
+  const perpY =  slashInset / slashLen;
 
   return {
     id: 'slant-bag',
@@ -687,8 +692,6 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
       { text: 'RS / BODY SIDE', x: bagWidth * 0.45, y: bagDepth * 0.5, rotation: 0 },
     ],
     notches: [],
-    // Slash line drawn on the bag so the sewist can see both halves of the piece.
-    // Slash vector (3.5, 6): perp inward unit = (-0.864, 0.504).
     trimMarks: [
       {
         x1: slashStartX, y1: 0,
@@ -697,8 +700,8 @@ export function buildSlantPocketBag({ bagWidth = 7, slashInset = 3.5, slashDepth
         label: 'parallel',
       },
       {
-        x1: slashStartX - 0.864 * sa, y1: 0.504 * sa,
-        x2: bagWidth    - 0.864 * sa, y2: slashDepth + 0.504 * sa,
+        x1: slashStartX + perpX * sa, y1: perpY * sa,
+        x2: bagWidth    + perpX * sa, y2: slashDepth + perpY * sa,
         stroke: '#8a4a4a', dash: '2,2',
         label: '',
       },
