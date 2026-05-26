@@ -1559,16 +1559,19 @@ async function handlePrint(btn) {
     openAuthModal('download', () => handlePrint(btn));
     return;
   }
-  if (!_currentPurchased) {
-    // Refresh purchase/credit state — user may have just signed up with a free credit
-    await _applyWatermarkState(currentGarment);
-    if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
-  }
   if (selectedPaperSize === 'a0' && !_currentHasA0) {
     _promptA0Upgrade();
     return;
   }
-  printPattern();
+  // Open the print window synchronously while still in the user-gesture context.
+  // iOS Safari blocks window.open() called after any await.
+  const win = window.open('', '_blank');
+  if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+  if (!_currentPurchased) {
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) { win.close(); return; }
+  }
+  printPattern(win);
 }
 
 async function _blobDownload(url, filename) {
@@ -1664,7 +1667,7 @@ async function handleDownloadPDF(btn) {
 }
 
 // ═══ PRINT ═══
-async function printPattern() {
+async function printPattern(win = null) {
   const g = GARMENTS[currentGarment];
   const { m, opts } = readInputs();
   const pieces       = g.pieces(m, opts);
@@ -1681,8 +1684,12 @@ async function printPattern() {
   const instructions = g.instructions(m, opts);
   const { generatePrintLayout } = await import('../pdf/print-layout.js');
   const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize, getLocale());
-  const win = window.open('', '_blank');
-  if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+  // win may have been opened synchronously in handlePrint (iOS gesture context).
+  // Fall back to opening here for any direct callers.
+  if (!win) {
+    win = window.open('', '_blank');
+    if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+  }
   win.document.open();
   win.document.write(html);
   win.document.close();
