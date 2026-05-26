@@ -212,7 +212,7 @@ export default {
 
     // ── WAISTBAND ──
     const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
-    const wbLen = waist + ease.total + pleatExtra * 2 + FLY_OVERLAP + sa * 2;
+    const wbLen = waist + ease.total + FLY_OVERLAP + sa * 2;
     const beltLoopStyle = opts.beltLoopStyle || 'individual';
     const beltLoopCountForBand = waist > 36 ? 7 : 6;
     const wbInstr = beltLoopStyle === 'tunnel'
