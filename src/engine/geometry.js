@@ -476,6 +476,35 @@ export function closeYokeDarts(yokePoly, darts) {
 }
 
 /**
+ * Apply a perpendicular bow to the midpoint of a polyline, producing a gentle
+ * convex curve. The midpoint is offset outward (left of the chord direction for
+ * CW winding) by `bowDepth` inches. Points before and after the midpoint are
+ * linearly blended toward the offset. Used to true the yoke bottom seam so it
+ * curves convexly over the seat; the reversed lower-panel edge is automatically
+ * concave when this line is reversed.
+ *
+ * @param {Array<{x,y}>} pts - Polyline points
+ * @param {number} bowDepth  - Perpendicular offset at midpoint (inches, positive = outward/left-of-travel)
+ * @returns {Array<{x,y}>} New polyline with the bow applied
+ */
+export function bowPolyline(pts, bowDepth) {
+  if (!pts || pts.length < 2 || Math.abs(bowDepth) < 0.001) return pts.map(p => ({ ...p }));
+  const n = pts.length;
+  const chord = { x: pts[n - 1].x - pts[0].x, y: pts[n - 1].y - pts[0].y };
+  const chordLen = Math.sqrt(chord.x * chord.x + chord.y * chord.y);
+  if (chordLen < 0.001) return pts.map(p => ({ ...p }));
+  // Perpendicular direction (left of chord for CW winding = outward on yoke side)
+  const nx = -chord.y / chordLen;
+  const ny =  chord.x / chordLen;
+  return pts.map((p, i) => {
+    // Blend factor: 0 at endpoints, 1 at midpoint, via a sin-bell
+    const t = i / (n - 1);
+    const blend = Math.sin(t * Math.PI);
+    return { ...p, x: p.x + nx * bowDepth * blend, y: p.y + ny * bowDepth * blend };
+  });
+}
+
+/**
  * Format a decimal inch value as a human-readable fraction string.
  * Fractions supported: ⅛, ¼, ⅜, ½, ⅝, ¾, ⅞ (tolerance ±0.06).
  * Negative values are treated as their absolute value.
