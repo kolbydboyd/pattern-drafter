@@ -13,7 +13,7 @@ import {
   buildScoopPocketBacking, clipPanelAtScoop,
   buildSquareScoopPocketBacking, clipPanelAtSquareScoop,
   buildFoldOverScoopPocketBag, buildFoldOverSquareScoopPocketBag,
-  closeYokeDarts, buildSideSeamPocketBag, tummyAdjustment,
+  closeYokeDarts, bowPolyline, buildSideSeamPocketBag, tummyAdjustment,
 } from '../engine/geometry.js';
 import { buildMaterialsSpec } from '../engine/materials.js';
 import { flatFelledSeam } from '../lib/seam-techniques.js';
@@ -93,7 +93,9 @@ export default {
       ],
       default: 'none',
     },
-    yokeDepth: { type: 'number', label: 'Yoke depth at CB (inches)', default: 2, step: 0.25, min: 1.5, max: 5.5 },
+    yokeDepth: { type: 'number', label: 'Yoke depth at CB (inches)', default: 3.5, step: 0.25, min: 2.5, max: 5.5 },
+    yokeDepthSS: { type: 'number', label: 'Yoke depth at side seam (inches)', default: 1.5, step: 0.25, min: 1.0, max: 2.5 },
+    yokeBottomCurve: { type: 'number', label: 'Yoke seam bow (inches)', default: 0.12, step: 0.0625, min: 0, max: 0.25 },
     cbRaise:  { type: 'number', label: 'CB raise',         default: 1.25, step: 0.25, min: 0,  max: 2.5 },
     sa: {
       type: 'select', label: 'Seam allowance',
@@ -184,10 +186,11 @@ export default {
     }));
 
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
-    const backDartIntake = hasYoke ? 0 : Math.max(0, backHipW - backWaistW);
-    // Only widen the cut panel when a dart will actually be drawn (intake > 1").
-    // For smaller differences the side-seam taper is sufficient; widening without
-    // a dart creates unaccounted excess at the waist.
+    // Compute dart intake regardless of yoke — when a yoke is present, closeYokeDarts()
+    // rotates the intake into the yoke seam instead of drawing it as a physical dart.
+    const backDartIntake = Math.max(0, backHipW - backWaistW);
+    // Only widen the cut panel when the intake will actually be drawn or rotated (> 1").
+    // For smaller differences the side-seam taper is sufficient.
     const effectiveDartIntake = backDartIntake > 1 ? backDartIntake : 0;
 
     pieces.push(buildPanel({
@@ -203,10 +206,11 @@ export default {
 
     // ── YOKE SPLIT (replaces full back panel with yoke + lower panel) ──
     if (opts.yokeStyle && opts.yokeStyle !== 'none') {
-      const yokeDepthCB = parseFloat(opts.yokeDepth) || 2;
+      const yokeDepthCB = parseFloat(opts.yokeDepth) || 3.5;
+      const yokeDepthSS = parseFloat(opts.yokeDepthSS) || 1.5;
       const backIdx = pieces.findIndex(p => p.id === 'back');
       const backPanel = pieces[backIdx];
-      const { yoke, lower } = splitBackYoke(backPanel, { yokeStyle: opts.yokeStyle, yokeDepthCB, hipLineY });
+      const { yoke, lower } = splitBackYoke(backPanel, { yokeStyle: opts.yokeStyle, yokeDepthCB, yokeDepthSS, hipLineY });
       pieces.splice(backIdx, 1, yoke, lower);
     }
 
@@ -721,10 +725,10 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
   const darts = [];
   if (isBack && dartIntake > 1) {
     if (dartIntake <= 1.5) {
-      darts.push({ x: waistWidth * 0.4, intake: dartIntake, length: 4.5 });
+      darts.push({ x: waistWidth * 0.4,  intake: dartIntake,     length: 3.5  });
     } else {
-      darts.push({ x: waistWidth * 0.3, intake: dartIntake / 2, length: 4.5 });
-      darts.push({ x: waistWidth * 0.6, intake: dartIntake / 2, length: 4 });
+      darts.push({ x: waistWidth * 0.33, intake: dartIntake / 2, length: 3.5  });
+      darts.push({ x: waistWidth * 0.6,  intake: dartIntake / 2, length: 3.25 });
     }
   }
 
@@ -776,15 +780,28 @@ function buildPanel({ type, name, instruction, waistWidth, hipWidth, hipLineY, h
 
 // ── Yoke split for back panel ───────────────────────────────────────────────
 
-function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
+function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, hipLineY }) {
   const { waistWidth, hipWidth, cbRaise, sa, hem, rise, inseam, ext, height,
           polygon, crotchBezier, crotchBezierSA, notches: origNotches, opts,
           darts: backDarts } = backPanel;
 
-  const yokeSideDepth = 1.5; // yoke at side seam (~1.5″ below waist)
+  const yokeSideDepth = yokeDepthSS;
   // Interpolate the side seam x at yokeSideDepth — original side seam runs
   // diagonally from (waistWidth, 0) to (hipWidth, hipLineY)
   const sideXAtYoke = waistWidth + (hipWidth - waistWidth) * (yokeSideDepth / hipLineY);
+
+  // ── Validation ────────────────────────────────────────────────────────
+  const maxDartLen = Math.max(...(backDarts || []).map(d => d?.length || 0), 0);
+  if (maxDartLen > 0 && yokeDepthCB < maxDartLen) {
+    console.warn(`[yoke] yokeDepthCB (${yokeDepthCB}″) < dart length (${maxDartLen}″) — dart apex is below the yoke seam; increase yoke depth to at least ${(maxDartLen + 0.25).toFixed(2)}″`);
+  }
+  if (yokeDepthCB <= yokeSideDepth) {
+    console.warn('[yoke] yokeDepthCB <= yokeSideDepth — yoke seam is flat; no seat-shaping effect');
+  }
+  const seamAngleDeg = Math.atan2(yokeDepthCB - yokeSideDepth, waistWidth) * 180 / Math.PI;
+  if (seamAngleDeg < 5 || seamAngleDeg > 15) {
+    console.warn(`[yoke] seam angle ${seamAngleDeg.toFixed(1)}° is outside the recommended 5–15° range`);
+  }
 
   // ── Yoke seam curve from side seam → CB (pre-rotation) ────────────────
   const seamPts = [];
@@ -835,6 +852,20 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   if (yokeSeamLine.length > 0) {
     yokeSeamLine[0].x = sideXAtYoke;
     yokeSeamLine[0].y = yokeSideDepth;
+  }
+
+  // ── Yoke seam bow — convex/concave truing ─────────────────────────────
+  // A slight outward bow on the yoke bottom edge (convex) causes the matching
+  // lower-panel top edge (its reverse) to be concave. When sewn together the
+  // two edges ease into a 3D curve that wraps the seat, preventing back-waist
+  // gaping when the wearer sits or bends (same principle as a princess seam).
+  const bowDepth = parseFloat(opts?.yokeBottomCurve ?? 0.12);
+  if (bowDepth > 0) {
+    const bowed = bowPolyline(yokeSeamLine, bowDepth);
+    for (let i = 0; i < yokeSeamLine.length; i++) {
+      yokeSeamLine[i].x = bowed[i].x;
+      yokeSeamLine[i].y = bowed[i].y;
+    }
   }
 
   // ── LOWER BACK polygon (clockwise) ────────────────────────────────────
@@ -890,7 +921,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, hipLineY }) {
   const yokeDims = [
     { label: fmtInches(yokeTopW) + ' waist', x1: 0, y1: -cbRaise - 0.5, x2: yokeTopW, y2: -cbRaise - 0.5, type: 'h' },
     { label: fmtInches(yokeH) + ' depth',     x: yokeSideCornerPost.x + 1.2, y1: -cbRaise, y2: yokeDepthCB, type: 'v' },
-    { label: fmtInches(yokeSeamLen) + ' seam', x1: 0, y1: yokeDepthCB + 0.5, x2: yokeSideCornerPost.x, y2: yokeSideCornerPost.y + 0.5, type: 'h', color: '#b8963e' },
+    { label: fmtInches(yokeSeamLen) + ' seam (' + seamAngleDeg.toFixed(1) + '°)', x1: 0, y1: yokeDepthCB + 0.5, x2: yokeSideCornerPost.x, y2: yokeSideCornerPost.y + 0.5, type: 'h', color: '#b8963e' },
   ];
 
   // Lower panel inherits most of the original dimensions minus waist width
