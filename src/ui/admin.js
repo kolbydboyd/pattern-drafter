@@ -2628,9 +2628,9 @@ If you are building something where shipping fast and understanding the full sta
     <h2 class="adm-section-title">Career Positioning</h2>
 
     <div class="adm-roadmap-card">
-      <h3>Resume <a href="/career/resume.html" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">open full page</a> <a href="/career/resume.html" download="kolby-boyd-resume.html" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">download</a></h3>
+      <h3>Resume <a href="/career/resume.pdf" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">open PDF</a> <a href="/career/resume.pdf" download="kolby-boyd-resume.pdf" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">download PDF</a></h3>
       <iframe
-        src="/career/resume.html"
+        src="/career/resume.pdf"
         style="width:100%;height:820px;border:1px solid var(--bdr);border-radius:4px;margin-top:8px;background:#fff"
         title="Resume preview"
       ></iframe>
