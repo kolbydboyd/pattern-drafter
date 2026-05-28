@@ -367,7 +367,8 @@ export function renderPanelSVG(piece) {
     ];
 
     // Derive hipLineY from polygon (vertex with max x = hip point)
-    const hipVertex = polygon.reduce((best, pt) => pt.x > best.x ? pt : best, polygon[0]);
+    const hipVertex = polygon.reduce((best, pt) =>
+      (pt.x > best.x || (pt.x === best.x && pt.y > best.y)) ? pt : best, polygon[0]);
     const hipLineY = hipVertex.y;
 
     function sideSeamXatY(py) {
@@ -493,7 +494,10 @@ export function renderPanelSVG(piece) {
        or hybrid path construction below. See also: geometry.js offsetPolygon,
        sanitizePoly, insetCrotchBezier. */ ''}
     ${(() => {
-      if (!crotchBezierSA) return `<path d="${polyPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
+      if (!crotchBezierSA) {
+        if (svgSA.length >= 3) return `<path d="${polyPath(svgSA)}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>`;
+        return ''; // degenerate SA polygon — skip rather than crash
+      }
       const s = crotchBezierSA;
       const sp0 = toSVG(s.p0), sp3 = toSVG(s.p3);
       // Find SA polygon vertices closest to bezier endpoints
