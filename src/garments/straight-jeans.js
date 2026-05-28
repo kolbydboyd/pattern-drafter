@@ -984,15 +984,14 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
   for (let i = yokeSeamLine.length - 1; i >= 0; i--) {
     lowerPoly.push({ ...yokeSeamLine[i] });
   }
-  // Copy hip → knee → hem → inseam → crotch curve from the original back panel.
-  // Skip both waist points (indices 0 and 1) since the top edge is now the
-  // yoke seam line above.  Also filter out curve points above the yoke cut
-  // and the {0, cbRaise} structural CB point (which now belongs to the yoke).
+  // Copy hip → knee → hem → inseam → full crotch curve → CB point from the
+  // original back panel.  Skip both waist points (indices 0 and 1) since the
+  // top edge is now the yoke seam line above.  Keep all crotch curve points
+  // (including those above the yoke cut) and the structural {0, cbRaise} CB
+  // point so that the closing edge is a clean vertical CB seam from cbRaise
+  // to yokeDepthCB — necessary for offsetPolygon to produce a valid SA polygon.
   for (let i = 2; i < polygon.length; i++) {
-    const pt = polygon[i];
-    if (pt.curve && pt.y < yokeDepthCB) continue;
-    if (!pt.curve && Math.abs(pt.x) < 0.01 && Math.abs(pt.y - cbRaise) < 0.01) continue;
-    lowerPoly.push({ ...pt });
+    lowerPoly.push({ ...polygon[i] });
   }
 
   // ── SA offset ─────────────────────────────────────────────────────────
