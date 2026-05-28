@@ -195,7 +195,7 @@ function foldIndicatorSVG(fx, fy1, fy2) {
   }
   // Text along fold edge
   const my = (fy1 + fy2) / 2;
-  svg += `<text x="${fx + 5}" y="${my}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e" text-anchor="middle" letter-spacing="2" transform="rotate(-90,${fx + 5},${my})">PLACE ON FOLD</text>`;
+  svg += `<text x="${fx + 18}" y="${my}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e" text-anchor="middle" letter-spacing="2" transform="rotate(-90,${fx + 18},${my})">PLACE ON FOLD</text>`;
   // Dashed line along fold edge
   svg += `<line x1="${fx}" y1="${fy1}" x2="${fx}" y2="${fy2}" stroke="#b8963e" stroke-width="0.8" stroke-dasharray="4,3"/>`;
   return svg;
@@ -246,11 +246,12 @@ export function renderPanelSVG(piece) {
         <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
         <text x="${labelX}" y="${lineY+14}" font-family="IBM Plex Mono" font-size="10" fill="${col}" text-anchor="middle" font-weight="500">${d.label}</text>`;
       } else if (d.color === '#b8963e' && !isHemDim) {
-        // Knee/width accent dim: label to the right of the dim line to avoid grain line
+        // Accent dim: label centered above the dim line (avoids right-edge overflow)
+        const labelX = (x1 + x2) / 2;
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x2}" y1="${lineY-3}" x2="${x2}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
-        <text x="${x2+5}" y="${textY}" font-family="IBM Plex Mono" font-size="12" fill="${col}" text-anchor="start" font-weight="500">${d.label}</text>`;
+        <text x="${labelX}" y="${lineY - 4}" font-family="IBM Plex Mono" font-size="12" fill="${col}" text-anchor="middle" font-weight="500">${d.label}</text>`;
       } else {
         dimsSVG += `<line x1="${x1}" y1="${lineY}" x2="${x2}" y2="${lineY}" stroke="${col}" stroke-width=".4"/>
         <line x1="${x1}" y1="${lineY-3}" x2="${x1}" y2="${lineY+3}" stroke="${col}" stroke-width=".4"/>
@@ -276,7 +277,7 @@ export function renderPanelSVG(piece) {
     // rotation < 0 → CENTER (left side); keep outside -sa
     if (l.rotation < 0 && lx > -(sa + 0.3)) lx = -(sa + 0.3);
     const x = ox + sc(lx), y = oy + sc(l.y);
-    labelsSVG += `<text x="${x}" y="${y}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" stroke="#faf8f4" stroke-width="3" paint-order="stroke" transform="rotate(${l.rotation},${x},${y})">${l.text}</text>`;
+    labelsSVG += `<text x="${x}" y="${y}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" transform="rotate(${l.rotation},${x},${y})">${l.text}</text>`;
   }
 
   // Pocket indicators
@@ -750,7 +751,7 @@ export function renderGenericPieceSVG(piece) {
     ${trimPolySVG}
     ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
       const x = ox + sc(l.x), y = oy + sc(l.y);
-      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" stroke="#faf8f4" stroke-width="3" paint-order="stroke" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
     }).join('')}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
       // Roll/fold line annotation (e.g. lapel break line)
       piece.rollLine ? (() => {
