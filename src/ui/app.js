@@ -1218,9 +1218,9 @@ function _generate() {
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
     { id: 'legal',   label: 'US Legal    8.5 x 14 in   (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0   33.1 x 46.8 in (+$4) — copy shop' },
-    { id: 'archd',   label: 'ARCH D   24 x 36 in (+$4) — copy shop' },
-    { id: 'ansid',   label: 'ANSI D   22 x 34 in (+$4) — copy shop' },
+    { id: 'a0',      label: 'A0   33.1 x 46.8 in (+$4)   copy shop' },
+    { id: 'archd',   label: 'ARCH D   24 x 36 in (+$4)   copy shop' },
+    { id: 'ansid',   label: 'ANSI D   22 x 34 in (+$4)   copy shop' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
@@ -1765,10 +1765,10 @@ function _promptA0Upgrade() {
         <div class="email-gate-logo">People's Patterns</div>
         <p class="email-gate-body"><strong>Large format copy shop files</strong> are a one-time $4 add-on for this pattern.</p>
         <ul class="a0-upgrade-list">
-          <li><strong>A0 PDF</strong> — 33.1 x 46.8 in, single sheet</li>
-          <li><strong>ARCH D PDF</strong> — 24 x 36 in, single sheet</li>
-          <li><strong>ANSI D PDF</strong> — 22 x 34 in, single sheet</li>
-          <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
+          <li><strong>A0 PDF</strong>. 33.1 x 46.8 in. Single sheet.</li>
+          <li><strong>ARCH D PDF</strong>. 24 x 36 in. Single sheet.</li>
+          <li><strong>ANSI D PDF</strong>. 22 x 34 in. Single sheet.</li>
+          <li><strong>Projector file</strong>. Project directly onto fabric. No paper.</li>
         </ul>
         <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
         <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
