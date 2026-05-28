@@ -803,25 +803,18 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
     console.warn(`[yoke] seam angle ${seamAngleDeg.toFixed(1)}° is outside the recommended 5–15° range`);
   }
 
-  // ── Yoke seam curve from side seam → CB (pre-rotation) ────────────────
-  const seamPts = [];
-  if (yokeStyle === 'curved') {
-    const p0 = { x: sideXAtYoke, y: yokeSideDepth };
-    const p3 = { x: 0, y: yokeDepthCB };
-    const p1 = { x: sideXAtYoke * 0.6,  y: yokeSideDepth + (yokeDepthCB - yokeSideDepth) * 0.35 };
-    const p2 = { x: sideXAtYoke * 0.25, y: yokeDepthCB   - (yokeDepthCB - yokeSideDepth) * 0.1  };
-    const pts = sampleBezier(p0, p1, p2, p3, 16);
-    for (let i = 1; i < pts.length - 1; i++) seamPts.push({ ...pts[i], curve: true });
-  }
-  // 'pointed': no intermediate points — straight line forms the V
-
-  // ── PRE-ROTATION yoke polygon (clockwise from CB waist) ───────────────
-  const yokePolyRaw = [];
-  yokePolyRaw.push({ x: 0,           y: -cbRaise      }); // CB waist (raised)
-  yokePolyRaw.push({ x: waistWidth,  y: 0             }); // side waist (= backHipW)
-  yokePolyRaw.push({ x: sideXAtYoke, y: yokeSideDepth }); // yoke seam at side
-  for (const pt of seamPts) yokePolyRaw.push(pt);
-  yokePolyRaw.push({ x: 0,           y: yokeDepthCB   }); // yoke seam at CB
+  // ── PRE-ROTATION yoke polygon — 4 structural corners only ───────────────
+  // Bezier intermediate points (curved style) are generated AFTER dart rotation
+  // and snap. Including them in yokePolyRaw would rotate each point by a
+  // different amount; snapping only the first anchor then creates a kink between
+  // yokeSeamLine[0] (snapped) and yokeSeamLine[1] (rotated). Generating post-snap
+  // produces a smooth seam with no kink.
+  const yokePolyRaw = [
+    { x: 0,           y: -cbRaise      },  // CB waist (raised)
+    { x: waistWidth,  y: 0             },  // side waist
+    { x: sideXAtYoke, y: yokeSideDepth },  // yoke seam at side
+    { x: 0,           y: yokeDepthCB   },  // yoke seam at CB
+  ];
 
   // ── Close the back darts: rotate dart wedges shut, absorbing them into
   // the yoke's seams.  The resulting yoke top edge becomes backWaistW wide,
@@ -829,39 +822,57 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
   const numDarts = (backDarts || []).filter(d => d && d.intake > 0 && d.length > 0).length;
   const yokePoly = closeYokeDarts(yokePolyRaw, backDarts || []);
 
-  // Dart closure rotates both side-seam vertices away from the true side seam.
-  // The side seam is a garment boundary shared with the front panel — it must
-  // stay on the original diagonal (waistWidth,0) → (hipWidth,hipLineY).
-  // Snap both corners back; the dart intake lives in the yoke seam curve only.
+  // Snap side-waist corner back — dart rotation shifts it off the original
+  // diagonal (waistWidth,0)→(hipWidth,hipLineY), which is a garment boundary
+  // shared with the front panel.
   if (numDarts > 0 && numDarts + 1 < yokePoly.length) {
     yokePoly[numDarts + 1].y = 0;
     yokePoly[numDarts + 1].x = waistWidth;
   }
-  // Remove dart left-leg pivot vertices — they create a kink in the top edge.
-  // After splice: [CB_waist, side_waist, yoke_seam_side, ..., yoke_seam_CB]
+  // Remove dart left-leg pivot vertices (kink on top edge).
+  // After splice: [CB_waist, side_waist, seam_side, seam_CB]
   if (numDarts > 0) {
     yokePoly.splice(1, numDarts);
   }
-  // seamStartIdx is always 2 after splice (CB_waist + side_waist precede seam)
   const seamStartIdx = 2;
-  const yokeSeamLine = yokePoly.slice(seamStartIdx); // side → ... → CB (post-rotation)
 
-  // Snap the yoke-seam/side-seam junction back to its original position.
-  // Dart rotation shifts this endpoint; snapping it keeps the yoke and lower
-  // panel side seams collinear with the original back-panel side seam.
+  // For curved yoke: now that rotation and snap are done, regenerate the bezier
+  // between the two structural anchors. The bezier control-point ratios are the
+  // same as the original pre-rotation formulas (anchors are snapped back to
+  // original positions), so the curve shape is unchanged but the seam is smooth.
+  if (yokeStyle === 'curved') {
+    const p0 = { x: sideXAtYoke, y: yokeSideDepth };
+    const p3 = { x: 0,           y: yokeDepthCB   };
+    // Explicitly snap both anchors in yokePoly before splicing
+    yokePoly[seamStartIdx].x               = p0.x;  yokePoly[seamStartIdx].y               = p0.y;
+    yokePoly[yokePoly.length - 1].x = p3.x;  yokePoly[yokePoly.length - 1].y = p3.y;
+    const p1 = { x: p0.x * 0.6,  y: p0.y + (p3.y - p0.y) * 0.35 };
+    const p2 = { x: p0.x * 0.25, y: p3.y - (p3.y - p0.y) * 0.1  };
+    const curvePts = sampleBezier(p0, p1, p2, p3, 16);
+    const bezierPts = curvePts.map((pt, i) => ({
+      x: pt.x, y: pt.y, ...(i > 0 && i < curvePts.length - 1 ? { curve: true } : {}),
+    }));
+    // Replace the 2-point [seam_side, seam_CB] with the full 17-point bezier
+    yokePoly.splice(seamStartIdx, 2, ...bezierPts);
+  }
+
+  const yokeSeamLine = yokePoly.slice(seamStartIdx); // side → ... → CB
+
+  // Snap the side-seam junction (pointed: needed after rotation; curved: no-op).
   if (yokeSeamLine.length > 0) {
     yokeSeamLine[0].x = sideXAtYoke;
     yokeSeamLine[0].y = yokeSideDepth;
   }
 
   // ── Yoke seam bow — convex/concave truing ─────────────────────────────
-  // A slight outward bow on the yoke bottom edge (convex) causes the matching
-  // lower-panel top edge (its reverse) to be concave. When sewn together the
-  // two edges ease into a 3D curve that wraps the seat, preventing back-waist
-  // gaping when the wearer sits or bends (same principle as a princess seam).
+  // bowPolyline's perpendicular (−chord.y, chord.x) points INWARD (toward waist)
+  // for a seam travelling right→left in screen-Y-down coordinates. Negating
+  // bowDepth reverses the direction to OUTWARD (toward seat), making the yoke
+  // seam convex. The lower-panel top edge (reversed seam) is then concave,
+  // so the two edges ease into a 3D curve over the seat when sewn together.
   const bowDepth = parseFloat(opts?.yokeBottomCurve ?? 0.12);
   if (bowDepth > 0) {
-    const bowed = bowPolyline(yokeSeamLine, bowDepth);
+    const bowed = bowPolyline(yokeSeamLine, -bowDepth);
     for (let i = 0; i < yokeSeamLine.length; i++) {
       yokeSeamLine[i].x = bowed[i].x;
       yokeSeamLine[i].y = bowed[i].y;
