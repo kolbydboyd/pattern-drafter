@@ -1087,7 +1087,7 @@ function _generate() {
         <table class="dt" style="max-width:400px">
           <tr><td>Length</td><td>${fmtInches(piece.dimensions.length)}</td></tr>
           <tr><td>Width</td><td>${fmtInches(piece.dimensions.width)}</td></tr>
-          <tr><td>Finished</td><td>${fmtInches(piece.dimensions.width / 2)}</td></tr>
+          <tr><td>Finished</td><td>${fmtInches(piece.dimensions.finishedWidth ?? piece.dimensions.width / 2)}</td></tr>
           ${piece.grainAngle === 45 ? '<tr><td>Grain</td><td>Cut on bias (45°)</td></tr>' : ''}
         </table></div>`;
     } else if (piece.type === 'pocket') {

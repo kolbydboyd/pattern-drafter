@@ -941,7 +941,12 @@ export function renderRectanglePieceSVG(piece) {
   }
   const legendSVG = legendEntries.join('');
 
-  const pieceLabel = onFold ? `${name?.toUpperCase()} (cut on fold)` : `${name?.toUpperCase()} × 2 (mirror)`;
+  const cutSingle = /[Cc]ut\s+1\b/.test(instruction);
+  const pieceLabel = onFold
+    ? `${name?.toUpperCase()} (cut on fold)`
+    : cutSingle
+      ? `${name?.toUpperCase()} × 1`
+      : `${name?.toUpperCase()} × 2 (mirror)`;
   const saNote = hemAtTop
     ? `${fmtInches(hem)} hem at top (fold) · ${fmtInches(sa)} SA on 3 sides`
     : hem > 0

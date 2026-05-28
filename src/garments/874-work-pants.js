@@ -156,7 +156,7 @@ export default {
 
     // -- BELT LOOPS (7 tunnel-style, 1" finished, strip-cut) --
     const blTotalLen = 7 * 4.5 + 1; // 7 loops × 4½" + 1" to square ends
-    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2½″ × ${fmtInches(blTotalLen)} · Fold {RST} lengthwise · Sew long edge · Turn RS out · {press} seam to back · Cut into 7 loops × 4½″ each · Finished 1″ tunnel × ~4¼″ tall`, dimensions: { length: blTotalLen, width: 2.5 }, type: 'rectangle', sa: 0 });
+    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2½″ × ${fmtInches(blTotalLen)} · Fold {RST} lengthwise · Sew long edge · Turn RS out · {press} seam to back · Cut into 7 loops × 4½″ each · Finished 1″ tunnel × ~4¼″ tall`, dimensions: { length: blTotalLen, width: 2.5, finishedWidth: 1 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },

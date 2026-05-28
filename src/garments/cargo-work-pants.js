@@ -251,7 +251,7 @@ export default {
     if (opts.waistband === 'standard') {
       const beltLoopCount = (m.waist || 32) > 36 ? 7 : 6;
       const totalStripLen = beltLoopCount * 3.5 + 1;
-      pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`, dimensions: { length: totalStripLen, width: 2.25 }, type: 'rectangle', sa: 0 });
+      pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`, dimensions: { length: totalStripLen, width: 2.25, finishedWidth: 0.75 }, type: 'rectangle', sa: 0 });
     }
 
     return pieces;
