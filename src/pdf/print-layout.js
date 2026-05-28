@@ -23,8 +23,13 @@ const PAPER_SIZES = {
   legal:     { w: 8.5,  h: 14,    label: 'US Legal'    },
   tabloid:   { w: 11,   h: 17,    label: 'Tabloid'     },
   a0:        { w: 33.1, h: 46.8,  label: 'A0/Plotter'  },
+  archd:     { w: 24,   h: 36,    label: 'ARCH D'      },
+  ansid:     { w: 22,   h: 34,    label: 'ANSI D'      },
   projector: { w: 80,   h: 60,    label: 'Projector'   },
 };
+
+// Sizes that require the large-format add-on (single-sheet copy-shop print).
+const LARGE_FORMAT_IDS = new Set(['a0', 'archd', 'ansid']);
 
 const DPI    = 96;  // CSS px per inch
 const px     = in_ => in_ * DPI;
@@ -2799,7 +2804,7 @@ export function generatePrintLayout(garment, pieces, materials, instructions, me
   const PH  = size.h;
   const OV  = 0.75; // tile overlap in inches
   const isProjector   = paperSize === 'projector';
-  const isLargeFormat = !isProjector && PW >= 30; // A0/plotter — collapse preamble + nest small pieces
+  const isLargeFormat = LARGE_FORMAT_IDS.has(paperSize); // copy-shop sizes — nest small pieces, no embedded preamble
   const isTabloid = !isLargeFormat && !isProjector && PW >= 10 && PH >= 16; // tabloid (11×17) — 2-page preamble
 
   // ── Projector: completely different layout (no tiling, one piece per page) ──
@@ -2818,11 +2823,10 @@ ${body}
 </html>`;
   }
 
-  // ── A0 preamble-only: letter-sized pages for printing at home ───────────
-  // When section === 'preamble', return a standalone letter PDF with cover,
-  // scale page, materials, glossary, and instructions — no pattern tiles.
-  // User prints this at home and sends the separate A0 pattern PDF to the shop.
-  if (isLargeFormat && section === 'preamble') {
+  // ── Instructions-only: always letter-size, free for all users ───────────
+  // Returned as a separate PDF alongside any pattern download so users have
+  // a printable cover sheet, materials list, and sewing steps on 8.5x11.
+  if (section === 'instructions') {
     const LW = 8.5, LH = 11;
     const body = buildCoverPage(garment, measurements, opts)
       + buildScalePage(pieces, LW, LH, OV)
@@ -2833,7 +2837,7 @@ ${body}
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>${garment.name} | Instructions (Letter)</title>
+<title>${garment.name} | Instructions</title>
 <style>${buildCSS(LW, LH)}</style>
 </head>
 <body>
@@ -2843,18 +2847,10 @@ ${body}
   }
 
   // ── Preamble pages ──────────────────────────────────────────────────────
-  // For A0 with section === 'pattern': skip preamble (separate preamble PDF
-  // is generated and downloaded alongside the A0 pattern PDF).
+  // Large-format patterns omit the embedded preamble — a separate instructions
+  // PDF is always generated and downloaded alongside the copy-shop file.
   const preamblePages = (isLargeFormat && section === 'pattern')
     ? ''
-    : isLargeFormat
-    ? addLetterPageClass(
-        buildCoverPage(garment, measurements, opts)
-        + buildScalePage(pieces, PW, PH, OV)
-        + buildMaterialsPage(materials, instructions)
-        + buildGlossaryPage(materials, instructions)
-        + buildInstructionsPage(instructions, 11)
-      )
     : isTabloid
     ? buildTabloidPreamble(garment, pieces, materials, instructions, measurements, opts, PW, PH, OV)
     : buildCoverPage(garment, measurements, opts)

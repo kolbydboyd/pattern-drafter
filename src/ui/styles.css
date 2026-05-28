@@ -468,6 +468,8 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .s4-print-radio{display:block;font-size:.83rem;color:var(--text);padding:4px 0;cursor:pointer;line-height:1.5}
 .s4-print-radio input{margin-right:6px;accent-color:var(--gold)}
 .s4-print-actions{display:flex;flex-direction:column;gap:4px;max-width:280px}
+.s4-print-note{font-size:.78rem;color:var(--mid);margin:0 0 10px}
+.s4-print-divider{border:none;border-top:1px solid var(--border);margin:4px 0 20px}
 
 @media(max-width:600px){.step-lbl{display:none}.step-item{padding:12px 10px}}
 @media print{.grid-bg{display:none}}

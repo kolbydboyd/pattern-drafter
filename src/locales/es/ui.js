@@ -175,7 +175,7 @@ export default {
   'msg.youre-in':         '¡Estás dentro! Revisa tu bandeja de entrada.',
   'msg.code-redeemed':    '¡Código canjeado! {name} ya está en tu cuenta.',
   'msg.free-credit-used': 'Crédito gratuito usado. Tu próximo patrón desde $9. {name} ya está en tu cuenta.',
-  'msg.a0-downloading':   'Tus archivos A0 + proyector también se están descargando. Sin ensamblaje.',
+  'msg.a0-downloading':   'Instructions PDF + projector files also downloading.',
   'msg.profile-saved':    'Tu perfil está guardado. Vuelve cuando quieras.',
   'msg.confirm-reset':    '¿Restablecer todas las medidas y opciones a los valores predeterminados?',
   'msg.allow-popups':     'Permite ventanas emergentes para abrir el diseño de impresión.',
@@ -185,7 +185,7 @@ export default {
   'wm.create-dl':         'Crear cuenta gratis y descargar',
   'wm.free-credit':       'Tienes 1 descarga de patrón gratuita. ¿Usarla en {name}?',
   'wm.purchase':          'Compra {name} para descargar el PDF en alta resolución ({price})',
-  'wm.a0-label':          'Añadir archivos A0 / Proyector / Copistería (+$4) · sin ensamblaje',
+  'wm.a0-label':          'Add large format copy shop files (+$4). A0, ARCH D, ANSI D, and projector.',
   'wm.redeem-create':     'Canjeando código para {name}. Crea una cuenta gratuita para descargar.',
   'wm.redeem-ready':      'Tu código desbloquea {name} a medida. Gratis con tu código de canje.',
 
@@ -263,6 +263,8 @@ export default {
   'pdf.paper.a4':           'A4',
   'pdf.paper.tabloid':      'Tabloide',
   'pdf.paper.a0':           'A0/Plóter',
+  'pdf.paper.archd':        'ARCH D',
+  'pdf.paper.ansid':        'ANSI D',
   'pdf.place-on-fold':      'COLOCAR EN EL DOBLE',
   'pdf.cut':                'Cortar {n}',
   'pdf.cut-fold':           'Cortar {n} al doble',
@@ -279,7 +281,7 @@ export default {
   'cart.view':              'Ver carrito ({count})',
   'cart.a0-addon':          'Añadir por $4',
   'cart.a0-redirecting':    'Redirigiendo…',
-  'cart.a0-title':          'Añadir archivos A0 + Proyector',
+  'cart.a0-title':          'Add Large Format + Projector Files',
 
   // ── Account ───────────────────────────────────────────────────────────────────
   'account.patterns':       'Patrones',

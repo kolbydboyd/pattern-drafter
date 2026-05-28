@@ -175,7 +175,7 @@ export default {
   'msg.youre-in':         'Du bist dabei! Überprüfe deinen Posteingang.',
   'msg.code-redeemed':    'Code eingelöst! {name} ist jetzt in deinem Konto.',
   'msg.free-credit-used': 'Kostenloses Guthaben verwendet. Nächstes Schnittmuster ab $9. {name} ist jetzt in deinem Konto.',
-  'msg.a0-downloading':   'Deine A0- und Projektordateien werden ebenfalls heruntergeladen. Kein Kleben nötig.',
+  'msg.a0-downloading':   'Instructions PDF + projector files also downloading.',
   'msg.profile-saved':    'Dein Profil ist gespeichert. Komm jederzeit wieder.',
   'msg.confirm-reset':    'Alle Maße und Optionen auf Standardwerte zurücksetzen?',
   'msg.allow-popups':     'Erlaube Pop-ups, um das Drucklayout zu öffnen.',
@@ -263,6 +263,8 @@ export default {
   'pdf.paper.a4':           'A4',
   'pdf.paper.tabloid':      'Tabloid',
   'pdf.paper.a0':           'A0/Plotter',
+  'pdf.paper.archd':        'ARCH D',
+  'pdf.paper.ansid':        'ANSI D',
   'pdf.place-on-fold':      'AUF FALTE LEGEN',
   'pdf.cut':                '{n}× zuschneiden',
   'pdf.cut-fold':           '{n}× auf Falte zuschneiden',
@@ -279,7 +281,7 @@ export default {
   'cart.view':              'Warenkorb ansehen ({count})',
   'cart.a0-addon':          'Für $4 hinzufügen',
   'cart.a0-redirecting':    'Weiterleiten…',
-  'cart.a0-title':          'A0 + Projektordateien hinzufügen',
+  'cart.a0-title':          'Add Large Format + Projector Files',
 
   // ── Account ───────────────────────────────────────────────────────────────────
   'account.patterns':       'Schnittmuster',
