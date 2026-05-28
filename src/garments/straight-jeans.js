@@ -123,6 +123,21 @@ export default {
       ],
       default: 'individual',
     },
+    pktTopBelowYoke: {
+      type: 'number', label: 'Pocket gap below yoke (in)',
+      default: 0.6, step: 0.125, min: 0, max: 1,
+      hint: 'Distance from yoke seam (or dart apex) to pocket top. 0 = tucked under yoke. 1" = more seat visible above pocket.',
+    },
+    pktTiltDeg: {
+      type: 'number', label: 'Pocket tilt (degrees)',
+      default: 8, step: 1, min: 5, max: 12,
+      hint: 'Inward cant in degrees. More = pocket angles toward center back, drawing the eye inward.',
+    },
+    pktInnerFromCB: {
+      type: 'number', label: 'Pocket inner edge from CB (in)',
+      default: 2.25, step: 0.125, min: 2, max: 2.75,
+      hint: 'Distance from center back seam to the inner edge of the pocket.',
+    },
   },
 
   pieces(m, opts) {
@@ -214,6 +229,63 @@ export default {
       pieces.splice(backIdx, 1, yoke, lower);
     }
 
+    // ── BACK POCKET SCALED DIMENSIONS (Phase 1) ──
+    // Width scales with back hip half-width; height stays ~8% taller than wide.
+    const pktScaledW = Math.max(5.5, Math.min(7.0, backHipW / 1.5));
+    const pktScaledH = Math.round(pktScaledW * 1.08 * 4) / 4; // nearest ¼"
+
+    // ── BACK POCKET PLACEMENT + TILT (Phase 2) ──
+    const pktTiltDeg      = parseFloat(opts.pktTiltDeg)      || 8;
+    const pktTopBelowYoke = parseFloat(opts.pktTopBelowYoke) ?? 0.6;
+    const pktInnerFromCB  = parseFloat(opts.pktInnerFromCB)  || 2.25;
+    const yokeYforPkt     = hasYoke ? (parseFloat(opts.yokeDepth) || 3.5) : 3.5;
+    const pktTopY         = Math.max(3.5, yokeYforPkt + pktTopBelowYoke);
+
+    // Horizontal center: reuse dart-apex ratio (0.4 single dart, 0.33 twin)
+    const dartRatio     = backDartIntake > 1.5 ? 0.33 : 0.4;
+    const backWaistFull = backWaistW + effectiveDartIntake;
+    const pktInnerX     = Math.max(pktInnerFromCB, backWaistFull * dartRatio - pktScaledW / 2);
+    const pktOuterX     = pktInnerX + pktScaledW;
+
+    // Four tilted corners of the placed pocket (rotated inward around inner-top anchor)
+    const tiltRad = pktTiltDeg * Math.PI / 180;
+    const tCos = Math.cos(tiltRad);
+    const tSin = Math.sin(tiltRad);
+    function rotatePktPt(cx, cy) {
+      return { x: pktInnerX + cx * tCos + cy * tSin, y: pktTopY - cx * tSin + cy * tCos };
+    }
+    const pktCorners = {
+      innerTop: rotatePktPt(0,          0),
+      outerTop: rotatePktPt(pktScaledW, 0),
+      innerBot: rotatePktPt(0,          pktScaledH),
+      outerBot: rotatePktPt(pktScaledW, pktScaledH),
+    };
+
+    // Attach placement notches to the back panel that will carry the pocket
+    const pktTargetId = hasYoke ? 'back-lower' : 'back';
+    const pktPanel    = pieces.find(p => p.id === pktTargetId);
+    if (pktPanel) {
+      pktPanel.notches.push(
+        { x: pktCorners.innerTop.x, y: pktCorners.innerTop.y, angle: 270, label: 'pkt inner-top' },
+        { x: pktCorners.outerTop.x, y: pktCorners.outerTop.y, angle: 270, label: 'pkt outer-top' },
+        { x: pktCorners.innerBot.x, y: pktCorners.innerBot.y, angle: 90,  label: 'pkt inner-bot' },
+        { x: pktCorners.outerBot.x, y: pktCorners.outerBot.y, angle: 90,  label: 'pkt outer-bot' },
+      );
+    }
+
+    // ── BACK POCKET VALIDATION (Phase 4) ──
+    const pktWarnings = [];
+    if (pktTopY < 3.5)
+      pktWarnings.push(`Pocket top is ${fmtInches(3.5 - pktTopY)} above the 3½" minimum from waistband — contents will be sat on.`);
+    if (pktOuterX > backHipW - 2)
+      pktWarnings.push(`Pocket outer edge is ${fmtInches(pktOuterX - (backHipW - 2))} too close to side seam (must be ≥2").`);
+    if (pktScaledH < pktScaledW)
+      pktWarnings.push('Pocket height is less than width — looks dated.');
+    if (pktTopY + pktScaledH > rise * 0.85)
+      pktWarnings.push('Pocket bottom extends below the thigh line — contents will be sat on.');
+    if (pktTiltDeg < 5 || pktTiltDeg > 12)
+      pktWarnings.push(`Pocket tilt ${pktTiltDeg}° is outside the recommended 5–12° range.`);
+
     // ── WAISTBAND ──
     const FLY_OVERLAP = 1.875; // ⅝″ button underlap + 1¼″ buttonhole
     const wbLen = waist + ease.total + FLY_OVERLAP + sa * 2;
@@ -261,7 +333,9 @@ export default {
       }));
     }
     pieces.push({ id: 'coin-pocket', name: 'Coin Pocket', instruction: 'Cut 1 \xb7 Right front only \xb7 \u215c\u2033 SA sides/bottom, 1\u2033 SA top (double-fold \u00bd\u2033 + \u00bd\u2033 hem) \xb7 {press} under using cardboard template \xb7 Rounded bottom corners', dimensions: { width: 3.75, height: 2.5 }, type: 'pocket', sa: 0.375, cornerRadius: 0.5 });
-    pieces.push(buildBackPatchPocket());
+    const backPocketPiece = buildBackPatchPocket({ w: pktScaledW, totalH: pktScaledH });
+    if (pktWarnings.length) backPocketPiece.warnings = pktWarnings;
+    pieces.push(backPocketPiece);
 
     // ── BELT LOOPS ──
     if (beltLoopStyle === 'individual') {
@@ -329,6 +403,24 @@ export default {
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
     const numPleats = opts.frontPleats === 'double' ? 2 : opts.frontPleats === 'single' ? 1 : 0;
 
+    // Recompute pocket placement for instruction text
+    const JEANS_EASE_INSTR = { slim: 0.5, regular: 1.5, relaxed: 3.0 };
+    const easeInstr      = easeDistribution(JEANS_EASE_INSTR[opts.ease] ?? 1.5);
+    const hip            = m.hip || 36;
+    const backHipWInstr  = hip / 4 + easeInstr.back;
+    const backWaistWInstr = (waist / 4) + easeInstr.back;
+    const backDartInstr  = Math.max(0, backHipWInstr - backWaistWInstr);
+    const effDartInstr   = backDartInstr > 1 ? backDartInstr : 0;
+    const pktWInstr      = Math.max(5.5, Math.min(7.0, backHipWInstr / 1.5));
+    const pktTiltDegInstr    = parseFloat(opts.pktTiltDeg)      || 8;
+    const pktTopBelowYokeInstr = parseFloat(opts.pktTopBelowYoke) ?? 0.6;
+    const pktInnerFromCBInstr  = parseFloat(opts.pktInnerFromCB)  || 2.25;
+    const yokeYInstr     = hasYoke ? (parseFloat(opts.yokeDepth) || 3.5) : 3.5;
+    const pktTopYInstr   = Math.max(3.5, yokeYInstr + pktTopBelowYokeInstr);
+    const dartRatioInstr = backDartInstr > 1.5 ? 0.33 : 0.4;
+    const backWFullInstr = backWaistWInstr + effDartInstr;
+    const pktInnerXInstr = Math.max(pktInnerFromCBInstr, backWFullInstr * dartRatioInstr - pktWInstr / 2);
+
     steps.push({
       step: n++, title: 'Needle setup',
       detail: 'Load a Jeans/Denim 100/16 needle for all construction seams — its sharp point is designed to pierce dense denim cleanly. Before any topstitching row (pockets, yoke, fly, waistband, hem): switch to a Schmetz Topstitch 90/14. The topstitch needle has a wider eye and a deeper front groove that protect 30wt heavy thread from shredding at sewing speed. A jeans needle will shred heavy decorative thread even on low speed. Switch back to the jeans needle when returning to seam work.',
@@ -336,7 +428,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Prepare back patch pockets',
-      detail: `Make a cardboard press template the finished pocket size (no SA). {press} SA under around template. Remove template. Add arcuate topstitching design. Position pockets on the ${hasYoke ? 'lower back panels (the section below the yoke seam)' : 'back panels'}, centered on the seat. {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.`,
+      detail: `Make a cardboard press template the finished pocket size (no SA). {press} SA under around template, basting the hem allowance along the smile-curve top edge so it follows the curve. Remove template. Add arcuate topstitching design. Place pockets on the ${hasYoke ? 'lower back panels (below the yoke seam)' : 'back panels'} using the 4 placement notches: inner-top corner ${fmtInches(pktInnerXInstr)} from CB, pocket top ${fmtInches(pktTopYInstr)} below waistband, tilted ${pktTiltDegInstr}° inward toward CB (outer-top corner sits slightly higher). {topstitch} sides and bottom at 3.5mm with gold thread. Bar tack top corners.`,
     });
     const coinPocketPlacement = (opts.frontPocket === 'side' || opts.frontPocket === 'none')
       ? 'upper outer area of the right front panel, approximately 2½″ from the side seam and 1″ below the waist edge'
@@ -488,34 +580,41 @@ export default {
 };
 
 
-// ── Back patch pocket (pentagon with pointed bottom) ────────────────────
+// ── Back patch pocket (pentagon with pointed bottom + smile-curve opening) ──
 
-function buildBackPatchPocket() {
-  const pocketSA = 0.5;       // 1/2″ SA sides/bottom (standard for cardboard-template pressing)
-  const topHem = 0.75;        // 3/4″ top hem (fold under ⅜″ twice — 1 cm + 1 cm)
-  const w = 6;                // pocket width
-  const sideH = 5;            // straight side height before angling inward
-  const totalH = 6.5;         // total height (top to point)
+function buildBackPatchPocket({ w = 6, totalH = 6.5 } = {}) {
+  const pocketSA = 0.5;            // 1/2″ SA sides/bottom (cardboard-template pressing)
+  const topHem   = 0.75;           // 3/4″ top hem (double fold ⅜″+⅜″)
+  // sideH: straight section before angling to the point; keep proportional to totalH
+  const sideH    = totalH - 1.5;
 
-  // Pentagon: top edge, two straight sides, two angled sides meeting at point
+  // Top edge: gentle smile curve — center dips 1/8" below the corners
+  const smilePts = sampleBezier(
+    { x: 0, y: 0 },
+    { x: w * 0.33, y: 0.125 },
+    { x: w * 0.67, y: 0.125 },
+    { x: w, y: 0 },
+    8,
+  );
+
+  // Pentagon: smile top edge → right side → angled sides meeting at point → left side
   const poly = [
-    { x: 0, y: 0 },            // top-left
-    { x: w, y: 0 },            // top-right
-    { x: w, y: sideH },        // right side, start of angle
-    { x: w / 2, y: totalH },   // bottom center point
-    { x: 0, y: sideH },        // left side, start of angle
+    ...smilePts,
+    { x: w,     y: sideH   },  // right side, start of angle
+    { x: w / 2, y: totalH  },  // bottom center point
+    { x: 0,     y: sideH   },  // left side, start of angle
   ];
 
   const saPoly = offsetPolygon(poly, (i, a, b) => {
-    // Top edge: 3/4″ (double fold ⅜″+⅜″); sides/bottom: 1/2″ press-under
-    if (Math.abs(a.y) < 0.1 && Math.abs(b.y) < 0.1) return -topHem;
+    // Top edge (smile): y stays ≤ 0.2" — use double-fold hem allowance
+    if (a.y <= 0.2 && b.y <= 0.2) return -topHem;
     return -pocketSA;
   });
 
   return {
     id: 'back-pocket',
     name: 'Back Patch Pocket',
-    instruction: 'Cut 2 · ¾″ hem at top (fold under ⅜″ twice, {topstitch}) · ½″ SA sides/bottom · {press} under using cardboard template · Trim top corners diagonally to reduce bulk · {topstitch} to back panel · Add arcuate stitching',
+    instruction: `Cut 2 · ¾″ hem at top (fold under ⅜″ twice along smile curve, {topstitch}) · ½″ SA sides/bottom · {press} under using cardboard template · Trim top corners diagonally to reduce bulk · {topstitch} to back panel at placement marks · Add arcuate stitching`,
     polygon: poly,
     saPolygon: saPoly,
     path: polyToPath(poly),
@@ -523,13 +622,12 @@ function buildBackPatchPocket() {
     width: w, height: totalH,
     sa: pocketSA, hem: topHem, hemEdge: 'top', type: 'bodice',
     isCutOnFold: false,
-    // Diagonal trim marks at top corners — cut along these lines to remove corner bulk before pressing
     trimMarks: [
       { x1: pocketSA, y1: 0,       x2: 0, y2: topHem },  // top-left corner
       { x1: w - pocketSA, y1: 0,   x2: w, y2: topHem },  // top-right corner
     ],
     dimensions: [
-      { label: fmtInches(w) + ' width', x1: 0, y1: -0.4, x2: w, y2: -0.4, type: 'h' },
+      { label: fmtInches(w) + ' width',   x1: 0, y1: -0.4, x2: w,     y2: -0.4,   type: 'h' },
       { label: fmtInches(totalH) + ' height', x: w + 0.8, y1: 0, y2: totalH, type: 'v' },
     ],
   };
