@@ -65,7 +65,7 @@ function _syncGarmentUrl(id) {
 }
 
 let _currentPurchased = false; // set by _applyWatermarkState, read by captureEmailThenPrint
-let _currentHasA0     = false; // whether current pattern purchase includes A0 addon
+let _currentHasLargeFormat = false; // whether current pattern purchase includes large-format add-on
 let _activeProfileId   = null; // Supabase ID of the loaded measurement profile
 let _activeProfileName = null; // display name, shown in step 2 label
 
@@ -1213,23 +1213,33 @@ function _generate() {
   </div>`;
 
   // ── Print pane ──
-  const PAPER_SIZES = [
+  const PRINT_SIZES = [
     { id: 'letter',  label: 'US Letter   8.5 x 11 in   (tiled)' },
     { id: 'a4',      label: 'A4          210 x 297 mm  (tiled)' },
     { id: 'legal',   label: 'US Legal    8.5 x 14 in   (tiled)' },
     { id: 'tabloid', label: 'Tabloid     11 x 17 in    (tiled)' },
-    { id: 'a0',      label: 'A0 / Copy Shop / Projector  33.1 x 46.8 in (+$4)' },
+    { id: 'a0',      label: 'A0   33.1 x 46.8 in (+$4)   copy shop' },
+    { id: 'archd',   label: 'ARCH D   24 x 36 in (+$4)   copy shop' },
+    { id: 'ansid',   label: 'ANSI D   22 x 34 in (+$4)   copy shop' },
   ];
   const printHtml = `<div class="s4-print-wrap">
     <div class="s4-print-section">
-      <div class="s4-print-label">Paper Size</div>
-      ${PAPER_SIZES.map(s => `<label class="s4-print-radio">
+      <div class="s4-print-label">Instructions Sheet</div>
+      <p class="s4-print-note">Cover, materials, and sewing steps on 8.5 x 11 in paper.</p>
+      <div class="s4-print-actions">
+        <button class="btn-s" id="s4-instructions-btn">Download Instructions PDF</button>
+      </div>
+    </div>
+    <hr class="s4-print-divider">
+    <div class="s4-print-section">
+      <div class="s4-print-label">Pattern</div>
+      ${PRINT_SIZES.map(s => `<label class="s4-print-radio">
         <input type="radio" name="s4-ps" value="${s.id}"${s.id === selectedPaperSize ? ' checked' : ''}> ${s.label}
       </label>`).join('')}
     </div>
     <div class="s4-print-actions">
       <button class="btn" id="s4-print-btn">Print Pattern</button>
-      <button class="btn-s" id="s4-download-btn">Download PDF</button>
+      <button class="btn-s" id="s4-download-btn">Download Pattern PDF</button>
     </div>
   </div>`;
 
@@ -1244,6 +1254,7 @@ function _generate() {
   document.querySelectorAll('input[name="s4-ps"]').forEach(r =>
     r.addEventListener('change', e => { selectedPaperSize = e.target.value; })
   );
+  document.getElementById('s4-instructions-btn')?.addEventListener('click', () => handleDownloadInstructions(document.getElementById('s4-instructions-btn')));
   document.getElementById('s4-print-btn')?.addEventListener('click', () => handlePrint(document.getElementById('s4-print-btn')));
   document.getElementById('s4-download-btn')?.addEventListener('click', () => handleDownloadPDF(document.getElementById('s4-download-btn')));
 
@@ -1289,7 +1300,7 @@ async function _applyWatermarkState(garmentId) {
   // ── ADMIN BYPASS: full access including A0 for all patterns ──────────────
   if (getCurrentUser()?.email === ADMIN_EMAIL) {
     _currentPurchased = true;
-    _currentHasA0 = true;
+    _currentHasLargeFormat = true;
     return;
   }
 
@@ -1301,7 +1312,7 @@ async function _applyWatermarkState(garmentId) {
       const purchaseRes = await hasPurchased(user.id, garmentId);
       if (purchaseRes.data) {
         _currentPurchased = true;
-        _currentHasA0 = !!purchaseRes.data?.a0_addon;
+        _currentHasLargeFormat = !!purchaseRes.data?.a0_addon;
         return;
       }
     }
@@ -1367,7 +1378,7 @@ async function _applyWatermarkState(garmentId) {
       getFreeCredits(user.id),
     ]);
     purchased   = !!purchaseRes.data;
-    _currentHasA0 = !!purchaseRes.data?.a0_addon;
+    _currentHasLargeFormat = !!purchaseRes.data?.a0_addon;
     freeCredits = creditsRes.credits ?? 0;
   }
   _currentPurchased = purchased;
@@ -1421,7 +1432,7 @@ async function _applyWatermarkState(garmentId) {
         <span class="wm-banner-text">Purchase ${label} to download the full-resolution print-ready PDF${dollars ? ` (${dollars})` : ''}</span>
         <label class="wm-a0-label" id="wm-a0-label">
           <input type="checkbox" id="wm-a0-check">
-          Add A0 / Projector / Copy Shop files <span class="wm-a0-price">(+$4)</span> · no taping
+          Add large format copy shop files <span class="wm-a0-price">(+$4)</span>. A0, ARCH D, ANSI D, and projector.
         </label>
         <button class="wm-banner-btn" id="wm-add-cart-btn">Add to Cart</button>`;
       output.parentNode.insertBefore(banner, output);
@@ -1752,10 +1763,12 @@ function _promptA0Upgrade() {
     dlg.innerHTML = `
       <div class="email-gate-card">
         <div class="email-gate-logo">People's Patterns</div>
-        <p class="email-gate-body"><strong>A0 / Projector / Copy Shop files</strong> are a one-time $4 add-on for this pattern.</p>
+        <p class="email-gate-body"><strong>Large format copy shop files</strong> are a one-time $4 add-on for this pattern.</p>
         <ul class="a0-upgrade-list">
-          <li><strong>A0 PDF</strong> — single-sheet print at any copy shop</li>
-          <li><strong>Projector file</strong> — project directly onto fabric, no paper</li>
+          <li><strong>A0 PDF</strong>. 33.1 x 46.8 in. Single sheet.</li>
+          <li><strong>ARCH D PDF</strong>. 24 x 36 in. Single sheet.</li>
+          <li><strong>ANSI D PDF</strong>. 22 x 34 in. Single sheet.</li>
+          <li><strong>Projector file</strong>. Project directly onto fabric. No paper.</li>
         </ul>
         <button class="email-gate-submit" id="a0-upgrade-buy">Add for $4</button>
         <button type="button" class="email-gate-cancel" id="a0-upgrade-cancel">Cancel</button>
@@ -1808,12 +1821,50 @@ function _promptA0Upgrade() {
   dlg.showModal();
 }
 
+async function handleDownloadInstructions(btn) {
+  if (!getCurrentUser()) {
+    openAuthModal('download', () => handleDownloadInstructions(btn));
+    return;
+  }
+  if (!_currentPurchased) {
+    await _applyWatermarkState(currentGarment);
+    if (!_currentPurchased) return;
+  }
+  const origText  = btn.textContent;
+  btn.disabled    = true;
+  btn.textContent = 'Generating…';
+  try {
+    const { session } = await getSession();
+    const { m, opts } = readInputs();
+    const res = await fetch('/api/generate-pattern', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+      body:    JSON.stringify({ garmentId: currentGarment, measurements: m, opts, section: 'instructions', locale: getLocale() }),
+    });
+    let json;
+    try { json = await res.json(); } catch { throw new Error(`Server error ${res.status}`); }
+    if (!res.ok || json.error) { alert('Could not generate PDF: ' + (json.error ?? res.statusText)); return; }
+    const isMobile = /Mobi|Android|iPhone|iPad|IEMobile/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.open(json.downloadUrl, '_blank');
+    } else {
+      await _blobDownload(json.downloadUrl, `${currentGarment}-instructions.pdf`);
+    }
+  } catch (err) {
+    console.error('Instructions download failed:', err);
+    alert('Download failed. Please try again.');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = origText;
+  }
+}
+
 async function handlePrint(btn) {
   if (!getCurrentUser()) {
     openAuthModal('download', () => handlePrint(btn));
     return;
   }
-  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+  if (['a0', 'archd', 'ansid'].includes(selectedPaperSize) && !_currentHasLargeFormat) {
     _promptA0Upgrade();
     return;
   }
@@ -1858,7 +1909,7 @@ async function handleDownloadPDF(btn) {
     await _applyWatermarkState(currentGarment);
     if (!_currentPurchased) return; // banner now shows correct action (free credit or buy)
   }
-  if (selectedPaperSize === 'a0' && !_currentHasA0) {
+  if (['a0', 'archd', 'ansid'].includes(selectedPaperSize) && !_currentHasLargeFormat) {
     _promptA0Upgrade();
     return;
   }
@@ -1888,7 +1939,7 @@ async function handleDownloadPDF(btn) {
         garmentId:    currentGarment,
         measurements: m,
         opts,
-        paperSize:    selectedPaperSize === 'a0' ? 'letter' : selectedPaperSize,
+        paperSize:    selectedPaperSize,
         locale:       getLocale(),
       }),
     });
@@ -1920,47 +1971,49 @@ async function handleDownloadPDF(btn) {
 
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
 
-    // If A0 addon was purchased, trigger A0 pattern + preamble + projector downloads
-    if (json.a0DownloadUrl) {
-      if (isMobile) {
-        // Can't auto-open multiple windows on mobile — show tap-to-download links instead.
+    // Download instructions PDF alongside the pattern (always included).
+    const isLargeSize = ['a0', 'archd', 'ansid'].includes(selectedPaperSize);
+    if (isMobile) {
+      // Can't auto-open multiple windows on mobile — show tap-to-download links.
+      const extras = [
+        ...(json.instructionsDownloadUrl ? [{ url: json.instructionsDownloadUrl, label: 'Instructions PDF (print at home)' }] : []),
+        ...(json.projectorDownloadUrl    ? [{ url: json.projectorDownloadUrl,    label: 'Projector PDF' }] : []),
+      ];
+      if (extras.length) {
         btn.parentNode?.querySelector('.mobile-dl-links')?.remove();
         const div = document.createElement('div');
         div.className = 'mobile-dl-links';
-        const files = [
-          { url: json.a0DownloadUrl, label: 'A0 PDF (send to copy shop)' },
-          ...(json.a0PreambleDownloadUrl ? [{ url: json.a0PreambleDownloadUrl, label: 'Instructions PDF (print at home)' }] : []),
-          ...(json.projectorDownloadUrl  ? [{ url: json.projectorDownloadUrl,  label: 'Projector PDF' }] : []),
-        ];
         const notice = document.createElement('p');
         notice.className = 'a0-download-notice';
         notice.textContent = 'Tap each file to save:';
         div.appendChild(notice);
-        for (const f of files) {
+        for (const f of extras) {
           const a = document.createElement('a');
-          a.href = f.url;
-          a.target = '_blank';
-          a.rel = 'noopener';
+          a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
           a.className = 'btn-s mobile-dl-link';
           a.textContent = f.label;
           div.appendChild(a);
         }
         btn.parentNode?.insertBefore(div, btn.nextSibling);
-      } else {
-        setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
-        let nextDelay = 1600;
-        if (json.a0PreambleDownloadUrl) {
-          setTimeout(() => _blobDownload(json.a0PreambleDownloadUrl, `${currentGarment}-instructions-letter.pdf`), nextDelay);
-          nextDelay += 800;
-        }
-        if (json.projectorDownloadUrl) {
-          setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), nextDelay);
-        }
+      }
+    } else {
+      let nextDelay = 800;
+      if (json.instructionsDownloadUrl) {
+        setTimeout(() => _blobDownload(json.instructionsDownloadUrl, `${currentGarment}-instructions.pdf`), nextDelay);
+        nextDelay += 800;
+      }
+      if (json.projectorDownloadUrl) {
+        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), nextDelay);
+      }
+      const noticeParts = [];
+      if (isLargeSize) noticeParts.push('Send this file to a copy shop. No taping required.');
+      if (json.instructionsDownloadUrl) noticeParts.push('Instructions PDF also downloading.');
+      if (json.projectorDownloadUrl)    noticeParts.push('Projector PDF also downloading.');
+      if (noticeParts.length) {
+        btn.parentNode?.querySelector('.a0-download-notice')?.remove();
         const notice = document.createElement('p');
         notice.className = 'a0-download-notice';
-        notice.textContent = json.a0PreambleDownloadUrl
-          ? 'Two A0 files downloading. Send the A0 PDF to the print shop. Print the instructions PDF at home on letter paper.'
-          : 'Your A0 + projector files are also downloading. No taping required.';
+        notice.textContent = noticeParts.join(' ');
         btn.parentNode?.insertBefore(notice, btn.nextSibling);
       }
     }

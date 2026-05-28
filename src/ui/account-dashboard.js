@@ -546,23 +546,26 @@ async function _renderPatterns(main, user, tab = 'active') {
       const a = document.createElement('a');
       a.href = json.downloadUrl; a.download = `${garmentId}-pattern.pdf`;
       document.body.appendChild(a); a.click(); a.remove();
-      if (json.a0DownloadUrl) {
+      let nextDelay = 800;
+      if (json.instructionsDownloadUrl) {
         setTimeout(() => {
-          const a0 = document.createElement('a');
-          a0.href = json.a0DownloadUrl; a0.download = `${garmentId}-pattern-a0.pdf`;
-          document.body.appendChild(a0); a0.click(); a0.remove();
-        }, 800);
-        if (json.projectorDownloadUrl) {
-          setTimeout(() => {
-            const pj = document.createElement('a');
-            pj.href = json.projectorDownloadUrl; pj.download = `${garmentId}-pattern-projector.pdf`;
-            document.body.appendChild(pj); pj.click(); pj.remove();
-          }, 1600);
-        }
-        _showToast('Letter PDF + A0 + projector files downloading');
-      } else {
-        _showToast('Download started');
+          const inst = document.createElement('a');
+          inst.href = json.instructionsDownloadUrl; inst.download = `${garmentId}-instructions.pdf`;
+          document.body.appendChild(inst); inst.click(); inst.remove();
+        }, nextDelay);
+        nextDelay += 800;
       }
+      if (json.projectorDownloadUrl) {
+        setTimeout(() => {
+          const pj = document.createElement('a');
+          pj.href = json.projectorDownloadUrl; pj.download = `${garmentId}-pattern-projector.pdf`;
+          document.body.appendChild(pj); pj.click(); pj.remove();
+        }, nextDelay);
+      }
+      const toastParts = ['PDF downloading.'];
+      if (json.instructionsDownloadUrl) toastParts.push('Instructions PDF also downloading.');
+      if (json.projectorDownloadUrl)    toastParts.push('Projector PDF also downloading.');
+      _showToast(toastParts.join(' '));
     } catch { _showToast('Download failed. Try again.'); }
     finally { if (labelEl) { labelEl.textContent = originalLabel; } }
   }
@@ -609,12 +612,12 @@ async function _renderPatterns(main, user, tab = 'active') {
           body: JSON.stringify({ mode: 'a0_upgrade', purchaseId: btn.dataset.purchaseId, userId: user.id }),
         });
         const json = await res.json();
-        if (!res.ok || json.error) { _showToast(json.error || 'Checkout failed'); btn.disabled = false; btn.textContent = 'Add A0 (+$4)'; return; }
+        if (!res.ok || json.error) { _showToast(json.error || 'Checkout failed'); btn.disabled = false; btn.textContent = 'Add Large Format (+$4)'; return; }
         window.location.href = json.url;
       } catch {
         _showToast('Could not start checkout. Try again.');
         btn.disabled = false;
-        btn.textContent = 'Add A0 (+$4)';
+        btn.textContent = 'Add Large Format (+$4)';
       }
     });
   });
@@ -782,7 +785,7 @@ function _patCardHtml(p, name, measurements, fmt, tab, days, urgent, feedbackSet
         : `<button class="acct-btn-xs pat-feedback-btn" data-purchase-id="${p.id}" data-garment-id="${p.garment_id}" data-garment-name="${name}">How did it fit?</button>`
       : '';
     const a0Btn = !p.a0_addon
-      ? `<button class="acct-btn-xs pat-a0-upsell-btn" data-purchase-id="${p.id}">Add A0 (+$4)</button>`
+      ? `<button class="acct-btn-xs pat-a0-upsell-btn" data-purchase-id="${p.id}">Add Large Format (+$4)</button>`
       : '';
     actionHtml = `
       <button class="acct-btn-xs pat-dl-btn" data-garment-id="${p.garment_id}" data-purchase-id="${p.id}">Re-download PDF</button>

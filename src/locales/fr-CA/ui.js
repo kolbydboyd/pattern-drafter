@@ -175,7 +175,7 @@ export default {
   'msg.youre-in':         'Tu es inscrit! Vérifie ta boîte de réception.',
   'msg.code-redeemed':    'Code échangé! {name} est maintenant dans ton compte.',
   'msg.free-credit-used': 'Crédit gratuit utilisé. Prochain patron à partir de 9$. {name} est maintenant dans ton compte.',
-  'msg.a0-downloading':   'Tes fichiers A0 + projecteur se téléchargent aussi. Aucun assemblage requis.',
+  'msg.a0-downloading':   'Instructions PDF + projector files also downloading.',
   'msg.profile-saved':    'Ton profil est sauvegardé. Reviens quand tu veux.',
   'msg.confirm-reset':    'Réinitialiser toutes les mensurations et options aux valeurs par défaut?',
   'msg.allow-popups':     "Autorise les fenêtres contextuelles pour ouvrir la mise en page d'impression.",
@@ -263,6 +263,8 @@ export default {
   'pdf.paper.a4':           'A4',
   'pdf.paper.tabloid':      'Tabloïd',
   'pdf.paper.a0':           'A0/Traceur',
+  'pdf.paper.archd':        'ARCH D',
+  'pdf.paper.ansid':        'ANSI D',
   'pdf.place-on-fold':      'PLACER SUR LE PLI',
   'pdf.cut':                'Couper {n}',
   'pdf.cut-fold':           'Couper {n} sur le pli',
@@ -279,7 +281,7 @@ export default {
   'cart.view':              'Voir le panier ({count})',
   'cart.a0-addon':          'Ajouter pour 4$',
   'cart.a0-redirecting':    'Redirection…',
-  'cart.a0-title':          'Ajouter les fichiers A0 + Projecteur',
+  'cart.a0-title':          'Add Large Format + Projector Files',
 
   // ── Account ───────────────────────────────────────────────────────────────────
   'account.patterns':       'Patrons',

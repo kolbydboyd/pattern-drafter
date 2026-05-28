@@ -30,11 +30,10 @@ async function generatePDF(html, format = 'Letter') {
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
-  const pdf = await page.pdf({
-    format,
-    printBackground: true,
-    margin:          { top: 0, right: 0, bottom: 0, left: 0 },
-  });
+  const pdfOpts = typeof format === 'object'
+    ? { ...format, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } }
+    : { format,    printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } };
+  const pdf = await page.pdf(pdfOpts);
 
   // Scale verification: measure the 2x2" calibration square.
   try {
@@ -85,11 +84,14 @@ export const handler = async (event) => {
   const { garmentId, measurements, opts, sessionId, paperSize: reqPaperSize, locale: reqLocale } = body;
   const SUPPORTED_LOCALES = ['en', 'en-CA', 'fr-CA', 'es', 'nl', 'de'];
   const pdfLocale = SUPPORTED_LOCALES.includes(reqLocale) ? reqLocale : 'en';
-  // Map client paper size to Puppeteer format string. A0 and projector are
-  // handled as separate addon files; the primary PDF uses the requested size.
-  const PUPPETEER_FORMATS = { letter: 'Letter', a4: 'A4', legal: 'Legal', tabloid: 'Tabloid' };
-  const primaryPaperSize  = PUPPETEER_FORMATS[reqPaperSize] ? reqPaperSize : 'letter';
-  const primaryFormat     = PUPPETEER_FORMATS[primaryPaperSize];
+  // Map client paper size to Puppeteer format. Named formats use a string;
+  // custom sizes (ARCH D, ANSI D) use {width, height} objects.
+  const PUPPETEER_NAMED  = { letter: 'Letter', a4: 'A4', legal: 'Legal', tabloid: 'Tabloid', a0: 'A0' };
+  const PUPPETEER_CUSTOM = { archd: { width: '24in', height: '36in' }, ansid: { width: '22in', height: '34in' } };
+  const LARGE_FORMAT_IDS = new Set(['a0', 'archd', 'ansid']);
+  const isLargeFormatReq = LARGE_FORMAT_IDS.has(reqPaperSize);
+  const primaryPaperSize = reqPaperSize || 'letter';
+  const primaryFormat    = PUPPETEER_NAMED[primaryPaperSize] || PUPPETEER_CUSTOM[primaryPaperSize] || 'Letter';
 
   // Authenticate user server-side from the Authorization header.
   const authHeader = headers['authorization'] || headers['Authorization'] || '';
@@ -256,49 +258,64 @@ export const handler = async (event) => {
   const materials    = garment.materials(measurements, opts);
   const instructions = garment.instructions(measurements, opts);
 
-  // 6. Generate HTML print layout.
   const { generatePrintLayout } = await import('../src/pdf/print-layout.js');
-  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize, pdfLocale);
 
-  const needsA0 = purchase?.a0_addon === true;
-  // A0: generate two separate PDFs — pattern-only (A0 size) + preamble-only (Letter size).
-  // User prints the letter PDF at home and sends the A0 PDF to the print shop.
-  const htmlA0Pattern  = needsA0
-    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale, 'pattern')
-    : null;
-  const htmlA0Preamble = needsA0
-    ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'a0', pdfLocale, 'preamble')
-    : null;
-  const htmlProjector = needsA0
+  // 5a. Instructions-only shortcut: generate and return just the instructions PDF.
+  if (body.section === 'instructions') {
+    const htmlInst = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'letter', pdfLocale, 'instructions');
+    let instBuffer;
+    try {
+      instBuffer = await generatePDF(htmlInst, 'Letter');
+    } catch (err) {
+      console.error('Instructions PDF generation failed:', err);
+      return jsonResponse(500, { error: 'PDF generation failed' });
+    }
+    const instPath = `${userId || 'anon'}/${garmentId}/${Date.now()}-instructions.pdf`;
+    const { error: uploadErr } = await supabase.storage.from('patterns').upload(instPath, instBuffer, { contentType: 'application/pdf', upsert: true });
+    if (uploadErr) return jsonResponse(500, { error: 'Storage upload failed' });
+    const { data: instSigned } = await supabase.storage.from('patterns').createSignedUrl(instPath, 60 * 60 * 48, { download: `${garmentId}-instructions.pdf` });
+    if (userId) await supabase.rpc('increment_download_count', { p_user_id: userId, p_garment_id: garmentId });
+    return jsonResponse(200, { downloadUrl: instSigned.signedUrl });
+  }
+
+  // 5b. Large-format access check (requires add-on).
+  const hasAddon = purchase?.a0_addon === true;
+  if (isLargeFormatReq && !hasAddon) {
+    return jsonResponse(403, { error: 'Large format add-on required' });
+  }
+
+  // 6. Generate HTML print layouts.
+  const html = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, primaryPaperSize, pdfLocale, isLargeFormatReq ? 'pattern' : undefined);
+  // Instructions PDF: always generated alongside any pattern download.
+  const htmlInstructions = generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'letter', pdfLocale, 'instructions');
+  // Projector: included in the large-format add-on bundle.
+  const htmlProjector = hasAddon
     ? generatePrintLayout(garment, pieces, materials, instructions, measurements, opts, 'projector', pdfLocale)
     : null;
 
   // 7. Render to PDF — sequential to stay within 1024 MB Lambda memory.
   // Parallel Chromium instances each consume ~300-500 MB; running them
-  // concurrently causes OOM on A0+projector combos. Sequential is safer.
-  let pdfBuffer, pdfA0Buffer, pdfA0PreambleBuffer, pdfProjectorBuffer;
+  // concurrently causes OOM on large-format combos. Sequential is safer.
+  let pdfBuffer, pdfInstructionsBuffer, pdfProjectorBuffer;
   try {
-    pdfBuffer = await generatePDF(html, primaryFormat);
-    if (htmlA0Pattern)  pdfA0Buffer        = await generatePDF(htmlA0Pattern,  'A0');
-    if (htmlA0Preamble) pdfA0PreambleBuffer = await generatePDF(htmlA0Preamble, 'Letter');
-    if (htmlProjector)  pdfProjectorBuffer  = await generatePDF(htmlProjector,  'Letter');
+    pdfBuffer             = await generatePDF(html, primaryFormat);
+    pdfInstructionsBuffer = await generatePDF(htmlInstructions, 'Letter');
+    if (htmlProjector) pdfProjectorBuffer = await generatePDF(htmlProjector, 'Letter');
   } catch (err) {
     console.error('PDF generation failed:', err);
     return jsonResponse(500, { error: 'PDF generation failed' });
   }
 
   // 8. Upload to Supabase Storage.
-  const timestamp        = Date.now();
-  const path             = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
-  const pathA0           = `${userId || 'anon'}/${garmentId}/${timestamp}-a0.pdf`;
-  const pathA0Preamble   = `${userId || 'anon'}/${garmentId}/${timestamp}-a0-instructions.pdf`;
-  const pathProjector    = `${userId || 'anon'}/${garmentId}/${timestamp}-projector.pdf`;
+  const timestamp      = Date.now();
+  const path           = `${userId || 'anon'}/${garmentId}/${timestamp}.pdf`;
+  const pathInst       = `${userId || 'anon'}/${garmentId}/${timestamp}-instructions.pdf`;
+  const pathProjector  = `${userId || 'anon'}/${garmentId}/${timestamp}-projector.pdf`;
 
   const uploads = [
-    supabase.storage.from('patterns').upload(path, pdfBuffer, { contentType: 'application/pdf', upsert: true }),
+    supabase.storage.from('patterns').upload(path,     pdfBuffer,             { contentType: 'application/pdf', upsert: true }),
+    supabase.storage.from('patterns').upload(pathInst, pdfInstructionsBuffer, { contentType: 'application/pdf', upsert: true }),
   ];
-  if (pdfA0Buffer)        uploads.push(supabase.storage.from('patterns').upload(pathA0, pdfA0Buffer, { contentType: 'application/pdf', upsert: true }));
-  if (pdfA0PreambleBuffer) uploads.push(supabase.storage.from('patterns').upload(pathA0Preamble, pdfA0PreambleBuffer, { contentType: 'application/pdf', upsert: true }));
   if (pdfProjectorBuffer) uploads.push(supabase.storage.from('patterns').upload(pathProjector, pdfProjectorBuffer, { contentType: 'application/pdf', upsert: true }));
 
   const uploadResults = await Promise.all(uploads);
@@ -312,19 +329,16 @@ export const handler = async (event) => {
   // { download } adds Content-Disposition: attachment so mobile browsers save the file
   // rather than opening it in-tab, and so direct navigation triggers a download.
   const signedUrls = await Promise.all([
-    supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48, { download: `${garmentId}-pattern.pdf` }),
-    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48, { download: `${garmentId}-pattern-a0.pdf` })]                   : []),
-    ...(pdfA0PreambleBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0Preamble, 60 * 60 * 48, { download: `${garmentId}-instructions-letter.pdf` })] : []),
-    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48, { download: `${garmentId}-pattern-projector.pdf` })]      : []),
+    supabase.storage.from('patterns').createSignedUrl(path,     60 * 60 * 48, { download: `${garmentId}-pattern.pdf` }),
+    supabase.storage.from('patterns').createSignedUrl(pathInst, 60 * 60 * 48, { download: `${garmentId}-instructions.pdf` }),
+    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48, { download: `${garmentId}-pattern-projector.pdf` })] : []),
   ]);
 
-  const { data: signed, error: signErr } = signedUrls[0];
-  if (signErr) return jsonResponse(500, { error: 'Could not generate download URL' });
+  const { data: signed,      error: signErr }  = signedUrls[0];
+  const { data: signedInst,  error: signErr2 } = signedUrls[1];
+  if (signErr || signErr2) return jsonResponse(500, { error: 'Could not generate download URL' });
 
-  let urlIdx = 1;
-  const a0Signed          = pdfA0Buffer        ? (signedUrls[urlIdx++]?.data ?? null) : null;
-  const a0PreambleSigned  = pdfA0PreambleBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
-  const projectorSigned   = pdfProjectorBuffer ? (signedUrls[urlIdx++]?.data ?? null) : null;
+  const projectorSigned = pdfProjectorBuffer ? (signedUrls[2]?.data ?? null) : null;
 
   // 10. Increment download_count.
   if (userId) {
@@ -343,8 +357,7 @@ export const handler = async (event) => {
       const tmpl = purchaseConfirmationEmail({
         garmentName,
         downloadUrl:            signed.signedUrl,
-        a0DownloadUrl:          a0Signed?.signedUrl ?? null,
-        a0PreambleDownloadUrl:  a0PreambleSigned?.signedUrl ?? null,
+        instructionsDownloadUrl: signedInst.signedUrl,
         projectorDownloadUrl:   projectorSigned?.signedUrl ?? null,
         measurements,
         expiresHours: 48,
@@ -355,9 +368,10 @@ export const handler = async (event) => {
     }
   }
 
-  const response = { downloadUrl: signed.signedUrl };
-  if (a0Signed)         response.a0DownloadUrl          = a0Signed.signedUrl;
-  if (a0PreambleSigned) response.a0PreambleDownloadUrl  = a0PreambleSigned.signedUrl;
-  if (projectorSigned)  response.projectorDownloadUrl   = projectorSigned.signedUrl;
+  const response = {
+    downloadUrl:             signed.signedUrl,
+    instructionsDownloadUrl: signedInst.signedUrl,
+  };
+  if (projectorSigned) response.projectorDownloadUrl = projectorSigned.signedUrl;
   return jsonResponse(200, response);
 };

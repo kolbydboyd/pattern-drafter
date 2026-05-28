@@ -185,7 +185,7 @@ export default {
   'msg.youre-in':         "You’re in! Check your inbox.",
   'msg.code-redeemed':    'Code redeemed! {name} is now in your account.',
   'msg.free-credit-used': 'Free credit used. Your next pattern starts at $9. {name} is now in your account.',
-  'msg.a0-downloading':   'Your A0 + projector files are also downloading. No taping required.',
+  'msg.a0-downloading':   'Instructions PDF + projector files also downloading.',
   'msg.profile-saved':    'Your profile is saved. Come back anytime.',
   'msg.confirm-reset':    'Reset all measurements and options to defaults?',
   'msg.allow-popups':     'Allow pop-ups to open the print layout.',
@@ -195,7 +195,7 @@ export default {
   'wm.create-dl':         'Create Free Account & Download',
   'wm.free-credit':       'You have 1 free pattern download. Use it on {name}?',
   'wm.purchase':          'Purchase {name} to download the full-resolution print-ready PDF ({price})',
-  'wm.a0-label':          'Add A0 / Projector / Copy Shop files (+$4) · no taping',
+  'wm.a0-label':          'Add large format copy shop files (+$4). A0, ARCH D, ANSI D, and projector.',
   'wm.redeem-create':     'Redeeming code for {name}. Create a free account to download.',
   'wm.redeem-ready':      'Your code unlocks a custom-fit {name}. Free with your redemption code.',
 
@@ -284,6 +284,8 @@ export default {
   'pdf.paper.a4':           'A4',
   'pdf.paper.tabloid':      'Tabloid',
   'pdf.paper.a0':           'A0/Plotter',
+  'pdf.paper.archd':        'ARCH D',
+  'pdf.paper.ansid':        'ANSI D',
   'pdf.place-on-fold':      'PLACE ON FOLD',
   'pdf.cut':                'Cut {n}',
   'pdf.cut-fold':           'Cut {n} on fold',
@@ -300,7 +302,7 @@ export default {
   'cart.view':              'View cart ({count})',
   'cart.a0-addon':          'Add for $4',
   'cart.a0-redirecting':    'Redirecting…',
-  'cart.a0-title':          'Add A0 + Projector Files',
+  'cart.a0-title':          'Add Large Format + Projector Files',
 
   // ── Account / subscription ────────────────────────────────────────────────────
   'account.patterns':       'Patterns',

@@ -175,7 +175,7 @@ export default {
   'msg.youre-in':         'Je bent erbij! Controleer je inbox.',
   'msg.code-redeemed':    'Code ingewisseld! {name} staat nu in je account.',
   'msg.free-credit-used': 'Gratis tegoed gebruikt. Volgend patroon vanaf $9. {name} staat nu in je account.',
-  'msg.a0-downloading':   'Je A0- en projectorbestanden worden ook gedownload. Geen plakken nodig.',
+  'msg.a0-downloading':   'Instructions PDF + projector files also downloading.',
   'msg.profile-saved':    'Je profiel is opgeslagen. Kom gerust terug.',
   'msg.confirm-reset':    'Alle maten en opties terugzetten naar standaardwaarden?',
   'msg.allow-popups':     'Sta pop-ups toe om de afdrukopmaak te openen.',
@@ -263,6 +263,8 @@ export default {
   'pdf.paper.a4':           'A4',
   'pdf.paper.tabloid':      'Tabloid',
   'pdf.paper.a0':           'A0/Plotter',
+  'pdf.paper.archd':        'ARCH D',
+  'pdf.paper.ansid':        'ANSI D',
   'pdf.place-on-fold':      'OP VOUWLIJN PLAATSEN',
   'pdf.cut':                '{n}× knippen',
   'pdf.cut-fold':           '{n}× op vouwlijn knippen',
@@ -279,7 +281,7 @@ export default {
   'cart.view':              'Winkelwagen bekijken ({count})',
   'cart.a0-addon':          'Toevoegen voor $4',
   'cart.a0-redirecting':    'Doorsturen…',
-  'cart.a0-title':          'A0 + Projectorbestanden toevoegen',
+  'cart.a0-title':          'Add Large Format + Projector Files',
 
   // ── Account ───────────────────────────────────────────────────────────────────
   'account.patterns':       'Patronen',

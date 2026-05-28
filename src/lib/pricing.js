@@ -423,6 +423,6 @@ export const CREDIT_PACKS = {
 // ── A0 / copy shop add-on ─────────────────────────────────────────────────────
 export const A0_UPSELL = {
   cents:   400,
-  label:   'A0 / Projector / Copy Shop files',
+  label:   'Large Format / Copy Shop files',
   priceId: 'price_1TFlPOEcctnfQkkLwH6SU14A',
 };
