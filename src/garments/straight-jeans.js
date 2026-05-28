@@ -984,14 +984,20 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
   for (let i = yokeSeamLine.length - 1; i >= 0; i--) {
     lowerPoly.push({ ...yokeSeamLine[i] });
   }
-  // Copy hip → knee → hem → inseam → full crotch curve → CB point from the
-  // original back panel.  Skip both waist points (indices 0 and 1) since the
-  // top edge is now the yoke seam line above.  Keep all crotch curve points
-  // (including those above the yoke cut) and the structural {0, cbRaise} CB
-  // point so that the closing edge is a clean vertical CB seam from cbRaise
-  // to yokeDepthCB — necessary for offsetPolygon to produce a valid SA polygon.
+  // Copy hip → knee → hem → inseam → crotch curve from the original back panel.
+  // Skip both waist points (indices 0 and 1) since the top edge is now the yoke
+  // seam line above.  Also skip any bezier curve point or the explicit CB-top
+  // vertex { x:0, y:cbRaise } that lies above the yoke junction (y < yokeDepthCB):
+  // those points belong to the yoke region.  Including them caused a hairpin at
+  // (0, cbRaise) — the crotch curve arrived going up, then the closing edge
+  // reversed going down to yokeDepthCB, producing a visible spike above the yoke.
+  // With the filter, the polygon closes from the last in-range bezier point
+  // (≈ where the crotch curve first reaches yokeDepthCB in y) back to
+  // lowerPoly[0] = (0, yokeDepthCB), giving a clean CB seam with no spike.
   for (let i = 2; i < polygon.length; i++) {
-    lowerPoly.push({ ...polygon[i] });
+    const pt = polygon[i];
+    if (pt.y < yokeDepthCB && (pt.curve || Math.abs(pt.x) < 0.01)) continue;
+    lowerPoly.push({ ...pt });
   }
 
   // ── SA offset ─────────────────────────────────────────────────────────
