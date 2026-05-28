@@ -431,7 +431,7 @@ export default {
     if (opts.belt === 'sash') {
       const sashLen = (m.waist || 28) * 3 + 20;
       pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', grainAngle: 45, sa });
-      pieces.push({ id: 'sash-loop', name: 'Belt Loops', instruction: 'Cut 4 · Each 1″ wide × 2″ long · Position at side seams and slightly toward CB', dimensions: { length: 2, width: 1 }, type: 'pocket', sa });
+      pieces.push({ id: 'sash-loop-strip', name: 'Belt Loop Strip', instruction: 'Cut 1 strip · 1″ × 9″ · Fold, sew long edge, turn RS out, {press} · Cut into 4 loops × 2″ each · Position at side seams and slightly toward CB', dimensions: { length: 9, width: 1 }, type: 'rectangle', sa: 0 });
     } else if (opts.belt === 'belt') {
       const beltLen = (m.waist || 28) + 10;
       pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket', sa });
@@ -497,7 +497,7 @@ export default {
     steps.push({ step: n++, title: 'Attach skirt to bodice', detail: `Join skirt to bodice at waist {RST}.${opts.skirtShape === 'gathered' ? ' Gather skirt first to match bodice waist width.' : ''} {serge} SA together. {press} SA upward.` });
 
     if (opts.belt !== 'none') {
-      steps.push({ step: n++, title: 'Attach belt loops', detail: 'Fold strips into belt loops. Sew to side seams and slightly toward CB at waist seam level. Fold under top and bottom raw ends before attaching.' });
+      steps.push({ step: n++, title: 'Make and attach belt loops', detail: 'Cut 1 belt loop strip 1″ wide × 9″ long. Fold {RST} lengthwise and sew the long edge. Turn RS out, {press}. Cut the finished tube into 4 loops, each 2″ long. Trim ends square. Fold under both ends of each loop. Sew to side seams and slightly toward CB at waist seam level.' });
     }
 
     steps.push({ step: n++, title: 'Hem', detail: 'Hang dress 24 hours. Mark hem level. Fold up twice, {press}, {topstitch} or {slipstitch}.' });

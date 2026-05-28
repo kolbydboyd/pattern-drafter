@@ -279,10 +279,11 @@ export default {
       step: n++, title: 'Construct and attach waistband',
       detail: 'Interface waistband. Sew to jeans waist {RST}, matching CB, side seams, CF. Fold over. {topstitch} top and bottom edge with gold {topstitch} thread. Install jeans tack button at CF overlap. Make machine buttonhole or use eyelet.',
     });
-    steps.push({
-      step: n++, title: 'Attach belt loops',
-      detail: '{press} loop strips in thirds. {topstitch} both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, {topstitch} top and bottom with a bar tack.',
-    });
+    {
+      const blCount = (m.waist || 32) > 36 ? 7 : 6;
+      const blLen = blCount * 3.5 + 1;
+      steps.push({ step: n++, title: 'Make and attach belt loops', detail: `Cut 1 belt loop strip on the straight grain, 2¼″ wide × ${fmtInches(blLen)} long. {press} the entire strip in thirds lengthwise so it finishes ¾″ wide. {topstitch} both long edges at 2mm in gold thread along the full length. Cut the finished strip into ${blCount} loops, each 3½″ long. Trim ends square. Fold the bottom end of each loop under ½″. {topstitch} each loop to the waistband at CB, both side seams, and evenly across back and front (avoiding the fly). Bar tack top and bottom of every loop.` });
+    }
     steps.push({ step: n++, title: 'Set rivets', detail: 'Using rivet setter, place copper rivets at base of front pocket openings and coin pocket sides. Add one at crotch seam junction if fabric is heavy.' });
     steps.push({ step: n++, title: 'Hem', detail: `Fold hem up ${fmtInches(parseFloat(opts.hem))} twice. {topstitch} with 3.5mm gold thread. For the classic Y2K stacked look, hem to full length and let denim puddle at the shoe.` });
     steps.push({ step: n++, title: 'Finish', detail: '{press} seams. Bar tack all remaining stress points. Turn jeans inside out and {press} seam allowances flat with damp cloth.' });

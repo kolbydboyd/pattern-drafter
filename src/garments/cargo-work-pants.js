@@ -249,7 +249,9 @@ export default {
 
     // ── BELT LOOPS (standard waistband only) ──
     if (opts.waistband === 'standard') {
-      pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1¾″ × ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket' });
+      const beltLoopCount = (m.waist || 32) > 36 ? 7 : 6;
+      const totalStripLen = beltLoopCount * 3.5 + 1;
+      pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`, dimensions: { length: totalStripLen, width: 2.25 }, type: 'rectangle', sa: 0 });
     }
 
     return pieces;
@@ -355,8 +357,11 @@ export default {
       steps.push({ step: n++, title: 'Construct Flexbelt waistband',
         detail: 'Fuse interfacing to center front and center back sections. Cut elastic for two side sections (each ≈ 20% of waist). Sew elastic into side channels between interfaced sections. Pin waistband to pants waist {RST}, matching CB, side seams, CF. Sew. Fold over, {press}. Fold top edge under, pin to inside covering seam. {topstitch} through all layers. Double {topstitch} top and bottom of waistband. Install button at CF overlap.' });
     } else {
-      steps.push({ step: n++, title: 'Construct waistband & attach belt loops',
-        detail: `Fuse interfacing. Attach to pants waist {RST}. Fold, {press}, {topstitch} top and bottom edge. Install button at CF overlap. {press} belt loop strips in thirds. {topstitch} both edges. Cut to length. Pin at CB, side seams, and flanking CF fly. Fold under ends, {topstitch} top and bottom with a bar tack.` });
+      {
+        const blCount = (m.waist || 32) > 36 ? 7 : 6;
+        const blLen = blCount * 3.5 + 1;
+        steps.push({ step: n++, title: 'Construct waistband & attach belt loops', detail: `Fuse interfacing. Attach to pants waist {RST}. Fold, {press}, {topstitch} top and bottom edge. Install button at CF overlap. Cut 1 belt loop strip, 2¼″ wide × ${fmtInches(blLen)} long. {press} full length in thirds to ¾″ wide. {topstitch} both long edges. Cut into ${blCount} loops × 3½″ each. Fold bottom end of each loop under ½″. {topstitch} at CB, side seams, and flanking CF fly. Bar tack top and bottom of every loop.` });
+      }
     }
 
     steps.push({ step: n++, title: 'Hem',
