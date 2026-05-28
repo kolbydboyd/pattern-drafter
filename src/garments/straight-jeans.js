@@ -1002,7 +1002,18 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
 
   // ── SA offset ─────────────────────────────────────────────────────────
   const yokeSaPoly = offsetPolygon(yokePoly, () => -sa);
-  const lowerSaPoly = offsetPolygon(lowerPoly, (i, a, b) => {
+  // Just below the yoke junction the densely-sampled crotch curve runs nearly
+  // horizontal before it meets the yoke seam.  Offsetting those tightly-spaced
+  // points inward by a full SA folds them into a self-intersecting knot, which
+  // Clipper2's union then collapses — leaving the lower panel with no stitch
+  // line.  Drop the crotch points within ~2.5 SA below the junction for the SA
+  // input only (the cut polygon keeps them, so the cut line is unchanged) so the
+  // offset transitions cleanly from the crotch curve into the yoke seam.  Scoped
+  // to y > yokeDepthCB so curved-yoke seam points (y <= yokeDepthCB) are kept.
+  const lowerSaInput = lowerPoly.filter(
+    p => !(p.curve && p.y > yokeDepthCB && p.y < yokeDepthCB + sa * 2.5),
+  );
+  const lowerSaPoly = offsetPolygon(lowerSaInput, (i, a, b) => {
     if (Math.abs(a.y - height) < 0.5 && Math.abs(b.y - height) < 0.5) return -hem;
     return -sa;
   });
