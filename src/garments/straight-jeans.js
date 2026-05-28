@@ -117,11 +117,12 @@ export default {
     beltLoopStyle: {
       type: 'select', label: 'Belt loops',
       values: [
-        { value: 'individual', label: 'Individual loops (classic 5/6/7-loop)' },
+        { value: 'strip-cut',  label: 'Strip-cut loops (sew one long strip, cut to length)' },
+        { value: 'individual', label: 'Individual loops (cut each loop separately)' },
         { value: 'tunnel',     label: 'Tunnel loops (continuous band, military/workwear)' },
         { value: 'none',       label: 'No belt loops' },
       ],
-      default: 'individual',
+      default: 'strip-cut',
     },
     pktTopBelowYoke: {
       type: 'number', label: 'Pocket gap below yoke (in)',
@@ -338,7 +339,17 @@ export default {
     pieces.push(backPocketPiece);
 
     // ── BELT LOOPS ──
-    if (beltLoopStyle === 'individual') {
+    if (beltLoopStyle === 'strip-cut') {
+      // Sew one long strip, then cut into individual loops — faster than handling N tiny pieces.
+      const beltLoopCount = waist > 36 ? 7 : 6;
+      const totalStripLen = beltLoopCount * 3.5 + 1; // +1″ to square both ends after finishing
+      pieces.push({
+        id: 'belt-loop-strip', name: 'Belt Loop Strip',
+        instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`,
+        dimensions: { length: totalStripLen, width: 2.25 },
+        type: 'rectangle', sa: 0,
+      });
+    } else if (beltLoopStyle === 'individual') {
       // Finished: ¾″ wide × ~2¾″ tall. Cut strip: 2¼″ wide (fold in thirds) × 3½″ long.
       const beltLoopCount = waist > 36 ? 7 : 6;
       pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${beltLoopCount} strips · 2¼″ × 3½″ cut · {press} in thirds to ¾″ wide · {topstitch} both edges · Finished ¾″ × ~2¾″`, dimensions: { length: 3.5, width: 2.25 }, type: 'rectangle', sa: 0 });
@@ -399,7 +410,8 @@ export default {
     let n = 1;
     const waist = m.waist || 32;
     const beltLoopCount = waist > 36 ? 7 : 6;
-    const beltLoopStyle = opts.beltLoopStyle || 'individual';
+    const beltLoopStyle = opts.beltLoopStyle || 'strip-cut';
+    const totalStripLen = beltLoopCount * 3.5 + 1;
     const hasYoke = opts.yokeStyle && opts.yokeStyle !== 'none';
     const numPleats = opts.frontPleats === 'double' ? 2 : opts.frontPleats === 'single' ? 1 : 0;
 
@@ -531,7 +543,12 @@ export default {
         extraTip: 'On the inseam the fell folds toward the front of the leg. After both inseams are felled, the crotch curves should meet cleanly at the crotch junction. If a small gap remains right at the junction, close it with a short reinforcing seam stitched twice. The pants are now a closed pair.',
       }),
     });
-    if (beltLoopStyle === 'individual') {
+    if (beltLoopStyle === 'strip-cut') {
+      steps.push({
+        step: n++, title: 'Make belt loop strip',
+        detail: `Cut 1 belt loop strip on the straight grain, 2\u00bc\u2033 wide \u00d7 ${fmtInches(totalStripLen)} long (matches the Belt Loop Strip piece). {press} the entire strip in thirds lengthwise so it finishes \u00be\u2033 wide. {topstitch} both long edges at 2mm in gold thread, running the full length in one pass. Cut the finished strip into ${beltLoopCount} loops, each 3\u00bd\u2033 long. Trim both ends of each loop square. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge. Distribute ${beltLoopCount} loops around the waist: one at CB, one on each side seam, and the rest spaced evenly across the back and front (avoiding the fly).`,
+      });
+    } else if (beltLoopStyle === 'individual') {
       steps.push({
         step: n++, title: 'Make belt loop strips',
         detail: `Cut ${beltLoopCount} belt loop strips on the straight grain, each 2\u00bc\u2033 wide \u00d7 3\u00bd\u2033 long (matches the Belt Loops piece). {press} each strip in thirds lengthwise so it finishes \u00be\u2033 wide. {topstitch} both long edges at 2mm in gold thread. Trim ends square. The finished loop is \u00be\u2033 wide \u00d7 ~2\u00be\u2033 tall after both ends are turned under. Baste the top raw end of each loop to the waist SA, RS up, raw ends flush with the waist raw edge. Distribute ${beltLoopCount} loops around the waist: one at CB, one on each side seam, and the rest spaced evenly across the back and front (avoiding the fly).`,
@@ -543,7 +560,7 @@ export default {
     });
     steps.push({
       step: n++, title: 'Attach waistband to jeans waist',
-      detail: beltLoopStyle === 'individual'
+      detail: (beltLoopStyle === 'strip-cut' || beltLoopStyle === 'individual')
         ? 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. The belt loops sit sandwiched between the waist and the band, hanging down into the body. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.'
         : 'Pin the bottom (WS) half of the waistband to the jeans waist {RST}, matching notches at CB, both side seams, CF, and the fly base. Stitch at 5/8\u2033. Grade the SA (trim jeans SA to 3/8\u2033, waistband SA to 1/4\u2033) so the seam lies flat.',
     });
@@ -551,7 +568,7 @@ export default {
       step: n++, title: 'Finish waistband interior',
       detail: 'Fold the waistband up and over to the inside. Fold the inside SA under so the folded edge sits just below the seam line. From RS, {topstitch} along the bottom of the waistband at 1/16\u2033 from the seam, catching the inner fold in one pass. {topstitch} a second row at the top edge of the waistband and continue around both finished ends, all in gold thread at 3mm.',
     });
-    if (beltLoopStyle === 'individual') {
+    if (beltLoopStyle === 'strip-cut' || beltLoopStyle === 'individual') {
       steps.push({
         step: n++, title: 'Finish belt loops',
         detail: 'Flip each loop up over the waistband. Fold the bottom raw end under \u00bd\u2033. {topstitch} down through all layers close to the fold. Bar tack across the top and bottom of each loop (8\u201310 zig-zag stitches at 0mm stitch length) to lock the ends securely.',
