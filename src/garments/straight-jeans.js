@@ -189,9 +189,9 @@ export default {
     // Compute dart intake regardless of yoke — when a yoke is present, closeYokeDarts()
     // rotates the intake into the yoke seam instead of drawing it as a physical dart.
     const backDartIntake = Math.max(0, backHipW - backWaistW);
-    // Only widen the cut panel when the intake will actually be drawn or rotated (> 1").
-    // For smaller differences the side-seam taper is sufficient.
-    const effectiveDartIntake = backDartIntake > 1 ? backDartIntake : 0;
+    // Only widen the cut panel when the intake will actually be drawn or rotated (> 0.5").
+    // Below 0.5" (~1.25 cm) per panel the side-seam taper handles the shaping adequately.
+    const effectiveDartIntake = backDartIntake > 0.5 ? backDartIntake : 0;
 
     pieces.push(buildPanel({
       type: 'back', name: 'Back Panel',
