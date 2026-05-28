@@ -972,7 +972,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
       ...(origNotches || []),
     ],
     crotchBezier,
-    crotchBezierSA,
+    crotchBezierSA: null, // lower panel starts at yoke seam; full-panel crotchBezierSA.p0 is above the cut, causing hybrid rendering to misidentify idx0 and hide the yoke seam SA
     labels: [
       { text: 'SIDE SEAM', x: hipWidth + 0.3, y: height * 0.35, rotation: 90  },
       { text: 'CENTER',    x: -0.5,            y: rise   * 0.3,  rotation: -90 },
