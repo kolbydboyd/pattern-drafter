@@ -1700,11 +1700,13 @@ async function printPattern(win = null) {
 function showLanding() {
   document.getElementById('landing').style.display = '';
   document.getElementById('wizard').style.display = 'none';
+  document.body.style.overflow = '';
 }
 
 function showWizard() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('wizard').style.display = '';
+  document.body.style.overflow = 'hidden';
   goToStep(1);
 }
 
@@ -1946,7 +1948,11 @@ function buildMeasureStep() {
     ? `${g.name}: enter your desired dimensions.`
     : `${g.name}: flexible tape over underwear. Don't pull tight.`;
 
-  let html = `<div class="wiz-form-wrap">
+  let html = `<div class="wiz-step-bar">
+    <button class="btn-s" id="wiz-s2-back">← Back</button>
+    <button class="btn" id="wiz-s2-next">Next: Customize →</button>
+  </div>
+  <div class="wiz-form-wrap">
     <div class="wiz-form-header">
       <h2 class="wiz-form-title">${measTitle}</h2>
       <p class="wiz-form-desc">${measDesc}</p>
@@ -1990,12 +1996,21 @@ function buildMeasureStep() {
     html += `</details>`;
   }
 
-  html += `<div class="wiz-nav-row">
-    <button class="btn-s" id="wiz-s2-back">← Back</button>
-    <button class="btn" id="wiz-s2-next">Next: Customize →</button>
-  </div></div>`;
+  html += `</div>`;
 
   el.innerHTML = html;
+
+  // Auto-select profile when only one exists; restore dropdown selection otherwise.
+  if (!isAccessory) {
+    const _initialProfiles = loadProfiles();
+    const _profSel = document.getElementById('wz-profile-select');
+    if (_initialProfiles.length === 1) {
+      if (_profSel) _profSel.value = _initialProfiles[0].name;
+      applyProfile(_initialProfiles[0].name);
+    } else if (_activeProfileName && _profSel) {
+      _profSel.value = _activeProfileName;
+    }
+  }
 
   // Sync Supabase profiles into localStorage so the dropdown reflects any
   // profiles saved from the account dashboard. Skip for accessories (no body profiles).
@@ -2024,6 +2039,14 @@ function buildMeasureStep() {
         if (changed) {
           localStorage.setItem(PROFILES_KEY, JSON.stringify(local));
           refreshProfileDropdown();
+          const afterSync = loadProfiles();
+          const syncSel = document.getElementById('wz-profile-select');
+          if (afterSync.length === 1 && !_activeProfileName) {
+            if (syncSel) syncSel.value = afterSync[0].name;
+            applyProfile(afterSync[0].name);
+          } else if (_activeProfileName && syncSel) {
+            syncSel.value = _activeProfileName;
+          }
         }
       }).catch(() => {});
     }
@@ -2080,7 +2103,11 @@ function buildOptionsStep() {
   const flatLayDef  = garmentType ? FLAT_LAY_FIELDS[garmentType] : null;
   const brands      = garmentType ? getBrandsForType(garmentType) : [];
 
-  let html = `<div class="wiz-form-wrap">
+  let html = `<div class="wiz-step-bar">
+    <button class="btn-s" id="wiz-s3-back">← Back</button>
+    <button class="btn" id="wiz-s3-next">Generate Pattern →</button>
+  </div>
+  <div class="wiz-form-wrap">
     <div class="wiz-form-header">
       <h2 class="wiz-form-title">Customize</h2>
       <p class="wiz-form-desc">${g.name}: adjust fit and style options</p>
@@ -2156,10 +2183,7 @@ function buildOptionsStep() {
     }
   }
 
-  html += `<div class="wiz-nav-row">
-    <button class="btn-s" id="wiz-s3-back">← Back</button>
-    <button class="btn" id="wiz-s3-next">Generate Pattern →</button>
-  </div></div>`;
+  html += `</div>`;
 
   el.innerHTML = html;
 

@@ -376,7 +376,7 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .email-gate-form input[type=password]:focus{border-color:var(--gold)}
 
 /* ── Wizard shell ── */
-#wizard{display:flex;flex-direction:column;height:calc(100vh - 60px)}
+#wizard{display:flex;flex-direction:column;height:calc(100dvh - 60px)}
 .stepper{flex-shrink:0;display:flex;align-items:stretch;background:var(--card);border-bottom:1px solid var(--bdr);padding:0 16px}
 .step-item{display:flex;align-items:center;gap:6px;padding:12px 14px;background:none;border:none;border-bottom:3px solid transparent;font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.8px;text-transform:uppercase;color:var(--mid);cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;margin-bottom:-1px}
 .step-item:disabled{cursor:default;opacity:.4}
@@ -387,7 +387,7 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .step-active .step-n{background:var(--gold);color:#fff}
 .step-done .step-n{background:var(--text);color:var(--card)}
 .step-arr{display:flex;align-items:center;color:var(--light);font-size:1rem;padding:0 4px;align-self:center;flex-shrink:0}
-.wiz-step{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wiz-step{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
 /* Step 1 — garment picker */
 .wiz-step-header{padding:28px 28px 14px}
@@ -420,13 +420,18 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .gmt-owned-badge,.pat-pg-owned-badge{font-family:'IBM Plex Mono',monospace;font-size:.65rem;color:var(--gold);margin-left:auto}
 
 /* Steps 2/3 — form layout */
-.wiz-form-wrap{max-width:500px;margin:0 auto;padding:28px 24px 48px}
+.wiz-form-wrap{max-width:500px;margin:0 auto;padding:28px 24px}
 .wiz-form-header{margin-bottom:18px}
 .wiz-form-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:400;color:var(--text);margin-bottom:4px}
 .wiz-form-desc{font-size:.78rem;color:var(--mid)}
 .wiz-nav-row{display:flex;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--bdr)}
 .wiz-nav-row .btn{flex:2}
 .wiz-nav-row .btn-s{flex:1}
+
+/* Steps 2/3 — sticky nav bar */
+.wiz-step-bar{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10}
+.wiz-step-bar .btn{flex:2;margin-bottom:0}
+.wiz-step-bar .btn-s{flex:1;margin-bottom:0}
 
 /* Step 4 — toolbar + tabs */
 .wiz-s4-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 18px;background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:10}
