@@ -264,7 +264,7 @@ export default {
         id: 'belt-loop-strip',
         name: 'Belt Loop Strip',
         instruction: `Cut 1 strip · 1½″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ⅝″ wide · Edge-stitch both long edges · Cut into 5 loops × ${fmtInches(loopCutH)} each · Position: CF×2 (fly sides), side seam×2, CB×1 · Baste to waist SA; fold up after WB, stitch to WB top`,
-        dimensions: { length: totalStripLen, width: 1.5 },
+        dimensions: { length: totalStripLen, width: 1.5, finishedWidth: 0.625 },
         type: 'rectangle', sa: 0,
       });
     }

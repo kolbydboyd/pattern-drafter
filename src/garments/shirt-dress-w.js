@@ -431,7 +431,7 @@ export default {
     if (opts.belt === 'sash') {
       const sashLen = (m.waist || 28) * 3 + 20;
       pieces.push({ id: 'sash', name: 'Self-Fabric Sash', instruction: `Cut 2 on bias (or straight) · Each piece ${fmtInches(sashLen / 2)} long × 4″ cut (2″ finished) · Sew end-to-end for full sash`, dimensions: { length: sashLen / 2, width: 4 }, type: 'pocket', grainAngle: 45, sa });
-      pieces.push({ id: 'sash-loop-strip', name: 'Belt Loop Strip', instruction: 'Cut 1 strip · 1″ × 9″ · Fold, sew long edge, turn RS out, {press} · Cut into 4 loops × 2″ each · Position at side seams and slightly toward CB', dimensions: { length: 9, width: 1 }, type: 'rectangle', sa: 0 });
+      pieces.push({ id: 'sash-loop-strip', name: 'Belt Loop Strip', instruction: 'Cut 1 strip · 1″ × 9″ · Fold, sew long edge, turn RS out, {press} · Cut into 4 loops × 2″ each · Position at side seams and slightly toward CB', dimensions: { length: 9, width: 1, finishedWidth: 0.5 }, type: 'rectangle', sa: 0 });
     } else if (opts.belt === 'belt') {
       const beltLen = (m.waist || 28) + 10;
       pieces.push({ id: 'belt', name: 'Structured Belt', instruction: `Cut 2 (self + interfacing) · ${fmtInches(beltLen)} long × 3.5″ cut (1.75″ finished) · Interface · Taper ends · Add D-rings or buckle`, dimensions: { length: beltLen, width: 3.5 }, type: 'pocket', sa });

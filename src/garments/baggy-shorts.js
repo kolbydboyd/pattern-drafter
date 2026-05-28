@@ -175,7 +175,9 @@ export default {
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) \xb7 \xd72 pockets total', dimensions: { width: 5.5, height: 6 }, type: 'pocket', sa });
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips 1\u00BE\u2033 \xd7 \u00BE\u2033 finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
+    const beltLoopCount = (m.waist || 32) > 36 ? 7 : 6;
+    const totalStripLen = beltLoopCount * 3.5 + 1;
+    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`, dimensions: { length: totalStripLen, width: 2.25, finishedWidth: 0.75 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },
