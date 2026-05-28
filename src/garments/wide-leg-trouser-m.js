@@ -259,11 +259,12 @@ export default {
     if (opts.waistband === 'structured') {
       const wbFinished = 1.5;
       const loopCutH   = wbFinished * 2 + 1; // finished height = WB + 3/8" each end
+      const totalStripLen = 5 * loopCutH + 1;
       pieces.push({
-        id: 'belt-loop',
-        name: 'Belt Loop',
-        instruction: `Cut 5 · Self fabric, straight grain · Fold in thirds to ⅝″ wide, {press}, edge-stitch both long edges · Position: CF×2 (fly sides), side seam×2, CB×1 · Baste to waist SA; fold up after WB, stitch to WB top`,
-        dimensions: { width: 1.5, height: loopCutH },
+        id: 'belt-loop-strip',
+        name: 'Belt Loop Strip',
+        instruction: `Cut 1 strip · 1½″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ⅝″ wide · Edge-stitch both long edges · Cut into 5 loops × ${fmtInches(loopCutH)} each · Position: CF×2 (fly sides), side seam×2, CB×1 · Baste to waist SA; fold up after WB, stitch to WB top`,
+        dimensions: { length: totalStripLen, width: 1.5 },
         type: 'rectangle', sa: 0,
       });
     }
@@ -357,10 +358,12 @@ export default {
     steps.push({ step: n++, title: 'Sew inseam', detail: 'One continuous seam from front hem through crotch to back hem. {clip} curve. {press} toward back. {serge}.' });
 
     if (opts.waistband === 'structured') {
-      steps.push({
-        step: n++, title: 'Prepare and attach belt loops',
-        detail: 'Fold each loop strip in thirds lengthwise (RS out), {press}, edge-stitch both long edges. Finished width ⅝″. Cut 5 loops. Pin loops RS-down to trouser body at waist SA edge: CF left and right of fly, both side seams, and CB. {baste} at ⅜″. (Loops are caught in the waistband seam; after WB is complete, fold each loop up over WB top edge and stitch flat.)',
-      });
+      {
+        const wbFin = 1.5;
+        const lCutH = wbFin * 2 + 1;
+        const blLen = 5 * lCutH + 1;
+        steps.push({ step: n++, title: 'Make and attach belt loops', detail: `Cut 1 belt loop strip on the straight grain, 1½″ wide × ${fmtInches(blLen)} long. {press} the entire strip in thirds lengthwise so it finishes ⅝″ wide. Edge-stitch both long edges. Cut the finished strip into 5 loops, each ${fmtInches(lCutH)} long. Trim ends square. Pin loops RS-down to trouser body at waist SA edge: CF left and right of fly, both side seams, and CB. {baste} at ⅜″. Loops are caught in the waistband seam; after WB is complete, fold each loop up over WB top edge and stitch flat.` });
+      }
       steps.push({ step: n++, title: 'Construct waistband', detail: 'Interface outer waistband. Sew to trouser waist {RST} (catching belt loop bases). Fold over to inside. Grade SA layers to reduce bulk. {topstitch} or {slipstitch}. Fold each belt loop up over WB top, trim to fit, fold raw end under, stitch down. Install button and trouser hook-and-bar.' });
     } else {
       steps.push({ step: n++, title: 'Construct elastic waistband', detail: 'Fold casing in half {WST}, {press}. Sew to trouser waist {RST}. Fold over, {topstitch} leaving 2″ gap. Thread elastic (~90% of waist), overlap 1″, {zigzag}. Close gap. {topstitch} edge.' });

@@ -205,7 +205,9 @@ export default {
     }
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} · ¾″ finished`, dimensions: { width: 1.75, height: 0.75 }, type: 'pocket', sa });
+    const beltLoopCount = (m.waist || 32) > 36 ? 7 : 6;
+    const totalStripLen = beltLoopCount * 3.5 + 1;
+    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2¼″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 3½″ each · Finished ¾″ × ~2¾″`, dimensions: { length: totalStripLen, width: 2.25 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },
@@ -277,10 +279,11 @@ export default {
       step: n++, title: 'Construct and attach French bearer',
       detail: 'Interface bearer piece. Fold in half {WST}, {press}. Sew short ends and long open edge, leaving a 2″ gap for turning. Trim SA to 3mm, {clip} corners diagonally. Turn RS out through gap, push corners with {point turner}. {press}. {slipstitch} gap closed. Attach to inside of right CF waistband/fly area. The bearer extends ½–1″ below waistband, hooks onto the inside zipper tape or a bar on the left side for a smooth, flat CF closure.',
     });
-    steps.push({
-      step: n++, title: 'Attach belt loops',
-      detail: 'Fold, {press}, {topstitch} loop strips. Attach at CB, side seams, flanking CF. Bar tack top and bottom.',
-    });
+    {
+      const blCount = (m.waist || 32) > 36 ? 7 : 6;
+      const blLen = blCount * 3.5 + 1;
+      steps.push({ step: n++, title: 'Make and attach belt loops', detail: `Cut 1 belt loop strip on the straight grain, 2¼″ wide × ${fmtInches(blLen)} long. {press} the entire strip in thirds lengthwise so it finishes ¾″ wide. {topstitch} both long edges at 2mm. Cut the finished strip into ${blCount} loops, each 3½″ long. Trim ends square. Fold the bottom end of each loop under ½″. {topstitch} each loop at CB, both side seams, and flanking CF. Bar tack top and bottom of every loop.` });
+    }
     steps.push({
       step: n++, title: 'Hem - fit first',
       detail: `Try on trousers with the shoes you intend to wear. Mark the hem so the trouser rests just at the top of the shoe with a slight break (½–¾″ of fabric drapes forward). Fold up ${fmtInches(parseFloat(opts.hem))} twice or once with serged edge. {press}. Hand {slipstitch} or blind hem stitch for an invisible finish on dress trousers.`,

@@ -154,8 +154,9 @@ export default {
     pieces.push({ id: 'slant-bag',    name: 'Slant Pocket Bag',    instruction: 'Cut 2 (1 + 1 mirror) - Lining or drill - {serge} all edges', dimensions: { width: 7, height: 11.5 }, type: 'pocket' });
     pieces.push({ id: 'welt-back',    name: 'Back Welt Pocket',    instruction: 'Cut 4 (2 welts + 2 bags) - x2 pockets total - {serge} bag edges', dimensions: { width: 5.5, height: 6 }, type: 'pocket' });
 
-    // -- BELT LOOPS (7 tunnel-style, 1" finished) --
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: 'Cut 7 strips - Fold in half lengthwise, sew, turn (1" finished tunnel) - Length 4 1/2" - Fold under ends before attaching to waistband', dimensions: { length: 4.5, width: 2.5 }, type: 'pocket' });
+    // -- BELT LOOPS (7 tunnel-style, 1" finished, strip-cut) --
+    const blTotalLen = 7 * 4.5 + 1; // 7 loops × 4½" + 1" to square ends
+    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2½″ × ${fmtInches(blTotalLen)} · Fold {RST} lengthwise · Sew long edge · Turn RS out · {press} seam to back · Cut into 7 loops × 4½″ each · Finished 1″ tunnel × ~4¼″ tall`, dimensions: { length: blTotalLen, width: 2.5 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },
@@ -222,10 +223,10 @@ export default {
       step: n++, title: 'Construct and attach waistband',
       detail: 'Interface waistband. Fold lengthwise, {press}. Sew to trousers waist {RST}. Fold over. {topstitch} top and bottom edges at 3.0mm. Install hook-and-eye inside CF overlap. Sew button and buttonhole at CF.',
     });
-    steps.push({
-      step: n++, title: 'Attach belt loops',
-      detail: 'Sew 7 tunnel belt loops: fold strip in half lengthwise {RST}, sew long edge, turn RS out, {press} with seam centered on back. Cut to 4 1/2". Place at CB, side seams, flanking CF, and between CF and side seams. Fold under ends, {topstitch}. Bar tack through all layers at top and bottom of waistband.',
-    });
+    {
+      const bl874Len = 7 * 4.5 + 1;
+      steps.push({ step: n++, title: 'Make and attach belt loops', detail: `Cut 1 belt loop strip 2½″ wide × ${fmtInches(bl874Len)} long. Fold the full strip {RST} lengthwise and sew the long raw edge at ¼″. Turn RS out using a loop turner, {press} with seam centered on back. Cut the finished tube into 7 loops, each 4½″ long. Trim ends square. Fold under both ends of each loop ½″. Place loops at CB, side seams, flanking CF, and midway between CF and each side seam. {topstitch} through all layers at each end. Bar tack top and bottom of every loop.` });
+    }
 
     if (opts.centerCrease === 'yes') {
       steps.push({

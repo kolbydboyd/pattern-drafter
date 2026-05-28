@@ -192,10 +192,9 @@ export default {
     }
 
     // ── BELT LOOPS ──
-    pieces.push({ id: 'belt-loop', name: 'Belt Loops', instruction: `Cut ${m.waist > 36 ? 7 : 6} strips · Fold in thirds lengthwise (¾″ finished) · Length 4″ · Fold under ends before attaching to waistband`, dimensions: { length: 4, width: 2.5 }, type: 'pocket', sa, marks: [
-      { type: 'fold', axis: 'v', position: 0.83, label: 'fold in thirds' },
-      { type: 'fold', axis: 'v', position: 1.67, label: 'fold in thirds' },
-    ] });
+    const beltLoopCount = (m.waist || 32) > 36 ? 7 : 6;
+    const totalStripLen = beltLoopCount * 4 + 1;
+    pieces.push({ id: 'belt-loop-strip', name: 'Belt Loop Strip', instruction: `Cut 1 strip · 2½″ × ${fmtInches(totalStripLen)} · {press} full length in thirds to ¾″ wide · {topstitch} both long edges · Cut into ${beltLoopCount} loops × 4″ each · Finished ¾″ × ~3¼″`, dimensions: { length: totalStripLen, width: 2.5 }, type: 'rectangle', sa: 0 });
 
     return pieces;
   },
@@ -261,10 +260,11 @@ export default {
       step: n++, title: 'Construct and attach waistband',
       detail: 'Interface waistband. Sew to trousers waist {RST}. Fold over. {topstitch} top and bottom edges at 3.0mm. Waistband button and buttonhole at CF overlap.',
     });
-    steps.push({
-      step: n++, title: 'Attach belt loops',
-      detail: '{press} loop strips. {topstitch} edges. Cut to height. Place at CB, side seams, flanking CF. Fold and {topstitch} ends. Bar tack through all layers.',
-    });
+    {
+      const blCount = (m.waist || 32) > 36 ? 7 : 6;
+      const blLen = blCount * 4 + 1;
+      steps.push({ step: n++, title: 'Make and attach belt loops', detail: `Cut 1 belt loop strip on the straight grain, 2½″ wide × ${fmtInches(blLen)} long. {press} the entire strip in thirds lengthwise so it finishes ¾″ wide. {topstitch} both long edges at 2mm. Cut the finished strip into ${blCount} loops, each 4″ long. Trim ends square. Fold the bottom end of each loop under ½″. {topstitch} each loop at CB, both side seams, and flanking CF. Bar tack top and bottom of every loop.` });
+    }
     steps.push({
       step: n++, title: 'Hem',
       detail: `{serge} or turn under raw hem edge. Fold hem up ${fmtInches(parseFloat(opts.hem))}. {press}. {topstitch} at 3.0mm or hand-slip stitch for a cleaner finish.`,
