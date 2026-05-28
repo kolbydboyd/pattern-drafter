@@ -164,6 +164,7 @@ async function render(user) {
     { id: 'reference', label: 'Reference' },
     { id: 'founders-select', label: "Founder's Select" },
     { id: 'visibility', label: 'Visibility' },
+    { id: 'career', label: 'Career' },
   ];
 
   root.innerHTML = `
@@ -197,6 +198,7 @@ async function render(user) {
     <div id="adm-s-reference" hidden>${renderReference()}</div>
     <div id="adm-s-founders-select" hidden>${renderFoundersSelect(myProfiles)}</div>
     <div id="adm-s-visibility" hidden>${renderVisibility(hiddenIds)}</div>
+    <div id="adm-s-career" hidden>${renderCareer()}</div>
   `;
 
   wireNavTabs();
@@ -2579,6 +2581,121 @@ function wireVisibility() {
 
     toast(visible ? `${garmentId} is now public` : `${garmentId} is now hidden`);
   });
+}
+
+// ── Section: Career ───────────────────────────────────────────────────────────
+
+function renderCareer() {
+  const jobTitles = [
+    { title: 'Technical Product Manager', fit: 'Strong', why: 'Built a full product end-to-end. Understands engineering constraints, user needs, pricing, analytics, infra. No coding interview required.' },
+    { title: 'Solutions Engineer', fit: 'Strong', why: 'Ops background + infra knowledge + client communication. Can demo a live product. Natural fit.' },
+    { title: 'Technical Account Manager', fit: 'Strong', why: 'Bridges engineering and business stakeholders. High-trust operations background is directly relevant.' },
+    { title: 'Developer Advocate (AI tools)', fit: 'Strong', why: 'Real story: shipped a production SaaS with Claude Code in 10 weeks. That is the case study. Anthropic, Cursor, GitHub Copilot, Replit want this person.' },
+    { title: 'Implementation Consultant', fit: 'Strong', why: 'Configured Cloudflare + AWS + Supabase + Stripe + PostHog from scratch. Can help enterprise clients do the same.' },
+    { title: 'Growth Engineer / Product Ops', fit: 'Medium', why: '23 PostHog events, A/B testing, email automation live. Would benefit from adding SQL fluency.' },
+    { title: 'No-Code / AI-Native Builder (contract)', fit: 'Strong', why: 'Agencies and startups actively hire people who can ship with AI tools fast. Supply is rare right now.' },
+  ];
+
+  const companies = [
+    { category: 'AI Coding Tools', role: 'DevRel / Developer Advocate', names: 'Anthropic (Claude Code team), Cursor, GitHub Copilot, Replit, Bolt / StackBlitz, Lovable, v0 / Vercel' },
+    { category: 'Infrastructure Used in Prod', role: 'Solutions Engineer / TAM', names: 'Cloudflare, Supabase, Stripe, PostHog, Resend' },
+    { category: 'Fashion / Apparel Tech', role: 'Technical PM / Solutions', names: 'True Fit, Clo3D, Browzwear, Unspun, Stitch Fix, ThredUp, Simplicity / McCall\'s' },
+    { category: 'Seed-Series B SaaS Startups', role: 'Technical PM / Solutions / Implementation', names: 'Any Supabase + Stripe + Cloudflare stack company. Shopify ecosystem, EdTech, maker communities.' },
+  ];
+
+  const linkedinHeadline = `Founder @ People's Patterns · Shipped a production SaaS in 10 weeks using AI-assisted dev · Supabase · Stripe · Cloudflare · AWS · Open to Technical PM / Solutions roles`;
+
+  const linkedinAbout = `I built a production SaaS from scratch in 10 weeks.
+
+People's Patterns (peoplespatterns.com) generates made-to-measure sewing patterns in the browser from body measurements. It has a parametric pattern engine, 54 garment modules, Stripe payments, multi-cloud infrastructure (Cloudflare Pages + AWS Lambda + Supabase), and 34 serverless API endpoints.
+
+I did not write the code from scratch. I used AI-assisted development tools, specifically Claude Code, to direct, review, and deploy everything. What I own is the product decisions, the infrastructure architecture, the business integrations, and the outcome: a live product that real people pay for.
+
+That makes me something different from a traditional developer. I can ship fast, I understand how the pieces fit together (auth, payments, webhooks, PDF generation, analytics, email automation, localization), and I can communicate across the technical and non-technical line because I have had to live on both sides of it.
+
+My background is 5+ years in high-stakes operations: aviation coordination, commercial building systems, VIP transportation logistics. I managed VVIP charter flights, FAA-compliance escalations, multi-tenant HVAC systems, and overnight shift operations where things going wrong was not an option.
+
+The combination of operations instincts and AI-native product building is what I am looking to bring somewhere new.
+
+Open to: Technical Product Manager, Solutions Engineer, Developer Advocate (especially at AI tooling companies), or Technical Account Manager roles.
+
+If you are building something where shipping fast and understanding the full stack matters more than LeetCode scores, let's talk.`;
+
+  const copyBtn = (id) =>
+    `<button onclick="(function(){var el=document.getElementById('${id}');var txt=el.tagName==='TEXTAREA'?el.value:el.innerText;navigator.clipboard.writeText(txt).then(()=>{var b=event.target;var orig=b.textContent;b.textContent='Copied';setTimeout(()=>{b.textContent=orig},1400)});})()" style="font-size:.7rem;padding:3px 10px;border:1px solid var(--bdr);background:var(--bg);color:var(--text);border-radius:3px;cursor:pointer;margin-left:8px">Copy</button>`;
+
+  return `
+    <h2 class="adm-section-title">Career Positioning</h2>
+
+    <div class="adm-roadmap-card">
+      <h3>Resume <a href="/career/resume.html" target="_blank" rel="noopener" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">open full page</a> <a href="/career/resume.html" download="kolby-boyd-resume.html" style="font-size:.75rem;color:var(--gold);font-weight:400;margin-left:8px">download</a></h3>
+      <iframe
+        src="/career/resume.html"
+        style="width:100%;height:820px;border:1px solid var(--bdr);border-radius:4px;margin-top:8px;background:#fff"
+        title="Resume preview"
+      ></iframe>
+    </div>
+
+    <div class="adm-roadmap-card">
+      <h3>Target Job Titles</h3>
+      <table class="adm-table">
+        <thead><tr><th>Title</th><th>Fit</th><th>Why</th></tr></thead>
+        <tbody>
+          ${jobTitles.map(j => `<tr>
+            <td class="bold">${j.title}</td>
+            <td>${badge(j.fit.toLowerCase())}</td>
+            <td class="muted" style="font-size:.78rem">${j.why}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="adm-roadmap-card">
+      <h3>Target Companies</h3>
+      <table class="adm-table">
+        <thead><tr><th>Category</th><th>Role Type</th><th>Companies</th></tr></thead>
+        <tbody>
+          ${companies.map(c => `<tr>
+            <td class="bold">${c.category}</td>
+            <td>${badge(c.role.toLowerCase().split(' ')[0])}</td>
+            <td class="muted" style="font-size:.78rem">${c.names}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="adm-roadmap-card">
+      <h3>LinkedIn Headline ${copyBtn('adm-li-headline')}</h3>
+      <textarea id="adm-li-headline" rows="2" readonly style="width:100%;font-family:inherit;font-size:.85rem;padding:8px;border:1px solid var(--bdr);border-radius:4px;background:var(--bg);color:var(--text);resize:none;margin-top:6px">${linkedinHeadline}</textarea>
+    </div>
+
+    <div class="adm-roadmap-card">
+      <h3>LinkedIn About Section ${copyBtn('adm-li-about')}</h3>
+      <textarea id="adm-li-about" rows="18" readonly style="width:100%;font-family:inherit;font-size:.82rem;padding:8px;border:1px solid var(--bdr);border-radius:4px;background:var(--bg);color:var(--text);resize:vertical;margin-top:6px;line-height:1.5">${linkedinAbout}</textarea>
+    </div>
+
+    <div class="adm-roadmap-card">
+      <h3>This Week</h3>
+      <ul class="adm-checklist" id="adm-career-checklist">
+        ${[
+          { key: 'career-li-headline', label: 'Update LinkedIn headline' },
+          { key: 'career-li-position', label: 'Add People\'s Patterns as current position (Founder &amp; AI-Assisted Product Developer)' },
+          { key: 'career-li-about', label: 'Paste new About section into LinkedIn' },
+          { key: 'career-li-featured', label: 'Add peoplespatterns.com as LinkedIn Featured link' },
+          { key: 'career-loom', label: 'Record a 5-10 min Loom walkthrough of the product end-to-end' },
+          { key: 'career-post', label: 'Write + publish LinkedIn post: "How I shipped a production SaaS in 10 weeks without writing code from scratch"' },
+          { key: 'career-apply-devrel', label: 'Apply to Developer Advocate roles: Anthropic, Cursor, Replit (3 applications)' },
+          { key: 'career-apply-solutions', label: 'Apply to Solutions Engineer roles: Cloudflare, Supabase, PostHog (3 applications)' },
+        ].map(item => {
+          const cl = getChecklist();
+          return `<li>
+            <span class="adm-check${cl[item.key] ? ' adm-check--done' : ''}" data-check="${item.key}">${cl[item.key] ? '&#10003;' : ''}</span>
+            <span${cl[item.key] ? ' style="text-decoration:line-through;color:var(--mid)"' : ''}>${item.label}</span>
+          </li>`;
+        }).join('')}
+      </ul>
+    </div>
+  `;
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
