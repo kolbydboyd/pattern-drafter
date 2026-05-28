@@ -64,6 +64,23 @@ details.adv-meas summary::after{content:' ▾';color:var(--light)}
 details.adv-meas[open] summary::after{content:' ▴'}
 details.adv-meas summary:hover{color:var(--text)}
 .adv-hint{font-size:.78rem;color:var(--light);line-height:1.4;margin-bottom:6px;font-style:italic}
+/* ── Option help button + popover ──────────────────────────────────────── */
+.opt-help-wrap{display:flex;align-items:center;gap:5px;margin-bottom:1px}
+.opt-help-wrap label{margin-bottom:0}
+.opt-help-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;flex-shrink:0;border-radius:50%;border:1px solid var(--mid);background:transparent;color:var(--mid);font-size:.6rem;font-family:'IBM Plex Mono',monospace;cursor:pointer;padding:0;line-height:1;transition:border-color .15s,color .15s}
+.opt-help-btn:hover{border-color:var(--gold);color:var(--gold)}
+.opt-help-popover{display:none;background:var(--card);border:1px solid var(--bdr);border-radius:5px;padding:9px 10px 9px 12px;font-size:.8rem;line-height:1.5;color:var(--text);margin:4px 0 6px;gap:8px;box-shadow:0 3px 12px rgba(0,0,0,.12)}
+.opt-help-popover.open{display:flex;align-items:flex-start}
+.opt-help-popover span{flex:1}
+.opt-help-close{background:none;border:none;cursor:pointer;color:var(--mid);font-size:1.1rem;flex-shrink:0;padding:0;line-height:1;margin-left:2px}
+.opt-help-close:hover{color:var(--text)}
+/* ── Advanced options collapsible ──────────────────────────────────────── */
+details.adv-opts{margin-top:10px}
+details.adv-opts>summary{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.8px;text-transform:uppercase;color:var(--mid);cursor:pointer;padding:4px 0;list-style:none;user-select:none}
+details.adv-opts>summary::-webkit-details-marker{display:none}
+details.adv-opts>summary::after{content:' ▾';color:var(--light)}
+details.adv-opts[open]>summary::after{content:' ▴'}
+details.adv-opts>summary:hover{color:var(--text)}
 /* ── Fit reference ─────────────────────────────────────────── */
 .fit-ref-body{padding:8px 0 4px}
 .fit-ref-tabs{display:flex;gap:4px;margin-bottom:10px;border-bottom:1px solid var(--bdr);padding-bottom:6px}

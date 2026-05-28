@@ -86,6 +86,47 @@ let _wizSearch = '';
 // Fit-library state: set when user applies a reference garment, cleared on garment change
 let _fitEaseOverride = null; // { snappedValue, optionKey } — applied in readInputs()
 
+// Descriptions and advanced flags for common option keys.
+// Garment files may also set description/advanced directly on their option objects
+// (garment-level values take precedence via the _optMeta helper below).
+const OPT_META = {
+  sa:           { advanced: true,  description: 'Extra fabric beyond the seam line. ⅜″ is standard for serged knits; ½–⅝″ gives more room to adjust a seam on wovens.' },
+  hem:          { advanced: true,  description: 'Extra fabric at the bottom edge for finishing. ¾″ works for a twin needle; 1″ gives room for a clean fold.' },
+  stretchFactor:{ advanced: true,  description: 'How stretchy is your knit fabric? The pattern is drafted narrower for stretchier fabrics so it recovers to size when worn.' },
+  riseOverride: { advanced: true,  description: 'Exact rise height in inches. Overrides the rise style above. Leave at 0 to use the rise style setting.' },
+  frontExt:     { advanced: true,  description: 'Extra fabric on the front crotch curve. Increase for a fuller tummy or larger seat in front.' },
+  backExt:      { advanced: true,  description: 'Extra fabric on the back crotch curve. Increase for a fuller seat or if pants feel tight across the back.' },
+  cbRaise:      { advanced: true,  description: 'Raises the center-back waistline. Helps pants stay up at the back without gaping.' },
+  shoulderDrop: { advanced: true,  description: 'Drops the shoulder point below its natural slope for an intentional dropped-shoulder look.' },
+  yoke:         { advanced: true,  description: 'A horizontal seam across the upper back that improves fit and lets you use a different fabric grain at the yoke.' },
+  sideVent:     { advanced: true,  description: 'Small openings at the side-seam hem for ease of movement.' },
+  cuff:         { advanced: true,  description: 'A separate cuff piece at the sleeve end. Barrel cuff adds a buttoned band; hemmed leaves the sleeve edge folded.' },
+  buttons:      { advanced: true,  description: 'Number of buttons down the front placket.' },
+  elasticWidth: { advanced: true,  description: 'Width of the elastic used in the waistband. Wider elastic spreads pressure and sits flatter.' },
+  thumbhole:    { advanced: true,  description: 'A small slit cut at the cuff after sewing for your thumb. Works best with waffle knit or stable jersey.' },
+  fit:          { description: 'Extra room (ease) added across the chest. More ease = roomier fit; less ease = closer to your measurements.' },
+  ease:         { description: 'Extra room (ease) added around the hip and seat. More ease = roomier; less ease = closer to your measurements.' },
+  neckline:     { description: 'Shape of the neck opening.' },
+  sleeveStyle:  { description: 'Length of the sleeves.' },
+  legStyle:     { description: 'Shape of the leg from hip to hem.' },
+  riseStyle:    { description: 'How high the waistband sits relative to your rise measurement.' },
+  collar:       { description: 'Style of the collar piece.' },
+  pocket:       { description: 'Side pocket style. None = no pocket pieces cut.' },
+  frontPocket:  { description: 'Front pocket style, separate from any side pockets.' },
+  hemStyle:     { description: 'Shape of the bottom edge. Shirttail curves down slightly at center front and back.' },
+  chestPocket:  { description: 'Optional patch pocket at the left chest.' },
+  waistband:    { description: 'Style of the waistband at the top edge.' },
+};
+
+/** Merge OPT_META defaults with any per-garment overrides on the option object. */
+function _optMeta(key, opt) {
+  const base = OPT_META[key] || {};
+  return {
+    advanced:    opt.advanced    ?? base.advanced    ?? false,
+    description: opt.description ?? base.description ?? null,
+  };
+}
+
 const GARMENT_CATEGORIES = [
   { id:'pants',       label:'Pants',       desc:'Trousers, jeans, sweatpants & more',     ids:['straight-jeans','slim-jeans','high-rise-jeans','soloist-jeans','baggy-jeans','chinos','slim-chinos','pleated-trousers','pleated-trouser-m','athletic-formal-trousers','sweatpants','scholar-sweatpants','tapered-joggers','pajama-pants','flannel-pajama-pants','satin-pajama-pants','874-work-pants','cargo-work-pants','wide-leg-trouser-w','wide-leg-trouser-m','linen-wide-legs-w','straight-trouser-w','cigarette-pants-w','easy-pant-w','lounge-pant-w','leggings','capri-leggings','biker-shorts'] },
   { id:'shorts',      label:'Shorts',      desc:'Casual, sport & tailored shorts',        ids:['cargo-shorts','hiking-shorts','gym-shorts','running-shorts','basketball-shorts','swim-trunks','retro-short-trunks','pleated-shorts','baggy-shorts','lounge-shorts'] },
@@ -305,6 +346,79 @@ function applyProfile(name) {
   if (profile.id) updateProfileLastUsed(profile.id).catch(() => {});
 }
 
+/**
+ * Render a single garment option field (label + optional help button + input).
+ * @param {string} key        - option key (e.g. 'fit', 'sa')
+ * @param {object} opt        - option definition from garment.options
+ * @param {string} prefix     - element id prefix ('wz-o-' in wizard, 'o-' in panel)
+ * @param {object} defaults   - variant defaults map (key → override value)
+ */
+function _renderOptField(key, opt, prefix, defaults = {}) {
+  const id = `${prefix}${key}`;
+  const effectiveDefault = key in defaults ? defaults[key] : opt.default;
+  const { description } = _optMeta(key, opt);
+
+  let labelHtml;
+  if (description) {
+    const popId = `help-pop-${prefix}${key}`;
+    labelHtml = `<div class="opt-help-wrap">
+      <label for="${id}">${opt.label}</label>
+      <button class="opt-help-btn" data-pop="${popId}" aria-label="Help for ${opt.label}" type="button">?</button>
+    </div>
+    <div class="opt-help-popover" id="${popId}">
+      <span>${description}</span>
+      <button class="opt-help-close" data-pop="${popId}" aria-label="Close" type="button">&#215;</button>
+    </div>`;
+  } else {
+    labelHtml = `<label for="${id}">${opt.label}</label>`;
+  }
+
+  let inputHtml;
+  if (opt.type === 'select') {
+    inputHtml = `<select id="${id}">
+      ${opt.values.map(v =>
+        `<option value="${v.value}" ${v.value == effectiveDefault ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
+      ).join('')}
+    </select>`;
+  } else if (opt.type === 'number') {
+    const minAttr = opt.min != null ? ` min="${opt.min}"` : '';
+    const maxAttr = opt.max != null ? ` max="${opt.max}"` : '';
+    inputHtml = `<input type="number" id="${id}" value="${effectiveDefault}" step="${opt.step || 0.25}"${minAttr}${maxAttr}>`;
+  } else {
+    inputHtml = '';
+  }
+
+  return `<div class="f">${labelHtml}${inputHtml}</div>`;
+}
+
+/**
+ * Wire up help popover toggle behaviour on a container element.
+ * Call once after setting container's innerHTML.
+ */
+function _wireHelpPopovers(container) {
+  container.addEventListener('click', e => {
+    const btn = e.target.closest('.opt-help-btn, .opt-help-close');
+    if (!btn) return;
+    const pop = document.getElementById(btn.dataset.pop);
+    if (!pop) return;
+    if (btn.classList.contains('opt-help-btn')) {
+      // Close any other open popovers first
+      document.querySelectorAll('.opt-help-popover.open').forEach(p => { if (p !== pop) p.classList.remove('open'); });
+      pop.classList.toggle('open');
+    } else {
+      pop.classList.remove('open');
+    }
+    e.stopPropagation();
+  });
+}
+
+// One-time global listener to close popovers when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.opt-help-btn, .opt-help-popover')) {
+    document.querySelectorAll('.opt-help-popover.open').forEach(p => p.classList.remove('open'));
+  }
+});
+
 // ═══ BUILD INPUT PANEL ═══
 function buildInputs() {
   const g = GARMENTS[currentGarment];
@@ -384,17 +498,15 @@ function buildInputs() {
   const variantDefaults = g._variantDefaults || {};
   html += `<hr class="dv"><h2>Options</h2>`;
   html += `<div id="ease-guidance" class="adv-hint" style="display:none"></div>`;
-  for (const [key, opt] of Object.entries(g.options)) {
-    const effectiveDefault = key in variantDefaults ? variantDefaults[key] : opt.default;
-    if (opt.type === 'select') {
-      html += `<div class="f"><label>${opt.label}</label><select id="o-${key}">
-        ${opt.values.map(v =>
-          `<option value="${v.value}" ${v.value == effectiveDefault ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
-        ).join('')}
-      </select></div>`;
-    } else if (opt.type === 'number') {
-      html += `<div class="f"><label>${opt.label}</label>
-        <input type="number" id="o-${key}" value="${effectiveDefault}" step="${opt.step || 0.25}"></div>`;
+  {
+    const entries = Object.entries(g.options);
+    const basicEntries = entries.filter(([k, o]) => !_optMeta(k, o).advanced);
+    const advEntries   = entries.filter(([k, o]) =>  _optMeta(k, o).advanced);
+    for (const [k, o] of basicEntries) html += _renderOptField(k, o, 'o-', variantDefaults);
+    if (advEntries.length) {
+      html += `<details class="adv-opts"><summary>Advanced options</summary>`;
+      for (const [k, o] of advEntries) html += _renderOptField(k, o, 'o-', variantDefaults);
+      html += `</details>`;
     }
   }
 
@@ -405,6 +517,7 @@ function buildInputs() {
     <button class="btn-s" id="reset-btn">Reset to Defaults</button>`;
 
   panel.innerHTML = html;
+  _wireHelpPopovers(panel);
 
   // Inclusive sizing hints — petite armhole and large-size ease guidance
   function updateInclusiveSizingHints() {
@@ -2169,23 +2282,22 @@ function buildOptionsStep() {
 
   // ── Garment options ──────────────────────────────────────────────────────
   const wizVariantDefaults = g._variantDefaults || {};
-  for (const [key, opt] of Object.entries(g.options)) {
-    const wizDefault = key in wizVariantDefaults ? wizVariantDefaults[key] : opt.default;
-    if (opt.type === 'select') {
-      html += `<div class="f"><label>${opt.label}</label><select id="wz-o-${key}">
-        ${opt.values.map(v =>
-          `<option value="${v.value}" ${v.value == wizDefault ? 'selected' : ''}>${v.label}${v.reference ? ` · ${v.reference}` : ''}</option>`
-        ).join('')}
-      </select></div>`;
-    } else if (opt.type === 'number') {
-      html += `<div class="f"><label>${opt.label}</label>
-        <input type="number" id="wz-o-${key}" value="${wizDefault}" step="${opt.step || 0.25}"></div>`;
+  {
+    const entries = Object.entries(g.options);
+    const basicEntries = entries.filter(([k, o]) => !_optMeta(k, o).advanced);
+    const advEntries   = entries.filter(([k, o]) =>  _optMeta(k, o).advanced);
+    for (const [k, o] of basicEntries) html += _renderOptField(k, o, 'wz-o-', wizVariantDefaults);
+    if (advEntries.length) {
+      html += `<details class="adv-opts"><summary>Advanced options</summary>`;
+      for (const [k, o] of advEntries) html += _renderOptField(k, o, 'wz-o-', wizVariantDefaults);
+      html += `</details>`;
     }
   }
 
   html += `</div>`;
 
   el.innerHTML = html;
+  _wireHelpPopovers(el);
 
   // ── Fit reference event wiring ───────────────────────────────────────────
   if (garmentType && flatLayDef) {
