@@ -347,6 +347,25 @@ function applyProfile(name) {
 }
 
 /**
+ * Render the label + help popover for a measurement field.
+ * Replaces the old `<div class="hint">` pattern with a "?" button.
+ */
+function _renderMeasLabelAndHint(mId, mDef, prefix) {
+  const inputId = `${prefix}${mId}`;
+  const instruction = mDef.instruction;
+  if (!instruction) return `<label for="${inputId}">${mDef.label}</label>`;
+  const popId = `help-pop-${inputId}`;
+  return `<div class="opt-help-wrap">
+    <label for="${inputId}">${mDef.label}</label>
+    <button class="opt-help-btn" data-pop="${popId}" aria-label="Help for ${mDef.label}" type="button">?</button>
+  </div>
+  <div class="opt-help-popover" id="${popId}">
+    <span>${instruction}</span>
+    <button class="opt-help-close" data-pop="${popId}" aria-label="Close" type="button">&#215;</button>
+  </div>`;
+}
+
+/**
  * Render a single garment option field (label + optional help button + input).
  * @param {string} key        - option key (e.g. 'fit', 'sa')
  * @param {object} opt        - option definition from garment.options
@@ -473,8 +492,7 @@ function buildInputs() {
     const mDef = MEASUREMENTS[mId];
     if (!mDef) continue;
     const mDefault = g.measurementDefaults?.[mId] ?? mDef.default;
-    html += `<div class="f"><label>${mDef.label}</label>
-      <div class="hint">${mDef.instruction}</div>
+    html += `<div class="f">${_renderMeasLabelAndHint(mId, mDef, 'm-')}
       <input type="number" id="m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
   }
 
@@ -486,8 +504,7 @@ function buildInputs() {
     for (const mId of optIds) {
       const mDef = OPTIONAL_MEASUREMENTS[mId];
       if (!mDef) continue;
-      html += `<div class="f"><label>${mDef.label}</label>
-        <div class="hint">${mDef.instruction}</div>
+      html += `<div class="f">${_renderMeasLabelAndHint(mId, mDef, 'm-')}
         <input type="number" id="m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
     }
     html += `<div id="petite-hint" class="adv-hint" style="display:none"></div>`;
@@ -2090,8 +2107,7 @@ function buildMeasureStep() {
     const mDef = MEASUREMENTS[mId];
     if (!mDef) continue;
     const mDefault = g.measurementDefaults?.[mId] ?? mDef.default;
-    html += `<div class="f"><label>${mDef.label}</label>
-      <div class="hint">${mDef.instruction}</div>
+    html += `<div class="f">${_renderMeasLabelAndHint(mId, mDef, 'wz-m-')}
       <input type="number" id="wz-m-${mId}" value="${mDefault}" step="${mDef.step}"></div>`;
   }
 
@@ -2102,8 +2118,7 @@ function buildMeasureStep() {
     for (const mId of optIds) {
       const mDef = OPTIONAL_MEASUREMENTS[mId];
       if (!mDef) continue;
-      html += `<div class="f"><label>${mDef.label}</label>
-        <div class="hint">${mDef.instruction}</div>
+      html += `<div class="f">${_renderMeasLabelAndHint(mId, mDef, 'wz-m-')}
         <input type="number" id="wz-m-${mId}" value="" placeholder="optional" step="${mDef.step}" min="${mDef.min}" max="${mDef.max}"></div>`;
     }
     html += `</details>`;
@@ -2112,6 +2127,7 @@ function buildMeasureStep() {
   html += `</div>`;
 
   el.innerHTML = html;
+  _wireHelpPopovers(el);
 
   // Auto-select profile when only one exists; restore dropdown selection otherwise.
   if (!isAccessory) {
