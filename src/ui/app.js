@@ -1885,6 +1885,7 @@ function showLanding() {
   document.getElementById('landing').style.display = '';
   document.getElementById('wizard').style.display = 'none';
   document.body.style.overflow = '';
+  window.history.replaceState(null, '', window.location.pathname);
 }
 
 function showWizard() {
