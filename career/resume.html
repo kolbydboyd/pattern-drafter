@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kolby D. Boyd — Resume</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 10.5pt;
+    line-height: 1.28;
+    color: #000;
+    background: #fff;
+    max-width: 8.5in;
+    margin: 0 auto;
+    padding: 0.5in;
+  }
+
+  /* ── Header ───────────────────────────────────────── */
+  .name {
+    font-size: 19pt;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin-bottom: 3pt;
+  }
+
+  .contact {
+    font-size: 9.5pt;
+    text-align: center;
+    margin-bottom: 6pt;
+  }
+
+  .contact a { color: #000; text-decoration: none; }
+
+  /* ── Divider ──────────────────────────────────────── */
+  hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin: 4pt 0;
+  }
+
+  /* ── Section header ───────────────────────────────── */
+  .section-title {
+    font-size: 9.5pt;
+    font-variant: small-caps;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    margin: 5pt 0 2pt;
+  }
+
+  /* ── Summary ──────────────────────────────────────── */
+  .summary {
+    font-size: 10pt;
+    margin-bottom: 4pt;
+  }
+
+  /* ── Job block ────────────────────────────────────── */
+  .job { margin-bottom: 5pt; }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.5pt;
+  }
+
+  .job-title {
+    font-weight: bold;
+    font-size: 10.5pt;
+  }
+
+  .job-org {
+    font-style: italic;
+    font-size: 10pt;
+  }
+
+  .job-dates {
+    font-size: 9.5pt;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 8pt;
+  }
+
+  .job ul {
+    list-style: none;
+    padding-left: 12pt;
+    margin: 0;
+  }
+
+  .job ul li {
+    position: relative;
+    font-size: 10pt;
+    margin-bottom: 1.5pt;
+    padding-left: 10pt;
+    line-height: 1.28;
+  }
+
+  .job ul li::before {
+    content: "\2022";
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  /* ── Condensed job (no bullets) ───────────────────── */
+  .job-condensed { margin-bottom: 4pt; }
+
+  .job-condensed .job-header { margin-bottom: 1pt; }
+
+  .job-desc {
+    font-size: 9.5pt;
+    padding-left: 12pt;
+    color: #111;
+    line-height: 1.28;
+  }
+
+  /* ── Skills line ──────────────────────────────────── */
+  .skills-line {
+    font-size: 9.5pt;
+    line-height: 1.4;
+    margin-bottom: 2pt;
+  }
+
+  .skills-line strong { font-weight: bold; }
+
+  /* ── Education ────────────────────────────────────── */
+  .edu-line {
+    font-size: 10pt;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── Print ────────────────────────────────────────── */
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  @media print {
+    body { padding: 0; font-size: 10pt; }
+    .name { font-size: 18pt; }
+    .section-title { font-size: 9pt; }
+    .job ul li { font-size: 9.5pt; }
+    .job-desc { font-size: 9pt; }
+    .skills-line { font-size: 9pt; }
+    .edu-line { font-size: 9.5pt; }
+    .contact { font-size: 9pt; }
+    .summary { font-size: 9.5pt; }
+    .job ul li { margin-bottom: 1pt; }
+    .job { margin-bottom: 4pt; }
+    .job-condensed { margin-bottom: 3pt; }
+    a { text-decoration: none; color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────── -->
+<div class="name">KOLBY D. BOYD</div>
+<div class="contact">
+  Houston, TX &nbsp;&middot;&nbsp; 919-961-8222 &nbsp;&middot;&nbsp;
+  <a href="mailto:kolbyboyd970@gmail.com">kolbyboyd970@gmail.com</a> &nbsp;&middot;&nbsp;
+  linkedin.com/in/kolby-boyd &nbsp;&middot;&nbsp;
+  <a href="https://peoplespatterns.com">peoplespatterns.com</a>
+</div>
+
+<hr>
+
+<!-- ── Summary ────────────────────────────────────── -->
+<p class="summary">
+  Self-directed product builder who shipped a production SaaS in 10 weeks using AI-assisted development tools (Claude Code, GitHub).
+  Multi-cloud infrastructure, full Stripe payment integration, and 121 live garment patterns.
+  Background in high-stakes operations: aviation, facilities, and VIP logistics.
+  Targeting Technical Product Manager, Solutions Engineer, and Developer Advocate roles.
+</p>
+
+<hr>
+
+<!-- ── People's Patterns ───────────────────────────── -->
+<div class="section-title">Product Development</div>
+
+<div class="job">
+  <div class="job-header">
+    <span>
+      <span class="job-title">Founder &amp; AI-Assisted Product Developer</span>
+      <span class="job-org"> &mdash; People's Patterns (peoplespatterns.com)</span>
+    </span>
+    <span class="job-dates">Mar 2026 &ndash; Present</span>
+  </div>
+  <ul>
+    <li>Founded and shipped a production SaaS generating made-to-measure sewing patterns in-browser from zero to live in 10 weeks, directing AI-assisted development tools (Claude Code, GitHub) across the full product lifecycle.</li>
+    <li>Architected multi-cloud infrastructure: Cloudflare Pages (edge-distributed frontend + 34 serverless API endpoints), AWS Lambda (Chromium/Puppeteer PDF generation, 1 GB memory), and Supabase (PostgreSQL + auth + realtime); migrated from Vercel, reducing egress costs approximately 30%.</li>
+    <li>Integrated Stripe end-to-end: 3-tier subscription pricing ($9/$14/$19), 10 bundle SKUs, cart checkout session, webhook pipeline triggering on-demand PDF generation, and server-side payment verification in Lambda.</li>
+    <li>Deployed a parametric pattern engine spanning 54 garment modules (121 patterns via variants) validated against 5 industry drafting standards (Aldrich, Armstrong, FreeSewing v4.7.0, Muller &amp; Sohn, JBlockCreator); computes per-edge seam allowances, bezier curves, dart closure, and multi-size grading across women's, men's, and children's charts.</li>
+    <li>Built a multi-format PDF layout engine supporting 8 paper sizes (Letter through A0/ARCH D) with automatic scale calibration (0.5% tolerance), notch and grainline annotation, and tiled multi-page assembly maps.</li>
+    <li>Instrumented a PostHog analytics funnel with 23 custom events (garment_selected to purchase_completed to download_initiated), Core Web Vitals, A/B testing via feature flags, and session recording to drive CTA and pricing iteration.</li>
+    <li>Designed 18 Supabase migrations (purchases, subscriptions, fit feedback, affiliates, tester program, admin roles, redemption codes, community garments); shipped 6-locale i18n (en, en-CA, fr-CA, es, nl, de) with locale-forwarded PDF generation in Lambda.</li>
+    <li>Authored 68 educational articles; deployed automated Resend email sequences (welcome, purchase confirmation, post-sew fit feedback) via GitHub Actions cron; built affiliate dashboard, gift card and redemption flow, UGC submission pipeline, and admin console.</li>
+  </ul>
+</div>
+
+<hr>
+
+<!-- ── Infrastructure & Tools ─────────────────────── -->
+<div class="section-title">Infrastructure &amp; Tools</div>
+<p class="skills-line">
+  <strong>Cloud:</strong> Cloudflare Pages &middot; AWS Lambda &middot; Supabase (PostgreSQL) &middot; GitHub Actions &middot; Vercel &nbsp;&nbsp;
+  <strong>Payments:</strong> Stripe &nbsp;&nbsp;
+  <strong>Analytics:</strong> PostHog &nbsp;&nbsp;
+  <strong>Email:</strong> Resend<br>
+  <strong>Build:</strong> Vite &middot; Node.js &middot; Puppeteer &middot; Chromium (serverless) &nbsp;&nbsp;
+  <strong>Other:</strong> REST APIs &middot; Webhooks &middot; Serverless &middot; i18n &middot; PDF generation &middot; A/B testing
+</p>
+
+<hr>
+
+<!-- ── Professional Experience ────────────────────── -->
+<div class="section-title">Professional Experience</div>
+
+<div class="job-condensed">
+  <div class="job-header">
+    <span>
+      <span class="job-title">Porter, Commercial Building Maintenance</span>
+      <span class="job-org"> &mdash; Tarantino Properties, Houston, TX</span>
+    </span>
+    <span class="job-dates">Jan 2026 &ndash; Present</span>
+  </div>
+  <p class="job-desc">Maintain multi-tenant commercial office portfolio. Operate pneumatic HVAC and thermostat systems; perform electrical maintenance including LED conversion; coordinate with Johnson Controls and fire protection vendors as on-site liaison.</p>
+</div>
+
+<div class="job-condensed">
+  <div class="job-header">
+    <span>
+      <span class="job-title">Flight Operations Coordinator</span>
+      <span class="job-org"> &mdash; Million Air / American Jet International, Houston, TX</span>
+    </span>
+    <span class="job-dates">Nov 2023 &ndash; May 2025</span>
+  </div>
+  <p class="job-desc">Coordinated daily operations for 13+ tenant and charter aircraft at a high-volume FBO. Sole overnight coordinator managing scheduling, crew assignments, FAA compliance, and VVIP/medical flight operations. Standardized escalation workflows, cutting issue resolution time 30%.</p>
+</div>
+
+<div class="job-condensed">
+  <div class="job-header">
+    <span>
+      <span class="job-title">Senior Services Coordinator</span>
+      <span class="job-org"> &mdash; GGT WorldWise, Houston, TX</span>
+    </span>
+    <span class="job-dates">May 2022 &ndash; Oct 2023</span>
+  </div>
+  <p class="job-desc">Led night-shift operations managing global VIP transportation across time zones with full accountability. Maintained 98-99% booking accuracy. Onboarded clients to proprietary SaaS scheduling platforms and supported escalations to engineering teams.</p>
+</div>
+
+<hr>
+
+<!-- ── Education ───────────────────────────────────── -->
+<div class="section-title">Education</div>
+<div class="edu-line">
+  <span>Associate of Arts, Multidisciplinary Studies &mdash; Houston Community College</span>
+  <span>Expected Fall 2027</span>
+</div>
+
+</body>
+</html>
