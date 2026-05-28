@@ -276,7 +276,7 @@ export function renderPanelSVG(piece) {
     // rotation < 0 → CENTER (left side); keep outside -sa
     if (l.rotation < 0 && lx > -(sa + 0.3)) lx = -(sa + 0.3);
     const x = ox + sc(lx), y = oy + sc(l.y);
-    labelsSVG += `<text x="${x}" y="${y}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" transform="rotate(${l.rotation},${x},${y})">${l.text}</text>`;
+    labelsSVG += `<text x="${x}" y="${y}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" stroke="#faf8f4" stroke-width="3" paint-order="stroke" transform="rotate(${l.rotation},${x},${y})">${l.text}</text>`;
   }
 
   // Pocket indicators
@@ -750,7 +750,7 @@ export function renderGenericPieceSVG(piece) {
     ${trimPolySVG}
     ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
       const x = ox + sc(l.x), y = oy + sc(l.y);
-      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-family="IBM Plex Mono" font-size="9" fill="#b8963e" stroke="#faf8f4" stroke-width="3" paint-order="stroke" text-anchor="middle" transform="rotate(${l.rotation || 0},${x.toFixed(1)},${y.toFixed(1)})">${l.text}</text>`;
     }).join('')}${edgeSALabels(polygon, edgeAllowances, ox, oy)}${renderNotchesSVG(polygon, notches, ox, oy)}${
       // Roll/fold line annotation (e.g. lapel break line)
       piece.rollLine ? (() => {
