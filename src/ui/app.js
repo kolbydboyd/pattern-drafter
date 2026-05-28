@@ -2044,17 +2044,29 @@ async function printPattern(win = null) {
   const materials    = g.materials(m, opts);
   const instructions = g.instructions(m, opts);
   const { generatePrintLayout } = await import('../pdf/print-layout.js');
-  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize, getLocale());
+  const isLargeFormat = ['a0', 'archd', 'ansid'].includes(selectedPaperSize);
+  const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, selectedPaperSize, getLocale(), isLargeFormat ? 'pattern' : undefined);
   // win may have been opened synchronously in handlePrint (iOS gesture context).
   // Fall back to opening here for any direct callers.
   if (!win) {
     win = window.open('', '_blank');
     if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
   }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  win.addEventListener('load', () => win.print());
+  const isMobilePrint = /Mobi|Android|iPhone|iPad|IEMobile/i.test(navigator.userAgent);
+  if (!isMobilePrint) {
+    // Desktop: use a blob URL so right-click → Save Page As works reliably.
+    const blob = new Blob([html], { type: 'text/html' });
+    const url  = URL.createObjectURL(blob);
+    win.location.href = url;
+    win.addEventListener('load', () => { win.print(); URL.revokeObjectURL(url); });
+  } else {
+    // iOS Safari: window.open() was called synchronously; document.write() is the
+    // only reliable way to populate a new window opened before any async gaps.
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.addEventListener('load', () => win.print());
+  }
 }
 
 // ═══ WIZARD ═══
