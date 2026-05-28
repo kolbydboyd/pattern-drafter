@@ -6,6 +6,10 @@ All notable changes are documented here, newest first.
 
 ## [Unreleased]
 
+### Fixed
+- **Mobile PDF download** — large PDFs (especially A0) silently failed on iOS and Android because fetching a cross-origin blob into memory exceeded mobile limits. Fix: detect mobile UA and pre-open a download window during the user-gesture context, then navigate it to the signed URL once the API responds. For A0 packages (multiple files), render tap-to-save anchor links instead of auto-downloading. Lambda now passes `{ download: filename }` to all `createSignedUrl` calls, ensuring Supabase returns `Content-Disposition: attachment` so mobile browsers save rather than display the file.
+- **Mobile print (about:blank tab)** — clicking Print on mobile opened a blank tab and left it empty because the `await import('../pdf/print-layout.js')` in `printPattern` crossed an async boundary after `window.open`, causing iOS Safari to drop the document reference. Fix: pre-warm the print-layout module when step 4 renders so the import resolves from cache with minimal async delay; write a visible "Loading…" placeholder to the window immediately after `window.open` to prevent iOS from discarding it; wrap the `printPattern` call in `.catch()` so any failure closes the blank tab and surfaces an error alert instead of silently leaving about:blank.
+
 ### Added
 - **Wizard help tooltips + advanced options** — each garment option in the wizard (Step 3) and the desktop panel now shows a small "?" circle button next to its label. Clicking it opens an inline help box with a plain-English explanation; an "×" button or clicking outside closes it. Technical sewing parameters (seam allowance, hem allowance, stretch factor, numeric crotch/rise overrides, shoulder drop, yoke, side vents, cuff, elastic width, thumbhole) are collapsed into an "Advanced options" section by default, keeping the wizard clean for beginners while remaining accessible for experienced sewists. Mobile-first: popovers are inline and flow within the page so they never clip off-screen.
 

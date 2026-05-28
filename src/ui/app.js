@@ -1697,11 +1697,18 @@ async function handlePrint(btn) {
   // iOS Safari blocks window.open() called after any await.
   const win = window.open('', '_blank');
   if (!win) { alert('Allow pop-ups to open the print layout.'); return; }
+  // Write a placeholder immediately so the window shows something while the layout generates.
+  // iOS may drop the document reference if the window stays at about:blank across async gaps.
+  win.document.write('<html><head><title>Loading…</title></head><body style="font:1rem sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#555"><p>Loading pattern layout…</p></body></html>');
   if (!_currentPurchased) {
     await _applyWatermarkState(currentGarment);
     if (!_currentPurchased) { win.close(); return; }
   }
-  printPattern(win);
+  printPattern(win).catch(err => {
+    console.error('Print layout failed:', err);
+    if (!win.closed) win.close();
+    alert('Could not open print layout. Please try again.');
+  });
 }
 
 async function _blobDownload(url, filename) {
@@ -1732,12 +1739,19 @@ async function handleDownloadPDF(btn) {
     return;
   }
 
+  // On mobile, blob downloads of large PDFs fail (OOM / fetch timeout).
+  // Pre-open a download window now while still in the user-gesture context;
+  // we'll navigate it to the signed URL once the API responds.
+  // The signed URL carries Content-Disposition: attachment so the browser
+  // saves the file instead of navigating the tab away.
+  const isMobile = /Mobi|Android|iPhone|iPad|IEMobile/i.test(navigator.userAgent);
+  const mobileWin = isMobile ? window.open('', '_blank') : null;
+
   const origText  = btn.textContent;
   btn.disabled    = true;
   btn.textContent = 'Generating…';
 
   try {
-    const user       = getCurrentUser();
     const { session } = await getSession();
     const { m, opts } = readInputs();
     const res = await fetch('/api/generate-pattern', {
@@ -1762,32 +1776,72 @@ async function handleDownloadPDF(btn) {
       throw new Error(`Server returned ${res.status} (${res.statusText}). The pattern may be too complex to generate in time. Please try again.`);
     }
     if (!res.ok || json.error) {
+      if (mobileWin && !mobileWin.closed) mobileWin.close();
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
       return;
     }
-    // Trigger tiled letter PDF download — fetch as blob so the download
-    // attribute works (it's ignored for cross-origin Supabase URLs otherwise)
-    await _blobDownload(json.downloadUrl, `${currentGarment}-pattern.pdf`);
+
+    if (isMobile) {
+      // Navigate the pre-opened window to the signed URL.
+      // If window.open was blocked (mobileWin is null), fall back to same-tab navigation.
+      if (mobileWin && !mobileWin.closed) {
+        mobileWin.location.href = json.downloadUrl;
+      } else {
+        window.location.href = json.downloadUrl;
+      }
+    } else {
+      // Desktop: fetch as blob so the download attribute works on cross-origin Supabase URLs
+      await _blobDownload(json.downloadUrl, `${currentGarment}-pattern.pdf`);
+    }
+
     trackEvent('download_initiated', { garment_id: currentGarment, price_tier: GARMENTS[currentGarment]?.priceTier });
+
     // If A0 addon was purchased, trigger A0 pattern + preamble + projector downloads
     if (json.a0DownloadUrl) {
-      setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
-      let nextDelay = 1600;
-      if (json.a0PreambleDownloadUrl) {
-        setTimeout(() => _blobDownload(json.a0PreambleDownloadUrl, `${currentGarment}-instructions-letter.pdf`), nextDelay);
-        nextDelay += 800;
+      if (isMobile) {
+        // Can't auto-open multiple windows on mobile — show tap-to-download links instead.
+        btn.parentNode?.querySelector('.mobile-dl-links')?.remove();
+        const div = document.createElement('div');
+        div.className = 'mobile-dl-links';
+        const files = [
+          { url: json.a0DownloadUrl, label: 'A0 PDF (send to copy shop)' },
+          ...(json.a0PreambleDownloadUrl ? [{ url: json.a0PreambleDownloadUrl, label: 'Instructions PDF (print at home)' }] : []),
+          ...(json.projectorDownloadUrl  ? [{ url: json.projectorDownloadUrl,  label: 'Projector PDF' }] : []),
+        ];
+        const notice = document.createElement('p');
+        notice.className = 'a0-download-notice';
+        notice.textContent = 'Tap each file to save:';
+        div.appendChild(notice);
+        for (const f of files) {
+          const a = document.createElement('a');
+          a.href = f.url;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.className = 'btn-s mobile-dl-link';
+          a.textContent = f.label;
+          div.appendChild(a);
+        }
+        btn.parentNode?.insertBefore(div, btn.nextSibling);
+      } else {
+        setTimeout(() => _blobDownload(json.a0DownloadUrl, `${currentGarment}-pattern-a0.pdf`), 800);
+        let nextDelay = 1600;
+        if (json.a0PreambleDownloadUrl) {
+          setTimeout(() => _blobDownload(json.a0PreambleDownloadUrl, `${currentGarment}-instructions-letter.pdf`), nextDelay);
+          nextDelay += 800;
+        }
+        if (json.projectorDownloadUrl) {
+          setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), nextDelay);
+        }
+        const notice = document.createElement('p');
+        notice.className = 'a0-download-notice';
+        notice.textContent = json.a0PreambleDownloadUrl
+          ? 'Two A0 files downloading. Send the A0 PDF to the print shop. Print the instructions PDF at home on letter paper.'
+          : 'Your A0 + projector files are also downloading. No taping required.';
+        btn.parentNode?.insertBefore(notice, btn.nextSibling);
       }
-      if (json.projectorDownloadUrl) {
-        setTimeout(() => _blobDownload(json.projectorDownloadUrl, `${currentGarment}-pattern-projector.pdf`), nextDelay);
-      }
-      const notice = document.createElement('p');
-      notice.className = 'a0-download-notice';
-      notice.textContent = json.a0PreambleDownloadUrl
-        ? 'Two A0 files downloading. Send the A0 PDF to the print shop. Print the instructions PDF at home on letter paper.'
-        : 'Your A0 + projector files are also downloading. No taping required.';
-      btn.parentNode?.insertBefore(notice, btn.nextSibling);
     }
   } catch (err) {
+    if (mobileWin && !mobileWin.closed) mobileWin.close();
     console.error('Download failed:', err);
     alert('Download failed. Please try again. If this keeps happening, try a smaller paper size first.');
   } finally {
@@ -2567,6 +2621,11 @@ function renderStep4() {
       if (tab) switchTab(tab.dataset.tab);
     });
   }
+  // Pre-warm the print-layout module so the dynamic import in printPattern
+  // resolves from cache rather than triggering an async network fetch when
+  // the user clicks Print. Reduces the async gap between window.open() and
+  // document.write() that causes iOS to leave a blank tab.
+  import('../pdf/print-layout.js').catch(() => {});
   generate();
 }
 
