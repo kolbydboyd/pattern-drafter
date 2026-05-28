@@ -154,18 +154,22 @@ function grainlineSVG(gx, gy1, gy2, labelY = (gy1 + gy2) / 2, angleDeg = 0) {
   const aw = 3;  // arrowhead half-width
   const mx = gx, my = (gy1 + gy2) / 2;
   const label = angleDeg === 45 ? 'BIAS' : 'GRAIN';
+  // Label positioned alongside (right of) the grain line, rotated to read along it.
+  // This avoids overlapping centered piece labels like "RS / OUTSIDE".
+  const lbX = gx + 9;
+  const lbY = gy1 + (gy2 - gy1) * 0.3;
   if (angleDeg === 0) {
     return `<line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
       <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
       <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
-      <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>`;
+      <text x="${lbX.toFixed(1)}" y="${lbY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle" transform="rotate(-90,${lbX.toFixed(1)},${lbY.toFixed(1)})">${label}</text>`;
   }
   // Rotated grainline: draw the same line + arrows, rotated around center
   return `<g transform="rotate(${angleDeg},${mx.toFixed(1)},${my.toFixed(1)})">
     <line x1="${gx}" y1="${gy1 + ah}" x2="${gx}" y2="${gy2 - ah}" stroke="#2c2a26" stroke-width="0.8" stroke-dasharray="8,4"/>
     <polygon points="${gx},${gy1} ${gx - aw},${gy1 + ah} ${gx + aw},${gy1 + ah}" fill="#2c2a26"/>
     <polygon points="${gx},${gy2} ${gx - aw},${gy2 - ah} ${gx + aw},${gy2 - ah}" fill="#2c2a26"/>
-    <text x="${gx}" y="${labelY - 4}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle">${label}</text>
+    <text x="${lbX.toFixed(1)}" y="${lbY.toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#2c2a26" text-anchor="middle" transform="rotate(-90,${lbX.toFixed(1)},${lbY.toFixed(1)})">${label}</text>
   </g>`;
 }
 
@@ -604,10 +608,17 @@ export function renderGenericPieceSVG(piece) {
     return -sa;
   });
 
-  // Grain line: vertical through horizontal center of bounding box
+  // Grain line: vertical through horizontal center; for 90° pieces clamp to narrow dimension
+  const grainAngle = piece.grainAngle || 0;
   const gx = ox + sc((minX + maxX) / 2);
-  const gy1 = oy + sc(minY + pH * 0.2);
-  const gy2 = oy + sc(minY + pH * 0.8);
+  let gy1 = oy + sc(minY + pH * 0.2);
+  let gy2 = oy + sc(minY + pH * 0.8);
+  if (Math.abs(grainAngle) === 90) {
+    const gmy = oy + sc((minY + maxY) / 2);
+    const halfLen = sc(pW * 0.3);
+    gy1 = gmy - halfLen;
+    gy2 = gmy + halfLen;
+  }
 
   // Dimension annotations
   let dimsSVG = '';
@@ -735,7 +746,7 @@ export function renderGenericPieceSVG(piece) {
     })()}" stroke="#666" stroke-width="0.8" stroke-dasharray="4,3" fill="none"/>
     ${cutOnFold
       ? foldIndicatorSVG(ox + sc(minX), oy + sc(minY + pH * 0.08), oy + sc(minY + pH * 0.92))
-      : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
+      : grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, grainAngle)}
     ${trimPolySVG}
     ${dimsSVG}${bustDartSVG}${(piece.labels || []).map(l => {
       const x = ox + sc(l.x), y = oy + sc(l.y);
@@ -871,10 +882,17 @@ export function renderRectanglePieceSVG(piece) {
   ];
   const notchesSVG = renderNotchesSVG(rectPoly, piece.notches || [], ox, oy);
 
-  // Grain line — vertical through horizontal center
+  // Grain line — vertical through horizontal center; for 90° pieces clamp to narrow dimension
+  const grainAngle = piece.grainAngle || 0;
   const gx = ox + sc(pieceW / 2);
-  const gy1 = oy + sc(pieceL * 0.2);
-  const gy2 = oy + sc(pieceL * 0.8);
+  let gy1 = oy + sc(pieceL * 0.2);
+  let gy2 = oy + sc(pieceL * 0.8);
+  if (Math.abs(grainAngle) === 90) {
+    const gmy = oy + sc(pieceL / 2);
+    const halfLen = sc(Math.min(pieceW, pieceL) * 0.3);
+    gy1 = gmy - halfLen;
+    gy2 = gmy + halfLen;
+  }
 
   // Dimension annotations
   // Horizontal (width) above piece — position above the cut line top
@@ -940,11 +958,16 @@ export function renderRectanglePieceSVG(piece) {
     ${trimSVG}
     ${guidesSVG}
     ${windowsSVG}
-    ${grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, piece.grainAngle || 0)}
+    ${grainlineSVG(gx, gy1, gy2, (gy1 + gy2) / 2, grainAngle)}
     ${onFold ? foldIndicatorSVG(cutX, cutY, cutY + cutH) : ''}
     ${dimsSVG}
     ${notchesSVG}
-    ${Math.max(pieceW, pieceL) > 11 && pieceW >= 3 ? `<text x="${ox + sc(pieceW / 2)}" y="${oy + sc(pieceL / 2) + 20}" font-family="IBM Plex Mono" font-size="10" fill="#b8963e" text-anchor="middle">Plain rectangle. Mark and cut directly on fabric with a ruler.</text>` : ''}
+    ${Math.max(pieceW, pieceL) > 11 && pieceW >= 3 ? (() => {
+      const cx = (ox + sc(pieceW / 2)).toFixed(1);
+      const cy = oy + sc(pieceL / 2);
+      return `<text x="${cx}" y="${(cy + 10).toFixed(1)}" font-family="IBM Plex Mono" font-size="8" fill="#b8963e" text-anchor="middle">Plain rectangle.</text>
+    <text x="${cx}" y="${(cy + 23).toFixed(1)}" font-family="IBM Plex Mono" font-size="7" fill="#b8963e" text-anchor="middle">Cut directly on fabric with a ruler.</text>`;
+    })() : ''}
     <text x="${svgW / 2}" y="${svgH - 42}" font-family="IBM Plex Mono" font-size="14" fill="#555" text-anchor="middle" font-weight="500">${pieceLabel}</text>
     ${legendSVG}
     <text x="10" y="${svgH - 14}" font-family="IBM Plex Mono" font-size="10" fill="#555">${saNote}</text>

@@ -94,7 +94,7 @@ details.adv-meas summary:hover{color:var(--text)}
 .pc.full{flex:1 1 100%;max-width:100%}
 .pc.sm{flex:1 1 160px;max-width:280px}
 .pc h3{font-family:'Fraunces',serif;font-size:.82rem;font-weight:400;color:var(--accent);margin-bottom:0}
-.pc .sub{font-size:.78rem;color:var(--light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+.pc .sub{font-size:.78rem;color:var(--light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;overflow-wrap:break-word}
 .pc svg{width:100%;height:auto;display:block}
 .dt{margin-top:6px;width:100%;border-collapse:collapse;font-size:.78rem}
 .dt td{padding:2px 3px;border-bottom:1px solid var(--bdr)}
