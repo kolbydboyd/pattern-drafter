@@ -309,11 +309,13 @@ export const handler = async (event) => {
   }
 
   // 9. Generate signed URLs (48 hours).
+  // { download } adds Content-Disposition: attachment so mobile browsers save the file
+  // rather than opening it in-tab, and so direct navigation triggers a download.
   const signedUrls = await Promise.all([
-    supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48),
-    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48)]          : []),
-    ...(pdfA0PreambleBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0Preamble, 60 * 60 * 48)] : []),
-    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48)]   : []),
+    supabase.storage.from('patterns').createSignedUrl(path, 60 * 60 * 48, { download: `${garmentId}-pattern.pdf` }),
+    ...(pdfA0Buffer        ? [supabase.storage.from('patterns').createSignedUrl(pathA0, 60 * 60 * 48, { download: `${garmentId}-pattern-a0.pdf` })]                   : []),
+    ...(pdfA0PreambleBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathA0Preamble, 60 * 60 * 48, { download: `${garmentId}-instructions-letter.pdf` })] : []),
+    ...(pdfProjectorBuffer ? [supabase.storage.from('patterns').createSignedUrl(pathProjector, 60 * 60 * 48, { download: `${garmentId}-pattern-projector.pdf` })]      : []),
   ]);
 
   const { data: signed, error: signErr } = signedUrls[0];
