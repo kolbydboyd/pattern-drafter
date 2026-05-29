@@ -1199,6 +1199,46 @@ body[data-page="faq"] #hdr-nav-desktop a[href="/faq"]{color:var(--gold)}
 .tester-photo-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .tester-photo-thumb{width:64px;height:64px;object-fit:cover;border-radius:4px;border:1px solid var(--bdr)}
 
+/* ── Tester — measurements section ──────────────────────────────────────── */
+.tester-meas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.tester-meas-field{display:flex;flex-direction:column;gap:3px}
+.tester-meas-row{display:flex;align-items:center;gap:6px}
+.tester-meas-row input{flex:1;min-width:0}
+.tester-meas-unit{font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--mid);flex-shrink:0}
+.tester-meas-hint{font-size:.7rem;color:var(--mid);line-height:1.4;font-style:italic}
+
+/* ── Tester — consent / agreement section ───────────────────────────────── */
+.tester-consent-block{border-top:1px solid var(--bdr);padding-top:20px;margin-top:20px;display:flex;flex-direction:column;gap:12px}
+.tester-consent-required{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--gold);border-radius:4px;background:color-mix(in srgb,var(--gold) 6%,transparent);cursor:pointer}
+.tester-consent-required input{accent-color:var(--gold);margin-top:2px;flex-shrink:0}
+.tester-consent-required-label{font-size:.82rem;line-height:1.5;color:var(--text)}
+.tester-consent-required-label strong{color:var(--gold)}
+.tester-consent-std{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.tester-consent-std input{accent-color:var(--gold);margin-top:2px;flex-shrink:0}
+.tester-consent-std-label{font-size:.82rem;line-height:1.5;color:var(--text)}
+.tester-consent-error{font-size:.8rem;color:var(--accent);margin-top:4px;display:none}
+.tester-consent-error.visible{display:block}
+.tester-agreement-link{color:var(--gold);text-decoration:underline;text-underline-offset:2px;font-size:.82rem}
+
+/* ── Tester — slot status card ──────────────────────────────────────────── */
+.tester-slots-info{margin-top:10px;padding:10px 12px;background:var(--ibg);border:1px solid var(--bdr);border-radius:4px;font-size:.78rem;color:var(--text);line-height:1.5}
+.tester-slots-info strong{color:var(--gold)}
+
+/* ── Agreement page ─────────────────────────────────────────────────────── */
+.tester-agreement-body{max-width:660px;line-height:1.75;color:var(--text)}
+.tester-agreement-clause{margin-bottom:2rem}
+.tester-agreement-h2{font-family:'Fraunces',Georgia,serif;font-weight:300;font-size:1.05rem;margin:0 0 .5rem;color:var(--text)}
+.tester-agreement-body p{margin:0 0 .75rem;font-size:.9rem}
+.tester-agreement-body ul,.tester-agreement-body ol{margin:0 0 .75rem;padding-left:1.4rem;font-size:.9rem}
+.tester-agreement-body li{margin-bottom:.3rem}
+.tester-agreement-rule{border:none;border-top:1px solid var(--bdr);margin:2.5rem 0}
+.tester-agreement-sig-block{margin-top:1.5rem;display:flex;flex-direction:column;gap:1.5rem}
+.tester-agreement-sig-line{display:flex;align-items:flex-end;gap:12px}
+.tester-agreement-sig-label{font-size:.75rem;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;flex-shrink:0;min-width:100px}
+.tester-agreement-sig-underline{flex:1;border-bottom:1px solid var(--bdr);min-height:24px}
+.tester-agreement-version{font-size:.75rem;color:var(--mid);margin-top:2.5rem}
+@media print{.hdr,.land-footer{display:none}.tester-agreement-body{max-width:none}}
+
 /* ── Body map widget ─────────────────────────────────────────────────────── */
 .body-map{font-family:'IBM Plex Mono',monospace}
 .body-map-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}

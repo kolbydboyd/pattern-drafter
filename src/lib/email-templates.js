@@ -2130,3 +2130,79 @@ People's Patterns - ${SITE_URL}`;
     plain,
   };
 }
+
+// ─── Tester Admin Notify ─────────────────────────────────────────────────────
+
+export function testerAdminNotifyEmail({
+  applicantName      = '',
+  applicantEmail     = '',
+  experience         = '',
+  specialties        = [],
+  patternCategories  = [],
+  slotsClaimedThisMonth = 0,
+  monthlyCapTotal    = 5,
+} = {}) {
+  const subject = `New tester application: ${applicantName || applicantEmail}`;
+  const slotsRemaining = Math.max(0, monthlyCapTotal - slotsClaimedThisMonth);
+  const specList = specialties.length ? specialties.join(', ') : 'None specified';
+  const catList  = patternCategories.length ? patternCategories.join(', ') : 'None specified';
+
+  const body = `
+<p style="margin:0 0 6px;font-family:${SANS};font-size:22px;font-weight:700;color:${NEAR_BLACK};">
+  New tester application
+</p>
+<p style="margin:0 0 24px;font-family:${SANS};font-size:15px;color:#555551;line-height:1.6;">
+  Review and approve or reject in the admin panel.
+</p>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${CARD_BG};border-radius:6px;">
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Name</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};font-weight:600;">${applicantName || '(not provided)'}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Email</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};">${applicantEmail}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Experience</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:14px;color:${NEAR_BLACK};text-transform:capitalize;">${experience}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Specialties</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:13px;color:${NEAR_BLACK};">${specList}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;border-bottom:1px solid #e0ddd6;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Pattern categories</p>
+    <p style="margin:2px 0 0;font-family:${SANS};font-size:13px;color:${NEAR_BLACK};">${catList}</p>
+  </td></tr>
+  <tr><td style="padding:12px 16px;">
+    <p style="margin:0;font-family:${SANS};font-size:12px;color:#777773;">Paid slots this month</p>
+    <p style="margin:2px 0 0;font-family:${MONO};font-size:14px;color:${slotsRemaining > 0 ? '#4a8a5a' : '#b05a5a'};font-weight:600;">
+      ${slotsClaimedThisMonth} / ${monthlyCapTotal} claimed — ${slotsRemaining} remaining
+    </p>
+  </td></tr>
+</table>
+
+<p style="margin:20px 0 0;font-family:${SANS};font-size:13px;color:#777773;">
+  To approve or reject: use the tester admin panel or the tester-admin API endpoint.
+</p>`;
+
+  const plain = `New tester application
+
+Name: ${applicantName || '(not provided)'}
+Email: ${applicantEmail}
+Experience: ${experience}
+Specialties: ${specList}
+Pattern categories: ${catList}
+
+Paid slots this month: ${slotsClaimedThisMonth} / ${monthlyCapTotal} (${slotsRemaining} remaining)
+
+Approve or reject via the admin panel.`;
+
+  return {
+    subject,
+    html: shell({ preheader: `${applicantName || applicantEmail} applied to the tester program.`, subject, body }),
+    plain,
+  };
+}

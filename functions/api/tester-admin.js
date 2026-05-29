@@ -82,13 +82,35 @@ export async function onRequest(context) {
     // Create assignment if garment specified
     let assignment = null;
     if (garmentId) {
+      const programCap   = parseInt(env.MONTHLY_PAID_TEST_CAP  || '5',  10);
+      const perTesterCap = parseInt(env.MONTHLY_PER_TESTER_CAP || '2',  10);
+      const currentMonth = new Date().toISOString().slice(0, 7);
+
+      const [{ count: programTotal }, { count: testerTotal }] = await Promise.all([
+        supabase
+          .from('tester_assignments')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_paid_slot', true)
+          .eq('paid_slot_month', currentMonth),
+        supabase
+          .from('tester_assignments')
+          .select('id', { count: 'exact', head: true })
+          .eq('is_paid_slot', true)
+          .eq('paid_slot_month', currentMonth)
+          .eq('user_id', app.user_id),
+      ]);
+
+      const isPaidSlot = (programTotal ?? 0) < programCap && (testerTotal ?? 0) < perTesterCap;
+
       const { data: a } = await supabase
         .from('tester_assignments')
         .insert({
-          user_id:        app.user_id,
-          application_id: applicationId,
-          garment_id:     garmentId,
-          due_at:         new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          user_id:         app.user_id,
+          application_id:  applicationId,
+          garment_id:      garmentId,
+          due_at:          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          is_paid_slot:    isPaidSlot,
+          paid_slot_month: isPaidSlot ? currentMonth : null,
         })
         .select()
         .single();
