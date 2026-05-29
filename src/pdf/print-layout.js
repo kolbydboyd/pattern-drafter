@@ -1278,7 +1278,7 @@ function polyMaxXAtYBand(poly, ox, oy, yMin, yMax) {
 
 // ── Tile page builder ──────────────────────────────────────────────────────
 
-function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, nestedSmall = []) {
+function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, rowNested = []) {
   const rendered = renderPiece(piece);
   if (!rendered) return '';
 
@@ -1315,6 +1315,9 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, nestedSmall = 
       let offsetX = -(col * TX * DPI) + shiftX * DPI - marginTrimX * DPI;
       let offsetY = -(row * TY * DPI) - marginTrimY * DPI;
 
+      // Per-row co-packing list
+      const nestedSmall = rowNested[row] ?? [];
+
       // Center single-tile pieces — but skip centering when co-packing to keep space for nested pieces
       if (cols === 1 && rows === 1 && nestedSmall.length === 0) {
         const contentW = (tPW - 2 * SM) * DPI;
@@ -1327,7 +1330,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, nestedSmall = 
       }
 
       // Build nested small-piece divs for co-packed single-tile pages
-      const nestedDivs = (cols === 1 && rows === 1 && nestedSmall.length > 0)
+      const nestedDivs = (cols === 1 && nestedSmall.length > 0)
         ? nestedSmall.map(({ rendered: { svg: ns, wIn: nw, hIn: nh }, nestX, nestY }) =>
             `<div style="position:absolute;left:${(nestX * DPI).toFixed(0)}px;top:${(nestY * DPI).toFixed(0)}px;
                          width:${(nw * DPI).toFixed(0)}px;height:${(nh * DPI).toFixed(0)}px">${ns}</div>`
@@ -2914,44 +2917,83 @@ ${body}
     const COPACK_GAP = 0.15; // gap between co-packed pieces (inches)
     const packedSet = new Set();
 
-    // For each single-tile structural piece, pack small pieces into the horizontal strip to the right
+    // Build per-row nested arrays for each structural piece.
+    // Single-tile (rows===1): right strip only.
+    // Multi-tile (rows>1): right strip on non-last rows; below-hem full-width on last row.
     const tileEntries = structList.map(({ rendered, piece }) => {
-      const layout = computeTileLayout(rendered.wIn, rendered.hIn, piece, PW, PH, OV);
-      const { tPW, tPH, cols, rows } = layout;
-      const nestedSmall = [];
+      const layout = computeTileLayout(rendered.wIn, rendered.hIn, piece, PW, PH, OV, MARGIN);
+      const { tPW, tPH, TX, TY, cols, rows, marginTrimY } = layout;
+      const rowNested = Array.from({ length: rows }, () => []);
 
-      if (cols === 1 && rows === 1) {
-        const nestW = (tPW - 2 * SM) - rendered.wIn - COPACK_GAP;
-        const nestH = tPH - 2 * SM - 0.4;
-        const nestX0 = rendered.wIn + COPACK_GAP;
+      if (cols === 1) {
+        const clipW = tPW - 2 * SM;
+        const clipH = tPH - 2 * SM - 0.4; // usable per-tile height (minus footer)
+        const rightStripW = clipW - rendered.wIn - COPACK_GAP;
+        const rightStripX0 = rendered.wIn + COPACK_GAP;
 
-        if (nestW > 1.5) {
-          let sx = 0, sy = 0, sh = 0;
+        // Right-strip packing: fill across rows 0 … rows-2 (for multi-tile)
+        // or row 0 only (for single-tile, rows===1).
+        const rightRows = rows > 1 ? rows - 1 : 1; // skip last row for multi-tile below-hem pass
+        if (rightStripW > 1.5) {
+          let sx = 0, sy = 0, sh = 0, r = 0;
           for (const item of smallQueue) {
-            if (packedSet.has(item)) continue;
+            if (packedSet.has(item) || r >= rightRows) continue;
             const { wIn: nw, hIn: nh } = item.rendered;
-            if (nw > nestW) continue;
-            const canPlace = sx + nw <= nestW && sy + Math.max(sh, nh) <= nestH;
-            const canShelf = nw <= nestW && sy + sh + COPACK_GAP + nh <= nestH;
-            if (canPlace) {
-              nestedSmall.push({ ...item, nestX: nestX0 + sx, nestY: sy });
-              sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
-              packedSet.add(item);
-            } else if (canShelf) {
-              sy += sh + COPACK_GAP; sx = 0; sh = 0;
-              nestedSmall.push({ ...item, nestX: nestX0 + sx, nestY: sy });
-              sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
-              packedSet.add(item);
+            if (nw > rightStripW) continue;
+            let placed = false;
+            while (r < rightRows && !placed) {
+              const canPlace = sx + nw <= rightStripW && sy + Math.max(sh, nh) <= clipH;
+              const canShelf = nw <= rightStripW && sy + sh + COPACK_GAP + nh <= clipH;
+              if (canPlace) {
+                rowNested[r].push({ ...item, nestX: rightStripX0 + sx, nestY: sy });
+                sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
+                packedSet.add(item); placed = true;
+              } else if (canShelf) {
+                sy += sh + COPACK_GAP; sx = 0; sh = 0;
+                rowNested[r].push({ ...item, nestX: rightStripX0 + sx, nestY: sy });
+                sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
+                packedSet.add(item); placed = true;
+              } else {
+                r++; sx = 0; sy = 0; sh = 0; // move to next row
+              }
+            }
+          }
+        }
+
+        // Below-hem packing: last row only, full clip width, below visible panel content
+        if (rows > 1) {
+          const lastRow = rows - 1;
+          // Where does the panel content end in the last tile (inches from clip top)?
+          const panelEndY = rendered.hIn - lastRow * TY - marginTrimY;
+          const belowY0 = Math.max(0, panelEndY) + COPACK_GAP;
+          if (clipH - belowY0 > 1.5) { // at least 1.5" of usable space below hem
+            let bx = 0, by = belowY0, bsh = 0;
+            for (const item of smallQueue) {
+              if (packedSet.has(item)) continue;
+              const { wIn: nw, hIn: nh } = item.rendered;
+              if (nw > clipW) continue;
+              const canPlace = bx + nw <= clipW && by + Math.max(bsh, nh) <= clipH;
+              const canShelf = nw <= clipW && by + bsh + COPACK_GAP + nh <= clipH;
+              if (canPlace) {
+                rowNested[lastRow].push({ ...item, nestX: bx, nestY: by });
+                bsh = Math.max(bsh, nh); bx += nw + COPACK_GAP;
+                packedSet.add(item);
+              } else if (canShelf) {
+                by += bsh + COPACK_GAP; bx = 0; bsh = 0;
+                rowNested[lastRow].push({ ...item, nestX: bx, nestY: by });
+                bsh = Math.max(bsh, nh); bx += nw + COPACK_GAP;
+                packedSet.add(item);
+              }
             }
           }
         }
       }
-      return { piece, nestedSmall };
+      return { piece, rowNested };
     });
 
     const unpackedSmall = smallQueue.filter(item => !packedSet.has(item));
-    tilePages = tileEntries.map(({ piece, nestedSmall: ns }, i) =>
-      buildTilePages(piece, i, structList.length, PW, PH, OV, ns)
+    tilePages = tileEntries.map(({ piece, rowNested: rn }, i) =>
+      buildTilePages(piece, i, structList.length, PW, PH, OV, rn)
     ).join('') + buildNestedSmallPages(unpackedSmall, PW, PH);
   } else {
     // Separate pieces into large (multi-tile) and small (single-tile, bin-packable)
