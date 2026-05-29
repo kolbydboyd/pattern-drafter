@@ -1424,30 +1424,32 @@ function buildNestedSmallPages(smallPieces, PW, PH) {
   let current = [], shelfX = 0, shelfY = 0, shelfH = 0;
 
   for (const { rendered, piece } of sorted) {
-    const { svg, wIn, hIn } = rendered;
+    const { svg, wIn: nw0, hIn: nh0 } = rendered;
 
-    if (shelfX > 0 && shelfX + wIn > availW) {
-      // row full — next shelf
-      shelfY += shelfH + GAP;
-      shelfX = 0; shelfH = 0;
-    }
-    if (shelfY + hIn > availH) {
-      // page full — flush and start a new sheet
+    // Try normal orientation first, then 90° CW rotation
+    let fit = pickOrientation(nw0, nh0, shelfX, shelfY, shelfH, availW, availH, GAP);
+    if (!fit) {
+      // Current page full — flush and restart
       if (current.length) pages.push(current);
       current = []; shelfX = 0; shelfY = 0; shelfH = 0;
+      fit = pickOrientation(nw0, nh0, 0, 0, 0, availW, availH, GAP);
+      if (!fit) continue; // piece larger than the whole page — skip
     }
+    if (!fit.canPlace) { shelfY += shelfH + GAP; shelfX = 0; shelfH = 0; }
 
-    current.push({ svg, wIn, hIn, x: shelfX, y: shelfY, piece });
-    shelfX += wIn + GAP;
-    shelfH = Math.max(shelfH, hIn);
+    current.push({ svg, nw0, nh0, wIn: fit.nw, hIn: fit.nh, x: shelfX, y: shelfY, rotated: fit.rotated, piece });
+    shelfX += fit.nw + GAP;
+    shelfH = Math.max(shelfH, fit.nh);
   }
   if (current.length) pages.push(current);
 
   return pages.map((items, pi) => {
-    const divs = items.map(({ svg, wIn, hIn, x, y }) =>
-      `<div style="position:absolute;left:${x * DPI}px;top:${y * DPI}px;
-                   width:${wIn * DPI}px;height:${hIn * DPI}px">${svg}</div>`
-    ).join('');
+    const divs = items.map(({ svg, nw0, nh0, wIn: dw, hIn: dh, rotated, x, y }) => {
+      const inner = rotated
+        ? `<div style="position:absolute;top:0;left:0;width:${(nw0*DPI).toFixed(0)}px;height:${(nh0*DPI).toFixed(0)}px;transform:translateX(${(nh0*DPI).toFixed(0)}px) rotate(90deg);transform-origin:0 0">${svg}</div>`
+        : svg;
+      return `<div style="position:absolute;left:${x*DPI}px;top:${y*DPI}px;width:${(dw*DPI).toFixed(0)}px;height:${(dh*DPI).toFixed(0)}px;overflow:hidden">${inner}</div>`;
+    }).join('');
     const names = items.map(i => i.piece.name).join(' \xb7 ');
     const sheetLabel = pages.length > 1 ? ` · sheet ${pi + 1} of ${pages.length}` : '';
     return `<div class="page tile-page" style="width:${PW}in;height:${PH}in">
