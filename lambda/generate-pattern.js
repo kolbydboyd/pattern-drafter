@@ -171,6 +171,8 @@ export const handler = async (event) => {
       .select('id, stripe_payment_intent, downloaded_at, a0_addon, amount_cents')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
+      .order('purchased_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     purchase = existingPurchase
@@ -182,6 +184,8 @@ export const handler = async (event) => {
       .select('id, stripe_payment_intent, downloaded_at, a0_addon, amount_cents')
       .eq('user_id', userId)
       .eq('garment_id', garmentId)
+      .order('purchased_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (purchaseErr) {
@@ -273,7 +277,8 @@ export const handler = async (event) => {
     const instPath = `${userId || 'anon'}/${garmentId}/${Date.now()}-instructions.pdf`;
     const { error: uploadErr } = await supabase.storage.from('patterns').upload(instPath, instBuffer, { contentType: 'application/pdf', upsert: true });
     if (uploadErr) return jsonResponse(500, { error: 'Storage upload failed' });
-    const { data: instSigned } = await supabase.storage.from('patterns').createSignedUrl(instPath, 60 * 60 * 48, { download: `${garmentId}-instructions.pdf` });
+    const { data: instSigned, error: signInstErr } = await supabase.storage.from('patterns').createSignedUrl(instPath, 60 * 60 * 48, { download: `${garmentId}-instructions.pdf` });
+    if (signInstErr || !instSigned) return jsonResponse(500, { error: 'Could not generate download URL' });
     if (userId) await supabase.rpc('increment_download_count', { p_user_id: userId, p_garment_id: garmentId });
     return jsonResponse(200, { downloadUrl: instSigned.signedUrl });
   }

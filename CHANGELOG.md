@@ -7,6 +7,9 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Fixed
+- **Instructions PDF download "Could not verify purchase" error** — Both purchase-lookup queries in the Lambda used `.maybeSingle()` without `.limit(1)`. If a user (or admin) had more than one purchase row for the same garment (possible from testing or duplicate webhook events), Supabase returned "JSON object requested, multiple (or no) rows returned" and the Lambda rejected the request. Fixed by adding `.order('purchased_at', { ascending: false }).limit(1)` before `.maybeSingle()` in both the Stripe-session branch and the re-download branch, so the most recent purchase is always used. Also added a null/error guard on the signed-URL creation step in the instructions-only path.
+
+### Fixed
 - **Download PDF and Download Instructions buttons now work** — `/api/generate-pattern` and `/api/regenerate-pattern` Cloudflare Pages Functions were missing, causing all user-initiated PDF downloads to 404. Added proxy functions that forward requests (including the user's Authorization header) to the Lambda functions via `LAMBDA_GENERATE_URL` / `LAMBDA_REGENERATE_URL` env vars.
 - **A0/large-format print no longer includes preamble** — `printPattern()` was not passing the `section:'pattern'` flag to `generatePrintLayout`, so the browser-generated print window included cover/scale/materials/instructions pages in the pattern file. Fixed by detecting large-format paper size and passing the correct section flag, matching what the Lambda already does.
 - **Print window blob URL on desktop** — the print popup previously used `document.write()` leaving the window at `about:blank`, making right-click save unreliable. Desktop browsers now open a `blob:` URL for the print layout, making Save Page As work as expected. iOS Safari retains the `document.write()` path which is required for its gesture-context constraints.
