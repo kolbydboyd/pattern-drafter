@@ -1278,7 +1278,7 @@ function polyMaxXAtYBand(poly, ox, oy, yMin, yMax) {
 
 // ── Tile page builder ──────────────────────────────────────────────────────
 
-function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
+function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, nestedSmall = []) {
   const rendered = renderPiece(piece);
   if (!rendered) return '';
 
@@ -1315,13 +1315,24 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
       let offsetX = -(col * TX * DPI) + shiftX * DPI - marginTrimX * DPI;
       let offsetY = -(row * TY * DPI) - marginTrimY * DPI;
 
-      // Center small pieces that fit on a single tile (looks more professional)
-      if (cols === 1 && rows === 1) {
+      // Center single-tile pieces — but skip centering when co-packing to keep space for nested pieces
+      if (cols === 1 && rows === 1 && nestedSmall.length === 0) {
         const contentW = (tPW - 2 * SM) * DPI;
         const contentH = (tPH - 2 * SM) * DPI;
         offsetX = Math.max(0, Math.round((contentW - effectiveW * DPI) / 2));
         offsetY = Math.max(0, Math.round((contentH - hIn * DPI) / 2));
+      } else if (cols === 1 && rows === 1) {
+        offsetX = 0;
+        offsetY = 0;
       }
+
+      // Build nested small-piece divs for co-packed single-tile pages
+      const nestedDivs = (cols === 1 && rows === 1 && nestedSmall.length > 0)
+        ? nestedSmall.map(({ rendered: { svg: ns, wIn: nw, hIn: nh }, nestX, nestY }) =>
+            `<div style="position:absolute;left:${(nestX * DPI).toFixed(0)}px;top:${(nestY * DPI).toFixed(0)}px;
+                         width:${(nw * DPI).toFixed(0)}px;height:${(nh * DPI).toFixed(0)}px">${ns}</div>`
+          ).join('')
+        : '';
 
       // Fix 4: B&W overlap zone markers (triangles + trim line)
       let overlapSvgs = '';
@@ -1355,6 +1366,9 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
       const gridLabel = `${rows}\xd7${cols}`;
       const orientTag = landscape ? ' \xb7 LANDSCAPE' : '';
       const orientCls = landscape ? ' landscape-tile' : '';
+      const nestedNames = nestedSmall.length > 0
+        ? ' + ' + nestedSmall.map(ns => ns.piece.name).join(', ')
+        : '';
 
       pages += `<div class="page tile-page${orientCls}" style="width:${tPW}in;height:${tPH}in">
         <div class="tile-clip" style="width:${tPW - 2 * SM}in;height:${tPH - 2 * SM}in">
@@ -1362,6 +1376,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
                       width:${effectiveW * DPI}px;height:${hIn * DPI}px">
             ${svg}
           </div>
+          ${nestedDivs}
         </div>
         ${overlapSvgs}
         ${chSVG}
@@ -1375,7 +1390,7 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV) {
           <text x="${4 + DPI / 2}" y="${4 + DPI + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#000" text-anchor="middle">1 inch = 1 inch</text>
         </svg>` : ''}
         <div class="tile-footer">
-          <span class="tf-name">${piece.name} · tile ${tileId} of ${gridLabel} pages</span>
+          <span class="tf-name">${piece.name}${nestedNames} · tile ${tileId} of ${gridLabel} pages</span>
           <span class="tf-brand">People\u2019s Patterns \xb7 peoplespatterns.com \xb7 @peoplespatterns</span>
           <span class="tf-info">piece ${pieceIdx + 1}/${totalPieces} \xb7 row ${row + 1} col ${col + 1}${orientTag} \xb7 \xbe\u2033 overlap</span>
         </div>
@@ -2878,20 +2893,66 @@ ${body}
   // ── Pattern piece pages ─────────────────────────────────────────────────
   let tilePages;
   if (isLargeFormat) {
-    // Separate pieces that fit on a single A0 sheet (small) from multi-tile (large)
-    const largePieces = [], smallQueue = [];
+    // Classify by type: structural pieces (panel/bodice/sleeve) get full tile pages;
+    // small pieces (pocket/rectangle/template) co-pack into unused horizontal space.
+    const STRUCT_TYPES = new Set(['panel', 'bodice', 'sleeve']);
+    const structList = [], smallQueue = [];
     for (const p of pieces) {
       const rendered = renderPiece(p);
       if (!rendered) continue;
-      const layout = computeTileLayout(rendered.wIn, rendered.hIn, p, PW, PH, OV);
-      if (layout.cols === 1 && layout.rows === 1) {
-        smallQueue.push({ rendered, piece: p });
+      if (STRUCT_TYPES.has(p.type)) {
+        structList.push({ rendered, piece: p });
       } else {
-        largePieces.push(p);
+        const cr = renderPieceCompact(p) || rendered;
+        smallQueue.push({ rendered: cr, piece: p });
       }
     }
-    tilePages = largePieces.map((p, i) => buildTilePages(p, i, pieces.length, PW, PH, OV)).join('')
-              + buildNestedSmallPages(smallQueue, PW, PH);
+
+    // Sort tallest-first for better shelf packing
+    smallQueue.sort((a, b) => b.rendered.hIn - a.rendered.hIn);
+
+    const COPACK_GAP = 0.15; // gap between co-packed pieces (inches)
+    const packedSet = new Set();
+
+    // For each single-tile structural piece, pack small pieces into the horizontal strip to the right
+    const tileEntries = structList.map(({ rendered, piece }) => {
+      const layout = computeTileLayout(rendered.wIn, rendered.hIn, piece, PW, PH, OV);
+      const { tPW, tPH, cols, rows } = layout;
+      const nestedSmall = [];
+
+      if (cols === 1 && rows === 1) {
+        const nestW = (tPW - 2 * SM) - rendered.wIn - COPACK_GAP;
+        const nestH = tPH - 2 * SM - 0.4;
+        const nestX0 = rendered.wIn + COPACK_GAP;
+
+        if (nestW > 1.5) {
+          let sx = 0, sy = 0, sh = 0;
+          for (const item of smallQueue) {
+            if (packedSet.has(item)) continue;
+            const { wIn: nw, hIn: nh } = item.rendered;
+            if (nw > nestW) continue;
+            const canPlace = sx + nw <= nestW && sy + Math.max(sh, nh) <= nestH;
+            const canShelf = nw <= nestW && sy + sh + COPACK_GAP + nh <= nestH;
+            if (canPlace) {
+              nestedSmall.push({ ...item, nestX: nestX0 + sx, nestY: sy });
+              sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
+              packedSet.add(item);
+            } else if (canShelf) {
+              sy += sh + COPACK_GAP; sx = 0; sh = 0;
+              nestedSmall.push({ ...item, nestX: nestX0 + sx, nestY: sy });
+              sh = Math.max(sh, nh); sx += nw + COPACK_GAP;
+              packedSet.add(item);
+            }
+          }
+        }
+      }
+      return { piece, nestedSmall };
+    });
+
+    const unpackedSmall = smallQueue.filter(item => !packedSet.has(item));
+    tilePages = tileEntries.map(({ piece, nestedSmall: ns }, i) =>
+      buildTilePages(piece, i, structList.length, PW, PH, OV, ns)
+    ).join('') + buildNestedSmallPages(unpackedSmall, PW, PH);
   } else {
     // Separate pieces into large (multi-tile) and small (single-tile, bin-packable)
     const largePieces = [], smallQueue = [];
