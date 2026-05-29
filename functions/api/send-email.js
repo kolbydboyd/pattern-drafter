@@ -20,6 +20,7 @@ import {
   testerRejectedEmail,
   testerSubmissionReceivedEmail,
   testerFeaturedEmail,
+  testerAdminNotifyEmail,
   affiliateApplicationEmail,
   affiliateApprovedEmail,
   affiliateAdminNotifyEmail,
@@ -98,6 +99,9 @@ export async function sendEmail(env, type, to, data = {}) {
       break;
     case 'TESTER_FEATURED':
       tmpl = testerFeaturedEmail(data);
+      break;
+    case 'TESTER_ADMIN_NOTIFY':
+      tmpl = testerAdminNotifyEmail(data);
       break;
     case 'AFFILIATE_APPLICATION':
       tmpl = affiliateApplicationEmail(data);

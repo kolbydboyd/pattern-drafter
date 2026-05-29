@@ -9,6 +9,7 @@ import {
   getFeaturedTesterSubmissions,
 } from '../lib/db.js';
 import GARMENTS from '../garments/index.js';
+import { MEASUREMENTS } from '../engine/measurements.js';
 
 // ── Theme toggle (shared with page.js) ──────────────────────────────────────
 
@@ -90,6 +91,80 @@ const MACHINES = [
   { id: 'embroidery',        label: 'Embroidery Machine' },
 ];
 
+const PATTERN_CATEGORIES = [
+  { id: 'lower_body', label: 'Lower Body (pants, shorts)' },
+  { id: 'skirts',     label: 'Skirts' },
+  { id: 'upper_body', label: 'Upper Body (tops, shirts)' },
+  { id: 'dresses',    label: 'Dresses & Jumpsuits' },
+  { id: 'outerwear',  label: 'Outerwear & Jackets' },
+];
+
+// Measurement IDs to show per selected pattern category
+const CATEGORY_MEASUREMENTS = {
+  lower_body: ['waist', 'hip', 'rise', 'thigh', 'inseam'],
+  skirts:     ['waist', 'hip', 'skirtLength'],
+  upper_body: ['chest', 'shoulder', 'neck', 'torsoLength'],
+  dresses:    ['chest', 'shoulder', 'waist', 'hip', 'fullLength'],
+  outerwear:  ['chest', 'shoulder', 'neck', 'torsoLength'],
+};
+
+// ── Measurement field helpers ─────────────────────────────────────────────────
+
+function _getRelevantMeasurementIds(selectedCategories) {
+  const ids = new Set();
+  for (const cat of selectedCategories) {
+    for (const id of (CATEGORY_MEASUREMENTS[cat] || [])) ids.add(id);
+  }
+  return [...ids];
+}
+
+function _measurementFieldsHtml(selectedCategories) {
+  const ids = _getRelevantMeasurementIds(selectedCategories);
+  if (!ids.length) return '';
+
+  const fields = ids.map(id => {
+    const m = MEASUREMENTS[id];
+    if (!m) return '';
+    return `
+    <div class="tester-meas-field">
+      <label class="tester-field-label" for="meas_${id}">${m.label}</label>
+      <div class="tester-meas-row">
+        <input
+          type="number"
+          id="meas_${id}"
+          name="meas_${id}"
+          class="tester-input"
+          min="${m.min}"
+          max="${m.max}"
+          step="${m.step}"
+          placeholder="${m.default}"
+          aria-label="${m.label} in inches"
+        >
+        <span class="tester-meas-unit">in</span>
+      </div>
+      <span class="tester-meas-hint">${m.instruction}</span>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="tester-field" id="tester-meas-fields">
+    <label class="tester-field-label">Body Measurements</label>
+    <p class="tester-field-hint">All measurements in inches. Enter what you can — partial sets are fine for your application.</p>
+    <div class="tester-meas-grid">${fields}</div>
+  </div>`;
+}
+
+function _collectMeasurements(fd) {
+  const out = {};
+  for (const [key, val] of fd.entries()) {
+    if (!key.startsWith('meas_')) continue;
+    const id = key.slice(5);
+    const n = parseFloat(val);
+    if (!isNaN(n) && n > 0) out[id] = n;
+  }
+  return out;
+}
+
 // ── Application form ─────────────────────────────────────────────────────────
 
 async function _renderApplySection() {
@@ -108,10 +183,12 @@ async function _renderApplySection() {
   const { data: app } = await getTesterApplication(user.id);
 
   if (app?.status === 'approved') {
+    const slotHtml = await _approvedSlotHtml();
     container.innerHTML = `
       <div class="tester-status-card tester-status-approved">
-        <strong>You're an approved tester!</strong>
+        <strong>You're an approved tester.</strong>
         <p>Head to your <a href="/?account=tester" class="tester-link">account dashboard</a> to view assignments and submit feedback.</p>
+        ${slotHtml}
       </div>`;
     return;
   }
@@ -157,6 +234,27 @@ async function _renderApplySection() {
   _bindForm(user);
 }
 
+async function _approvedSlotHtml() {
+  try {
+    const { session } = await getSession();
+    if (!session) return '';
+    const resp = await fetch('/api/tester-slots', {
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    });
+    if (!resp.ok) return '';
+    const s = await resp.json();
+    const myRemaining = s.myRemaining ?? 0;
+    const progRemaining = s.programRemaining ?? 0;
+    return `<div class="tester-slots-info">
+      You have <strong>${myRemaining} paid slot${myRemaining !== 1 ? 's' : ''} remaining</strong> this month.
+      ${progRemaining} of ${s.programCap} program slots available.
+      Tests over the cap are still accepted and paid the following cycle.
+    </div>`;
+  } catch {
+    return '';
+  }
+}
+
 function _applicationFormHtml() {
   const specCheckboxes = SPECIALTIES.map(s =>
     `<label class="tester-check"><input type="checkbox" name="specialties" value="${s.id}"> ${s.label}</label>`
@@ -166,8 +264,24 @@ function _applicationFormHtml() {
     `<label class="tester-check"><input type="checkbox" name="machineTypes" value="${m.id}"> ${m.label}</label>`
   ).join('');
 
+  const catCheckboxes = PATTERN_CATEGORIES.map(c =>
+    `<label class="tester-check"><input type="checkbox" name="patternCategories" value="${c.id}" class="tester-cat-check"> ${c.label}</label>`
+  ).join('');
+
   return `
   <form id="tester-apply-form" class="tester-form">
+
+    <div class="tester-field">
+      <label class="tester-field-label" for="tester-fullname">Full Name *</label>
+      <input type="text" id="tester-fullname" name="fullName" class="tester-input" placeholder="Your name" required maxlength="120">
+    </div>
+
+    <div class="tester-field">
+      <label class="tester-field-label" for="tester-location">Location</label>
+      <p class="tester-field-hint">City, state, country. Used if we ever need to ship materials.</p>
+      <input type="text" id="tester-location" name="location" class="tester-input" placeholder="e.g. Austin, TX, USA" maxlength="200">
+    </div>
+
     <div class="tester-field">
       <label class="tester-field-label">Sewing Experience *</label>
       <select name="experience" class="tester-select" required>
@@ -190,6 +304,21 @@ function _applicationFormHtml() {
     </div>
 
     <div class="tester-field">
+      <label class="tester-field-label">Pattern Categories to Test *</label>
+      <p class="tester-field-hint">Check what you want to test. This determines which body measurements we ask for.</p>
+      <div class="tester-check-grid" id="tester-cat-grid">${catCheckboxes}</div>
+    </div>
+
+    <div id="tester-meas-container"></div>
+
+    <div class="tester-field">
+      <label class="tester-check">
+        <input type="checkbox" name="hasPrinter" value="on">
+        I have access to a printer (standard letter/A4 or large-format)
+      </label>
+    </div>
+
+    <div class="tester-field">
       <label class="tester-field-label">Social Handle</label>
       <input type="text" name="socialHandle" class="tester-input" placeholder="@yourhandle" maxlength="100">
     </div>
@@ -204,7 +333,26 @@ function _applicationFormHtml() {
       <textarea name="whyTest" class="tester-textarea" rows="4" placeholder="Tell us what interests you about the program and what you hope to get from it." required minlength="10" maxlength="2000"></textarea>
     </div>
 
-    <button type="submit" class="tester-btn" id="tester-submit-btn">Submit Application</button>
+    <div class="tester-consent-block">
+      <p style="font-size:.82rem;color:var(--mid);margin:0 0 4px">
+        Before applying, read the <a href="/tester-agreement" target="_blank" class="tester-agreement-link">full Tester Agreement</a>.
+        It covers compensation ($30 per completed test), catalog access, confidentiality, and media rights.
+      </p>
+
+      <label class="tester-consent-std">
+        <input type="checkbox" name="agreementAccepted" id="tester-agreement-check">
+        <span class="tester-consent-std-label">I have read and agree to the <a href="/tester-agreement" target="_blank" class="tester-agreement-link">Pattern Tester Agreement</a>, including the compensation terms, deliverable requirements, confidentiality, and independent contractor status.</span>
+      </label>
+      <div class="tester-consent-error" id="tester-agreement-error">You must accept the Tester Agreement to apply.</div>
+
+      <label class="tester-consent-required">
+        <input type="checkbox" name="mediaConsent" id="tester-media-check">
+        <span class="tester-consent-required-label"><strong>Required.</strong> I grant People's Patterns a perpetual, royalty-free license to use my submitted photos and videos — including on-body shots and my likeness — for marketing on their website, Instagram, TikTok, Pinterest, and paid ads.</span>
+      </label>
+      <div class="tester-consent-error" id="tester-media-error">Photo and media consent is required to apply.</div>
+    </div>
+
+    <button type="submit" class="tester-btn" id="tester-submit-btn" style="margin-top:20px">Submit Application</button>
     <p class="tester-form-note">We'll email you when your application has been reviewed.</p>
   </form>`;
 }
@@ -213,15 +361,50 @@ function _bindForm(user) {
   const form = document.getElementById('tester-apply-form');
   if (!form) return;
 
+  // Dynamic measurement fields based on selected categories
+  const catGrid = document.getElementById('tester-cat-grid');
+  const measContainer = document.getElementById('tester-meas-container');
+  if (catGrid && measContainer) {
+    catGrid.addEventListener('change', () => {
+      const selected = [...catGrid.querySelectorAll('input[name="patternCategories"]:checked')]
+        .map(el => el.value);
+      measContainer.innerHTML = _measurementFieldsHtml(selected);
+    });
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Explicit consent validation
+    const agreementChecked = form.querySelector('#tester-agreement-check')?.checked;
+    const mediaChecked     = form.querySelector('#tester-media-check')?.checked;
+    const agreementErr     = document.getElementById('tester-agreement-error');
+    const mediaErr         = document.getElementById('tester-media-error');
+
+    let blocked = false;
+    if (!agreementChecked) {
+      if (agreementErr) agreementErr.classList.add('visible');
+      blocked = true;
+    } else {
+      if (agreementErr) agreementErr.classList.remove('visible');
+    }
+    if (!mediaChecked) {
+      if (mediaErr) mediaErr.classList.add('visible');
+      blocked = true;
+    } else {
+      if (mediaErr) mediaErr.classList.remove('visible');
+    }
+    if (blocked) return;
+
     const btn = document.getElementById('tester-submit-btn');
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
     const fd = new FormData(form);
-    const specialties  = fd.getAll('specialties');
-    const machineTypes = fd.getAll('machineTypes');
+    const specialties       = fd.getAll('specialties');
+    const machineTypes      = fd.getAll('machineTypes');
+    const patternCategories = fd.getAll('patternCategories');
+    const measurements      = _collectMeasurements(fd);
 
     const { session } = await getSession();
     if (!session) {
@@ -239,12 +422,20 @@ function _bindForm(user) {
           'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          experience:   fd.get('experience'),
+          experience:        fd.get('experience'),
           specialties,
           machineTypes,
-          socialHandle: fd.get('socialHandle'),
-          portfolioUrl: fd.get('portfolioUrl'),
-          whyTest:      fd.get('whyTest'),
+          socialHandle:      fd.get('socialHandle'),
+          portfolioUrl:      fd.get('portfolioUrl'),
+          whyTest:           fd.get('whyTest'),
+          fullName:          fd.get('fullName'),
+          location:          fd.get('location'),
+          patternCategories,
+          measurements,
+          hasPrinter:        fd.get('hasPrinter') === 'on',
+          agreementAccepted: !!agreementChecked,
+          mediaConsent:      !!mediaChecked,
+          agreementVersion:  'v1.0',
         }),
       });
 
