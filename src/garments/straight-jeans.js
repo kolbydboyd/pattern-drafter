@@ -701,7 +701,7 @@ function buildFlyShield(rise) {
       { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
     ],
     labels: [
-      { text: 'CF / FOLD', x: -0.55, y: h * 0.4, rotation: -90 },
+      { text: 'CF / FOLD', x: 0.15, y: h * 0.4, rotation: -90 },
     ],
     notches: [
       { x: 0, y: flyLen, angle: 270, label: 'fly base' },
@@ -747,7 +747,7 @@ function buildFlyExtension(rise) {
       { label: fmtInches(h) + ' height', x: w + 0.8, y1: 0, y2: h, type: 'v' },
     ],
     labels: [
-      { text: 'CF / FOLD', x: -0.55, y: h * 0.4, rotation: -90 },
+      { text: 'CF / FOLD', x: 0.15, y: h * 0.4, rotation: -90 },
     ],
     notches: [
       { x: 0, y: flyLen, angle: 270, label: 'fly base' },

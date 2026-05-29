@@ -500,8 +500,9 @@ function renderPanelSVG(piece) {
   const cX1 = (ox - ext - 0.3) * DPI;
   const cX2 = (ox + width + 0.2) * DPI;
 
+  const polyMinY = Math.min(...polygon.map(p => p.y));
   const gx  = (ox + width * 0.42) * DPI;
-  const gy1 = (oy + 1.8) * DPI;
+  const gy1 = (oy + polyMinY + 1.8) * DPI;
   const gy2 = (oy + height - 1.8) * DPI;
 
   const noteY  = (oy + height + mB - 0.08) * DPI;
@@ -626,7 +627,6 @@ function renderBodiceOrSleeveSVG(piece) {
   const gy2 = (oy + minY + pH * 0.8)   * DPI;
 
   const titleX = (ox + (minX + maxX) / 2) * DPI;
-  const titleY = (mT - 0.12) * DPI;
   const noteY  = (oy + maxY + mB - 0.08) * DPI;
 
   const pieceLabel = type === 'sleeve'
@@ -669,9 +669,6 @@ function renderBodiceOrSleeveSVG(piece) {
         font-family="'IBM Plex Mono',monospace" font-size="8" fill="#2c2a26"
         text-anchor="middle">GRAIN</text>
       `}
-      <text x="${titleX}" y="${titleY}"
-        font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
-        fill="#2c2a26" text-anchor="middle">${pieceLabel}</text>
       ${renderNotchesPrint(polygon, notches, ox, oy)}
       ${labels.map(l => {
         const lx = (ox + l.x) * DPI, ly = (oy + l.y) * DPI;
@@ -809,7 +806,7 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
       <line x1="${rx}" y1="${cy}" x2="${rx + rW}" y2="${cy}"
         stroke="#999" stroke-width="0.6" stroke-dasharray="8,6"/>
       ${foldSvg}
-      <text x="${cx}" y="${(M - 0.08) * DPI}"
+      <text x="${cx}" y="${ry + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
       <text x="${cx}" y="${cy}"
@@ -840,6 +837,34 @@ function renderRectSVG(piece, { compact = false, fold } = {}) {
  *   { type: 'pleat',  axis: 'v',     center: <inches from left>, intake: <inches each side>, label: '...' }
  *   { type: 'centerline', axis: 'h'|'v' }
  */
+
+function _wrapInstruction(text, cx, startY, maxWidthPx, lineHeightPx, fontSize, fill = '#666') {
+  if (!text) return '';
+  const charW = fontSize * 0.6;
+  const maxChars = Math.max(8, Math.floor(maxWidthPx / charW));
+  const segments = text.split(' · ');
+  const lines = [];
+  for (const seg of segments) {
+    if (seg.length <= maxChars) {
+      lines.push(seg);
+    } else {
+      const words = seg.split(' ');
+      let cur = '';
+      for (const w of words) {
+        const test = cur ? `${cur} ${w}` : w;
+        if (test.length <= maxChars) { cur = test; }
+        else { if (cur) lines.push(cur); cur = w; }
+      }
+      if (cur) lines.push(cur);
+    }
+  }
+  return lines.map((line, i) =>
+    `<text x="${cx}" y="${startY + i * lineHeightPx}"
+      font-family="'IBM Plex Mono',monospace" font-size="${fontSize}"
+      fill="${fill}" text-anchor="middle">${line}</text>`
+  ).join('\n');
+}
+
 function renderPocketSVG(piece, { compact = false } = {}) {
   const { name, dimensions, marks = [] } = piece;
   // Pocket bags use { width, height }; strip pieces (collar, facing, tie) use { length, width }
@@ -917,8 +942,8 @@ function renderPocketSVG(piece, { compact = false } = {}) {
     }
   }
 
-  // SA note at bottom
-  const saNote = sa > 0 || hemAtTop
+  // SA note at bottom — only in non-compact (tile) pages; compact (bin-packed) SVGs are too tight
+  const saNote = !compact && (sa > 0 || hemAtTop)
     ? `<text x="${cx}" y="${ry + rH + saOff + 12}" font-family="'IBM Plex Mono',monospace" font-size="8" fill="#444" text-anchor="middle">${hemAtTop ? `${fmtInches(hem)} hem at top · ${fmtInches(sa)} SA on 3 sides` : `${fmtInches(sa)} SA included`}</text>`
     : '';
 
@@ -941,15 +966,15 @@ function renderPocketSVG(piece, { compact = false } = {}) {
            <text x="${rx + 4}" y="${ry - 5}"
              font-family="'IBM Plex Mono',monospace" font-size="7" fill="${PKT_COL}">bar tack / rivet</text>`
         : ''}
-      <text x="${cx}" y="${(M - 0.08) * DPI}"
+      <text x="${cx}" y="${ry + (compact ? 12 : 16)}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 10 : 14}" font-weight="700"
         fill="#2c2a26" text-anchor="middle">${name}</text>
       <text x="${cx}" y="${cy}"
         font-family="'IBM Plex Mono',monospace" font-size="${compact ? 9 : 12}"
         fill="#666" text-anchor="middle">${fmtInches(W)} \xd7 ${fmtInches(H)}</text>
-      ${piece.instruction && W >= 3 ? `<text x="${cx}" y="${cy + (compact ? 12 : 16)}"
-        font-family="'IBM Plex Mono',monospace" font-size="${compact ? 8 : 10}"
-        fill="#666" text-anchor="middle">${piece.instruction}</text>` : ''}
+      ${piece.instruction && W >= 3
+        ? _wrapInstruction(piece.instruction, cx, cy + (compact ? 12 : 16), rW, compact ? 11 : 14, compact ? 8 : 10)
+        : ''}
       ${saNote}
     </svg>`,
   };
