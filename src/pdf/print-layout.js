@@ -2898,14 +2898,14 @@ ${body}
   // ── Pattern piece pages ─────────────────────────────────────────────────
   let tilePages;
   if (isLargeFormat) {
-    // Classify by type: structural pieces (panel/bodice/sleeve) get full tile pages;
-    // small pieces (pocket/rectangle/template) co-pack into unused horizontal space.
-    const STRUCT_TYPES = new Set(['panel', 'bodice', 'sleeve']);
+    // Classify by tile count: pieces that need multiple tiles are anchors;
+    // single-tile pieces (any type) co-pack into unused space on anchor pages.
     const structList = [], smallQueue = [];
     for (const p of pieces) {
       const rendered = renderPiece(p);
       if (!rendered) continue;
-      if (STRUCT_TYPES.has(p.type)) {
+      const layout = computeTileLayout(rendered.wIn, rendered.hIn, p, PW, PH, OV, MARGIN);
+      if (layout.cols > 1 || layout.rows > 1) {
         structList.push({ rendered, piece: p });
       } else {
         const cr = renderPieceCompact(p) || rendered;
@@ -2913,8 +2913,10 @@ ${body}
       }
     }
 
-    // Sort tallest-first for better shelf packing
-    smallQueue.sort((a, b) => b.rendered.hIn - a.rendered.hIn);
+    // Sort by max dimension descending — accounts for rotation when deciding priority
+    smallQueue.sort((a, b) =>
+      Math.max(b.rendered.wIn, b.rendered.hIn) - Math.max(a.rendered.wIn, a.rendered.hIn)
+    );
 
     const COPACK_GAP = 0.15; // gap between co-packed pieces (inches)
     const packedSet = new Set();
