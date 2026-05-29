@@ -277,13 +277,13 @@ export default {
     // ── BACK POCKET VALIDATION (Phase 4) ──
     const pktWarnings = [];
     if (pktTopY < 3.5)
-      pktWarnings.push(`Pocket top is ${fmtInches(3.5 - pktTopY)} above the 3½" minimum from waistband — contents will be sat on.`);
+      pktWarnings.push(`Pocket top is ${fmtInches(3.5 - pktTopY)} above the 3½" minimum from waistband. Contents will be sat on.`);
     if (pktOuterX > backHipW - 2)
       pktWarnings.push(`Pocket outer edge is ${fmtInches(pktOuterX - (backHipW - 2))} too close to side seam (must be ≥2").`);
     if (pktScaledH < pktScaledW)
-      pktWarnings.push('Pocket height is less than width — looks dated.');
+      pktWarnings.push('Pocket height is less than width. Looks dated.');
     if (pktTopY + pktScaledH > rise * 0.85)
-      pktWarnings.push('Pocket bottom extends below the thigh line — contents will be sat on.');
+      pktWarnings.push('Pocket bottom extends below the thigh line. Contents will be sat on.');
     if (pktTiltDeg < 5 || pktTiltDeg > 12)
       pktWarnings.push(`Pocket tilt ${pktTiltDeg}° is outside the recommended 5–12° range.`);
 
@@ -435,7 +435,7 @@ export default {
 
     steps.push({
       step: n++, title: 'Needle setup',
-      detail: 'Load a Jeans/Denim 100/16 needle for all construction seams — its sharp point is designed to pierce dense denim cleanly. Before any topstitching row (pockets, yoke, fly, waistband, hem): switch to a Schmetz Topstitch 90/14. The topstitch needle has a wider eye and a deeper front groove that protect 30wt heavy thread from shredding at sewing speed. A jeans needle will shred heavy decorative thread even on low speed. Switch back to the jeans needle when returning to seam work.',
+      detail: 'Load a Jeans/Denim 100/16 needle for all construction seams. Its sharp point is designed to pierce dense denim cleanly. Before any topstitching row (pockets, yoke, fly, waistband, hem): switch to a Schmetz Topstitch 90/14. The topstitch needle has a wider eye and a deeper front groove that protect 30wt heavy thread from shredding at sewing speed. A jeans needle will shred heavy decorative thread even on low speed. Switch back to the jeans needle when returning to seam work.',
     });
 
     steps.push({
@@ -474,14 +474,14 @@ export default {
     if (numPleats > 0) {
       steps.push({
         step: n++, title: `Form ${numPleats === 2 ? 'double' : 'single'} front pleat${numPleats === 2 ? 's' : ''}`,
-        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS using the pattern notches. Fold each pleat toward the center front (fly side), enclosing ${fmtInches(PLEAT_DEPTH)} per pleat. Pin flat at the waist. {baste} across the waist at ⅜″. {press} the first 5–6″ from the waist with steam — do not press the full leg length. The pleat releases naturally below the hip and provides ease through the seat and thigh.`,
+        detail: `Mark pleat fold line${numPleats === 2 ? 's' : ''} on RS using the pattern notches. Fold each pleat toward the center front (fly side), enclosing ${fmtInches(PLEAT_DEPTH)} per pleat. Pin flat at the waist. {baste} across the waist at ⅜″. {press} the first 5–6″ from the waist with steam. Do not press the full leg length. The pleat releases naturally below the hip and provides ease through the seat and thigh.`,
       });
     }
 
     if (hasYoke) {
       steps.push({
         step: n++, title: 'Sew back yoke to lower back panels',
-        detail: `Sew back yoke to lower back panel {RST} along the ${opts.yokeStyle === 'pointed' ? 'V-shaped' : 'curved'} yoke seam at 5/8\u2033. Match notches at side seam, midpoint, and CB. {press} both SAs toward the yoke. Trim the lower panel SA to 3/16\u2033. Tuck the raw edge of the yoke SA under \xbc\u2033 (so it encloses the trimmed lower SA) and {press} flat \u2014 you now have a clean folded edge sitting on the yoke side of the seam, covering the 3/16\u2033 trimmed edge with ~\xbc\u2033 of clean margin. {topstitch} with gold thread at 3.5mm, two rows from RS: first at 1/8\u2033 from the seam, then at \xbc\u2033 from the seam. Both rows should bite through the fold, the trimmed lower SA, and the lower back panel. Repeat for mirror side.`,
+        detail: `Sew back yoke to lower back panel {RST} along the ${opts.yokeStyle === 'pointed' ? 'V-shaped' : 'curved'} yoke seam at 5/8\u2033. Match notches at side seam, midpoint, and CB. {press} both SAs toward the yoke. Trim the lower panel SA to 3/16\u2033. Tuck the raw edge of the yoke SA under \xbc\u2033 (so it encloses the trimmed lower SA) and {press} flat. You now have a clean folded edge sitting on the yoke side of the seam, covering the 3/16\u2033 trimmed edge with ~\xbc\u2033 of clean margin. {topstitch} with gold thread at 3.5mm, two rows from RS: first at 1/8\u2033 from the seam, then at \xbc\u2033 from the seam. Both rows should bite through the fold, the trimmed lower SA, and the lower back panel. Repeat for mirror side.`,
       });
       steps.push({
         step: n++, title: 'Sew center back and seat curve',
@@ -525,7 +525,7 @@ export default {
         row1: '⅛″',
         row2: '¼″',
         thread: 'gold',
-        extraTip: 'Repeat for the other side seam. Work on one leg at a time while the assembly is still flat — it is much easier than trying to maneuver a closed tube of fabric.',
+        extraTip: 'Repeat for the other side seam. Work on one leg at a time while the assembly is still flat. It is much easier than trying to maneuver a closed tube of fabric.',
       }),
     });
     steps.push({
@@ -1096,7 +1096,7 @@ function splitBackYoke(backPanel, { yokeStyle, yokeDepthCB, yokeDepthSS = 1.5, h
     path: polyToPath(lowerPoly), saPath: polyToPath(lowerSaPoly),
     dimensions: lowerDims,
     waistWidth, hipWidth, width: hipWidth, height,
-    rise, inseam, ext, cbRaise, sa, hem, isBack: true,
+    rise, inseam, ext, cbRaise: 0, sa, hem, isBack: true,
     notches: [
       ...yokeNotches,
       // Keep original notches for hip, crotch, knee alignment

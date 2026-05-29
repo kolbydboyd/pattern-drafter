@@ -504,9 +504,6 @@ function renderPanelSVG(piece) {
   const gy1 = (oy + 1.8) * DPI;
   const gy2 = (oy + height - 1.8) * DPI;
 
-  const titleX = (ox + width / 2) * DPI;
-  const titleY = (mT - 0.12) * DPI;
-  const subY   = (oy - 0.02) * DPI;
   const noteY  = (oy + height + mB - 0.08) * DPI;
 
   return {
@@ -528,12 +525,6 @@ function renderPanelSVG(piece) {
       <text x="${gx}" y="${(gy1 + gy2) / 2 - 5}"
         font-family="'IBM Plex Mono',monospace" font-size="8" fill="#2c2a26"
         text-anchor="middle">GRAIN</text>
-      <text x="${titleX}" y="${titleY}"
-        font-family="'IBM Plex Mono',monospace" font-size="14" font-weight="700"
-        fill="#2c2a26" text-anchor="middle">${name} \xd7 2 (mirror)</text>
-      <text x="${titleX}" y="${subY}"
-        font-family="'IBM Plex Mono',monospace" font-size="12"
-        fill="#666" text-anchor="middle">${instruction}</text>
       ${darts.map(d => {
         const dx = (ox + d.x) * DPI;
         const dy1 = (oy - sa) * DPI;
