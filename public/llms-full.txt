@@ -1,133 +1,363 @@
-# People's Patterns - Full Documentation
+# People's Patterns — Full Reference
 
 > Made-to-measure sewing patterns, generated in the browser from your body measurements.
 
 Website: https://peoplespatterns.com
+Email: hello@peoplespatterns.com
+Instagram: @peoplespatterns
+TikTok: @peoplespatternsofficial
+YouTube: @peoplespatterns
+Pinterest: @peoplespatterns
+Etsy: etsy.com/shop/PeoplesPatterns
 
-## What is People's Patterns?
+---
 
-People's Patterns is a web application that generates custom-fit sewing patterns using parametric drafting. Instead of choosing a standard size (S, M, L, XL) and then altering the pattern to fit, you enter your actual body measurements and the engine drafts a pattern to your exact dimensions. The result is a print-ready tiled PDF you can print at home on any printer.
+## What It Is
 
-The engine uses the same drafting formulas taught in fashion design schools and professional pattern-making courses. The difference is that it uses your numbers instead of a size chart.
+People's Patterns is a web application that generates custom-fit sewing patterns using parametric drafting. The same math taught in fashion design schools, applied to your exact body measurements instead of statistical size charts.
 
-## How parametric drafting works
+Every pattern is generated fresh from your measurements. There is nothing to grade up, grade down, or alter. The result is a print-ready PDF you cut out and sew.
 
-Traditional sewing patterns are graded from a single base size. If your body doesn't match the proportions of that base, you need to make alterations - sometimes extensively. Parametric drafting skips this entirely.
+---
 
-When you enter your measurements, the engine:
-1. Takes your bust, waist, hip, rise, inseam, shoulder width, and sleeve length
-2. Applies garment-specific drafting formulas (dart placement, curve calculations, seam allowances)
-3. Adds the appropriate ease based on your selected fit (slim, regular, or relaxed)
-4. Generates individual pattern pieces with grain lines, notches, fold lines, and construction markings
-5. Tiles the pieces onto standard printer paper with alignment marks
+## How It Works
 
-Every pattern is generated fresh. There is no grading between sizes - your body IS the size.
+1. Create a free account. No credit card required.
+2. Enter your body measurements (waist, hip, chest/bust, shoulder, neck, rise, inseam, sleeve length, bicep, wrist, torso length).
+3. Browse the catalog and select a garment.
+4. Customize fit and style options (ease/fit, length, pocket style, collar, closure, etc.).
+5. Preview the drafted pattern pieces in your browser.
+6. Purchase and download a print-ready tiled PDF.
 
-## Catalog (83 patterns)
+Pattern generation takes under one minute. The full process from measurements to download typically takes 5 to 10 minutes.
 
-### Simple tier - $9
-Beginner-friendly builds with elastic waists and minimal shaping.
+---
 
-Menswear: Gym Shorts, Swim Trunks, T-Shirt, Oversized Tee, Muscle Tee, Longline Tee, Pocket Tee, Running Shorts, Basketball Shorts, Tank Top, Racerback Tank, Cropped Tank
-Womenswear: Fitted Tee, Scoop Neck Tee, Long Sleeve Fitted Tee, Cropped Tee, Slip Skirt, Circle Skirt, Mini Circle Skirt, Midi Circle Skirt, Pencil Skirt, Easy Pant, Lounge Pant, Leggings, Capri Leggings, Biker Shorts, T-Shirt Dress, Slip Dress, Sundress, Long Sleeve Tee Dress, Maxi Tee Dress, Maxi Slip Dress, Maxi Sundress, Tiered Sundress
-Unisex/Accessories: Apron, Bow Tie, Tote Bag, Market Tote, Beach Tote
+## What Is Included in Every Download
 
-### Core tier - $14
-Everyday wardrobe staples with standard closures and moderate shaping.
+- Tiled PDF formatted for US Letter (8.5 x 11 in) home printing
+- Tiled PDF formatted for A4 international home printing
+- A0 single-sheet file for copy shop printing (FedEx Office, Staples, etc.)
+- Scale verification page with a 2 x 2 inch test square
+- Seam allowances included on all edges (selectable per download)
+- Labeled grain lines, notches, and fold lines
+- Complete construction instructions
 
-Menswear: Cargo Shorts, Straight Jeans, Baggy Jeans, Baggy Shorts (Jorts), Slim Jeans, High-Rise Jeans, Chinos, Slim Chinos, Camp Shirt, Button-Up Shirt, Linen Shirt, Chambray Work Shirt, Vacation Shirt
-Womenswear: A-Line Skirt, Straight Trouser, Wide-Leg Trouser, Cigarette Pants, Linen Wide-Legs, Shell Blouse, Woven Tank
-Unisex: Sweatpants, Tapered Joggers, Crewneck Sweatshirt, Raglan Sweatshirt, Athletic Formal Trousers
+---
 
-### Tailored tier - $19
-Detailed construction with pleats, darts, linings, and precision fit.
+## Pricing
 
-Menswear: Pleated Shorts, Pleated Trousers, Cargo Work Pants, Denim Jacket, Lightweight Denim Jacket, Crop Jacket, Athletic Formal Jacket
-Womenswear: Button-Up Shirt, Poplin Blouse, Linen Tunic, Shirt Dress, Linen Shirt Dress, Wrap Dress, Maxi Wrap Dress, A-Line Dress, Midi A-Line Dress
-Unisex: Hoodie, Zip-Up Hoodie, Oversized Hoodie
+### Single Patterns
+- Simple: $9 — beginner-friendly garments. Elastic waists, minimal shaping, knit-friendly constructions.
+- Core: $14 — wardrobe staples. Standard closures, waistbands, moderate shaping.
+- Tailored: $19 — detailed construction. Pleats, darts, structured linings, set-in sleeves.
 
 ### Bundles
-- 3-Pattern Capsule: $29 (any 3 patterns, mix tiers)
-- 5-Pattern Wardrobe: $49 (any 5 patterns)
-- Beach Day (menswear): $39 - Swim Trunks, Camp Shirt, Cargo Shorts, Tote Bag
-- Weekend Casual (menswear): $34 - Chinos, T-Shirt, Denim Jacket
-- Athleisure (unisex): $34 - Sweatpants, Hoodie, Gym Shorts
-- Tailored Essentials (menswear): $42 - Pleated Trousers, Camp Shirt, Crop Jacket
-- Cozy Weekend (unisex): $25 - Sweatpants, Crewneck Sweatshirt, T-Shirt
-- Summer Capsule (womenswear): $25 - Sundress, Fitted Tee, Tote Bag
-- Office Ready (womenswear): $34 - Straight Trouser, Button-Up Shirt, Pencil Skirt
-- Date Night (womenswear): $29 - Wrap Dress, Crop Jacket
+- 3-Pattern Capsule: $29
+- 5-Pattern Wardrobe: $49
 
 ### Memberships
-- Club: $12/month or $120/year - 1 pattern credit per month
-- Wardrobe: $24/month or $240/year - 3 pattern credits per month
+- Club: $12/month — 1 pattern credit per month
+- Wardrobe: $24/month — 3 pattern credits per month
 
-## What's included with each pattern
+### Free
+- First pattern is free with a free account. No credit card required.
+- Unlimited re-downloads of purchased patterns at no extra charge.
+- Re-generate with updated measurements at no extra charge.
 
-- Print-ready tiled PDF (US Letter and A4 paper sizes)
-- Scale verification page (2x2 inch test square)
-- Numbered tile map showing assembly order
-- Full materials list with fabric type, yardage, and notions
-- Step-by-step construction instructions
-- Seam allowances included on all pieces
-- Grain line arrows, notches, and fold indicators
-- A0/projector file available as an add-on ($4)
+---
 
-## Frequently Asked Questions
+## Pattern Catalog (68 patterns)
 
-### What is a made-to-measure pattern?
-A made-to-measure pattern is drafted to your exact body measurements, not a standard size. You enter your measurements once, and the engine generates a pattern that accounts for your actual waist, hip, inseam, chest, and other dimensions.
+Each entry: Pattern Name — price tier — measurements required.
 
-### How is this different from a regular sewing pattern?
-Most sewing patterns are drafted for a statistical average body in standard sizes. If your measurements don't match that average, you need to make alterations. People's Patterns skips that step entirely. Every pattern is generated fresh from your measurements.
+### Tops
 
-### Is it free to try?
-Yes. Generating and viewing patterns is completely free - no account needed. When you're ready to download a print-ready PDF, create a free account and your first pattern download is on us. No credit card required.
+| Pattern | Tier | Measurements |
+|---|---|---|
+| T-Shirt | simple | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Fitted Tee (W) | simple | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Henley | simple | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Tank Top | simple | chest, shoulder, neck, torsoLength, waistToArmpit |
+| Turtleneck | simple | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Dolman / Batwing Top | simple | bust, neck, torsoLength |
+| Camp Shirt | core | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Polo Shirt | core | chest, shoulder, neck, bicep, torsoLength, waistToArmpit |
+| Shell Blouse (W) | core | chest, shoulder, neck, bicep, torsoLength, waistToArmpit |
+| Button-Up Shirt | core | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Button-Up Shirt (W) | tailored | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
 
-### How accurate is the fit?
-Patterns use parametric drafting formulas - the same math taught in pattern-making courses. For most body proportions, the fit will be very close out of the box. We always recommend cutting a muslin (test garment in cheap fabric) first, which is standard practice even with professionally drafted patterns.
+### Sweatshirts and Hoodies
 
-### What if the pattern doesn't fit?
-Fit issues are usually caused by measurement errors. Update your measurements in your profile and re-download - re-generation is included with every purchase at no extra charge.
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Crewneck Sweatshirt | core | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Open Cardigan / Shacket | core | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Hoodie | tailored | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Scholar Hoodie | tailored | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
 
-### Can I re-download a pattern I already purchased?
-Yes, any time, from your account. Your purchase is permanent and includes unlimited re-downloads.
+### Jackets and Outerwear
 
-### How do I print the pattern?
-Download the tiled PDF, open in Adobe Acrobat Reader (not a browser), print at 100% scale with "Fit to Page" OFF. Each page includes a 2x2 inch test square to verify scale, plus crosshair marks to align pages when taping.
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Chore Coat / Overshirt | core | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Crop Jacket | tailored | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Denim Jacket | tailored | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Moto Jacket | tailored | chest, waist, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
+| Athletic Formal Jacket | tailored | chest, shoulder, neck, sleeveLength, bicep, wrist, torsoLength, waistToArmpit |
 
-### Is there a subscription option?
-Yes. Club ($12/month) includes 1 pattern credit per month. Wardrobe ($24/month) includes 3 credits per month. You can also buy individual patterns without a subscription.
+### Dresses
 
-### Can I use these patterns commercially?
-Personal use is included with every purchase. Commercial licenses start at $49/pattern. Contact hello@peoplespatterns.com.
+| Pattern | Tier | Measurements |
+|---|---|---|
+| T-Shirt Dress (W) | core | chest, shoulder, neck, sleeveLength, bicep, torsoLength, hip, skirtLength, waistToArmpit |
+| Slip Dress (W) | core | chest, waist, hip, neck, torsoLength, skirtLength |
+| Sundress (W) | core | chest, waist, hip, neck, torsoLength, skirtLength |
+| Trapeze Dress | simple | bust, hip, neck, torsoLength, skirtLength |
+| A-Line Dress (W) | tailored | chest, shoulder, neck, bicep, waist, hip, torsoLength, skirtLength, waistToArmpit |
+| Shirt Dress (W) | tailored | chest, shoulder, neck, bicep, waist, hip, torsoLength, skirtLength, waistToArmpit |
+| Wrap Dress (W) | tailored | chest, shoulder, neck, bicep, waist, hip, torsoLength, skirtLength, waistToArmpit |
 
-### Do you have patterns for kids?
-Not yet - kids patterns are on the roadmap. Sign up for the newsletter to be notified.
+### Skirts
 
-## Body measurements used
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Circle Skirt (W) | simple | waist, hip, skirtLength |
+| Maxi Skirt | simple | waist, hip, skirtLength |
+| Pencil Skirt (W) | simple | waist, hip, skirtLength |
+| Slip Skirt (W) | simple | waist, hip, skirtLength |
+| Mini Skirt (W) | simple | waist, hip, skirtLength |
+| A-Line Skirt (W) | core | waist, hip, skirtLength |
 
-The following measurements are used across the pattern catalog:
-- Bust/Chest: fullest part, tape level all around
-- Waist: natural waistline (bend sideways to find the crease)
-- Hip: widest part of hips and seat
-- Rise/Crotch depth: waist to chair seat while sitting
-- Inseam: crotch to floor along inside of leg
-- Shoulder width: shoulder point to shoulder point across back
-- Sleeve length: shoulder point to wrist bone with elbow bent
+### Pants and Shorts (Menswear / Unisex)
 
-Measurements are saved to your profile and used for every future pattern automatically.
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Gym Shorts | simple | waist, hip, rise, thigh, inseam |
+| Lounge Shorts | simple | waist, hip, rise, inseam |
+| Swim Trunks | simple | waist, hip, rise, thigh, inseam |
+| Pajama Pants | simple | waist, hip, rise, inseam |
+| Leggings | simple | waist, hip, rise, thigh, inseam |
+| Baggy Shorts (Jorts) | core | waist, hip, rise, thigh, inseam |
+| Cargo Shorts | core | waist, hip, rise, thigh, inseam |
+| Chinos | core | waist, hip, rise, thigh, inseam |
+| Sweatpants | core | waist, hip, rise, thigh, inseam |
+| Baggy Jeans | core | waist, hip, rise, thigh, inseam |
+| Straight Jeans | core | waist, hip, rise, thigh, inseam |
+| Soloist Jeans | core | waist, hip, rise, thigh, inseam |
+| Wide-Leg Trouser (M) | core | waist, hip, rise, thigh, inseam |
+| Athletic Formal Trousers | core | waist, hip, rise, thigh, inseam |
+| Scholar Sweatpants | tailored | waist, hip, rise, thigh, inseam |
+| Pleated Shorts | tailored | waist, hip, rise, thigh, inseam |
+| 874 Work Pants | core | waist, hip, rise, thigh, inseam |
+| Pleated Trousers | tailored | waist, hip, rise, thigh, inseam |
+| Cargo Work Pants | tailored | waist, hip, rise, thigh, inseam |
 
-## Links
+### Pants and Shorts (Womenswear)
 
-- Homepage: https://peoplespatterns.com
-- Pattern catalog: https://peoplespatterns.com/patterns
-- Pricing: https://peoplespatterns.com/pricing
-- Learn/Blog: https://peoplespatterns.com/learn
-- FAQ: https://peoplespatterns.com/faq
-- About: https://peoplespatterns.com/about
-- Email: hello@peoplespatterns.com
-- Instagram: https://instagram.com/peoplespatterns
-- YouTube: https://youtube.com/@peoplespatterns
-- TikTok: https://tiktok.com/@peoplespatternsofficial
-- Pinterest: https://pinterest.com/peoplespatterns
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Easy Pant (W) | simple | waist, hip, rise, thigh, inseam |
+| Straight Trouser (W) | core | waist, hip, rise, thigh, inseam |
+| Wide-Leg Trouser (W) | core | waist, hip, rise, thigh, inseam |
+
+### Kids
+
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Kids T-Shirt | simple | chest, shoulder, neck, sleeveLength, bicep, torsoLength, waistToArmpit |
+| Kids A-Line Dress | simple | chest, shoulder, neck, waist, hip, torsoLength, fullLength, waistToArmpit |
+| Kids Pull-On Shorts | simple | waist, hip, rise, thigh, inseam |
+| Kids Joggers | simple | waist, hip, rise, thigh, inseam |
+| Kids Leggings | simple | waist, hip, rise, thigh, inseam |
+
+### Accessories
+
+| Pattern | Tier | Measurements |
+|---|---|---|
+| Apron | simple | waist, torsoLength |
+| Bow Tie | simple | neck |
+| Scrunchie | simple | none |
+| Dog Bandana | simple | none |
+| Zippered Pouch | simple | pouchWidth, pouchHeight |
+| Tote Bag | simple | bagWidth, bagHeight, bagDepth, strapWidth, strapLength |
+| Keepall Duffel | intermediate | bagLen, bagHeight, bagDepth |
+| MYOG Chest Rig | standard | chest |
+
+---
+
+## Style Options
+
+Every garment has style options you configure before generating. Common options:
+
+- **Ease / Fit**: slim, regular, relaxed, wide (controls how much ease is added to measurements)
+- **Seam allowance**: 1/2 inch or 5/8 inch, included in pattern
+- **Hem allowance**: 1 inch, 1.5 inch, or 2 inch
+- **Rise style** (pants/shorts): ultra-low, low, mid, high, ultra-high
+- **Sleeve length** (tops): short, three-quarter, long (or exact length in inches)
+- **Neckline** (tops): crew, V-neck, scoop (varies by garment)
+- **Pocket style**: no pockets, side seam, patch, cargo, welt (varies by garment)
+- **Closure**: buttons, zipper, elastic, drawstring (varies by garment)
+- **Length**: custom or preset (short, midi, maxi) for skirts and dresses
+
+---
+
+## Measurements Guide
+
+All measurements are in inches. The pattern engine adds ease on top of your measurements.
+
+| Measurement | Where to Measure |
+|---|---|
+| chest / bust | Fullest part of the chest or bust, tape parallel to floor |
+| waist | Natural waist, narrowest point of the torso |
+| hip | Fullest part of the hips, typically 7 to 9 inches below the waist |
+| shoulder | Across the back from shoulder point to shoulder point |
+| neck | Around the base of the neck where a collar would sit |
+| rise | Sitting on a hard chair, measure from waist down the side seam to the seat |
+| thigh | Around the fullest part of one thigh |
+| inseam | From the crotch to the bottom of the ankle |
+| torso length | From the highest shoulder point to the natural waist |
+| sleeve length | From the shoulder point to the wrist bone |
+| bicep | Around the fullest part of the upper arm |
+| wrist | Around the wrist bone |
+| waist to armpit | From the natural waist up to the armpit crease |
+| skirt length | From the natural waist to desired hem |
+
+Aim for accuracy within 1/4 inch. The engine adds ease; small differences are absorbed.
+
+---
+
+## FAQ
+
+**Is my first pattern really free?**
+Yes. Create a free account, enter your measurements, select any garment, and download your first pattern at no charge. No credit card is required.
+
+**Can I re-download my patterns?**
+Yes. Every purchased pattern is stored in your account with unlimited re-downloads, forever. No time limit and no extra charge.
+
+**Can I regenerate with new measurements?**
+Yes. If your measurements change, update your profile and regenerate any previously purchased pattern at no charge.
+
+**Do I need pattern-making experience?**
+No. The system handles all drafting math. You enter measurements, choose a garment, and receive a ready-to-cut pattern with construction instructions.
+
+**Can I sew for other people?**
+Yes. You can save multiple measurement profiles in your account, one for each person you sew for.
+
+**What printer do I need?**
+Any standard inkjet or laser printer that prints on US Letter or A4 paper.
+
+**How do I verify my pattern printed correctly?**
+Every PDF includes a scale verification page with a 2 x 2 inch test square. Measure it before printing the rest.
+
+**Can I use a copy shop instead of printing at home?**
+Yes. Every download includes an A0 single-sheet file for large-format printing at FedEx Office, Staples, or any print center.
+
+**Do I still need to make alterations?**
+In most cases, no. Because the pattern is drafted from your exact measurements, common alterations are already accounted for. A muslin test garment is still recommended before cutting your good fabric.
+
+**Does it work for plus-size or petite bodies?**
+Yes. The pattern works for any size or proportion because it drafts from your individual measurements, not a size chart.
+
+**Is there a mobile app?**
+No. People's Patterns runs in your web browser. No download or installation required.
+
+**Can I use these patterns commercially?**
+Personal use is included with every purchase. Contact hello@peoplespatterns.com for commercial licensing.
+
+---
+
+## Learn Articles
+
+All articles available at https://peoplespatterns.com/learn/[slug]
+
+### Getting Started
+- how-to-measure-yourself — How to Measure Yourself for Sewing Patterns: A Complete Guide
+- body-measurements-5-minutes — How to Take Accurate Body Measurements in 5 Minutes
+- how-peoples-patterns-works — How People's Patterns Works: Custom Sewing Patterns From Your Measurements
+- what-is-made-to-measure-pattern — What Is a Made-to-Measure Sewing Pattern and Why It's Better Than Standard Sizes
+- how-to-print-tiled-pdf-pattern — How to Print and Assemble a Tiled PDF Sewing Pattern at Home
+- beginner-printing-tiled-pdf — Beginner's Guide to Printing and Assembling Tiled PDF Sewing Patterns at Home
+- custom-pattern-generator-walkthrough — How to Use a Custom Sewing Pattern Generator (Step-by-Step Walkthrough)
+- first-time-sewing-free-pattern — First Time Sewing Your Own Clothes? Start Here With a Free Custom Pattern
+- choose-first-custom-pattern — How to Choose Your First Custom Sewing Pattern (T-Shirt, Shorts, or Dress)
+- understanding-ease-made-to-measure — Understanding Ease in Made-to-Measure Patterns (and Why It Matters)
+- save-reuse-body-measurements — How to Save and Reuse Your Body Measurements Profile
+- easiest-beginner-sewing-projects — The Easiest Beginner Sewing Projects for Custom Fit Patterns
+- switch-inches-centimeters — How to Switch Between Inches and Centimeters in Your Pattern Tool
+
+### Fit
+- why-pants-never-fit-made-to-measure — Why Your Pants Never Fit (and How Made-to-Measure Fixes Rise, Thighs and Hips)
+- full-bust-adjustment-custom-patterns — Full Bust Adjustment? Skip It. Here's How Custom Patterns Solve It Automatically
+- common-fit-problems-custom-drafting — Common Fit Problems in Standard Patterns and Exact Fixes With Custom Drafting
+- fix-gaping-armholes-made-to-measure — How to Fix Gaping Armholes With Made-to-Measure Sewing Patterns
+- swayback-adjustment-custom-patterns — Swayback Adjustment? Not Needed When Your Pattern Is Drafted to Your Measurements
+- custom-patterns-eliminate-alterations — Why Custom Patterns Eliminate the Need for 90% of Pattern Alterations
+- troubleshoot-fit-before-cutting — How to Troubleshoot Fit Issues Before You Cut Fabric
+- plus-size-sewing-custom-patterns — Plus Size Sewing: Why Standard Patterns Fail and Custom Ones Win
+- short-tall-auto-length-adjustment — Short or Tall? How Made-to-Measure Automatically Adjusts Lengths
+- athletic-builds-custom-patterns — Athletic Builds: Why Off-the-Rack Never Fits and Custom Patterns Do
+- kibbe-body-types-proportion-guide-sewers — Kibbe Body Types Explained: A Proportion Guide for Sewers
+
+### Fabric
+- fabric-yardage-calculator — How Much Fabric Do You Actually Need? Custom Yardage Calculator Explained
+- best-fabrics-beginners-pdf-patterns — Best Fabrics for Beginners Using Made-to-Measure PDF Patterns
+- stretch-vs-woven-custom-pattern — Stretch vs Woven: Which Fabric Works Best With Your Custom Pattern
+- pick-right-fabric-dress-pants — How to Pick the Right Fabric for Your First Custom Dress or Pants
+- pre-washing-fabric-custom-patterns — Pre-Washing Fabric: Do You Really Need To? (Custom Pattern Edition)
+- sustainable-fabric-made-to-measure — Sustainable Fabric Choices That Pair With Made-to-Measure Sewing
+- grainline-fabric-direction-custom-fit — How Grainline and Fabric Direction Affect Your Custom Fit
+- affiliate-fabric-picks — Affiliate Fabric Picks That Work Perfectly With People's Patterns
+
+### Garment Guides
+- sew-custom-tshirts-shoulder-fit — How to Sew Perfect Custom T-Shirts That Actually Fit Your Shoulders
+- cargo-shorts-custom-fit-guide — Cargo Shorts Sewing Guide: Custom Fit for Every Body Type
+- wide-leg-trouser-made-to-measure — Wide-Leg Trouser Tutorial With Made-to-Measure PDF Pattern
+- wrap-dress-custom-fit — Wrap Dress That Fits Like It Was Tailored to You
+- custom-jeans-rise-fit — Custom Jeans: Why Rise Is the Number 1 Reason Standard Patterns Fail
+- a-line-skirt-every-shape — A-Line Skirt That Flatters Every Shape (Zero Alterations Needed)
+
+### Comparisons
+- peoples-patterns-vs-ditto-patterns — People's Patterns vs Ditto Patterns
+- peoples-patterns-vs-apostrophe-patterns — People's Patterns vs Apostrophe Patterns
+- peoples-patterns-vs-freesewing — People's Patterns vs FreeSewing: Is Free Really Better?
+- peoples-patterns-vs-lekala — People's Patterns vs Lekala: Which Custom Pattern Is Better?
+- peoples-patterns-vs-bootstrap-fashion — People's Patterns vs Bootstrap Fashion
+- peoples-patterns-vs-sewist-cad — People's Patterns vs Sewist CAD
+- peoples-patterns-vs-big-4-patterns — Custom Patterns vs Big 4 Patterns: Why Sizing Falls Short
+- made-to-measure-vs-ready-to-wear — Made-to-Measure Sewing Patterns vs Ready-to-Wear Clothing
+- peoples-patterns-vs-indie-pdf-patterns — Made-to-Measure vs Indie PDF Patterns
+- pattern-projector-vs-pdf-patterns — Sewing Pattern Projectors vs PDF Patterns
+- custom-patterns-vs-pattern-alterations — Custom Patterns vs Traditional Alterations
+- custom-patterns-vs-professional-tailor — DIY Custom Patterns vs Professional Tailors: Cost Breakdown
+- peoples-patterns-vs-3d-sewing-tools — People's Patterns vs 3D Virtual Try-On Sewing Tools
+- best-made-to-measure-sewing-patterns — Best Made-to-Measure Sewing Patterns: Full Comparison
+- why-we-built-peoples-patterns — Why We Built People's Patterns Differently
+- peoples-patterns-vs-tailornova — People's Patterns vs Tailornova
+- peoples-patterns-vs-patternlab-london — People's Patterns vs PatternLab London: Blocks vs Finished Patterns
+
+---
+
+## Site Pages
+
+- https://peoplespatterns.com — Home
+- https://peoplespatterns.com/patterns — Full pattern catalog
+- https://peoplespatterns.com/patterns/[id] — Individual pattern page (use IDs from catalog above)
+- https://peoplespatterns.com/learn — Learn hub
+- https://peoplespatterns.com/learn/[slug] — Individual article (use slugs from articles above)
+- https://peoplespatterns.com/pricing — Pricing
+- https://peoplespatterns.com/faq — Frequently asked questions
+- https://peoplespatterns.com/about — About People's Patterns
+- https://peoplespatterns.com/terms — Terms of service
+- https://peoplespatterns.com/privacy — Privacy policy
+
+---
+
+## Technical Notes
+
+- Runs entirely in the browser. No software to download or install.
+- Patterns generate client-side using parametric drafting math.
+- All measurements in inches internally; UI supports inches or centimeters.
+- Seam allowances computed per edge by the engine and added to the PDF download.
+- Tiled PDFs include alignment marks, page numbers, and assembly instructions.
+- A0 single-sheet format included in every download for copy shop printing.
