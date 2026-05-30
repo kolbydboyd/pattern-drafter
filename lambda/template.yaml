@@ -6,7 +6,7 @@ Globals:
   Function:
     Runtime: nodejs22.x
     Architectures: [x86_64]
-    CodeUri: ./
+    CodeUri: ../
     Environment:
       Variables:
         NODE_OPTIONS: --experimental-vm-modules
@@ -17,7 +17,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: peoples-patterns-generate
-      Handler: generate-pattern.handler
+      Handler: lambda/generate-pattern.handler
       MemorySize: 1024
       Timeout: 60
       Description: "Post-purchase PDF generation with Chromium"
@@ -43,7 +43,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: peoples-patterns-regenerate
-      Handler: regenerate-pattern.handler
+      Handler: lambda/regenerate-pattern.handler
       MemorySize: 1024
       Timeout: 60
       Description: "Free re-generation for existing purchase owners"
