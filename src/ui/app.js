@@ -1844,6 +1844,7 @@ async function handleDownloadInstructions(btn) {
     let json;
     try { json = await res.json(); } catch { throw new Error(`Server error ${res.status}`); }
     if (!res.ok || json.error) { alert('Could not generate PDF: ' + (json.error ?? res.statusText)); return; }
+    if (!json.downloadUrl) { alert('Could not generate PDF: ' + (json.errorMessage ?? 'No download URL returned. Please try again.')); return; }
     const isMobile = /Mobi|Android|iPhone|iPad|IEMobile/i.test(navigator.userAgent);
     if (isMobile) {
       window.open(json.downloadUrl, '_blank');
@@ -1953,6 +1954,11 @@ async function handleDownloadPDF(btn) {
     if (!res.ok || json.error) {
       if (mobileWin && !mobileWin.closed) mobileWin.close();
       alert('Could not generate PDF: ' + (json.error ?? res.statusText));
+      return;
+    }
+    if (!json.downloadUrl) {
+      if (mobileWin && !mobileWin.closed) mobileWin.close();
+      alert('Could not generate PDF: ' + (json.errorMessage ?? 'No download URL returned. Please try again.'));
       return;
     }
 
