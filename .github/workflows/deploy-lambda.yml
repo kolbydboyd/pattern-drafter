@@ -19,10 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-
-      - name: Install production dependencies
-        run: npm ci --omit=dev
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,7 +30,18 @@ jobs:
         run: |
           set -e
 
-          zip -r /tmp/lambda-package.zip lambda/ src/ node_modules/
+          # Build a minimal package: Lambda handlers + only the src/ subdirs
+          # they import + only the 6 deps listed in lambda/package.json.
+          # This avoids bundling html-pdf-node/posthog/vite and their huge
+          # transitive deps (including a full Chromium binary) that push the
+          # unzipped package over Lambda's 250 MB limit.
+          mkdir -p /tmp/lambda-deploy/src
+          cp -r lambda /tmp/lambda-deploy/
+          cp -r src/garments src/engine src/pdf src/lib /tmp/lambda-deploy/src/
+          cp lambda/package.json /tmp/lambda-deploy/package.json
+          cd /tmp/lambda-deploy && npm install --omit=dev
+          zip -r /tmp/lambda-package.zip .
+          cd -
 
           ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
           BUCKET="peoples-patterns-deploy-${ACCOUNT}"
