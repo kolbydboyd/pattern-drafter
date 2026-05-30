@@ -6,6 +6,7 @@
   "dependencies": {
     "@sparticuz/chromium-min": "^143.0.4",
     "@supabase/supabase-js": "^2.100.1",
+    "clipper2-ts": "^2.0.1-15",
     "puppeteer-core": "^24.40.0",
     "resend": "^6.9.4",
     "stripe": "^21.0.1"
