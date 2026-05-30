@@ -23,7 +23,7 @@ export default {
 
   // ── Landing hero ─────────────────────────────────────────────────────────────
   'hero.h1':              'Sewing patterns that actually fit your body',
-  'hero.sub':             'Enter 5 measurements. Get a custom PDF pattern drafted just for you in seconds. No size charts. No alterations. Start sewing today.',
+  'hero.sub':             'Enter 5 measurements. Get a custom PDF pattern drafted just for you <strong>in seconds</strong>. <strong>No size charts.</strong> <strong>No alterations.</strong> Start sewing today.',
   'hero.sub-strong1':     'in seconds',
   'hero.sub-strong2':     'No size charts.',
   'hero.sub-strong3':     'No alterations.',
@@ -76,8 +76,8 @@ export default {
   // ── Benefits ─────────────────────────────────────────────────────────────────
   'benefits.h2':          "Why sewists choose People’s Patterns",
   'benefits.1':           'Built from your real measurements, not a generic size chart',
-  'benefits.2':           'True custom fit on the first try for any body',
-  'benefits.3':           'Instant delivery. Ready in seconds',
+  'benefits.2':           'True custom fit on the <strong>first try</strong> for any body',
+  'benefits.3':           'Instant delivery. Ready <strong>in seconds</strong>',
   'benefits.4':           'Beginner-friendly instructions and material lists included',
   'benefits.5':           'Works with any fabric you already own',
   'benefits.6':           'No more wasted time or fabric on alterations',
