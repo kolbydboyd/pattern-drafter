@@ -1407,6 +1407,27 @@ function buildTilePages(piece, pieceIdx, totalPieces, PW, PH, OV, rowNested = []
 // ── Nested small-piece packer (large format only) ──────────────────────────
 
 /**
+ * Try to place a piece (nw0 × nh0) at the current shelf position, trying
+ * normal then 90° CW rotation. Returns { canPlace, nw, nh, rotated } where
+ * canPlace=true means it fits right here, canPlace=false means it fits on the
+ * next shelf (caller should advance shelfY), or null if it doesn't fit at all.
+ */
+function pickOrientation(nw0, nh0, shelfX, shelfY, shelfH, availW, availH, gap) {
+  function tryFit(nw, nh, rotated) {
+    if (shelfX + nw <= availW && shelfY + Math.max(shelfH, nh) <= availH)
+      return { canPlace: true, nw, nh, rotated };
+    if (nw <= availW && shelfY + shelfH + gap + nh <= availH)
+      return { canPlace: false, nw, nh, rotated };
+    return null;
+  }
+  const normal = tryFit(nw0, nh0, false);
+  const rotate = tryFit(nh0, nw0, true);
+  if (normal?.canPlace) return normal;
+  if (rotate?.canPlace) return rotate;
+  return normal ?? rotate ?? null;
+}
+
+/**
  * Pack single-tile pieces onto shared A0 sheets using shelf packing.
  * Pieces are placed left-to-right; a new shelf starts when the row fills;
  * a new sheet starts when the page fills.
