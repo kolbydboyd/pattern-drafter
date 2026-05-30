@@ -1897,7 +1897,7 @@ async function handlePrint(btn) {
   printPattern(win).catch(err => {
     console.error('Print layout failed:', err);
     if (!win.closed) win.close();
-    alert('Could not open print layout. Please try again.');
+    alert('Could not open print layout: ' + (err?.message || err));
   });
 }
 

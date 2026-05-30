@@ -7,6 +7,9 @@ All notable changes are documented here, newest first.
 ## [Unreleased]
 
 ### Fixed
+- **Print layout error now shows the actual error message** — instead of the generic "Please try again." text, the alert now surfaces the underlying JS error message so users can report exactly what failed.
+
+### Fixed
 - **Instructions PDF download "Could not verify purchase" error** — Both purchase-lookup queries in the Lambda used `.maybeSingle()` without `.limit(1)`. If a user (or admin) had more than one purchase row for the same garment (possible from testing or duplicate webhook events), Supabase returned "JSON object requested, multiple (or no) rows returned" and the Lambda rejected the request. Fixed by adding `.order('purchased_at', { ascending: false }).limit(1)` before `.maybeSingle()` in both the Stripe-session branch and the re-download branch, so the most recent purchase is always used. Also added a null/error guard on the signed-URL creation step in the instructions-only path.
 
 ### Fixed
