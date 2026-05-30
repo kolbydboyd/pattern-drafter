@@ -32,7 +32,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-region: us-east-1
 
       - name: Build
         run: sam build --template lambda/template.yaml
@@ -43,6 +43,6 @@ jobs:
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --stack-name peoples-patterns \
-            --region ${{ vars.AWS_REGION }} \
+            --region us-east-1 \
             --capabilities CAPABILITY_IAM \
             --resolve-s3
