@@ -2891,6 +2891,8 @@ _localeReady.then(() => {
   const viewAll = document.querySelector('.lp-featured-grid + p a');
   if (viewAll) viewAll.textContent = t('featured.view-all', { count: _cnt });
 
+  loadNewestCarousel();
+
   const langSlot = document.getElementById('hdr-lang-slot');
   if (langSlot) initLangSwitcher(langSlot);
 });
@@ -3008,7 +3010,7 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
 });
 
 // Newest patterns marquee on landing page - infinite continuous scroll
-(function loadNewestCarousel() {
+function loadNewestCarousel() {
   const track = document.getElementById('lp-newest-track');
   if (!track) return;
   const ids = getNewestGarmentIds(GARMENTS, 15);
@@ -3016,7 +3018,6 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
     track.closest('.lp-newest')?.remove();
     return;
   }
-  const diffLabel = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
   function makeCard(id, isClone) {
     const g = GARMENTS[id];
     const diff = g.difficulty || 'intermediate';
@@ -3032,8 +3033,8 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
     card.innerHTML = `
       <img src="/garment-illustrations/${id}.svg" alt="${g.name}" width="120" height="150" loading="lazy">
       <span class="lp-featured-name">${g.name}</span>
-      <span class="lp-featured-meta"><span class="lp-featured-diff diff-${diff}">${diffLabel[diff] || diff}</span> ${priceText}</span>
-      <span class="lp-featured-btn">Generate This Pattern</span>
+      <span class="lp-featured-meta"><span class="lp-featured-diff diff-${diff}">${t(`diff.${diff}`) || diff}</span> ${priceText}</span>
+      <span class="lp-featured-btn">${t('featured.btn')}</span>
     `;
     return card;
   }
@@ -3046,7 +3047,7 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
   // Hide arrow buttons - marquee scrolls continuously on its own.
   document.querySelector('.lp-newest-prev')?.setAttribute('hidden', '');
   document.querySelector('.lp-newest-next')?.setAttribute('hidden', '');
-})();
+}
 
 // Load hidden garment IDs — re-render step 1 if already visible
 (async function loadHiddenGarments() {

@@ -26,19 +26,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="pg pg-scrollable">
-<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
+<div id="promo-banner" class="promo-banner" style="display:none"><span data-i18n="promo.text">Your first pattern is free. No card needed.</span> <a href="/?step=1" data-i18n="promo.cta">Get Started →</a></div>
 
 <header class="hdr"><h1 id="hdr-logo"><a href="/" style="text-decoration:none;color:inherit;">People's Patterns</a></h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
-    <a href="/patterns">Patterns</a>
-    <a href="/learn">Learn</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/faq">FAQ</a>
-    <a href="/tester">Tester</a>
+    <a href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a href="/learn" data-i18n="nav.learn">Learn</a>
+    <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a href="/about" data-i18n="nav.about">About</a>
+    <a href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a href="/tester" data-i18n="nav.tester">Tester</a>
   </nav>
   <div id="hdr-lang-slot"></div>
-  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode" data-i18n-attr="aria-label:nav.toggle-dark">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
       <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
       <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
@@ -46,17 +46,17 @@
       <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
     </svg>
   </button>
-  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <button id="hdr-menu-btn" aria-label="Open menu" data-i18n-attr="aria-label:nav.open-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <nav id="hdr-nav-mobile">
   <div id="hdr-nav-m-auth-wrap"></div>
   <div class="hdr-nav-m-links">
-    <a class="hdr-nav-m-link" href="/">Home</a>
-    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
-    <a class="hdr-nav-m-link" href="/learn">Learn</a>
-    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
-    <a class="hdr-nav-m-link" href="/about">About</a>
-    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
-    <a class="hdr-nav-m-link" href="/tester">Tester</a>
+    <a class="hdr-nav-m-link" href="/" data-i18n="nav.home">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn" data-i18n="nav.learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about" data-i18n="nav.about">About</a>
+    <a class="hdr-nav-m-link" href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester" data-i18n="nav.tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -68,85 +68,78 @@
 
   <!-- Hero -->
   <section class="tester-hero">
-    <h1 class="tester-hero-title">Pattern Tester Program</h1>
-    <p class="tester-hero-sub">Get free patterns. Sew them. Tell us how they fit. Get featured.</p>
+    <h1 class="tester-hero-title" data-i18n="tester.h1">Pattern Tester Program</h1>
+    <p class="tester-hero-sub" data-i18n="tester.hero-sub">Get free patterns. Sew them. Tell us how they fit. Get featured.</p>
   </section>
 
   <!-- How it works -->
   <section class="tester-section">
-    <h2 class="tester-section-title">How It Works</h2>
+    <h2 class="tester-section-title" data-i18n="tester.how.h2">How It Works</h2>
     <div class="tester-steps">
       <div class="tester-step">
         <span class="tester-step-num">01</span>
-        <h3 class="tester-step-title">Apply</h3>
-        <p class="tester-step-desc">Tell us about your sewing experience and what machines you have. Takes 2 minutes.</p>
+        <h3 class="tester-step-title" data-i18n="tester.step1.title">Apply</h3>
+        <p class="tester-step-desc" data-i18n="tester.step1.desc">Tell us about your sewing experience and what machines you have. Takes 2 minutes.</p>
       </div>
       <div class="tester-step">
         <span class="tester-step-num">02</span>
-        <h3 class="tester-step-title">Get Approved</h3>
-        <p class="tester-step-desc">We review applications weekly. Approved testers get full catalog access and a garment assignment.</p>
+        <h3 class="tester-step-title" data-i18n="tester.step2.title">Get Approved</h3>
+        <p class="tester-step-desc" data-i18n="tester.step2.desc">We review applications weekly. Approved testers get full catalog access and a garment assignment.</p>
       </div>
       <div class="tester-step">
         <span class="tester-step-num">03</span>
-        <h3 class="tester-step-title">Sew a Muslin</h3>
-        <p class="tester-step-desc">Generate your pattern, print it, and sew a test garment. Cheap fabric, no finishing needed.</p>
+        <h3 class="tester-step-title" data-i18n="tester.step3.title">Sew a Muslin</h3>
+        <p class="tester-step-desc" data-i18n="tester.step3.desc">Generate your pattern, print it, and sew a test garment. Cheap fabric, no finishing needed.</p>
       </div>
       <div class="tester-step">
         <span class="tester-step-num">04</span>
-        <h3 class="tester-step-title">Submit Feedback</h3>
-        <p class="tester-step-desc">Rate the fit, flag problem areas, and upload photos. Your feedback directly improves the pattern.</p>
+        <h3 class="tester-step-title" data-i18n="tester.step4.title">Submit Feedback</h3>
+        <p class="tester-step-desc" data-i18n="tester.step4.desc">Rate the fit, flag problem areas, and upload photos. Your feedback directly improves the pattern.</p>
       </div>
       <div class="tester-step">
         <span class="tester-step-num">05</span>
-        <h3 class="tester-step-title">Get Featured</h3>
-        <p class="tester-step-desc">Opt in and your photos appear in our gallery + social channels. Tag us and we share your makes.</p>
+        <h3 class="tester-step-title" data-i18n="tester.step5.title">Get Featured</h3>
+        <p class="tester-step-desc" data-i18n="tester.step5.desc">Opt in and your photos appear in our gallery + social channels. Tag us and we share your makes.</p>
       </div>
     </div>
   </section>
 
   <!-- What testers get -->
   <section class="tester-section">
-    <h2 class="tester-section-title">What Testers Get</h2>
+    <h2 class="tester-section-title" data-i18n="tester.perks.h2">What Testers Get</h2>
     <div class="tester-perks">
       <div class="tester-perk">
-        <span class="tester-perk-icon">&#128220;</span>
-        <strong>Full catalog access</strong> to every pattern while you are active, including unreleased garments
+        <span class="tester-perk-icon">&#128220;</span><span data-i18n-html="tester.perk1"><strong>Full catalog access</strong> to every pattern while you are active, including unreleased garments</span>
       </div>
       <div class="tester-perk">
-        <span class="tester-perk-icon">&#128176;</span>
-        <strong>$30 per completed test</strong> paid on delivery of your muslin, fit feedback, and photos
+        <span class="tester-perk-icon">&#128176;</span><span data-i18n-html="tester.perk2"><strong>$30 per completed test</strong> paid on delivery of your muslin, fit feedback, and photos</span>
       </div>
       <div class="tester-perk">
-        <span class="tester-perk-icon">&#9733;</span>
-        <strong>Featured on the site</strong> in the tester gallery
+        <span class="tester-perk-icon">&#9733;</span><span data-i18n-html="tester.perk3"><strong>Featured on the site</strong> in the tester gallery</span>
       </div>
       <div class="tester-perk">
-        <span class="tester-perk-icon">&#128247;</span>
-        <strong>Social media features</strong> on our Instagram, TikTok, and Pinterest
+        <span class="tester-perk-icon">&#128247;</span><span data-i18n-html="tester.perk4"><strong>Social media features</strong> on our Instagram, TikTok, and Pinterest</span>
       </div>
       <div class="tester-perk">
-        <span class="tester-perk-icon">&#128172;</span>
-        <strong>Direct input</strong> into pattern improvements
+        <span class="tester-perk-icon">&#128172;</span><span data-i18n-html="tester.perk5"><strong>Direct input</strong> into pattern improvements</span>
       </div>
     </div>
   </section>
 
   <!-- Application form (shows only for logged-in users without an active application) -->
   <section class="tester-section" id="tester-apply-section">
-    <h2 class="tester-section-title" id="apply">Apply Now</h2>
+    <h2 class="tester-section-title" id="apply" data-i18n="tester.apply.h2">Apply Now</h2>
     <div id="tester-apply-container">
       <!-- Rendered by tester-page.js -->
-      <p class="tester-login-prompt">
-        <a href="/?signup=1" class="tester-link">Sign in or create an account</a> to apply.
-      </p>
+      <p class="tester-login-prompt" data-i18n-html="tester.login"><a href="/?signup=1" class="tester-link">Sign in or create an account</a> to apply.</p>
     </div>
   </section>
 
   <!-- Featured gallery -->
   <section class="tester-section" id="gallery">
-    <h2 class="tester-section-title">Tester Gallery</h2>
+    <h2 class="tester-section-title" data-i18n="tester.gallery.h2">Tester Gallery</h2>
     <div id="tester-gallery-container">
-      <p class="tester-empty">Featured tester makes will appear here once submissions start rolling in.</p>
+      <p class="tester-empty" data-i18n="tester.gallery.empty">Featured tester makes will appear here once submissions start rolling in.</p>
     </div>
   </section>
 

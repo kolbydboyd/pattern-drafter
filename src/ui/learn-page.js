@@ -5,12 +5,13 @@ import '../analytics.js';
 import { ARTICLES as STATIC_ARTICLES } from '../content/articles.js';
 import { supabase } from '../lib/supabase.js';
 import GARMENTS from '../garments/index.js';
-import { initLocale, loadLocale } from '../lib/i18n.js';
+import { initLocale, loadLocale, t } from '../lib/i18n.js';
 
 // Shared page functionality (theme, hamburger, logo, auth, analytics inject)
 import './page.js';
 
 const _learnLocale = initLocale();
+const _localeReady = loadLocale(_learnLocale);
 
 async function loadLocaleArticles(locale) {
   if (locale === 'en') return STATIC_ARTICLES;
@@ -64,7 +65,7 @@ async function loadArticles() {
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
-loadArticles().then(ARTICLES => {
+Promise.all([loadArticles(), _localeReady]).then(([ARTICLES]) => {
   const TODAY = new Date().toISOString().slice(0, 10);
   const isPublished = (a) => !a.datePublished || a.datePublished <= TODAY;
   const PUBLISHED = ARTICLES.filter(isPublished);
@@ -87,7 +88,7 @@ function renderListing(PUBLISHED, root) {
   // Build category pills
   const cats = [...new Set(PUBLISHED.map(a => a.category))];
   const pills = ['all', ...cats].map(c => {
-    const label = c === 'all' ? 'All' : (CATEGORY_LABELS[c] || c);
+    const label = c === 'all' ? t('learn.cat.all') : (CATEGORY_LABELS[c] || c);
     return `<button class="learn-pill${c === 'all' ? ' learn-pill-active' : ''}" data-cat="${c}">${label}</button>`;
   }).join('');
 
@@ -97,23 +98,23 @@ function renderListing(PUBLISHED, root) {
         <span class="learn-card-cat">${CATEGORY_LABELS[a.category] || a.category}</span>
         <h2 class="learn-card-title">${a.title}</h2>
         <p class="learn-card-desc">${a.description}</p>
-        ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(t => `<span class="learn-tag">${t}</span>`).join('')}</div>` : ''}
-        <span class="learn-card-read">Read article &rarr;</span>
+        ${a.tags?.length ? `<div class="learn-card-tags">${a.tags.map(tag => `<span class="learn-tag">${tag}</span>`).join('')}</div>` : ''}
+        <span class="learn-card-read">${t('learn.read-article')}</span>
       </a>`).join('');
   }
 
   root.innerHTML = `
     <div class="learn-wrap">
-      <h1 class="learn-index-title">Learn</h1>
-      <p class="learn-index-sub">Guides for measuring, printing, and sewing custom-fit patterns.</p>
+      <h1 class="learn-index-title">${t('learn.title')}</h1>
+      <p class="learn-index-sub">${t('learn.index-sub')}</p>
       <div class="learn-filters">
-        <input type="text" class="learn-search" id="learn-search" placeholder="Search articles..." autocomplete="off">
+        <input type="text" class="learn-search" id="learn-search" placeholder="${t('learn.search.placeholder')}" autocomplete="off">
         <div class="learn-pills">${pills}</div>
       </div>
       <div class="learn-grid" id="learn-grid">${renderCards(PUBLISHED)}</div>
       <div class="learn-cta">
-        <h2 class="learn-cta-title">Ready to generate your pattern?</h2>
-        <a href="/?step=1" class="btn-primary">Browse Patterns</a>
+        <h2 class="learn-cta-title">${t('learn.cta.h2')}</h2>
+        <a href="/?step=1" class="btn-primary">${t('learn.cta.btn')}</a>
       </div>
     </div>`;
 
@@ -127,10 +128,10 @@ function renderListing(PUBLISHED, root) {
     const filtered = PUBLISHED.filter(a => {
       if (activeCat !== 'all' && a.category !== activeCat) return false;
       if (q && !a.title.toLowerCase().includes(q) && !a.description.toLowerCase().includes(q) &&
-          !(a.tags || []).some(t => t.toLowerCase().includes(q))) return false;
+          !(a.tags || []).some(tag => tag.toLowerCase().includes(q))) return false;
       return true;
     });
-    grid.innerHTML = renderCards(filtered) || '<p style="color:var(--mid);padding:24px;text-align:center">No articles match your search.</p>';
+    grid.innerHTML = renderCards(filtered) || `<p style="color:var(--mid);padding:24px;text-align:center">${t('learn.no-results')}</p>`;
   }
 
   root.querySelectorAll('.learn-pill').forEach(btn => {
@@ -215,7 +216,7 @@ function renderArticle(slug, ARTICLES, PUBLISHED, root) {
 
   const relatedHtml = related.length ? `
     <div class="learn-related">
-      <h3 class="learn-related-title">Related articles</h3>
+      <h3 class="learn-related-title">${t('learn.article.related')}</h3>
       ${related.map(r => `<a href="/learn/${r.slug}" class="learn-related-link">${r.title} →</a>`).join('')}
     </div>` : '';
 
@@ -235,11 +236,11 @@ function renderArticle(slug, ARTICLES, PUBLISHED, root) {
     <div class="learn-wrap learn-article-wrap">
       <nav class="pat-pg-breadcrumb">
         <a href="/">Home</a><span>/</span>
-        <a href="/learn">Learn</a><span>/</span>
+        <a href="/learn">${t('learn.article.breadcrumb')}</a><span>/</span>
         <span>${article.title}</span>
       </nav>
 
-      <div class="learn-founder-badge">Written by the founder who sews every pattern</div>
+      <div class="learn-founder-badge">${t('learn.article.written-by')}</div>
       <span class="learn-card-cat">${CATEGORY_LABELS[article.category] || article.category}</span>
       <h1 class="learn-article-title">${article.title}</h1>
 
@@ -250,9 +251,9 @@ function renderArticle(slug, ARTICLES, PUBLISHED, root) {
       ${relatedHtml}
 
       <div class="learn-cta learn-cta-article">
-        <h2 class="learn-cta-title">Put it into practice</h2>
-        <p class="learn-cta-sub">Generate a custom-fit sewing pattern in minutes.</p>
-        <a href="/?step=1" class="btn-primary">Browse Patterns</a>
+        <h2 class="learn-cta-title">${t('learn.article.cta.h2')}</h2>
+        <p class="learn-cta-sub">${t('learn.article.cta.sub')}</p>
+        <a href="/?step=1" class="btn-primary">${t('learn.article.cta.btn')}</a>
       </div>
     </div>`;
 }
