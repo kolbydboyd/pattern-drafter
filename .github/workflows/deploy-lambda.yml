@@ -46,25 +46,24 @@ jobs:
             --function-name peoples-patterns-generate \
             --s3-bucket "$BUCKET" \
             --s3-key lambda-package.zip
-          aws lambda wait function-updated --function-name peoples-patterns-generate
+          sleep 20
           aws lambda update-function-configuration \
             --function-name peoples-patterns-generate \
             --handler lambda/generate-pattern.handler \
             --runtime nodejs22.x \
             --memory-size 1024 \
             --timeout 60
-          aws lambda wait function-updated --function-name peoples-patterns-generate
+          sleep 20
 
           # Update RegeneratePattern
           aws lambda update-function-code \
             --function-name peoples-patterns-regenerate \
             --s3-bucket "$BUCKET" \
             --s3-key lambda-package.zip
-          aws lambda wait function-updated --function-name peoples-patterns-regenerate
+          sleep 20
           aws lambda update-function-configuration \
             --function-name peoples-patterns-regenerate \
             --handler lambda/regenerate-pattern.handler \
             --runtime nodejs22.x \
             --memory-size 1024 \
             --timeout 60
-          aws lambda wait function-updated --function-name peoples-patterns-regenerate
