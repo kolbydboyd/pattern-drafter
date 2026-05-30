@@ -1826,34 +1826,48 @@ async function handleDownloadInstructions(btn) {
     openAuthModal('download', () => handleDownloadInstructions(btn));
     return;
   }
+  // Open window synchronously while still in the user-gesture context (iOS Safari).
+  const win = window.open('', '_blank');
+  if (!win) { alert('Allow pop-ups to open the instructions.'); return; }
   if (!_currentPurchased) {
     await _applyWatermarkState(currentGarment);
-    if (!_currentPurchased) return;
+    if (!_currentPurchased) { win.close(); return; }
   }
   const origText  = btn.textContent;
   btn.disabled    = true;
   btn.textContent = 'Generating…';
   try {
-    const { session } = await getSession();
+    const g = GARMENTS[currentGarment];
     const { m, opts } = readInputs();
-    const res = await fetch('/api/generate-pattern', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-      body:    JSON.stringify({ garmentId: currentGarment, measurements: m, opts, section: 'instructions', locale: getLocale() }),
-    });
-    let json;
-    try { json = await res.json(); } catch { throw new Error(`Server error ${res.status}`); }
-    if (!res.ok || json.error) { alert('Could not generate PDF: ' + (json.error ?? res.statusText)); return; }
-    if (!json.downloadUrl) { alert('Could not generate PDF: ' + (json.errorMessage ?? 'No download URL returned. Please try again.')); return; }
+    const pieces = g.pieces(m, opts);
+    for (const p of pieces) {
+      if (p.polygon) {
+        const orig = p.polygon;
+        p.polygon = sanitizePoly(orig);
+        if (p.edgeAllowances && p.polygon.length !== orig.length) p.edgeAllowances = null;
+      }
+      if (p.saPolygon) p.saPolygon = sanitizePoly(p.saPolygon);
+    }
+    const materials    = g.materials(m, opts);
+    const instructions = g.instructions(m, opts);
+    const { generatePrintLayout } = await import('../pdf/print-layout.js');
+    const html = generatePrintLayout(g, pieces, materials, instructions, m, opts, 'letter', getLocale(), 'instructions');
     const isMobile = /Mobi|Android|iPhone|iPad|IEMobile/i.test(navigator.userAgent);
-    if (isMobile) {
-      window.open(json.downloadUrl, '_blank');
+    if (!isMobile) {
+      const blob = new Blob([html], { type: 'text/html' });
+      const url  = URL.createObjectURL(blob);
+      win.location.href = url;
+      win.addEventListener('load', () => { win.print(); URL.revokeObjectURL(url); });
     } else {
-      await _blobDownload(json.downloadUrl, `${currentGarment}-instructions.pdf`);
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.addEventListener('load', () => win.print());
     }
   } catch (err) {
-    console.error('Instructions download failed:', err);
-    alert('Download failed. Please try again.');
+    console.error('Instructions open failed:', err);
+    if (!win.closed) win.close();
+    alert('Could not open instructions. Please try again.');
   } finally {
     btn.disabled    = false;
     btn.textContent = origText;
