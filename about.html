@@ -47,18 +47,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="pg-scrollable" data-page="about">
-<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
+<div id="promo-banner" class="promo-banner" style="display:none"><span data-i18n="promo.text">Your first pattern is free. No card needed.</span> <a href="/?step=1" data-i18n="promo.cta">Get Started →</a></div>
 <header class="hdr"><h1 id="hdr-logo"><a href="/" style="text-decoration:none;color:inherit;">People's Patterns</a></h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
-    <a href="/patterns">Patterns</a>
-    <a href="/learn">Learn</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/faq">FAQ</a>
-    <a href="/tester">Tester</a>
+    <a href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a href="/learn" data-i18n="nav.learn">Learn</a>
+    <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a href="/about" data-i18n="nav.about">About</a>
+    <a href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a href="/tester" data-i18n="nav.tester">Tester</a>
   </nav>
   <div id="hdr-lang-slot"></div>
-  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode" data-i18n-attr="aria-label:nav.toggle-dark">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
       <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
       <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
@@ -66,17 +66,17 @@
       <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
     </svg>
   </button>
-  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <button id="hdr-menu-btn" aria-label="Open menu" data-i18n-attr="aria-label:nav.open-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <nav id="hdr-nav-mobile">
   <div id="hdr-nav-m-auth-wrap"></div>
   <div class="hdr-nav-m-links">
-    <a class="hdr-nav-m-link" href="/">Home</a>
-    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
-    <a class="hdr-nav-m-link" href="/learn">Learn</a>
-    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
-    <a class="hdr-nav-m-link" href="/about">About</a>
-    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
-    <a class="hdr-nav-m-link" href="/tester">Tester</a>
+    <a class="hdr-nav-m-link" href="/" data-i18n="nav.home">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn" data-i18n="nav.learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about" data-i18n="nav.about">About</a>
+    <a class="hdr-nav-m-link" href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester" data-i18n="nav.tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -87,42 +87,42 @@
 <main class="pg-content about-pg">
 
   <section class="about-hero">
-    <h1 class="about-title">Patterns Made for Your Body,<br>Not a Size Chart</h1>
-    <p class="about-sub">People's Patterns generates sewing patterns from your measurements  - not from a standardized size that was never designed to fit you.</p>
+    <h1 class="about-title" data-i18n="about.hero-title">Patterns Made for Your Body,<br>Not a Size Chart</h1>
+    <p class="about-sub" data-i18n="about.hero-sub">People's Patterns generates sewing patterns from your measurements  - not from a standardized size that was never designed to fit you.</p>
   </section>
 
   <section class="about-section">
-    <h2 class="about-section-title">The Problem with Standard Sizes</h2>
-    <p class="about-body">Commercial sewing patterns are built on a small set of body proportions that represent no one perfectly. The result: you buy a size based on your widest measurement, then spend hours grading between sizes, adding a full seat adjustment, raising a back waist, shortening a rise, removing ease that doesn't belong. People's Patterns skips all of that.</p>
+    <h2 class="about-section-title" data-i18n="about.prob.h2">The Problem with Standard Sizes</h2>
+    <p class="about-body" data-i18n="about.prob.body">Commercial sewing patterns are built on a small set of body proportions that represent no one perfectly. The result: you buy a size based on your widest measurement, then spend hours grading between sizes, adding a full seat adjustment, raising a back waist, shortening a rise, removing ease that doesn't belong. People's Patterns skips all of that.</p>
   </section>
 
   <section class="about-section">
-    <h2 class="about-section-title">How It Works</h2>
+    <h2 class="about-section-title" data-i18n="about.how.h2">How It Works</h2>
     <ol class="about-steps">
-      <li><strong>Measure.</strong> Ten to fifteen measurements  - chest, waist, hip, rise, inseam, and a few more depending on the garment. Takes about ten minutes with a tape measure.</li>
-      <li><strong>Generate.</strong> Our parametric drafting engine calculates every seam, dart, and curve from your numbers. No lookup tables. The pattern is drawn fresh for your body.</li>
-      <li><strong>Sew.</strong> Download a print-ready tiled PDF, assemble the pages, and cut. Everything is labeled and includes construction instructions.</li>
+      <li data-i18n-html="about.how.step1"><strong>Measure.</strong> Ten to fifteen measurements  - chest, waist, hip, rise, inseam, and a few more depending on the garment. Takes about ten minutes with a tape measure.</li>
+      <li data-i18n-html="about.how.step2"><strong>Generate.</strong> Our parametric drafting engine calculates every seam, dart, and curve from your numbers. No lookup tables. The pattern is drawn fresh for your body.</li>
+      <li data-i18n-html="about.how.step3"><strong>Sew.</strong> Download a print-ready tiled PDF, assemble the pages, and cut. Everything is labeled and includes construction instructions.</li>
     </ol>
   </section>
 
   <section class="about-section">
-    <h2 class="about-section-title">The Patterns</h2>
+    <h2 class="about-section-title" data-i18n="about.patterns.h2">The Patterns</h2>
     <p class="about-body">We currently offer <span id="about-garment-count"></span> garments across menswear and womenswear - shorts, trousers, jeans, shirts, tops, skirts, and dresses. Every garment is priced by construction complexity: simple builds start at $9, detailed tailored pieces at $19. Your first pattern is free.</p>
-    <p class="about-body">Every pattern includes a tiled PDF for home printing, a full materials list, a stitch and notions guide, step-by-step instructions, and a scale verification page. Re-downloads are always free from your account.</p>
+    <p class="about-body" data-i18n="about.patterns.p2">Every pattern includes a tiled PDF for home printing, a full materials list, a stitch and notions guide, step-by-step instructions, and a scale verification page. Re-downloads are always free from your account.</p>
   </section>
 
   <section class="about-section">
-    <h2 class="about-section-title">Why I Built This</h2>
-    <p class="about-body">I sewed a garment from an AI-generated pattern. The fit was off and the instructions were terrible. So I tried drafting my own pattern from scratch. Turns out, pattern drafting is a mountain of math and it takes forever. All I wanted was a pair of shorts that fit me perfectly, made from good fabric, without spending a fortune.</p>
-    <p class="about-body">So I built the engine behind People's Patterns. It uses the same parametric drafting formulas that professional pattern makers rely on, but you get your pattern in seconds and at a price that makes sense for home sewists. The drafting engine is written from scratch using parametric geometry - no AI generation, no digital tracing of existing patterns.</p>
-    <p class="about-body">I sew every pattern myself before it ships. If it doesn't fit after you sew it correctly, I will personally help you fix it or refund you.</p>
+    <h2 class="about-section-title" data-i18n="about.why.h2">Why I Built This</h2>
+    <p class="about-body" data-i18n="about.why.p1">I sewed a garment from an AI-generated pattern. The fit was off and the instructions were terrible. So I tried drafting my own pattern from scratch. Turns out, pattern drafting is a mountain of math and it takes forever. All I wanted was a pair of shorts that fit me perfectly, made from good fabric, without spending a fortune.</p>
+    <p class="about-body" data-i18n="about.why.p2">So I built the engine behind People's Patterns. It uses the same parametric drafting formulas that professional pattern makers rely on, but you get your pattern in seconds and at a price that makes sense for home sewists. The drafting engine is written from scratch using parametric geometry - no AI generation, no digital tracing of existing patterns.</p>
+    <p class="about-body" data-i18n="about.why.p3">I sew every pattern myself before it ships. If it doesn't fit after you sew it correctly, I will personally help you fix it or refund you.</p>
     <p class="about-body">Reach me at <!--email_off--><a href="mailto:hello@peoplespatterns.com">hello@peoplespatterns.com</a><!--/email_off-->. I'm active on social media where I share what I make and how I make it.</p>
   </section>
 
   <section class="about-cta">
-    <h2 class="about-cta-title">Ready to try it?</h2>
-    <p class="about-cta-sub">Your first pattern is free. No credit card required.</p>
-    <a href="/?step=1" class="btn-pricing">Generate your first pattern free</a>
+    <h2 class="about-cta-title" data-i18n="about.cta.h2">Ready to try it?</h2>
+    <p class="about-cta-sub" data-i18n="about.cta.sub">Your first pattern is free. No credit card required.</p>
+    <a href="/?step=1" class="btn-pricing" data-i18n="about.cta.btn">Generate your first pattern free</a>
   </section>
 
 </main>

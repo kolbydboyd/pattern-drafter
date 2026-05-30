@@ -21,18 +21,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
+<div id="promo-banner" class="promo-banner" style="display:none"><span data-i18n="promo.text">Your first pattern is free. No card needed.</span> <a href="/?step=1" data-i18n="promo.cta">Get Started →</a></div>
 <div class="hdr"><h1 id="hdr-logo">People's Patterns</h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
-    <a href="/patterns">Patterns</a>
-    <a href="/learn">Learn</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/faq">FAQ</a>
-    <a href="/tester">Tester</a>
+    <a href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a href="/learn" data-i18n="nav.learn">Learn</a>
+    <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a href="/about" data-i18n="nav.about">About</a>
+    <a href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a href="/tester" data-i18n="nav.tester">Tester</a>
   </nav>
   <div id="hdr-lang-slot"></div>
-  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode" data-i18n-attr="aria-label:nav.toggle-dark">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
       <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
       <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
@@ -40,17 +40,17 @@
       <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
     </svg>
   </button>
-  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <button id="hdr-menu-btn" aria-label="Open menu" data-i18n-attr="aria-label:nav.open-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <nav id="hdr-nav-mobile">
   <div id="hdr-nav-m-auth-wrap"></div>
   <div class="hdr-nav-m-links">
-    <a class="hdr-nav-m-link" href="/">Home</a>
-    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
-    <a class="hdr-nav-m-link" href="/learn">Learn</a>
-    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
-    <a class="hdr-nav-m-link" href="/about">About</a>
-    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
-    <a class="hdr-nav-m-link" href="/tester">Tester</a>
+    <a class="hdr-nav-m-link" href="/" data-i18n="nav.home">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn" data-i18n="nav.learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about" data-i18n="nav.about">About</a>
+    <a class="hdr-nav-m-link" href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester" data-i18n="nav.tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -64,11 +64,11 @@
 
       <!-- Step 1: Enter code -->
       <div id="redeem-entry">
-        <h1 class="pg-title">Redeem Your Pattern Code</h1>
-        <p class="redeem-subtitle">Enter the code from your Etsy or Craftsy pattern download to get a free made-to-measure version.</p>
+        <h1 class="pg-title" data-i18n="redeem.h1">Redeem Your Pattern Code</h1>
+        <p class="redeem-subtitle" data-i18n="redeem.sub">Enter the code from your Etsy or Craftsy pattern download to get a free made-to-measure version.</p>
         <div class="redeem-input-row">
-          <input type="text" id="redeem-code-input" class="redeem-code-input" placeholder="PP-XXXX-XXXX" maxlength="12" autocomplete="off" spellcheck="false" autofocus>
-          <button id="redeem-validate-btn" class="redeem-validate-btn">Redeem</button>
+          <input type="text" id="redeem-code-input" class="redeem-code-input" placeholder="PP-XXXX-XXXX" maxlength="12" autocomplete="off" spellcheck="false" autofocus data-i18n-attr="placeholder:redeem.placeholder">
+          <button id="redeem-validate-btn" class="redeem-validate-btn" data-i18n="redeem.btn">Redeem</button>
         </div>
         <p id="redeem-msg" class="redeem-msg"></p>
       </div>
@@ -77,16 +77,16 @@
       <div id="redeem-success" hidden>
         <div class="success-check">&#10003;</div>
         <h1 class="pg-title">Your code unlocks a custom-fit <span id="redeem-garment-name"></span>!</h1>
-        <p class="redeem-subtitle">You bought the standard-size pattern. Now get one cut to <em>your</em> exact measurements — free with your code.</p>
+        <p class="redeem-subtitle" data-i18n="redeem.success.sub">You bought the standard-size pattern. Now get one cut to <em>your</em> exact measurements — free with your code.</p>
         <div class="redeem-how-it-works">
-          <div class="redeem-step"><span class="redeem-step-num">1</span><span>Enter your measurements</span></div>
-          <div class="redeem-step"><span class="redeem-step-num">2</span><span>Create a free account</span></div>
-          <div class="redeem-step"><span class="redeem-step-num">3</span><span>Download your custom pattern</span></div>
+          <div class="redeem-step"><span class="redeem-step-num">1</span><span data-i18n="redeem.step1">Enter your measurements</span></div>
+          <div class="redeem-step"><span class="redeem-step-num">2</span><span data-i18n="redeem.step2">Create a free account</span></div>
+          <div class="redeem-step"><span class="redeem-step-num">3</span><span data-i18n="redeem.step3">Download your custom pattern</span></div>
         </div>
         <div class="success-actions">
-          <a id="redeem-continue-btn" class="success-dl-btn" href="#">Get My Custom Pattern</a>
+          <a id="redeem-continue-btn" class="success-dl-btn" href="#" data-i18n="redeem.cta">Get My Custom Pattern</a>
         </div>
-        <p class="redeem-note">Your code won't be used until you download. No credit card needed.</p>
+        <p class="redeem-note" data-i18n="redeem.note">Your code won't be used until you download. No credit card needed.</p>
       </div>
 
     </div>

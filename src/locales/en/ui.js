@@ -128,7 +128,7 @@ export default {
   // ── Wizard step 2 (measurements) ─────────────────────────────────────────────
   'wiz.s2.title.body':    'Measurements',
   'wiz.s2.title.acc':     'Dimensions',
-  'wiz.s2.desc.body':     '{name}: flexible tape over underwear. Don’t pull tight.',
+  'wiz.s2.desc.body':     "{name}: flexible tape over underwear. Don’t pull tight.",
   'wiz.s2.desc.acc':      '{name}: enter your desired dimensions.',
   'wiz.s2.profiles':      '- saved profiles -',
   'wiz.s2.profile-name':  'Profile name',
@@ -278,7 +278,7 @@ export default {
   'pdf.scale.inches':       'Must be exactly 2 × 2 in',
   'pdf.scale.cm':           'Must be exactly 5 × 5 cm',
   'pdf.tile.assembly':      'Tile Assembly Map',
-  'pdf.drafted':            'Drafted {date} · People’s Patterns',
+  'pdf.drafted':            "Drafted {date} · People’s Patterns",
   'pdf.paper.letter':       'US Letter',
   'pdf.paper.legal':        'US Legal',
   'pdf.paper.a4':           'A4',

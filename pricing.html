@@ -78,18 +78,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body class="pg-scrollable" data-page="pricing">
-<div id="promo-banner" class="promo-banner" style="display:none">Your first pattern is free. No card needed. <a href="/?step=1">Get Started &rarr;</a></div>
+<div id="promo-banner" class="promo-banner" style="display:none"><span data-i18n="promo.text">Your first pattern is free. No card needed.</span> <a href="/?step=1" data-i18n="promo.cta">Get Started →</a></div>
 <header class="hdr"><h1 id="hdr-logo"><a href="/" style="text-decoration:none;color:inherit;">People's Patterns</a></h1><span class="v">made-to-measure sewing patterns</span>
   <nav id="hdr-nav-desktop">
-    <a href="/patterns">Patterns</a>
-    <a href="/learn">Learn</a>
-    <a href="/pricing">Pricing</a>
-    <a href="/about">About</a>
-    <a href="/faq">FAQ</a>
-    <a href="/tester">Tester</a>
+    <a href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a href="/learn" data-i18n="nav.learn">Learn</a>
+    <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a href="/about" data-i18n="nav.about">About</a>
+    <a href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a href="/tester" data-i18n="nav.tester">Tester</a>
   </nav>
   <div id="hdr-lang-slot"></div>
-  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode">
+  <button id="theme-btn" class="dark-mode-toggle" aria-label="Toggle dark mode" data-i18n-attr="aria-label:nav.toggle-dark">
     <svg class="dark-mode-toggle__icon" width="22" height="22" viewBox="0 0 24 24">
       <defs><mask id="dm-mask"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs>
       <circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask)"/>
@@ -97,17 +97,17 @@
       <g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="rotate(45 12 12)"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g>
     </svg>
   </button>
-  <button id="hdr-menu-btn" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  <button id="hdr-menu-btn" aria-label="Open menu" data-i18n-attr="aria-label:nav.open-menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
   <nav id="hdr-nav-mobile">
   <div id="hdr-nav-m-auth-wrap"></div>
   <div class="hdr-nav-m-links">
-    <a class="hdr-nav-m-link" href="/">Home</a>
-    <a class="hdr-nav-m-link" href="/patterns">Patterns</a>
-    <a class="hdr-nav-m-link" href="/learn">Learn</a>
-    <a class="hdr-nav-m-link" href="/pricing">Pricing</a>
-    <a class="hdr-nav-m-link" href="/about">About</a>
-    <a class="hdr-nav-m-link" href="/faq">FAQ</a>
-    <a class="hdr-nav-m-link" href="/tester">Tester</a>
+    <a class="hdr-nav-m-link" href="/" data-i18n="nav.home">Home</a>
+    <a class="hdr-nav-m-link" href="/patterns" data-i18n="nav.patterns">Patterns</a>
+    <a class="hdr-nav-m-link" href="/learn" data-i18n="nav.learn">Learn</a>
+    <a class="hdr-nav-m-link" href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    <a class="hdr-nav-m-link" href="/about" data-i18n="nav.about">About</a>
+    <a class="hdr-nav-m-link" href="/faq" data-i18n="nav.faq">FAQ</a>
+    <a class="hdr-nav-m-link" href="/tester" data-i18n="nav.tester">Tester</a>
   </div>
   <div class="hdr-nav-m-theme">
     <button id="theme-btn-m"><svg class="dark-mode-toggle__icon" width="18" height="18" viewBox="0 0 24 24"><defs><mask id="dm-mask-m"><rect x="0" y="0" width="100%" height="100%" fill="white"/><circle class="dark-mode-toggle__cut-out" r="6" cx="24" cy="10" fill="black"/></mask></defs><circle class="dark-mode-toggle__center-circle" r="6" cx="12" cy="12" fill="currentColor" mask="url(#dm-mask-m)"/><g class="dark-mode-toggle__rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="3" y2="1"/><line x1="21" x2="23" y1="12" y2="12"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="1" x2="3" y1="12" y2="12"/></g></svg> Toggle theme</button>
@@ -118,17 +118,17 @@
 <main class="pg-content pricing-pg">
 
   <section class="pricing-hero">
-    <h1 class="pricing-title">Simple, transparent pricing</h1>
-    <p class="pricing-sub">Every pattern is custom-drafted to your measurements. No subscriptions required to get started.</p>
+    <h1 class="pricing-title" data-i18n="pricing.h1">Simple, transparent pricing</h1>
+    <p class="pricing-sub" data-i18n="pricing.hero-sub">Every pattern is custom-drafted to your measurements. No subscriptions required to get started.</p>
 
     <div class="pricing-compare">
       <table>
-        <thead><tr><th></th><th>One-Time Purchase</th><th>Subscription</th></tr></thead>
+        <thead><tr><th></th><th data-i18n="pricing.compare.col1">One-Time Purchase</th><th data-i18n="pricing.compare.col2">Subscription</th></tr></thead>
         <tbody>
-          <tr><td>How it works</td><td>Buy individual patterns or bundles</td><td>Monthly credits, use on any pattern</td></tr>
-          <tr><td>Best for</td><td>Occasional sewists, specific projects</td><td>Regular sewists building a wardrobe</td></tr>
-          <tr><td>Price</td><td>$9 - $49 per purchase</td><td>$12 - $24/month</td></tr>
-          <tr><td>Credits expire?</td><td>Never</td><td>Roll over while active</td></tr>
+          <tr><td data-i18n="pricing.compare.how">How it works</td><td data-i18n="pricing.compare.how1">Buy individual patterns or bundles</td><td data-i18n="pricing.compare.how2">Monthly credits, use on any pattern</td></tr>
+          <tr><td data-i18n="pricing.compare.best">Best for</td><td data-i18n="pricing.compare.best1">Occasional sewists, specific projects</td><td data-i18n="pricing.compare.best2">Regular sewists building a wardrobe</td></tr>
+          <tr><td data-i18n="pricing.compare.price">Price</td><td>$9 - $49 per purchase</td><td>$12 - $24/month</td></tr>
+          <tr><td data-i18n="pricing.compare.expire">Credits expire?</td><td data-i18n="pricing.compare.expire1">Never</td><td data-i18n="pricing.compare.expire2">Roll over while active</td></tr>
         </tbody>
       </table>
     </div>
@@ -136,14 +136,14 @@
 
   <!-- Per-pattern tiers -->
   <section class="pricing-section">
-    <h2 class="pricing-section-title">Per-Pattern Prices</h2>
-    <p class="pricing-section-note">Buy one pattern at a time. Your purchase includes unlimited re-downloads, all paper formats, and construction instructions.</p>
+    <h2 class="pricing-section-title" data-i18n="pricing.per-pattern.h2">Per-Pattern Prices</h2>
+    <p class="pricing-section-note" data-i18n="pricing.per-pattern.note">Buy one pattern at a time. Your purchase includes unlimited re-downloads, all paper formats, and construction instructions.</p>
     <div class="pricing-tiers">
 
       <div class="pricing-tier">
-        <div class="pricing-tier-label">Simple</div>
+        <div class="pricing-tier-label" data-i18n="pricing.tier.simple">Simple</div>
         <div class="pricing-tier-price">$9</div>
-        <p class="pricing-tier-desc">Beginner-friendly builds with elastic waists and minimal shaping. Great first makes.</p>
+        <p class="pricing-tier-desc" data-i18n="pricing.tier.simple.desc">Beginner-friendly builds with elastic waists and minimal shaping. Great first makes.</p>
         <ul class="pricing-tier-examples">
           <li>Gym Shorts</li>
           <li>Swim Trunks</li>
@@ -152,14 +152,14 @@
           <li>Slip Skirt</li>
           <li>Easy Pant</li>
         </ul>
-        <a href="/?step=1" class="btn-pricing">Get Started</a>
+        <a href="/?step=1" class="btn-pricing" data-i18n="pricing.tier.btn">Get Started</a>
       </div>
 
       <div class="pricing-tier pricing-tier-featured">
-        <div class="pricing-tier-badge">Most popular</div>
-        <div class="pricing-tier-label">Core</div>
+        <div class="pricing-tier-badge" data-i18n="pricing.tier.badge">Most popular</div>
+        <div class="pricing-tier-label" data-i18n="pricing.tier.core">Core</div>
         <div class="pricing-tier-price">$14</div>
-        <p class="pricing-tier-desc">Everyday wardrobe staples with standard closures and moderate shaping.</p>
+        <p class="pricing-tier-desc" data-i18n="pricing.tier.core.desc">Everyday wardrobe staples with standard closures and moderate shaping.</p>
         <ul class="pricing-tier-examples">
           <li>Cargo Shorts</li>
           <li>Straight Jeans</li>
@@ -168,13 +168,13 @@
           <li>A-Line Skirt</li>
           <li>Shell Blouse + more</li>
         </ul>
-        <a href="/?step=1" class="btn-pricing">Get Started</a>
+        <a href="/?step=1" class="btn-pricing" data-i18n="pricing.tier.btn">Get Started</a>
       </div>
 
       <div class="pricing-tier">
-        <div class="pricing-tier-label">Tailored</div>
+        <div class="pricing-tier-label" data-i18n="pricing.tier.tailored">Tailored</div>
         <div class="pricing-tier-price">$19</div>
-        <p class="pricing-tier-desc">Detailed construction with pleats, darts, linings, and precision-fit shaping.</p>
+        <p class="pricing-tier-desc" data-i18n="pricing.tier.tailored.desc">Detailed construction with pleats, darts, linings, and precision-fit shaping.</p>
         <ul class="pricing-tier-examples">
           <li>Pleated Trousers</li>
           <li>Hoodie</li>
@@ -183,7 +183,7 @@
           <li>Shirt Dress</li>
           <li>Crop Jacket</li>
         </ul>
-        <a href="/?step=1" class="btn-pricing">Get Started</a>
+        <a href="/?step=1" class="btn-pricing" data-i18n="pricing.tier.btn">Get Started</a>
       </div>
 
     </div>
@@ -191,8 +191,8 @@
 
   <!-- Bundles -->
   <section class="pricing-section">
-    <h2 class="pricing-section-title">Bundle Packs</h2>
-    <p class="pricing-section-note">Buy multiple patterns together and save. Same measurements work across all patterns in a bundle.</p>
+    <h2 class="pricing-section-title" data-i18n="pricing.bundle.h2">Bundle Packs</h2>
+    <p class="pricing-section-note" data-i18n="pricing.bundle.note">Buy multiple patterns together and save. Same measurements work across all patterns in a bundle.</p>
     <div class="pricing-bundles">
 
       <div class="pricing-bundle">
@@ -214,8 +214,8 @@
 
   <!-- Curated Bundles -->
   <section class="pricing-section">
-    <h2 class="pricing-section-title">Curated Bundles</h2>
-    <p class="pricing-section-note">Hand-picked pattern collections that work together. All patterns included, no choices needed.</p>
+    <h2 class="pricing-section-title" data-i18n="pricing.curated.h2">Curated Bundles</h2>
+    <p class="pricing-section-note" data-i18n="pricing.curated.note">Hand-picked pattern collections that work together. All patterns included, no choices needed.</p>
     <div class="pricing-curated-grid">
 
       <div class="pricing-curated-card">
@@ -335,8 +335,8 @@
 
   <!-- Credit Packs -->
   <section class="pricing-section">
-    <h2 class="pricing-section-title">Credit Packs</h2>
-    <p class="pricing-section-note">Buy credits once, use any time. No subscription required. Credits never expire.</p>
+    <h2 class="pricing-section-title" data-i18n="pricing.credits.h2">Credit Packs</h2>
+    <p class="pricing-section-note" data-i18n="pricing.credits.note">Buy credits once, use any time. No subscription required. Credits never expire.</p>
     <div class="pricing-bundles">
 
       <div class="pricing-bundle">
@@ -351,13 +351,13 @@
 
   <!-- Memberships -->
   <section class="pricing-section">
-    <h2 class="pricing-section-title">Monthly Memberships</h2>
-    <p class="pricing-section-note">Credits roll over. Download any pattern any time  - credits never expire while your membership is active.</p>
+    <h2 class="pricing-section-title" data-i18n="pricing.membership.h2">Monthly Memberships</h2>
+    <p class="pricing-section-note" data-i18n="pricing.membership.note">Credits roll over. Download any pattern any time  - credits never expire while your membership is active.</p>
     <div class="pricing-memberships">
 
       <div class="pricing-membership">
         <div class="pricing-membership-name">Club</div>
-        <div class="pricing-membership-price">$12 <span class="pricing-per">/ month</span></div>
+        <div class="pricing-membership-price">$12 <span class="pricing-per" data-i18n="pricing.membership.per">/ month</span></div>
         <div class="pricing-membership-annual">or $120 / year (2 months free)</div>
         <ul class="pricing-membership-perks">
           <li>1 pattern credit per month</li>
@@ -365,14 +365,14 @@
           <li>Credits roll over</li>
           <li>Priority support</li>
         </ul>
-        <button class="btn-pricing-sm" data-plan="club_monthly">Subscribe Monthly</button>
-        <button class="btn-pricing-sm btn-pricing-alt" data-plan="club_annual">Subscribe Annually</button>
+        <button class="btn-pricing-sm" data-plan="club_monthly" data-i18n="pricing.btn.monthly">Subscribe Monthly</button>
+        <button class="btn-pricing-sm btn-pricing-alt" data-plan="club_annual" data-i18n="pricing.btn.annual">Subscribe Annually</button>
       </div>
 
       <div class="pricing-membership pricing-membership-featured">
-        <div class="pricing-membership-badge">Most Popular</div>
+        <div class="pricing-membership-badge" data-i18n="pricing.membership.badge">Most Popular</div>
         <div class="pricing-membership-name">Wardrobe</div>
-        <div class="pricing-membership-price">$24 <span class="pricing-per">/ month</span></div>
+        <div class="pricing-membership-price">$24 <span class="pricing-per" data-i18n="pricing.membership.per">/ month</span></div>
         <div class="pricing-membership-annual">or $240 / year (2 months free)</div>
         <ul class="pricing-membership-perks">
           <li>3 pattern credits per month</li>
@@ -381,8 +381,8 @@
           <li>Priority support</li>
           <li>Early access to new patterns</li>
         </ul>
-        <button class="btn-pricing-sm" data-plan="wardrobe_monthly">Subscribe Monthly</button>
-        <button class="btn-pricing-sm btn-pricing-alt" data-plan="wardrobe_annual">Subscribe Annually</button>
+        <button class="btn-pricing-sm" data-plan="wardrobe_monthly" data-i18n="pricing.btn.monthly">Subscribe Monthly</button>
+        <button class="btn-pricing-sm btn-pricing-alt" data-plan="wardrobe_annual" data-i18n="pricing.btn.annual">Subscribe Annually</button>
       </div>
 
     </div>
@@ -390,18 +390,18 @@
 
   <!-- What's included -->
   <section class="pricing-section pricing-includes">
-    <h2 class="pricing-section-title">Every pattern includes</h2>
+    <h2 class="pricing-section-title" data-i18n="pricing.includes.h2">Every pattern includes</h2>
     <ul class="pricing-includes-list">
-      <li>Print-ready tiled PDF  - US Letter, A4, and Tabloid</li>
-      <li>Full materials list with yardage estimates</li>
-      <li>Thread, needle, and stitch guide</li>
-      <li>Step-by-step construction instructions</li>
-      <li>Scale verification page</li>
-      <li>Unlimited re-downloads from your account</li>
+      <li data-i18n="pricing.includes.1">Print-ready tiled PDF  - US Letter, A4, and Tabloid</li>
+      <li data-i18n="pricing.includes.2">Full materials list with yardage estimates</li>
+      <li data-i18n="pricing.includes.3">Thread, needle, and stitch guide</li>
+      <li data-i18n="pricing.includes.4">Step-by-step construction instructions</li>
+      <li data-i18n="pricing.includes.5">Scale verification page</li>
+      <li data-i18n="pricing.includes.6">Unlimited re-downloads from your account</li>
     </ul>
   </section>
 
-  <div class="pricing-trust">Credits never expire. Unlimited re-downloads forever. Personal fit guarantee.</div>
+  <div class="pricing-trust" data-i18n="pricing.trust">Credits never expire. Unlimited re-downloads forever. Personal fit guarantee.</div>
 
 </main>
 

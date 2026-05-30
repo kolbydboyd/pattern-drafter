@@ -2990,7 +2990,7 @@ document.querySelectorAll('.js-pattern-count').forEach(el => {
 });
 
 // Newest patterns marquee on landing page - infinite continuous scroll
-(function loadNewestCarousel() {
+function loadNewestCarousel() {
   const track = document.getElementById('lp-newest-track');
   if (!track) return;
   const ids = getNewestGarmentIds(GARMENTS, 15);

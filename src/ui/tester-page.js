@@ -4,6 +4,7 @@
 import '../analytics.js';
 import './auth-modal.js';
 import { getUser, getSession, onAuthStateChange } from '../lib/auth.js';
+import { initLocale, loadLocale, applyI18nDOM } from '../lib/i18n.js';
 import {
   getTesterApplication,
   getFeaturedTesterSubmissions,
@@ -500,6 +501,8 @@ function _fitLabel(fit) {
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
+
+loadLocale(initLocale()).then(() => applyI18nDOM(document.body));
 
 _renderApplySection();
 _renderGallery();
