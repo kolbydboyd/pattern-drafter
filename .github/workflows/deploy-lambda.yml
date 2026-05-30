@@ -21,12 +21,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
+      - name: Install production dependencies
+        run: npm ci --omit=dev
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,15 +30,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Build
-        run: sam build --template lambda/template.yaml
-
-      - name: Deploy
+      - name: Package and deploy to Lambda
         run: |
-          sam deploy \
-            --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --stack-name peoples-patterns \
-            --region us-east-1 \
-            --capabilities CAPABILITY_IAM \
-            --resolve-s3
+          set -e
+
+          zip -r /tmp/lambda-package.zip lambda/ src/ node_modules/
+
+          ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+          BUCKET="peoples-patterns-deploy-${ACCOUNT}"
+          aws s3api create-bucket --bucket "$BUCKET" --region us-east-1 2>/dev/null || true
+          aws s3 cp /tmp/lambda-package.zip "s3://${BUCKET}/lambda-package.zip"
+
+          # Update GeneratePattern
+          aws lambda update-function-code \
+            --function-name peoples-patterns-generate \
+            --s3-bucket "$BUCKET" \
+            --s3-key lambda-package.zip
+          aws lambda wait function-updated --function-name peoples-patterns-generate
+          aws lambda update-function-configuration \
+            --function-name peoples-patterns-generate \
+            --handler lambda/generate-pattern.handler \
+            --runtime nodejs22.x \
+            --memory-size 1024 \
+            --timeout 60
+          aws lambda wait function-updated --function-name peoples-patterns-generate
+
+          # Update RegeneratePattern
+          aws lambda update-function-code \
+            --function-name peoples-patterns-regenerate \
+            --s3-bucket "$BUCKET" \
+            --s3-key lambda-package.zip
+          aws lambda wait function-updated --function-name peoples-patterns-regenerate
+          aws lambda update-function-configuration \
+            --function-name peoples-patterns-regenerate \
+            --handler lambda/regenerate-pattern.handler \
+            --runtime nodejs22.x \
+            --memory-size 1024 \
+            --timeout 60
+          aws lambda wait function-updated --function-name peoples-patterns-regenerate
