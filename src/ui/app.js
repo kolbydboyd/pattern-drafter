@@ -2861,6 +2861,16 @@ initAuthModal();
 // ── i18n DOM walker + lang switcher ──────────────────────────────────────────
 _localeReady.then(() => {
   applyI18nDOM(document.body);
+
+  // {count}-interpolated landing strings that can't use static data-i18n
+  const _cnt = Object.keys(GARMENTS).length;
+  const proofLine = document.querySelector('.lp-proof-line');
+  if (proofLine) proofLine.textContent = t('hero.proof-line', { count: _cnt });
+  const step1Desc = document.querySelector('.lp-steps-grid .lp-step-card:first-child .lp-step-desc');
+  if (step1Desc) step1Desc.textContent = t('how.step1.desc', { count: _cnt });
+  const viewAll = document.querySelector('.lp-featured-grid + p a');
+  if (viewAll) viewAll.textContent = t('featured.view-all', { count: _cnt });
+
   const langSlot = document.getElementById('hdr-lang-slot');
   if (langSlot) initLangSwitcher(langSlot);
 });
@@ -2941,25 +2951,29 @@ document.getElementById('lp-faq-accordion')?.addEventListener('click', e => {
 });
 
 // If arriving from /redeem page with a redemption code, open wizard at step 2 with garment locked
-if (_isRedemptionMode && _urlRedeemFlag) {
-  const sel = document.getElementById('garment-select');
-  if (sel) { sel.value = currentGarment; sel.disabled = true; }
-  showWizard();
-  buildInputs();
-  stepsCompleted = 1; // allow access to step 2
-  goToStep(2);
-}
 // If ?garment= was in the URL (non-redemption), open the wizard and pre-select it
-else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
-  const sel = document.getElementById('garment-select');
-  if (sel) sel.value = currentGarment;
-  showWizard();
-  buildInputs();
-  buildMeasureStep();
-  buildOptionsStep();
-  renderedGarment = currentGarment;
-  stepsCompleted = 1;
-  goToStep(2);
+// Both are gated on _localeReady so t() calls inside render functions use the correct locale.
+if (_isRedemptionMode && _urlRedeemFlag) {
+  _localeReady.then(() => {
+    const sel = document.getElementById('garment-select');
+    if (sel) { sel.value = currentGarment; sel.disabled = true; }
+    showWizard();
+    buildInputs();
+    stepsCompleted = 1;
+    goToStep(2);
+  });
+} else if (_urlGarmentParam && GARMENTS[_urlGarmentParam]) {
+  _localeReady.then(() => {
+    const sel = document.getElementById('garment-select');
+    if (sel) sel.value = currentGarment;
+    showWizard();
+    buildInputs();
+    buildMeasureStep();
+    buildOptionsStep();
+    renderedGarment = currentGarment;
+    stepsCompleted = 1;
+    goToStep(2);
+  });
 }
 
 // Real Makes gallery on home page — loads async, hidden if empty
