@@ -833,11 +833,12 @@ export function renderRectanglePieceSVG(piece) {
 
   // Cut line (outer, solid)
   // hemAtTop: hem above stitch line, SA below; otherwise SA above, hem (or SA) below
+  // onFold: fold is on the left edge — no SA there (a fold is not a seam)
   const topAllowance = hemAtTop ? hem : sa;
   const botAllowance = hemAtTop ? sa : (hem > 0 ? hem : sa);
-  const cutX = ox - sc(sa);
+  const cutX = onFold ? ox : ox - sc(sa);
   const cutY = oy - sc(topAllowance);
-  const cutW = sc(pieceW + 2 * sa);
+  const cutW = onFold ? sc(pieceW + sa) : sc(pieceW + 2 * sa);
   const cutH = sc(pieceL + topAllowance + botAllowance);
 
   // Stitch line (inner, dashed)
@@ -950,9 +951,11 @@ export function renderRectanglePieceSVG(piece) {
       : `${name?.toUpperCase()} × 2 (mirror)`;
   const saNote = hemAtTop
     ? `${fmtInches(hem)} hem at top (fold) · ${fmtInches(sa)} SA on 3 sides`
-    : hem > 0
-      ? `${fmtInches(sa)} SA · ${fmtInches(hem)} hem allowance`
-      : `${fmtInches(sa)} SA included`;
+    : onFold
+      ? `${fmtInches(sa)} SA on 3 sides · fold edge: no SA`
+      : hem > 0
+        ? `${fmtInches(sa)} SA · ${fmtInches(hem)} hem allowance`
+        : `${fmtInches(sa)} SA included`;
 
   return `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="background:#faf8f4">
     <defs><pattern id="gp${id}" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="7" cy="7" r=".4" fill="#eae6de"/></pattern></defs>
